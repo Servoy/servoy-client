@@ -1837,6 +1837,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return getFormModel();
 	}
 
+	private boolean destroyed = false;
+
 	public void destroy()
 	{
 		try
@@ -1900,6 +1902,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				scriptExecuter.destroy();
 			}
 			scriptExecuter = null;
+			destroyed = true;
 		}
 		catch (Exception e)
 		{
@@ -3469,6 +3472,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		tabSequence.fromAbstractToNamed();
 
 		view.start(application);
+		// make sure that the formscope is created to insert the elements in it.
+		getFormScope();
 		if (formScope != null)
 		{
 			hmChildrenJavaMembers = new HashMap<String, Object[]>();
@@ -4189,6 +4194,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	{
 		if (formScope == null)
 		{
+			if (destroyed)
+			{
+				Debug.error("Calling initForJSUsage on a destroyed form: " + this, new RuntimeException());
+				return null;
+			}
 			Context.enter();
 			try
 			{
@@ -4519,11 +4529,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	{
 		if (formModel != null)
 		{
-			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + formModel.getRecord(formModel.getSelectedIndex()) + "]"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + destroyed + "]"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 		}
 		else
 		{
-			return "FormController[form: " + getName() + "]"; //$NON-NLS-1$//$NON-NLS-2$
+			return "FormController[form: " + getName() + ",destroyed:" + destroyed + "]"; //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 
