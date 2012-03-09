@@ -91,7 +91,7 @@ public class ScriptVariableScope extends LazyCompilationScope
 		if (replacedNameType != null && replacedNameType.containsKey(name)) prevType = Utils.getAsInteger(replacedNameType.get(name));
 		else prevType = Utils.getAsInteger(nameType.get(name));
 		boolean existingWithSameType = (prevType == var.getVariableType());
-		if (!existingWithSameType || overwriteInitialValue)//if same as previos, then leave initial value, only happens in developer
+		if (!existingWithSameType || overwriteInitialValue)//if same as previous, then leave initial value, only happens in developer
 		{
 			nameType.put(name, new Integer(var.getVariableType()));
 			if (replacedNameType != null) replacedNameType.remove(name);
@@ -99,42 +99,35 @@ public class ScriptVariableScope extends LazyCompilationScope
 			if (initValue instanceof String)
 			{
 				String str = (String)initValue;
-				if (str.startsWith("\"") || str.startsWith("\'")) //$NON-NLS-1$ //$NON-NLS-2$
+				if (str.trim().length() > 0)
 				{
-					initValue = Utils.parseJSExpression(str);
-				}
-				else
-				{
-					if (str.trim().length() > 0)
+					int commentIndex = str.lastIndexOf("//"); //$NON-NLS-1$
+					if (commentIndex != -1)
 					{
-						int commentIndex = str.lastIndexOf("//"); //$NON-NLS-1$
-						if (commentIndex != -1)
+						int singleQuote = str.lastIndexOf('\'');
+						if (singleQuote < commentIndex)
 						{
-							int singleQuote = str.lastIndexOf('\'');
-							if (singleQuote < commentIndex)
+							int doubleQuote = str.lastIndexOf('"');
+							if (doubleQuote < commentIndex)
 							{
-								int doubleQuote = str.lastIndexOf('"');
-								if (doubleQuote < commentIndex)
+								int nextNewLine = str.indexOf('\n', commentIndex);
+								if (nextNewLine == -1 || str.lastIndexOf('\n') <= nextNewLine)
 								{
-									int nextNewLine = str.indexOf('\n', commentIndex);
-									if (nextNewLine == -1 || str.lastIndexOf('\n') <= nextNewLine)
-									{
-										str = str.substring(0, commentIndex).trim();
-										if (str.endsWith(";")) str = str.substring(0, str.length() - 1); //$NON-NLS-1$
-									}
+									str = str.substring(0, commentIndex).trim();
+									if (str.endsWith(";")) str = str.substring(0, str.length() - 1); //$NON-NLS-1$
 								}
 							}
 						}
-						str = '(' + str + ')'; // add brackets so that unnamed objects are evaluated correctly (otherwise it will give a syntax error) 
 					}
-					Integer linenumber = var.getSerializableRuntimeProperty(IScriptProvider.LINENUMBER);
-					String sourceName = var.getSerializableRuntimeProperty(IScriptProvider.FILENAME);
-					if (sourceName == null)
-					{
-						sourceName = name;
-					}
-					initValue = evalValue(name, str, sourceName, linenumber != null ? linenumber.intValue() : -1);
+					str = '(' + str + ')'; // add brackets so that unnamed objects are evaluated correctly (otherwise it will give a syntax error) 
 				}
+				Integer linenumber = var.getSerializableRuntimeProperty(IScriptProvider.LINENUMBER);
+				String sourceName = var.getSerializableRuntimeProperty(IScriptProvider.FILENAME);
+				if (sourceName == null)
+				{
+					sourceName = name;
+				}
+				initValue = evalValue(name, str, sourceName, linenumber != null ? linenumber.intValue() : -1);
 			}
 			putWithoutFireChange(name, initValue);
 			allIndex.put(new Integer(allIndex.size()), name);
