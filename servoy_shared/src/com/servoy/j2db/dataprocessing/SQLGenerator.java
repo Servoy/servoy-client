@@ -105,6 +105,7 @@ public class SQLGenerator
  */
 	private final IServiceProvider application;
 	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
+	private final boolean relatedNullSearchAddPkCondition;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -112,6 +113,7 @@ public class SQLGenerator
 	public SQLGenerator(IServiceProvider app)
 	{
 		application = app;
+		relatedNullSearchAddPkCondition = Utils.getAsBoolean(application.getSettings().getProperty("servoy.client.relatedNullSearchAddPkCondition", "true"));
 	}
 
 /*
@@ -1040,7 +1042,7 @@ public class SQLGenerator
 								{
 									// When a search on a related null-value is performed, we have to add a not-null check to the related pk to make sure
 									// the left outer join does not cause a match with the null value.
-									if (nullCheck != NULLCHECK_NONE && rfs.getRelations().size() > 0)
+									if (relatedNullSearchAddPkCondition && nullCheck != NULLCHECK_NONE && rfs.getRelations().size() > 0)
 									{
 										// in case of composite pk, checking only the first pk column is enough
 										Column firstForeignPKColumn = table.getRowIdentColumns().get(0);
