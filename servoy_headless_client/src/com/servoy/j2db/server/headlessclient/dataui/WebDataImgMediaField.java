@@ -641,11 +641,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		return true;
 	}
 
-	private String getImageId()
-	{
-		return getId() + "_1";
-	}
-
 	public class ImageDisplay extends WebBaseButton implements IResourceListener
 	{
 		private static final long serialVersionUID = 1L;
@@ -654,8 +649,6 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		{
 			super(application, scriptable, id);
 			setMediaOption(8 + 1);
-			final String elementId = getImageId();
-			add(new SimpleAttributeModifier("id", elementId)); //$NON-NLS-1$ 
 			add(new StyleAppendingModifier(new Model<String>()
 			{
 				private static final long serialVersionUID = 1L;
@@ -672,7 +665,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 				@Override
 				protected void respond(AjaxRequestTarget target)
 				{
-					target.appendJavascript("Servoy.Utils.fixMediaLocation('" + elementId + "'," + horizontalAlignment + ")");
+					target.appendJavascript("Servoy.Utils.fixMediaLocation('" + getMarkupId() + "'," + horizontalAlignment + ")");
 				}
 
 				@Override
@@ -812,6 +805,18 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 			super.onComponentTag(tag);
 			CharSequence url = urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
 			tag.put("src", Strings.replaceAll(getResponse().encodeURL(url), "&", "&amp;")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.Component#getMarkupId(boolean)
+		 */
+		@Override
+		public String getMarkupId(boolean createIfDoesNotExist)
+		{
+			// TODO Auto-generated method stub
+			return super.getMarkupId(createIfDoesNotExist);
 		}
 	}
 
