@@ -1744,10 +1744,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 		designModeBehavior.setDesignModeCallback(callback, formController);
 
-		if (callback != null)
-		{
-			uiRecreated = true;
-		}
+		// we need to recreate for both enabling and disabling of design mode
+		// for adding the client side js code when enabling, and for clearing the
+		// currently selected element when disabling
+		uiRecreated = true;
 	}
 
 	/**
