@@ -283,27 +283,27 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	}
 
 	private boolean wasEditable;
-	private boolean oldEditState;
 
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
 
+		boolean prevEditState = editState;
 		if (b)
 		{
-			editable = wasEditable;
-			editState = oldEditState;
+			setEditable(wasEditable);
 		}
 		else
 		{
 			wasEditable = editable;
-			oldEditState = editState;
 			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
 				setEditable(true);
 			}
 		}
+		editState = prevEditState;
 		eventExecutor.setValidationEnabled(b);
+		getStylePropertyChanges().setChanged();
 	}
 
 	public void setSelectOnEnter(boolean b)
