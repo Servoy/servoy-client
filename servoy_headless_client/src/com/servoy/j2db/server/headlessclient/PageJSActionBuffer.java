@@ -243,6 +243,11 @@ public class PageJSActionBuffer
 
 	public synchronized void triggerAjaxUpdate(MainPage mainPage, String triggerScript)
 	{
+		if (!hasAjaxUpdateTrigger(mainPage)) buffer2.add(new TriggerAjaxUpdateAction(mainPage, triggerScript));
+	}
+
+	public synchronized boolean hasAjaxUpdateTrigger(MainPage mainPage)
+	{
 		boolean alreadyThere = false;
 		for (TriggerAjaxUpdateAction a : buffer2)
 		{
@@ -252,7 +257,7 @@ public class PageJSActionBuffer
 				break;
 			}
 		}
-		if (!alreadyThere) buffer2.add(new TriggerAjaxUpdateAction(mainPage, triggerScript));
+		return alreadyThere;
 	}
 
 }
