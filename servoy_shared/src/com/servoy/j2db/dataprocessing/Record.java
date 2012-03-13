@@ -730,13 +730,17 @@ public class Record implements Scriptable, IRecordInternal
 
 	public IFoundSetInternal getRelatedFoundSet(String name)
 	{
-		Relation relation = ((FoundSetManager)parent.getFoundSetManager()).getApplication().getFlattenedSolution().getRelation(name);
-		if (relation == null || !relation.isValid())
+		if (name != null)
 		{
-			return null;
+			Relation relation = ((FoundSetManager)parent.getFoundSetManager()).getApplication().getFlattenedSolution().getRelation(name);
+			if (relation == null || !relation.isValid())
+			{
+				return null;
+			}
+			SQLSheet relatedSheet = parent.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
+			return getRelatedFoundSet(name, relatedSheet == null ? null : relatedSheet.getDefaultPKSort());//only used for related fields, sort is irrelevant
 		}
-		SQLSheet relatedSheet = parent.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
-		return getRelatedFoundSet(name, relatedSheet == null ? null : relatedSheet.getDefaultPKSort());//only used for related fields, sort is irrelevant
+		else return null;
 	}
 
 	public boolean isRelatedFoundSetLoaded(String relationName, String restName)
