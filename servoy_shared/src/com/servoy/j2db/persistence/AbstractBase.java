@@ -730,8 +730,8 @@ public abstract class AbstractBase implements IPersist
 	 * 
 	 * @return a clone from this object
 	 */
-	public IPersist cloneObj(ISupportChilds newParent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames)
-		throws RepositoryException
+	public IPersist cloneObj(ISupportChilds newParent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames,
+		boolean flattenOverrides) throws RepositoryException
 	{
 		ChangeHandler changeHandler = null;
 		if (newParent != null)
@@ -746,7 +746,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			throw new RepositoryException("cannot clone/copy without change handler"); //$NON-NLS-1$
 		}
-		AbstractBase clone = (AbstractBase)changeHandler.cloneObj(this, newParent);
+		AbstractBase clone = (AbstractBase)changeHandler.cloneObj(this, newParent, flattenOverrides);
 		if (changeName && clone instanceof ISupportUpdateableName && ((ISupportUpdateableName)clone).getName() != null)
 		{
 			int random = new Random().nextInt(1024);
@@ -765,7 +765,7 @@ public abstract class AbstractBase implements IPersist
 					IPersist element = it.next();
 					if (element instanceof IPersistCloneable)
 					{
-						((IPersistCloneable)element).cloneObj((ISupportChilds)clone, deep, validator, changeChildNames, changeChildNames);
+						((IPersistCloneable)element).cloneObj((ISupportChilds)clone, deep, validator, changeChildNames, changeChildNames, flattenOverrides);
 					}
 				}
 			}
@@ -996,6 +996,21 @@ public abstract class AbstractBase implements IPersist
 	public boolean isOverrideElement()
 	{
 		return hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && getExtendsID() > 0;
+	}
+
+	/**
+	 * Get the override hierarchy of this element as list [self, super, super.super, ...]
+	 */
+	public List<AbstractBase> getOverrideHierarchy()
+	{
+		List<AbstractBase> overrideHierarchy = new ArrayList<AbstractBase>(3);
+		IPersist superPersist = this;
+		while (superPersist instanceof AbstractBase)
+		{
+			overrideHierarchy.add((AbstractBase)superPersist);
+			superPersist = ((AbstractBase)superPersist).getSuperPersist();
+		}
+		return overrideHierarchy;
 	}
 
 	/** Check if this object has any overriding properties left.

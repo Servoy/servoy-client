@@ -91,7 +91,7 @@ public class JSBase<T extends AbstractBase>
 					{
 						parentPersist = ((AbstractBase)parentPersist).getSuperPersist();
 					}
-					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false);
+					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false, false);
 					baseComponent.copyPropertiesMap(null, true);
 					baseComponent.setExtendsID(parentPersist.getID());
 				}

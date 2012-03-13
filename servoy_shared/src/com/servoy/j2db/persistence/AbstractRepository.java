@@ -476,9 +476,9 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 * @see com.servoy.j2db.persistence.AbstractPersistFactory#initClone(com.servoy.j2db.persistence.IPersist, com.servoy.j2db.persistence.IPersist)
 	 */
 	@Override
-	public void initClone(IPersist clone, IPersist objToClone) throws RepositoryException
+	public void initClone(IPersist clone, IPersist objToClone, boolean flattenOverrides) throws RepositoryException
 	{
-		RepositoryHelper.initClone(clone, objToClone);
+		RepositoryHelper.initClone(clone, objToClone, flattenOverrides);
 	}
 
 	/**

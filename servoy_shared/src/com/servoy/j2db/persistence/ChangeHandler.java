@@ -70,12 +70,12 @@ public class ChangeHandler
 		return object;
 	}
 
-	IPersist cloneObj(IPersist objToClone, ISupportChilds newParent) throws RepositoryException
+	IPersist cloneObj(IPersist objToClone, ISupportChilds newParent, boolean flattenOverrides) throws RepositoryException
 	{
 		if (newParent == null) newParent = objToClone.getParent();//if null use current
 
 		IPersist clone = createNewObject(newParent, objToClone.getTypeID());
-		factory.initClone(clone, objToClone);
+		factory.initClone(clone, objToClone, flattenOverrides);
 		newParent.addChild(clone);
 		return clone;
 	}
