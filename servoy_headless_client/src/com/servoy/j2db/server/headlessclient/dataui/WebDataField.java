@@ -830,7 +830,16 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	@Override
 	protected String getModelValue()
 	{
-		return (getDefaultModelObject() == null ? null : getDefaultModelObjectAsString());
+		if (getDefaultModelObject() == null)
+		{
+			if (getValueList() != null)
+			{
+				int index = list.realValueIndexOf(null);
+				if (index != -1) return (String)getValueList().getElementAt(index);
+			}
+			return null;
+		}
+		else return getDefaultModelObjectAsString();
 	}
 
 	public Object getValueObject()
