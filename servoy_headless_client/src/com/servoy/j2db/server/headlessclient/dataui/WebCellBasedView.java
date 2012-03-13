@@ -3512,7 +3512,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (distributeToThisColumn)
 			{
 				Component c = elementToColumnIdentifierComponent.get(element);
-				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods)
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IScriptBaseMethods && c.isVisible())
 				{
 					IScriptBaseMethods ic = (IScriptBaseMethods)((IScriptableProvider)c).getScriptObject();
 					int thisDelta = delta * ic.js_getWidth() / totalWidthToStretch;
@@ -3549,6 +3549,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		for (IPersist element : elementToColumnIdentifierComponent.keySet())
 		{
 			Object scriptable = elementToColumnIdentifierComponent.get(element);
+			if (!((Component)scriptable).isVisible()) continue;
 			if (scriptable instanceof IScriptableProvider)
 			{
 				scriptable = ((IScriptableProvider)scriptable).getScriptObject();
