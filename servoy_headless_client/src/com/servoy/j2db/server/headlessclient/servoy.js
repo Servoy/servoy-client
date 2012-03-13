@@ -1971,11 +1971,18 @@ if (typeof(Servoy.Rollover) == "undefined")
 	{
 		imgUrl : null,
 		
-		onMouseOver: function (elementId,imageUrl)
+		onMouseOver: function (elementId,imageUrl,appendSizeToURL)
 		{
 			var el = document.getElementById(elementId);
 			imgUrl = el.src;
-			el.src = imageUrl;
+			if(appendSizeToURL)
+			{
+				el.src = imageUrl + '&w=' + el.offsetWidth + '&h=' + el.offsetHeight;
+			}
+			else
+			{
+				el.src = imageUrl;
+			}
 		},
 		
 		onMouseOut: function (elementId)
