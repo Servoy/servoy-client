@@ -2047,6 +2047,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				headers.recordSort(sortMap);
 			}
 		}
+
+		MainPage mp = table.findParent(MainPage.class);
+		if (mp != null) mp.triggerBrowserRequestIfNeeded();
 	}
 
 	public IStylePropertyChanges getStylePropertyChanges()

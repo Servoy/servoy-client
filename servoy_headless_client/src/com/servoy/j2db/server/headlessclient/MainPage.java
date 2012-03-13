@@ -2097,7 +2097,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	/**
 	 * If current request is not on this MainPage, then generate a JS that will trigger an ajax request on this page.
 	 */
-	private void triggerBrowserRequestIfNeeded()
+	public void triggerBrowserRequestIfNeeded()
 	{
 		if (!useAJAX) return;
 		RequestCycle rc = RequestCycle.get();
@@ -2106,7 +2106,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		if (!(tmp instanceof MainPage)) return; // can't find the page that generated this request 
 
 		MainPage requestMP = (MainPage)tmp;
-		if (requestMP != this)
+		if (requestMP != this && requestMP.jsActionBuffer != null && !requestMP.jsActionBuffer.hasAjaxUpdateTrigger(this))
 		{
 			// generate a JS script that when ran inside browser for requestMP it will trigger an ajax request on this main page;
 			// find common parent and then generate script
