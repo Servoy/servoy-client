@@ -28,10 +28,11 @@ public interface IPersistCloneable extends Cloneable
 	 * 
 	 * @param parent if parent is null, current parent is used,if parent supplied, it will create the clone under that parent
 	 * @param deep is specified, does deep clone if possible
-	 * @param validator needed to change name, if names must stay unueqe
-	 * @param changeChildNames specifies whether or not child names should be changed when cloning
+	 * @param validator needed to change name, if names must stay unique
 	 * @param changeName specifies whether or not this persist name should be changed when cloning
+	 * @param changeChildNames specifies whether or not child names should be changed when cloning
+	 * @param flattenOverride whether or not clone should be flattened version of original (when it is an override element) 
 	 */
-	public IPersist cloneObj(ISupportChilds parent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames)
+	public IPersist cloneObj(ISupportChilds parent, boolean deep, IValidateName validator, boolean changeName, boolean changeChildNames, boolean flattenOverride)
 		throws RepositoryException;
 }

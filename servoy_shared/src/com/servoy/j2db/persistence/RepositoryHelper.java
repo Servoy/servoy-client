@@ -140,13 +140,24 @@ public class RepositoryHelper
 		return retval;
 	}
 
-	public static void initClone(IPersist clone, IPersist original)
+	public static void initClone(IPersist clone, IPersist original, boolean flattenOverrides)
 	{
-		((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap(), false);
-		// reset the extendsid except for Forms those are 'real' properties
-		if (((AbstractBase)clone).isOverrideElement() && !(clone instanceof Form))
+		if (flattenOverrides && ((AbstractBase)original).isOverrideElement() && (!(original instanceof Form)))
 		{
-			((AbstractBase)clone).clearProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
+			// copy all properties from element hierarchy into copy, make copy non-override
+			List<AbstractBase> overrideHierarchy = ((AbstractBase)original).getOverrideHierarchy();
+
+			// top-most super-element first
+			for (int i = overrideHierarchy.size() - 1; i >= 0; i--)
+			{
+				((AbstractBase)clone).copyPropertiesMap(overrideHierarchy.get(i).getPropertiesMap(), false);
+			}
+			// no longer an override
+			((AbstractBase)clone).clearTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
+		}
+		else
+		{
+			((AbstractBase)clone).copyPropertiesMap(((AbstractBase)original).getPropertiesMap(), false);
 		}
 	}
 

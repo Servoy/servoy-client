@@ -50,7 +50,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 		uuid_element_id_map = new TreeBidiMap<UUID, Integer>();
 	}
 
-	public abstract void initClone(IPersist clone, IPersist objToClone) throws RepositoryException;
+	public abstract void initClone(IPersist clone, IPersist objToClone, boolean flattenOverrides) throws RepositoryException;
 
 	public int getElementIdForUUID(UUID uuid) throws RepositoryException
 	{
