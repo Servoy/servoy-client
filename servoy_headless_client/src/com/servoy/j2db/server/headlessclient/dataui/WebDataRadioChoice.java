@@ -228,8 +228,12 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		eventExecutor.setActionCmd(id, args);
 	}
 
+	private boolean wasEditable;
+
 	public void setValidationEnabled(boolean b)
 	{
+		if (eventExecutor.getValidationEnabled() == b) return;
+
 		if (vl.getFallbackValueList() != null)
 		{
 			if (b)
@@ -241,6 +245,21 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 				list.register(vl.getFallbackValueList());
 			}
 		}
+
+		boolean prevEditState = editState;
+		if (b)
+		{
+			setEditable(wasEditable);
+		}
+		else
+		{
+			wasEditable = editable;
+			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			{
+				setEditable(true);
+			}
+		}
+		editState = prevEditState;
 
 		eventExecutor.setValidationEnabled(b);
 	}
