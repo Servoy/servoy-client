@@ -13,12 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 
 import com.servoy.j2db.persistence.RelationItem;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
 
@@ -95,6 +96,32 @@ public class TableFilter implements Serializable
 	{
 		return this.name;
 	}
+
+	public boolean isContainedIn(Iterable<TableFilter> filters)
+	{
+		if (filters != null)
+		{
+			for (TableFilter tf : filters)
+			{
+				// do not use filters.contains(this) here, equality on the value (possible an array) would be incorrect
+				if (tf != null &&
+				/**/Utils.stringSafeEquals(tf.getName(), getName()) && //
+					Utils.stringSafeEquals(tf.getServerName(), getServerName()) && //
+					Utils.stringSafeEquals(tf.getTableName(), getTableName()) && //
+					Utils.stringSafeEquals(tf.getTableSQLName(), getTableSQLName()) && //
+					Utils.stringSafeEquals(tf.getDataprovider(), getDataprovider()) && //
+					tf.getOperator() == getOperator() && //
+					Utils.equalObjects(tf.getValue(), getValue()) //
+				)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 
 	@Override
 	public int hashCode()

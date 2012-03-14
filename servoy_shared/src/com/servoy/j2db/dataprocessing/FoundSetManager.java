@@ -967,10 +967,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			tableFilterParams.put(t.getServerName(), params = new ArrayList<TableFilter>());
 		}
-		params.add(filter);
 
-		refreshFoundSetsFromDB(getDataSource(t));
-		fireTableEvent(t);
+		if (!filter.isContainedIn(params)) // do not add the same filter, will add same AND-condition anyway 
+		{
+			params.add(filter);
+
+			refreshFoundSetsFromDB(getDataSource(t));
+			fireTableEvent(t);
+		}
 		return true;
 	}
 
