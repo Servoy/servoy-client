@@ -5171,6 +5171,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		if (filter.isContainedIn(foundSetFilters))
+		{
+			// do not add the same filter, will add same AND-condition anyway 
+			return true;
+		}
+
 		// create condition to check filter
 		ISQLCondition cond = SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), filter);
 		if (cond == null)
