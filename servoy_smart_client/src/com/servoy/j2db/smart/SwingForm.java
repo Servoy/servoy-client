@@ -1773,6 +1773,12 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 			public void componentHidden(ComponentEvent e)
 			{
+				Map<JComponent, int[][]> selection = selectionHandler.getSelection(DesignPanel.this);
+				if (selection.containsKey(e.getComponent()))
+				{
+					selection.remove(e.getComponent());
+					DesignPanel.this.repaint();
+				}
 			}
 		};
 
@@ -2171,6 +2177,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 		private boolean addSelectedComponent(Component component, Rectangle bounds)
 		{
+			if (component != null && !component.isVisible()) return false;
 			Object clientdesign_handles = null;
 			if (component instanceof IScriptableProvider && ((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponent)
 			{
