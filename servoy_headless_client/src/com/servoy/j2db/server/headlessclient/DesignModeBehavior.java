@@ -303,7 +303,10 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			}
 		}
 		WebEventExecutor.generateResponse(target, getComponent().getPage());
-		target.prependJavascript("Servoy.ClientDesign.reattach();");
+		if (onSelectComponent != null && onSelectComponent.isVisible())
+		{
+			target.prependJavascript("Servoy.ClientDesign.reattach();");
+		}
 	}
 
 	/**
