@@ -62,6 +62,11 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 */
 	public static final int HEADLESS_CLIENT = IApplication.HEADLESS_CLIENT;
 
+	/**
+	 * Constant returned by getApplicationType
+	 */
+	public static final int RUNTIME = IApplication.RUNTIME;
+
 
 	/**
 	 * Constant returned by getApplicationType
