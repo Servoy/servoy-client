@@ -751,9 +751,15 @@ public class WebEventExecutor extends BaseEventExecutor
 							{
 								target.addComponent(component);
 								generateDragAttach(component, target.getHeaderResponse());
-								if (!component.isVisible())
+								if (!component.isVisible() ||
+									(component instanceof WrapperContainer && !((WrapperContainer)component).getDelegate().isVisible()))
 								{
 									((IProviderStylePropertyChanges)component).getStylePropertyChanges().setRendered();
+									WebForm parentForm = component.findParent(WebForm.class);
+									if (parentForm != null && parentForm.isDesignMode())
+									{
+										target.appendJavascript("Servoy.ClientDesign.hideSelected('" + component.getMarkupId() + "')");
+									}
 								}
 								else
 								{

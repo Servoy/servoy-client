@@ -2398,6 +2398,18 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			   }
 			}
 			,0);
+		},
+		
+		hideSelected: function(elemId)
+		{
+			if(Servoy.ClientDesign.selectedElementId == elemId && Servoy.ClientDesign.selectedResizeElement)
+			{
+				Servoy.ClientDesign.selectedResizeElement.destroy();
+				Servoy.ClientDesign.selectedResizeElement = null;
+				Servoy.ClientDesign.selectedElementId = null;
+				
+				YAHOO.util.Dom.setStyle(YAHOO.util.Dom.get(elemId), 'display', 'none');
+			}
 		}
 	};
 }	
