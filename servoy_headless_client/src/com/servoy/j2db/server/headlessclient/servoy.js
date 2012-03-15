@@ -2163,24 +2163,38 @@ if (typeof(Servoy.Rollover) == "undefined")
 	{
 		imgUrl : null,
 		
-		onMouseOver: function (elementId,imageUrl,appendSizeToURL)
+		onMouseOver: function (elementId,imageUrl)
 		{
 			var el = document.getElementById(elementId);
 			imgUrl = el.src;
-			if(appendSizeToURL)
-			{
-				el.src = imageUrl + '&w=' + el.offsetWidth + '&h=' + el.offsetHeight;
-			}
-			else
-			{
-				el.src = imageUrl;
-			}
+			Servoy.Rollover.setImageSrc(el, imageUrl);
 		},
 		
 		onMouseOut: function (elementId)
 		{
 			var el = document.getElementById(elementId);
-			el.src = imgUrl;
+			Servoy.Rollover.setImageSrc(el, imgUrl);
+		},
+		
+		setImageSrc: function (el, imgURL)
+		{
+			// get w= and h= from el
+			var currentSrc = el.src;
+			var w = "", h = "";
+			var i;
+			if((i = currentSrc.indexOf("w=")) != -1)
+			{
+				while(i < currentSrc.length && currentSrc[i] != '&') w = w + currentSrc[i++];
+				imgURL = imgURL.replace(/w=[\d]+/, w);
+			}
+			
+			if((i = currentSrc.indexOf("h=")) != -1)
+			{
+				while(i < currentSrc.length && currentSrc[i] != '&') h = h + currentSrc[i++];
+				imgURL = imgURL.replace(/h=[\d]+/, h);
+			}
+						
+			el.src = imgURL;
 		}
 	}
 }

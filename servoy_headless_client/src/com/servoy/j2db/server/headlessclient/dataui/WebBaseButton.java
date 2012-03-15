@@ -964,16 +964,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				{
 					String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
 					String url = ""; //$NON-NLS-1$
-					boolean appendSizeToURL = false;
 					if (imageDisplay.getRolloverIconReference() != null && imageDisplay.getRolloverMedia() != null)
 					{
 						if (imageDisplay.getMediaOptions() != 0 && imageDisplay.getMediaOptions() != 1)
 						{
 							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
 								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-								imageDisplay.getMediaOptions() + "&l=" + //$NON-NLS-1$ 
+								imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getSize().width + "&h=" + imageDisplay.getSize().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
-							appendSizeToURL = true;
 						}
 						else
 						{
@@ -997,7 +995,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 						else url = imageDisplay.getRolloverUrl();
 					}
 
-					return "Servoy.Rollover.onMouseOver('" + imageDisplayComponent.getMarkupId() + "_img','" + url + "'," + appendSizeToURL + ")"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$  
+					return "Servoy.Rollover.onMouseOver('" + imageDisplayComponent.getMarkupId() + "_img','" + url + "')"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$  
 				}
 
 				@Override
