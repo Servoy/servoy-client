@@ -1987,6 +1987,7 @@ if (typeof(Servoy.Rollover) == "undefined")
 		setImageSrc: function (el, imgURL)
 		{
 			// get w= and h= from el
+			// we need to make sure width/height are from displayed element, see anchorlayout.js (there width/height is changed)
 			var currentSrc = el.src;
 			var w = "", h = "";
 			var i;
