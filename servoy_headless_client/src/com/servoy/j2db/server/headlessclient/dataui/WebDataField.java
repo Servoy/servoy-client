@@ -346,7 +346,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				getStylePropertyChanges().setValueChanged();
 			}
-		});
+		}, ((oldVal == null) && (newVal != null)));
 	}
 
 	public void setChangeCmd(String id, Object[] args)
@@ -416,6 +416,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 		if (eventExecutor.getValidationEnabled())
 		{
+			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Validation.detachDisplayEditFormat('" + getMarkupId() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
 			testFormats(new ITestFormatsCallback()
 			{
 				public void differentEditAndDisplay(String displayValue, String editValue)
@@ -423,13 +424,13 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					container.getHeaderResponse().renderOnDomReadyJavascript(
 						"Servoy.Validation.attachDisplayEditFormat('" + getMarkupId() + "', '" + displayValue + "','" + editValue + "')"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				}
-			});
+			}, false);
 		}
 
 	}
 
 	@SuppressWarnings("nls")
-	private void testFormats(ITestFormatsCallback callback)
+	private void testFormats(ITestFormatsCallback callback, boolean isChangedFromNullValue)
 	{
 		if (isValueValid())
 		{
@@ -453,7 +454,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			else if (Column.mapToDefaultType(dataType) == IColumnTypes.DATETIME && !parsedFormat.isMask())
 			{
 				Object value = getDefaultModelObject();
-				if (value == null && editable)
+				if (((value == null) || isChangedFromNullValue) && editable)
 				{
 					callback.differentEditAndDisplay("", parsedFormat.getDisplayFormat());
 				}
