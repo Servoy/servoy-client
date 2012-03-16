@@ -1994,6 +1994,9 @@ if (typeof(Servoy.Validation) == "undefined")
 {
 	Servoy.Validation=
 	{
+		displayEditFormOnFocus: new Array(),
+		displayEditFormOnBlur: new Array(),
+	
 		imposeMaxLength: function(obj, mlength)
 		{
 			if (obj.getAttribute && obj.value.length>mlength)
@@ -2057,7 +2060,7 @@ if (typeof(Servoy.Validation) == "undefined")
 			element.displayValue = displayValue;
 			element.editValue = editValue;
 			
-			var focusCallback = function(e)
+			Servoy.Validation.displayEditFormOnFocus[elementId] = function(e)
 			{
 				if (this.editValue != '')
 				{
@@ -2066,15 +2069,49 @@ if (typeof(Servoy.Validation) == "undefined")
 					Servoy.Utils.doSetCaretPosition(this,caret);
 				}
 			};
-			var blurCallback = function(e)
+			Servoy.Validation.displayEditFormOnBlur[elementId] = function(e)
 			{
 				if (this.editValue != '' && this.value == this.editValue)
 				{
 					this.value = this.displayValue;
 				}
 			};
-			Wicket.Event.add(element, "focus", focusCallback);
-			Wicket.Event.add(element, "blur", blurCallback);
+			Wicket.Event.add(element, "focus", Servoy.Validation.displayEditFormOnFocus[elementId]);
+			Wicket.Event.add(element, "blur", Servoy.Validation.displayEditFormOnBlur[elementId]);
+		},
+		
+		detachDisplayEditFormat: function(elementId)
+		{
+			var element = document.getElementById(elementId);
+
+			if(element)
+			{
+				if(Servoy.Validation.displayEditFormOnFocus[elementId])
+				{
+					if(element.removeEventListener)
+					{
+						element.removeEventListener('focus', Servoy.Validation.displayEditFormOnFocus[elementId], false);
+					}
+					else if(element.detachEvent)
+					{
+						element.detachEvent('onfocus', Servoy.Validation.displayEditFormOnFocus[elementId]);
+					}
+					Servoy.Validation.displayEditFormOnFocus[elementId] = null;
+				}
+	
+				if(Servoy.Validation.displayEditFormOnBlur[elementId])
+				{
+					if(element.removeEventListener)
+					{
+						element.removeEventListener('blur', Servoy.Validation.displayEditFormOnBlur[elementId], false);
+					}
+					else if (element.detachEvent)
+					{
+						element.detachEvent('onblur', Servoy.Validation.displayEditFormOnBlur[elementId]);
+					}
+					Servoy.Validation.displayEditFormOnBlur[elementId] = null;
+				}
+			}
 		},
 		
 		changeCase: function(element,e,upper)
