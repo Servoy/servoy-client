@@ -4045,12 +4045,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				isInNotify = true;
 
-				SafeArrayList<IRecordInternal> cachedRecords;
 				IDataSet pks;
 
 				synchronized (pksAndRecords)
 				{
-					cachedRecords = pksAndRecords.getCachedRecords();
 					pks = pksAndRecords.getPks();
 				}
 
@@ -4064,8 +4062,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						fsm.getTableFilterParams(sheet.getServerName(), pksAndRecords.getQuerySelectForReading()) == null)//does show all records, if so show record .. if not we whould have to go to the database to verify if the record does match our SQL
 					{
 						Object[] pk = r.getPK();
-						//check if im in new record
-						int newRec = -1;
+						//check if the new record's pk is already present in this foundset
 						int size;
 						synchronized (pksAndRecords)
 						{
@@ -4091,17 +4088,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 									}
 									if (equal)
 									{
-										newRec = i;
-										break;
+										return; // do nothing; this foundset (probably it was already refreshed by coincidence, or same foundset that generated the event)
 									}
-								}
-							}
-							if (newRec != -1 && cachedRecords != null)
-							{
-								IRecordInternal rec = cachedRecords.get(newRec);
-								if (rec != null && rec.getRawData() == r)
-								{
-									return;//do nothing is my own row via self join used in lookup 
 								}
 							}
 

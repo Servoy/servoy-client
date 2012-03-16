@@ -26,6 +26,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import com.servoy.j2db.IEventDelegator;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Event delegator for TableModelEvent and ListDataEvent.
@@ -180,6 +181,7 @@ public class TableAndListEventDelegate
 		}
 		else
 		{
+			Debug.trace("Listener invoked from non event dispatch thread.", new RuntimeException()); //$NON-NLS-1$
 			eventDelegator.invokeLater(runner);
 		}
 	}
