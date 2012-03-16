@@ -168,6 +168,39 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			}
 			sb.setLength(sb.length() - 1); //rollback last comma
 			sb.append("},'" + getCallbackUrl() + "')");
+
+			if (onSelectComponent != null && onSelectComponent.getName() != null)
+			{
+				Component bindedComponent = getComponent();
+				if (bindedComponent != null)
+				{
+					WebForm parentWebForm = bindedComponent.findParent(WebForm.class);
+					if (parentWebForm != null)
+					{
+						Component selectedComponent = (Component)parentWebForm.visitChildren(IComponent.class, new IVisitor<Component>()
+						{
+							public Object component(Component component)
+							{
+								if (onSelectComponent.getName().equals(((IComponent)component).getName()))
+								{
+									return component;
+								}
+								return IVisitor.CONTINUE_TRAVERSAL;
+							}
+
+						});
+						if (selectedComponent != null)
+						{
+							WrapperContainer selectedWrapper = selectedComponent.findParent(WrapperContainer.class);
+							if (selectedWrapper != null) selectedComponent = selectedWrapper;
+
+							sb.append(";Servoy.ClientDesign.selectedElementId='").append(selectedComponent.getMarkupId()).append(
+								"';Servoy.ClientDesign.reattach();");
+						}
+					}
+				}
+			}
+
 			response.renderOnDomReadyJavascript(sb.toString());
 
 //			if (dropMarkupIds.size() > 0)
@@ -237,6 +270,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					}
 					else
 					{
+						onSelectComponent = (IComponent)child;
 						target.appendJavascript("Servoy.ClientDesign.attachElement(document.getElementById('" + id + "'));");
 					}
 					return;
