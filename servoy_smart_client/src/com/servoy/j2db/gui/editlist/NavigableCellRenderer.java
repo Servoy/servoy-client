@@ -114,34 +114,24 @@ public class NavigableCellRenderer implements ListCellRenderer
 
 	private static Border cloneBorder(Border source, boolean isSelected, Component c)
 	{
-		if (source instanceof CompoundBorder)
+		if (isSelected)
 		{
-			CompoundBorder cb = (CompoundBorder)source;
-			Border outsideClone = cloneBorder(cb.getOutsideBorder(), isSelected, c);
-			Border insideClone = cloneBorder(cb.getInsideBorder(), false, c);
-			return new CompoundBorder(outsideClone, insideClone);
+			Insets originalBorderInsets = source.getBorderInsets(c);
+			Insets selectionBorderInsets = selectionBorder.getBorderInsets(c);
+			originalBorderInsets.top -= selectionBorderInsets.top;
+			originalBorderInsets.left -= selectionBorderInsets.left;
+			originalBorderInsets.bottom -= selectionBorderInsets.bottom;
+			originalBorderInsets.right -= selectionBorderInsets.right;
+			if (originalBorderInsets.top < 0) originalBorderInsets.top = 0;
+			if (originalBorderInsets.left < 0) originalBorderInsets.left = 0;
+			if (originalBorderInsets.bottom < 0) originalBorderInsets.bottom = 0;
+			if (originalBorderInsets.right < 0) originalBorderInsets.right = 0;
+			EmptyBorder theFiller = new EmptyBorder(originalBorderInsets);
+			return new CompoundBorder(selectionBorder, theFiller);
 		}
 		else
 		{
-			if (isSelected)
-			{
-				Insets originalBorderInsets = source.getBorderInsets(c);
-				Insets selectionBorderInsets = selectionBorder.getBorderInsets(c);
-				originalBorderInsets.top -= selectionBorderInsets.top;
-				originalBorderInsets.left -= selectionBorderInsets.left;
-				originalBorderInsets.bottom -= selectionBorderInsets.bottom;
-				originalBorderInsets.right -= selectionBorderInsets.right;
-				if (originalBorderInsets.top < 0) originalBorderInsets.top = 0;
-				if (originalBorderInsets.left < 0) originalBorderInsets.left = 0;
-				if (originalBorderInsets.bottom < 0) originalBorderInsets.bottom = 0;
-				if (originalBorderInsets.right < 0) originalBorderInsets.right = 0;
-				EmptyBorder theFiller = new EmptyBorder(originalBorderInsets);
-				return new CompoundBorder(selectionBorder, theFiller);
-			}
-			else
-			{
-				return new EmptyBorder(source.getBorderInsets(c));
-			}
+			return new EmptyBorder(source.getBorderInsets(c));
 		}
 	}
 
