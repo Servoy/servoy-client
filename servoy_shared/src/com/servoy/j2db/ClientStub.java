@@ -87,7 +87,21 @@ public class ClientStub implements IUserClient
 		{
 			public void run()
 			{
-				((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(dataSource);
+				Runnable r = new Runnable()
+				{
+					public void run()
+					{
+						((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(dataSource);
+					}
+				};
+				if (client.isEventDispatchThread())
+				{
+					r.run();
+				}
+				else
+				{
+					client.invokeLater(r);
+				}
 			}
 		});
 	}
