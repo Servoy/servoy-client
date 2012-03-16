@@ -57,6 +57,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -1456,6 +1457,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	private JComponent realLeadingGrandSummary = null;
 	private JComponent realTrailingGrandSummary = null;
 
+	private final WeakHashMap<DesignModeCallbacks, SelectionHandler> designModeSelectionHandlers = new WeakHashMap<DesignModeCallbacks, SwingForm.SelectionHandler>();
+
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#setDesignMode(boolean)
 	 */
@@ -1470,8 +1473,14 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			pane.setSize(realViewPort.getSize());
 			pane.add(realViewPort, new Integer(1));
 
-			SelectionHandler sh = new SelectionHandler();
-			final DesignPanel panel = new DesignPanel(realViewPort, callback, formController, sh);
+			SelectionHandler sh = designModeSelectionHandlers.get(callback);
+			if (sh == null)
+			{
+				sh = new SelectionHandler();
+				designModeSelectionHandlers.put(callback, sh);
+			}
+
+			final DesignPanel panel = new DesignPanel(DesignPanel.VIEW_TYPE.VIEWPORT, realViewPort, callback, formController, sh);
 			pane.add(panel, new Integer(2));
 
 			setViewportView(pane);
@@ -1479,7 +1488,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (header != null)
 			{
 				realHeader = header;
-				DesignPanel designPanel = new DesignPanel(realHeader, callback, formController, sh);
+				DesignPanel designPanel = new DesignPanel(DesignPanel.VIEW_TYPE.HEADER, realHeader, callback, formController, sh);
 				JLayeredPane layer = new JLayeredPane();
 				layer.setLayout(new LayeredPaneLayout());
 				layer.setPreferredSize(realHeader.getPreferredSize());
@@ -1491,7 +1500,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (titleHeader != null)
 			{
 				realTitleHeader = titleHeader;
-				DesignPanel designPanel = new DesignPanel(realTitleHeader, callback, formController, sh);
+				DesignPanel designPanel = new DesignPanel(DesignPanel.VIEW_TYPE.TITLE_HEADER, realTitleHeader, callback, formController, sh);
 				JLayeredPane layer = new JLayeredPane();
 				layer.setLayout(new LayeredPaneLayout());
 				layer.setPreferredSize(realTitleHeader.getPreferredSize());
@@ -1503,7 +1512,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (footer != null)
 			{
 				realFooter = footer;
-				DesignPanel designPanel = new DesignPanel(realFooter, callback, formController, sh);
+				DesignPanel designPanel = new DesignPanel(DesignPanel.VIEW_TYPE.FOOTER, realFooter, callback, formController, sh);
 				JLayeredPane layer = new JLayeredPane();
 				layer.setLayout(new LayeredPaneLayout());
 				layer.setPreferredSize(realFooter.getPreferredSize());
@@ -1517,7 +1526,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (leadingGrandSummary != null)
 			{
 				realLeadingGrandSummary = leadingGrandSummary;
-				DesignPanel designPanel = new DesignPanel(realLeadingGrandSummary, callback, formController, sh);
+				DesignPanel designPanel = new DesignPanel(DesignPanel.VIEW_TYPE.LEADING_GRAND_SUMMARY, realLeadingGrandSummary, callback, formController, sh);
 				JLayeredPane layer = new JLayeredPane();
 				layer.setLayout(new LayeredPaneLayout());
 				layer.setPreferredSize(realLeadingGrandSummary.getPreferredSize());
@@ -1529,7 +1538,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (trailingGrandSummary != null)
 			{
 				realTrailingGrandSummary = trailingGrandSummary;
-				DesignPanel designPanel = new DesignPanel(realTrailingGrandSummary, callback, formController, sh);
+				DesignPanel designPanel = new DesignPanel(DesignPanel.VIEW_TYPE.TRAILING_GRAND_SUMMARY, realTrailingGrandSummary, callback, formController, sh);
 				JLayeredPane layer = new JLayeredPane();
 				layer.setLayout(new LayeredPaneLayout());
 				layer.setPreferredSize(realTrailingGrandSummary.getPreferredSize());
@@ -1723,6 +1732,12 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	private static class DesignPanel extends JPanel implements MouseListener, MouseMotionListener, AncestorListener
 	{
+		enum VIEW_TYPE
+		{
+			VIEWPORT, HEADER, TITLE_HEADER, FOOTER, LEADING_GRAND_SUMMARY, TRAILING_GRAND_SUMMARY
+		}
+
+		private final VIEW_TYPE viewType;
 		private final JComponent realViewPort;
 
 		private int dragMode;
@@ -1774,8 +1789,10 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			}
 		};
 
-		public DesignPanel(JComponent realViewPort, DesignModeCallbacks callback, FormController controller, SelectionHandler selectionHandler)
+		public DesignPanel(VIEW_TYPE viewType, JComponent realViewPort, DesignModeCallbacks callback, FormController controller,
+			SelectionHandler selectionHandler)
 		{
+			this.viewType = viewType;
 			this.realViewPort = realViewPort;
 			this.callback = callback;
 			this.controller = controller;
@@ -1788,9 +1805,58 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			setPreferredSize(realViewPort.getPreferredSize());
 			setSize(realViewPort.getSize());
 
+			DesignPanel selectedDesignPanel = selectionHandler.getSelectedPanel();
+			if (selectedDesignPanel != null && selectedDesignPanel.getViewType() == viewType && selectedDesignPanel.getFormController() == controller)
+			{
+				selectionHandler.setSelectedPanel(this);
+				Map<JComponent, int[][]> selectionMap = DesignPanel.this.selectionHandler.getSelection(DesignPanel.this);
+				JComponent[] selectedComps = selectionMap.keySet().toArray(new JComponent[selectionMap.size()]);
+
+				String selectedCompName;
+				Component realSelectedComp;
+				for (JComponent selectedComp : selectedComps)
+				{
+					selectionMap.remove(selectedComp);
+					if ((selectedCompName = selectedComp.getName()) != null)
+					{
+						realSelectedComp = findComponentByName(selectedCompName, realViewPort);
+						if (realSelectedComp != null)
+						{
+							addSelectedComponent(realSelectedComp, realSelectedComp.getBounds());
+						}
+					}
+				}
+			}
+
 			attachComponentListener(realViewPort);
 		}
 
+		VIEW_TYPE getViewType()
+		{
+			return viewType;
+		}
+
+		FormController getFormController()
+		{
+			return controller;
+		}
+
+		private Component findComponentByName(String name, Component container)
+		{
+			if (name.equals(container.getName())) return container;
+
+			if (container instanceof Container)
+			{
+				Component namedComp = null;
+				for (Component c : ((Container)container).getComponents())
+				{
+					namedComp = findComponentByName(name, c);
+					if (namedComp != null) return namedComp;
+				}
+			}
+
+			return null;
+		}
 
 		private void attachComponentListener(Container comp)
 		{
@@ -2407,6 +2473,15 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			selectedPanel = panel;
 			return selectedComponents;
 		}
-	}
 
+		DesignPanel getSelectedPanel()
+		{
+			return selectedPanel;
+		}
+
+		void setSelectedPanel(DesignPanel designPanel)
+		{
+			selectedPanel = designPanel;
+		}
+	}
 }

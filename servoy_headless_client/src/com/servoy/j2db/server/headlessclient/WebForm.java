@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.WeakHashMap;
 
 import javax.print.Doc;
 import javax.print.DocFlavor;
@@ -1648,6 +1649,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return null;
 	}
 
+	private final WeakHashMap<DesignModeCallbacks, DesignModeBehavior> designModeBehaviors = new WeakHashMap<DesignModeCallbacks, DesignModeBehavior>();
+
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#setDesignMode(com.servoy.j2db.DesignModeCallbacks)
 	 */
@@ -1678,11 +1681,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 		});
 
+		designModeBehavior = designModeBehaviors.get(callback);
 		if (designModeBehavior == null)
 		{
 			designModeBehavior = new DesignModeBehavior();
+			designModeBehaviors.put(callback, designModeBehavior);
+
+			List<DesignModeBehavior> designModeBehaviorsList = getBehaviors(DesignModeBehavior.class);
+			if (designModeBehaviorsList != null)
+			{
+				for (DesignModeBehavior dmb : designModeBehaviorsList)
+					remove(dmb);
+			}
 			add(designModeBehavior);
 		}
+
 
 		designModeBehavior.setDesignModeCallback(callback, formController);
 
