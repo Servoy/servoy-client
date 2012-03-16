@@ -743,7 +743,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 		try
 		{
+			RequestCycle rc = RequestCycle.get();
 			closing = true;
+
+			// disable ajax (databroadcasting) timer requests for all pages of this client or they might generate error pages
+			// if the timer triggers before the page redirect happens (for slow connections to redirect pages)
+			List<String> disableTimersJSs = disableAJAXTimersJS(rc);
 
 			MainPage mp = getMainPage();
 			MainPage.ShowUrlInfo showUrlInfo = mp.getShowUrlInfo();
@@ -751,6 +756,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			boolean retval = super.closeSolution(force, args);
 			if (retval)
 			{
+				if (disableTimersJSs != null)
+				{
+					for (String js : disableTimersJSs)
+					{
+						((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(js);
+					}
+				}
 				// close all windows
 				getRuntimeWindowManager().closeFormInWindow(null, true);
 
@@ -766,7 +778,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				getRuntimeProperties().put(IServiceProvider.RT_OVERRIDESTYLE_CACHE, null);
 
 				// what page should be shown next in browser?
-				RequestCycle rc = RequestCycle.get();
 				if (rc != null)
 				{
 					boolean showDefault = true;
@@ -781,7 +792,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						}
 						if (rc.getRequestTarget() instanceof AjaxRequestTarget)
 						{
-							showUrlInfo.setExit(true);
 							showUrlInfo.setOnRootFrame(true);
 							showUrlInfo.setUseIFrame(false);
 							String show = MainPage.getShowUrlScript(showUrlInfo);
@@ -808,7 +818,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								{
 									CharSequence urlFor = mp.urlFor(SelectSolution.class, null);
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
-										"_self", null, 0, true, false, true)));
+										"_self", null, 0, true, false)));
 								}
 								else
 								{
@@ -833,7 +843,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 								{
 									CharSequence urlFor = mp.urlFor(SolutionLoader.class, new PageParameters(map));
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
-										"_self", null, 0, true, false, true)));
+										"_self", null, 0, true, false)));
 								}
 								else
 								{
@@ -850,6 +860,30 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			closing = false;
 		}
+	}
+
+	private List<String> disableAJAXTimersJS(RequestCycle rc)
+	{
+		List<String> disableAJAXJSs = null;
+		if (rc != null && rc.getRequestTarget() instanceof AjaxRequestTarget)
+		{
+			FormManager fm = (FormManager)getFormManager();
+			if (fm != null)
+			{
+				List<String> all = fm.getCreatedMainContainerKeys();
+				disableAJAXJSs = new ArrayList<String>(all.size());
+				for (String key : all)
+				{
+					MainPage page = (MainPage)fm.getMainContainer(key);
+					if (page != null) // should always be so
+					{
+						disableAJAXJSs.add(page.getDisableAjaxTimerJS());
+					}
+				}
+				return disableAJAXJSs;
+			}
+		}
+		return disableAJAXJSs;
 	}
 
 	@Override

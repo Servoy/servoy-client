@@ -121,6 +121,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.OrientationApplier;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -327,7 +328,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				@Override
 				protected CharSequence getPreconditionScript()
 				{
-					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging && !showurlCalled;"; //$NON-NLS-1$
+					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging && Servoy.ajaxTimerEnabled;"; //$NON-NLS-1$
 				}
 
 				/**
@@ -1296,8 +1297,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					url = RequestUtils.toAbsolutePath(url);
 				}
-				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + "," + showUrlInfo.exit +
-					");";
+				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + ");";
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_top"))
 			{
@@ -1893,14 +1893,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		private final int timeout;
 		private boolean onRootFrame;
 		private boolean useIFrame;
-		private boolean exit;
 
 		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean onRootFrame, boolean useIFrame)
-		{
-			this(url, target, target_options, timeout, onRootFrame, useIFrame, false);
-		}
-
-		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean onRootFrame, boolean useIFrame, boolean exit)
 		{
 			this.url = url;
 			this.useIFrame = useIFrame;
@@ -1908,7 +1902,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			this.target_options = target_options;
 			this.timeout = timeout * 1000;
 			this.onRootFrame = onRootFrame;
-			this.exit = exit;
 		}
 
 		public String getUrl()
@@ -1919,11 +1912,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		public String getTarget()
 		{
 			return target;
-		}
-
-		public void setExit(boolean exit)
-		{
-			this.exit = exit;
 		}
 
 		public void setUseIFrame(boolean useIFrame)
@@ -2129,23 +2117,72 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	/**
 	 * If current request is not on this MainPage, then generate a JS that will trigger an ajax request on this page.
 	 */
+	@SuppressWarnings("nls")
 	public void triggerBrowserRequestIfNeeded()
 	{
 		if (!useAJAX) return;
-		RequestCycle rc = RequestCycle.get();
-		if (rc == null) return; // can't find the page that generated this request
-		Page tmp = rc.getResponsePage();
-		if (!(tmp instanceof MainPage)) return; // can't find the page that generated this request 
-
-		MainPage requestMP = (MainPage)tmp;
-		if (requestMP != this && requestMP.jsActionBuffer != null && !requestMP.jsActionBuffer.hasAjaxUpdateTrigger(this))
+		MainPage requestMP = getRequestMainPage();
+		if (requestMP != null && requestMP.jsActionBuffer != null && !requestMP.jsActionBuffer.hasAjaxUpdateTrigger(this))
 		{
+			Pair<String, MainPage> goToCorrectWindow = getWindowScopeBrowserScript(requestMP);
 			// generate a JS script that when ran inside browser for requestMP it will trigger an ajax request on this main page;
+			if (goToCorrectWindow != null && goToCorrectWindow.getRight() != this)
+			{
+				String triggerScript = "try { " + goToCorrectWindow.getLeft() + "triggerAjaxUpdate(); } catch(ignore) {}";
+				goToCorrectWindow.getRight().jsActionBuffer.triggerAjaxUpdate(this, triggerScript);
+			}
+		}
+	}
+
+	/**
+	 * This will get the JS needed to disable the browser side timer code at once, NO MATTER WHICH PAGE THE CURRENT REQUEST IS ON.
+	 * It will try to go through browser-side JS (through IFrame/window hierarchies) so that it alters this MainPage,
+	 * even if the currently running request is on another page.
+	 */
+	@SuppressWarnings("nls")
+	public String getDisableAjaxTimerJS()
+	{
+		String script = null;
+		if (useAJAX)
+		{
+			Pair<String, MainPage> goToCorrectWindow = getWindowScopeBrowserScript(getRequestMainPage());
+			// generate a JS script that will disable AJAX timer requests on this page
+			if (goToCorrectWindow != null)
+			{
+				String s = goToCorrectWindow.getLeft();
+				String scope = (s.length() == 0) ? "this" : s.substring(0, s.length() - 1);
+				script = "try { " + s + "Servoy.ajaxTimerEnabled = false; " + s + "wicketHide.call(" + scope + ", 'indicator'); } catch(ignore) {}";
+			}
+		}
+		return script;
+	}
+	
+	private MainPage getRequestMainPage()
+	{
+		RequestCycle rc = RequestCycle.get();
+		if (rc == null) return null; // can't find the page that generated this request
+		Page tmp = rc.getResponsePage();
+		if (!(tmp instanceof MainPage)) return null; // can't find the page that generated this request 
+
+		return (MainPage)tmp;
+	}
+
+	/**
+	 * Creates a browser javascript snippet that, when evaluated in the scriptExecutionMP (current request's main page) it will point to this MainPage's window object in the browser.
+	 * @return the code snippet pointing to this MainPage's browser window from the scriptExecutionMP (current request's MainPage). The snippet will end with "." if it's not an empty String. It will return null if a way to access the desired window scope was not found.
+	 */
+	@SuppressWarnings("nls")
+	private Pair<String, MainPage> getWindowScopeBrowserScript(MainPage scriptExecutionMP)
+	{
+		if (scriptExecutionMP == null) return null;
+		if (scriptExecutionMP != this)
+		{
+			// generate a JS script that when ran inside browser for requestMP it will point to this main page;
 			// find common parent and then generate script
 			ArrayList<MainPage> requestMPsParents = new ArrayList<MainPage>();
 			ArrayList<MainPage> thisMPsParents = new ArrayList<MainPage>();
 
-			MainPage mp = requestMP;
+			MainPage mp = scriptExecutionMP;
 			while (mp != null && mp != this)
 			{
 				requestMPsParents.add(mp);
@@ -2165,18 +2202,18 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			{
 				// found common parent; idx is the index in request page's parent array
 				boolean ok = true;
-				String triggerScript = "try{";
+				String goToCorrectScopeScript = "";
 				for (int i = 0; i < idx && ok; i++)
 				{
 					// window.opener/parent depending on window type
 					mp = requestMPsParents.get(i);
 					if (mp.isShowingInDialog())
 					{
-						triggerScript += "window.parent.";
+						goToCorrectScopeScript += "window.parent.";
 					}
 					else if (mp.isShowingInWindow())
 					{
-						triggerScript += "window.opener.";
+						goToCorrectScopeScript += "window.opener.";
 					}
 					else ok = false; // some windows in the window chain are closed...
 				}
@@ -2187,20 +2224,19 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					if (mp.isShowingInDialog())
 					{
 						ServoyDivDialog dw = mp.callingContainer.divDialogs.get(mp.getPageMapName());
-						if (dw != null) triggerScript += "Wicket.DivWindow.openWindows['" + dw.getJSId() + "'].content.contentWindow.";
+						if (dw != null) goToCorrectScopeScript += "Wicket.DivWindow.openWindows['" + dw.getJSId() + "'].content.contentWindow.";
 						else ok = false;
 					}
 					else if (mp.isShowingInWindow())
 					{
-						triggerScript += MainPage.getValidJSVariableName(mp.getPageMapName()) + ".";
+						goToCorrectScopeScript += MainPage.getValidJSVariableName(mp.getPageMapName()) + ".";
 					}
 					else ok = false; // some windows in the window chain are closed...
 				}
 
 				if (ok)
 				{
-					triggerScript += "triggerAjaxUpdate();}catch(ignore){}";
-					requestMP.jsActionBuffer.triggerAjaxUpdate(this, triggerScript);
+					return new Pair<String, MainPage>(goToCorrectScopeScript, scriptExecutionMP);
 				}
 				else
 				{
@@ -2208,8 +2244,12 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 			}
 		}
+		else
+		{
+			return new Pair<String, MainPage>("", this); // the request's page is actually this page; so we are already in the correct scope
+		}
+		return null;
 	}
-
 
 	public int getX()
 	{
