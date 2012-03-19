@@ -400,11 +400,6 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(property.getPropertyName());
 	}
 
-	public boolean isEmpty()
-	{
-		return propertiesMap.size() == 0;
-	}
-
 	/*
 	 * _____________________________________________________________ Methods from IPersist
 	 */

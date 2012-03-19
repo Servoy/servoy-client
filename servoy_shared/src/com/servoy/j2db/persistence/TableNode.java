@@ -504,6 +504,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, arg);
 	}
 
+	public boolean isEmpty()
+	{
+		return (!getAllObjects().hasNext() && getOnInsertMethodID() == 0 && getOnUpdateMethodID() == 0 && getOnDeleteMethodID() == 0 &&
+			getOnAfterInsertMethodID() == 0 && getOnAfterUpdateMethodID() == 0 && getOnAfterDeleteMethodID() == 0);
+	}
+
 	public ScriptCalculation getScriptCalculation(String name)
 	{
 		if (name == null) return null;
