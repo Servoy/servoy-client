@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.rmi.RemoteException;
 import java.util.Iterator;
+import java.util.Map;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -506,8 +507,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public boolean isEmpty()
 	{
-		return (!getAllObjects().hasNext() && getOnInsertMethodID() == 0 && getOnUpdateMethodID() == 0 && getOnDeleteMethodID() == 0 &&
-			getOnAfterInsertMethodID() == 0 && getOnAfterUpdateMethodID() == 0 && getOnAfterDeleteMethodID() == 0);
+		// Table node is empty if it has no method/var and no property set (except for dataSource)
+		if (getAllObjects().hasNext())
+		{
+			return false;
+		}
+
+		Map<String, Object> props = getPropertiesMap();
+		return props.isEmpty() || (props.size() == 1 && props.containsKey(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName()));
 	}
 
 	public ScriptCalculation getScriptCalculation(String name)
