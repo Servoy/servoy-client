@@ -408,8 +408,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		{
 			if (((FoundSet)currentData).hadMoreRows())
 			{
-				int count = ((FoundSet)currentData).getFoundSetManager().getFoundSetCount(currentData);
-				((FoundSet)currentData).queryForAllPKs(count);
+				((FoundSet)currentData).queryForAllPKs();
 			}
 			((FoundSet)currentData).setSelectedIndex(-1);//selection causes paint problems on mac during printing
 		}

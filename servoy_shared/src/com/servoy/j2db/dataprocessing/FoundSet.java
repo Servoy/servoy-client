@@ -1856,7 +1856,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return creationSqlSelect;
 	}
 
-	public boolean queryForAllPKs(int estimateCount)
+	public boolean queryForAllPKs()
 	{
 		PksAndRecordsHolder pksAndRecordsCopy;
 		int rowCount;
@@ -1866,7 +1866,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet pks = pksAndRecordsCopy.getPks();
 			rowCount = pks == null ? 0 : pks.getRowCount();
 		}
-		return queryForMorePKs(pksAndRecordsCopy, rowCount, estimateCount + fsm.pkChunkSize, true);
+		return queryForMorePKs(pksAndRecordsCopy, rowCount, -1, true);
 	}
 
 	/*
