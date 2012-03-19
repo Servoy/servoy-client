@@ -751,8 +751,7 @@ public class WebEventExecutor extends BaseEventExecutor
 							{
 								target.addComponent(component);
 								generateDragAttach(component, target.getHeaderResponse());
-								if (!component.isVisible() ||
-									(component instanceof WrapperContainer && !((WrapperContainer)component).getDelegate().isVisible()))
+								if (!component.isVisible())
 								{
 									((IProviderStylePropertyChanges)component).getStylePropertyChanges().setRendered();
 									WebForm parentForm = component.findParent(WebForm.class);
