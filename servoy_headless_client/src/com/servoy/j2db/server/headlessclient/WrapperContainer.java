@@ -200,4 +200,10 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 	{
 		return wrappedComponent.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX;
 	}
+
+	@Override
+	public boolean isVisible()
+	{
+		return wrappedComponent != null ? wrappedComponent.isVisible() : super.isVisible();
+	}
 }
