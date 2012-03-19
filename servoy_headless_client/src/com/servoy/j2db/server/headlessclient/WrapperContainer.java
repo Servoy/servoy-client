@@ -204,6 +204,6 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 	@Override
 	public boolean isVisible()
 	{
-		return wrappedComponent != null ? wrappedComponent.isVisible() : super.isVisible();
+		return wrappedComponent.isVisible();
 	}
 }
