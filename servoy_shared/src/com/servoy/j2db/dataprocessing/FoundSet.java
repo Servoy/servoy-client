@@ -21,8 +21,8 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.MemberBox;
@@ -4670,12 +4671,33 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 			}
 		}
-		if (name.startsWith("record_")) //$NON-NLS-1$
+		if (name.equals("_records_")) //$NON-NLS-1$
 		{
-			int recordIndex = Integer.parseInt(name.substring("record_".length())); //$NON-NLS-1$
-			IRecordInternal record = pksAndRecords.getCachedRecords().get(recordIndex - 1);
-			if (record == null) return null; //return "<record " + recordIndex + " not loaded>"; 
-			return record;
+			int maxRows = getSize();
+			if (hadMoreRows())
+			{
+				maxRows--;
+			}
+			Scriptable records = Context.getCurrentContext().newArray(this, maxRows);
+			for (int i = 0; i < maxRows; i++)
+			{
+				IRecordInternal record = pksAndRecords.getCachedRecords().get(i);
+				records.put(i, records, record);
+			}
+			return records;
+		}
+		if (name.equals("_selection_")) //$NON-NLS-1$
+		{
+			int[] selection = getSelectedIndexes();
+			if (selection.length == 0)
+			{
+				return Integer.valueOf(-1);
+			}
+			else if (selection.length == 1)
+			{
+				return Integer.valueOf(selection[0]);
+			}
+			return Arrays.toString(selection);
 		}
 		return Scriptable.NOT_FOUND;
 	}
@@ -4805,7 +4827,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		ArrayList<String> al = new ArrayList<String>();
 		al.add("alldataproviders"); //$NON-NLS-1$
-
 		al.add("multiSelect"); //$NON-NLS-1$
 
 //		al.add("recordIndex"); //$NON-NLS-1$
@@ -4821,18 +4842,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		int maxRows = getSize();
-		if (hadMoreRows())
-		{
-			maxRows--;
-		}
-		String format = maxRows < 10 ? "0" : maxRows < 100 ? "00" : "000"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-		DecimalFormat df = new DecimalFormat(format);
+		al.add("_records_"); //$NON-NLS-1$
+		al.add("_selection_"); //$NON-NLS-1$
 
-		for (int i = 0; i < maxRows; i++)
-		{
-			al.add("record_" + df.format(i + 1)); //$NON-NLS-1$
-		}
 		return al.toArray();
 	}
 
