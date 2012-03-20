@@ -1646,6 +1646,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				if (f != uiDefaults.get("TextArea.font")) return null; //$NON-NLS-1$
 				if (f != uiDefaults.get("PasswordField.font")) return null; //$NON-NLS-1$
 				if (f != uiDefaults.get("TextField.font")) return null; //$NON-NLS-1$
+				if (f != uiDefaults.get("FormattedTextField.font")) return null; //$NON-NLS-1$ 
 				return f;
 			}
 			else
@@ -1719,6 +1720,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				uiDefaults.put("TextArea.font", font); //$NON-NLS-1$
 				uiDefaults.put("PasswordField.font", font); //$NON-NLS-1$
 				uiDefaults.put("TextField.font", font); //$NON-NLS-1$
+				uiDefaults.put("FormattedTextField.font", font); //$NON-NLS-1$
 			}
 			else if (LookAndFeelInfo.class.getName().equals(name) && frame != null)
 			{
