@@ -328,7 +328,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				@Override
 				protected CharSequence getPreconditionScript()
 				{
-					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging && Servoy.ajaxTimerEnabled;"; //$NON-NLS-1$
+					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging && !Servoy.redirectingOnSolutionClose;"; //$NON-NLS-1$
 				}
 
 				/**
@@ -1297,7 +1297,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					url = RequestUtils.toAbsolutePath(url);
 				}
-				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + ");";
+				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + "," + showUrlInfo.pageExpiredRedirect +
+					");";
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_top"))
 			{
@@ -1893,8 +1894,14 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		private final int timeout;
 		private boolean onRootFrame;
 		private boolean useIFrame;
+		private final boolean pageExpiredRedirect;
 
 		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean onRootFrame, boolean useIFrame)
+		{
+			this(url, target, target_options, timeout, onRootFrame, useIFrame, false);
+		}
+
+		public ShowUrlInfo(String url, String target, String target_options, int timeout, boolean onRootFrame, boolean useIFrame, boolean pageExpiredRedirect)
 		{
 			this.url = url;
 			this.useIFrame = useIFrame;
@@ -1902,6 +1909,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			this.target_options = target_options;
 			this.timeout = timeout * 1000;
 			this.onRootFrame = onRootFrame;
+			this.pageExpiredRedirect = pageExpiredRedirect;
 		}
 
 		public String getUrl()
@@ -2134,29 +2142,22 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
-	/**
-	 * This will get the JS needed to disable the browser side timer code at once, NO MATTER WHICH PAGE THE CURRENT REQUEST IS ON.
-	 * It will try to go through browser-side JS (through IFrame/window hierarchies) so that it alters this MainPage,
-	 * even if the currently running request is on another page.
-	 */
 	@SuppressWarnings("nls")
-	public String getDisableAjaxTimerJS()
+	public String getTriggerBrowserRequestJS()
 	{
 		String script = null;
 		if (useAJAX)
 		{
 			Pair<String, MainPage> goToCorrectWindow = getWindowScopeBrowserScript(getRequestMainPage());
 			// generate a JS script that will disable AJAX timer requests on this page
-			if (goToCorrectWindow != null)
+			if (goToCorrectWindow != null && goToCorrectWindow.getRight() != this)
 			{
-				String s = goToCorrectWindow.getLeft();
-				String scope = (s.length() == 0) ? "this" : s.substring(0, s.length() - 1);
-				script = "try { " + s + "Servoy.ajaxTimerEnabled = false; " + s + "wicketHide.call(" + scope + ", 'indicator'); } catch(ignore) {}";
+				script = "try { " + goToCorrectWindow.getLeft() + "setTimeout('triggerAjaxUpdate();', 0); } catch(ignore) {}";
 			}
 		}
 		return script;
 	}
-	
+
 	private MainPage getRequestMainPage()
 	{
 		RequestCycle rc = RequestCycle.get();

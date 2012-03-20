@@ -68,7 +68,7 @@ public final class RedirectAjaxRequestTarget implements IRequestTarget
 		response.write("<evaluate");
 		response.write(">");
 		response.write("<![CDATA[");
-		response.write(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(), "_self", null, 0, true, false)));
+		response.write(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(), "_self", null, 0, true, false, true)));
 		response.write("]]>");
 		response.write("</evaluate>");
 		response.write("</ajax-response>");

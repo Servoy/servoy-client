@@ -1,7 +1,7 @@
 if (typeof(Servoy) == "undefined")
 	Servoy = { };
 
-Servoy.ajaxTimerEnabled = true;
+Servoy.redirectingOnSolutionClose = false;
 
 Servoy.parsePosition = function(position)
 {
@@ -1573,23 +1573,29 @@ function onAjaxCall()
 	}
 }
 
-function showurl(url, timeout, onRootFrame, useIFrame)
+function getRootServoyFrame()
+{
+	var mywindow = window;
+	var win;
+	while (typeof(mywindow.parent) != "undefined" && mywindow != mywindow.parent) {
+		try {
+			win = mywindow.parent.Wicket.Window;
+		} catch (ignore) {}
+		if (typeof(win) != "undefined") {
+			mywindow = mywindow.parent
+		} else {
+			break
+		}
+	}
+	return mywindow;
+}
+
+function showurl(url, timeout, onRootFrame, useIFrame, pageExpiredRedirect)
 {
 	var mywindow = window;
 
 	if (onRootFrame || useIFrame) {
-		var win;
-		while (typeof(mywindow.parent) != "undefined" && mywindow != mywindow.parent) {
-			try {
-				win = mywindow.parent.Wicket.Window;
-			} catch (ignore) {}
-
-			if (typeof(win) != "undefined") {
-				mywindow = mywindow.parent
-			} else {
-				break
-			}
-		}
+		mywindow = getRootServoyFrame();
 	}
 
 	if (useIFrame) {
@@ -1606,7 +1612,9 @@ function showurl(url, timeout, onRootFrame, useIFrame)
 			mywindow.document.body.appendChild(ifrm);
 		}
 	} else {
-		mywindow.setTimeout("window.document.location.href='" + url + "'", timeout);
+		if (!(mywindow.Servoy.redirectingOnSolutionClose && pageExpiredRedirect)) {
+			mywindow.setTimeout("window.document.location.href='" + url + "'", timeout);
+		}
 	}
 }
 
