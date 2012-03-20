@@ -849,7 +849,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (isInFindMode())
 		{
-			int nfound = performFind(clearLastResults, reduceSearch, true);
+			int nfound = performFind(clearLastResults, reduceSearch, true, false, null);
 			return nfound < 0 ? /* blocked */0 : nfound;
 		}
 		return 0;
@@ -949,9 +949,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		if (isInFindMode() && performFind(false, true, true) < 0 /* blocked */)
+		if (isInFindMode())
 		{
-			return false;
+			// get out of find mode, no need to do a find query here, loadAllRecords() will do that anyway
+			clearInternalState(true);
+			int oldSize = getSize();
+			pksAndRecords.setPks(null, 0);
+			fireDifference(oldSize, 0);
 		}
 
 		loadAllRecords();
@@ -1004,6 +1008,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return true;
 	}
 
+	public boolean cancelFind() throws ServoyException
+	{
+		// revert to foundset as before find mode
+		performFind(false, false, false, true, null); // cancel find mode
+		return !findMode;
+	}
+
 	/**
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
@@ -1012,6 +1023,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords() throws ServoyException
 	{
+		if (isInFindMode())
+		{
+			return cancelFind();
+		}
 		if (!checkLoadRecordsAllowed(true))
 		{
 			return false;
@@ -1124,7 +1139,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * foundset.loadRecords(123);
 	 * foundset.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
 	 * 
-	 * 4) to reload all last related records again, if for example when searched in tabpanel
+	 * 4) Use without arguments to reload all last related records again, if for example when searched in tabpanel.
+	 * when in find mode, this will reload the records from before the find() call.
+	 * 
 	 * foundset.loadRecords();
 	 * 
 	 * 5) to load records in to the form based on a query (also known as 'Form by query')
@@ -4308,42 +4325,47 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	public int performFind(boolean clearLastResult, boolean reduceSearch, boolean clearIfZero) throws ServoyException//perform the find
-	{
-		return performFind(clearLastResult, reduceSearch, clearIfZero, null);
-	}
-
 	/**
 	 * Execute the find sql, returns the number of records found, returns -1 when the call was blocked by a trigger
 	 * @param clearLastResult
 	 * @param reduceSearch
 	 * @param clearIfZero
+	 * @param cancelFind
 	 * @param returnInvalidRangeConditions
 	 * @return
 	 * @throws ServoyException
 	 */
-	public int performFind(boolean clearLastResult, boolean reduceSearch, boolean clearIfZero, List<String> returnInvalidRangeConditions)
+	public int performFind(boolean clearLastResult, boolean reduceSearch, boolean clearIfZero, boolean cancelFind, List<String> returnInvalidRangeConditions)
 		throws ServoyException//perform the find
 	{
-		try
+		int numberOfFindStates = getSize();
+		if (cancelFind)
 		{
-			if (!executeFoundsetTriggerBreakOnFalse(new Object[] { Boolean.valueOf(clearLastResult), Boolean.valueOf(reduceSearch) },
-				StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID))
+			// ignore find states
+			pksAndRecords.setPks(null, 0);
+			setSelectedIndex(-1);
+		}
+		else
+		{
+			try
 			{
-				Debug.trace("Foundset search was denied by onSearchFoundset method"); //$NON-NLS-1$
+				if (!executeFoundsetTriggerBreakOnFalse(new Object[] { Boolean.valueOf(clearLastResult), Boolean.valueOf(reduceSearch) },
+					StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID))
+				{
+					Debug.trace("Foundset search was denied by onSearchFoundset method"); //$NON-NLS-1$
+					return -1; // blocked
+				}
+			}
+			catch (ServoyException e)
+			{
+				Debug.error(e);
 				return -1; // blocked
 			}
-		}
-		catch (ServoyException e)
-		{
-			Debug.error(e);
-			return -1; // blocked
-		}
 
-		if (clearLastResult) removeLastFound();
+			if (clearLastResult) removeLastFound();
 
-		int numberOfFindStates = getSize();
-		setSelectedIndex(numberOfFindStates > 0 ? 0 : -1);
+			setSelectedIndex(numberOfFindStates > 0 ? 0 : -1);
+		}
 
 		try
 		{

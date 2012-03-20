@@ -3638,7 +3638,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public int performFind(final boolean clear, final boolean reduce, final boolean showDialogOnNoResults)
 	{
-		if (form.getOnSearchCmdMethodID() <= 0) //'-none-' has no meaning for onSeachCMD
+		if (form.getOnSearchCmdMethodID() <= 0) //'-none-' has no meaning for onSearchCMD
 		{
 			try
 			{
@@ -3693,7 +3693,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			try
 			{
 				List<String> invalidRangeConditions = null;
-				count = formModel.performFind(clearLastResult, reduceSearch, !showDialogOnNoResults, showDialogOnNoResults
+				count = formModel.performFind(clearLastResult, reduceSearch, !showDialogOnNoResults, false, showDialogOnNoResults
 					? invalidRangeConditions = new ArrayList<String>() : null);
 				if (application.getCmdManager() instanceof ICmdManagerInternal)
 				{
