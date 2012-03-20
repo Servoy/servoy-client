@@ -43,6 +43,16 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
+import javax.swing.text.html.CSS;
+
+import org.w3c.dom.css.CSSPrimitiveValue;
+import org.xhtmlrenderer.css.constants.CSSName;
+import org.xhtmlrenderer.css.parser.PropertyValue;
+import org.xhtmlrenderer.css.sheet.PropertyDeclaration;
+
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.MediaURLStreamHandler;
+import com.servoy.j2db.persistence.Media;
 
 /**
  * Helper class to load image via ImageIO
@@ -750,5 +760,156 @@ public class ImageLoader
 		return cm != null ? cm.hasAlpha() : false;
 	}
 
+	public static void paintImage(Graphics graphics, IStyleRule styleRule, IApplication application, Dimension parentSize)
+	{
+		if (styleRule != null && styleRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
+		{
+			String url = styleRule.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString());
+			int start = url.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
+			if (start != -1)
+			{
+				String name = url.substring(start + MediaURLStreamHandler.MEDIA_URL_DEF.length());
+				if (name.endsWith("')") || name.endsWith("\")")) name = name.substring(0, name.length() - 2);
+				if (name.endsWith(")")) name = name.substring(0, name.length() - 1);
+				Media media = application.getFlattenedSolution().getMedia(name);
+				if (media != null)
+				{
+					byte[] imageData = media.getMediaData();
+					if (styleRule.hasAttribute(CSSName.BACKGROUND_SIZE.toString()))
+					{
+						PropertyDeclaration declaration = ((ServoyStyleRule)styleRule).getPropertyDeclaration(CSSName.BACKGROUND_SIZE.toString());
+						if (declaration.getValue() instanceof PropertyValue && ((PropertyValue)declaration.getValue()).getValues() != null &&
+							((PropertyValue)declaration.getValue()).getValues().size() == 2)
+						{
+							int width = getImageSize(parentSize.width,
+								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
+							int height = getImageSize(parentSize.height,
+								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
+							imageData = ImageLoader.resize(imageData, width, height, true);
+						}
+					}
+					Image image = ImageLoader.getBufferedImage(imageData, -1, -1, false);
+					int offsetWidth = 0;
+					int offsetHeight = 0;
+					int imageWidth = image.getWidth(null);
+					int imageHeight = image.getHeight(null);
 
+					if (styleRule.hasAttribute(CSSName.BACKGROUND_POSITION.toString()))
+					{
+						PropertyDeclaration declaration = ((ServoyStyleRule)styleRule).getPropertyDeclaration(CSSName.BACKGROUND_POSITION.toString());
+						if (declaration.getValue() instanceof PropertyValue && ((PropertyValue)declaration.getValue()).getValues() != null &&
+							((PropertyValue)declaration.getValue()).getValues().size() == 2)
+						{
+							offsetWidth = getImagePosition(parentSize.width, imageWidth,
+								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
+							offsetHeight = getImagePosition(parentSize.height, imageHeight,
+								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
+						}
+					}
+					boolean hRepeat = true;
+					boolean vRepeat = true;
+					if (styleRule.hasAttribute(CSSName.BACKGROUND_REPEAT.toString()))
+					{
+						String repeat = styleRule.getValue(CSSName.BACKGROUND_REPEAT.toString());
+						hRepeat = false;
+						vRepeat = false;
+						if ("repeat".equals(repeat) || "repeat-x".equals(repeat)) hRepeat = true;
+						if ("repeat".equals(repeat) || "repeat-y".equals(repeat)) vRepeat = true;
+					}
+					if (hRepeat)
+					{
+						offsetWidth = adjustRepeatCoordinate(offsetWidth, imageWidth);
+					}
+					if (vRepeat)
+					{
+						offsetHeight = adjustRepeatCoordinate(offsetHeight, imageHeight);
+					}
+					if (!hRepeat && !vRepeat)
+					{
+						graphics.drawImage(image, offsetWidth, offsetHeight, null);
+					}
+					else if (hRepeat && vRepeat)
+					{
+						for (int x = offsetWidth; x < parentSize.width; x += imageWidth)
+						{
+							for (int y = offsetHeight; y < parentSize.height; y += imageHeight)
+							{
+								graphics.drawImage(image, x, y, null);
+							}
+						}
+					}
+					else if (hRepeat)
+					{
+						for (int x = offsetWidth; x < parentSize.width; x += imageWidth)
+						{
+							graphics.drawImage(image, x, offsetHeight, null);
+						}
+					}
+					else if (vRepeat)
+					{
+						for (int y = offsetHeight; y < parentSize.height; y += imageHeight)
+						{
+							graphics.drawImage(image, offsetWidth, y, null);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private static int getImageSize(int containerSize, String cssText)
+	{
+		if (cssText != null)
+		{
+			if (cssText.endsWith("px"))
+			{
+				return Utils.getAsInteger(cssText.substring(0, cssText.length() - 2));
+			}
+			else if (cssText.endsWith("%"))
+			{
+				int percent = Utils.getAsInteger(cssText.substring(0, cssText.length() - 1));
+				return percent * containerSize / 100;
+			}
+		}
+		return -1;
+	}
+
+	private static int getImagePosition(int containerSize, int imageSize, String cssText)
+	{
+		if (cssText != null)
+		{
+			if (cssText.endsWith("px"))
+			{
+				return Utils.getAsInteger(cssText.substring(0, cssText.length() - 2));
+			}
+			else if (cssText.endsWith("%"))
+			{
+				int percent = Utils.getAsInteger(cssText.substring(0, cssText.length() - 1));
+				return percent * (containerSize - imageSize) / 100;
+			}
+			else if ("left".equals(cssText) || "top".equals(cssText))
+			{
+				return 0;
+			}
+			else if ("right".equals(cssText) || "bottom".equals(cssText))
+			{
+				return (containerSize - imageSize);
+			}
+			else if ("center".equals(cssText))
+			{
+				return (containerSize - imageSize) / 2;
+			}
+		}
+		return 0;
+	}
+
+	private static int adjustRepeatCoordinate(int startPosition, int imageSize)
+	{
+		int result = startPosition;
+		while (result > 0)
+		{
+			result = result - imageSize;
+		}
+		return result;
+	}
 }

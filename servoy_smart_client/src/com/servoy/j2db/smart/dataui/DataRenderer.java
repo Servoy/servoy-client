@@ -43,6 +43,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.text.html.CSS;
 
 import org.mozilla.javascript.Undefined;
 
@@ -80,6 +81,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
+import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -399,6 +401,34 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			Debug.error(e);
 		}
+	}
+
+	private IStyleRule partRule = null;
+
+	public void setCssRule(IStyleRule rule)
+	{
+		this.partRule = rule;
+	}
+
+	@Override
+	public void paint(Graphics g)
+	{
+		if (partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
+		{
+			// image always on top, set opaque to false
+			setOpaque(false);
+			if (getBackground() != null)
+			{
+				Color tmp = g.getColor();
+				// paint background color first, form is transparent
+				g.setColor(getBackground());
+				g.fillRect(0, 0, getWidth(), getHeight());
+
+				g.setColor(tmp);
+			}
+			ImageLoader.paintImage(g, partRule, application, getSize());
+		}
+		super.paint(g);
 	}
 
 	private String strRowBGColorProvider = null;

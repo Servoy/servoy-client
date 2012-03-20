@@ -67,7 +67,10 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.EnableScrollPanel;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.TabSequenceHelper;
@@ -229,6 +232,11 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 				setBasicSettings(panel, bg, new Dimension(width, total), new Point(0, partHeight), printing);
 			}
 			partHeight = part.getHeight();
+			Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(app, part, form);
+			if (pair != null && pair.getRight() != null)
+			{
+				panel.setCssRule(pair.getRight());
+			}
 		}
 
 		//place all the elements

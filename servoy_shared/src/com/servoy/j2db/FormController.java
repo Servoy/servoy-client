@@ -1863,6 +1863,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		application = app;
 		this.form = form;
 		this.namedInstance = namedInstance;
+		initStyles();
 		fm = (FormManager)application.getFormManager();
 		scriptExecuter = new ScriptExecuter(this);
 		containerImpl = fm.getFormUI(this);
@@ -1918,12 +1919,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 	}
 
-	private IStyleSheet ss = null;
-	private IStyleRule s = null, styleOdd = null, styleEven = null, styleSelected = null, styleHeader = null;
+	private IStyleSheet stylesheet = null;
+	private IStyleRule styleRule = null, styleOdd = null, styleEven = null, styleSelected = null, styleHeader = null;
 
 	void init()
 	{
-		initStylesAndBorder();
+		initBorder();
 
 		try
 		{
@@ -1938,22 +1939,45 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private void initStylesAndBorder()
+	{
+		initStyles();
+		initBorder();
+	}
+
+	private void initBorder()
+	{
+		Border border = ComponentFactoryHelper.createBorder(form.getBorderType());
+		if (stylesheet != null && styleRule != null)
+		{
+			if (border == null)
+			{
+				border = stylesheet.getBorder(styleRule);
+			}
+			bgColor = stylesheet.getBackground(styleRule);
+			if (bgColor != null)
+			{
+				containerImpl.setBackground(bgColor);
+			}
+		}
+		if (border != null)
+		{
+			containerImpl.setBorder(border);
+		}
+	}
+
+	private void initStyles()
 	{
 		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(application, form);
 		if (pairStyle != null)
 		{
-			ss = pairStyle.getLeft();
+			stylesheet = pairStyle.getLeft();
 		}
 		else
 		{
-			ss = null;
+			stylesheet = null;
 		}
-		Border border = ComponentFactoryHelper.createBorder(form.getBorderType());
-		if (ss != null)
+		if (stylesheet != null)
 		{
 			String lookupname = "form"; //$NON-NLS-1$
 
@@ -1962,27 +1986,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				String formStyleClass = form.getStyleClass();
 				lookupname += '.' + formStyleClass;
 			}
-			s = pairStyle.getRight();
-			styleOdd = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_ODD); //$NON-NLS-1$
-			styleEven = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN); //$NON-NLS-1$
-			styleSelected = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED); //$NON-NLS-1$
-			styleHeader = ss.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER); //$NON-NLS-1$
-			if (s != null)
-			{
-				if (border == null)
-				{
-					border = ss.getBorder(s);
-				}
-				bgColor = ss.getBackground(s);
-				if (bgColor != null)
-				{
-					containerImpl.setBackground(bgColor);
-				}
-			}
-		}
-		if (border != null)
-		{
-			containerImpl.setBorder(border);
+			styleRule = pairStyle.getRight();
+			styleOdd = stylesheet.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_ODD); //$NON-NLS-1$
+			styleEven = stylesheet.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_EVEN); //$NON-NLS-1$
+			styleSelected = stylesheet.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_SELECTED); //$NON-NLS-1$
+			styleHeader = stylesheet.getCSSRule(lookupname + " " + ISupportRowStyling.CLASS_HEADER); //$NON-NLS-1$
 		}
 	}
 
@@ -3844,7 +3852,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			view.setModel(formModel);
 		}
 		view.setRowBGColorScript(form.getRowBGColorCalculation(), form.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
-		if (view instanceof ISupportRowStyling) ((ISupportRowStyling)view).setRowStyles(ss, styleOdd, styleEven, styleSelected, styleHeader);
+		if (view instanceof ISupportRowStyling) ((ISupportRowStyling)view).setRowStyles(stylesheet, styleOdd, styleEven, styleSelected, styleHeader);
 
 		if (formReadOnly)
 		{
@@ -5072,5 +5080,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		return new IRuntimeComponent[0];
+	}
+
+	public IStyleRule getFormStyle()
+	{
+		return styleRule;
 	}
 }

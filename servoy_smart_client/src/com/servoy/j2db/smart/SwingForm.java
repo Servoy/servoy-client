@@ -85,6 +85,7 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
+import javax.swing.text.html.CSS;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.mozilla.javascript.JavaMembers;
@@ -154,6 +155,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.ITabPaneAlike;
+import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.AutoTransferFocusListener;
@@ -240,7 +242,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		undoManager = new ControllerUndoManager();
 		undoManager.setLimit(50);
 
-		setOpaque(!formController.getForm().getTransparent());
+		setOpaque(!formController.getForm().getTransparent() && !hasBackgroundImage());
 
 		ActionMap am = this.getActionMap();
 		am.put(ACTION_GO_OUT_TO_NEXT, new GoOutOfSwingFormAction(false));
@@ -1649,6 +1651,31 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			}
 		}
 		return 0;
+	}
+
+	@Override
+	public void paint(Graphics g)
+	{
+		if (hasBackgroundImage())
+		{
+			if (!formController.getForm().getTransparent() && bgColor != null)
+			{
+				Color tmp = g.getColor();
+				// paint background color first, form is transparent
+				g.setColor(bgColor);
+				g.fillRect(0, 0, getWidth(), getHeight());
+
+				g.setColor(tmp);
+			}
+			ImageLoader.paintImage(g, formController.getFormStyle(), formController.getApplication(), getSize());
+		}
+		super.paint(g);
+	}
+
+	public boolean hasBackgroundImage()
+	{
+		return (formController != null && formController.getFormStyle() != null && formController.getFormStyle().hasAttribute(
+			CSS.Attribute.BACKGROUND_IMAGE.toString()));
 	}
 
 	private static class LayeredPaneLayout implements LayoutManager2
