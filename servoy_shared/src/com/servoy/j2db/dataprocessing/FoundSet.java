@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
@@ -4691,13 +4690,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int[] selection = getSelectedIndexes();
 			if (selection.length == 0)
 			{
-				return Integer.valueOf(-1);
+				return Integer.valueOf(0);
 			}
-			else if (selection.length == 1)
+			if (selection.length == 1)
 			{
-				return Integer.valueOf(selection[0]);
+				return Integer.valueOf(selection[0] + 1);
 			}
-			return Arrays.toString(selection);
+			StringBuilder buf = new StringBuilder();
+			buf.append('[');
+			for (int i = 0; i < selection.length; i++)
+			{
+				if (i > 0) buf.append(", ");
+				buf.append(selection[i] + 1);
+			}
+			buf.append(']');
+			return buf.toString();
 		}
 		return Scriptable.NOT_FOUND;
 	}
