@@ -5664,8 +5664,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireSelectionAdjusting();
 
 		omittedPKs = null;
-		clearInternalState(true);
-
 		creationSqlSelect = AbstractBaseQuery.deepClone(fs.creationSqlSelect);
 		if (fs.foundSetFilters != null)
 		{
@@ -5675,6 +5673,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(fs.pksAndRecords.getPks()), fs.pksAndRecords.getDbIndexLastPk(),
 			fs.pksAndRecords.getQuerySelectForModification());
 		initialized = fs.initialized;
+
+		clearInternalState(true);
 
 		SafeArrayList<IRecordInternal> fsCachedRecords = fs.pksAndRecords.getCachedRecords();
 		synchronized (fsCachedRecords)
@@ -5808,7 +5808,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	//used if left hand side null in relation
 	public void clear()
 	{
-		clearInternalState(true);
 		omittedPKs = null;
 		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
 		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, BooleanCondition.FALSE_CONDITION);
@@ -5822,6 +5821,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 //			rowManager.flushAllCachedRows();
 //		}
 		initialized = true;
+		clearInternalState(true);
 	}
 
 	public List<IRecordInternal> getParents()
