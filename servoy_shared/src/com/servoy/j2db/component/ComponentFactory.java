@@ -505,7 +505,7 @@ public class ComponentFactory
 		return getStyleForBasicComponentInternal(sp, bc, form, new HashSet<Integer>());
 	}
 
-	public static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponentInternal(IServiceProvider sp, AbstractBase bc, Form form, Set<Integer> visited)
+	private static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponentInternal(IServiceProvider sp, AbstractBase bc, Form form, Set<Integer> visited)
 	{
 		if (bc == null || sp == null) return null;
 
