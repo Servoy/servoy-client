@@ -110,6 +110,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			//WebClientSession webClientSession = (WebClientSession)getSession();
 			//WebClient webClient = webClientSession.getWebClient();
 
+			String selectedComponentId = null;
 			StringBuilder sb = new StringBuilder(markupIds.size() * 10);
 			sb.append("Servoy.ClientDesign.attach({");
 			for (int i = 0; i < markupIds.size(); i++)
@@ -138,16 +139,24 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 				{
 					editable = ((IRuntimeInputComponent)((IScriptableProvider)component).getScriptObject()).isEditable();
 				}
+				String compId;
 				if (webAnchorsEnabled && component instanceof IScriptableProvider &&
 					((IScriptableProvider)component).getScriptObject() instanceof IRuntimeComponent &&
 					needsWrapperDivForAnchoring(((IRuntimeComponent)((IScriptableProvider)component).getScriptObject()).getElementType(), editable))
 				{
-					sb.append(component.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX);
+					compId = component.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX;
 				}
 				else
 				{
-					sb.append(component.getMarkupId());
+					compId = component.getMarkupId();
 				}
+
+				sb.append(compId);
+				if (onSelectComponent != null && component instanceof IComponent && onSelectComponent.getName().equals(((IComponent)component).getName()))
+				{
+					selectedComponentId = compId;
+				}
+
 				sb.append(":['");
 				sb.append(padding);
 				sb.append("'");
@@ -169,36 +178,9 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			sb.setLength(sb.length() - 1); //rollback last comma
 			sb.append("},'" + getCallbackUrl() + "')");
 
-			if (onSelectComponent != null && onSelectComponent.getName() != null)
+			if (selectedComponentId != null)
 			{
-				Component bindedComponent = getComponent();
-				if (bindedComponent != null)
-				{
-					WebForm parentWebForm = bindedComponent.findParent(WebForm.class);
-					if (parentWebForm != null)
-					{
-						Component selectedComponent = (Component)parentWebForm.visitChildren(IComponent.class, new IVisitor<Component>()
-						{
-							public Object component(Component component)
-							{
-								if (onSelectComponent.getName().equals(((IComponent)component).getName()))
-								{
-									return component;
-								}
-								return IVisitor.CONTINUE_TRAVERSAL;
-							}
-
-						});
-						if (selectedComponent != null)
-						{
-							WrapperContainer selectedWrapper = selectedComponent.findParent(WrapperContainer.class);
-							if (selectedWrapper != null) selectedComponent = selectedWrapper;
-
-							sb.append(";Servoy.ClientDesign.selectedElementId='").append(selectedComponent.getMarkupId()).append(
-								"';Servoy.ClientDesign.reattach();");
-						}
-					}
-				}
+				sb.append(";Servoy.ClientDesign.selectedElementId='").append(selectedComponentId).append("';Servoy.ClientDesign.reattach();");
 			}
 
 			response.renderOnDomReadyJavascript(sb.toString());
@@ -379,6 +361,11 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		this.controller = controller;
 	}
 
+	public DesignModeCallbacks getDesignModeCallback()
+	{
+		return callback;
+	}
+
 	private JSEvent getJSEvent(EventType type, int modifiers, Point point, IComponent[] selected)
 	{
 		JSEvent event = new JSEvent();
@@ -404,5 +391,43 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		event.setData(selection.toArray());
 		//event.setSource(e)
 		return event;
+	}
+
+	public String getSelectedComponentName()
+	{
+		return onSelectComponent != null ? onSelectComponent.getName() : null;
+	}
+
+	public void setSelectedComponent(String selectedComponentName)
+	{
+		onSelectComponent = getWicketComponentForName(selectedComponentName);
+	}
+
+	private IComponent getWicketComponentForName(final String componentName)
+	{
+		if (componentName != null)
+		{
+			Component bindedComponent = getComponent();
+			if (bindedComponent != null)
+			{
+				WebForm parentWebForm = bindedComponent.findParent(WebForm.class);
+				if (parentWebForm != null)
+				{
+					return (IComponent)parentWebForm.visitChildren(IComponent.class, new IVisitor<Component>()
+					{
+						public Object component(Component component)
+						{
+							if (componentName.equals(((IComponent)component).getName()))
+							{
+								return component;
+							}
+							return IVisitor.CONTINUE_TRAVERSAL;
+						}
+					});
+				}
+			}
+		}
+
+		return null;
 	}
 }

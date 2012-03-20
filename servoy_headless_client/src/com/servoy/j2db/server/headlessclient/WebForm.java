@@ -1707,7 +1707,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return null;
 	}
 
-	private final WeakHashMap<DesignModeCallbacks, DesignModeBehavior> designModeBehaviors = new WeakHashMap<DesignModeCallbacks, DesignModeBehavior>();
+	private final WeakHashMap<DesignModeCallbacks, String> designModeSelection = new WeakHashMap<DesignModeCallbacks, String>();
 
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#setDesignMode(com.servoy.j2db.DesignModeCallbacks)
@@ -1739,22 +1739,28 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 		});
 
-		designModeBehavior = designModeBehaviors.get(callback);
 		if (designModeBehavior == null)
 		{
 			designModeBehavior = new DesignModeBehavior();
-			designModeBehaviors.put(callback, designModeBehavior);
-
-			List<DesignModeBehavior> designModeBehaviorsList = getBehaviors(DesignModeBehavior.class);
-			if (designModeBehaviorsList != null)
-			{
-				for (DesignModeBehavior dmb : designModeBehaviorsList)
-					remove(dmb);
-			}
 			add(designModeBehavior);
 		}
 
-
+		if (callback != null)
+		{
+			String selection = designModeSelection.get(callback);
+			if (selection != null)
+			{
+				designModeBehavior.setSelectedComponent(selection);
+			}
+		}
+		else
+		{
+			if (designModeBehavior != null)
+			{
+				String selectedComponentName = designModeBehavior.getSelectedComponentName();
+				if (selectedComponentName != null) designModeSelection.put(designModeBehavior.getDesignModeCallback(), selectedComponentName);
+			}
+		}
 		designModeBehavior.setDesignModeCallback(callback, formController);
 
 		// we need to recreate for both enabling and disabling of design mode
