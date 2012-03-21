@@ -17,8 +17,7 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Runtime property interface for border.
@@ -50,10 +49,9 @@ public interface HasRuntimeBorder
 	 *
 	 * @param spec the border attributes
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public String getBorder();
 
-	@JSSetter
 	public void setBorder(String spec);
 
 }

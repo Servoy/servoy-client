@@ -19,6 +19,7 @@ package com.servoy.j2db.ui.runtime;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.dataprocessing.IFoundSet;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 
 /**
@@ -47,20 +48,26 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, String relation, int tabIndex);
 
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, IFoundSet relation,
 		int tabIndex);
 
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, String relation);
 
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, IFoundSet relation);
 
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg);
 
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL);
 
+	@JSFunction
 	public boolean addTab(String formName, String tabName);
 
 
@@ -76,6 +83,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully removed
 	 */
+	@JSFunction
 	public boolean removeTabAt(int i);
 
 	/**
@@ -98,6 +106,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @return
 	 * maximum tab index (number)
 	 */
+	@JSFunction
 	public int getMaxTabIndex();
 
 	/**
@@ -110,6 +119,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return the name of the form
 	 */
+	@JSFunction
 	public String getTabFormNameAt(int i);
 
 	/**
@@ -122,6 +132,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return relation name
 	 */
+	@JSFunction
 	public String getTabRelationNameAt(int i);
 
 	/**
@@ -134,6 +145,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return color as hexadecimal RGB string
 	 */
+	@JSFunction
 	public String getTabFGColorAt(int i);
 
 	/**
@@ -145,6 +157,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @param i the number of the specified tab
 	 * @param s the hexadecimal RGB color value to be set.
 	 */
+	@JSFunction
 	public void setTabFGColorAt(int i, String s);
 
 	/**
@@ -162,6 +175,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * //or sets (goes to) the tab with the specified name
 	 * %%prefix%%%%elementName%%.tabIndex = 'tab_name';
 	 */
+	@JSReadonlyProperty
 	public int getTabIndex();
 
 	public void setTabIndex(int index);
@@ -178,6 +192,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return The tab name
 	 */
+	@JSFunction
 	public String getTabNameAt(int i);
 
 	/**
@@ -189,6 +204,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return The tab text.
 	 */
+	@JSFunction
 	public String getTabTextAt(int i);
 
 	/**
@@ -199,6 +215,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @param index the number of the specified tab
 	 * @param text the text to be set for the specified tab
 	 */
+	@JSFunction
 	public void setTabTextAt(int i, String s);
 
 	/**
@@ -210,6 +227,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @param i the number of the specified tab.
 	 * @param b true if enabled; or false if disabled.
 	 */
+	@JSFunction
 	public void setTabEnabledAt(int i, boolean b);
 
 	/**
@@ -222,6 +240,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return True if tab is enabled, false otherwise.
 	 */
+	@JSFunction
 	public boolean isTabEnabledAt(int i);
 
 }

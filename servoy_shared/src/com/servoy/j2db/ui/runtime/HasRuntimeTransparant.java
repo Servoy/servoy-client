@@ -17,8 +17,7 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Runtime property interface for transparency.
@@ -43,9 +42,8 @@ public interface HasRuntimeTransparant
 	 * //sets the transparency of the element
 	 * %%prefix%%%%elementName%%.transparent = !currentState;
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public boolean isTransparent();
 
-	@JSSetter
 	public void setTransparent(boolean b);
 }

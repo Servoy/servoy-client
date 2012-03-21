@@ -17,8 +17,7 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Runtime property interface for tooltip.
@@ -42,9 +41,8 @@ public interface HasRuntimeTooltip
 	 * %%prefix%%%%elementName%%.toolTipText = "New tip";
 	 * %%prefix%%%%elementName%%.toolTipText = "<html>This includes <b>bolded text</b> and <font color='blue'>BLUE</font> text as well.";
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public String getToolTipText();
 
-	@JSSetter
 	public void setToolTipText(String tooltip);
 }
