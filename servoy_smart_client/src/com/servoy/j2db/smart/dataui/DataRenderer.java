@@ -43,7 +43,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.plaf.ColorUIResource;
-import javax.swing.text.html.CSS;
 
 import org.mozilla.javascript.Undefined;
 
@@ -78,10 +77,8 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
-import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -89,7 +86,7 @@ import com.servoy.j2db.util.Utils;
  * Panel which corresponds to a part at design-time
  * @author jblok
  */
-public class DataRenderer extends EnablePanel implements ListCellRenderer, IDataRenderer
+public class DataRenderer extends StyledEnablePanel implements ListCellRenderer, IDataRenderer
 {
 /*
  * _____________________________________________________________ Declaration of attributes
@@ -99,7 +96,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	private boolean usesSliding = false;
 
 	private DataAdapterList dataAdapterList;
-	private final IApplication application;
 
 	private boolean isRenderer = false;
 	private boolean showSelection = false;
@@ -110,10 +106,9 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	DataRenderer(final IApplication app, boolean showSelection)
+	DataRenderer(IApplication app, boolean showSelection)
 	{
-		super();
-		application = app;
+		super(app);
 		this.showSelection = showSelection;
 		fieldComponents = new HashMap<IPersist, IDisplay>();
 //		setInsets(insets);
@@ -123,7 +118,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			@Override
 			public void mouseReleased(MouseEvent e)
 			{
-				application.getFoundSetManager().getEditRecordList().stopEditing(false);
+				getApplication().getFoundSetManager().getEditRecordList().stopEditing(false);
 			}
 
 			//request focus for the form panel
@@ -401,43 +396,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 		{
 			Debug.error(e);
 		}
-	}
-
-	private IStyleRule partRule = null;
-	private boolean paintBackgroundOnTopOfFormImage = false;
-
-	public void setPaintBackgroundOnTopOfFormImage(boolean paintBackgroundOnTopOfFormImage)
-	{
-		this.paintBackgroundOnTopOfFormImage = paintBackgroundOnTopOfFormImage;
-	}
-
-	public void setCssRule(IStyleRule rule)
-	{
-		this.partRule = rule;
-	}
-
-	@Override
-	public void paint(Graphics g)
-	{
-		if (paintBackgroundOnTopOfFormImage || (partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString())))
-		{
-			// image always on top, set opaque to false
-			setOpaque(false);
-			if (getBackground() != null)
-			{
-				Color tmp = g.getColor();
-				// paint background color first, form is transparent
-				g.setColor(getBackground());
-				g.fillRect(0, 0, getWidth(), getHeight());
-
-				g.setColor(tmp);
-			}
-		}
-		if (partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
-		{
-			ImageLoader.paintImage(g, partRule, application, getSize());
-		}
-		super.paint(g);
 	}
 
 	private String strRowBGColorProvider = null;
