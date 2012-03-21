@@ -1,6 +1,8 @@
 if (typeof(Servoy) == "undefined")
 	Servoy = { };
 
+Servoy.redirectingOnSolutionClose = false;
+
 Servoy.parsePosition = function(position)
 {
 	if (position instanceof Number) return position;
@@ -21,11 +23,10 @@ function showMediaUploadPopup(url,imgid)
 	if (document.all) {
 		x = window.screenTop + 100;
 		y = window.screenLeft + 100;
-	}
-	else if (document.layers) {
+	} else if (document.layers) {
 		x = window.screenX + 100;
 		y = window.screenY + 100;
-	}else {// firefox, need to switch the x and y?
+	} else { // firefox, need to switch the x and y?
 		y = window.screenX + 100;
 		x = window.screenY + 100;
 	}
@@ -39,11 +40,10 @@ function showMediaDownloadPopup(url)
 	if (document.all) {
 		x = window.screenTop + 100;
 		y = window.screenLeft + 100;
-	}
-	else if (document.layers) {
+	} else if (document.layers) {
 		x = window.screenX + 100;
 		y = window.screenY + 100;
-	}else {// firefox, need to switch the x and y?
+	} else { // firefox, need to switch the x and y?
 		y = window.screenX + 100;
 		x = window.screenY + 100;
 	}
@@ -65,8 +65,7 @@ function requestFocus(focusId)
 		if (toFocus != null && toFocus.focus) {
 			try {
 				toFocus.focus();
-			} catch (ignore) {
-			}
+			} catch (ignore) {}
 		}
 	}
 }
@@ -87,8 +86,7 @@ function focusIfUnchanged(focusId, value)
 		if (toFocus != null && toFocus.focus && (toFocus.checked == value || toFocus.value == value)) {
 			try {
 				toFocus.focus();
-			} catch (ignore) {
-			}
+			} catch (ignore) {}
 		}
 	}
 	focusingOnInvalidComponent = false;
@@ -1361,45 +1359,49 @@ function onAjaxCall()
 		var indicator = document.getElementById('indicator');
 		if ( indicator.innerText)
 		{
-			indicator.innerText = previousText; 
+			indicator.innerText = previousText;
 		}
 		else
 		{
-			indicator.textContent = previousText; 
+			indicator.textContent = previousText;
 		}
 	}
 }
 
-var showurlCalled = false;
-function showurl(url,timeout,closeDialog, useIFrame, exit)
+function getRootServoyFrame(closeDialog)
+{
+	var mywindow = window;
+	var win;
+	while (typeof(mywindow.parent) != "undefined" && mywindow != mywindow.parent) {
+		try {		
+			win = mywindow.parent.Wicket.Window;
+		} catch (ignore) {}
+		
+		if (typeof(win) != "undefined" && typeof(win.current) != "undefined") {
+			if (closeDialog) {
+				// we can't call close directly, because it will delete our window,
+				// so we will schedule it as timeout for parent's window
+				window.parent.setTimeout(function() {
+					win.current.close();			
+				}, 0);
+			}
+			mywindow = mywindow.parent
+		} else {
+			break
+		}
+	}
+
+	return mywindow;
+}
+
+function showurl(url, timeout, closeDialog, useIFrame, pageExpiredRedirect)
 {
 	var win;
 	var mywindow = window;
 
 	if(closeDialog || useIFrame)
 	{
-		while (typeof(mywindow.parent)!= "undefined" && mywindow != mywindow.parent)
-		{
-			try {		
-				win = mywindow.parent.Wicket.Window;
-			} catch (ignore) {		
-			}
-			
-			if (typeof(win) != "undefined" && typeof(win.current) != "undefined") {
-				if (closeDialog) {
-					// we can't call close directly, because it will delete our window,
-					// so we will schedule it as timeout for parent's window
-					window.parent.setTimeout(function() {
-						win.current.close();			
-					}, 0);
-				}
-				mywindow = mywindow.parent
-			}
-			else
-			{
-				break
-			}
-		}
+		mywindow = getRootServoyFrame(closeDialog);
 	}
 	
 	if (useIFrame) {
@@ -1417,10 +1419,9 @@ function showurl(url,timeout,closeDialog, useIFrame, exit)
 		   mywindow.document.body.appendChild(ifrm);
 		} 
 	} else {
-	  if(!showurlCalled) {
-	    showurlCalled = exit;
-		mywindow.setTimeout("window.document.location.href='" + url + "'", timeout);
-	  }
+		if (!(mywindow.Servoy.redirectingOnSolutionClose && pageExpiredRedirect)) {
+			mywindow.setTimeout("window.document.location.href='" + url + "'", timeout);
+		}
 	}
 }
 
