@@ -168,15 +168,22 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 			}
 			else
 			{
-				ComponentFormat fp = getScriptObject().getComponentFormat();
-				try
+				ComponentFormat cf = getScriptObject().getComponentFormat();
+				if (cf == null)
 				{
-					bodyText = TagResolver.formatObject(modelObject, fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
-						fp.parsedFormat.getDisplayFormat(), true) : null));
+					bodyText = Text.processTags(getDefaultModelObjectAsString(), resolver);
 				}
-				catch (ParseException e)
+				else
 				{
-					Debug.error(e);
+					try
+					{
+						bodyText = TagResolver.formatObject(modelObject, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
+					}
+					catch (ParseException e)
+					{
+						Debug.error(e);
+					}
 				}
 				if (HtmlUtils.startsWithHtml(modelObject))
 				{

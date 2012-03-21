@@ -164,7 +164,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				ComponentFormat cf = getComponentFormat();
 				if (cf == null)
 				{
-					bodyText = Text.processTags(tagText, resolver);
+					bodyText = Text.processTags(getDefaultModelObjectAsString(), resolver);
 				}
 				else
 				{
