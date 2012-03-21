@@ -324,6 +324,11 @@ public class ImageLoader
 
 	public static ImageIcon getIcon(byte[] array, int width, int height, boolean keepAspect)
 	{
+		return getIcon(array, width, height, keepAspect, null);
+	}
+
+	public static ImageIcon getIcon(byte[] array, int width, int height, boolean keepAspect, Boolean fixedWidth)
+	{
 		if (array == null || array.length == 0) return null;
 		ImageIcon icon = null;
 		if (array.length < 150000)
@@ -358,10 +363,15 @@ public class ImageLoader
 				}
 			}
 		}
-		return resizeImageIcon(icon, width, height, keepAspect);
+		return resizeImageIcon(icon, width, height, keepAspect, fixedWidth);
 	}
 
 	public static ImageIcon resizeImageIcon(ImageIcon icon, int width, int height, boolean keepAspect)
+	{
+		return resizeImageIcon(icon, width, height, keepAspect, null);
+	}
+
+	public static ImageIcon resizeImageIcon(ImageIcon icon, int width, int height, boolean keepAspect, Boolean fixedWidth)
 	{
 		float widthChange = width > 0 ? icon.getIconWidth() / (float)width : 1;
 		float heightChange = height > 0 ? icon.getIconHeight() / (float)height : 1;
@@ -370,16 +380,22 @@ public class ImageLoader
 		{
 			if (keepAspect)
 			{
-				if (widthChange > heightChange)
+				float ratio = 0;
+				if (fixedWidth == null)
 				{
-					width = (int)(icon.getIconWidth() / widthChange);
-					height = (int)(icon.getIconHeight() / widthChange);
+					ratio = Math.max(widthChange, heightChange);
+				}
+				else if (fixedWidth.booleanValue())
+				{
+					ratio = widthChange;
 				}
 				else
 				{
-					width = (int)(icon.getIconWidth() / heightChange);
-					height = (int)(icon.getIconHeight() / heightChange);
+					ratio = heightChange;
 				}
+
+				width = (int)(icon.getIconWidth() / ratio);
+				height = (int)(icon.getIconHeight() / ratio);
 			}
 			if (width > 0 && height > 0)
 			{
@@ -588,9 +604,14 @@ public class ImageLoader
 
 	public static byte[] resize(byte[] imageData, int width, int height, boolean aspect)
 	{
+		return resize(imageData, width, height, aspect, null);
+	}
+
+	public static byte[] resize(byte[] imageData, int width, int height, boolean aspect, Boolean fixedWidth)
+	{
 		String contentType = ImageLoader.getContentType(imageData);
 		if (contentType == null || contentType.toLowerCase().indexOf("gif") != -1) contentType = "image/png";
-		ImageIcon icon = ImageLoader.getIcon(imageData, width, height, aspect);
+		ImageIcon icon = ImageLoader.getIcon(imageData, width, height, aspect, fixedWidth);
 		if (icon == null)
 		{
 			return null;
@@ -781,11 +802,23 @@ public class ImageLoader
 						if (declaration.getValue() instanceof PropertyValue && ((PropertyValue)declaration.getValue()).getValues() != null &&
 							((PropertyValue)declaration.getValue()).getValues().size() == 2)
 						{
+							boolean autoWidth = "auto".equals(((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
+							boolean autoHeight = "auto".equals(((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
+							Boolean fixedWidth = null;
+							if (autoWidth && !autoHeight)
+							{
+								fixedWidth = Boolean.FALSE;
+							}
+							else if (autoHeight && !autoWidth)
+							{
+								fixedWidth = Boolean.TRUE;
+							}
+
 							int width = getImageSize(parentSize.width,
 								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
 							int height = getImageSize(parentSize.height,
 								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
-							imageData = ImageLoader.resize(imageData, width, height, true);
+							imageData = resize(imageData, width, height, autoWidth || autoHeight, fixedWidth);
 						}
 					}
 					Image image = ImageLoader.getBufferedImage(imageData, -1, -1, false);

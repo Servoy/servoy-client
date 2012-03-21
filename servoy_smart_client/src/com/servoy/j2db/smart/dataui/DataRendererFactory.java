@@ -38,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIDefaults;
 import javax.swing.border.Border;
+import javax.swing.text.html.CSS;
 
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.IApplication;
@@ -217,6 +218,13 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
 	{
 		int partHeight = 0;
+		boolean formHasBgImage = false;
+		Pair<IStyleSheet, IStyleRule> formStyle = ComponentFactory.getCSSPairStyleForForm(app, form);
+		if (formStyle != null && formStyle.getRight() != null && formStyle.getRight().hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
+		{
+			formHasBgImage = true;
+		}
+
 		Iterator e2 = form.getParts();
 		while (e2.hasNext())
 		{
@@ -236,6 +244,10 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			if (pair != null && pair.getRight() != null)
 			{
 				panel.setCssRule(pair.getRight());
+			}
+			if (formHasBgImage && !form.getTransparent() && bg != null)
+			{
+				panel.setPaintBackgroundOnTopOfFormImage(true);
 			}
 		}
 

@@ -404,6 +404,12 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	}
 
 	private IStyleRule partRule = null;
+	private boolean paintBackgroundOnTopOfFormImage = false;
+
+	public void setPaintBackgroundOnTopOfFormImage(boolean paintBackgroundOnTopOfFormImage)
+	{
+		this.paintBackgroundOnTopOfFormImage = paintBackgroundOnTopOfFormImage;
+	}
 
 	public void setCssRule(IStyleRule rule)
 	{
@@ -413,7 +419,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	@Override
 	public void paint(Graphics g)
 	{
-		if (partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
+		if (paintBackgroundOnTopOfFormImage || (partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString())))
 		{
 			// image always on top, set opaque to false
 			setOpaque(false);
@@ -426,6 +432,9 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 
 				g.setColor(tmp);
 			}
+		}
+		if (partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
+		{
 			ImageLoader.paintImage(g, partRule, application, getSize());
 		}
 		super.paint(g);
@@ -450,7 +459,6 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 	{
 		return getListCellRendererComponent((JComponent)donotusecanbenullifinrecondview, value, index, isSelected, cellHasFocus);
 	}
-
 
 	public Component getListCellRendererComponent(JComponent rendererParentCanBeNull, Object value, int index, boolean isSelected, boolean cellHasFocus)
 	{
