@@ -53,6 +53,15 @@ public class FocusIfInvalidAttributeModifier extends AttributeModifier
 					else
 					{
 						value = '\'' + String.valueOf(Strings.escapeMarkup(component.getValue())) + '\'';
+						value = component.getValue();
+						if (value == null)
+						{
+							value = ""; //$NON-NLS-1$
+						}
+						else
+						{
+							value = '\'' + Strings.escapeMarkup(value).toString() + '\'';
+						}
 					}
 					return "scheduleRequestFocusOnInvalid(\"" + component.getMarkupId() + "\", \"" + value + "\");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
