@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 /**
  * Runtime property interface for foreground and background colors.
@@ -37,9 +38,10 @@ public interface HasRuntimeFgBgColor
 	 * //gets the background color of the field
 	 * var c = %%prefix%%%%elementName%%.bgcolor;
 	 */
-	@JSReadonlyProperty
+	@JSGetter
 	public String getBgcolor();
 
+	@JSSetter
 	public void setBgcolor(String clr);
 
 	/**
@@ -52,8 +54,9 @@ public interface HasRuntimeFgBgColor
 	 * //gets the foreground color of the field
 	 * var c = %%prefix%%%%elementName%%.fgcolor;
 	 */
-	@JSReadonlyProperty
+	@JSGetter
 	public String getFgcolor();
 
+	@JSSetter
 	public void setFgcolor(String clr);
 }

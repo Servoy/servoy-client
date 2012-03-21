@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 /**
  * Runtime property interface for enabled.
@@ -46,9 +47,10 @@ public interface HasRuntimeEnabled
 	 * //sets the enabled state of the field
 	 * %%prefix%%%%elementName%%.enabled = !currentState;
 	 */
-	@JSReadonlyProperty
+	@JSGetter
 	public boolean isEnabled();
 
+	@JSSetter
 	public void setEnabled(boolean b);
 
 }

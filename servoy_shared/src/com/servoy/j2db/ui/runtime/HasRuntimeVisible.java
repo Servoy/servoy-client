@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 /**
  * Runtime property interface for visibility.
@@ -43,9 +44,10 @@ public interface HasRuntimeVisible
 	 * //sets the element as not visible when the current state is visible
 	 * forms.company.elements.faxBtn.visible = !currentState;
 	 */
-	@JSReadonlyProperty
+	@JSGetter
 	public boolean isVisible();
 
+	@JSSetter
 	public void setVisible(boolean b);
 
 }

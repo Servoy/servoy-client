@@ -19,7 +19,6 @@ package com.servoy.j2db.ui.runtime;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.dataprocessing.IFoundSet;
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 
 /**
@@ -175,7 +174,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * //or sets (goes to) the tab with the specified name
 	 * %%prefix%%%%elementName%%.tabIndex = 'tab_name';
 	 */
-	@JSReadonlyProperty
 	public int getTabIndex();
 
 	public void setTabIndex(int index);

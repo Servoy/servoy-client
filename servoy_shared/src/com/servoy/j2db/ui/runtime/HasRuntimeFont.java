@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 /**
  * Runtime property interface for font.
@@ -39,8 +40,9 @@ public interface HasRuntimeFont
 	 * %%prefix%%%%elementName%%.font = 'Tahoma,1,11';
 	 *
 	 */
-	@JSReadonlyProperty
+	@JSGetter
 	public String getFont();
 
+	@JSSetter
 	public void setFont(String spec);
 }

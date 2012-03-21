@@ -16,7 +16,8 @@
  */
 package com.servoy.j2db.ui.runtime;
 
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 
 /**
@@ -38,8 +39,9 @@ public interface HasRuntimeReadOnly
 	 * //sets the editable/read-only state of the field
 	 * %%prefix%%%%elementName%%.readOnly = !currentState;
 	 */
-	@JSReadonlyProperty
+	@JSGetter
 	public boolean isReadOnly();
 
+	@JSSetter
 	public void setReadOnly(boolean b);
 }
