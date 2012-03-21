@@ -202,7 +202,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 				ComponentFormat cf = getComponentFormat();
 				if (cf == null)
 				{
-					bodyText = Text.processTags(tagText, resolver);
+					bodyText = Text.processTags(getDefaultModelObjectAsString(), resolver);
 				}
 				else
 				{
