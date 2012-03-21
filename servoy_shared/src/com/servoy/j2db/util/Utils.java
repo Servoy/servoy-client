@@ -57,6 +57,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -2480,4 +2481,29 @@ public class Utils
 		return lst.toArray(new String[lst.size()]);
 	}
 
+	/**
+	 * Iterate over iterator.
+	 * <pre>
+	 * for (T o: Utils.iterate(iterator))
+	 * {
+	 *     o. ....
+	 * }
+	 * </pre>
+	 * @param iterator, when null, iterate over empty list
+	 */
+	public static <T> Iterable<T> iterate(final Iterator<T> iterator)
+	{
+		return iterator == null ? Collections.<T> emptyList() : new Iterable<T>()
+		{
+			public Iterator<T> iterator()
+			{
+				return iterator;
+			}
+		};
+	}
+
+	public static <T> Iterable<T> iterate(Iterable<T> iterable)
+	{
+		return iterable == null ? Collections.<T> emptyList() : iterable;
+	}
 }
