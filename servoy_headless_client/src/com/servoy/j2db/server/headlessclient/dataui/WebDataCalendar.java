@@ -231,7 +231,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		if (mp != null)
 		{
 			// the calendar was removed
-			mp.getPageContributor().addDynamicJavaScript("if(calendarDiv){closeCalendar();}");
+			mp.getPageContributor().addDynamicJavaScript("if(typeof calendarDiv !== 'undefined'){closeCalendar();}"); //$NON-NLS-1$
 		}
 		super.onRemove();
 	}
