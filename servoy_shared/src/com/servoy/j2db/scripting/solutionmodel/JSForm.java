@@ -683,7 +683,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	}
 
 	/**
-	 * Creates a new JSField object on the form with the displayType of MULTI_SELECTION_LIST_BOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
+	 * Creates a new JSField object on the form with the displayType of MULTISELECT_LISTBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
@@ -696,11 +696,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
 	 * 
-	 * @return a new JSField object on the form with the displayType of MULTI_SELECTION_LIST_BOX
+	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
 	 */
 	public JSField js_newMultiSelectionListBox(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.MULTI_SELECTION_LIST_BOX, x, y, width, height);
+		return js_newField(dataprovider, Field.MULTISELECT_LISTBOX, x, y, width, height);
 	}
 
 	/**

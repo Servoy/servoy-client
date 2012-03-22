@@ -303,12 +303,12 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * @sample
 	 * //the return value for an element of the TextField type, as returned by the following code
 	 * var etype = elements.elementName.getElementType();
-	 * if (etype == ELEMENT_TYPES.MULTI_SELECTION_LIST_BOX)
+	 * if (etype == ELEMENT_TYPES.MULTISELECT_LISTBOX)
 	 * {
-	 *      // element is a MULTI_SELECTION_LIST_BOX element
+	 *      // element is a MULTISELECT_LISTBOX element
 	 * }
 	 */
-	public static final String MULTI_SELECTION_LIST_BOX = IRuntimeComponent.MULTI_SELECTION_LIST_BOX;
+	public static final String MULTISELECT_LISTBOX = IRuntimeComponent.MULTISELECT_LISTBOX;
 
 	/**
 	 * Constant representing a form element.

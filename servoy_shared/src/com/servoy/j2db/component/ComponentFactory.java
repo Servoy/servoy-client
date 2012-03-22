@@ -648,7 +648,7 @@ public class ComponentFactory
 					lookupName = "radio";
 					break;
 				case Field.LIST_BOX :
-				case Field.MULTI_SELECTION_LIST_BOX :
+				case Field.MULTISELECT_LISTBOX :
 					lookupName = "listbox";
 					break;
 				case Field.SPINNER :
@@ -1367,9 +1367,9 @@ public class ComponentFactory
 
 				//$FALL-THROUGH$
 			case Field.LIST_BOX :
-			case Field.MULTI_SELECTION_LIST_BOX :
+			case Field.MULTISELECT_LISTBOX :
 			{
-				boolean multiSelect = (field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX);
+				boolean multiSelect = (field.getDisplayType() == Field.MULTISELECT_LISTBOX);
 				RuntimeListBox so;
 				scriptable = so = new RuntimeListBox(jsChangeRecorder, application, multiSelect);
 				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());

@@ -386,7 +386,7 @@ public class SwingItemFactory implements ItemFactory
 
 	public IFieldComponent createListBox(RuntimeListBox scriptable, String name, IValueList list, boolean multiSelect)
 	{
-		DataChoice dc = new DataChoice(application, scriptable, list, multiSelect ? Field.MULTI_SELECTION_LIST_BOX : Field.LIST_BOX);
+		DataChoice dc = new DataChoice(application, scriptable, list, multiSelect ? Field.MULTISELECT_LISTBOX : Field.LIST_BOX);
 		dc.setName(name);
 		return dc;
 	}

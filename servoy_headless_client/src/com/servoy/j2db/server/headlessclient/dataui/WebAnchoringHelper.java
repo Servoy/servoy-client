@@ -91,7 +91,7 @@ public class WebAnchoringHelper
 		// this needs to be in sync with DesignModeBehavior.needsWrapperDivForAnchoring(String type)
 		return (field.getDisplayType() == Field.PASSWORD) || (field.getDisplayType() == Field.TEXT_AREA) || (field.getDisplayType() == Field.COMBOBOX) ||
 			(field.getDisplayType() == Field.TYPE_AHEAD) || (field.getDisplayType() == Field.TEXT_FIELD) || (field.getDisplayType() == Field.LIST_BOX) ||
-			(field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX) || (field.getDisplayType() == Field.HTML_AREA && field.getEditable());
+			(field.getDisplayType() == Field.MULTISELECT_LISTBOX) || (field.getDisplayType() == Field.HTML_AREA && field.getEditable());
 	}
 
 	private static String computeWrapperDivStyle(int top, int left, int width, int height, int offsetWidth, int offsetHeight, int anchorFlags, int partStartY,

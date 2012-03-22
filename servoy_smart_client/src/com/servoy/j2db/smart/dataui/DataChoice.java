@@ -122,7 +122,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		application = app;
 		this.vl = vl;
 		this.choiceType = choiceType;
-		list = new ComboModelListModelWrapper(vl, true, (choiceType == Field.MULTI_SELECTION_LIST_BOX || choiceType == Field.LIST_BOX));
+		list = new ComboModelListModelWrapper(vl, true, (choiceType == Field.MULTISELECT_LISTBOX || choiceType == Field.LIST_BOX));
 		enclosedComponent = new JNavigableEditList();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
@@ -756,13 +756,13 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			if (SwingUtilities.isLeftMouseButton(e))
 			{
 				boolean selected = isRowSelected(enclosedComponent.getEditingRow());
-				if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTI_SELECTION_LIST_BOX)
+				if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTISELECT_LISTBOX)
 				{
 					list.setMultiValueSelect(false);
 				}
 				if (selected)
 				{
-					if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTI_SELECTION_LIST_BOX && list.getSelectedRows().size() > 1)
+					if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTISELECT_LISTBOX && list.getSelectedRows().size() > 1)
 					{
 						// clear the selection list
 						setElementAt(Boolean.FALSE, enclosedComponent.getEditingRow());
@@ -777,7 +777,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 					((JLabel)editorComponent).setBackground(enclosedComponent.getSelectionBackground());
 				}
 				stopCellEditing();
-				list.setMultiValueSelect(choiceType == Field.MULTI_SELECTION_LIST_BOX);
+				list.setMultiValueSelect(choiceType == Field.MULTISELECT_LISTBOX);
 			}
 		}
 
@@ -846,7 +846,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			objs[i] = list.getRealElementAt(((Integer)rows[i]).intValue());
 		}
 
-		return getScriptObject().getChoiceValue(objs, choiceType != Field.MULTI_SELECTION_LIST_BOX && choiceType != Field.CHECKS); // Field.RADIOS || choiceType == Field.LIST_BOX || choiceType == Field.SPINNER will use plain value
+		return getScriptObject().getChoiceValue(objs, choiceType != Field.MULTISELECT_LISTBOX && choiceType != Field.CHECKS); // Field.RADIOS || choiceType == Field.LIST_BOX || choiceType == Field.SPINNER will use plain value
 	}
 
 	private Object previousValue;

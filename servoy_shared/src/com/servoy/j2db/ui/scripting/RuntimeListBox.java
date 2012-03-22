@@ -43,6 +43,6 @@ public class RuntimeListBox extends AbstractRuntimeScrollableValuelistComponent<
 
 	public String getElementType()
 	{
-		return multiSelection ? IRuntimeComponent.MULTI_SELECTION_LIST_BOX : IRuntimeComponent.LIST_BOX;
+		return multiSelection ? IRuntimeComponent.MULTISELECT_LISTBOX : IRuntimeComponent.LIST_BOX;
 	}
 }

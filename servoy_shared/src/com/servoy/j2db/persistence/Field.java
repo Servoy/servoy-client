@@ -45,7 +45,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	public static final int IMAGE_MEDIA = 9;
 	public static final int TYPE_AHEAD = 10;
 	public static final int LIST_BOX = 11;
-	public static final int MULTI_SELECTION_LIST_BOX = 12;
+	public static final int MULTISELECT_LISTBOX = 12;
 	public static final int SPINNER = 13;
 
 //	list (to have a jlist alike)
@@ -392,7 +392,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * The type of display used by the field. Can be one of CALENDAR, CHECKS,
 	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
-	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTI_SELECTION_LIST_BOX or SPINNER.
+	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTISELECT_LISTBOX or SPINNER.
 	 */
 	public int getDisplayType()
 	{

@@ -2318,7 +2318,7 @@ public class TemplateGenerator
 		Insets padding = (Insets)DEFAULT_FIELD_PADDING.clone();
 		Insets border = (Insets)DEFAULT_FIELD_BORDER_SIZE.clone();
 
-		if (field.getDisplayType() == Field.COMBOBOX || field.getDisplayType() == Field.LIST_BOX || field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX)
+		if (field.getDisplayType() == Field.COMBOBOX || field.getDisplayType() == Field.LIST_BOX || field.getDisplayType() == Field.MULTISELECT_LISTBOX)
 		{
 			padding = DEFAULT_LABEL_PADDING;
 		}
@@ -2513,12 +2513,12 @@ public class TemplateGenerator
 				html.append(">Combobox</select>");
 			}
 				break;
-			case Field.MULTI_SELECTION_LIST_BOX :
+			case Field.MULTISELECT_LISTBOX :
 			case Field.LIST_BOX :
 			{
 				ins = null;
 				html.append("<select ");
-				if (field.getDisplayType() == Field.MULTI_SELECTION_LIST_BOX)
+				if (field.getDisplayType() == Field.MULTISELECT_LISTBOX)
 				{
 					html.append("multiple=\"multiple\"");
 				}

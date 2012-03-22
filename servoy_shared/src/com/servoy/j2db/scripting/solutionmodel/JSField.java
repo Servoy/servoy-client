@@ -165,10 +165,10 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var list = form.newField('my_table_options', JSField.MULTI_SELECTION_LIST_BOX, 10, 280, 100, 50);
+	 * var list = form.newField('my_table_options', JSField.MULTISELECT_LISTBOX, 10, 280, 100, 50);
 	 * list.valuelist = vlist;
 	 */
-	public static final int MULTI_SELECTION_LIST_BOX = Field.MULTI_SELECTION_LIST_BOX;
+	public static final int MULTISELECT_LISTBOX = Field.MULTISELECT_LISTBOX;
 
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the

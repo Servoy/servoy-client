@@ -52,7 +52,7 @@ public interface IRuntimeComponent extends IScriptable, HasRuntimeFgBgColor, Has
 	public String RTF_AREA = "RTF_AREA";
 	public String TYPE_AHEAD = "TYPE_AHEAD";
 	public String LIST_BOX = "LIST_BOX";
-	public String MULTI_SELECTION_LIST_BOX = "MULTI_SELECTION_LIST_BOX";
+	public String MULTISELECT_LISTBOX = "MULTISELECT_LISTBOX";
 	public String FORM = "FORM";
 	public String ACCORDIONPANEL = "ACCORDIONPANEL";
 	public String SPINNER = "SPINNER";

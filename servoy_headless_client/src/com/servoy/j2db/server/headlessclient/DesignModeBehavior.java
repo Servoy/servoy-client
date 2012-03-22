@@ -210,7 +210,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		return IRuntimeComponent.PASSWORD.equals(type) || IRuntimeComponent.TEXT_AREA.equals(type) || IRuntimeComponent.COMBOBOX.equals(type) ||
 			IRuntimeComponent.TYPE_AHEAD.equals(type) || IRuntimeComponent.TEXT_FIELD.equals(type) ||
 			(IRuntimeComponent.HTML_AREA.equals(type) && editable) || (IRuntimeComponent.LIST_BOX.equals(type)) ||
-			(IRuntimeComponent.MULTI_SELECTION_LIST_BOX.equals(type)) || IRuntimeComponent.BUTTON.equals(type);
+			(IRuntimeComponent.MULTISELECT_LISTBOX.equals(type)) || IRuntimeComponent.BUTTON.equals(type);
 	}
 
 	/**
