@@ -16,9 +16,13 @@
  */
 package com.servoy.j2db.util;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -887,6 +891,31 @@ public class ImageLoader
 					}
 				}
 			}
+			else if (url.indexOf("linear-gradient") != -1 && graphics instanceof Graphics2D)
+			{
+				String definition = url.substring(url.indexOf("(") + 1, url.indexOf(")"));
+				StringTokenizer tokenizer = new StringTokenizer(definition, ",");
+				if (tokenizer.countTokens() >= 2)
+				{
+					Color color1 = getColor(tokenizer.nextToken());
+					if (color1 == null)
+					{
+						color1 = getColor(tokenizer.nextToken());
+					}
+					if (color1 != null)
+					{
+						Color color2 = getColor(tokenizer.nextToken());
+						if (color2 != null)
+						{
+							GradientPaint gradientPaint = new GradientPaint(0, 0, color1, parentSize.width, parentSize.height, color2);
+							Paint tmpPaint = ((Graphics2D)graphics).getPaint();
+							((Graphics2D)graphics).setPaint(gradientPaint);
+							graphics.fillRect(0, 0, parentSize.width, parentSize.height);
+							((Graphics2D)graphics).setPaint(tmpPaint);
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -944,5 +973,14 @@ public class ImageLoader
 			result = result - imageSize;
 		}
 		return result;
+	}
+
+	private static Color getColor(String cssDefinition)
+	{
+		if (cssDefinition != null)
+		{
+			return PersistHelper.createColor(cssDefinition);
+		}
+		return null;
 	}
 }
