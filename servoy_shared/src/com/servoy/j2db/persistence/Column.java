@@ -1033,6 +1033,12 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 			setFlags(ciNonidentFlags | colIdentFlags);
 		}
 
+		if (!ci.isStoredPersistently() && getColumnType().getScale() > 0 && ci.getCompatibleColumnTypes() == null) // if this is a default in-memory column info, it's type should be compatible with the actual column type
+		{
+			// if table definition has a scale, add it to the compatible list, because the default type won't store scale.
+			ci.addCompatibleColumnType(getColumnType());
+		}
+
 		// The database default value only gets set once, via the column itself and never via the column info.
 		// Thus the version in the column is always the correct one and should override anything in column info.
 		setDatabaseDefaultValue(databaseDefaultValue);
