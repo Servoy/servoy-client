@@ -1730,6 +1730,21 @@ if (typeof(Servoy.Utils) == "undefined")
 		{
 		  var elem = document.getElementById(elemid);
 		  var child = document.getElementById(elemid + "_lb");
+		  var paddTop;
+		  var paddBottom;
+		  var ua = window.navigator.userAgent
+	      var msie = ua.indexOf("MSIE ");
+
+      	  if (msie > 0) // IE
+      	  {
+      	  	paddTop = elem.currentStyle.paddingTop.replace("px","");
+      	  	paddBottom = elem.currentStyle.paddingBottom.replace("px","");
+      	  }
+      	  else // other browsers 
+      	  {
+		 	paddTop = parseInt(window.getComputedStyle(elem, null).paddingTop.replace("px","")); 
+		  	paddBottom = parseInt(window.getComputedStyle(elem, null).paddingBottom.replace("px","")); 
+		  }
 		  
 		  if(elem && child)
 		  {
@@ -1740,17 +1755,17 @@ if (typeof(Servoy.Utils) == "undefined")
 	
 			if(valign == 1)			// ISupportTextSetup.TOP
 			{
-				top = 0;
+				top = paddTop;
 			}
 			else if(valign == 3)	// ISupportTextSetup.BOTTOM
 			{
-				top = elemHeight - childHeight;
+				top = elemHeight - childHeight - paddBottom;
 			}
 			else					// ISupportTextSetup.CENTER
 			{
 				top = Math.floor((elemHeight - childHeight)/2);
 			} 
-	
+				
 			child.style.top = top + "px";
 		  }
 		},

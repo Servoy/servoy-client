@@ -1091,8 +1091,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 
 		// Horizontal alignment and anchoring.
-		if (halign != ISupportTextSetup.RIGHT && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" left: " + left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (halign != ISupportTextSetup.LEFT && valign != ISupportTextSetup.CENTER) instrumentedBodyText.append(" right: " + right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		instrumentedBodyText.append(" left: " + left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		instrumentedBodyText.append(" right: " + right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (halign == ISupportTextSetup.LEFT) instrumentedBodyText.append(" text-align: left;"); //$NON-NLS-1$
 		else if (halign == ISupportTextSetup.RIGHT) instrumentedBodyText.append(" text-align: right;"); //$NON-NLS-1$
 		else instrumentedBodyText.append(" text-align: center;"); //$NON-NLS-1$
@@ -1107,8 +1107,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		boolean isOnlyImgDisplay = (Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText);
 
-		// Full width/height.
-		if (isHtml || (valign == ISupportTextSetup.CENTER && cssid != null)) instrumentedBodyText.append(" width: 100%;"); //$NON-NLS-1$
+		// Full height.
+		if (!isHtml) instrumentedBodyText.append(" overflow: hidden;");
 		if (isHtml && valign != ISupportTextSetup.CENTER && cssid == null) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
 		else if ((cssid != null && !isHTMLWithOnlyImg(bodyText)) || (!isOnlyImgDisplay && valign != ISupportTextSetup.CENTER)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
 		else if (!isButton && !isHtml && imgURL == null)
