@@ -884,7 +884,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 				for (String key : all)
 				{
 					MainPage page = (MainPage)fm.getMainContainer(key);
-					if (page != null && page != currentPage) // should always be so
+					if (page != null && page != currentPage) // should always be != null
 					{
 						String tmp = page.getTriggerBrowserRequestJS();
 						if (tmp != null) triggerJSs.add(tmp);

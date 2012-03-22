@@ -49,7 +49,6 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -63,6 +62,7 @@ import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.LookupListChangeListener;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
@@ -88,7 +88,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	protected JList jlist;
 
 	protected LookupListModel dlm;
-	protected ChangeListener changeListener;
+	protected LookupListChangeListener changeListener;
 	private boolean focusGainedOrValidationChange;
 
 	/** maximum height for the popup that displays the jlist */
@@ -119,9 +119,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	{
 		super(app, scriptable, list);
 		init(app);
-		dlm = new LookupListModel(application, list);
-		changeListener = new ChangeListener();
-		list.addListDataListener(changeListener);
+		createCustomListModel(list);
 	}
 
 	public DataLookupField(IApplication app, RuntimeDataLookupField scriptable, final LookupValueList list)
@@ -129,26 +127,9 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		super(app, scriptable, list);
 		init(app);
 
-		dlm = new LookupListModel(app, list);
-
-		if (dlm.isShowValues() != dlm.isReturnValues())
-		{
-			try
-			{
-				changeListener = new ChangeListener();
-				list.addListDataListener(changeListener);
-			}
-			catch (Exception e)
-			{
-				Debug.error("Error registering table"); //$NON-NLS-1$
-				Debug.error(e);
-			}
-		}
+		createLookupListModel(list);
 	}
 
-	/**
-	 * @param application2
-	 */
 	public DataLookupField(IApplication application, RuntimeDataLookupField scriptable, String serverName, String tableName, String dataProviderID)
 	{
 		super(application, scriptable);
@@ -163,15 +144,40 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		registerKeyboardAction(new HidePopup(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 	}
 
+	protected void createCustomListModel(CustomValueList vList)
+	{
+		dlm = new LookupListModel(application, vList);
+
+		if (changeListener == null) changeListener = new LookupListChangeListener(this);
+		vList.addListDataListener(changeListener);
+	}
+
+	protected void createLookupListModel(LookupValueList vlist)
+	{
+		dlm = new LookupListModel(application, vlist);
+
+		if (dlm.isShowValues() != dlm.isReturnValues())
+		{
+			try
+			{
+				if (changeListener == null) changeListener = new LookupListChangeListener(this);
+				vlist.addListDataListener(changeListener);
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error registering table listener for smart lookup"); //$NON-NLS-1$
+				Debug.error(e);
+			}
+		}
+	}
+
 	@Override
 	public void setValueList(IValueList vl)
 	{
 		super.setValueList(vl);
 		if (list instanceof CustomValueList)
 		{
-			dlm = new LookupListModel(application, (CustomValueList)list);
-			if (changeListener == null) changeListener = new ChangeListener();
-			list.addListDataListener(changeListener);
+			createCustomListModel((CustomValueList)list);
 			if (jlist != null)
 			{
 				jlist.setModel(dlm);
@@ -793,11 +799,11 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			}
 			if (vlist instanceof CustomValueList)
 			{
-				dlm = new LookupListModel(application, ((CustomValueList)vlist));
+				createCustomListModel((CustomValueList)vlist);
 			}
 			else
 			{
-				dlm = new LookupListModel(application, ((LookupValueList)vlist));
+				createLookupListModel((LookupValueList)vlist);
 			}
 			if (jlist != null)
 			{
@@ -876,41 +882,6 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			jlist = null;
 		}
 		if (list != null && changeListener != null) list.removeListDataListener(changeListener);
-	}
-
-	/**
-	 * @author jcompagner
-	 * 
-	 */
-	private final class ChangeListener implements ListDataListener
-	{
-		void changed()
-		{
-			Object value = getValue();
-			if (value != null)
-			{
-				boolean needEntireState = needEntireState();
-				setNeedEntireState(false);
-				setValueObject(null);
-				setValueObject(value);
-				setNeedEntireState(needEntireState);
-			}
-		}
-
-		public void intervalAdded(ListDataEvent e)
-		{
-			changed();
-		}
-
-		public void intervalRemoved(ListDataEvent e)
-		{
-			changed();
-		}
-
-		public void contentsChanged(ListDataEvent e)
-		{
-			changed();
-		}
 	}
 
 	private class HidePopup implements ActionListener

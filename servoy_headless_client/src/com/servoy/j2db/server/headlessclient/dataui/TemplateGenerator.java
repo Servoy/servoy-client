@@ -2597,29 +2597,33 @@ public class TemplateGenerator
 				html.append("</div>");
 			}
 				break;
-			case Field.TYPE_AHEAD :
-			{
-				String fieldPadding = "0px";
-				if (ins != null && ins.getPadding() != null) fieldPadding = ins.getPadding().top + "px " + ins.getPadding().right + "px " +
-					ins.getPadding().bottom + "px " + ins.getPadding().left + "px";
-				String fieldMargins = "0px";
-				if (field.getMargin() != null) fieldMargins = field.getMargin().top + "px " + field.getMargin().right + "px " + field.getMargin().bottom +
-					"px " + field.getMargin().left + "px";
 
-				TextualStyle styleAutcomplete = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa");
-				styleAutcomplete.setProperty("padding", fieldPadding);
-
-				TextualStyle styleUl = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa ul");
-				styleUl.setProperty("padding", fieldPadding);
-				styleUl.setProperty("margin", fieldMargins);
-
-				TextualStyle styleUlLiSelected = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa ul li.selected");
-				styleUlLiSelected.setProperty("padding", fieldPadding);
-				styleUlLiSelected.setProperty("margin", fieldMargins);
-			}
 			default :
+			case Field.TYPE_AHEAD :
 			case Field.TEXT_FIELD :
 			{
+				if (field.getDisplayType() == Field.TYPE_AHEAD || field.getValuelistID() > 0)
+				{
+					// prepare type-ahead drop-down
+					String fieldPadding = "0px";
+					if (ins != null && ins.getPadding() != null) fieldPadding = ins.getPadding().top + "px " + ins.getPadding().right + "px " +
+						ins.getPadding().bottom + "px " + ins.getPadding().left + "px";
+					String fieldMargins = "0px";
+					if (field.getMargin() != null) fieldMargins = field.getMargin().top + "px " + field.getMargin().right + "px " + field.getMargin().bottom +
+						"px " + field.getMargin().left + "px";
+
+					TextualStyle styleAutcomplete = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa");
+					styleAutcomplete.setProperty("padding", fieldPadding);
+
+					TextualStyle styleUl = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa ul");
+					styleUl.setProperty("padding", fieldPadding);
+					styleUl.setProperty("margin", fieldMargins);
+
+					TextualStyle styleUlLiSelected = css.addStyle("#" + ComponentFactory.getWebID(form, field) + "-autocomplete.wicket-aa ul li.selected");
+					styleUlLiSelected.setProperty("padding", fieldPadding);
+					styleUlLiSelected.setProperty("margin", fieldMargins);
+				}
+
 				if (ins == null)
 				{
 					ins = new BorderAndPadding(DEFAULT_FIELD_BORDER_SIZE, DEFAULT_FIELD_PADDING);

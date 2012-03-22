@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+` This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -46,6 +46,7 @@ import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.LookupListChangeListener;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
@@ -68,24 +69,15 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	private static final long serialVersionUID = 1L;
 	IRecordInternal parentState;
 	private LookupListModel dlm;
+	protected LookupListChangeListener changeListener;
 
-	/**
-	 * @param application
-	 * @param id
-	 * @param list
-	 */
 	public WebDataLookupField(IApplication application, RuntimeDataLookupField scriptable, String id, LookupValueList list)
 	{
 		super(application, scriptable, id, list);
-		dlm = new LookupListModel(application, list);
+		createLookupListModel(list);
 		init();
 	}
 
-	/**
-	 * @param application
-	 * @param id
-	 * @param list
-	 */
 	public WebDataLookupField(IApplication application, RuntimeDataLookupField scriptable, String id, final String serverName, String tableName,
 		String dataProviderID)
 	{
@@ -94,16 +86,38 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		init();
 	}
 
-	/**
-	 * @param application
-	 * @param list
-	 * @param name
-	 */
 	public WebDataLookupField(IApplication application, RuntimeDataLookupField scriptable, String id, CustomValueList list)
 	{
 		super(application, scriptable, id, list);
-		dlm = new LookupListModel(application, list);
+		createCustomListModel(list);
 		init();
+	}
+
+	protected void createCustomListModel(CustomValueList vList)
+	{
+		dlm = new LookupListModel(application, vList);
+
+		if (changeListener == null) changeListener = new LookupListChangeListener(this);
+		vList.addListDataListener(changeListener);
+	}
+
+	protected void createLookupListModel(LookupValueList vlist)
+	{
+		dlm = new LookupListModel(application, vlist);
+
+		if (dlm.isShowValues() != dlm.isReturnValues())
+		{
+			try
+			{
+				if (changeListener == null) changeListener = new LookupListChangeListener(this);
+				vlist.addListDataListener(changeListener);
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error registering table listener for web lookup"); //$NON-NLS-1$
+				Debug.error(e);
+			}
+		}
 	}
 
 	/**
@@ -121,11 +135,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			}
 			if (vlist instanceof CustomValueList)
 			{
-				dlm = new LookupListModel(application, ((CustomValueList)vlist));
+				createCustomListModel((CustomValueList)vlist);
 			}
 			else
 			{
-				dlm = new LookupListModel(application, ((LookupValueList)vlist));
+				createLookupListModel((LookupValueList)vlist);
 			}
 		}
 		super.setValidationEnabled(validation);
@@ -381,7 +395,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		super.setValueList(vl);
 		if (list instanceof CustomValueList)
 		{
-			dlm = new LookupListModel(application, (CustomValueList)list);
+			createCustomListModel((CustomValueList)list);
 		}
 		converter = null; // clear old converter, so a new one is created  for the new list
 	}
