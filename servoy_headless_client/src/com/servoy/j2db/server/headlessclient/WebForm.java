@@ -866,25 +866,15 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		}
 	}
 
-	public void setComponentEnabled(final boolean b)
-	{
-		setEnabled(b);
-		visitChildren(new IVisitor()
-		{
-			public Object component(org.apache.wicket.Component component)
-			{
-				if (component instanceof IComponent)
-				{
-					((IComponent)component).setComponentEnabled(b);
-				}
-				else
-				{
-					component.setEnabled(b);
-				}
-				return CONTINUE_TRAVERSAL;
-			}
+	private Boolean enableChanged = Boolean.FALSE;
 
-		});
+	public void setComponentEnabled(final boolean enabled)
+	{
+		if (enabled != isEnabled())
+		{
+			enableChanged = Boolean.TRUE;
+			setEnabled(enabled);
+		}
 	}
 
 	/**
@@ -1776,6 +1766,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		enableChanged = Boolean.FALSE;
 		if (previousParent != getParent())
 		{
 			formWidth = 0;
@@ -1879,6 +1870,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 			public boolean isChanged()
 			{
+				if (enableChanged != null && enableChanged.booleanValue())
+				{
+					return true;
+				}
 				if (!uiRecreated)
 				{
 					if (designModeBehavior != null && designModeBehavior.isEnabled(WebForm.this))

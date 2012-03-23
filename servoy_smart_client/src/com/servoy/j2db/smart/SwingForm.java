@@ -228,7 +228,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	private IView view;
 
-	private final List<Component> componentsWithEditableStateChanged;
+	private final List<Component> componentsWithEditableStateChanged = new ArrayList<Component>();
+	private final List<Component> componentsWithEnabledStateChanged = new ArrayList<Component>();
 
 	private Color bgColor;
 	private final Timer containerTimer;
@@ -251,7 +252,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		addFocusListener(new AutoTransferFocusListener(this, this));
 		readonly = false;
 
-		componentsWithEditableStateChanged = new ArrayList<Component>();
 		registerFindKeystrokes(this);
 		containerTimer = new Timer(300, new AbstractAction()
 		{
@@ -810,7 +810,47 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	public void setComponentEnabled(boolean enabled)
 	{
-		setEnabled(enabled);
+		if (isEnabled() != enabled)
+		{
+			if (!enabled)
+			{
+				addEnabledComponents(this, componentsWithEnabledStateChanged);
+				setEnabled(enabled);
+			}
+			else
+			{
+				if (componentsWithEnabledStateChanged.size() != 0)
+				{
+					for (Component component : componentsWithEnabledStateChanged)
+					{
+						component.setEnabled(enabled);
+					}
+				}
+				componentsWithEnabledStateChanged.clear();
+				if (west != null)
+				{
+					west.setEnabled(enabled);
+				}
+			}
+		}
+	}
+
+	private void addEnabledComponents(Component parent, List<Component> components)
+	{
+		if (parent instanceof Container)
+		{
+			for (Component child : ((Container)parent).getComponents())
+			{
+				if ((child instanceof IScriptableProvider || child instanceof ListView || child instanceof TableView) && child.isEnabled())
+				{
+					components.add(child);
+				}
+				if (!(child instanceof IScriptableProvider))
+				{
+					addEnabledComponents(child, components);
+				}
+			}
+		}
 	}
 
 	public void showSortDialog(IApplication app, String options)
