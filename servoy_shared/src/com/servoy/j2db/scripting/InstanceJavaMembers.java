@@ -215,9 +215,7 @@ public class InstanceJavaMembers extends JavaMembers
 				if (member instanceof NativeJavaMethod && ((NativeJavaMethod)member).getMethods().length == 1)
 				{
 					MemberBox mb = ((NativeJavaMethod)member).getMethods()[0];
-					if (mb.isMethod() &&
-						(AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSReadonlyProperty.class) || AnnotationManager.getInstance().isAnnotationPresent(
-							mb.method(), JSGetter.class)))
+					if (mb.isMethod() && AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSReadonlyProperty.class))
 					{
 						// make bean property
 						copy.put(name, new BeanProperty(mb, null, null));
