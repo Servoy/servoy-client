@@ -27,6 +27,6 @@ import com.servoy.j2db.ui.runtime.IRuntimeTabPanel;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTabPanel", extendsComponent = "RuntimeComponent")
-public interface IScriptTabPanelMethods extends IDepricatedScriptTabPanelMethods, IRuntimeTabPanel
+public interface IScriptTabPanelMethods extends IDepricatedScriptTabPanelMethods, IRuntimeTabPanel, IScriptTabPaneAlikeMethods
 {
 }
