@@ -251,7 +251,14 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
 
-		return super.get(name, start);
+		Object object = super.get(name, start);
+		if ((object == null || object == Scriptable.NOT_FOUND) && ("foundset".equals(name) || "elements".equals(name)))
+		{
+			Debug.error(Thread.currentThread().getName() + ": For form " + _fp + " the foundset was asked for but that was not set. " +
+					(this == _fp.getFormScope()), new RuntimeException());
+			if (name.equals("foundset")) return _fp.getFormModel();
+		}
+		return object;
 	}
 
 	/**

@@ -429,6 +429,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public void valueChanged(ModificationEvent e)
 	{
+		if (destroyed && e.getRecord() != null)
+		{
+			Debug.error("Destroyed DataAdapterList " + formController + " was still attached to the record, removing it, currentRecord: " + currentRecord,
+				new RuntimeException());
+			e.getRecord().removeModificationListener(this);
+			return;
+		}
 		FormScope formScope = getFormScope();
 		if (visible && (currentRecord != null || (formScope != null && formScope.has(e.getName(), formScope))))
 		{
@@ -550,6 +557,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	{
 		if (formController == null) // can happen for a design component
 		{
+			return null;
+		}
+		if (destroyed)
+		{
+			Debug.error("calling getFormScope on a destroyed DataAdapterList, formcontroller: " + formController + ", currentRecord: " + currentRecord,
+				new RuntimeException());
 			return null;
 		}
 		return formController.getFormScope();
@@ -681,6 +694,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		return application;
 	}
 
+	private boolean destroyed = false;
+
 	/**
 	 * 
 	 */
@@ -693,6 +708,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			setRecord(null, false);
 		}
 
+		if (formController != null && formController.getFormScope() != null)
+		{
+			formController.getFormScope().getModificationSubject().removeModificationListener(this);
+		}
 		IExecutingEnviroment er = application.getScriptEngine();
 		if (er != null)
 		{
@@ -761,9 +780,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		}
 		dataAdapters = null;
 
-		currentRecord = null;
 		currentDisplay = null;
 		visible = false;
+		destroyed = true;
+		if (currentRecord != null)
+		{
+			Debug.error("After destroy there is still a current record in DataAdapterList of formcontroller: " + formController, new RuntimeException()); //$NON-NLS-1$
+			currentRecord.removeModificationListener(this);
+		}
 	}
 
 	public String getStringValue(String name)
