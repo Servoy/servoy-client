@@ -83,5 +83,5 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 	 */
 	public void deleteRecord(Record record) throws ServoyException;
 
-	public Object getRecord(Object[] pk);
+	public IRecordInternal getRecord(Object[] pk);
 }

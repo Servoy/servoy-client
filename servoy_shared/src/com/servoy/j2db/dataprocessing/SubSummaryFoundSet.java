@@ -128,7 +128,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		return retval.toArray(new IRecordInternal[retval.size()]);
 	}
 
-	public Object getRecord(Object[] pk)
+	public IRecordInternal getRecord(Object[] pk)
 	{
 		return null;
 	}
