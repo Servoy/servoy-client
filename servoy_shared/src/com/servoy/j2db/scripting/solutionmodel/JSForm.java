@@ -687,10 +687,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 * var calendar = form.newMultiSelectionListBox(myDataProvider, 100, 100, 200, 200);
+	 * var calendar = form.newMultiSelectListBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -698,7 +698,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
 	 */
-	public JSField js_newMultiSelectionListBox(Object dataprovider, int x, int y, int width, int height)
+	public JSField js_newMultiSelectListBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return js_newField(dataprovider, Field.MULTISELECT_LISTBOX, x, y, width, height);
 	}
