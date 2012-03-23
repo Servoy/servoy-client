@@ -381,7 +381,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * 
 	 * @templatedescription 
 	 * Record pre-create trigger
-	 * When false is returned the record a record not be created in the foundset.
+	 * When false is returned the record will not be created in the foundset.
 	 * @templatename onFoundSetRecordCreate
 	 * @templatetype Boolean
 	 * @templateaddtodo
