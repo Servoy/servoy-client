@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.dataprocessing.IFoundSet;
 
 
@@ -83,6 +85,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tabs were successfully removed
 	 */
+	@JSFunction
 	public boolean removeAllTabs();
 
 	/**
