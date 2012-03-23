@@ -241,13 +241,16 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			}
 			partHeight = part.getHeight();
 			Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(app, part, form);
-			if (pair != null && pair.getRight() != null)
+			if (panel != null)
 			{
-				panel.setCssRule(pair.getRight());
-			}
-			if (formHasBgImage && !form.getTransparent() && bg != null)
-			{
-				panel.setPaintBackgroundOnTopOfFormImage(true);
+				if (pair != null && pair.getRight() != null)
+				{
+					panel.setCssRule(pair.getRight());
+				}
+				if (formHasBgImage && !form.getTransparent() && bg != null)
+				{
+					panel.setPaintBackgroundOnTopOfFormImage(true);
+				}
 			}
 		}
 
