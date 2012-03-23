@@ -1444,7 +1444,7 @@ public class JSDatabaseManager
 	public String js_getSQL(Object foundset, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
-		if (foundset instanceof FoundSet)
+		if (foundset instanceof FoundSet && ((FoundSet)foundset).getTable() != null)
 		{
 			try
 			{
@@ -1505,7 +1505,7 @@ public class JSDatabaseManager
 	public Object[] js_getSQLParameters(Object foundset, boolean includeFilters) throws ServoyException
 	{
 		checkAuthorized();
-		if (foundset instanceof FoundSet)
+		if (foundset instanceof FoundSet && ((FoundSet)foundset).getTable() != null)
 		{
 			try
 			{
