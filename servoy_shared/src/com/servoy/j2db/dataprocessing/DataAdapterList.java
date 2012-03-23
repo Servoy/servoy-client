@@ -714,7 +714,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			setRecord(null, false);
 		}
 
-		if (formController != null)
+		if (formController != null && formController.getFormScope() != null)
 		{
 			formController.getFormScope().removeModificationListener(this);
 		}
