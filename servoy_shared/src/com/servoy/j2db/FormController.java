@@ -1686,7 +1686,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				int onRenderMethodID = form.getOnRenderMethodID();
 				if (onRenderMethodID > 0)
 				{
-					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+						Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 				}
 				//apply bgcolor to renderer				
@@ -1713,7 +1714,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			int onRenderMethodID = form.getOnRenderMethodID();
 			if (onRenderMethodID > 0)
 			{
-				dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+				dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+					Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
 			//apply bgcolor to renderer				

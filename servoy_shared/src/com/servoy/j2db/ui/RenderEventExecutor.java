@@ -21,6 +21,7 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.JSRenderEvent;
+import com.servoy.j2db.util.Utils;
 
 /**
  * On render event executor.
@@ -31,6 +32,7 @@ import com.servoy.j2db.scripting.JSRenderEvent;
 public class RenderEventExecutor implements IRenderEventExecutor
 {
 	private String renderCallback;
+	private Object[] renderCallbackArgs;
 	private IScriptExecuter renderScriptExecuter;
 	private IRecordInternal renderRecord;
 	private int renderIndex;
@@ -38,9 +40,10 @@ public class RenderEventExecutor implements IRenderEventExecutor
 
 	private boolean isHiddenOnRender;
 
-	public void setRenderCallback(String id)
+	public void setRenderCallback(String id, Object[] args)
 	{
 		renderCallback = id;
+		renderCallbackArgs = args;
 	}
 
 	public void setRenderScriptExecuter(IScriptExecuter scriptExecuter)
@@ -89,7 +92,7 @@ public class RenderEventExecutor implements IRenderEventExecutor
 			event.setRecord(renderRecord);
 			event.setIndex(renderIndex);
 			event.setSelected(renderIsSelected);
-			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, display, false,
+			renderScriptExecuter.executeFunction(renderCallback, Utils.arrayMerge(new Object[] { event }, renderCallbackArgs), false, display, false,
 				StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
 			isOnRenderRunningOnComponentPaint = false;
 			isHiddenOnRender = !display.isVisible() && (isDisplayVisible != display.isVisible());

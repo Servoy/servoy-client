@@ -304,9 +304,9 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 	};
 
 	@Override
-	public void setRenderCallback(String id)
+	public void setRenderCallback(String id, Object[] args)
 	{
-		super.setRenderCallback(id);
+		super.setRenderCallback(id, args);
 		// if this is a text component, we need to force its repaint when
 		// it does not have content and is loosing focus
 		if (id != null)
