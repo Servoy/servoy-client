@@ -23,7 +23,6 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 import com.servoy.j2db.querybuilder.IQueryBuilderSorts;
@@ -51,6 +50,12 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		return (QBSelect)super.getParent();
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#addPk()
+	 * @sample
+	 * 
+	 * query.sort.addPk()
+	 */
 	@JSFunction
 	public QBSorts addPk() throws RepositoryException
 	{
@@ -62,6 +67,11 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		return this;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderSort)
+	 * @sample
+	 * query.sort.add(query.columns.orderid.desc)
+	 */
 	public QBSorts js_add(QBSort sort) throws RepositoryException
 	{
 		return add(sort);
@@ -73,6 +83,11 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		return this;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderColumn)
+	 * @sample
+	 * query.sort.add(query.columns.orderid)
+	 */
 	public QBSorts js_add(QBColumn columnSortAsc) throws RepositoryException
 	{
 		return add(columnSortAsc);
@@ -81,13 +96,6 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	public QBSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException
 	{
 		return add(columnSortAsc.asc());
-	}
-
-	@JSFunction
-	public QBSorts addValue(Object value) throws RepositoryException
-	{
-		getParent().getQuery().addColumn(new QueryColumnValue(value, null, value instanceof Integer));
-		return this;
 	}
 
 }

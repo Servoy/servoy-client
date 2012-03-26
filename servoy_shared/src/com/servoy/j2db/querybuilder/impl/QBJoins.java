@@ -62,12 +62,36 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 		this.parent = parent;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getParent()
+	 * @sample
+	 * 	var query = databaseManager.createSelect('db:/example_data/person')
+	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
+	 * 	foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBTableClause getParent()
 	{
 		return parent;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getRoot()
+	 * @sample
+	 * 	var subquery = databaseManager.createSelect('db:/example_data/order_details')
+	 * 		
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	query.where.add(query
+	 * 		.or 
+	 * 			.add(query.columns.order_id.not.isin([1, 2, 3]))
+	 * 			
+	 * 			.add(query.exists(
+	 * 					subquery.where.add(subquery.columns.orderid.eq(query.columns.order_id)).root
+	 * 			))
+	 * 		)
+	 * 		
+	 * 	foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBSelect getRoot()
 	{
@@ -153,12 +177,25 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 		return "root".equals(name) || "parent".equals(name) || super.has(name, start);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, int)
+	 * @sample
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
+	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
+	 * 	query.where.add(join.columns.quantity.le(10))
+	 * 	foundset.loadRecords(query)
+	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType) throws RepositoryException
 	{
 		return add(dataSource, joinType, null);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, String)
+	 * @sampleas add(String, int)
+	 */
 	@JSFunction
 	public QBJoin add(String dataSourceOrRelation, String alias) throws RepositoryException
 	{
@@ -175,12 +212,20 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 		return add(dataSourceOrRelation, IQueryBuilderJoin.LEFT_OUTER_JOIN, alias);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String)
+	 * @sampleas add(String, int)
+	 */
 	@JSFunction
 	public QBJoin add(String dataSource) throws RepositoryException
 	{
 		return add(dataSource, IQueryBuilderJoin.LEFT_OUTER_JOIN, null);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, int, String)
+	 * @sampleas add(String, int)
+	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType, String alias) throws RepositoryException
 	{

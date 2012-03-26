@@ -45,12 +45,36 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 		this.parent = parent;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getParent()
+	 * @sample
+	 * 	var query = databaseManager.createSelect('db:/example_data/person')
+	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
+	 * 	foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBTableClause getParent()
 	{
 		return parent;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getRoot()
+	 * @sample
+	 * 	var subquery = databaseManager.createSelect('db:/example_data/order_details')
+	 * 		
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	query.where.add(query
+	 * 		.or 
+	 * 			.add(query.columns.order_id.not.isin([1, 2, 3]))
+	 * 			
+	 * 			.add(query.exists(
+	 * 					subquery.where.add(subquery.columns.orderid.eq(query.columns.order_id)).root
+	 * 			))
+	 * 		)
+	 * 		
+	 * 	foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBSelect getRoot()
 	{

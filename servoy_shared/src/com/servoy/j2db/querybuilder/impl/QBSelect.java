@@ -55,7 +55,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
-	public static final String CONDITION_WHERE = "SQ:WHERE";
+	private static final String CONDITION_WHERE = "SQ:WHERE";
 
 	private final ITableAndRelationProvider tableProvider;
 
@@ -147,6 +147,12 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return dataProviderHandler;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#where()
+	 * @sample
+	 * var query = foundset.getQuery()
+	 * query.where.add(query.columns.flag.eq(1))
+	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition where() throws RepositoryException
 	{
@@ -162,6 +168,14 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return where;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#having()
+	 * @sample
+	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
+	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
+	 * foundset.loadRecords(query)	 
+	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition having() throws RepositoryException
 	{
@@ -177,6 +191,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return where;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#result()
+	 * @sample
+	 * query.result.add(query.columns.company_id).add(query.columns.customerid)
+	 */
 	@JSReadonlyProperty
 	public QBResult result()
 	{
@@ -187,6 +206,15 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return result;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#sort()
+	 * @sample
+	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * query.sort
+	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
+	 * .add(query.columns.companyid)
+	 * foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBSorts sort()
 	{
@@ -197,6 +225,14 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return sort;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#groupBy()
+	 * @sample
+	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
+	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
+	 * foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBGroupBy groupBy()
 	{
@@ -207,6 +243,20 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return groupBy;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#params()
+	 * @sample
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 * 	query.where.add(query.columns.contact_id.eq(query.getParameter('mycontactid')))
+	 * 	
+	 * 	// load orders where contact_id = 100
+	 * 	query.params['mycontactid'] = 100
+	 * 	foundset.loadRecords(query)
+	 * 	
+	 * 	// load orders where contact_id = 200
+	 * 	query.params['mycontactid'] = 200
+	 * 	foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBParameters params()
 	{
@@ -217,36 +267,76 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return params;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#getParameter(String)
+	 * @sampleas params()
+	 */
 	@JSFunction
 	public QBParameter getParameter(String name) throws RepositoryException
 	{
 		return params().getParameter(name);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#or()
+	 * @sampleas and()
+	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition or()
 	{
 		return new QBLogicalCondition(getRoot(), this, new OrCondition());
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#and()
+	 * @sample
+	 * query.where.add(
+	 *	  query.or
+	 *	    .add(
+	 *	      query.and
+	 *		    .add(query.columns.flag.eq(1))
+	 *	    .add(query.columns.order_date.isNull)
+	 *		 )
+	 *	    .add(
+	 *	      query.and
+	 *	        .add(query.columns.flag.eq(2))
+	 *	        .add(query.column.order_date.gt(new Date()))
+	 *	     )
+	 *	);	
+	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition and()
 	{
 		return new QBLogicalCondition(getRoot(), this, new AndCondition());
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderLogicalCondition)
+	 * @sample
+	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
+	 */
 	@JSFunction
 	public QBCondition not(IQueryBuilderLogicalCondition cond)
 	{
 		return new QBCondition(getRoot(), (QBTableClause)cond.getParent(), ((QBLogicalCondition)cond).getQueryCondition().negate());
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderCondition)
+	 * @sample
+	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
+	 */
 	@JSFunction
 	public QBCondition not(IQueryBuilderCondition cond)
 	{
 		return new QBCondition(this, ((QBCondition)cond).getParent(), ((QBCondition)cond).getQueryCondition().negate());
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#exists(IQueryBuilder)
+	 * @sample
+	 * foundset.query.where.add(query.exists(query2))
+	 */
 	public QBCondition js_exists(QBSelect q) throws RepositoryException
 	{
 		return exists(q);

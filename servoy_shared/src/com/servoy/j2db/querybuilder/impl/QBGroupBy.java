@@ -51,6 +51,14 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 		return add(getParent().getColumn(columnName));
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderGroupby#add(IQueryBuilderColumn)
+	 * @sample
+	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * query.groupBy.add(query.columns.orderid) // have to group by on pk when using having-conditions in (foundset) pk queries
+	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
+	 * foundset.loadRecords(query)
+	 */
 	public QBGroupBy js_add(QBColumn column) throws RepositoryException
 	{
 		return add(column);
@@ -62,6 +70,14 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 		return this;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderGroupby#addPk()
+	 * @sample
+	 * var query = databaseManager.createSelect('db:/example_data/orders')
+	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
+	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
+	 * foundset.loadRecords(query)
+	 */
 	@JSFunction
 	public QBGroupBy addPk() throws RepositoryException
 	{

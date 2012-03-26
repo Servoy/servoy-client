@@ -47,6 +47,18 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 		return join.getForeignTable();
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoin#on()
+	 * @sample
+	 * var query = databaseManager.createSelect('db:/example_data/person')
+	 * var join1 = query.joins.add('db:/example_data/person')
+	 * join1.on.add(query.columns.parent_person_id.eq(join1.columns.person_id))
+	 * var join2 = query.joins.add('db:/example_data/person')
+	 * join2.on.add(join1.columns.parent_person_id.eq(join2.columns.person_id))
+	 * 	
+	 * query.where.add(join2.columns.name.eq('john'))
+	 * foundset.loadRecords(query)
+	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition on()
 	{

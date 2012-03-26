@@ -50,6 +50,11 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return (QBSelect)super.getParent();
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#addPk()
+	 * @sample
+	 * query.result.addPk()
+	 */
 	@JSFunction
 	public QBResult addPk() throws RepositoryException
 	{
@@ -61,11 +66,21 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return this;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(String)
+	 * @sample
+	 * query.result.add("custname")
+	 */
 	public QBResult add(String columnName) throws RepositoryException
 	{
 		return add(getParent().getColumn(columnName));
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
+	 * @sample
+	 * query.result.add(query.columns.custname)
+	 */
 	public QBResult js_add(QBColumn column) throws RepositoryException
 	{
 		return add(column);
@@ -77,16 +92,31 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return this;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
+	 * @sample
+	 * query.result.add(query.columns.label_text.max)
+	 */
 	public QBResult js_add(QBAggregate aggregate) throws RepositoryException
 	{
 		return add(aggregate);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
+	 * @sample
+	 * query.result.add(query.columns.custname.upper())
+	 */
 	public QBResult js_add(QBFunction func) throws RepositoryException
 	{
 		return add(func);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#addValue(Object)
+	 * @sample
+	 * query.result.addValue(100)
+	 */
 	@JSFunction
 	public QBResult addValue(Object value) throws RepositoryException
 	{
@@ -94,11 +124,20 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return this;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#setDistinct(boolean)
+	 * @sample
+	 * query.result.distinct = true
+	 */
 	public void js_setDistinct(boolean distinct) throws RepositoryException
 	{
 		setDistinct(distinct);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#setDistinct(boolean)
+	 * @sampleas js_setDistinct(boolean)
+	 */
 	public boolean js_isDistinct() throws RepositoryException
 	{
 		return isDistinct();

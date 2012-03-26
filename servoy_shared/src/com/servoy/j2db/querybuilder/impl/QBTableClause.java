@@ -73,6 +73,11 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	abstract QueryTable getQueryTable() throws RepositoryException;
 
 
+	/**
+	 * Get columns from query
+	 * @sample
+	 * foundset.getQuery().columns
+	 */
 	@JSReadonlyProperty
 	public QBColumns columns() throws ServoyException
 	{
@@ -89,6 +94,11 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	}
 
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#joins()
+	 * @sample
+	 * foundset.getQuery().joins
+	 */
 	@JSReadonlyProperty
 	public QBJoins joins()
 	{
@@ -99,6 +109,11 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return joins;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#getColumn(String)
+	 * @sample
+	 * foundset.getQuery().getColumn('orderid')
+	 */
 	@JSFunction
 	public QBColumn getColumn(String name) throws RepositoryException
 	{
@@ -117,6 +132,11 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return builderColumn;
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#getColumn(String, String)
+	 * @sample
+	 * foundset.getQuery().getColumn('orderid', 'opk')
+	 */
 	@JSFunction
 	public QBColumn getColumn(String columnTableAlias, String name) throws RepositoryException
 	{
