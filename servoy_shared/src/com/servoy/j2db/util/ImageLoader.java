@@ -908,12 +908,14 @@ public class ImageLoader
 						if ("left".equals(firstToken))
 						{
 							startX = 0;
+							startY = parentSize.width;
 							endX = parentSize.width;
 						}
 						else if ("right".equals(firstToken))
 						{
 							startX = parentSize.width;
 							endX = 0;
+							endY = 0;
 						}
 						else if ("bottom".equals(firstToken))
 						{
