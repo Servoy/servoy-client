@@ -897,9 +897,29 @@ public class ImageLoader
 				StringTokenizer tokenizer = new StringTokenizer(definition, ",");
 				if (tokenizer.countTokens() >= 2)
 				{
-					Color color1 = getColor(tokenizer.nextToken());
+					String firstToken = tokenizer.nextToken();
+					float startX = parentSize.width / 2;
+					float startY = 0;
+					float endX = parentSize.width / 2;
+					float endY = parentSize.height;
+					Color color1 = getColor(firstToken);
 					if (color1 == null)
 					{
+						if ("left".equals(firstToken))
+						{
+							startX = 0;
+							endX = parentSize.width;
+						}
+						else if ("right".equals(firstToken))
+						{
+							startX = parentSize.width;
+							endX = 0;
+						}
+						else if ("bottom".equals(firstToken))
+						{
+							startY = parentSize.height;
+							endY = 0;
+						}
 						color1 = getColor(tokenizer.nextToken());
 					}
 					if (color1 != null)
@@ -907,7 +927,7 @@ public class ImageLoader
 						Color color2 = getColor(tokenizer.nextToken());
 						if (color2 != null)
 						{
-							GradientPaint gradientPaint = new GradientPaint(0, 0, color1, parentSize.width, parentSize.height, color2);
+							GradientPaint gradientPaint = new GradientPaint(startX, startY, color1, endX, endY, color2);
 							Paint tmpPaint = ((Graphics2D)graphics).getPaint();
 							((Graphics2D)graphics).setPaint(gradientPaint);
 							graphics.fillRect(0, 0, parentSize.width, parentSize.height);
