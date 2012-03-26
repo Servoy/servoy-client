@@ -19,8 +19,10 @@ package com.servoy.j2db.persistence;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.servoy.j2db.FlattenedSolution;
 
@@ -57,6 +59,30 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		return flattenedSolution.getFormHierarchy(form);
 	}
 
+	@Override
+	public void setExtendsID(int arg)
+	{
+		// override the Form.setExtendsID so that the persist fire is not happening
+		// and the extends form is not get right aways.
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.persistence.Form#getExtendsForm()
+	 */
+	@Override
+	public Form getExtendsForm()
+	{
+		// if the extends form is asked for now look it up if there is one
+		if (getExtendsID() > 0)
+		{
+			return flattenedSolution.getForm(getExtendsID());
+		}
+		return null;
+	}
+
 	/**
 	 * @param flattenedSolution
 	 * @param form
@@ -68,6 +94,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 
 		copyPropertiesMap(form.getPropertiesMap(), false);
 
+		// caches for the duplicate (over the form hierarchy) methods/variables, so that only 
+		// the first method based on its name is added. 
+		Set<String> methods = new HashSet<String>(64);
+		Set<String> variables = new HashSet<String>(64);
 		List<Integer> existingIDs = new ArrayList<Integer>();
 		for (Form f : allForms)
 		{
@@ -81,8 +111,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						// some deleted element
 						continue;
 					}
-					boolean addScriptMethod = (ip instanceof ScriptMethod && getScriptMethod(((ScriptMethod)ip).getName()) == null);
-					boolean addScriptVariable = (ip instanceof ScriptVariable && getScriptVariable(((ScriptVariable)ip).getName()) == null);
+					boolean addScriptMethod = (ip instanceof ScriptMethod && methods.add(((ScriptMethod)ip).getName()));
+					boolean addScriptVariable = (ip instanceof ScriptVariable && variables.add(((ScriptVariable)ip).getName()));
 					boolean addOtherElement = (!(ip instanceof Part) && !(ip instanceof ScriptMethod) && !(ip instanceof ScriptVariable));
 					if (addScriptVariable || addScriptMethod || addOtherElement)
 					{

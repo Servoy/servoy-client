@@ -100,6 +100,7 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
@@ -133,6 +134,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private volatile Map<String, Relation> relationCacheByName = null;
 	private volatile Map<String, Map<String, ISupportScope>> scopeCacheByName = null;
 	private volatile Map<String, Form> formCacheByName = null;
+	private volatile IntHashMap<Form> formCacheById;
+
 	private volatile Map<String, ValueList> valuelistCacheByName = null;
 
 	private final List<IPersist> removedPersist = Collections.synchronizedList(new ArrayList<IPersist>(3));
@@ -1264,6 +1267,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		relationCacheByName = null;
 		scopeCacheByName = null;
 		formCacheByName = null;
+		formCacheById = null;
 		valuelistCacheByName = null;
 		dataProviderLookups = null;
 		all_styles = null;
@@ -1510,6 +1514,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private void flushForms()
 	{
 		formCacheByName = null;
+		formCacheById = null;
 	}
 
 	private void flushScopes()
@@ -2068,34 +2073,51 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Form getForm(int id)
 	{
-		if (id > 0)
+		if (id <= 0) return null;
+
+		IntHashMap<Form> tmp = formCacheById;
+		while (tmp == null)
 		{
-			return AbstractBase.selectById(getForms(false), id);
+			// the form cache was null, try to create it
+			fillFormCaches();
+			// can become null if a flush did happen in the mean time, then try again 
+			tmp = formCacheById;
 		}
-		return null;
+		return tmp.get(id);
 	}
 
 	public Form getForm(String name)
 	{
-		if (name == null)
-		{
-			return null;
-		}
+		if (name == null) return null;
 
 		Map<String, Form> tmp = formCacheByName;
-		if (tmp == null)
+		while (tmp == null)
 		{
-			tmp = new HashMap<String, Form>(64, 0.9f);
-
-			Iterator<Form> forms = getForms(false);
-			while (forms.hasNext())
-			{
-				Form form = forms.next();
-				tmp.put(form.getName(), form);
-			}
-			formCacheByName = tmp;
+			// the form cache was null, try to create it
+			fillFormCaches();
+			// can become null if a flush did happen in the mean time, then try again
+			tmp = formCacheByName;
 		}
 		return tmp.get(name);
+	}
+
+	/**
+	 * @return
+	 */
+	private void fillFormCaches()
+	{
+		Map<String, Form> tmpByName = new HashMap<String, Form>(64, 0.9f);
+		IntHashMap<Form> tmpById = new IntHashMap<Form>(64, 0.9f);
+
+		Iterator<Form> forms = getForms(false);
+		while (forms.hasNext())
+		{
+			Form form = forms.next();
+			tmpByName.put(form.getName(), form);
+			tmpById.put(form.getID(), form);
+		}
+		formCacheByName = tmpByName;
+		formCacheById = tmpById;
 	}
 
 	/**
