@@ -143,6 +143,7 @@ import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -2280,7 +2281,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					public Object component(Component comp)
 					{
-						((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
+						if ((comp instanceof IDisplayData) || !(comp instanceof ILabel))
+						{
+							// labels/buttons that don't display data are not changed
+							((IProviderStylePropertyChanges)comp).getStylePropertyChanges().setChanged();
+						}
 						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 					}
 				});
