@@ -1304,6 +1304,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		boolean sortable = true;
 		String initialSortString = null;
 		int onRenderMethodID = 0;
+		AbstractBase onRenderPersist = null;
 		if (cellview instanceof Portal)
 		{
 			Portal p = (Portal)cellview;
@@ -1311,6 +1312,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			sortable = p.getSortable();
 			initialSortString = p.getInitialSort();
 			onRenderMethodID = p.getOnRenderMethodID();
+			onRenderPersist = p;
 
 			int portalAnchors = p.getAnchors();
 			isAnchored = (((portalAnchors & IAnchorConstants.NORTH) > 0) && ((portalAnchors & IAnchorConstants.SOUTH) > 0)) ||
@@ -1320,12 +1322,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			initialSortString = form.getInitialSort();
 			onRenderMethodID = form.getOnRenderMethodID();
+			onRenderPersist = form;
 			isAnchored = true;
 		}
 
 		if (onRenderMethodID > 0)
 		{
-			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+				Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 		}
 

@@ -157,6 +157,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UIUtils;
+import com.servoy.j2db.util.Utils;
 
 /**
  * The tableview display controller
@@ -239,6 +240,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		leadingGrandSummaryCache = leadingGrandSummaryComp;
 		this.cellview = cellview;
 		int onRenderMethodID = 0;
+		AbstractBase onRenderPersist;
 		if (cellview instanceof Portal)
 		{
 			Portal meta = (Portal)cellview;
@@ -249,7 +251,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			if (meta.getRowHeight() > 0) setRowHeight(meta.getRowHeight());
 			reorderble = meta.getReorderable();
 			getTableHeader().setReorderingAllowed(reorderble);
-			resizeble = meta.getResizeble();
+			resizeble = meta.getResizable();
 			getTableHeader().setResizingAllowed(resizeble);
 			sortable = meta.getSortable();
 			setRowBGColorScript(meta.getRowBGColorCalculation(), meta.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
@@ -262,6 +264,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				}
 			}
 			onRenderMethodID = meta.getOnRenderMethodID();
+			onRenderPersist = meta;
 		}
 		else
 		{
@@ -286,10 +289,12 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			}
 
 			onRenderMethodID = fc.getForm().getOnRenderMethodID();
+			onRenderPersist = fc.getForm();
 		}
 		if (onRenderMethodID > 0)
 		{
-			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+				Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 		}
 		initDragNDrop(fc, 0);
@@ -1953,17 +1958,25 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	private void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj)
 	{
 		int onRenderMethodID = 0;
+		AbstractBase onRenderPersist = null;
 		if (obj instanceof Field)
 		{
 			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
+			onRenderPersist = ((Field)obj);
 		}
 		else if (obj instanceof GraphicalComponent)
 		{
 			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
+			onRenderPersist = ((GraphicalComponent)obj);
 		}
-		if (onRenderMethodID <= 0) onRenderMethodID = portal.getOnRenderMethodID();
-		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
-		else renderEventExecutor.setRenderCallback(null);
+		if (onRenderMethodID <= 0)
+		{
+			onRenderMethodID = portal.getOnRenderMethodID();
+			onRenderPersist = portal;
+		}
+		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+			Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+		else renderEventExecutor.setRenderCallback(null, null);
 
 		renderEventExecutor.setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 	}

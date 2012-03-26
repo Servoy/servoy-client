@@ -21,6 +21,7 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.JSRenderEvent;
+import com.servoy.j2db.util.Utils;
 
 /**
  * On render event executor.
@@ -32,6 +33,7 @@ public class RenderEventExecutor
 {
 	private final ISupportOnRenderCallback onRenderComponent;
 	private String renderCallback;
+	private Object[] renderCallbackArgs;
 	private IScriptExecuter renderScriptExecuter;
 	private IRecordInternal renderRecord;
 	private int renderIndex;
@@ -43,9 +45,10 @@ public class RenderEventExecutor
 		this.onRenderComponent = onRenderComponent;
 	}
 
-	public void setRenderCallback(String id)
+	public void setRenderCallback(String id, Object[] args)
 	{
 		renderCallback = id;
+		renderCallbackArgs = args;
 	}
 
 	public void setRenderScriptExecuter(IScriptExecuter scriptExecuter)
@@ -91,9 +94,8 @@ public class RenderEventExecutor
 			event.setIndex(renderIndex);
 			event.setSelected(renderIsSelected);
 
-
-			renderScriptExecuter.executeFunction(renderCallback, new Object[] { event }, false, onRenderComponent.getComponent(), false,
-				StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
+			renderScriptExecuter.executeFunction(renderCallback, Utils.arrayMerge(new Object[] { event }, renderCallbackArgs), false,
+				onRenderComponent.getComponent(), false, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
 			isRenderStateChanged = false;
 		}
 	}

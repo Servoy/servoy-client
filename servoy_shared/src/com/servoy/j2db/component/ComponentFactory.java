@@ -510,8 +510,7 @@ public class ComponentFactory
 		if (bc == null || sp == null) return null;
 
 		// Protection agains cycle in form inheritance hierarchy.
-		if (visited.contains(new Integer(form.getID()))) return null;
-		visited.add(new Integer(form.getID()));
+		if (!visited.add(new Integer(form.getID()))) return null;
 
 		Style repos_style = getStyleForForm(sp, form);
 		Pair<IStyleSheet, IStyleRule> pair = null;
@@ -1476,11 +1475,17 @@ public class ComponentFactory
 		}
 
 		int onRenderMethodID = field.getOnRenderMethodID();
-		if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
+		AbstractBase onRenderPersist = field;
+		if (onRenderMethodID <= 0)
+		{
+			onRenderMethodID = form.getOnRenderMethodID();
+			onRenderPersist = form;
+		}
 		if (onRenderMethodID > 0)
 		{
 			RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
-			renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+			renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+				Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
 
 			IForm rendererForm = application.getFormManager().getForm(form.getName());
 			IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;
@@ -1802,11 +1807,17 @@ public class ComponentFactory
 		if (label.getLabelFor() == null || (form.getView() != FormController.TABLE_VIEW && form.getView() != FormController.LOCKED_TABLE_VIEW))
 		{
 			int onRenderMethodID = label.getOnRenderMethodID();
-			if (onRenderMethodID <= 0) onRenderMethodID = form.getOnRenderMethodID();
+			AbstractBase onRenderPersist = label;
+			if (onRenderMethodID <= 0)
+			{
+				onRenderMethodID = form.getOnRenderMethodID();
+				onRenderPersist = form;
+			}
 			if (onRenderMethodID > 0)
 			{
 				RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
-				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
+				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+					Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
 
 				IForm rendererForm = application.getFormManager().getForm(form.getName());
 				IScriptExecuter rendererScriptExecuter = rendererForm instanceof FormController ? ((FormController)rendererForm).getScriptExecuter() : null;

@@ -69,6 +69,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -984,17 +985,25 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	private void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj, IScriptExecuter se)
 	{
 		int onRenderMethodID = 0;
+		AbstractBase onRenderPersist = null;
 		if (obj instanceof Field)
 		{
 			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
+			onRenderPersist = ((Field)obj);
 		}
 		else if (obj instanceof GraphicalComponent)
 		{
 			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
+			onRenderPersist = ((GraphicalComponent)obj);
 		}
-		if (onRenderMethodID <= 0) onRenderMethodID = portal.getOnRenderMethodID();
-		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID));
-		else renderEventExecutor.setRenderCallback(null);
+		if (onRenderMethodID <= 0)
+		{
+			onRenderMethodID = portal.getOnRenderMethodID();
+			onRenderPersist = portal;
+		}
+		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+			Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
+		else renderEventExecutor.setRenderCallback(null, null);
 
 		renderEventExecutor.setRenderScriptExecuter(se);
 	}
@@ -1097,7 +1106,8 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			int onRenderMethodID = portal.getOnRenderMethodID();
 			if (onRenderMethodID > 0)
 			{
-				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID));
+				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+					Utils.parseJSExpressions(portal.getInstanceMethodArguments("onRenderMethodID")));
 				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(se);
 			}
 		}
