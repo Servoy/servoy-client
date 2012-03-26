@@ -908,7 +908,7 @@ public class ImageLoader
 						if ("left".equals(firstToken))
 						{
 							startX = 0;
-							startY = parentSize.width;
+							startY = parentSize.height;
 							endX = parentSize.width;
 						}
 						else if ("right".equals(firstToken))
