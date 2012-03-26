@@ -80,7 +80,7 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 	public String[] getParameterNames(String methodName)
 	{
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName);
-		if (fdoc != null && fdoc.getArguments().size() > 0)
+		if (fdoc != null)
 		{
 			String[] argNames = new String[fdoc.getArguments().size()];
 			int i = 0;
@@ -98,7 +98,7 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 	public IParameter[] getParameters(String methodName, Class< ? >[] argTypes)
 	{
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
-		if (fdoc != null && fdoc.getArguments().size() > 0)
+		if (fdoc != null)
 		{
 			IParameter[] params = new IParameter[fdoc.getArguments().size()];
 			int i = 0;
