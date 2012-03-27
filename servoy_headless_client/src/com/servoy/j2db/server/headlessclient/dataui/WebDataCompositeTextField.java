@@ -262,9 +262,9 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		field.setValidationEnabled(b);
 		if (b)
 		{
-			if (showExtraComponents && readOnly)
+			if (showExtraComponents == readOnly)
 			{
-				showExtraComponents = false;
+				showExtraComponents = !readOnly;
 				getStylePropertyChanges().setChanged();
 			}
 		}
@@ -272,7 +272,9 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		{
 			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
+				boolean oldReadonly = readOnly;
 				setReadOnly(false);
+				readOnly = oldReadonly;
 			}
 		}
 	}
