@@ -355,9 +355,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		field.setValidationEnabled(b);
 		if (b)
 		{
-			if (showPicker && readOnly)
+			if (showPicker == readOnly)
 			{
-				showPicker = false;
+				showPicker = !readOnly;
 				getStylePropertyChanges().setChanged();
 			}
 		}
@@ -365,7 +365,9 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		{
 			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
+				boolean oldReadonly = readOnly;
 				setReadOnly(false);
+				readOnly = oldReadonly;
 			}
 		}
 	}
