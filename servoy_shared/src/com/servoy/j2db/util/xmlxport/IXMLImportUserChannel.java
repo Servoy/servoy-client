@@ -260,4 +260,6 @@ public interface IXMLImportUserChannel extends InfoChannel
 	 * If OK_ACTION is returned then the sequences will be updated, otherwise they wont be touched.
 	 */
 	public int askUpdateSequences();
+
+	public String getImporterUsername();
 }
