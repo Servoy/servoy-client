@@ -25,7 +25,6 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.StringTokenizer;
@@ -144,16 +143,8 @@ public class SpecialMatteBorder extends AbstractBorder
 				}
 
 				float halfLW = lineWidth / 2f;
-				Shape shape = null;
-				if (roundingRadius == 100f)
-				{
-					shape = new Ellipse2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth);
-
-				}
-				else
-				{
-					shape = new RoundRectangle2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth, roundingRadius, roundingRadius);
-				}
+				// make this more in line with WC
+				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth, 3 * roundingRadius / 2, 3 * roundingRadius / 2);
 
 				g.setColor(topColor);
 				((Graphics2D)g).draw(shape);
