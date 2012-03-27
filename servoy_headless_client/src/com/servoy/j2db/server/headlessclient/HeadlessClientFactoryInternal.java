@@ -26,12 +26,12 @@ import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.LocalActiveSolutionHandler;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
 import com.servoy.j2db.persistence.IDeveloperRepository;
-import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
+import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
 
 public class HeadlessClientFactoryInternal
 {
@@ -91,7 +91,7 @@ public class HeadlessClientFactoryInternal
 		return sc[0];
 	}
 
-	public static ISessionClient createImportHookClient(final Solution importHookModule, final InfoChannel channel) throws Exception
+	public static ISessionClient createImportHookClient(final Solution importHookModule, final IXMLImportUserChannel channel) throws Exception
 	{
 		// assuming no login and no method args for import hooks
 		SessionClient sc = new SessionClient(null, null, null, null, null, importHookModule.getName())
@@ -111,6 +111,13 @@ public class HeadlessClientFactoryInternal
 			}
 		};
 		sc.setUseLoginSolution(false);
+		String userName = channel.getImporterUsername();
+		if (userName != null)
+		{
+			// let the import hook client run with credentials from the logged in user from the admin page.
+			sc.getClientInfo().setUserUid(ApplicationServerSingleton.get().getUserManager().getUserUID(sc.getClientID(), userName));
+			sc.getClientInfo().setUserName(userName);
+		}
 		sc.setOutputChannel(channel);
 		sc.loadSolution(importHookModule.getName());
 		return sc;
