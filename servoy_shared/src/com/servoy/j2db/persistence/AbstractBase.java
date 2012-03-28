@@ -49,6 +49,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
+@SuppressWarnings("nls")
 public abstract class AbstractBase implements IPersist
 {
 
@@ -650,7 +651,6 @@ public abstract class AbstractBase implements IPersist
 
 	public static final RuntimeProperty<String> NameChangeProperty = new RuntimeProperty<String>()
 	{
-		private static final long serialVersionUID = 1L;
 	};
 
 
@@ -880,8 +880,24 @@ public abstract class AbstractBase implements IPersist
 		return customProperties;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Object getCustomProperty(String[] path)
+	{
+		IPersist persist = this;
+		while (persist instanceof AbstractBase)
+		{
+			Object customProperty = ((AbstractBase)persist).getCustomPropertyLocal(path);
+			if (customProperty != null)
+			{
+				return customProperty;
+			}
+			persist = ((AbstractBase)persist).getSuperPersist();
+		}
+
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Object getCustomPropertyLocal(String[] path)
 	{
 		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 
@@ -904,11 +920,12 @@ public abstract class AbstractBase implements IPersist
 				// leaf node
 				return node;
 			}
-			map = (Map)node;
+			map = (Map<String, Object>)node;
 		}
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object putCustomProperty(String[] path, Object value)
 	{
 		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
@@ -938,7 +955,7 @@ public abstract class AbstractBase implements IPersist
 				}
 				map.put(path[i], new ServoyJSONObject());
 			}
-			map = (Map)map.get(path[i]);
+			map = (Map<String, Object>)map.get(path[i]);
 
 		}
 		String leaf = path[path.length - 1];
@@ -960,6 +977,7 @@ public abstract class AbstractBase implements IPersist
 		return old;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Object> getInstanceMethodArguments(String methodKey)
 	{
 		if (methodKey != null)
@@ -969,6 +987,7 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Object> putInstanceMethodArguments(String methodKey, List<Object> args)
 	{
 		if (methodKey != null)
