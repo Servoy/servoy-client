@@ -1235,6 +1235,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		if (dataset instanceof IDataSet)
 		{
+			application.getFoundSetManager().getEditRecordList().clearSecuritySettings();
+
 			Map<Object, Integer> sp = new HashMap<Object, Integer>();
 
 			IDataSet ds = (IDataSet)dataset;
