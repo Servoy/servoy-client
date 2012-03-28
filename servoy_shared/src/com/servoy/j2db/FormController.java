@@ -47,6 +47,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.component.ComponentFactory;
@@ -1839,7 +1840,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	private final IApplication application;
 	private Form form;
-	private Color bgColor = null;//form background color extracted from body part
+	private Color bgColor = null;
+	private Color bodyPartBgColor = null;
+
 	/**
 	 * Some JavaScript related instances
 	 */
@@ -2064,6 +2067,15 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				bodyPart = part;
 				bgColor = partColor;
+				bodyPartBgColor = part.getBackground();
+				if (bodyPartBgColor == null)
+				{
+					Pair<IStyleSheet, IStyleRule> partStyle = ComponentFactory.getStyleForBasicComponent(application, part, form);
+					if (partStyle != null && partStyle.getRight() != null && partStyle.getRight().hasAttribute(CSSName.BACKGROUND_COLOR.toString()))
+					{
+						bodyPartBgColor = partStyle.getLeft().getBackground(partStyle.getRight());
+					}
+				}
 			}
 
 			if (part.getPartType() == Part.BODY && v == FormController.LOCKED_TABLE_VIEW)
@@ -5097,5 +5109,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	public IStyleRule getFormStyle()
 	{
 		return styleRule;
+	}
+
+	public Color getBodyPartBackgroundColor()
+	{
+		return bodyPartBgColor;
 	}
 }
