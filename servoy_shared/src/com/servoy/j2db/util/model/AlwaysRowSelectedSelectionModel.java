@@ -148,10 +148,9 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 
 	private boolean setSelectedRow(int row, boolean keepOldSelections, boolean valueIsAdjusting)
 	{
-		if (row >= 0)
+		if (row >= 0 && !getRecordAndTestSize(row))
 		{
-			IRecord record = foundset.getRecord(row);
-			if (record == null || record == foundset.getPrototypeState()) return false;
+			return false;
 		}
 
 		boolean oldIsAdjusting = getValueIsAdjusting();
@@ -276,5 +275,47 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		{
 			setSelectedRow(getSelectedRow(), false, true);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.DefaultListSelectionModel#setSelectionInterval(int, int)
+	 */
+	@Override
+	public void setSelectionInterval(int index0, int index1)
+	{
+		if (index1 > index0)
+		{
+			if (!getRecordAndTestSize(index1)) return;
+		}
+		else if (!getRecordAndTestSize(index0))
+		{
+			return;
+		}
+		super.setSelectionInterval(index0, index1);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.DefaultListSelectionModel#setAnchorSelectionIndex(int)
+	 */
+	@Override
+	public void setAnchorSelectionIndex(int anchorIndex)
+	{
+		if (!getRecordAndTestSize(anchorIndex)) return;
+		super.setAnchorSelectionIndex(anchorIndex);
+	}
+
+	/**
+	 * @param index1
+	 */
+	private boolean getRecordAndTestSize(int index1)
+	{
+		foundset.getRecord(index1);
+		// don't allow selection beyond the size
+		if (foundset.getSize() <= index1) return false;
+		return true;
 	}
 }
