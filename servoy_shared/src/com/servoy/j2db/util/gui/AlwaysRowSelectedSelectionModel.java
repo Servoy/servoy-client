@@ -101,16 +101,38 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	@Override
 	public void setSelectionInterval(int index0, int index1)
 	{
-		foundset.getRecord(index0);
-		if (index0 != index1)
+		if (index1 > index0)
 		{
-			foundset.getRecord(index1);
-			// don't allow selection beyond the size
-			if (foundset.getSize() <= index1) return;
+			if (!getRecordAndTestSize(index1)) return;
 		}
-		// don't allow selection beyond the size
-		if (foundset.getSize() <= index0) return;
+		else if (!getRecordAndTestSize(index0))
+		{
+			return;
+		}
 		super.setSelectionInterval(index0, index1);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.DefaultListSelectionModel#setAnchorSelectionIndex(int)
+	 */
+	@Override
+	public void setAnchorSelectionIndex(int anchorIndex)
+	{
+		if (!getRecordAndTestSize(anchorIndex)) return;
+		super.setAnchorSelectionIndex(anchorIndex);
+	}
+
+	/**
+	 * @param index
+	 */
+	private boolean getRecordAndTestSize(int index)
+	{
+		foundset.getRecord(index);
+		// don't allow selection beyond the size
+		if (foundset.getSize() <= index) return false;
+		return true;
 	}
 
 	@Override
