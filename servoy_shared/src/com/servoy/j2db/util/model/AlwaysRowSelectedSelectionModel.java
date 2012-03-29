@@ -112,7 +112,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 					// i have to call the setSelectionInterval else our methods will test if the record is there, but it can be that a selection is set
 					// that will just fall out of the foundset size (== foundset size) but the super.removeIndexInterval will adjust this.
 					int selection = Math.min(index1 + 1, foundset.getSize());
-					if (selection != selectedRow) setSelectionInterval(selection, selection);
+					if (selection != selectedRow) super.setSelectionInterval(selection, selection);
 				}
 				super.removeIndexInterval(index0, index1);
 			}
@@ -286,15 +286,14 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	@Override
 	public void setSelectionInterval(int index0, int index1)
 	{
-		foundset.getRecord(index0);
-		if (index0 != index1)
+		if (index1 > index0)
 		{
-			foundset.getRecord(index1);
-			// don't allow selection beyond the size
-			if (foundset.getSize() <= index1) return;
+			if (!getRecordAndTestSize(index1)) return;
 		}
-		// don't allow selection beyond the size
-		if (foundset.getSize() <= index0) return;
+		else if (!getRecordAndTestSize(index0))
+		{
+			return;
+		}
 		super.setSelectionInterval(index0, index1);
 	}
 
@@ -306,9 +305,18 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	@Override
 	public void setAnchorSelectionIndex(int anchorIndex)
 	{
-		foundset.getRecord(anchorIndex);
-		// don't allow selection beyond the size
-		if (foundset.getSize() <= anchorIndex) return;
+		if (!getRecordAndTestSize(anchorIndex)) return;
 		super.setAnchorSelectionIndex(anchorIndex);
+	}
+
+	/**
+	 * @param index
+	 */
+	private boolean getRecordAndTestSize(int index)
+	{
+		foundset.getRecord(index);
+		// don't allow selection beyond the size
+		if (foundset.getSize() <= index) return false;
+		return true;
 	}
 }
