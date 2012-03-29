@@ -5,17 +5,6 @@
 
 	<element name="servoy-extension">
 		<complexType>
-			<annotation>
-				<documentation>
-					The extension version is a string that must begin with a
-					number, optionally
-					followed by one or more constructs like (&quot;.&quot;
-					followed by a number)
-					or (optionally spaces followed by a word made out of
-					only a-zA-Z chars
-					followed by optionally spaces followed by a number).
-				</documentation>
-			</annotation>
 			<sequence>
 				<element name="extension-id" type="tns:extensionIdType">
 					<annotation>
@@ -32,7 +21,20 @@
 						</documentation>
 					</annotation>
 				</element>
-				<element name="version" type="tns:extensionVersionType" />
+				<element name="version" type="tns:extensionVersionType">
+					<annotation>
+						<documentation>
+							The extension version is a string that must begin with a
+							number, optionally followed by one or more constructs
+							like (&quot;.&quot; followed by a number)
+							or (optionally spaces followed by a word made out of
+							only a-zA-Z chars followed by optionally spaces followed
+							by a number). When letters are used in version strings,
+							the letter version will be considered below the non-letter one. For example
+							"15.2.53 bata 1" < "15.2.53 beta 1" < "15.2.53 beta 5" < "15.2.53".
+						</documentation>
+					</annotation>
+				</element>
 				<element name="dependencies" minOccurs="0" maxOccurs="1"
 					type="tns:dependenciesComplexType">
 					<annotation>
@@ -50,7 +52,7 @@
 						</documentation>
 					</annotation>
 				</element>
-				<element name="onpreinstall" type="tns:hooksType" minOccurs="0">
+				<element name="onpreinstall" type="tns:hooksComplexType" minOccurs="0">
 					<annotation>
 						<documentation>
 							Supplementary things to do before default
@@ -69,7 +71,7 @@
 						</documentation>
 					</annotation>
 				</element>
-				<element name="onuninstall" type="tns:hooksType" minOccurs="0">
+				<element name="onuninstall" type="tns:hooksComplexType" minOccurs="0">
 					<annotation>
 						<documentation>
 							Supplementary things to do after default
@@ -93,7 +95,7 @@
 		</complexType>
 	</element>
 
-	<complexType name="hooksType">
+	<complexType name="hooksComplexType">
 		<sequence>
 			<choice maxOccurs="unbounded">
 				<element name="hook" type="tns:hookComplexType">
@@ -514,15 +516,14 @@
 		<annotation>
 			<documentation>
 				The extension version is a string that must begin with a
-				number, optionally
-				followed by one or more constructs like ("." followed by
-				a
-				number) or
-				(optionally spaces followed by a word made out of only a-zA-Z
-				chars followed
-				by optionally spaces followed by a number).
-				It will be
-				validated against the
+				number, optionally followed by one or more constructs
+				like (&quot;.&quot; followed by a number)
+				or (optionally spaces followed by a word made out of
+				only a-zA-Z chars followed by optionally spaces followed
+				by a number). When letters are used in version strings,
+				the letter version will be considered below the non-letter one. For example
+				"15.2.53 bata 1" < "15.2.53 beta 1" < "15.2.53 beta 5" < "15.2.53".
+				It will be validated against the
 				regEx \d+((\.|\s*[A-Za-z]+\s*)\d+)*
 			</documentation>
 		</annotation>
