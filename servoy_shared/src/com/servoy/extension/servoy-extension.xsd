@@ -31,7 +31,7 @@
 							only a-zA-Z chars followed by optionally spaces followed
 							by a number). When letters are used in version strings,
 							the letter version will be considered below the non-letter one. For example
-							"15.2.53 bata 1" < "15.2.53 beta 1" < "15.2.53 beta 5" < "15.2.53".
+							"15.2.53 bata 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53".
 						</documentation>
 					</annotation>
 				</element>
@@ -522,7 +522,7 @@
 				only a-zA-Z chars followed by optionally spaces followed
 				by a number). When letters are used in version strings,
 				the letter version will be considered below the non-letter one. For example
-				"15.2.53 bata 1" < "15.2.53 beta 1" < "15.2.53 beta 5" < "15.2.53".
+				"15.2.53 bata 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53".
 				It will be validated against the
 				regEx \d+((\.|\s*[A-Za-z]+\s*)\d+)*
 			</documentation>
