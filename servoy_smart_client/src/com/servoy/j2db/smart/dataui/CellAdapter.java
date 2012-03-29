@@ -1093,18 +1093,16 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 	public Object getCellEditorValue()
 	{
+		// test if currentEditing state isn't deleted already
+		if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null)) return null;
+
+		Object comp = editor;
+		if ((comp instanceof IDisplay && ((IDisplay)comp).isReadOnly()) || gettingEditorValue)
+		{
+			return currentEditingState.getValue(getDataProviderID());
+		}
 		try
 		{
-			// test if currentEditing state isn't deleted already
-			if (currentEditingState == null || dataProviderID == null || (currentEditingState != null && currentEditingState.getParentFoundSet() == null)) return null;
-
-			Object comp = editor;
-
-			if ((comp instanceof IDisplay && ((IDisplay)comp).isReadOnly()) || gettingEditorValue)
-			{
-				return currentEditingState.getValue(getDataProviderID());
-			}
-
 			gettingEditorValue = true;
 
 			if (comp instanceof IDelegate< ? >)
