@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.servoy.com/extension"
+	xmlns:tns="http://www.servoy.com/extension" version="6.1">
+
+	<element name="servoy-extension">
+		<complexType>
+			<annotation>
+				<documentation>
+					The extension version is a string that must begin with a
+					number, optionally
+					followed by one or more constructs like (&quot;.&quot;
+					followed by a number)
+					or (optionally spaces followed by a word made out of
+					only a-zA-Z chars
+					followed by optionally spaces followed by a number).
+				</documentation>
+			</annotation>
+			<sequence>
+				<element name="extension-id" type="tns:extensionIdType">
+					<annotation>
+						<documentation>
+							Unique identifier string of the Servoy Extension.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="extension-name" type="string">
+					<annotation>
+						<documentation>
+							Must be an user friendly string identifier of this
+							extension. It will be shown in the UI.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="version" type="tns:extensionVersionType" />
+				<element name="dependencies" minOccurs="0" maxOccurs="1"
+					type="tns:dependenciesComplexType">
+					<annotation>
+						<documentation>
+							Lists the dependencies this extension might have.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="content" minOccurs="0" type="tns:contentComplexType">
+					<annotation>
+						<documentation>
+							Lists content that needs to be processed when the
+							extension
+							gets installed.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="onpreinstall" type="tns:hooksType" minOccurs="0">
+					<annotation>
+						<documentation>
+							Supplementary things to do before default
+							installation
+							begins.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="onpostinstall" minOccurs="0"
+					type="tns:onpostinstallComplexType">
+					<annotation>
+						<documentation>
+							Supplementary things to do after default
+							installation is
+							complete.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="onuninstall" type="tns:hooksType" minOccurs="0">
+					<annotation>
+						<documentation>
+							Supplementary things to do after default
+							uninstallation is
+							complete.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="info" minOccurs="0" type="tns:infoComplexType">
+					<annotation>
+						<documentation>
+							Contents that should either be random information
+							about this
+							extension or
+							info that will be used to populate
+							Marketplace.
+						</documentation>
+					</annotation>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<complexType name="hooksType">
+		<sequence>
+			<choice maxOccurs="unbounded">
+				<element name="hook" type="tns:hookComplexType">
+					<annotation>
+						<documentation>
+							Run a java class that implements a hook interface.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="runjar" type="tns:runjarComplexType">
+					<annotation>
+						<documentation>Run a jar file.</documentation>
+					</annotation>
+				</element>
+			</choice>
+		</sequence>
+	</complexType>
+
+	<complexType name="hookComplexType">
+		<sequence>
+			<element name="class" type="tns:hookClassType">
+				<annotation>
+					<documentation>
+						A class that will implement the hook interface.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="jar" type="tns:relativePathType">
+				<annotation>
+					<documentation>
+						The jar file that contains the hook class, as a relative
+						path in the extension
+						package.
+					</documentation>
+				</annotation>
+			</element>
+			<element minOccurs="0" maxOccurs="unbounded" name="parameter">
+				<annotation>
+					<documentation>
+						Parameters that will be passed to the hook class at runtime.
+					</documentation>
+				</annotation>
+				<complexType>
+					<attribute use="required" name="name" type="string" />
+					<attribute use="required" name="value" type="string" />
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="runjarComplexType">
+		<sequence>
+			<element minOccurs="0" maxOccurs="unbounded" name="arg" type="string">
+				<annotation>
+					<documentation>
+						Arguments to be passed to the jar's main class.
+					</documentation>
+				</annotation>
+			</element>
+			<element minOccurs="0" maxOccurs="1" name="vmargs">
+				<annotation>
+					<documentation>Arguments for the JVM when running the jar.</documentation>
+				</annotation>
+				<complexType>
+					<sequence>
+						<element minOccurs="1" maxOccurs="unbounded" name="arg" type="string" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+		<attribute use="required" name="path" type="tns:relativePathType">
+			<annotation>
+				<documentation>
+					the jar file's location inside the extension package
+				</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<complexType name="dependenciesComplexType">
+		<sequence>
+			<choice minOccurs="1" maxOccurs="unbounded">
+				<element name="extension" type="tns:extensionComplexType">
+					<annotation>
+						<documentation>
+							Extension dependency. &quot;type&quot;
+							specifies that this
+							extension depends on another
+							(external)
+							extension.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="lib" type="tns:libComplexType">
+					<annotation>
+						<documentation>
+							&quot;lib&quot; type dependency specifies that
+							this
+							extension
+							depends on a 3rd party lib/jar
+							(that is
+							included in the archive),
+							but you
+							need to keep track of used
+							version
+							because it might conflict with
+							other
+							extensions that
+							use the same 3rd party
+							lib/jar.
+						</documentation>
+					</annotation>
+				</element>
+			</choice>
+		</sequence>
+	</complexType>
+
+	<complexType name="contentComplexType">
+		<sequence>
+			<choice minOccurs="1" maxOccurs="unbounded">
+				<element name="importSolution">
+					<annotation>
+						<documentation>Specifies that a solution included in the
+							extension package
+							should be imported during default install,
+							when installed in developer.
+						</documentation>
+					</annotation>
+					<complexType>
+						<attribute use="required" name="path" type="tns:relativePathType">
+							<annotation>
+								<documentation>relative path to the .servoy file inside the
+									extension
+									package
+								</documentation>
+							</annotation>
+						</attribute>
+					</complexType>
+				</element>
+				<element name="svnCheckout">
+					<annotation>
+						<documentation>
+							Specifies some SVN locations that should be
+							checked out if
+							possible when installing
+							in developer.
+						</documentation>
+					</annotation>
+					<complexType>
+						<sequence>
+							<element minOccurs="0" maxOccurs="unbounded" name="path"
+								type="tns:relativePathType">
+								<annotation>
+									<documentation>
+										relative paths to check out from the given
+										root SVN url
+									</documentation>
+								</annotation>
+							</element>
+						</sequence>
+						<attribute use="required" name="url" type="tns:urlType">
+							<annotation>
+								<documentation>SVN root URL</documentation>
+							</annotation>
+						</attribute>
+					</complexType>
+				</element>
+				<element name="teamProjectSet">
+					<annotation>
+						<documentation>
+							Specifies an Eclipse .pfs file to be imported
+							when
+							installed
+							in developer.
+						</documentation>
+					</annotation>
+					<complexType>
+						<attribute use="required" name="path" type="tns:relativePathType">
+							<annotation>
+								<documentation>
+									relative path to the .pfs file inside the
+									extension
+									package
+								</documentation>
+							</annotation>
+						</attribute>
+					</complexType>
+				</element>
+				<element name="eclipseUpdateSite">
+					<annotation>
+						<documentation>
+							Specifies a new Eclipse update site to be added.
+						</documentation>
+					</annotation>
+					<complexType>
+						<attribute use="required" name="url" type="tns:urlType" />
+					</complexType>
+				</element>
+			</choice>
+		</sequence>
+	</complexType>
+
+	<complexType name="onpostinstallComplexType">
+		<sequence>
+			<choice minOccurs="1" maxOccurs="unbounded">
+				<element name="runAtStartup">
+					<annotation>
+						<documentation>
+							If this is present onPostInstall will require
+							a restart
+							before it's ran and
+							it will run at startup.
+						</documentation>
+					</annotation>
+					<complexType />
+				</element>
+				<element name="hook" type="tns:hookComplexType">
+					<annotation>
+						<documentation>
+							Run a java class that implements a hook interface.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="runjar" type="tns:runjarComplexType">
+					<annotation>
+						<documentation>Run a jar file.</documentation>
+					</annotation>
+				</element>
+			</choice>
+		</sequence>
+	</complexType>
+
+	<complexType name="infoComplexType">
+		<sequence>
+			<choice minOccurs="1" maxOccurs="unbounded">
+				<element name="description" type="string">
+					<annotation>
+						<documentation>
+							The description text of this extension package
+							(may be
+							version specific). It will be used in the Marketplace
+							and other UIs.
+						</documentation>
+					</annotation>
+				</element>
+				<element name="screenshots">
+					<annotation>
+						<documentation>
+							Specifies screenshots of this extension to be added to
+							Servoy Marketplace.
+						</documentation>
+					</annotation>
+					<complexType>
+						<sequence>
+							<element minOccurs="1" maxOccurs="unbounded" name="screenshot">
+								<complexType>
+									<simpleContent>
+										<extension base="string">
+											<attribute use="required" name="fileName" type="tns:fileNameType">
+												<annotation>
+													<documentation>
+														The filename of this screenshot. The screenshot file
+														must be located
+														in the package's "screenshots" directory.
+													</documentation>
+												</annotation>
+											</attribute>
+										</extension>
+									</simpleContent>
+								</complexType>
+							</element>
+						</sequence>
+					</complexType>
+				</element>
+			</choice>
+		</sequence>
+	</complexType>
+
+	<complexType name="extensionComplexType">
+		<sequence>
+			<element name="id" type="tns:extensionIdType">
+				<annotation>
+					<documentation>
+						This is the extension-id as it was declared
+						in the .xml file
+						of the extension
+						dependency.
+					</documentation>
+				</annotation>
+			</element>
+			<choice>
+				<sequence>
+					<element name="min-version" type="tns:extensionVersionType">
+						<annotation>
+							<documentation>
+								Minimum extension dependency version
+								required for this
+								extension to run; if not
+								specified
+								(but &quot;max-version&quot; is
+								specified), any older
+								version of
+								the extension is considered compatible.
+							</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" maxOccurs="1" name="max-version"
+						type="tns:extensionVersionType">
+						<annotation>
+							<documentation>
+								Maximum extension dependency version
+								required for this
+								extension to run; if not
+								specified
+								(but "min-version" is specified), any
+								newer version of
+								the
+								extension is considered compatible.
+							</documentation>
+						</annotation>
+					</element>
+				</sequence>
+				<sequence>
+					<element name="max-version" type="tns:extensionVersionType">
+						<annotation>
+							<documentation>
+								Maximum extension dependency version
+								required for this
+								extension to run; if not
+								specified
+								(but &quot;min-version&quot; is
+								specified), any newer
+								version of
+								the extension is considered compatible.
+							</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</choice>
+		</sequence>
+	</complexType>
+
+	<complexType name="libComplexType">
+		<sequence>
+			<element name="id" type="tns:libIdType">
+				<annotation>
+					<documentation>
+						The lib id should be the name of the main
+						package in the
+						library's jar file.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="path" type="tns:relativePathType">
+				<annotation>
+					<documentation>
+						A path relative to the extension jar root
+						which identifies
+						the library's
+						file.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="version" type="tns:extensionVersionType">
+				<annotation>
+					<documentation>
+						Specifies the version of the library that
+						is shipped with
+						this extension.
+					</documentation>
+				</annotation>
+			</element>
+			<sequence minOccurs="0" maxOccurs="1">
+				<element minOccurs="0" maxOccurs="1" name="min-version" type="tns:extensionVersionType">
+					<annotation>
+						<documentation>
+							Minimum lib version required for this
+							extension to run, in
+							case older versions are
+							supported.
+							If not specified, "version" will be
+							considered to be the
+							oldest
+							compatible version.
+						</documentation>
+					</annotation>
+				</element>
+				<element minOccurs="0" maxOccurs="1" name="max-version" type="tns:extensionVersionType">
+					<annotation>
+						<documentation>
+							Maximum lib version required for this
+							extension to run, in
+							case
+							newer versions are supported up
+							to a point. If this is not specified,
+							versions newer then
+							"version" are considered compatible.
+						</documentation>
+					</annotation>
+				</element>
+			</sequence>
+		</sequence>
+	</complexType>
+
+	<simpleType name="extensionIdType">
+		<annotation>
+			<documentation>
+				The extension-id must follow java simple or qualified name
+				rules; it must also be allowed as a filename/dirname on the
+				targeted
+				Operating Systems.
+			</documentation>
+		</annotation>
+		<restriction base="Name"></restriction>
+	</simpleType>
+
+	<simpleType name="extensionVersionType">
+		<annotation>
+			<documentation>
+				The extension version is a string that must begin with a
+				number, optionally
+				followed by one or more constructs like ("." followed by
+				a
+				number) or
+				(optionally spaces followed by a word made out of only a-zA-Z
+				chars followed
+				by optionally spaces followed by a number).
+				It will be
+				validated against the
+				regEx \d+((\.|\s*[A-Za-z]+\s*)\d+)*
+			</documentation>
+		</annotation>
+		<restriction base="string">
+			<pattern value="\d+((\.|\s*[A-Za-z]+\s*)\d+)*"></pattern>
+		</restriction>
+	</simpleType>
+
+	<simpleType name="libIdType">
+		<restriction base="Name" />
+	</simpleType>
+
+	<simpleType name="relativePathType">
+		<restriction base="anyURI" />
+	</simpleType>
+
+	<simpleType name="urlType">
+		<restriction base="anyURI" />
+	</simpleType>
+
+	<simpleType name="hookClassType">
+		<restriction base="Name" />
+	</simpleType>
+
+	<simpleType name="fileNameType">
+		<restriction base="anyURI" />
+	</simpleType>
+
+</schema>
