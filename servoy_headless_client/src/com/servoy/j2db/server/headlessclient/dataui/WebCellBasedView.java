@@ -94,6 +94,7 @@ import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dataprocessing.Row;
 import com.servoy.j2db.dataprocessing.SortColumn;
@@ -120,6 +121,7 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.TabSeqComparator;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
@@ -1971,7 +1973,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (c instanceof ISupportValueList)
 		{
 			ISupportValueList idVl = (ISupportValueList)elementToColumnIdentifierComponent.get(element);
-			if (idVl != null) ((ISupportValueList)c).setValueList(idVl.getValueList());
+			IValueList list;
+			if (idVl != null && (list = idVl.getValueList()) != null)
+			{
+				ValueList valuelist = application.getFlattenedSolution().getValueList(list.getName());
+				if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
+				{
+					((ISupportValueList)c).setValueList(list);
+				}
+			}
 		}
 	}
 
