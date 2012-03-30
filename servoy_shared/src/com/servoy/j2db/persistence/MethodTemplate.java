@@ -207,7 +207,12 @@ public class MethodTemplate implements IMethodTemplate
 				sb.append(" * @param "); //$NON-NLS-1$
 				if (element.getType() != null && element.getType() != ArgumentType.Object)
 				{
-					sb.append('{').append(element.getType()).append("} "); //$NON-NLS-1$
+					String typeString = String.valueOf(element.getType());
+					if (!typeString.startsWith("${") || !typeString.endsWith("}") ||
+						(substitutions != null && substitutions.get(typeString.substring(2, typeString.length() - 1)) != null))
+					{ // only add curly braces when no variable or variable is really substituted
+						sb.append('{').append(typeString).append("} "); //$NON-NLS-1$
+					}
 				}
 				sb.append(element.getName());
 				if (element.getDescription() != null)
