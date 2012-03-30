@@ -562,6 +562,7 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
+	@TerracottaAutolockWrite
 	public void setLastAuthentication(String authenticatorType, String method, String jsCredentials)
 	{
 		synchronized (lock)
@@ -572,6 +573,7 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
+	@TerracottaAutolockRead
 	public String getAuthenticatorType()
 	{
 		synchronized (lock)
@@ -580,6 +582,7 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
+	@TerracottaAutolockRead
 	public String getAuthenticatorMethod()
 	{
 		synchronized (lock)
@@ -588,6 +591,7 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
+	@TerracottaAutolockRead
 	public String getJsCredentials()
 	{
 		synchronized (lock)
