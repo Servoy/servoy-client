@@ -186,9 +186,17 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 
 			if (!((IDisplayData)component).isValueValid() || !Utils.equalObjects(lastRenderedValues.get(component), obj))
 			{
-				lastRenderedValues.put(component, obj); // this is normally called as a result of a change in the browser (so component in browser shows this value already); if this is called manually from server side code, setChanged() might also be needed on that component separately when it needs to be rendered back to the browser;
-				// this is needed not to interfere with components that use lots of JS like type-aheads when field contents change;
-				// if the field uses a formatter for example that would display the value different then it parsed it, setChanged() should be manually called (see FormatConverter use of StateFullSimpleDateFormat)
+				if (component instanceof IResolveObject)
+				{
+					lastRenderedValues.put(component, ((IResolveObject)component).resolveRealValue(obj));
+				}
+				else
+				{
+					lastRenderedValues.put(component, obj);
+					// this is normally called as a result of a change in the browser (so component in browser shows this value already); if this is called manually from server side code, setChanged() might also be needed on that component separately when it needs to be rendered back to the browser;
+					// this is needed not to interfere with components that use lots of JS like type-aheads when field contents change;
+					// if the field uses a formatter for example that would display the value different then it parsed it, setChanged() should be manually called (see FormatConverter use of StateFullSimpleDateFormat)
+				}
 
 				setValue(component, dataProviderID, obj);
 			}

@@ -22,11 +22,14 @@ import java.util.Locale;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.model.IComponentInheritedModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 
@@ -119,6 +122,41 @@ public class WebDataRadioButton extends WebBaseSelectBox
 				}
 			}));
 			setType(Object.class);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.Component#initModel()
+		 */
+		@Override
+		protected IModel< ? > initModel()
+		{
+			// Search parents for CompoundPropertyModel
+			for (Component current = getParent(); current != null; current = current.getParent())
+			{
+				// Get model
+				IModel< ? > model = current.getDefaultModel();
+
+				if (model instanceof IWrapModel< ? >)
+				{
+					model = ((IWrapModel< ? >)model).getWrappedModel();
+				}
+
+				if (model instanceof IComponentInheritedModel< ? >)
+				{
+					// we turn off versioning as we share the model with another
+					// component that is the owner of the model (that component
+					// has to decide whether to version or not
+					setVersioned(false);
+
+					// return the shared inherited
+					return ((IComponentInheritedModel< ? >)model).wrapOnInheritance(WebDataRadioButton.this);
+				}
+			}
+
+			// No model for this component!
+			return null;
 		}
 
 		/**
@@ -337,7 +375,7 @@ public class WebDataRadioButton extends WebBaseSelectBox
 
 			if (model instanceof RecordItemModel)
 			{
-				((RecordItemModel)model).updateRenderedValue(this);
+				((RecordItemModel)model).updateRenderedValue(WebDataRadioButton.this);
 			}
 		}
 	}

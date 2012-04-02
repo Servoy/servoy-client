@@ -19,11 +19,14 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.model.IComponentInheritedModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.IApplication;
@@ -44,7 +47,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataCheckBox extends WebBaseSelectBox
+public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 {
 
 	public WebDataCheckBox(IApplication application, RuntimeCheckbox scriptable, String id, String text, IValueList list)
@@ -64,6 +67,45 @@ public class WebDataCheckBox extends WebBaseSelectBox
 		return (RuntimeCheckbox)scriptable;
 	}
 
+	/*
+	 * _____________________________________________________________ Methods for model object resolve
+	 */
+	public Object resolveDisplayValue(Object realVal)
+	{
+		if (onValue != null && onValue.getSize() >= 1)
+		{
+			Object real = onValue.getRealElementAt(0);
+			if (real == null)
+			{
+				return Boolean.valueOf(realVal == null);
+			}
+			return Boolean.valueOf(real.equals(realVal));
+		}
+		if (realVal instanceof Boolean) return realVal;
+		if (realVal instanceof Number)
+		{
+			return Boolean.valueOf(((Number)realVal).intValue() >= 1);
+		}
+		return Boolean.valueOf(realVal != null && "1".equals(realVal.toString()));
+	}
+
+	public Object resolveRealValue(Object displayVal)
+	{
+		if (onValue != null && onValue.getSize() >= 1)
+		{
+			return (Utils.getAsBoolean(displayVal) ? onValue.getRealElementAt(0) : null);
+		}
+		else
+		{
+//	TODO this seems not possible in web and we don't have the previousRealValue			
+//				// if value == null and still nothing selected return null (no data change)
+//				if (previousRealValue == null && !Utils.getAsBoolean(displayVal))
+//				{
+//					return null;
+//				}
+			return Integer.valueOf((Utils.getAsBoolean(displayVal) ? 1 : 0));
+		}
+	}
 
 	@Override
 	protected FormComponent getSelector(String id)
@@ -111,7 +153,7 @@ public class WebDataCheckBox extends WebBaseSelectBox
 		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$ 
 	}
 
-	private final class MyCheckBox extends CheckBox implements IResolveObject, IDisplayData
+	private final class MyCheckBox extends CheckBox implements IDisplayData
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -140,6 +182,41 @@ public class WebDataCheckBox extends WebBaseSelectBox
 					return "width:14px;height:14px;";
 				}
 			}));
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.Component#initModel()
+		 */
+		@Override
+		protected IModel< ? > initModel()
+		{
+			// Search parents for CompoundPropertyModel
+			for (Component current = getParent(); current != null; current = current.getParent())
+			{
+				// Get model
+				IModel< ? > model = current.getDefaultModel();
+
+				if (model instanceof IWrapModel< ? >)
+				{
+					model = ((IWrapModel< ? >)model).getWrappedModel();
+				}
+
+				if (model instanceof IComponentInheritedModel< ? >)
+				{
+					// we turn off versioning as we share the model with another
+					// component that is the owner of the model (that component
+					// has to decide whether to version or not
+					setVersioned(false);
+
+					// return the shared inherited
+					return ((IComponentInheritedModel< ? >)model).wrapOnInheritance(WebDataCheckBox.this);
+				}
+			}
+
+			// No model for this component!
+			return null;
 		}
 
 		/**
@@ -177,28 +254,6 @@ public class WebDataCheckBox extends WebBaseSelectBox
 			return inputId;
 		}
 
-		/*
-		 * _____________________________________________________________ Methods for model object resolve
-		 */
-		public Object resolveDisplayValue(Object realVal)
-		{
-			if (onValue != null && onValue.getSize() >= 1)
-			{
-				Object real = onValue.getRealElementAt(0);
-				if (real == null)
-				{
-					return Boolean.valueOf(realVal == null);
-				}
-				return Boolean.valueOf(real.equals(realVal));
-			}
-
-			if (realVal instanceof Number)
-			{
-				return Boolean.valueOf(((Number)realVal).intValue() >= 1);
-			}
-			return Boolean.valueOf(realVal != null && "1".equals(realVal.toString()));
-		}
-
 		@Override
 		protected void onBeforeRender()
 		{
@@ -208,24 +263,6 @@ public class WebDataCheckBox extends WebBaseSelectBox
 
 		public void setTagResolver(ITagResolver resolver)
 		{
-		}
-
-		public Object resolveRealValue(Object displayVal)
-		{
-			if (onValue != null && onValue.getSize() >= 1)
-			{
-				return (Utils.getAsBoolean(displayVal) ? onValue.getRealElementAt(0) : null);
-			}
-			else
-			{
-//		TODO this seems not possible in web and we don't have the previousRealValue			
-//					// if value == null and still nothing selected return null (no data change)
-//					if (previousRealValue == null && !Utils.getAsBoolean(displayVal))
-//					{
-//						return null;
-//					}
-				return Integer.valueOf((Utils.getAsBoolean(displayVal) ? 1 : 0));
-			}
 		}
 
 		/**
@@ -348,7 +385,7 @@ public class WebDataCheckBox extends WebBaseSelectBox
 
 			if (model instanceof RecordItemModel)
 			{
-				((RecordItemModel)model).updateRenderedValue(this);
+				((RecordItemModel)model).updateRenderedValue(WebDataCheckBox.this);
 			}
 		}
 	}
