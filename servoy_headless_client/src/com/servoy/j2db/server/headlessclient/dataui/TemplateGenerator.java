@@ -862,16 +862,22 @@ public class TemplateGenerator
 				Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
 				while (it.hasNext())
 				{
-					Point l = null;
 					IFormElement element = it.next();
-					l = element.getLocation();
-
-					if (l == null) continue;//unknown where to add
-
-					if (l.y >= startY && l.y < endY)
+					if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
 					{
-						createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, enableAnchoring, sp);
-						columns.append('\n');
+						if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+						{
+							continue;
+						}
+						Point l = element.getLocation();
+
+						if (l == null) continue;//unknown where to add
+
+						if (l.y >= startY && l.y < endY)
+						{
+							createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, enableAnchoring, sp);
+							columns.append('\n');
+						}
 					}
 				}
 
