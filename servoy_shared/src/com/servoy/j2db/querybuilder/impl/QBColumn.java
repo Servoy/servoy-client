@@ -158,7 +158,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#isNull()
 	 * @sample
-	 * query.where.add(query.columns.flag.isNull())
+	 * query.where.add(query.columns.flag.isNull)
 	 */
 	@JSReadonlyProperty
 	public QBCondition isNull()
