@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -2700,12 +2700,12 @@ public class JSDatabaseManager
 									dest_rec.setValue(c.getDataProviderID(), sval);
 								}
 							}
-							else if (src instanceof NativeJavaObject)
+							else if (src instanceof NativeObject)
 							{
-								NativeJavaObject njo = ((NativeJavaObject)src);
-								if (njo.has(c.getDataProviderID(), njo))
+								NativeObject no = ((NativeObject)src);
+								if (no.has(c.getDataProviderID(), no))
 								{
-									Object sval = njo.get(c.getDataProviderID(), njo);
+									Object sval = no.get(c.getDataProviderID(), no);
 									dest_rec.setValue(c.getDataProviderID(), sval);
 								}
 							}
