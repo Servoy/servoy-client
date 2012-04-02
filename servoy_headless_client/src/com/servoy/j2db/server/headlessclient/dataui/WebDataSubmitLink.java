@@ -49,6 +49,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a label in the browser that displays data (has a dataprovider) and on on action event.
@@ -122,6 +123,8 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 	protected ITagResolver resolver;
 
+	private String bodyText;
+
 	public void setTagResolver(ITagResolver resolver)
 	{
 		this.resolver = resolver;
@@ -139,7 +142,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 		IModel< ? > model = getInnermostModel();
 
-		String bodyText = null;
+		bodyText = null;
 		if (needEntireState && model instanceof RecordItemModel)
 		{
 			if (dataProviderID != null)
@@ -344,7 +347,23 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 
 	public void setValueObject(Object value)
 	{
-		((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, value);
+		if (dataProviderID == null && tagText != null)
+		{
+			CharSequence current = Text.processTags(tagText, resolver);
+			if (current != null && bodyText != null)
+			{
+				if (!Utils.equalObjects(bodyText.toString(), current.toString())) getScriptObject().getChangesRecorder().setChanged();
+			}
+			else if (current != null || bodyText != null)
+			{
+				getScriptObject().getChangesRecorder().setChanged();
+			}
+		}
+		else
+		{
+			((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, value);
+
+		}
 	}
 
 	public boolean needEditListener()

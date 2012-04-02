@@ -39,6 +39,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.Utils;
 
 /**
 * Represents a label in the browser that displays data (has a dataprovider)
@@ -237,7 +238,32 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	 */
 	public void setValueObject(Object obj)
 	{
-		((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, obj);
+		if (dataProviderID == null && tagText != null)
+		{
+			CharSequence current = Text.processTags(tagText, resolver);
+			if (current != null)
+			{
+				if (HtmlUtils.startsWithHtml(current))
+				{
+					current = StripHTMLTagsConverter.convertBodyText(this, current, application.getFlattenedSolution()).getBodyTxt();
+				}
+				else
+				{
+					// convert the text (strip html if needed)
+					final IConverter converter = getConverter(String.class);
+					current = converter.convertToString(current, getLocale());
+				}
+			}
+			if (bodyText != null && current != null)
+			{
+				if (!Utils.equalObjects(bodyText.toString(), current.toString())) getScriptObject().getChangesRecorder().setChanged();
+			}
+			else if (current != null || bodyText != null) getScriptObject().getChangesRecorder().setChanged();
+		}
+		else
+		{
+			((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, obj);
+		}
 	}
 
 	/**
