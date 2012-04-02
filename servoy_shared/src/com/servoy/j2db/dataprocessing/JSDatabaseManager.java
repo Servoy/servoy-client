@@ -2705,8 +2705,9 @@ public class JSDatabaseManager
 								NativeObject no = ((NativeObject)src);
 								if (no.has(c.getDataProviderID(), no))
 								{
-									Object sval = no.get(c.getDataProviderID(), no);
-									dest_rec.setValue(c.getDataProviderID(), sval);
+									Object raw_val = no.get(c.getDataProviderID(), no);
+									Object val = c.getAsRightType(raw_val);
+									dest_rec.setValue(c.getDataProviderID(), val);
 								}
 							}
 							else if (src != null)
@@ -2714,8 +2715,9 @@ public class JSDatabaseManager
 								Method m = getMethod(src, c.getDataProviderID(), getters);
 								if (m != null)
 								{
-									Object sval = m.invoke(src, (Object[])null);
-									dest_rec.setValue(c.getDataProviderID(), sval);
+									Object raw_val = m.invoke(src, (Object[])null);
+									Object val = c.getAsRightType(raw_val);
+									dest_rec.setValue(c.getDataProviderID(), val);
 								}
 							}
 						}
