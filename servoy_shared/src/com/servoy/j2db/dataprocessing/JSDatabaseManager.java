@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -453,9 +454,8 @@ public class JSDatabaseManager
 					IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
 
 
-					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
-						dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
-						dp instanceof Column ? ((Column)dp).getScale() : 0);
+					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
+						: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
 					if (getInOneQuery)
 					{
 						// only columns and data we can get from the foundset (calculations only when stored)
@@ -2697,6 +2697,15 @@ public class JSDatabaseManager
 								if (index != -1)
 								{
 									Object sval = src_rec.getValue(c.getDataProviderID());
+									dest_rec.setValue(c.getDataProviderID(), sval);
+								}
+							}
+							else if (src instanceof NativeJavaObject)
+							{
+								NativeJavaObject njo = ((NativeJavaObject)src);
+								if (njo.has(c.getDataProviderID(), njo))
+								{
+									Object sval = njo.get(c.getDataProviderID(), njo);
 									dest_rec.setValue(c.getDataProviderID(), sval);
 								}
 							}
