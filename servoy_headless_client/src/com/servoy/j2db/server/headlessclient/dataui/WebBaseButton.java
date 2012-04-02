@@ -1081,7 +1081,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		}
 		if (isAnchored)
 		{
-			instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+			instrumentedBodyText.append(" position: relative;"); //$NON-NLS-1$
 		}
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
 		if (cssid != null)
