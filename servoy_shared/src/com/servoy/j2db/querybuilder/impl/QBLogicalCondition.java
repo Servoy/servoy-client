@@ -43,6 +43,7 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition#add(IQueryBuilderCondition)
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.where.add(query.columns.orderdate.isNull)
 	 */

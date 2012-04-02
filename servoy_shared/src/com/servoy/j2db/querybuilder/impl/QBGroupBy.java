@@ -54,6 +54,7 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderGroupby#add(IQueryBuilderColumn)
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.groupBy.add(query.columns.orderid) // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
@@ -73,6 +74,7 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderGroupby#addPk()
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))

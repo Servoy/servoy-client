@@ -65,6 +65,7 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getParent()
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/person>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/person')
 	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
 	 * 	foundset.loadRecords(query)
@@ -78,8 +79,10 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderPart#getRoot()
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/order_details>} *&#47;
 	 * 	var subquery = databaseManager.createSelect('db:/example_data/order_details')
 	 * 		
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.where.add(query
 	 * 		.or 
@@ -180,7 +183,9 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, int)
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
 	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
 	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
 	 * 	query.where.add(join.columns.quantity.le(10))

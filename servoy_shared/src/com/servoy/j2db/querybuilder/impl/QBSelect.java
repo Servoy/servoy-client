@@ -171,6 +171,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#having()
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
@@ -209,6 +210,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#sort()
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.sort
 	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
@@ -228,6 +230,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#groupBy()
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
@@ -244,8 +247,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#params()
+	 * Get the named parameters from a query.
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.where.add(query.columns.contact_id.eq(query.getParameter('mycontactid')))
 	 * 	

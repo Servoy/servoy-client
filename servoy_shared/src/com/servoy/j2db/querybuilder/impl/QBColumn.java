@@ -213,6 +213,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#asc()
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.sort
 	 * .add(query.joins.orders_to_order_details.columns.quantity.asc)
@@ -228,6 +229,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#desc()
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.sort
 	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
@@ -243,6 +245,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#count()
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
@@ -257,6 +260,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#avg()
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
@@ -271,6 +275,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#max()
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
@@ -285,6 +290,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#min()
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.min(10))
@@ -299,6 +305,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#sum()
 	 * @sample
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.sum(10))

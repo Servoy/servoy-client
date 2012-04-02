@@ -50,9 +50,12 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoin#on()
 	 * @sample
+	 * /** @type {QBSelect<db:/example_data/person>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/person')
+	 * /** @type {QBJoin<db:/example_data/person>} *&#47;
 	 * var join1 = query.joins.add('db:/example_data/person')
 	 * join1.on.add(query.columns.parent_person_id.eq(join1.columns.person_id))
+	 * /** @type {QBJoin<db:/example_data/person>} *&#47;
 	 * var join2 = query.joins.add('db:/example_data/person')
 	 * join2.on.add(join1.columns.parent_person_id.eq(join2.columns.person_id))
 	 * 	
