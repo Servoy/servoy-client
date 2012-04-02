@@ -187,6 +187,8 @@ public class TooltipAttributeModifier extends AttributeModifier
 						if (!isHTMLText)
 						{
 							tooltip = "<html><span style='white-space:nowrap'>" + Strings.escapeMarkup(tooltip, false, false) + "</span></html>";
+							// ' character not handled well
+							tooltip = tooltip.replace("&#039;", "\'");
 						}
 
 						tooltip = tooltip.replace("\\", "\\\\");
