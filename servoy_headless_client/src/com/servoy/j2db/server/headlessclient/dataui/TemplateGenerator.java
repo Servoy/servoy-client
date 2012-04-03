@@ -865,10 +865,6 @@ public class TemplateGenerator
 					IFormElement element = it.next();
 					if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
 					{
-						if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
-						{
-							continue;
-						}
 						Point l = element.getLocation();
 
 						if (l == null) continue;//unknown where to add
