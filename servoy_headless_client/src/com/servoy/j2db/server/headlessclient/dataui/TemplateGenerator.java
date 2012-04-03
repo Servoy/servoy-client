@@ -1274,14 +1274,25 @@ public class TemplateGenerator
 		private String[] getGradientColors(String cssDeclaration)
 		{
 			String[] colors = new String[2];
-			cssDeclaration = cssDeclaration.substring(cssDeclaration.indexOf('(') + 1, cssDeclaration.indexOf(')'));
+			cssDeclaration = cssDeclaration.substring(cssDeclaration.indexOf('(') + 1, cssDeclaration.lastIndexOf(')'));
 			StringTokenizer tokenizer = new StringTokenizer(cssDeclaration, ",");
-			if (tokenizer.countTokens() > 2) tokenizer.nextElement();
+			if (cssDeclaration.startsWith("top") || cssDeclaration.startsWith("left") || cssDeclaration.startsWith("right") ||
+				cssDeclaration.startsWith("bottom")) tokenizer.nextElement();
 			for (int i = 0; i < 2; i++)
 			{
 				if (tokenizer.hasMoreElements())
 				{
-					colors[i] = tokenizer.nextToken().trim();
+					String colorString = tokenizer.nextToken().trim();
+					if (colorString.startsWith("rgb"))
+					{
+						while (tokenizer.hasMoreElements())
+						{
+							String token = tokenizer.nextToken();
+							colorString += "," + token;
+							if (token.contains(")")) break;
+						}
+					}
+					colors[i] = colorString;
 				}
 				else
 				{

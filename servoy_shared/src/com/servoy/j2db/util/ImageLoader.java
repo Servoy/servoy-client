@@ -893,7 +893,7 @@ public class ImageLoader
 			}
 			else if (url.indexOf("linear-gradient") != -1 && graphics instanceof Graphics2D)
 			{
-				String definition = url.substring(url.indexOf("(") + 1, url.indexOf(")"));
+				String definition = url.substring(url.indexOf("(") + 1, url.lastIndexOf(")"));
 				StringTokenizer tokenizer = new StringTokenizer(definition, ",");
 				if (tokenizer.countTokens() >= 2)
 				{
