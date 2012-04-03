@@ -1477,6 +1477,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						mainTableAlias = tableName.split(whitespace)[1];
 					}
+					else
+					{
+						// Use table name as alias
+						mainTableAlias = tableName.split(whitespace)[0];
+					}
 				}
 				else
 				{
