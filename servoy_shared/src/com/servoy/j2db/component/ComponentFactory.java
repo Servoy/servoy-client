@@ -489,9 +489,12 @@ public class ComponentFactory
 		Style repos_style = null;
 		if (sp != null)
 		{
-			@SuppressWarnings("unchecked")
-			Map<String, String> overridenStyles = (Map<String, String>)sp.getRuntimeProperties().get(IServiceProvider.RT_OVERRIDESTYLE_CACHE);
-			repos_style = sp.getFlattenedSolution().getStyleForForm(form, overridenStyles);
+			if (sp.getFlattenedSolution() != null)
+			{
+				@SuppressWarnings("unchecked")
+				Map<String, String> overridenStyles = (Map<String, String>)sp.getRuntimeProperties().get(IServiceProvider.RT_OVERRIDESTYLE_CACHE);
+				repos_style = sp.getFlattenedSolution().getStyleForForm(form, overridenStyles);
+			}
 		}
 		else
 		{
@@ -593,13 +596,16 @@ public class ComponentFactory
 		}
 		if ((pair == null || pair.getRight() == null || (pair.getRight()).getAttributeCount() == 0))
 		{
-			List<Form> formHierarchy = sp.getFlattenedSolution().getFormHierarchy(form);
-			for (int i = 1; i < formHierarchy.size(); i++)
+			if (sp.getFlattenedSolution() != null)
 			{
-				pair = getStyleForBasicComponentInternal(sp, bc, formHierarchy.get(i), visited);
-				if (pair != null && pair.getRight() != null && (pair.getRight()).getAttributeCount() != 0)
+				List<Form> formHierarchy = sp.getFlattenedSolution().getFormHierarchy(form);
+				for (int i = 1; i < formHierarchy.size(); i++)
 				{
-					break;
+					pair = getStyleForBasicComponentInternal(sp, bc, formHierarchy.get(i), visited);
+					if (pair != null && pair.getRight() != null && (pair.getRight()).getAttributeCount() != 0)
+					{
+						break;
+					}
 				}
 			}
 		}
