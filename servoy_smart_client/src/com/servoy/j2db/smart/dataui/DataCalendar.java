@@ -419,7 +419,9 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		{
 			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
+				boolean oldReadonly = readOnly;
 				setReadOnly(false);
+				readOnly = oldReadonly;
 			}
 		}
 	}
