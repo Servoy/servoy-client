@@ -42,6 +42,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a Button in a browser that also displays data (has a dataprovider) 
@@ -240,7 +241,24 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 
 	public void setValueObject(Object value)
 	{
-		((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, value);
+
+		if (dataProviderID == null && tagText != null)
+		{
+			CharSequence current = Text.processTags(tagText, resolver);
+			if (current != null && bodyText != null)
+			{
+				if (!Utils.equalObjects(bodyText.toString(), current.toString())) getScriptObject().getChangesRecorder().setChanged();
+			}
+			else if (current != null || bodyText != null)
+			{
+				getScriptObject().getChangesRecorder().setChanged();
+			}
+		}
+		else
+		{
+			((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, value);
+
+		}
 	}
 
 	public boolean needEditListener()
