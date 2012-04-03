@@ -436,7 +436,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	{
 		if (destroyed && e.getRecord() != null)
 		{
-			Debug.error("Destroyed DataAdapterList " + formController + " was still attached to the record, removing it, currentRecord: " + currentRecord, new RuntimeException());
+			Debug.error("Destroyed DataAdapterList " + formController + " was still attached to the record, removing it, currentRecord: " + currentRecord,
+				new RuntimeException());
 			e.getRecord().removeModificationListener(this);
 			return;
 		}
@@ -565,7 +566,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		}
 		if (destroyed)
 		{
-			Debug.error("calling getFormScope on a destroyed DataAdapterList, formcontroller: " + formController + ", currentRecord: " + currentRecord, new RuntimeException());
+			Debug.error("calling getFormScope on a destroyed DataAdapterList, formcontroller: " + formController + ", currentRecord: " + currentRecord,
+				new RuntimeException());
 			return null;
 		}
 		return formController.getFormScope();
@@ -709,6 +711,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			// With prototype you can still get global foundsets
 			//setRecord(new PrototypeState(currentRecord.getParentFoundSet()), true);
 			setRecord(null, false);
+		}
+
+		if (formController != null && formController.getFormScope() != null)
+		{
+			formController.getFormScope().removeModificationListener(this);
 		}
 
 		IExecutingEnviroment er = application.getScriptEngine();
