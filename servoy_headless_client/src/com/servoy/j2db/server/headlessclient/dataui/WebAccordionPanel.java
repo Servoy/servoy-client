@@ -45,6 +45,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.version.undo.Change;
+import org.odlabs.wiquery.core.javascript.JsStatement;
 import org.odlabs.wiquery.ui.accordion.Accordion;
 import org.odlabs.wiquery.ui.accordion.AccordionAnimated;
 
@@ -116,7 +117,20 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		this.application = application;
 
 		setOutputMarkupPlaceholderTag(true);
-		accordion = new Accordion("accordion_" + name); //$NON-NLS-1$
+		accordion = new Accordion("accordion_" + name)
+		{
+			@Override
+			public JsStatement statement()
+			{
+				JsStatement statement = super.statement();
+				int index = getTabIndex();
+				if (index > 0) // 0 is opened by default
+				{
+					statement = statement.chain("accordion", "'activate'", String.valueOf(index));
+				}
+				return statement;
+			}
+		};
 		add(accordion);
 		// disable animation, see http://forum.jquery.com/topic/jquery-accordion-not-work-on-ie-7
 		accordion.setAnimated(new AccordionAnimated(Boolean.FALSE));
@@ -252,11 +266,6 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			public void renderHead(IHeaderResponse response)
 			{
 				super.renderHead(response);
-				int index = getTabIndex();
-				if (index > 0) // first tab will be activated by default
-				{
-					response.renderOnDomReadyJavascript(accordion.activate(index).getStatement().toString());
-				}
 				// avoid flickering, see also tabpanel
 				response.renderOnDomReadyJavascript("var accordion = document.getElementById('" + WebAccordionPanel.this.getMarkupId() +
 					"');if (accordion){accordion.style.visibility = 'visible';}");
