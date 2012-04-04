@@ -3689,12 +3689,18 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				{
 					idx = formModel.getSelectedIndexes();
 				}
-				if (idx == null || idx.length == 0) idx = new int[] { 0 };
-				IRecordInternal[] row = new IRecordInternal[idx.length];
+				if (idx == null || idx.length == 0)
+				{
+					refreshAllPartRenderers(new IRecordInternal[] { formModel.getPrototypeState() });
+				}
+				else
+				{
+					IRecordInternal[] row = new IRecordInternal[idx.length];
 
-				for (int i = 0; i < idx.length; i++)
-					row[i] = formModel.getRecord(idx[i]);
-				refreshAllPartRenderers(row);
+					for (int i = 0; i < idx.length; i++)
+						row[i] = formModel.getRecord(idx[i]);
+					refreshAllPartRenderers(row);
+				}
 			}
 		}
 		finally
