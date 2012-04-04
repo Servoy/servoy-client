@@ -634,8 +634,6 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
 	 *
-	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
-	 *
 	 * @return String html.
 	 */
 	public String js_getAsHTML()
