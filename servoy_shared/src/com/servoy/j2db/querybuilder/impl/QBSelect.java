@@ -35,6 +35,7 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.ExistsCondition;
+import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
@@ -62,6 +63,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	private QBResult result;
 	private QBSorts sort;
 	private QBGroupBy groupBy;
+	private QBFunctions functions;
 	protected QuerySelect query;
 	private QBLogicalCondition where;
 	private QBLogicalCondition having;
@@ -357,6 +359,25 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return new QBCondition(this, this, new ExistsCondition(select, true));
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#functions()
+	 * @sample
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
+	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('servoy'))) //$NON-NLS-1$
+	 * foundset.loadRecords(query)
+	 */
+	@JSReadonlyProperty
+	public QBFunctions functions()
+	{
+		if (functions == null)
+		{
+			functions = new QBFunctions(this);
+		}
+		return functions;
+	}
+
+
 	public QuerySelect getQuery() throws RepositoryException
 	{
 		if (query == null)
@@ -383,12 +404,13 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return queryTable;
 	}
 
-	Object createOperand(Object value)
+	IQuerySelectValue createOperand(Object value)
 	{
 		if (value instanceof QBColumn)
 		{
 			return ((QBColumn)value).getQuerySelectValue();
 		}
+		final Object val;
 		if (value instanceof QBParameter)
 		{
 			TablePlaceholderKey key = ((QBParameter)value).getPlaceholderKey();
@@ -397,16 +419,17 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			{
 				placeholder = query.getPlaceholder(key);
 			}
-			if (placeholder == null)
-			{
-				placeholder = new Placeholder(key);
-			}
-			return placeholder;
+			val = placeholder == null ? new Placeholder(key) : placeholder;
 		}
-		if (value instanceof Date && !(value instanceof Timestamp))
+		else if (value instanceof Date && !(value instanceof Timestamp))
 		{
-			return new Timestamp(((Date)value).getTime());
+			val = new Timestamp(((Date)value).getTime());
 		}
-		return value;
+		else
+		{
+			val = value;
+		}
+		return new QueryColumnValue(val, null);
 	}
+
 }

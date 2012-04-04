@@ -196,6 +196,17 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 */
 	IQueryBuilderCondition exists(IQueryBuilder query) throws RepositoryException;
 
+	/**
+	 * Get the functions clause from a query, used for functions that are not tied to a column.
+	 * <pre>
+	 * // select pk from tab where floor(val / ?) > pk [1999]
+	 * IQueryBuilder query = queryFactory.createSelect(table.getDataSource()).result().addPk().getParent();
+	 * query.where()
+	 *  .add(query.functions().floor(query.getColumn(val.getName()).divide(new Integer(1999))).gt(query.getColumn(id.getName())))
+	 *  .getRoot().sort().add(query.getColumn(id.getName()).asc());
+	 * </pre>
+	 */
+	IQueryBuilderFunctions functions();
 
 	/**
 	 * Build the query for performing query in the db

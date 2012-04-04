@@ -65,6 +65,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryFunction;
+import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
@@ -1666,11 +1667,11 @@ public class SQLGenerator
 		IQuerySelectValue likeSelectValue;
 		if (Column.mapToDefaultType(dataProviderType) == IColumnTypes.TEXT)
 		{
-			likeSelectValue = new QueryFunction(QueryFunction.UPPER, selectValue, null);
+			likeSelectValue = new QueryFunction(QueryFunctionType.upper, selectValue, null);
 		}
 		else
 		{
-			likeSelectValue = new QueryFunction(QueryFunction.CASTFROM,
+			likeSelectValue = new QueryFunction(QueryFunctionType.castfrom,
 				new IQuerySelectValue[] { selectValue, new QueryColumnValue("integer", null, true), new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return new CompareCondition(ISQLCondition.LIKE_OPERATOR, likeSelectValue, value);

@@ -29,65 +29,59 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public final class QueryFunction implements IQuerySelectValue
 {
-	// function types
-	public static final int SUBSTRING = 0;
-	public static final int LOCATE = 1;
-	public static final int TRIM = 2;
-	public static final int LENGTH = 3;
-	public static final int BIT_LENGTH = 4;
-	public static final int COALESCE = 5;
-	public static final int NULLIF = 6;
-	public static final int ABS = 7;
-	public static final int MOD = 8;
-	public static final int SQRT = 9;
-	public static final int UPPER = 10;
-	public static final int LOWER = 11;
-	public static final int CAST = 12;
-	public static final int EXTRACT = 13;
+	// function types, names must match Hibernate function names
+	public enum QueryFunctionType
+	{
+		// standard sql92 functions (defined for each Hibernate dialect)
+		substring,
+		locate,
+		trim,
+		length,
+		bit_length,
+		coalesce,
+		nullif,
+		abs,
+		mod,
+		sqrt,
+		upper,
+		lower,
+		cast,
+		extract,
 
-	public static final int CONCAT = 14;
-	public static final int DISTINCT = 15;
-	public static final int CASTFROM = 16;
+		// extract from date (also standard)
+		second,
+		minute,
+		hour,
+		day,
+		month,
+		year,
 
-	public static final int[] ALL_DEFINED_FUNCTIONS = new int[] { SUBSTRING, LOCATE, TRIM, LENGTH, BIT_LENGTH, COALESCE, NULLIF, ABS, MOD, SQRT, UPPER, LOWER, CAST, EXTRACT, CONCAT, DISTINCT, CASTFROM };
+		// optional but common functions
+		concat,
+		floor,
+		round,
+		ceil,
 
+		// slightly abused as function 
+		distinct,
+		plus,
+		minus,
+		multiply,
+		divide,
 
-	// functions as defined in Hibernate
-	public static final String[] FUNCTION_TYPE_HIBERNATE = new String[] { // standard sql92 functions (defined for each Hibernate dialect)
-	"substring", //$NON-NLS-1$
-	"locate", //$NON-NLS-1$
-	"trim", //$NON-NLS-1$
-	"length", //$NON-NLS-1$
-	"bit_length", //$NON-NLS-1$
-	"coalesce", //$NON-NLS-1$
-	"nullif", //$NON-NLS-1$
-	"abs", //$NON-NLS-1$
-	"mod", //$NON-NLS-1$
-	"sqrt", //$NON-NLS-1$
-	"upper", //$NON-NLS-1$
-	"lower", //$NON-NLS-1$
-	"cast", //$NON-NLS-1$
-	"extract", //$NON-NLS-1$
+		// added
+		castfrom,
+	}
 
-	// optional but common functions
-	"concat", //$NON-NLS-1$
-	"distinct", // slightly abused as function //$NON-NLS-1$
-
-	// added
-	"castfrom" //$NON-NLS-1$
-	};
-
-
-	private final int function;
+	private final QueryFunctionType function;
 	private IQuerySelectValue[] args;
 	private final String name;
 
-	public QueryFunction(int function, IQuerySelectValue[] args, String name)
+	public QueryFunction(QueryFunctionType function, IQuerySelectValue[] args, String name)
 	{
 		this.function = function;
 		this.args = args;
 		this.name = name;
-		getFunctionName(); // throw index error when the function is not defined
 	}
 
 	/**
@@ -95,12 +89,12 @@ public final class QueryFunction implements IQuerySelectValue
 	 * @param key
 	 * @param object
 	 */
-	public QueryFunction(int function, IQuerySelectValue key, String name)
+	public QueryFunction(QueryFunctionType function, IQuerySelectValue key, String name)
 	{
 		this(function, new IQuerySelectValue[] { key }, name);
 	}
 
-	public int getFunction()
+	public QueryFunctionType getFunction()
 	{
 		return function;
 	}
@@ -113,14 +107,6 @@ public final class QueryFunction implements IQuerySelectValue
 	public String getAlias()
 	{
 		return name;
-	}
-
-	/**
-	 * @return function name as defined by Hibernate.
-	 */
-	public String getFunctionName()
-	{
-		return FUNCTION_TYPE_HIBERNATE[function];
 	}
 
 	public IQuerySelectValue[] getArgs()
@@ -140,11 +126,11 @@ public final class QueryFunction implements IQuerySelectValue
 	@Override
 	public int hashCode()
 	{
-		final int PRIME = 31;
+		final int prime = 31;
 		int result = 1;
-		result = PRIME * result + AbstractBaseQuery.hashCode(this.args);
-		result = PRIME * result + this.function;
-		result = PRIME * result + ((this.name == null) ? 0 : this.name.hashCode());
+		result = prime * result + Arrays.hashCode(args);
+		result = prime * result + ((function == null) ? 0 : function.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -154,14 +140,14 @@ public final class QueryFunction implements IQuerySelectValue
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		final QueryFunction other = (QueryFunction)obj;
-		if (!Arrays.equals(this.args, other.args)) return false;
-		if (this.function != other.function) return false;
-		if (this.name == null)
+		QueryFunction other = (QueryFunction)obj;
+		if (!Arrays.equals(args, other.args)) return false;
+		if (function != other.function) return false;
+		if (name == null)
 		{
 			if (other.name != null) return false;
 		}
-		else if (!this.name.equals(other.name)) return false;
+		else if (!name.equals(other.name)) return false;
 		return true;
 	}
 
@@ -172,13 +158,13 @@ public final class QueryFunction implements IQuerySelectValue
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		args = (IQuerySelectValue[])AbstractBaseQuery.acceptVisitor(args, visitor);
+		args = AbstractBaseQuery.acceptVisitor(args, visitor);
 	}
 
 	@Override
 	public String toString()
 	{
-		return new StringBuffer(getFunctionName().toUpperCase()).append(AbstractBaseQuery.toString(args)).append(' ').append(name).toString();
+		return new StringBuffer(function.name().toUpperCase()).append(AbstractBaseQuery.toString(args)).append(' ').append(name).toString();
 	}
 
 
@@ -187,7 +173,7 @@ public final class QueryFunction implements IQuerySelectValue
 
 	public Object writeReplace()
 	{
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { new Integer(function), ReplacedObject.convertArray(args,
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { function.name(), ReplacedObject.convertArray(args,
 			Object.class), name });
 	}
 
@@ -195,10 +181,9 @@ public final class QueryFunction implements IQuerySelectValue
 	{
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
-		function = ((Integer)members[i++]).intValue();
+		function = QueryFunctionType.valueOf((String)members[i++]);
 		args = (IQuerySelectValue[])ReplacedObject.convertArray((Object[])members[i++], IQuerySelectValue.class);
 		name = (String)members[i++];
 	}
-
 
 }

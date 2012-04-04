@@ -19,8 +19,8 @@ package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.IQuerySelectValue;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryFunction;
+import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 
 /**
@@ -30,18 +30,20 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBFunction extends QBColumn implements IQueryBuilderFunction
 {
-	private final int functionType;
+	private final QueryFunctionType functionType;
+	private final IQuerySelectValue[] functionArgs;
 
-	QBFunction(QBSelect root, QBTableClause queryBuilderTableClause, QueryColumn queryColumn, int functionType)
+	QBFunction(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
 	{
-		super(root, queryBuilderTableClause, queryColumn);
+		super(root, queryBuilderTableClause, null);
 		this.functionType = functionType;
+		this.functionArgs = functionArgs;
 	}
 
 	@Override
 	public IQuerySelectValue getQuerySelectValue()
 	{
-		return new QueryFunction(functionType, super.getQuerySelectValue(), null);
+		return new QueryFunction(functionType, functionArgs, null);
 	}
 
 }

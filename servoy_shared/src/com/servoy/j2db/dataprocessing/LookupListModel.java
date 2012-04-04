@@ -38,6 +38,7 @@ import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.QueryFunction;
+import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
@@ -540,7 +541,7 @@ public class LookupListModel extends AbstractListModel
 					foundSetManager.getTrackingInfo(), application.getClientID());
 			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY,trackingInfo);
+				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
@@ -572,7 +573,7 @@ public class LookupListModel extends AbstractListModel
 		sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		if (!"".equals(txt)) //$NON-NLS-1$
 		{
-			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunction.UPPER,
+			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunctionType.upper,
 				DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID), txt.toUpperCase() + '%'));
 		}
 		else

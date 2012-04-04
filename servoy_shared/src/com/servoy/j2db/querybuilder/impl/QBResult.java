@@ -86,12 +86,6 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return add(column);
 	}
 
-	public QBResult add(IQueryBuilderColumn column) throws RepositoryException
-	{
-		getParent().getQuery().addColumn(((QBColumn)column).getQuerySelectValue());
-		return this;
-	}
-
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
 	 * @sample
@@ -110,6 +104,12 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	public QBResult js_add(QBFunction func) throws RepositoryException
 	{
 		return add(func);
+	}
+
+	public QBResult add(IQueryBuilderColumn column) throws RepositoryException
+	{
+		getParent().getQuery().addColumn(((QBColumn)column).getQuerySelectValue());
+		return this;
 	}
 
 	/**

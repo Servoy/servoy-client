@@ -25,8 +25,6 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
-import com.servoy.j2db.query.QueryColumn;
-import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
@@ -39,15 +37,15 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBColumn extends QBPart implements IQueryBuilderColumn
 {
-	private final QueryColumn queryColumn;
+	private final IQuerySelectValue queryColumn;
 	private final boolean negate;
 
-	QBColumn(QBSelect root, QBTableClause queryBuilderTableClause, QueryColumn queryColumn)
+	QBColumn(QBSelect root, QBTableClause queryBuilderTableClause, IQuerySelectValue queryColumn)
 	{
 		this(root, queryBuilderTableClause, queryColumn, false);
 	}
 
-	QBColumn(QBSelect root, QBTableClause parent, QueryColumn queryColumn, boolean negate)
+	QBColumn(QBSelect root, QBTableClause parent, IQuerySelectValue queryColumn, boolean negate)
 	{
 		super(root, parent);
 		this.queryColumn = queryColumn;
@@ -71,6 +69,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#gt(Object)
+	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.gt(0))
 	 */
@@ -82,6 +81,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#lt(Object)
+	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.lt(99))
 	 */
@@ -93,6 +93,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#ge(Object)
+	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.ge(2))
 	 */
@@ -104,6 +105,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#le(Object)
+	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.le(2))
 	 */
@@ -115,17 +117,21 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#between(Object, Object)
+	 * @param value1
+	 * @param value2
 	 * @sample
 	 * query.where.add(query.columns.flag.between(0, 5))
 	 */
 	@JSFunction
 	public QBCondition between(Object value1, Object value2)
 	{
-		return createCompareCondition(ISQLCondition.BETWEEN_OPERATOR, new Object[] { value1, value2 });
+		return createCondition(new CompareCondition(ISQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(),
+			new Object[] { getRoot().createOperand(value1), getRoot().createOperand(value2) }));
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#in(IQueryBuilderPart)
+	 * @param query subquery
 	 * @sample
 	 * query.where.add(query.columns.flag.in(query2))
 	 */
@@ -141,6 +147,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#in(Object[])
+	 * @param values array of values
 	 * @sample
 	 * query.where.add(query.columns.flag.in([1, 5, 99]))
 	 */
@@ -168,6 +175,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#eq(Object)
+	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.eq(1))
 	 */
@@ -179,6 +187,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#like(String)
+	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('Serv%'))
 	 */
@@ -190,6 +199,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#like(String, char)
+	 * @param value string value
+	 * @param ecape escape char
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('X_%', '_'))
 	 */
@@ -207,7 +218,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBColumn not()
 	{
-		return new QBColumn(getRoot(), getParent(), queryColumn, !negate);
+		return new QBColumn(getRoot(), getParent(), getQuerySelectValue(), !negate);
 	}
 
 	/**
@@ -254,7 +265,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate count()
 	{
-		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.COUNT);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.COUNT);
 	}
 
 	/**
@@ -269,7 +280,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate avg()
 	{
-		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.AVG);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.AVG);
 	}
 
 	/**
@@ -284,7 +295,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate max()
 	{
-		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MAX);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MAX);
 	}
 
 	/**
@@ -299,7 +310,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate min()
 	{
-		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.MIN);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MIN);
 	}
 
 	/**
@@ -314,19 +325,322 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate sum()
 	{
-		return new QBAggregate(getRoot(), getParent(), queryColumn, QueryAggregate.SUM);
+		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.SUM);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#upper()
 	 * @sample
-	 * query.result.add(query.columns.custname.upper())
+	 * query.result.add(query.columns.custname.upper)
 	 */
 	@JSReadonlyProperty
 	public QBFunction upper()
 	{
-		return new QBFunction(getRoot(), getParent(), queryColumn, QueryFunction.UPPER);
+		return getRoot().functions().upper(this);
 	}
 
-	// TODO: add more functions
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#abs()
+	 * @sample
+	 * query.result.add(query.columns.custname.abs)
+	 */
+	@JSReadonlyProperty
+	public QBFunction abs()
+	{
+		return getRoot().functions().abs(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#sqrt()
+	 * @sample
+	 * query.result.add(query.columns.custname.sqrt)
+	 */
+	@JSReadonlyProperty
+	public QBFunction sqrt()
+	{
+		return getRoot().functions().sqrt(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#lower()
+	 * @sample
+	 * query.result.add(query.columns.custname.lower)
+	 */
+	@JSReadonlyProperty
+	public QBFunction lower()
+	{
+		return getRoot().functions().lower(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#trim()
+	 * @sample
+	 * query.result.add(query.columns.custname.trim)
+	 */
+	@JSReadonlyProperty
+	public QBFunction trim()
+	{
+		return getRoot().functions().trim(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#length()
+	 * @sample
+	 * query.result.add(query.columns.custname.len)
+	 */
+	@JSReadonlyProperty
+	public QBFunction len()
+	{
+		return length();
+	}
+
+	public QBFunction length()
+	{
+		return getRoot().functions().length(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#bit_length()
+	 * @sample
+	 * query.result.add(query.columns.custname.bit_length)
+	 */
+	@JSReadonlyProperty
+	public QBFunction bit_length()
+	{
+		return getRoot().functions().bit_length(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#cast(String)
+	 * @param type string type, see QUERY_COLUMN_TYPES
+	 * @sample
+	 * query.result.add(query.columns.mycol.cast(QUERY_COLUMN_TYPES.TYPE_INTEGER))
+	 */
+	@JSFunction
+	public QBFunction cast(String type)
+	{
+		return getRoot().functions().cast(this, type);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#substring(int)
+	 * @param pos
+	 * @sample
+	 * query.result.add(query.columns.mycol.substring(3))
+	 */
+	@JSFunction
+	public QBFunction substring(int pos)
+	{
+		return getRoot().functions().substring(this, pos);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#substring(int, int)
+	 * @param pos
+	 * @param len
+	 * @sample
+	 * query.result.add(query.columns.mycol.substring(3, 2))
+	 */
+	@JSFunction
+	public QBFunction substring(int pos, int len)
+	{
+		return getRoot().functions().substring(this, pos, len);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#locate(Object)
+	 * @param arg string to locate
+	 * @sample
+	 * query.result.add(query.columns.mycol.locate('sample'))
+	 */
+	@JSFunction
+	public QBFunction locate(Object arg)
+	{
+		return getRoot().functions().locate(this, arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#locate(Object, int)
+	 * @param arg string to locate
+	 * @param start start pos
+	 * @sample
+	 * query.result.add(query.columns.mycol.locate('sample', 5))
+	 */
+	@JSFunction
+	public QBFunction locate(Object arg, int start)
+	{
+		return getRoot().functions().locate(this, arg, start);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#nullif(Object)
+	 * @param arg object to compare
+	 * @sample
+	 * query.result.add(query.columns.mycol.nullif('none'))
+	 */
+	@JSFunction
+	public QBFunction nullif(Object arg)
+	{
+		return getRoot().functions().nullif(this, arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#mod(Object)
+	 * @param arg mod arg
+	 * @sample
+	 * query.result.add(query.columns.mycol.mod(2))
+	 */
+	@JSFunction
+	public QBFunction mod(Object arg)
+	{
+		return getRoot().functions().mod(this, arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#plus(Object)
+	 * @param arg nr to add
+	 * @sample
+	 * query.result.add(query.columns.mycol.plus(2))
+	 */
+	@JSFunction
+	public QBFunction plus(Object arg)
+	{
+		return getRoot().functions().plus(this, arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#minus(Object)
+	 * @param arg nr to subtract
+	 * @sample
+	 * query.result.add(query.columns.mycol.minus(2))
+	 */
+	@JSFunction
+	public QBFunction minus(Object arg)
+	{
+		return getRoot().functions().minus(this, arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#multiply(Object)
+	 * @param arg nr to multiply with
+	 * @sample
+	 * query.result.add(query.columns.mycol.multiply(2))
+	 */
+	@JSFunction
+	public QBFunction multiply(Object arg)
+	{
+		return getRoot().functions().multiply(this, arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#divide(Object)
+	 * @param arg nr to divide by
+	 * @sample
+	 * query.result.add(query.columns.mycol.divide(2))
+	 */
+	@JSFunction
+	public QBFunction divide(Object arg)
+	{
+		return getRoot().functions().divide(this, arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#floor()
+	 * @sample
+	 * query.result.add(query.columns.mycol.floor)
+	 */
+	@JSReadonlyProperty
+	public QBFunction floor()
+	{
+		return getRoot().functions().floor(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#round()
+	 * @sample
+	 * query.result.add(query.columns.mycol.round)
+	 */
+	@JSReadonlyProperty
+	public QBFunction round()
+	{
+		return getRoot().functions().round(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#ceil()
+	 * @sample
+	 * query.result.add(query.columns.mycol.ceil)
+	 */
+	@JSReadonlyProperty
+	public QBFunction ceil()
+	{
+		return getRoot().functions().ceil(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#second()
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.second)
+	 */
+	@JSReadonlyProperty
+	public QBFunction second()
+	{
+		return getRoot().functions().second(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#minute()
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.minute)
+	 */
+	@JSReadonlyProperty
+	public QBFunction minute()
+	{
+		return getRoot().functions().minute(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#hour()
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.hour)
+	 */
+	@JSReadonlyProperty
+	public QBFunction hour()
+	{
+		return getRoot().functions().hour(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#day()
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.day)
+	 */
+	@JSReadonlyProperty
+	public QBFunction day()
+	{
+		return getRoot().functions().day(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#month()
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.month)
+	 */
+	@JSReadonlyProperty
+	public QBFunction month()
+	{
+		return getRoot().functions().month(this);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#year()
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.year)
+	 */
+	@JSReadonlyProperty
+	public QBFunction year()
+	{
+		return getRoot().functions().year(this);
+	}
+
 }

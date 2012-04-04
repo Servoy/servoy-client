@@ -20,7 +20,6 @@ package com.servoy.j2db.querybuilder.impl;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryAggregate;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderAggregate;
 
 /**
@@ -32,7 +31,7 @@ public class QBAggregate extends QBColumn implements IQueryBuilderAggregate
 {
 	private final int aggregateType;
 
-	QBAggregate(QBSelect root, QBTableClause queryBuilderTableClause, QueryColumn queryColumn, int aggregateType)
+	QBAggregate(QBSelect root, QBTableClause queryBuilderTableClause, IQuerySelectValue queryColumn, int aggregateType)
 	{
 		super(root, queryBuilderTableClause, queryColumn);
 		this.aggregateType = aggregateType;

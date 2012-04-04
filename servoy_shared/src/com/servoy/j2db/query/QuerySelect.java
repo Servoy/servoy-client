@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.ObjectCountVisitor;
@@ -517,11 +518,11 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			IQuerySelectValue[] cols = selectColumns.toArray(new IQuerySelectValue[selectColumns.size()]);
 			if (cols.length == 1)
 			{
-				agregee = new QueryFunction(QueryFunction.DISTINCT, cols[0], null);
+				agregee = new QueryFunction(QueryFunctionType.distinct, cols[0], null);
 			}
 			else
 			{
-				agregee = new QueryFunction(QueryFunction.DISTINCT, new QueryFunction(QueryFunction.CONCAT, cols, null), null);
+				agregee = new QueryFunction(QueryFunctionType.distinct, new QueryFunction(QueryFunctionType.concat, cols, null), null);
 			}
 		}
 		else
