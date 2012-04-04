@@ -422,15 +422,12 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			{
 				dlm.fill(parentState, getDataProviderID(), trimmed, false);
 				result = matchValueListValue(trimmed, false);
-				if (result == null)
+				if (result == null && list.hasRealValues())
 				{
 					dlm.fill(parentState, getDataProviderID(), null, false);
-					if (list.hasRealValues())
-					{
-						//if it doesn't have real values, just keep what is typed
-						// now just try to match it be start with matching instead of equals:
-						result = matchValueListValue(trimmed, true);
-					}
+					//if it doesn't have real values, just keep what is typed
+					// now just try to match it be start with matching instead of equals:
+					result = matchValueListValue(trimmed, true);
 					// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
 					String displayValue = (result == null && list.hasRealValues()) ? "" : result;
 					// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
