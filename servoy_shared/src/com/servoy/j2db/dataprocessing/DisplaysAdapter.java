@@ -526,6 +526,15 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 					// have to do this because for calcs in calcs. Better was to had a check for previous value.
 					fireModificationEvent(obj);
 				}
+				else if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+				{
+					GlobalScope gs = application.getScriptEngine().getSolutionScope().getGlobalScope();
+					obj = gs.get(dataProviderID.substring(ScriptVariable.GLOBAL_DOT_PREFIX.length()));
+					if (obj == Scriptable.NOT_FOUND)
+					{
+						obj = null;
+					}
+				}
 			}
 			// do not set value for form variable except when really changed
 			if (!formVariable || dataProviderID == null || dataProviderID.equals(e.getName()))

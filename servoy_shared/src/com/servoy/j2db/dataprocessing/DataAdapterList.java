@@ -442,7 +442,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			return;
 		}
 		FormScope formScope = getFormScope();
-		if (visible && (currentRecord != null || (formScope != null && formScope.has(e.getName(), formScope))))
+		if (visible &&
+			(currentRecord != null || (formScope != null && formScope.has(e.getName(), formScope)) || e.getName().startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)))
 		{
 			for (IDataAdapter da : dataAdapters.values())
 			{
