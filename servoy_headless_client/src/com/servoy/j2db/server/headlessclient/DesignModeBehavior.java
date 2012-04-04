@@ -255,6 +255,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 						onSelectComponent = (IComponent)child;
 						target.appendJavascript("Servoy.ClientDesign.attachElement(document.getElementById('" + id + "'));");
 					}
+					WebEventExecutor.generateResponse(target, getComponent().getPage());
 					return;
 				}
 
