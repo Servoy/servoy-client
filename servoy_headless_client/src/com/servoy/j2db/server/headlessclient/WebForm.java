@@ -1710,14 +1710,14 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	{
 		final boolean designModeFlag = callback != null;
 
-		visitChildren(IFieldComponent.class, new IVisitor<Component>()
+		visitChildren(IComponent.class, new IVisitor<Component>()
 		{
-
 			public Object component(Component component)
 			{
 				if (designModeFlag)
 				{
-					if (component instanceof WebBaseSelectBox || component instanceof WebDataCheckBoxChoice || component instanceof WebDataRadioChoice)
+					if (component instanceof IFieldComponent &&
+						(component instanceof WebBaseSelectBox || component instanceof WebDataCheckBoxChoice || component instanceof WebDataRadioChoice))
 					{
 						compEditableStatusBeforeDesignMode.put((IFieldComponent)component, Boolean.valueOf(((IFieldComponent)component).isEditable()));
 						((IFieldComponent)component).setEditable(false);
@@ -1731,15 +1731,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					}
 				}
 
-				return IVisitor.CONTINUE_TRAVERSAL;
-			}
-
-		});
-
-		visitChildren(IComponent.class, new IVisitor<Component>()
-		{
-			public Object component(Component component)
-			{
 				if (component instanceof IDesignModeListener)
 				{
 					((IDesignModeListener)component).setDesignMode(designModeFlag);
