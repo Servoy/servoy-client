@@ -1716,14 +1716,13 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			{
 				if (designModeFlag)
 				{
-					if (component instanceof IFieldComponent &&
-						(component instanceof WebBaseSelectBox || component instanceof WebDataCheckBoxChoice || component instanceof WebDataRadioChoice))
+					if (component instanceof WebBaseSelectBox || component instanceof WebDataCheckBoxChoice || component instanceof WebDataRadioChoice)
 					{
 						compEditableStatusBeforeDesignMode.put((IFieldComponent)component, Boolean.valueOf(((IFieldComponent)component).isEditable()));
 						((IFieldComponent)component).setEditable(false);
 					}
 				}
-				else
+				else if (component instanceof IFieldComponent)
 				{
 					if (compEditableStatusBeforeDesignMode.containsKey(component))
 					{
