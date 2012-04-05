@@ -793,147 +793,186 @@ public class ImageLoader
 			int start = url.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
 			if (start != -1)
 			{
-				String name = url.substring(start + MediaURLStreamHandler.MEDIA_URL_DEF.length());
-				if (name.endsWith("')") || name.endsWith("\")")) name = name.substring(0, name.length() - 2);
-				if (name.endsWith(")")) name = name.substring(0, name.length() - 1);
-				Media media = application.getFlattenedSolution().getMedia(name);
-				if (media != null)
-				{
-					byte[] imageData = media.getMediaData();
-					if (styleRule.hasAttribute(CSSName.BACKGROUND_SIZE.toString()))
-					{
-						PropertyDeclaration declaration = ((ServoyStyleRule)styleRule).getPropertyDeclaration(CSSName.BACKGROUND_SIZE.toString());
-						if (declaration.getValue() instanceof PropertyValue && ((PropertyValue)declaration.getValue()).getValues() != null &&
-							((PropertyValue)declaration.getValue()).getValues().size() == 2)
-						{
-							boolean autoWidth = "auto".equals(((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
-							boolean autoHeight = "auto".equals(((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
-							Boolean fixedWidth = null;
-							if (autoWidth && !autoHeight)
-							{
-								fixedWidth = Boolean.FALSE;
-							}
-							else if (autoHeight && !autoWidth)
-							{
-								fixedWidth = Boolean.TRUE;
-							}
-
-							int width = getImageSize(parentSize.width,
-								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
-							int height = getImageSize(parentSize.height,
-								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
-							imageData = resize(imageData, width, height, autoWidth || autoHeight, fixedWidth);
-						}
-					}
-					Image image = ImageLoader.getBufferedImage(imageData, -1, -1, false);
-					int offsetWidth = 0;
-					int offsetHeight = 0;
-					int imageWidth = image.getWidth(null);
-					int imageHeight = image.getHeight(null);
-
-					if (styleRule.hasAttribute(CSSName.BACKGROUND_POSITION.toString()))
-					{
-						PropertyDeclaration declaration = ((ServoyStyleRule)styleRule).getPropertyDeclaration(CSSName.BACKGROUND_POSITION.toString());
-						if (declaration.getValue() instanceof PropertyValue && ((PropertyValue)declaration.getValue()).getValues() != null &&
-							((PropertyValue)declaration.getValue()).getValues().size() == 2)
-						{
-							offsetWidth = getImagePosition(parentSize.width, imageWidth,
-								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
-							offsetHeight = getImagePosition(parentSize.height, imageHeight,
-								((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
-						}
-					}
-					boolean hRepeat = true;
-					boolean vRepeat = true;
-					if (styleRule.hasAttribute(CSSName.BACKGROUND_REPEAT.toString()))
-					{
-						String repeat = styleRule.getValue(CSSName.BACKGROUND_REPEAT.toString());
-						hRepeat = false;
-						vRepeat = false;
-						if ("repeat".equals(repeat) || "repeat-x".equals(repeat)) hRepeat = true;
-						if ("repeat".equals(repeat) || "repeat-y".equals(repeat)) vRepeat = true;
-					}
-					if (hRepeat)
-					{
-						offsetWidth = adjustRepeatCoordinate(offsetWidth, imageWidth);
-					}
-					if (vRepeat)
-					{
-						offsetHeight = adjustRepeatCoordinate(offsetHeight, imageHeight);
-					}
-					if (!hRepeat && !vRepeat)
-					{
-						graphics.drawImage(image, offsetWidth, offsetHeight, null);
-					}
-					else if (hRepeat && vRepeat)
-					{
-						for (int x = offsetWidth; x < parentSize.width; x += imageWidth)
-						{
-							for (int y = offsetHeight; y < parentSize.height; y += imageHeight)
-							{
-								graphics.drawImage(image, x, y, null);
-							}
-						}
-					}
-					else if (hRepeat)
-					{
-						for (int x = offsetWidth; x < parentSize.width; x += imageWidth)
-						{
-							graphics.drawImage(image, x, offsetHeight, null);
-						}
-					}
-					else if (vRepeat)
-					{
-						for (int y = offsetHeight; y < parentSize.height; y += imageHeight)
-						{
-							graphics.drawImage(image, offsetWidth, y, null);
-						}
-					}
-				}
+				paintBackgroundImage(graphics, styleRule, application, url, parentSize);
 			}
 			else if (url.indexOf("linear-gradient") != -1 && graphics instanceof Graphics2D)
 			{
-				String definition = url.substring(url.indexOf("(") + 1, url.lastIndexOf(")"));
-				StringTokenizer tokenizer = new StringTokenizer(definition, ",");
-				if (tokenizer.countTokens() >= 2)
+				paintGradientColor(graphics, styleRule, application, url, parentSize);
+			}
+		}
+	}
+
+	private static void paintBackgroundImage(Graphics graphics, IStyleRule styleRule, IApplication application, String url, Dimension parentSize)
+	{
+		int start = url.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
+		if (start != -1)
+		{
+			String name = url.substring(start + MediaURLStreamHandler.MEDIA_URL_DEF.length());
+			if (name.endsWith("')") || name.endsWith("\")")) name = name.substring(0, name.length() - 2);
+			if (name.endsWith(")")) name = name.substring(0, name.length() - 1);
+			Media media = application.getFlattenedSolution().getMedia(name);
+			if (media != null)
+			{
+				byte[] imageData = media.getMediaData();
+				if (styleRule.hasAttribute(CSSName.BACKGROUND_SIZE.toString()))
 				{
-					String firstToken = tokenizer.nextToken();
-					float startX = parentSize.width / 2;
-					float startY = 0;
-					float endX = parentSize.width / 2;
-					float endY = parentSize.height;
-					Color color1 = getColor(firstToken);
-					if (color1 == null)
+					PropertyDeclaration declaration = ((ServoyStyleRule)styleRule).getPropertyDeclaration(CSSName.BACKGROUND_SIZE.toString());
+					if (declaration.getValue() instanceof PropertyValue && ((PropertyValue)declaration.getValue()).getValues() != null &&
+						((PropertyValue)declaration.getValue()).getValues().size() == 2)
 					{
-						if ("left".equals(firstToken))
+						boolean autoWidth = "auto".equals(((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
+						boolean autoHeight = "auto".equals(((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
+						Boolean fixedWidth = null;
+						if (autoWidth && !autoHeight)
 						{
-							startX = 0;
-							startY = parentSize.height;
-							endX = parentSize.width;
+							fixedWidth = Boolean.FALSE;
 						}
-						else if ("right".equals(firstToken))
+						else if (autoHeight && !autoWidth)
 						{
-							startX = parentSize.width;
-							endX = 0;
-							endY = 0;
+							fixedWidth = Boolean.TRUE;
 						}
-						else if ("bottom".equals(firstToken))
-						{
-							startY = parentSize.height;
-							endY = 0;
-						}
-						color1 = getColor(tokenizer.nextToken());
+
+						int width = getImageSize(parentSize.width, ((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
+						int height = getImageSize(parentSize.height,
+							((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
+						imageData = resize(imageData, width, height, autoWidth || autoHeight, fixedWidth);
 					}
-					if (color1 != null)
+				}
+				Image image = ImageLoader.getBufferedImage(imageData, -1, -1, false);
+				int offsetWidth = 0;
+				int offsetHeight = 0;
+				int imageWidth = image.getWidth(null);
+				int imageHeight = image.getHeight(null);
+
+				if (styleRule.hasAttribute(CSSName.BACKGROUND_POSITION.toString()))
+				{
+					PropertyDeclaration declaration = ((ServoyStyleRule)styleRule).getPropertyDeclaration(CSSName.BACKGROUND_POSITION.toString());
+					if (declaration.getValue() instanceof PropertyValue && ((PropertyValue)declaration.getValue()).getValues() != null &&
+						((PropertyValue)declaration.getValue()).getValues().size() == 2)
 					{
-						Color color2 = getColor(tokenizer.nextToken());
-						if (color2 != null)
+						offsetWidth = getImagePosition(parentSize.width, imageWidth,
+							((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(0)).getCssText());
+						offsetHeight = getImagePosition(parentSize.height, imageHeight,
+							((CSSPrimitiveValue)((PropertyValue)declaration.getValue()).getValues().get(1)).getCssText());
+					}
+				}
+				boolean hRepeat = true;
+				boolean vRepeat = true;
+				if (styleRule.hasAttribute(CSSName.BACKGROUND_REPEAT.toString()))
+				{
+					String repeat = styleRule.getValue(CSSName.BACKGROUND_REPEAT.toString());
+					hRepeat = false;
+					vRepeat = false;
+					if ("repeat".equals(repeat) || "repeat-x".equals(repeat)) hRepeat = true;
+					if ("repeat".equals(repeat) || "repeat-y".equals(repeat)) vRepeat = true;
+				}
+				if (hRepeat)
+				{
+					offsetWidth = adjustRepeatCoordinate(offsetWidth, imageWidth);
+				}
+				if (vRepeat)
+				{
+					offsetHeight = adjustRepeatCoordinate(offsetHeight, imageHeight);
+				}
+				if (!hRepeat && !vRepeat)
+				{
+					graphics.drawImage(image, offsetWidth, offsetHeight, null);
+				}
+				else if (hRepeat && vRepeat)
+				{
+					for (int x = offsetWidth; x < parentSize.width; x += imageWidth)
+					{
+						for (int y = offsetHeight; y < parentSize.height; y += imageHeight)
 						{
-							GradientPaint gradientPaint = new GradientPaint(startX, startY, color1, endX, endY, color2);
-							Paint tmpPaint = ((Graphics2D)graphics).getPaint();
-							((Graphics2D)graphics).setPaint(gradientPaint);
-							graphics.fillRect(0, 0, parentSize.width, parentSize.height);
-							((Graphics2D)graphics).setPaint(tmpPaint);
+							graphics.drawImage(image, x, y, null);
+						}
+					}
+				}
+				else if (hRepeat)
+				{
+					for (int x = offsetWidth; x < parentSize.width; x += imageWidth)
+					{
+						graphics.drawImage(image, x, offsetHeight, null);
+					}
+				}
+				else if (vRepeat)
+				{
+					for (int y = offsetHeight; y < parentSize.height; y += imageHeight)
+					{
+						graphics.drawImage(image, offsetWidth, y, null);
+					}
+				}
+			}
+		}
+	}
+
+	private static void paintGradientColor(Graphics graphics, IStyleRule styleRule, IApplication application, String url, Dimension parentSize)
+	{
+		if (url.indexOf("linear-gradient") != -1 && graphics instanceof Graphics2D)
+		{
+			String definition = url.substring(url.indexOf("(") + 1, url.lastIndexOf(")"));
+			StringTokenizer tokenizer = new StringTokenizer(definition, ",");
+			if (tokenizer.countTokens() >= 2)
+			{
+				String firstToken = tokenizer.nextToken();
+				float startX = parentSize.width / 2;
+				float startY = 0;
+				float endX = parentSize.width / 2;
+				float endY = parentSize.height;
+				Color color1 = getColor(firstToken);
+				if (color1 == null)
+				{
+					if ("left".equals(firstToken))
+					{
+						startX = 0;
+						startY = parentSize.height;
+						endX = parentSize.width;
+					}
+					else if ("right".equals(firstToken))
+					{
+						startX = parentSize.width;
+						endX = 0;
+						endY = 0;
+					}
+					else if ("bottom".equals(firstToken))
+					{
+						startY = parentSize.height;
+						endY = 0;
+					}
+					color1 = getColor(tokenizer.nextToken());
+				}
+				Color color2 = null;
+				if (color1 != null)
+				{
+					color2 = getColor(tokenizer.nextToken());
+					if (color2 != null)
+					{
+						GradientPaint gradientPaint = new GradientPaint(startX, startY, color1, endX, endY, color2);
+						Paint tmpPaint = ((Graphics2D)graphics).getPaint();
+						((Graphics2D)graphics).setPaint(gradientPaint);
+						graphics.fillRect(0, 0, parentSize.width, parentSize.height);
+						((Graphics2D)graphics).setPaint(tmpPaint);
+					}
+				}
+				if (color1 == null || color2 == null)
+				{
+					// fallback mechanism
+					String[] values = styleRule.getValues(CSS.Attribute.BACKGROUND_IMAGE.toString());
+					if (values.length > 1)
+					{
+						for (int i = 1; i < values.length; i++)
+						{
+							if (values[i].equals(url))
+							{
+								if (values[i - 1].indexOf("linear-gradient") != -1)
+								{
+									paintGradientColor(graphics, styleRule, application, values[i - 1], parentSize);
+								}
+								else
+								{
+									paintBackgroundImage(graphics, styleRule, application, values[i - 1], parentSize);
+								}
+							}
 						}
 					}
 				}

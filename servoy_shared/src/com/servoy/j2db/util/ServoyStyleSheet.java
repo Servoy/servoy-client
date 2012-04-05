@@ -273,6 +273,23 @@ public class ServoyStyleSheet implements IStyleSheet
 
 			public Object getAttribute(Object key)
 			{
+				if ("border-top-color".equals(key.toString()) || "border-right-color".equals(key.toString()) || "border-bottom-color".equals(key.toString()) ||
+					"border-left-color".equals(key.toString()))
+				{
+					String[] values = a.getValues(key.toString());
+					if (values != null && values.length > 0)
+					{
+						for (int i = values.length - 1; i >= 0; i--)
+						{
+							Color color = PersistHelper.createColor(values[i]);
+							if (color != null)
+							{
+								return values[i];
+							}
+						}
+					}
+					return null;
+				}
 				return a.getValue(key.toString());
 			}
 
@@ -305,12 +322,29 @@ public class ServoyStyleSheet implements IStyleSheet
 
 	public Color getForeground(IStyleRule a)
 	{
-		return PersistHelper.createColor(a.getValue(CSSName.COLOR.toString()));
+		return getLastValidColor(a, CSSName.COLOR.toString());
 	}
 
 	public Color getBackground(IStyleRule a)
 	{
-		return PersistHelper.createColor(a.getValue(CSSName.BACKGROUND_COLOR.toString()));
+		return getLastValidColor(a, CSSName.BACKGROUND_COLOR.toString());
+	}
+
+	private Color getLastValidColor(IStyleRule a, String cssAttribute)
+	{
+		String[] cssDefinitions = a.getValues(cssAttribute);
+		if (cssDefinitions != null && cssDefinitions.length > 0)
+		{
+			for (int i = cssDefinitions.length - 1; i >= 0; i--)
+			{
+				Color color = PersistHelper.createColor(cssDefinitions[i]);
+				if (color != null)
+				{
+					return color;
+				}
+			}
+		}
+		return null;
 	}
 
 	private boolean hasProperty(IStyleRule s, String[] names)
