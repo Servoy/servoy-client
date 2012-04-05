@@ -109,8 +109,11 @@ import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebAccordionPanel;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseButton;
+import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
 import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 import com.servoy.j2db.server.headlessclient.dataui.WebImageBeanHolder;
@@ -1698,19 +1701,48 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	}
 
 	private final WeakHashMap<DesignModeCallbacks, String> designModeSelection = new WeakHashMap<DesignModeCallbacks, String>();
+	private final WeakHashMap<IFieldComponent, Boolean> compEditableStatusBeforeDesignMode = new WeakHashMap<IFieldComponent, Boolean>();
 
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#setDesignMode(com.servoy.j2db.DesignModeCallbacks)
 	 */
 	public void setDesignMode(final DesignModeCallbacks callback)
 	{
+		final boolean designModeFlag = callback != null;
+
+		visitChildren(IFieldComponent.class, new IVisitor<Component>()
+		{
+
+			public Object component(Component component)
+			{
+				if (designModeFlag)
+				{
+					if (component instanceof WebBaseSelectBox || component instanceof WebDataCheckBoxChoice || component instanceof WebDataRadioChoice)
+					{
+						compEditableStatusBeforeDesignMode.put((IFieldComponent)component, Boolean.valueOf(((IFieldComponent)component).isEditable()));
+						((IFieldComponent)component).setEditable(false);
+					}
+				}
+				else
+				{
+					if (compEditableStatusBeforeDesignMode.containsKey(component))
+					{
+						((IFieldComponent)component).setEditable(compEditableStatusBeforeDesignMode.remove(component).booleanValue());
+					}
+				}
+
+				return IVisitor.CONTINUE_TRAVERSAL;
+			}
+
+		});
+
 		visitChildren(IComponent.class, new IVisitor<Component>()
 		{
 			public Object component(Component component)
 			{
 				if (component instanceof IDesignModeListener)
 				{
-					((IDesignModeListener)component).setDesignMode(callback != null);
+					((IDesignModeListener)component).setDesignMode(designModeFlag);
 				}
 				List<IBehavior> behaviors = component.getBehaviors();
 				for (int i = 0; i < behaviors.size(); i++)
@@ -1718,7 +1750,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					Object element = behaviors.get(i);
 					if (element instanceof IDesignModeListener)
 					{
-						((IDesignModeListener)element).setDesignMode(callback != null);
+						((IDesignModeListener)element).setDesignMode(designModeFlag);
 					}
 				}
 				if (component instanceof ITabPanel)
