@@ -690,6 +690,7 @@ public class Utils
 		if (s != null)
 		{
 			s = s.trim();
+			if ("".equals(s)) return null;
 			if ("true".equals(s)) return Boolean.TRUE;
 			if ("false".equals(s)) return Boolean.FALSE;
 			try
