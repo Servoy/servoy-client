@@ -161,4 +161,12 @@ public interface IServerInternal
 
 	List<String> getTableAndViewNames(boolean hideTempTables, boolean hideHiddenInDeveloper) throws RepositoryException;
 
+	Table getLogTable() throws RepositoryException;
+
+	Table createLogTable() throws RepositoryException;
+
+	Table getClientStatsTable() throws RepositoryException;
+
+	Table createClientStatsTable() throws RepositoryException;
+
 }

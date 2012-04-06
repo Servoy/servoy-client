@@ -63,6 +63,8 @@ public interface IServerManagerInternal extends IServerManager
 
 	boolean logTableExists();
 
+	boolean clientStatsTableExists();
+
 	void removeServerListener(IServerListener serverListener);
 
 	void addServerListener(IServerListener serverListener);
