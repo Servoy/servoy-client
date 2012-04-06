@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -512,9 +513,8 @@ public class JSDatabaseManager
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
 
 
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
-					dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale()
-						: 0);
+				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
+					: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)
@@ -3148,13 +3148,24 @@ public class JSDatabaseManager
 								dest.setValue(c.getDataProviderID(), sval);
 							}
 						}
+						else if (src instanceof NativeObject)
+						{
+							NativeObject no = ((NativeObject)src);
+							if (no.has(c.getDataProviderID(), no))
+							{
+								Object raw_val = no.get(c.getDataProviderID(), no);
+								Object val = c.getAsRightType(raw_val);
+								dest.setValue(c.getDataProviderID(), val);
+							}
+						}
 						else if (src != null)
 						{
 							Method m = getMethod(src, c.getDataProviderID(), getters);
 							if (m != null)
 							{
-								Object sval = m.invoke(src, (Object[])null);
-								dest.setValue(c.getDataProviderID(), sval);
+								Object raw_val = m.invoke(src, (Object[])null);
+								Object val = c.getAsRightType(raw_val);
+								dest.setValue(c.getDataProviderID(), val);
 							}
 						}
 					}
