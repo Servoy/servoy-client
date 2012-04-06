@@ -181,7 +181,7 @@ public class TableAndListEventDelegate
 		}
 		else
 		{
-			Debug.trace("Listener invoked from non event dispatch thread.", new RuntimeException()); //$NON-NLS-1$
+			Debug.log("Listener invoked from non event dispatch thread.", new RuntimeException()); //$NON-NLS-1$
 			eventDelegator.invokeLater(runner);
 		}
 	}
