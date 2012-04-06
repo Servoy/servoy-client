@@ -50,6 +50,7 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -700,14 +701,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		Object[] array = new Object[args.length];
 		for (int i = 0; i < args.length; i++)
 		{
-			String dataProviderID = args[i].getDataProviderID();
-			if (testForCalcs && state.getRawData().containsCalculation(dataProviderID) && state.getRawData().mustRecalculate(dataProviderID, true))
+			Object value = null;
+			if (args[i] instanceof LiteralDataprovider)
 			{
-				// just return null if a calc is found that also have to be recalculated.
-				// else this can just cascade through..
-				return null;
+				value = ((LiteralDataprovider)args[i]).getValue();
 			}
-			Object value = state.getValue(dataProviderID);
+			else
+			{
+				String dataProviderID = args[i].getDataProviderID();
+				if (testForCalcs && state.getRawData().containsCalculation(dataProviderID) && state.getRawData().mustRecalculate(dataProviderID, true))
+				{
+					// just return null if a calc is found that also have to be recalculated.
+					// else this can just cascade through..
+					return null;
+				}
+				value = state.getValue(dataProviderID);
+			}
 			if (value != Scriptable.NOT_FOUND)
 			{
 				array[i] = columns[i].getAsRightType(value);

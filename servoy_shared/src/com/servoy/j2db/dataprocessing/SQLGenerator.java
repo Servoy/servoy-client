@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
+import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -442,21 +443,29 @@ public class SQLGenerator
 			Object value;
 			if (primaryColumn == null)
 			{
-				value = provider.getDataProviderValue(primary[x].getDataProviderID());
-				if (value == null)
+				if (primary[x] instanceof LiteralDataprovider)
 				{
-					value = ValueFactory.createNullValue(primary[x].getDataProviderType());
-				}
-				else if (value instanceof Placeholder)
-				{
-					if (((Placeholder)value).getKey() instanceof ObjectPlaceholderKey< ? >)
-					{
-						((ObjectPlaceholderKey)((Placeholder)value).getKey()).setObject(new int[] { primary[x].getDataProviderType(), primary[x].getFlags() });
-					}
+					value = ((LiteralDataprovider)primary[x]).getValue();
+					value = foreign[x].getAsRightType(value);
 				}
 				else
 				{
-					value = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false);
+					value = provider.getDataProviderValue(primary[x].getDataProviderID());
+					if (value == null)
+					{
+						value = ValueFactory.createNullValue(primary[x].getDataProviderType());
+					}
+					else if (value instanceof Placeholder)
+					{
+						if (((Placeholder)value).getKey() instanceof ObjectPlaceholderKey< ? >)
+						{
+							((ObjectPlaceholderKey)((Placeholder)value).getKey()).setObject(new int[] { primary[x].getDataProviderType(), primary[x].getFlags() });
+						}
+					}
+					else
+					{
+						value = Column.getAsRightType(primary[x].getDataProviderType(), primary[x].getFlags(), value, Integer.MAX_VALUE, false);
+					}
 				}
 			}
 			else

@@ -27,6 +27,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.IDataProvider;
+import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.util.Debug;
@@ -116,6 +117,7 @@ public class UsedDataProviderTracker
 					IDataProvider[] primaryDataProviders = relation.getPrimaryDataProviders(flattenedSolution);
 					for (IDataProvider prim : primaryDataProviders)
 					{
+						if (prim instanceof LiteralDataprovider) continue;
 						String primdp = prim.getDataProviderID();
 						if (ScopesUtils.isVariableScope(primdp))
 						{

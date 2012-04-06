@@ -712,6 +712,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 						"servoy.relation.error.dataproviderDoesntExist", new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() })); //$NON-NLS-1$
 				}
 			}
+			else if (pdp != null && pdp.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+			{
+				pc = new LiteralDataprovider(pdp);
+				p[pos] = pc;
+			}
 			else
 			{
 				if (pt == null)
@@ -917,6 +922,19 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				{
 					return Messages.getString("servoy.relation.error"); //$NON-NLS-1$
 				}
+				if (primary[i] instanceof LiteralDataprovider)
+				{
+					Object value = ((LiteralDataprovider)primary[i]).getValue();
+					try
+					{
+						Column.getAsRightType(foreign[i].getDataProviderType(), foreign[i].getFlags(), value, foreign[i].getLength(), true);
+					}
+					catch (Exception e)
+					{
+						return Messages.getString("servoy.relation.error.typeDoesntMatch", new Object[] { value, foreign[i].getDataProviderID() }); //$NON-NLS-1$
+					}
+					continue;
+				}
 
 				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
 				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
@@ -965,7 +983,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		if (allobjects.size() == 0) return false;
 		for (IPersist ri : allobjects)
 		{
-			if (!ScopesUtils.isVariableScope(((RelationItem)ri).getPrimaryDataProviderID()))
+			String primaryDataProviderID = ((RelationItem)ri).getPrimaryDataProviderID();
+			if (!ScopesUtils.isVariableScope(primaryDataProviderID) && !primaryDataProviderID.startsWith(LiteralDataprovider.LITERAL_PREFIX))
 			{
 				return false;
 			}

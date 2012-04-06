@@ -42,6 +42,7 @@ import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -229,6 +230,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 											Set<String> dataProviderIDs = new HashSet<String>();
 											for (IDataProvider dp : dps)
 											{
+												if (dp instanceof LiteralDataprovider) continue;
 												String dataProviderID;
 												if (ScopesUtils.isVariableScope(dp.getDataProviderID()))
 												{
@@ -300,6 +302,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		{
 			for (IDataProvider dp : dps)
 			{
+				if (dp instanceof LiteralDataprovider) continue;
 				StringBuilder prefix = new StringBuilder();
 				for (int r = 0; r < rel; r++)
 				{
