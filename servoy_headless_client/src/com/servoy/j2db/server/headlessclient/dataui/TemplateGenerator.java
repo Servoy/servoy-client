@@ -2645,7 +2645,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(form, field));
 //					html.append(getJavaScriptIDParameter(field));
 				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter(field.getDisplayType() == Field.TYPE_AHEAD ? "field typeahead" : "field"));
+				html.append(getCSSClassParameter(field.getValuelistID() > 0 ? "field typeahead" : "field"));
 				html.append("type='text' ");
 				if (field.getSelectOnEnter())
 				{
