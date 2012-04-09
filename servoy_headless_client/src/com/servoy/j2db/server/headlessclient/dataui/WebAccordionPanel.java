@@ -545,6 +545,10 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			{
 				controller.notifyResized();
 				webForm.clearFormWidthHeightChangedFlag();
+				if (Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+				{
+					scriptable.getChangesRecorder().setChanged();
+				}
 			}
 		}
 	}
