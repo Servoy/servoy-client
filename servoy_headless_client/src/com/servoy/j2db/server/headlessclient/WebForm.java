@@ -299,10 +299,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			@Override
 			public String getObject()
 			{
-				WebTabPanel tabpanel = findParent(WebTabPanel.class);
-				if (tabpanel != null)
+				IWebFormContainer formContainer = findParent(IWebFormContainer.class);
+				if (formContainer != null)
 				{
-					if (controller.getForm().getTransparent() && !tabpanel.isOpaque())
+					if (controller.getForm().getTransparent() && !((IComponent)formContainer).isOpaque())
 					{
 						return "background-color:transparent;";
 					}
