@@ -68,16 +68,6 @@ public class NavigableCellRenderer implements ListCellRenderer
 	public static void decorateButton(JToggleButton btn, boolean isSelected)
 	{
 		btn.setFocusPainted(false);
-		Insets borderWidth = new Insets(0, 0, 0, 0);
-		if (btn.getBorder() != null) borderWidth = btn.getBorder().getBorderInsets(btn);
-		if (btn.getMargin() != null)
-		{
-			Insets mr = btn.getMargin();
-			borderWidth.top += mr.top;
-			borderWidth.left += mr.left;
-			borderWidth.bottom += mr.bottom;
-			borderWidth.right += mr.right;
-		}
 		btn.setBorderPainted(true);
 		Border cloned = cloneBorder(btn.getBorder(), isSelected, btn);
 		cloned = compactBorder(cloned, btn);
@@ -126,12 +116,21 @@ public class NavigableCellRenderer implements ListCellRenderer
 			if (originalBorderInsets.left < 0) originalBorderInsets.left = 0;
 			if (originalBorderInsets.bottom < 0) originalBorderInsets.bottom = 0;
 			if (originalBorderInsets.right < 0) originalBorderInsets.right = 0;
-			EmptyBorder theFiller = new EmptyBorder(originalBorderInsets);
-			return new CompoundBorder(selectionBorder, theFiller);
+			if (originalBorderInsets.top > 0 || originalBorderInsets.left > 0 || originalBorderInsets.right > 0 || originalBorderInsets.bottom > 0)
+			{
+				EmptyBorder theFiller = new EmptyBorder(originalBorderInsets);
+				return new CompoundBorder(selectionBorder, theFiller);
+			}
+			else
+			{
+				return selectionBorder;
+			}
 		}
 		else
 		{
-			return new EmptyBorder(source.getBorderInsets(c));
+			Border selectedBorder = cloneBorder(source, true, c);
+			// selected border may be bigger, so use it so content fits nicely and we don't get 'movement' effect
+			return new EmptyBorder(selectedBorder.getBorderInsets(c));
 		}
 	}
 
