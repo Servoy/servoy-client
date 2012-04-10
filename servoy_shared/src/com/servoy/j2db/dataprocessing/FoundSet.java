@@ -761,10 +761,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return true if the foundset is now in find mode, false otherwise.
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Object[])
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(boolean, boolean)
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
 	 * @see com.servoy.j2db.FormController$JSForm#js_find()
-	 * @see com.servoy.j2db.FormController$JSForm#js_search(Object[])
+	 * @see com.servoy.j2db.FormController$JSForm#js_search(boolean, boolean)
 	 */
 	public boolean js_find()
 	{
@@ -799,7 +799,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
 	 * 
-	 * @sampleas js_loadRecords(QBSelect)
+	 * @sampleas js_search(boolean, boolean)
 	 *
 	 * @return the recordCount
 	 * 
@@ -816,7 +816,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
 	 * 
-	 * @sampleas js_loadRecords(QBSelect)
+	 * @sampleas js_search(boolean, boolean)
 	 *
 	 * @param clearLastResults boolean, clear previous search, default true  
 	 * 
@@ -2326,7 +2326,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * }
 	 * foundset.sort(newFoundsetSort)
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_sort(Object[])
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_sort(String)
 	 * 
 	 * @return String sort columns
 	 */
