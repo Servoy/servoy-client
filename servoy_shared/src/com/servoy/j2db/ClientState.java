@@ -846,6 +846,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		catch (RemoteException e)
 		{
 			Debug.error("Error getting the service " + name, e); //$NON-NLS-1$ 
+			reportJSError("Error getting the service " + name, e.getCause()); //$NON-NLS-1$
 		}
 		return null;
 	}
