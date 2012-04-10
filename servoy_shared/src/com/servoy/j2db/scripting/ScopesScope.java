@@ -56,7 +56,6 @@ public class ScopesScope extends DefaultScope
 	public void createScopes()
 	{
 		removeModificationListeners();
-		allVars.clear();
 		for (String scopeName : application.getFlattenedSolution().getScopeNames())
 		{
 			createGlobalScope(scopeName);
@@ -87,8 +86,17 @@ public class ScopesScope extends DefaultScope
 
 	protected GlobalScope createGlobalScope(String scopeName)
 	{
-		GlobalScope gs = new GlobalScope(this, scopeName, scriptEngine, application);
-		allVars.put(scopeName, gs);
+		GlobalScope gs;
+		Object gsObj = allVars.get(scopeName);
+		if (gsObj instanceof GlobalScope)
+		{
+			gs = (GlobalScope)gsObj;
+		}
+		else
+		{
+			gs = new GlobalScope(this, scopeName, scriptEngine, application);
+			allVars.put(scopeName, gs);
+		}
 		gs.createVars();
 		gs.getModificationSubject().addModificationListener(delegateModificationSubject);
 		return gs;
