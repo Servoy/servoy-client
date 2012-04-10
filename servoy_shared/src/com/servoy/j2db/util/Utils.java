@@ -77,6 +77,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 import de.rtner.security.auth.spi.PBKDF2Engine;
 import de.rtner.security.auth.spi.PBKDF2HexFormatter;
@@ -2299,6 +2300,22 @@ public class Utils
 		return (email != null
 			? (Pattern.compile("^[_a-z0-9-+]+(\\.[_a-z0-9-+]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*(\\.[a-z]{2,3})$", Pattern.CASE_INSENSITIVE).matcher(email).matches()) //$NON-NLS-1$
 			: false);
+	}
+
+	public static boolean isValidJavaIdentifier(String s)
+	{
+		return IdentDocumentValidator.isJavaIdentifier(s);
+	}
+
+	public static boolean isValidJavaSimpleOrQualifiedName(String s)
+	{
+		boolean ok = true;
+		StringTokenizer tokenizer = new StringTokenizer(s, ".", false); //$NON-NLS-1$
+		while (tokenizer.hasMoreTokens())
+		{
+			ok = IdentDocumentValidator.isJavaIdentifier(tokenizer.nextToken());
+		}
+		return ok;
 	}
 
 	public static int getPlatform()

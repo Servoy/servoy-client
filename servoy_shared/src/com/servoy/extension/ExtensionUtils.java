@@ -15,22 +15,26 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.extension.hook;
+package com.servoy.extension;
 
-import java.util.Map;
+import com.servoy.j2db.util.Utils;
 
 /**
- * Interface that should be implemented by extension pre-install, post-install and uninstall hooks.
+ * Utility methods of interest only to extension classes.
  * @author acostescu
  */
-public interface ExtensionHook
+@SuppressWarnings("nls")
+public class ExtensionUtils
 {
 
 	/**
-	 * Starts this hook's execution.
-	 * @param parameters string key-value pairs as they were specified in the 'extension.xml' file.
-	 * @param context liaison to the install/uninstall process.
+	 * Valid id's are simple or qualified java names.
+	 * @param id the id to check.
+	 * @throws IllegalArgumentException when the id does not adhere to these rules.
 	 */
-	void run(Map<String, String> parameters, HookContext context);
+	public static void assertValidId(String id) throws IllegalArgumentException
+	{
+		if (!Utils.isValidJavaSimpleOrQualifiedName(id)) throw new IllegalArgumentException("Unsupported id string format.");
+	}
 
 }

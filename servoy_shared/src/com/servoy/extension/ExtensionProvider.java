@@ -15,15 +15,22 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.extension.hook;
+package com.servoy.extension;
 
 /**
- * Provides context information to an extension hook.
- * Also provides a few means of interacting with the install/uninstall process.
+ * Classes that implement this interface have access to .exp packages.<br>
+ * They are able to provide dependency & other information from the extension.xml file as well as the full contents of the .exp package.
+ * 
  * @author acostescu
  */
-public interface ExtensionContext
+public interface ExtensionProvider
 {
 
+	/**
+	 * Returns an array of extension & dependency info with one element for each available version that satisfies the given dependency
+	 * @param extensionDependency the dependency's declaration (id, minVer, maxVer).
+	 * @return information about the available compatible versions of the extension.
+	 */
+	DependencyMetadata[] getDependencyMetadata(ExtensionDependencyDeclaration extensionDependency);
 
 }

@@ -21,14 +21,14 @@
 						</documentation>
 					</annotation>
 				</element>
-				<element name="version" type="tns:extensionVersionType">
+				<element name="version" type="tns:declaredVersionType">
 					<annotation>
 						<documentation>
 							The extension version is a string that must begin with a
 							number, optionally followed by one or more constructs
 							like (&quot;.&quot; followed by a number)
-							or (optionally spaces followed by a word made out of
-							only a-zA-Z chars followed by optionally spaces followed
+							or (optionally space followed by a word made out of
+							only a-zA-Z chars followed by optionally space followed
 							by a number). When letters are used in version strings,
 							the letter version will be considered below the non-letter one. For example
 							"15.2.53 bata 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53".
@@ -177,6 +177,13 @@
 
 	<complexType name="dependenciesComplexType">
 		<sequence>
+			<element name="servoy" type="tns:servoyDependencyComplexType" maxOccurs="1" minOccurs="0">
+				<annotation>
+					<documentation>
+						Specifies that this extension depends on a particular version of Servoy.
+					</documentation>
+				</annotation>
+			</element>
 			<choice minOccurs="1" maxOccurs="unbounded">
 				<element name="extension" type="tns:extensionComplexType">
 					<annotation>
@@ -388,7 +395,7 @@
 			</element>
 			<choice>
 				<sequence>
-					<element name="min-version" type="tns:extensionVersionType">
+					<element name="min-version" type="tns:minMaxVersionType">
 						<annotation>
 							<documentation>
 								Minimum extension dependency version
@@ -403,7 +410,7 @@
 						</annotation>
 					</element>
 					<element minOccurs="0" maxOccurs="1" name="max-version"
-						type="tns:extensionVersionType">
+						type="tns:minMaxVersionType">
 						<annotation>
 							<documentation>
 								Maximum extension dependency version
@@ -419,7 +426,7 @@
 					</element>
 				</sequence>
 				<sequence>
-					<element name="max-version" type="tns:extensionVersionType">
+					<element name="max-version" type="tns:minMaxVersionType">
 						<annotation>
 							<documentation>
 								Maximum extension dependency version
@@ -430,6 +437,57 @@
 								specified), any newer
 								version of
 								the extension is considered compatible.
+							</documentation>
+						</annotation>
+					</element>
+				</sequence>
+			</choice>
+		</sequence>
+	</complexType>
+
+	<complexType name="servoyDependencyComplexType">
+		<sequence>
+			<choice>
+				<sequence>
+					<element name="min-version" type="tns:minMaxVersionType">
+						<annotation>
+							<documentation>
+								Minimum Servoy version
+								required for this
+								extension to run; if not
+								specified
+								(but &quot;max-version&quot; is
+								specified), any older
+								version of
+								Servoy is considered compatible.
+							</documentation>
+						</annotation>
+					</element>
+					<element minOccurs="0" maxOccurs="1" name="max-version"
+						type="tns:minMaxVersionType">
+						<annotation>
+							<documentation>
+								Maximum Servoy version
+								required for this
+								extension to run; if not
+								specified
+								(but "min-version" is specified), any
+								newer version of Servoy is considered compatible.
+							</documentation>
+						</annotation>
+					</element>
+				</sequence>
+				<sequence>
+					<element name="max-version" type="tns:minMaxVersionType">
+						<annotation>
+							<documentation>
+								Maximum Servoy version
+								required for this
+								extension to run; if not
+								specified
+								(but &quot;min-version&quot; is
+								specified), any newer
+								version of Servoy is considered compatible.
 							</documentation>
 						</annotation>
 					</element>
@@ -459,7 +517,7 @@
 					</documentation>
 				</annotation>
 			</element>
-			<element name="version" type="tns:extensionVersionType">
+			<element name="version" type="tns:declaredVersionType">
 				<annotation>
 					<documentation>
 						Specifies the version of the library that
@@ -469,7 +527,7 @@
 				</annotation>
 			</element>
 			<sequence minOccurs="0" maxOccurs="1">
-				<element minOccurs="0" maxOccurs="1" name="min-version" type="tns:extensionVersionType">
+				<element minOccurs="0" maxOccurs="1" name="min-version" type="tns:minMaxVersionType">
 					<annotation>
 						<documentation>
 							Minimum lib version required for this
@@ -483,7 +541,7 @@
 						</documentation>
 					</annotation>
 				</element>
-				<element minOccurs="0" maxOccurs="1" name="max-version" type="tns:extensionVersionType">
+				<element minOccurs="0" maxOccurs="1" name="max-version" type="tns:minMaxVersionType">
 					<annotation>
 						<documentation>
 							Maximum lib version required for this
@@ -500,6 +558,19 @@
 		</sequence>
 	</complexType>
 
+	<complexType name="minMaxVersionType">
+        <annotation>
+        	<documentation>Version boundary. The version pattern is the same as for "declaredVersionType", but this may also have an "inclusive" attribute.
+By default inclusive is true. If it is set to false, the actual version will not be considered valid when searching for dependencies.</documentation>
+        </annotation>
+        <simpleContent>
+			<extension base="tns:declaredVersionType">
+				<attribute name="inclusive" default="true" type="boolean">
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+
 	<simpleType name="extensionIdType">
 		<annotation>
 			<documentation>
@@ -512,23 +583,24 @@
 		<restriction base="Name"></restriction>
 	</simpleType>
 
-	<simpleType name="extensionVersionType">
+	<simpleType name="declaredVersionType">
 		<annotation>
 			<documentation>
 				The extension version is a string that must begin with a
 				number, optionally followed by one or more constructs
 				like (&quot;.&quot; followed by a number)
-				or (optionally spaces followed by a word made out of
-				only a-zA-Z chars followed by optionally spaces followed
+				or (optionally space followed by a word made out of
+				only a-zA-Z chars followed by optionally space followed
 				by a number). When letters are used in version strings,
-				the letter version will be considered below the non-letter one. For example
-				"15.2.53 bata 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53".
+				the letter version will be considered below the non-letter one (except for "i" which stands for intermediate
+				and is considered to be above the non letter one). For example
+				"15.2.53 bata 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53" &lt; "15.2.53 i 1" &lt; "15.2.53.1".
 				It will be validated against the
-				regEx \d+((\.|\s*[A-Za-z]+\s*)\d+)*
+				regEx \d+((\.|\s?[A-Za-z]+\s?)\d+)*
 			</documentation>
 		</annotation>
 		<restriction base="string">
-			<pattern value="\d+((\.|\s*[A-Za-z]+\s*)\d+)*"></pattern>
+			<pattern value="\d+((\.|\s?[A-Za-z]+\s?)\d+)*"></pattern>
 		</restriction>
 	</simpleType>
 
@@ -551,5 +623,5 @@
 	<simpleType name="fileNameType">
 		<restriction base="anyURI" />
 	</simpleType>
-
+	
 </schema>

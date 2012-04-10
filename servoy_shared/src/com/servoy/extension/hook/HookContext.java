@@ -17,20 +17,13 @@
 
 package com.servoy.extension.hook;
 
-import java.util.Map;
-
 /**
- * Interface that should be implemented by extension pre-install, post-install and uninstall hooks.
+ * Provides context information to an extension hook.
+ * Also provides a few means of interacting with the install/uninstall process.
  * @author acostescu
  */
-public interface ExtensionHook
+public interface HookContext
 {
-
-	/**
-	 * Starts this hook's execution.
-	 * @param parameters string key-value pairs as they were specified in the 'extension.xml' file.
-	 * @param context liaison to the install/uninstall process.
-	 */
-	void run(Map<String, String> parameters, HookContext context);
+	// TODO
 
 }
