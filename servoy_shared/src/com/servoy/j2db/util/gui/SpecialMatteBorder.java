@@ -342,7 +342,7 @@ public class SpecialMatteBorder extends AbstractBorder
 	private Insets applySpaceToInsets(Insets i, Component c)
 	{
 		// if c is null we are probably in wc
-		float halfRadius = (c != null) ? roundingRadius / 8f : 0f;
+		float halfRadius = (c != null) ? 3 * roundingRadius / 16f : 0f;
 		i.top = (int)Math.ceil(top + halfRadius);
 		i.left = (int)Math.ceil(left + halfRadius);
 		i.bottom = (int)Math.ceil(bottom + halfRadius);
