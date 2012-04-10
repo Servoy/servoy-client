@@ -95,7 +95,7 @@ public class ScriptVariableScope extends LazyCompilationScope
 		if (replacedNameType != null && replacedNameType.containsKey(name)) prevType = Utils.getAsInteger(replacedNameType.get(name));
 		else prevType = Utils.getAsInteger(nameType.get(name));
 		boolean existingWithSameType = (prevType == var.getVariableType());
-		if (!existingWithSameType || overwriteInitialValue)//if same as previous, then leave initial value, only happens in developer
+		if (!existingWithSameType || overwriteInitialValue)//if same as previous, then leave initial value, this happens in developer or from login->main
 		{
 			nameType.put(name, new Integer(var.getVariableType()));
 			if (replacedNameType != null) replacedNameType.remove(name);
