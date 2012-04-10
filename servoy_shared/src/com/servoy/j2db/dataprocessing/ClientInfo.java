@@ -67,9 +67,12 @@ public final class ClientInfo implements Serializable
 	private String jsCredentials;
 
 
+	// update tc-config.xml if you modify this! (@TerracottaTransient annotation is just decorative)
 	@TerracottaTransient
 	private TimeZone timeZone;
 
+	// normal transient fields, not terracotta transient; so these are clustered with terracotta
+	// we could optimise clustering by making it so that servers this client does not belong to will not use or have access to these ever-changing timestamps (terracotta transient)
 	private transient long loginTimestamp = 0;
 	private transient long openSolutionTimestamp = 0;
 	private transient long idleTimestamp = 0;
