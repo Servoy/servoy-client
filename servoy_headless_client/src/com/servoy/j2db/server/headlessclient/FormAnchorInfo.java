@@ -231,8 +231,9 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 		private final int hAlign;
 		private final int vAlign;
 		private final String hint;
+		private final String imageURL;
 
-		public ElementAnchorInfo(String webID, int anchors, Rectangle bounds, int hAlign, int vAlign, String hint)
+		public ElementAnchorInfo(String webID, int anchors, Rectangle bounds, int hAlign, int vAlign, String hint, String imageURL)
 		{
 			this.webID = webID;
 			this.anchors = anchors;
@@ -240,6 +241,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 			this.hAlign = hAlign;
 			this.vAlign = vAlign;
 			this.hint = hint;
+			this.imageURL = imageURL;
 		}
 
 		public String getWebID()
@@ -272,6 +274,11 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 			return hint;
 		}
 
+		public String getImageUrl()
+		{
+			return imageURL;
+		}
+
 		@Override
 		public boolean equals(Object other)
 		{
@@ -279,7 +286,8 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 			{
 				ElementAnchorInfo eai = (ElementAnchorInfo)other;
 				return Utils.equalObjects(this.bounds, eai.bounds) && Utils.equalObjects(this.hint, eai.hint) && Utils.equalObjects(this.webID, eai.webID) &&
-					(this.anchors == eai.anchors) && (this.hAlign == eai.hAlign) && (this.vAlign == eai.vAlign);
+					(this.anchors == eai.anchors) && (this.hAlign == eai.hAlign) && (this.vAlign == eai.vAlign) &&
+					Utils.equalObjects(this.imageURL, eai.imageURL);
 			}
 			return false;
 		}
@@ -303,7 +311,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 
 		public Map<String, ElementAnchorInfo> elementAnchorInfo;
 
-		public void addAnchoredElement(String webID, int anchors, Rectangle rectangle, int hAlign, int vAlign, Class hintClass)
+		public void addAnchoredElement(String webID, int anchors, Rectangle rectangle, int hAlign, int vAlign, Class hintClass, String imageUrl)
 		{
 			if (elementAnchorInfo == null) elementAnchorInfo = new HashMap<String, ElementAnchorInfo>();
 
@@ -330,7 +338,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 				hint = "HTMLArea"; //$NON-NLS-1$
 			}
 
-			ElementAnchorInfo elementInfo = new ElementAnchorInfo(webID, anchors, rectangle, hAlign, vAlign, hint);
+			ElementAnchorInfo elementInfo = new ElementAnchorInfo(webID, anchors, rectangle, hAlign, vAlign, hint, imageUrl);
 			elementAnchorInfo.put(webID, elementInfo);
 		}
 
@@ -383,6 +391,12 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 			sb.append(ei.getHorizontalAlign());
 			sb.append(",");
 			sb.append(ei.getVerticalAlign());
+			if (ei.getImageUrl() != null)
+			{
+				sb.append(",'");
+				sb.append(ei.getImageUrl());
+				sb.append("'");
+			}
 			sb.append(")");
 		}
 

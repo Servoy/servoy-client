@@ -60,6 +60,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -71,6 +72,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
@@ -83,7 +85,7 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IResourceListener, IProviderStylePropertyChanges, IDoubleClickListener, IRightClickListener,
-	ISupportWebBounds, IImageDisplay
+	ISupportWebBounds, IImageDisplay, IAnchoredComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -102,6 +104,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	private Media media;
 //	private Dimension mediaSize;
 	private Media rolloverMedia;
+	private int anchors = 0;
 	protected final IApplication application;
 	private String text_url;
 	private String rolloverUrl;
@@ -994,9 +997,11 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		{
 			designMode = true;
 		}
-		replaceComponentTagBody(markupStream, openTag,
-			WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, border, null, cssid, (char)getDisplayedMnemonic(),
-				getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false)); //$NON-NLS-1$
+		boolean isAnchored = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) && anchors > 0 && anchors != IAnchorConstants.DEFAULT;
+
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, border, null, cssid,
+			(char)getDisplayedMnemonic(),
+			getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false, isAnchored)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtml()
@@ -1112,5 +1117,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public String getRolloverUrl()
 	{
 		return rolloverUrl;
+	}
+
+	public void setAnchors(int arg)
+	{
+		this.anchors = arg;
 	}
 }

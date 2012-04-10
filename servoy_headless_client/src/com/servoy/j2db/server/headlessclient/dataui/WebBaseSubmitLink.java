@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -66,6 +67,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
@@ -77,7 +79,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner, jblok
  */
 public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay
+	IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -99,6 +101,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	private ResourceReference iconReference;
 	private ResourceReference rolloverIconReference;
 	protected final IApplication application;
+	private int anchors = 0;
 	private String text_url;
 	private String rolloverUrl;
 	private final WebEventExecutor eventExecutor;
@@ -897,9 +900,11 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		{
 			designMode = true;
 		}
+		boolean isAnchored = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) && anchors > 0 && anchors != IAnchorConstants.DEFAULT; //$NON-NLS-1$
+
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, border, margin, cssid,
 			(char)getDisplayedMnemonic(),
-			getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored())); //$NON-NLS-1$
+			getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored(), isAnchored)); //$NON-NLS-1$
 	}
 
 	protected boolean isAnchored()
@@ -1053,5 +1058,10 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public String getRolloverUrl()
 	{
 		return rolloverUrl;
+	}
+
+	public void setAnchors(int arg)
+	{
+		this.anchors = arg;
 	}
 }

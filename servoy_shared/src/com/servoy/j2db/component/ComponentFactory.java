@@ -112,6 +112,7 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDisplayTagText;
@@ -1948,6 +1949,10 @@ public class ComponentFactory
 			l.setBorder(BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right));
 		}
 
+		if (l instanceof IAnchoredComponent)
+		{
+			((IAnchoredComponent)l).setAnchors(label.getAnchors());
+		}
 //		l.setOpaque(!label.getTransparent());
 
 		return l;

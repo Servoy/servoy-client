@@ -17,12 +17,10 @@ function layoutOneElement(elementInfo)
 		var imgEl = document.getElementById(element.id + "_img");
 		if (imgEl)
 		{
-			var imageURL = imgEl.src;
-			var originalImageURL = imageURL;
+			var imageURL = elementInfo[9];
 			imageURL = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
 			imageURL = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);
-			if (imageURL != originalImageURL)
-				imgEl.src = imageURL;
+			imgEl.src = imageURL;
 		}
 	}
 	if (/ImgField/.test(elementHint))

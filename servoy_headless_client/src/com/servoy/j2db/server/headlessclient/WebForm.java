@@ -102,6 +102,7 @@ import com.servoy.j2db.server.headlessclient.FormAnchorInfo.FormPartAnchorInfo;
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
+import com.servoy.j2db.server.headlessclient.dataui.IImageDisplay;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
@@ -1579,7 +1580,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 										vAlign = alignedObj.getVerticalAlignment();
 									}
 
-									part.addAnchoredElement(comp.getMarkupId(), anchors, r, hAlign, vAlign, comp.getClass());
+									part.addAnchoredElement(comp.getMarkupId(), anchors, r, hAlign, vAlign, comp.getClass(), (comp instanceof IImageDisplay)
+										? WebBaseButton.getImageDisplayURL((IImageDisplay)comp) : null);
 								}
 
 							}

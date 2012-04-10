@@ -900,10 +900,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		replaceComponentTagBody(markupStream, openTag,
 			instrumentBodyText(bodyText, halign, valign, false, border, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor, false));
+				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor, false, false));
 	}
 
-	protected static String getImageDisplayURL(IImageDisplay imageDisplay)
+	public static String getImageDisplayURL(IImageDisplay imageDisplay)
 	{
 		String imgURL = null;
 
@@ -1041,7 +1041,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Border border, Insets margin, String cssid,
-		char mnemonic, String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored)
+		char mnemonic, String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, boolean isElementAnchored)
 	{
 		Insets padding = null;
 		boolean usePadding = false;
@@ -1154,7 +1154,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
-				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(imgURL).append(
+				String src = "";
+				if (!isElementAnchored)
+				{
+					src = imgURL;
+				}
+				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(src).append(
 					"\" style=\"vertical-align: middle;\"/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
@@ -1166,7 +1171,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText.append("<img id=\"");
 			instrumentedBodyText.append(imgID);
 			instrumentedBodyText.append("\" src=\"");
-			instrumentedBodyText.append(imgURL);
+			instrumentedBodyText.append(!isElementAnchored ? imgURL : "");
 			instrumentedBodyText.append("\" align=\"middle\"/>");
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
