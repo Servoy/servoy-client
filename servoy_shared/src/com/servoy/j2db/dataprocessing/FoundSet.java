@@ -981,8 +981,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords(Object[] vargs) throws ServoyException
 	{
-		if (isInFindMode() || sheet.getTable() == null)
+		if (isInFindMode())
 		{
+			Debug.log("couldn't load dataset on a foundset that is in find mode"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that is in find mode", null); //$NON-NLS-1$
+			return false;
+		}
+		if (sheet.getTable() == null)
+		{
+			Debug.log("couldn't load dataset on a foundset that has no table"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that has no table", null); //$NON-NLS-1$
 			return false;
 		}
 
@@ -994,6 +1002,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (relationName != null) // on related foundset, only allow loadRecords without arguments
 		{
+			Debug.log("Can't load data/records in a related foundset: " + relationName); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("Can't load data/records in a related foundset: " + relationName, null); //$NON-NLS-1$
 			return false;
 		}
 
@@ -1542,6 +1552,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (sheet.getTable() == null)
 		{
+			Debug.log("couldn't load dataset on a foundset that has no table"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that has no table", null); //$NON-NLS-1$
 			return false;
 		}
 
