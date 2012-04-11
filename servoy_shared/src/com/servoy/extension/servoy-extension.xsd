@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.servoy.com/extension"
-	xmlns:tns="http://www.servoy.com/extension" version="6.1">
+	xmlns:tns="http://www.servoy.com/extension" version="1.0">
 
 	<element name="servoy-extension">
 		<complexType>
