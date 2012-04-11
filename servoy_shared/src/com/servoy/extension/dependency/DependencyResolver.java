@@ -30,6 +30,7 @@ import com.servoy.extension.ExtensionDependencyDeclaration;
 import com.servoy.extension.ExtensionProvider;
 import com.servoy.extension.LibDependencyDeclaration;
 import com.servoy.extension.VersionStringUtils;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Class responsible for resolving extension & lib dependencies.<br>
@@ -49,7 +50,7 @@ public class DependencyResolver
 
 	// the following members may be altered and restored while trying to resolve extensions
 	private Map<String, List<LibDependencyDeclaration>> allInstalledLibs; // created from installedExtensions; <libID, array(lib_declarattions)>
-	private Map<String, String> allInstalledExtensions; // created from installedExtensions; <extensionID, version>
+	private Map<String, DependencyMetadata> allInstalledExtensions; // created from installedExtensions; <extensionID, version>
 
 	private Map<String, String> visitedExtensions;
 	private Map<String, List<LibDependencyDeclaration>> visitedLibs;
@@ -145,11 +146,11 @@ public class DependencyResolver
 	protected void processInstalledExtensions()
 	{
 		allInstalledLibs = new HashMap<String, List<LibDependencyDeclaration>>();
-		allInstalledExtensions = new HashMap<String, String>();
+		allInstalledExtensions = new HashMap<String, DependencyMetadata>();
 		if (installedExtensions == null) installedExtensions = new DependencyMetadata[0];
 		for (DependencyMetadata extension : installedExtensions)
 		{
-			allInstalledExtensions.put(extension.id, extension.version);
+			allInstalledExtensions.put(extension.id, extension);
 			if (extension.libDependencies != null)
 			{
 				addToLibsMap(extension.libDependencies, allInstalledLibs);
@@ -197,7 +198,7 @@ public class DependencyResolver
 			else if (allInstalledExtensions.containsKey(extension.id))
 			{
 				// so this extension is already installed; if it is the same one, we are ok, otherwise see if this version can be updated
-				if (VersionStringUtils.sameVersion(allInstalledExtensions.get(extension.id), extension.version))
+				if (VersionStringUtils.sameVersion(allInstalledExtensions.get(extension.id).version, extension.version))
 				{
 					ok = true;
 				}
@@ -288,6 +289,26 @@ public class DependencyResolver
 				for (int i = extension.extensionDependencies.length - 1; dependenciesOKForNow && (i >= 0); i--)
 				{
 					DependencyMetadata[] availableDependencyVersions = extensionProvider.getDependencyMetadata(extension.extensionDependencies[i]);
+
+					// the provider might not have available a version of this dependency that is already installed and can be used
+					DependencyMetadata installedExtDep = allInstalledExtensions.get(extension.extensionDependencies[i].id);
+					if (installedExtDep != null)
+					{
+						boolean foundInProvider = false;
+						if (availableDependencyVersions != null && availableDependencyVersions.length > 0)
+						{
+							for (DependencyMetadata dmd : availableDependencyVersions)
+							{
+								if (dmd.id.equals(installedExtDep.id) && dmd.version.equals(installedExtDep.version))
+								{
+									foundInProvider = true;
+									break;
+								}
+							}
+						}
+						if (!foundInProvider) availableDependencyVersions = Utils.arrayAdd(availableDependencyVersions, installedExtDep, false);
+					}
+
 					if (availableDependencyVersions != null && availableDependencyVersions.length > 0)
 					{
 						stillToResolve.push(availableDependencyVersions);
