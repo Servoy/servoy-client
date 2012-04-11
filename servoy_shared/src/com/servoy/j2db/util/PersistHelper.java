@@ -665,7 +665,7 @@ public class PersistHelper
 	{
 		if (persist instanceof IFlattenedPersistWrapper && ((IFlattenedPersistWrapper)persist).getWrappedPersist() instanceof Form)
 		{
-			((IFlattenedPersistWrapper<Form>)persist).getWrappedPersist().getExtendsForm();
+			return ((IFlattenedPersistWrapper<Form>)persist).getWrappedPersist().getExtendsForm();
 		}
 		if (persist instanceof Form)
 		{
