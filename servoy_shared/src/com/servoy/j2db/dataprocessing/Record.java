@@ -176,39 +176,39 @@ public class Record implements Scriptable, IRecordInternal
 				Thread previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
 				if (previous != null && previous != currentThread)
 				{
-					synchronized (calculatingThreads)
+					long time = System.currentTimeMillis();
+					try
 					{
-						long time = System.currentTimeMillis();
-						try
+						previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
+						while (previous != null && previous != currentThread && System.currentTimeMillis() < (time + 5000))
 						{
-							previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
-							while (previous != null && previous != currentThread && System.currentTimeMillis() < (time + 5000))
+							synchronized (calculatingThreads)
 							{
 								calculatingThreads.wait(1000);
-								previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
 							}
+							previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
 						}
-						catch (InterruptedException e)
+					}
+					catch (InterruptedException e)
+					{
+						//ignore
+					}
+					if (previous != null && previous != currentThread)
+					{
+						try
 						{
-							//ignore
+							StackTraceElement[] stackTrace = previous.getStackTrace();
+							StringBuilder sb = new StringBuilder();
+							sb.append("Calc time out for thread: " + currentThread.getName() + " still waiting for: " + previous.getName() + ", stack:");
+							for (StackTraceElement stackTraceElement : stackTrace)
+							{
+								sb.append("\n");
+								sb.append(stackTraceElement.toString());
+							}
+							Debug.error(sb.toString(), new RuntimeException("calc timeout"));
 						}
-						if (previous != null && previous != currentThread)
+						catch (Exception e)
 						{
-							try
-							{
-								StackTraceElement[] stackTrace = previous.getStackTrace();
-								StringBuilder sb = new StringBuilder();
-								sb.append("Calc time out for thread: " + currentThread.getName() + " still waiting for: " + previous.getName() + ", stack:");
-								for (StackTraceElement stackTraceElement : stackTrace)
-								{
-									sb.append("\n");
-									sb.append(stackTraceElement.toString());
-								}
-								Debug.error(sb.toString(), new RuntimeException("calc timeout"));
-							}
-							catch (Exception e)
-							{
-							}
 						}
 					}
 				}
