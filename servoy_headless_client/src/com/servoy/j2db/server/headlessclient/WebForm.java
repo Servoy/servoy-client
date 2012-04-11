@@ -305,7 +305,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				{
 					if (controller.getForm().getTransparent() && !((IComponent)formContainer).isOpaque())
 					{
-						return "background-color:transparent;";
+						return "background:transparent;"; //$NON-NLS-1$
 					}
 				}
 				return null;
