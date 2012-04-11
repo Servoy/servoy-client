@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -200,10 +201,10 @@ public abstract class AbstractBase implements IPersist
 		else
 		{
 			if (!hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-				Utils.equalObjects(
-					getExtendsID(),
+				(this instanceof ISupportExtendsID && Utils.equalObjects(
+					Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
 					StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
-						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue()))
+						StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue())))
 			{
 				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
 				if (element != null && Utils.equalObjects(val, element.getDefaultClassValue()))
@@ -257,9 +258,10 @@ public abstract class AbstractBase implements IPersist
 		{
 			value = propertiesMap.get(propertyName);
 		}
-		else if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(propertyName) && isOverrideElement())
+		else if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(propertyName) && this instanceof ISupportExtendsID &&
+			PersistHelper.isOverrideElement((ISupportExtendsID)this))
 		{
-			IPersist superPersist = getSuperPersist();
+			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)this);
 			if (superPersist != null)
 			{
 				return ((AbstractBase)superPersist).getProperty(propertyName);
@@ -289,64 +291,6 @@ public abstract class AbstractBase implements IPersist
 			return new Point((Point)value);
 		}
 		return value;
-	}
-
-	public IPersist getSuperPersist()
-	{
-		final int extendsID = getExtendsID();
-		if (extendsID > 0)
-		{
-			Form form = (Form)getAncestor(IRepository.FORMS);
-			if (form != null)
-			{
-				form = form.getExtendsForm();
-				while (form != null)
-				{
-					IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
-					{
-						public Object visit(IPersist o)
-						{
-							if (extendsID == o.getID() || extendsID == ((AbstractBase)o).getExtendsID())
-							{
-								return o;
-							}
-							return CONTINUE_TRAVERSAL;
-						}
-					});
-					if (superPersist != null)
-					{
-						return superPersist;
-					}
-					form = form.getExtendsForm();
-				}
-			}
-		}
-		return null;
-	}
-
-	public boolean isOverrideOrphanElement()
-	{
-		IPersist parentPersist = this;
-		while (parentPersist != null && ((AbstractBase)parentPersist).isOverrideElement())
-		{
-			parentPersist = ((AbstractBase)parentPersist).getSuperPersist();
-			if (parentPersist == null) return true;
-		}
-		return false;
-	}
-
-	// TODO maybe this should be moved to a new class that would be a common ancestor of all persists for which extending makes sense
-	public int getExtendsID()
-	{
-		// fix for elements that don't have this property (methods,vars)
-		Integer extendsId = getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
-		if (extendsId == null) return DEFAULT_INT; // this code might seem to not be reacheable, but it is reached as extendsID is not declared in content spec for all abstract base types (for example ScriptMethod)
-		return extendsId.intValue();
-	}
-
-	public void setExtendsID(int arg)
-	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -890,7 +834,14 @@ public abstract class AbstractBase implements IPersist
 			{
 				return customProperty;
 			}
-			persist = ((AbstractBase)persist).getSuperPersist();
+			if (persist instanceof ISupportExtendsID)
+			{
+				persist = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
+			}
+			else
+			{
+				break;
+			}
 		}
 
 		return null;
@@ -1005,26 +956,6 @@ public abstract class AbstractBase implements IPersist
 	public void removeOverrideCustomProperty()
 	{
 		putCustomProperty(OVERRIDE_PATH, null);
-	}
-
-	public boolean isOverrideElement()
-	{
-		return hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && getExtendsID() > 0;
-	}
-
-	/**
-	 * Get the override hierarchy of this element as list [self, super, super.super, ...]
-	 */
-	public List<AbstractBase> getOverrideHierarchy()
-	{
-		List<AbstractBase> overrideHierarchy = new ArrayList<AbstractBase>(3);
-		IPersist superPersist = this;
-		while (superPersist instanceof AbstractBase)
-		{
-			overrideHierarchy.add((AbstractBase)superPersist);
-			superPersist = ((AbstractBase)superPersist).getSuperPersist();
-		}
-		return overrideHierarchy;
 	}
 
 	/** Check if this object has any overriding properties left.

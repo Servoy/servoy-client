@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Utils;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class Form extends AbstractBase implements ISupportFormElements, ITableDisplay, ISupportUpdateableName, ISupportScrollbars, IPersistCloneable,
-	ISupportSize, ISupportScriptProviders, ICloneable
+	ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID
 {
 	/**
 	 * @sameas getNavigatorID()
@@ -436,10 +436,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		setExtendsID(arg);
 	}
 
-	@Override
 	public void setExtendsID(int arg)
 	{
-		super.setExtendsID(arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 		if (arg != (extendsForm == null ? 0 : extendsForm.getID()) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
@@ -2181,13 +2180,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		this.lastModified = lastModified;
 	}
 
-
-	@Override
-	public IPersist getSuperPersist()
-	{
-		return getExtendsForm();
-	}
-
 	@Override
 	public IPersist clonePersist()
 	{
@@ -2195,5 +2187,10 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		Dimension size = getSize();
 		if (size != null) formClone.setSize(size);
 		return formClone;
+	}
+
+	public int getExtendsID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
 	}
 }

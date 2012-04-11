@@ -29,7 +29,8 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class BaseComponent extends AbstractBase implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable
+public class BaseComponent extends AbstractBase implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable,
+	ISupportExtendsID
 {
 	private static final long serialVersionUID = 1L;
 
@@ -408,5 +409,15 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	public static boolean isEventProperty(String propertyName)
 	{
 		return propertyName != null && propertyName.endsWith("MethodID") && !isCommandProperty(propertyName); //$NON-NLS-1$
+	}
+
+	public int getExtendsID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+	}
+
+	public void setExtendsID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 }

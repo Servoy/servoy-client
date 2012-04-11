@@ -20,7 +20,9 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -87,13 +89,13 @@ public class JSBase<T extends AbstractBase>
 				try
 				{
 					IPersist parentPersist = tempPersist;
-					while (((AbstractBase)parentPersist).getSuperPersist() != null)
+					while (PersistHelper.getSuperPersist((ISupportExtendsID)parentPersist) != null)
 					{
-						parentPersist = ((AbstractBase)parentPersist).getSuperPersist();
+						parentPersist = PersistHelper.getSuperPersist((ISupportExtendsID)parentPersist);
 					}
 					baseComponent = (T)tempPersist.cloneObj(getJSParent().getSupportChild(), false, null, false, false, false);
 					baseComponent.copyPropertiesMap(null, true);
-					baseComponent.setExtendsID(parentPersist.getID());
+					((ISupportExtendsID)baseComponent).setExtendsID(parentPersist.getID());
 				}
 				catch (Exception ex)
 				{

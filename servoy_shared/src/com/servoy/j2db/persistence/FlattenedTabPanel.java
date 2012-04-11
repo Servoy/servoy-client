@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author lvostinar
@@ -51,16 +52,16 @@ public class FlattenedTabPanel extends TabPanel implements IFlattenedPersistWrap
 		while (panel != null && !panels.contains(panel))
 		{
 			panels.add(panel);
-			panel = (TabPanel)panel.getSuperPersist();
+			panel = (TabPanel)PersistHelper.getSuperPersist(panel);
 		}
 		for (TabPanel temp : panels)
 		{
 			for (IPersist child : temp.getAllObjectsAsList())
 			{
-				Integer extendsID = new Integer(((AbstractBase)child).getExtendsID());
+				Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
 				if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
 				{
-					if (((AbstractBase)child).isOverrideOrphanElement())
+					if (PersistHelper.isOverrideOrphanElement((ISupportExtendsID)child))
 					{
 						// some deleted element
 						continue;

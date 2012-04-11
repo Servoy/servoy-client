@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -142,10 +143,11 @@ public class RepositoryHelper
 
 	public static void initClone(IPersist clone, IPersist original, boolean flattenOverrides)
 	{
-		if (flattenOverrides && ((AbstractBase)original).isOverrideElement() && (!(original instanceof Form)))
+		if (flattenOverrides && original instanceof ISupportExtendsID && PersistHelper.isOverrideElement((ISupportExtendsID)original) &&
+			(!(original instanceof Form)))
 		{
 			// copy all properties from element hierarchy into copy, make copy non-override
-			List<AbstractBase> overrideHierarchy = ((AbstractBase)original).getOverrideHierarchy();
+			List<AbstractBase> overrideHierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)original);
 
 			// top-most super-element first
 			for (int i = overrideHierarchy.size() - 1; i >= 0; i--)

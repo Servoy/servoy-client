@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.util.PersistHelper;
 
 
 /**
@@ -103,10 +104,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		{
 			for (IPersist ip : f.getAllObjectsAsList())
 			{
-				Integer extendsID = new Integer(((AbstractBase)ip).getExtendsID());
+				Integer extendsID = (ip instanceof ISupportExtendsID) ? new Integer(((ISupportExtendsID)ip).getExtendsID()) : Integer.valueOf(-1);
 				if (!existingIDs.contains(new Integer(ip.getID())) && !existingIDs.contains(extendsID))
 				{
-					if (((AbstractBase)ip).isOverrideOrphanElement())
+					if (ip instanceof ISupportExtendsID && PersistHelper.isOverrideOrphanElement((ISupportExtendsID)ip))
 					{
 						// some deleted element
 						continue;
@@ -130,7 +131,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						}
 					}
 				}
-				if (((AbstractBase)ip).isOverrideElement() && !existingIDs.contains(extendsID))
+				if (ip instanceof ISupportExtendsID && PersistHelper.isOverrideElement((ISupportExtendsID)ip) && !existingIDs.contains(extendsID))
 				{
 					existingIDs.add(extendsID);
 				}
@@ -147,7 +148,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			{
 				// Sub-forms can only add parts to the bottom
 				Part part = parts.next();
-				if (part.isOverrideElement())
+				if (PersistHelper.isOverrideElement(part))
 				{
 					Part parentPart = null;
 					Iterator<Part> it = getParts();
@@ -207,11 +208,5 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	{
 		internalClearAllObjects();
 		fill();
-	}
-
-	@Override
-	public IPersist getSuperPersist()
-	{
-		return form.getExtendsForm();
 	}
 }

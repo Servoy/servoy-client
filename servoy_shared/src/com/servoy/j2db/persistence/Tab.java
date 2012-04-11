@@ -29,7 +29,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneable, ISupportUpdateableName, ISupportMedia, ICloneable
+public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneable, ISupportUpdateableName, ISupportMedia, ICloneable, ISupportExtendsID
 {
 	private java.awt.Dimension dimension;
 
@@ -274,6 +274,16 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	public void setUseNewFormInstance(boolean useNewFormInstance)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_USENEWFORMINSTANCE, useNewFormInstance);
+	}
+
+	public int getExtendsID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+	}
+
+	public void setExtendsID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 
 }

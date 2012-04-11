@@ -30,7 +30,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable
+public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID
 {
 	public static final int TITLE_HEADER = 1;
 	public static final int HEADER = 2;
@@ -425,5 +425,15 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 			}
 		}
 		return retval;
+	}
+
+	public int getExtendsID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+	}
+
+	public void setExtendsID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 }

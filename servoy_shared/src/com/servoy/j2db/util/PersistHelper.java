@@ -38,6 +38,15 @@ import java.util.StringTokenizer;
 
 import javax.swing.UIManager;
 
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IPersistVisitor;
+import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportExtendsID;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
+
 /**
  * Helper class to the repository model persist side
  * 
@@ -652,4 +661,75 @@ public class PersistHelper
 		return null;
 	}
 
+	public static IPersist getSuperPersist(final ISupportExtendsID persist)
+	{
+		if (persist instanceof IFlattenedPersistWrapper && ((IFlattenedPersistWrapper)persist).getWrappedPersist() instanceof Form)
+		{
+			((IFlattenedPersistWrapper<Form>)persist).getWrappedPersist().getExtendsForm();
+		}
+		if (persist instanceof Form)
+		{
+			return ((Form)persist).getExtendsForm();
+		}
+		final int extendsID = persist.getExtendsID();
+		if (extendsID > 0)
+		{
+			Form form = (Form)((AbstractBase)persist).getAncestor(IRepository.FORMS);
+			if (form != null)
+			{
+				form = form.getExtendsForm();
+				while (form != null)
+				{
+					IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
+					{
+						public Object visit(IPersist o)
+						{
+							if (o instanceof ISupportExtendsID && (extendsID == o.getID() || extendsID == ((ISupportExtendsID)o).getExtendsID()))
+							{
+								return o;
+							}
+							return CONTINUE_TRAVERSAL;
+						}
+					});
+					if (superPersist != null)
+					{
+						return superPersist;
+					}
+					form = form.getExtendsForm();
+				}
+			}
+		}
+		return null;
+	}
+
+	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)
+	{
+		IPersist parentPersist = (IPersist)persist;
+		while (parentPersist instanceof ISupportExtendsID && isOverrideElement(((ISupportExtendsID)parentPersist)))
+		{
+			parentPersist = getSuperPersist(((ISupportExtendsID)parentPersist));
+			if (parentPersist == null) return true;
+		}
+		return false;
+	}
+
+	public static boolean isOverrideElement(ISupportExtendsID persist)
+	{
+		return ((AbstractBase)persist).hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && persist.getExtendsID() > 0;
+	}
+
+	/**
+	 * Get the override hierarchy of this element as list [self, super, super.super, ...]
+	 */
+	public static List<AbstractBase> getOverrideHierarchy(ISupportExtendsID persist)
+	{
+		List<AbstractBase> overrideHierarchy = new ArrayList<AbstractBase>(3);
+		IPersist superPersist = (IPersist)persist;
+		while (superPersist instanceof ISupportExtendsID)
+		{
+			overrideHierarchy.add((AbstractBase)superPersist);
+			superPersist = getSuperPersist((ISupportExtendsID)superPersist);
+		}
+		return overrideHierarchy;
+	}
 }
