@@ -26,16 +26,16 @@ public class ExtensionDependencyDeclaration
 {
 	/** the extension's id */
 	public final String id;
-	/** minimum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED} */
+	/** minimum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED} */
 	public final String minVersion;
-	/** maximum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED} */
+	/** maximum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED} */
 	public final String maxVersion;
 
 	/**
 	 * Creates a new extension dependency declaration (as defined in extension.xml).
 	 * @param id the extension's id.
-	 * @param minVersion minimum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED}.
-	 * @param maxVersion maximum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED}.
+	 * @param minVersion minimum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED}.
+	 * @param maxVersion maximum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED}.
 	 */
 	public ExtensionDependencyDeclaration(String id, String minVersion, String maxVersion)
 	{

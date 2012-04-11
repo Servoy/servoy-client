@@ -24,13 +24,13 @@ import java.util.Map;
 
 
 /**
- * Caches meta-data & contents of an ExtensionProvider for fast reuse.
+ * Caches meta-data & contents of an IExtensionProvider for fast reuse.
  * Some ExtensionProviders will acquire data through network connections, some will parse it from disk, but this class
  * helps to avoid repeating resource & time consuming operations.
  * 
  * @author acostescu
  */
-public abstract class CachedExtensionProvider implements ExtensionProvider
+public abstract class CachingExtensionProvider implements IExtensionProvider
 {
 
 	// keeps track of the version intervals already cached per extension id; the list must be a sorted List
@@ -149,7 +149,7 @@ public abstract class CachedExtensionProvider implements ExtensionProvider
 		List<VersionInterval> cachedVersionIntervals = cachedDepencencyMetadataVersions.get(extensionId);
 		if (cachedVersionIntervals == null)
 		{
-			cachedVersionIntervals = new ArrayList<CachedExtensionProvider.VersionInterval>();
+			cachedVersionIntervals = new ArrayList<CachingExtensionProvider.VersionInterval>();
 			cachedDepencencyMetadataVersions.put(extensionId, cachedVersionIntervals);
 			cachedVersionIntervals.add(interval);
 		}

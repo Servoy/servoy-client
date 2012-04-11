@@ -27,14 +27,14 @@ import java.util.Stack;
 
 import com.servoy.extension.DependencyMetadata;
 import com.servoy.extension.ExtensionDependencyDeclaration;
-import com.servoy.extension.ExtensionProvider;
+import com.servoy.extension.IExtensionProvider;
 import com.servoy.extension.LibDependencyDeclaration;
 import com.servoy.extension.VersionStringUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
  * Class responsible for resolving extension & lib dependencies.<br>
- * Given an extension id, it is able to generate a valid dependency tree for that extension (not list because any dependency could have multiple compatible versions), if possible using the given ExtensionProvider.<br><br>
+ * Given an extension id, it is able to generate a valid dependency tree for that extension (not list because any dependency could have multiple compatible versions), if possible using the given IExtensionProvider.<br><br>
  * If that is not possible, it will report the reasons that prevent it.<br><br>
  * The terms "tree path" are used heavily within the documentation of this class. These tree "paths" refer to paths in a virtual tree that is traversed while trying to resolve an extension (through simulated install extension/replace existing installed extension operations).
  *  
@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Utils;
 public class DependencyResolver
 {
 
-	private final ExtensionProvider extensionProvider;
+	private final IExtensionProvider extensionProvider;
 	private DependencyMetadata[] installedExtensions;
 	private boolean ignoreLibConflicts;
 
@@ -64,7 +64,7 @@ public class DependencyResolver
 	 * See class docs.
 	 * @param extensionProvider the extensionProvider to use.
 	 */
-	public DependencyResolver(ExtensionProvider extensionProvider)
+	public DependencyResolver(IExtensionProvider extensionProvider)
 	{
 		this.extensionProvider = extensionProvider;
 	}
@@ -87,7 +87,7 @@ public class DependencyResolver
 	 * Returns the extension provider.
 	 * @return the extension provider.
 	 */
-	protected ExtensionProvider getExtensionProvider()
+	protected IExtensionProvider getExtensionProvider()
 	{
 		return extensionProvider;
 	}

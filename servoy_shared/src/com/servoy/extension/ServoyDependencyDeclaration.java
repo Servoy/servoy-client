@@ -24,15 +24,15 @@ package com.servoy.extension;
 @SuppressWarnings("nls")
 public class ServoyDependencyDeclaration
 {
-	/** minimum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED} */
+	/** minimum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED} */
 	public final String minVersion;
-	/** maximum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED} */
+	/** maximum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED} */
 	public final String maxVersion;
 
 	/**
 	 * Creates a new Servoy dependency declaration (as defined in extension.xml).
-	 * @param minVersion minimum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED}.
-	 * @param maxVersion maximum version (inclusive). Can be {@link VersionStringUtil#UNBOUNDED}.
+	 * @param minVersion minimum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED}.
+	 * @param maxVersion maximum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED}.
 	 */
 	public ServoyDependencyDeclaration(String minVersion, String maxVersion)
 	{

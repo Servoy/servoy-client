@@ -22,11 +22,11 @@ package com.servoy.extension;
  * For example you might want to combine a local folder extension provider with a Marketplace extension provider. Or you might want to combine two local folders extension providers.
  * @author acostescu
  */
-public class ComposedExtensionProvider implements ExtensionProvider
+public class ComposedExtensionProvider implements IExtensionProvider
 {
 
-	protected final ExtensionProvider provider1;
-	protected final ExtensionProvider provider2;
+	protected final IExtensionProvider provider1;
+	protected final IExtensionProvider provider2;
 
 	/**
 	 * Creates a new composed extension provider. This will get extension related data from both specified sources.<br>
@@ -35,7 +35,7 @@ public class ComposedExtensionProvider implements ExtensionProvider
 	 * @param provider1 the higher priority extension provider.
 	 * @param provider2 the lower priority extension provider.
 	 */
-	public ComposedExtensionProvider(ExtensionProvider provider1, ExtensionProvider provider2)
+	public ComposedExtensionProvider(IExtensionProvider provider1, IExtensionProvider provider2)
 	{
 		this.provider1 = provider1;
 		this.provider2 = provider2;

@@ -33,13 +33,13 @@ import java.util.List;
  * 
  * @author acostescu
  */
-public interface DependencyPathChooser
+public interface IDependencyPathChooser
 {
 
 	/**
 	 * Picks one of the valid dependency resolve paths.
 	 * @param allResolvedPaths a list containing resolve paths. Each resolve path lists a number of extension version that could be installed/replaced.
-	 * @return one of the elements in the list which is closest to what this chooser desires.
+	 * @return one of the elements in the list which is closest to what this chooser desires, or null if none close enough is found.
 	 */
 	ExtensionNode[] pickResolvePath(List<ExtensionNode[]> allResolvedPaths);
 

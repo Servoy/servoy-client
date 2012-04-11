@@ -23,7 +23,7 @@ import java.util.Map;
  * Interface that should be implemented by extension pre-install, post-install and uninstall hooks.
  * @author acostescu
  */
-public interface ExtensionHook
+public interface IExtensionHook
 {
 
 	/**
@@ -31,6 +31,6 @@ public interface ExtensionHook
 	 * @param parameters string key-value pairs as they were specified in the 'extension.xml' file.
 	 * @param context liaison to the install/uninstall process.
 	 */
-	void run(Map<String, String> parameters, HookContext context);
+	void run(Map<String, String> parameters, IHookContext context);
 
 }

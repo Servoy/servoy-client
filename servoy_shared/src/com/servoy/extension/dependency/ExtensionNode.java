@@ -53,7 +53,7 @@ public class ExtensionNode
 				type = "R";
 				break;
 		}
-		return "(" + id + ", " + version + ", " + type + ")";
+		return "('" + id + "', " + version + ", " + type + ")";
 	}
 
 }

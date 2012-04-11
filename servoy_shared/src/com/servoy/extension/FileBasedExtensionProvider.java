@@ -48,14 +48,15 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
- * This class provides extension info & data taken from all extension packages within an OS directory.
+ * This class provides extension info & data taken from all extension packages within an OS directory or from a single file.
  * 
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class DirectoryExtensionProvider extends CachedExtensionProvider
+public class FileBasedExtensionProvider extends CachingExtensionProvider
 {
 
 	public static final String EXTENSION_PACKAGE_FILE_EXTENSION = ".exp";
@@ -67,8 +68,12 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 	protected Map<String, Map<String, File>> extensionVersionToFile; // <extensionid, <version, File>>
 	protected List<String> warnings;
 
-
-	public DirectoryExtensionProvider(File file, boolean thinkDir)
+	/**
+	 * Creates a new file base extension provider. It can use a directory of .exp files or a single .exp file.
+	 * @param file the file or folder.
+	 * @param thinkDir if it should be considered a directory; false for file.
+	 */
+	public FileBasedExtensionProvider(File file, boolean thinkDir)
 	{
 		if (!file.exists() || !file.canRead() || (thinkDir && !file.isDirectory()) || (!thinkDir && file.isFile()))
 		{
@@ -81,24 +86,29 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 	@Override
 	protected DependencyMetadata[] getDependencyMetadataImpl(ExtensionDependencyDeclaration extensionDependency)
 	{
+		// so this is a cache miss in super
 		DependencyMetadata[] result;
 		addCachedDependencyMetadataVersionInterval(extensionDependency.id, new VersionInterval(VersionStringUtils.UNBOUNDED, VersionStringUtils.UNBOUNDED));
 		if (extensionXMLsParsed)
 		{
-			result = null;
+			result = null; // all available extension packages were already parsed/cached, so if there was a cache miss, the dependency is just not there
 		}
 		else
 		{
-			parseExtensionXMLs();
-			result = super.getDependencyMetadata(extensionDependency);
+			parseExtensionXMLs(); // parses and caches all available dependencies
+			result = getDependencyMetadata(extensionDependency); // from cache
 		}
 		return result;
 	}
 
+	/**
+	 * Parses all available extension packages and caches the dependency meta-data.
+	 */
 	protected void parseExtensionXMLs()
 	{
 		extensionXMLsParsed = true;
 		File[] fileList = thinkDir ? file.listFiles() : new File[] { file };
+		int count = 0;
 
 		if (fileList != null)
 		{
@@ -108,12 +118,22 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 			{
 				if (f.exists() && f.isFile() && f.getName().endsWith(EXTENSION_PACKAGE_FILE_EXTENSION))
 				{
+					count++;
 					parseExtensionXML(f);
 				}
 			}
 		}
+		if (count == 0)
+		{
+			warnings.add((thinkDir ? "Cannot find any extension package in directory '" : "The file is not an extension package: '") + file.getAbsolutePath() +
+				"'.");
+		}
 	}
 
+	/**
+	 * Parses one extension package and caches dependency meta-data.
+	 * @param f the .exp file.
+	 */
 	protected void parseExtensionXML(File f)
 	{
 		ZipFile zipFile = null;
@@ -174,33 +194,12 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 		}
 		finally
 		{
-			if (bis != null)
-			{
-				try
-				{
-					bis.close();
-				}
-				catch (IOException e)
-				{
-					/* ignore; we are probably already throwing another one */
-				}
-			}
-			else if (is != null)
-			{
-				try
-				{
-					is.close();
-				}
-				catch (IOException e)
-				{
-					/* ignore; we are probably already throwing another one */
-				}
-			}
+			Utils.closeInputStream(bis);
 		}
 	}
 
 	/**
-	 * If problems were encountered while reading contents of given directory, they will be remembered and returned by this method.
+	 * If problems were encountered while reading contents of given directory/file, they will be remembered and returned by this method.
 	 * @return any problems encountered that might be of interest to the user.
 	 */
 	public String[] getWarnings()
@@ -217,7 +216,7 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 		super.flushCache();
 	}
 
-	public interface EntryInputStreamRunner
+	protected interface EntryInputStreamRunner
 	{
 
 		boolean runOnEntryInputStream(InputStream is);
@@ -246,7 +245,7 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 			{
 				try
 				{
-					Schema schema = factory.newSchema(ExtensionProvider.class.getResource("servoy-extension.xsd"));
+					Schema schema = factory.newSchema(IExtensionProvider.class.getResource("servoy-extension.xsd"));
 					Validator validator = schema.newValidator();
 					Source source = new StreamSource(is);
 
@@ -283,6 +282,7 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 
 	}
 
+	// parses an extension.xml file and caches it's dependency meta-data
 	protected class ParseDependencyMetadata implements EntryInputStreamRunner
 	{
 
@@ -302,7 +302,7 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 				try
 				{
 					// prepare to verify that XML adheres to our schema; because of this schema defined default values will be set as well when parsing
-					schema = factory.newSchema(ExtensionProvider.class.getResource("servoy-extension.xsd"));
+					schema = factory.newSchema(IExtensionProvider.class.getResource("servoy-extension.xsd"));
 				}
 				catch (SAXException ex)
 				{
@@ -437,11 +437,12 @@ public class DirectoryExtensionProvider extends CachedExtensionProvider
 			return true;
 		}
 
-		protected String getMinMaxVersion(Element element, String nodeName)
+		// gets & creates a (possibly exclusive or unbounded) min or max version string from the element
+		protected String getMinMaxVersion(Element element, String minOrMax)
 		{
 			String minMaxVersion = VersionStringUtils.UNBOUNDED;
 
-			NodeList verNode = element.getElementsByTagName(nodeName);
+			NodeList verNode = element.getElementsByTagName(minOrMax);
 			if (verNode != null && verNode.getLength() == 1)
 			{
 				minMaxVersion = verNode.item(0).getTextContent();

@@ -29,17 +29,17 @@ public class LibDependencyDeclaration
 	public final String id;
 	/** the version of the library that is included with the extension package */
 	public final String version;
-	/** minimum version. Can be {@link VersionStringUtil#UNBOUNDED} */
+	/** minimum version. Can be {@link VersionStringUtils#UNBOUNDED} */
 	public final String minVersion;
-	/** maximum version. Can be {@link VersionStringUtil#UNBOUNDED} */
+	/** maximum version. Can be {@link VersionStringUtils#UNBOUNDED} */
 	public final String maxVersion;
 
 	/**
 	 * Creates a new library dependency declaration (as defined in extension.xml).
 	 * @param id the library's id.
 	 * @param version the version of the library that is included with the extension package.
-	 * @param minVersion minimum version. Can be {@link VersionStringUtil#UNBOUNDED}.
-	 * @param maxVersion maximum version. Can be {@link VersionStringUtil#UNBOUNDED}.
+	 * @param minVersion minimum version. Can be {@link VersionStringUtils#UNBOUNDED}.
+	 * @param maxVersion maximum version. Can be {@link VersionStringUtils#UNBOUNDED}.
 	 * @throws IllegalArgumentException if any of the arguments or their combination is invalid.
 	 */
 	public LibDependencyDeclaration(String id, String version, String minVersion, String maxVersion) throws IllegalArgumentException
