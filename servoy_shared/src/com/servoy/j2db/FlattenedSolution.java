@@ -985,6 +985,33 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return scopes;
 	}
 
+	public List<Pair<String, IRootObject>> getAllScopes()
+	{
+		List<Pair<String, IRootObject>> scopes = new ArrayList<Pair<String, IRootObject>>();
+		if (mainSolution != null)
+		{
+			for (String scopeName : mainSolution.getScopeNames())
+			{
+				scopes.add(new Pair<String, IRootObject>(scopeName, mainSolution));
+			}
+
+			if (modules != null)
+			{
+				for (Solution s : modules)
+				{
+					if (s != mainSolution)
+					{
+						for (String scopeName : s.getScopeNames())
+						{
+							scopes.add(new Pair<String, IRootObject>(scopeName, s));
+						}
+					}
+				}
+			}
+		}
+		return scopes;
+	}
+
 	public void addSecurityAccess(Map<Object, Integer> sp)
 	{
 		addSecurityAccess(sp, true);
