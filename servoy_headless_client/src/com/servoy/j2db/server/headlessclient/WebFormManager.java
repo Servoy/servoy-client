@@ -20,7 +20,9 @@ import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.IPageMap;
@@ -156,8 +158,8 @@ public class WebFormManager extends FormManager
 			((Component)main).setVersioned(false);
 		}
 
-		MainPage navigatorParent = null;
 		String navigatorName = null;
+		Set<MainPage> parents = new HashSet<MainPage>();
 		for (FormController fp : fcontrollers)
 		{
 			if (fp != null)
@@ -195,30 +197,31 @@ public class WebFormManager extends FormManager
 					else
 					{
 						MainPage parent = wfParent.findParent(MainPage.class);
-						if (parent != null && parent.getNavigator() == fp)
+						if (parent != null && !parents.contains(parent))
 						{
-							navigatorParent = parent;
-							navigatorName = fp.getName();
+							parents.add(parent);
+
+							if (parent.getNavigator() == fp)
+							{
+								navigatorName = fp.getName();
+								FormController navigator = getFormController(navigatorName, parent);
+								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+								navigator.notifyVisible(true, invokeLaterRunnables);
+								Utils.invokeLater(getApplication(), invokeLaterRunnables);
+								parent.setNavigator(navigator);
+							}
+
+							FormController previousMainShowingForm = (parent != null ? parent.getController() : null);
+							if (previousMainShowingForm != null)
+							{
+								parent.setFormController(null);
+								showFormInMainPanel(previousMainShowingForm.getName(), parent, null, true, null);
+							}
+
 						}
 					}
 				}
 			}
-		}
-
-		FormController previousMainShowingForm = (currentContainer != null ? currentContainer.getController() : null);
-		currentContainer.setFormController(null);
-		if (previousMainShowingForm != null)
-		{
-			showFormInMainPanel(previousMainShowingForm.getName());
-		}
-
-		if (navigatorParent != null)
-		{
-			FormController navigator = getFormController(navigatorName, navigatorParent);
-			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			navigator.notifyVisible(true, invokeLaterRunnables);
-			Utils.invokeLater(getApplication(), invokeLaterRunnables);
-			navigatorParent.setNavigator(navigator);
 		}
 
 		if (main instanceof Component)
