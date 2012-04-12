@@ -177,6 +177,8 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			}
 			else
 			{
+				selectedObject = null;
+				realSelectedObject = null;
 				setSelectedItem(obj);
 			}
 		}
