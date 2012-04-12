@@ -1318,7 +1318,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
-			eventExecutor.fireOnRender(this, isFocused);
+			eventExecutor.fireOnRender(this, isFocused, true);
 		}
 	}
 
