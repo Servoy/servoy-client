@@ -209,6 +209,7 @@ public class WebFormManager extends FormManager
 								navigator.notifyVisible(true, invokeLaterRunnables);
 								Utils.invokeLater(getApplication(), invokeLaterRunnables);
 								parent.setNavigator(navigator);
+//								parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set
 							}
 
 							FormController previousMainShowingForm = (parent != null ? parent.getController() : null);
@@ -216,8 +217,8 @@ public class WebFormManager extends FormManager
 							{
 								parent.setFormController(null);
 								showFormInMainPanel(previousMainShowingForm.getName(), parent, null, true, null);
+//								parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set
 							}
-
 						}
 					}
 				}
