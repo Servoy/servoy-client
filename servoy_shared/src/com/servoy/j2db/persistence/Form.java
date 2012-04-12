@@ -191,9 +191,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Dimension getSize()
 	{
-		Dimension size = checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
-		setSize(size);
-		return size;
+		return checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
 	}
 
 	/**
@@ -212,6 +210,16 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public void setWidth(int width)
 	{
 		setSize(new Dimension(width, getSize().height));
+	}
+
+	@Override
+	public void clearProperty(String propertyName)
+	{
+		if ("width".equals(propertyName)) //$NON-NLS-1$
+		{
+			propertyName = StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName();
+		}
+		super.clearProperty(propertyName);
 	}
 
 	/**
