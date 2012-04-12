@@ -431,6 +431,8 @@ function addListeners(strEvent, callbackUrl, ids, post)
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;
 
+						var delayedCall = this.onclick;
+
 						// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
 						if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
 						{
@@ -439,13 +441,31 @@ function addListeners(strEvent, callbackUrl, ids, post)
 								Wicket.Focus.lastFocusId = null;
 								this.blur();
 							}
-							var wcall=wicketAjaxGet
-							(
-								callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-								null,
-								function() { onAjaxError(); }.bind(this),
-								function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-							);
+							
+							if(delayedCall)
+							{
+								var thisEl = this;
+								setTimeout(function()
+								{
+									var wcall=wicketAjaxGet
+									(
+										callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+										null,
+										function() { onAjaxError(); }.bind(thisEl),
+										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+									);
+								}, 300);
+							}
+							else
+							{
+								var wcall=wicketAjaxGet
+								(
+									callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+									null,
+									function() { onAjaxError(); }.bind(this),
+									function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+								);
+							}
 							return false;
 						}
 						
@@ -454,14 +474,33 @@ function addListeners(strEvent, callbackUrl, ids, post)
 							Wicket.Focus.lastFocusId = null;
 							this.blur();
 						}
-						var wcall=wicketAjaxPost
-						(
-							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-							wicketSerialize(Wicket.$(this.id)),
-							null,
-							function() { onAjaxError(); }.bind(this),
-							function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-						);
+						
+						if(delayedCall)
+						{
+								var thisEl = this;
+								setTimeout(function()
+								{
+									var wcall=wicketAjaxPost
+									(
+										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+										wicketSerialize(Wicket.$(thisEl.id)),
+										null,
+										function() { onAjaxError(); }.bind(thisEl),
+										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+									);
+								}, 300);						
+						}
+						else
+						{
+							var wcall=wicketAjaxPost
+							(
+								callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+								wicketSerialize(Wicket.$(this.id)),
+								null,
+								function() { onAjaxError(); }.bind(this),
+								function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+							);						
+						}
 						return false;
 					}
 					else
@@ -553,19 +592,39 @@ function addListeners(strEvent, callbackUrl, ids, post)
 						modifiers = onFocusModifiers;
 						onFocusModifiers = 0;			
 
+						var delayedCall = this.onclick;
+
 						if(modifiers > 0)
 						{
 							Wicket.Focus.lastFocusId = null;
 							this.blur();
-						} 
-						var wcall=wicketAjaxGet
-						(					
-							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-							null,
-							function() { onAjaxError(); }.bind(this),
-							function() { return Wicket.$(this.id) != null; }.bind(this)
-						);
-
+						}
+						
+						if(delayedCall)
+						{
+								var thisEl = this;
+								setTimeout(function()
+								{
+									var wcall=wicketAjaxGet
+									(					
+										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+										null,
+										function() { onAjaxError(); }.bind(thisEl),
+										function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+									);		
+								}, 300);						
+						}
+						else
+						{
+							var wcall=wicketAjaxGet
+							(					
+								callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(this),
+								function() { return Wicket.$(this.id) != null; }.bind(this)
+							);						
+						}
+						
 						return false;
 					}
 					else
