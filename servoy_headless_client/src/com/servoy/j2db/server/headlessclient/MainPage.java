@@ -1297,8 +1297,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					url = RequestUtils.toAbsolutePath(url);
 				}
-				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + "," + showUrlInfo.pageExpiredRedirect +
-					");";
+				return "showurl('" + url + "'," + showUrlInfo.timeout + "," + showUrlInfo.onRootFrame + "," + showUrlInfo.useIFrame + "," +
+					showUrlInfo.pageExpiredRedirect + ");";
 			}
 			else if (showUrlInfo.target.equalsIgnoreCase("_top"))
 			{
@@ -1751,7 +1751,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				}
 			}
 			callingContainer.closeChildWindow(getPageMapName());
-			if (isShowingInDialog())
+			if (isShowingInDialog() && getRequestCycle() != null)
 			{
 				IRequestTarget requestTarget = getRequestCycle().getRequestTarget();
 				if (requestTarget instanceof AjaxRequestTarget)
