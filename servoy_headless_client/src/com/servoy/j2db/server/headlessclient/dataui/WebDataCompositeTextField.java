@@ -40,6 +40,7 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
+import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -62,7 +63,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author jcompagner
  */
 public abstract class WebDataCompositeTextField extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds,
-	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent
+	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent, IDesignModeListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -75,6 +76,8 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	private boolean editable;
 	private Insets margin;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
+
+	private boolean designMode = false;
 
 	public WebDataCompositeTextField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
@@ -119,7 +122,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	protected boolean shouldShowExtraComponents()
 	{
-		return isEnabled() && showExtraComponents;
+		return isEnabled() && showExtraComponents && !designMode;
 	}
 
 	public Component[] getFocusChildren()
@@ -601,6 +604,11 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		field.onRightClick();
 	}
 
+	public void setDesignMode(boolean mode)
+	{
+		designMode = mode;
+	}
+
 	@Override
 	protected void onBeforeRender()
 	{
@@ -641,6 +649,12 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		public boolean isEditable()
 		{
 			return true;
+		}
+
+		@Override
+		public String getMarkupId()
+		{
+			return WebDataCompositeTextField.this.getMarkupId() + "compositefield";
 		}
 
 	}

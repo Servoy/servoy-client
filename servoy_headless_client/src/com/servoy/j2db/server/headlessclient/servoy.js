@@ -2425,8 +2425,8 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				if(lbElem && lbElem.className == 'label') elem = lbElem;
 			}
 			
-			// get enclosing div for date field
-			if(elem.id && elem.id.indexOf('datefield')>0)
+			// get enclosing div for composite field
+			if(elem.id && elem.id.indexOf('compositefield')>0)
 			{
 				var dateElem = elem;
 				while(dateElem && dateElem.className != 'field')
