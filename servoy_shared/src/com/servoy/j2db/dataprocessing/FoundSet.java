@@ -4008,6 +4008,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void sort(List<SortColumn> sortColumns, boolean defer) throws ServoyException
 	{
+		if (!hasAccess(IRepository.READ))
+		{
+			fireDifference(getSize(), 0);
+			throw new ApplicationException(ServoyException.NO_ACCESS);
+		}
+
 		if (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
 			fsm.getApplication().reportJSError("Couldn't do a sort because there where edited records on this foundset", null); //$NON-NLS-1$
