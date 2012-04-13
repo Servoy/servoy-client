@@ -89,6 +89,7 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 				{
 					v = vl.getElementAt(i);
 					values[size - i - 1] = (v == null) ? "" : String.valueOf(v); //$NON-NLS-1$
+//					values[i] = (v == null) ? "" : String.valueOf(v); //$NON-NLS-1$
 				}
 			}
 		}
@@ -256,6 +257,7 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 			 */
 			super.configure(p);
 			p.put("data", values); //$NON-NLS-1$
+			p.put("emptyInputCheck", Boolean.valueOf(false)); //$NON-NLS-1$
 			p.put("afterUpdate", new Object() { //$NON-NLS-1$
 					@Override
 					public String toString()
