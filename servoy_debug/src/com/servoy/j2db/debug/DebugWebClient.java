@@ -25,7 +25,6 @@ import javax.servlet.http.HttpSession;
 import javax.swing.SwingUtilities;
 
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
@@ -42,7 +41,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
@@ -357,7 +355,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		this.form = f;
 	}
 
-	public boolean checkForChanges()
+	public synchronized boolean checkForChanges()
 	{
 		if (getClientInfo() == null) return false;
 		boolean changed = false;
@@ -393,11 +391,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		if (getSolution() != null)
 		{
 			addEventDispatchThread();
-			if (checkForChanges())
-			{
-				MainPage page = (MainPage)((WebFormManager)getFormManager()).getMainContainer(null);
-				throw new RestartResponseException(page);
-			}
+			checkForChanges();
 			synchronized (webClientSession.getWebClient())
 			{
 				executeEvents();
