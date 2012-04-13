@@ -36,4 +36,12 @@ public interface ILAFManager extends IManager
 	public LookAndFeel createInstance(String clazzName) throws Exception;
 
 	public MetalTheme createThemeInstance(String clazzName) throws Exception;
+
+	/**
+	 * Get the plugin classloader
+	 * 
+	 * @return ClassLoader
+	 */
+	public ClassLoader getClassLoader();
+
 }

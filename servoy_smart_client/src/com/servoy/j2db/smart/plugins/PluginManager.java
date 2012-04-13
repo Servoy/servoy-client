@@ -73,19 +73,21 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	// ---plugin instances
 	protected Map<String, IClientPlugin> loadedClientPlugins; //contains all instances of client plugins, (name -> instance)
 	protected List<IServerPlugin> loadedServerPlugins;//contains all instances of server plugins
+	private final ClassLoader lafLoader;
 
 	/**
 	 * Loads plugins from the plugins directory.
 	 */
-	public PluginManager(Object prop_change_source)
+	public PluginManager(Object prop_change_source, ClassLoader lafLoader)
 	{
-		this();
+		this(lafLoader);
 		J2DBGlobals.addPropertyChangeListener(prop_change_source, this);
 	}
 
-	public PluginManager()
+	public PluginManager(ClassLoader lafLoader)
 	{
 		super();
+		this.lafLoader = lafLoader;
 		pluginDir = new File(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins"); //$NON-NLS-1$ 
 		if (pluginUrls.size() == 0 && pluginDir.isDirectory())
 		{
@@ -93,9 +95,10 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		}
 	}
 
-	public PluginManager(Map<URL, Pair<String, Long>> pluginUrls, Map<URL, Pair<String, Long>> supportLibUrls)
+	public PluginManager(Map<URL, Pair<String, Long>> pluginUrls, Map<URL, Pair<String, Long>> supportLibUrls, ClassLoader lafLoader)
 	{
 		super();
+		this.lafLoader = lafLoader;
 		pluginDir = null;
 		PluginManager.pluginUrls.putAll(pluginUrls);
 		PluginManager.supportLibUrls.putAll(supportLibUrls);
@@ -103,13 +106,13 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		allUrls.addAll(supportLibUrls.keySet());
 		allUrls.addAll(pluginUrls.keySet());
 		URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
-		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, getClass().getClassLoader());
+		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader());
 	}
 
-
-	public PluginManager(String pluginDirAsString)
+	public PluginManager(String pluginDirAsString, ClassLoader lafLoader)
 	{
 		super();
+		this.lafLoader = lafLoader;
 		pluginDir = new File(pluginDirAsString);
 		if (pluginUrls.size() == 0 && this.pluginDir.isDirectory())
 		{
@@ -634,7 +637,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				allUrls.addAll(supportLibUrls.keySet());
 				allUrls.addAll(pluginUrls.keySet());
 				URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
-				_pluginsClassLoader = new ExtendableURLClassLoader(urls, getClass().getClassLoader());
+				_pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader());
 			}
 			catch (Throwable th)
 			{
@@ -661,7 +664,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	 */
 	public PluginManager createEfficientCopy(Object prop_change_source)
 	{
-		PluginManager retval = new PluginManager(prop_change_source);
+		PluginManager retval = new PluginManager(prop_change_source, lafLoader);
 		return retval;
 	}
 

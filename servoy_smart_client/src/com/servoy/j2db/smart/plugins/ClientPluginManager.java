@@ -34,7 +34,7 @@ public class ClientPluginManager extends PluginManager
 {
 	public ClientPluginManager(IApplication application)
 	{
-		super(application);
+		super(application, null);
 	}
 
 	public void addPreferenceTabs(ApplicationPreferences ap)
