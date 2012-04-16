@@ -105,13 +105,21 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();
-				if (selectedRow >= index0 && selectedRow <= index1)
+				// need to check for index0-1 because that is the selection that will generate the next batch query. (200 selected == 199 index)
+				if (selectedRow >= (index0 - 1) && selectedRow <= index1)
 				{
+
 					// selected record was removed, set selection after the removed block or before (if at the end)
 					// note: default behaviour of DefaultListSelectionModel is to set selected index to -1 when selected was removed
+					int selection = Math.min(index1 + 1, foundset.getSize());
+					// if it is set to the foundset.getSize() - 1 but the foundset had more rows, then just select the first..
+					// else it will load in the next pks and the selection will be somewhere in the middle
+					if (selection == foundset.getSize() && foundset.hadMoreRows())
+					{
+						selection = 0;
+					}
 					// i have to call the setSelectionInterval else our methods will test if the record is there, but it can be that a selection is set
 					// that will just fall out of the foundset size (== foundset size) but the super.removeIndexInterval will adjust this.
-					int selection = Math.min(index1 + 1, foundset.getSize());
 					if (selection != selectedRow) super.setSelectionInterval(selection, selection);
 				}
 				super.removeIndexInterval(index0, index1);
