@@ -986,14 +986,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	protected boolean checkLoadRecordsAllowed(boolean allowRelated)
 	{
-		if (isInFindMode() || sheet.getTable() == null)
+		if (isInFindMode())
 		{
+			Debug.log("couldn't load new records on a foundset that is in find mode"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that is in find mode", null); //$NON-NLS-1$
 			return false;
+		}
+		if (sheet.getTable() == null)
+		{
+			throw new IllegalStateException("couldn't load dataset on a foundset that has no table"); //$NON-NLS-1$
 		}
 
 		if (!allowRelated && relationName != null) // on related foundset, only allow loadRecords without arguments
 		{
-			return false;
+			throw new IllegalStateException("Can't load data/records in a related foundset: " + relationName); //$NON-NLS-1$
 		}
 
 		if (isInitialized())
@@ -1780,6 +1786,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (sheet.getTable() == null)
 		{
+			Debug.log("couldn't load dataset on a foundset that has no table"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that has no table", null); //$NON-NLS-1$
 			return false;
 		}
 
