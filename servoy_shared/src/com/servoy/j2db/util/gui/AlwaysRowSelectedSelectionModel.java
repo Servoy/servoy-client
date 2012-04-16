@@ -147,7 +147,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			{
 				int selectedRow = getSelectedRow();
 				super.removeIndexInterval(index0, index1);
-				if (selectedRow >= index0 && selectedRow <= index1)
+				if (selectedRow >= (index0 - 1) && selectedRow <= index1)
 				{
 					// selected record was removed, set selection after the removed block or before (if at the end)
 					// note: default behaviour of DefaultListSelectionModel is to set selected index to -1 when selected was removed
