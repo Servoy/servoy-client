@@ -105,8 +105,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();
-				// need to check for index0-1 because that is the selection that will generate the next batch query. (200 selected == 199 index)
-				if (selectedRow >= (index0 - 1) && selectedRow <= index1)
+				if (selectedRow >= index0 && selectedRow <= index1)
 				{
 
 					// selected record was removed, set selection after the removed block or before (if at the end)
