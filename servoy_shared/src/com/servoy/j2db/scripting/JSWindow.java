@@ -37,7 +37,7 @@ public class JSWindow implements IConstantsObject
 	 * @sample
 	 * // create a non-modal dialog on top of current active form's window and show a form inside it
 	 * var myWindow = application.createWindow("myName", JSWindow.DIALOG);
-	 * forms.myForm.show(myWindow);
+	 * myWindow.show(forms.myForm);
 	 */
 	public final static int DIALOG = 0;
 
@@ -48,7 +48,7 @@ public class JSWindow implements IConstantsObject
 	 * @sample
 	 * // create a modal dialog on top of current active form's window and show a form inside it
 	 * var myWindow = application.createWindow("myName", JSWindow.MODAL_DIALOG);
-	 * forms.myForm.show(myWindow);
+	 * myWindow.show(forms.myForm);
 	 */
 	public final static int MODAL_DIALOG = 1;
 
@@ -59,7 +59,7 @@ public class JSWindow implements IConstantsObject
 	 * @sample
 	 * // create a window and show a form inside it
 	 * var myWindow = application.createWindow("myName", JSWindow.WINDOW);
-	 * forms.myForm.show(myWindow);
+	 * myWindow.show(forms.myForm);
 	 */
 	public final static int WINDOW = 2;
 
@@ -545,7 +545,7 @@ public class JSWindow implements IConstantsObject
 	 * win1.setInitialBounds(200, 200, 400, 600);
 	 * win1.storeBounds = true;
 	 * if (newSolutionVersion) win1.resetBounds();
-	 * win1.show();
+	 * win1.show(forms.myform);
 	 */
 	public void js_resetBounds()
 	{
