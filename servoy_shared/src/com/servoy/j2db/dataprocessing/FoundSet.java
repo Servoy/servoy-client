@@ -1602,7 +1602,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				startRow = originalPKRowcount;
 				lastPkHash = null;
 			}
-			int size = getCorrectedSizeForFires();
+			int size = getSize();
 			long time = System.currentTimeMillis();
 			IDataSet newpks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
 				fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), startRow, correctedMaxResult,
@@ -4093,8 +4093,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 								}
 							}
 
+							size = getSize();
 							pks.addRow(pk);
-							size = getCorrectedSizeForFires();
 
 						}
 						clearAggregates();
