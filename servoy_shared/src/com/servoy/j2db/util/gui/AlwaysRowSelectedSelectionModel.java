@@ -151,7 +151,14 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 				{
 					// selected record was removed, set selection after the removed block or before (if at the end)
 					// note: default behaviour of DefaultListSelectionModel is to set selected index to -1 when selected was removed
-					setSelectedRow(Math.min(index0, foundset.getSize() - 1));
+					int selection = Math.min(index0, foundset.getSize() - 1);
+					// if it is set to the foundset.getSize() - 1 but the foundset had more rows, then just select the first..
+					// else it will load in the next pks and the selection will be somewhere in the middle
+					if (selection == foundset.getSize() - 1 && foundset.hadMoreRows())
+					{
+						selection = 0;
+					}
+					setSelectedRow(selection);
 				}
 			}
 			else
