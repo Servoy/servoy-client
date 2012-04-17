@@ -149,15 +149,17 @@ public class WebTabFormLookup implements IFormLookupPanel
 			{
 				fc = fm.leaseFormPanel(formName);
 			}
-
-			//delegate readOnly, really set it once from the form manager state
-			fc.setReadOnly(fm.isFormReadOnly(formName));
-
-			webForm = (WebForm)fc.getFormUI();
-
-			if (removeFromParent && webForm.getParent() != null && webForm.getParent() != parent)
+			if (fc != null)
 			{
-				webForm.remove();
+				//delegate readOnly, really set it once from the form manager state
+				fc.setReadOnly(fm.isFormReadOnly(formName));
+
+				webForm = (WebForm)fc.getFormUI();
+
+				if (removeFromParent && webForm.getParent() != null && webForm.getParent() != parent)
+				{
+					webForm.remove();
+				}
 			}
 		}
 		return webForm;
