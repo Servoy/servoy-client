@@ -130,6 +130,10 @@ public class MediaUploadPage extends WebPage
 						IUploadData ud = new FileUploadData(fu);
 						callback.uploadComplete(new IUploadData[] { ud });
 					}
+					else
+					{
+						callback.uploadComplete(new IUploadData[0]);
+					}
 				}
 				else if (mfuf != null)
 				{
@@ -143,6 +147,10 @@ public class MediaUploadPage extends WebPage
 							data[counter++] = new FileUploadData(fileUpload);
 						}
 						callback.uploadComplete(data);
+					}
+					else
+					{
+						callback.uploadComplete(new IUploadData[0]);
 					}
 				}
 				callback.onSubmit();
