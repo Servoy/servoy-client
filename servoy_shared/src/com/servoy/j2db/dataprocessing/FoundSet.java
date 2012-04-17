@@ -66,6 +66,7 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.PlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
@@ -366,12 +367,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		IDataSet oldPKs = pks;
 
-		if (!hasAccess(IRepository.READ))
-		{
-			fireDifference(oldSize, 0);
-			throw new ApplicationException(ServoyException.NO_ACCESS);
-		}
-
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
@@ -379,8 +374,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			QuerySelect theQuery = (sqlSelect == null) ? pksAndRecords.getQuerySelectForReading() : sqlSelect;
 			int type = initialized ? IDataServer.FIND_BROWSER_QUERY : IDataServer.FOUNDSET_LOAD_QUERY;
-			pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery,
-				fsm.getTableFilterParams(sheet.getServerName(), theQuery), !theQuery.isUnique(), 0, rowsToRetrieve, type);
+			pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve, type);
 			synchronized (pksAndRecords)
 			{
 				// optimistic locking, if the query has been changed in the mean time forget about the refresh
@@ -1529,8 +1523,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IDataSet pk_data;
 		try
 		{
-			pk_data = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
+			pk_data = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
 		}
 		catch (RemoteException e)
 		{
@@ -1694,9 +1687,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			int size = getSize();
 			long time = System.currentTimeMillis();
-			IDataSet newpks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), startRow, correctedMaxResult,
-				IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet newpks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+
 			if (Debug.tracing())
 			{
 				Debug.trace("Query for PKs, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect.toString()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -1726,9 +1718,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					pks.createPKCache(); // out-of-sync detected, this also flags that new PKS need to be matched against existing ones
 					startRow = 0;
 					time = System.currentTimeMillis();
-					newpks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-						fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), startRow, correctedMaxResult,
-						IDataServer.FOUNDSET_LOAD_QUERY);
+					newpks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+
 					if (Debug.tracing())
 					{
 						Debug.trace("RE-query for PKs, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect.toString()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -1830,18 +1821,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			creationSqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 		}
 
-		if (!hasAccess(IRepository.READ))
-		{
-			throw new ApplicationException(ServoyException.NO_ACCESS);
-		}
-
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
 		try
 		{
-			IDataSet pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+
 			pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 		}
 		catch (RemoteException e)
@@ -2953,8 +2939,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
-			IDataSet ds = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
-				fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, IDataServer.AGGREGATE_QUERY);
+			IDataSet ds = performQuery(transaction_id, select, false, 0, 1, IDataServer.AGGREGATE_QUERY);
+
 			if (Debug.tracing())
 			{
 				Debug.trace("Aggregate query, time: " + (System.currentTimeMillis() - time) + ", thread: " + Thread.currentThread().getName() + ", SQL: " + select.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -3532,8 +3518,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			String transaction_id = fsm.getTransactionID(sheet);
 			try
 			{
-				IDataSet pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-					fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+
 				synchronized (pksAndRecords)
 				{
 					// optimistic locking, if the query has been changed in the mean time forget about the refresh
@@ -3897,9 +3883,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet findPKs = null;
 			try
 			{
-				findPKs = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, findSqlSelect,
-					fsm.getTableFilterParams(sheet.getServerName(), findSqlSelect), !findSqlSelect.isUnique(), 0, fsm.pkChunkSize,
-					IDataServer.FIND_BROWSER_QUERY);
+				findPKs = performQuery(transaction_id, findSqlSelect, !findSqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
 			}
 			catch (RemoteException e)
 			{
@@ -4008,12 +3992,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void sort(List<SortColumn> sortColumns, boolean defer) throws ServoyException
 	{
-		if (!hasAccess(IRepository.READ))
-		{
-			fireDifference(getSize(), 0);
-			throw new ApplicationException(ServoyException.NO_ACCESS);
-		}
-
 		if (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
 			fsm.getApplication().reportJSError("Couldn't do a sort because there where edited records on this foundset", null); //$NON-NLS-1$
@@ -4065,8 +4043,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		String transaction_id = fsm.getTransactionID(sheet);
 		try
 		{
-			pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+
 			synchronized (pksAndRecords)
 			{
 				// optimistic locking, if the query has been changed in the mean time forget about the refresh
@@ -5437,5 +5415,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	boolean mustQueryForUpdates()
 	{
 		return mustQueryForUpdates;
+	}
+
+	private IDataSet performQuery(String transaction_id, ISQLSelect theQuery, boolean distinctInMemory, int startRow, int rowsToRetrive, int type)
+		throws RemoteException, ServoyException
+	{
+		if (!hasAccess(IRepository.READ))
+		{
+			fireDifference(getSize(), 0);
+			throw new ApplicationException(ServoyException.NO_ACCESS);
+		}
+
+		return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery,
+			fsm.getTableFilterParams(sheet.getServerName(), theQuery), distinctInMemory, startRow, rowsToRetrive, type);
 	}
 }
