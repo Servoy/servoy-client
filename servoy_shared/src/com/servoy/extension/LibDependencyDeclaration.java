@@ -25,6 +25,7 @@ package com.servoy.extension;
 @SuppressWarnings("nls")
 public class LibDependencyDeclaration
 {
+
 	/** the library's id */
 	public final String id;
 	/** the version of the library that is included with the extension package */

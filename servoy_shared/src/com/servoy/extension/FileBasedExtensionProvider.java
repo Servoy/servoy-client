@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -330,6 +332,7 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 							try
 							{
 								String extensionId = root.getElementsByTagName("extension-id").item(0).getTextContent();
+								String extensionName = root.getElementsByTagName("extension-name").item(0).getTextContent();
 								String version = root.getElementsByTagName("version").item(0).getTextContent();
 
 								NodeList dependencies = root.getElementsByTagName("dependencies");
@@ -384,10 +387,28 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 									}
 								}
 
+								// check that there are no duplicate dependency/lib declarations
+								Set<String> ids = new HashSet<String>();
+								for (ExtensionDependencyDeclaration dep : edds)
+								{
+									if (!ids.add(dep.id))
+									{
+										throw new IllegalArgumentException("multiple extension dependency declarations with id '" + dep.id + "'");
+									}
+								}
+								ids.clear();
+								for (LibDependencyDeclaration dep : ldds)
+								{
+									if (!ids.add(dep.id))
+									{
+										throw new IllegalArgumentException("multiple lib dependency declarations with id '" + dep.id + "'");
+									}
+								}
+
 								// cache dependency info about this version of the extension
-								boolean added = cacheDependencyMetadataVersion(new DependencyMetadata(extensionId, version, sdd, (edds.size() > 0)
-									? edds.toArray(new ExtensionDependencyDeclaration[edds.size()]) : null, (ldds.size() > 0)
-									? ldds.toArray(new LibDependencyDeclaration[ldds.size()]) : null));
+								boolean added = cacheDependencyMetadataVersion(new DependencyMetadata(extensionId, version, extensionName, sdd,
+									(edds.size() > 0) ? edds.toArray(new ExtensionDependencyDeclaration[edds.size()]) : null, (ldds.size() > 0)
+										? ldds.toArray(new LibDependencyDeclaration[ldds.size()]) : null));
 
 								if (added)
 								{

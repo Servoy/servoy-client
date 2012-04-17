@@ -17,6 +17,8 @@
 
 package com.servoy.extension.dependency;
 
+import com.servoy.extension.VersionStringUtils;
+
 /**
  * Node in the resolved dependency tree path (which is a list).<br>
  * It also specifies the operation used that lead to this node being considered (update installed extension/simple dependency resolve).
@@ -27,11 +29,26 @@ public class ExtensionNode
 {
 
 	public final static int SIMPLE_DEPENDENCY_RESOLVE = 1;
-	public final static int REPLACE_RESOLVE = 2;
+	public final static int UPGRADE_RESOLVE = 2;
+	public final static int DOWNGRADE_RESOLVE = 3;
 
 	public final String id;
 	public final String version;
 	public final int resolveType;
+
+	public ExtensionNode(String id, String version, String installedVersion)
+	{
+		this.id = id;
+		this.version = version;
+		if (installedVersion == null)
+		{
+			this.resolveType = SIMPLE_DEPENDENCY_RESOLVE;
+		}
+		else
+		{
+			this.resolveType = (VersionStringUtils.compareVersions(version, installedVersion) > 0) ? UPGRADE_RESOLVE : DOWNGRADE_RESOLVE;
+		}
+	}
 
 	public ExtensionNode(String id, String version, int resolveType)
 	{
@@ -49,8 +66,11 @@ public class ExtensionNode
 			case SIMPLE_DEPENDENCY_RESOLVE :
 				type = "S";
 				break;
-			case REPLACE_RESOLVE :
-				type = "R";
+			case UPGRADE_RESOLVE :
+				type = "U";
+				break;
+			case DOWNGRADE_RESOLVE :
+				type = "D";
 				break;
 		}
 		return "('" + id + "', " + version + ", " + type + ")";

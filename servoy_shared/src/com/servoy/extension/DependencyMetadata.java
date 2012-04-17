@@ -27,12 +27,13 @@ public class DependencyMetadata
 {
 	public final String id;
 	public final String version;
+	public final String extensionName;
 	public final ServoyDependencyDeclaration servoyDependency;
 	public final ExtensionDependencyDeclaration[] extensionDependencies;
 	public final LibDependencyDeclaration[] libDependencies;
 
-	public DependencyMetadata(String id, String version, ServoyDependencyDeclaration servoyDependency, ExtensionDependencyDeclaration[] extensionDependencies,
-		LibDependencyDeclaration[] libDependencies)
+	public DependencyMetadata(String id, String version, String extensionName, ServoyDependencyDeclaration servoyDependency,
+		ExtensionDependencyDeclaration[] extensionDependencies, LibDependencyDeclaration[] libDependencies)
 	{
 		ExtensionUtils.assertValidId(id);
 		VersionStringUtils.assertValidVersion(version);
@@ -42,6 +43,7 @@ public class DependencyMetadata
 		this.servoyDependency = servoyDependency;
 		this.extensionDependencies = extensionDependencies;
 		this.libDependencies = libDependencies;
+		this.extensionName = extensionName;
 	}
 
 	@Override

@@ -20,7 +20,7 @@ package com.servoy.extension.dependency;
 import java.util.List;
 
 /**
- * If a dependency was resolved in multiple ways, this chooser will pick one of them.<br><br>
+ * A dependency path filter will filter out resolved dependency paths that do not match the filter's criteria.<br><br>
  * 
  * For example let's say an extension 'A' version 1 is going to be installed, which depends on 'B' minVersion 1, maxVersion UNBOUNDED. But both 'B 1.2' and 'B 1.5 beta 3' are available and 'B 1.1' is already installed.
  * In this case there are three possibilities to install 'A' version 1:
@@ -29,18 +29,18 @@ import java.util.List;
  * <li>A 1 + B 1.2</li>
  * <li>A 1 + B 1.5 beta 3</li>
  * </ol>
- * This chooser will be able to choose one of the three (for example choose higher version over the lower one, or choose non-literal version, or choose the already installed version).
+ * A "final version only" filter would filter out the 3rd path, because it a "beta". 
  * 
  * @author acostescu
  */
-public interface IDependencyPathChooser
+public interface IDependencyPathFilter
 {
 
 	/**
-	 * Picks one of the valid dependency resolve paths.
-	 * @param allResolvedPaths a list containing resolve paths. Each resolve path lists a number of extension versions that could be installed/replaced.
-	 * @return one of the elements in the list which is closest to what this chooser desires, or null if none close enough is found.
+	 * Filters out of the given list (removes) the resolve paths that do not match the filter's criteria.<br>
+	 * (first extension in the extension path should be ignored as it's the one that the user wants to install)
+	 * @param allResolvedPaths a list containing resolve paths. Each resolve path lists a number of extension versions that could be installed/replaced. It also contains info about lib conflicts/versions.
 	 */
-	DependencyPath pickResolvePath(List<DependencyPath> allResolvedPaths);
+	void filterResolvePaths(List<DependencyPath> allResolvedPaths);
 
 }

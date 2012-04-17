@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.servoy.com/extension"
+	xmlns:tns="http://www.servoy.com/extension" version="1.0">
+
+    <include schemaLocation="../servoy-extension.xsd"></include>
+    <element name="choices">
+    	<complexType>
+    		<sequence>
+    			<element name="libchoice" maxOccurs="unbounded" minOccurs="0">
+                    <annotation>
+                    	<documentation>Lists a lib choice/conflict that was settled by choosing one of the available lib versions. The chosen lib is identified by the id of the extension that provides it.</documentation>
+                    </annotation>
+                    <complexType>
+    					<sequence>
+    						<element name="libId" type="tns:libIdType"></element>
+    						<element name="extensionId" type="tns:extensionIdType"></element>
+    					</sequence>
+    				</complexType></element>
+    		</sequence>
+    	</complexType>
+    </element>
+</schema>
