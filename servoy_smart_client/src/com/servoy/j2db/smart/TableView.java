@@ -145,8 +145,8 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -2067,6 +2067,15 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		this.evenStyle = evenStyle;
 		this.selectedStyle = selectedStyle;
 		this.headerStyle = headerStyle;
+
+		// if we have border css styling ignore table lines
+		if (styleSheet != null &&
+			((oddStyle != null && styleSheet.hasBorder(oddStyle)) || (evenStyle != null && styleSheet.hasBorder(evenStyle)) || (selectedStyle != null && styleSheet.hasBorder(selectedStyle))))
+		{
+			setShowHorizontalLines(false);
+			setShowVerticalLines(false);
+			setIntercellSpacing(new Dimension(0, 0));
+		}
 	}
 
 	/*

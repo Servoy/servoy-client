@@ -430,6 +430,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		if (isSelected)
 		{
 			Color bgColor = getBgColor(jtable, isSelected, row, true);
+			if (bgColor != null && editor instanceof JComponent) ((JComponent)editor).setOpaque(true);
 			if (bgColor == null)
 			{
 				bgColor = unselectedBackground; // unselected background is the default background color of the editor.
@@ -607,6 +608,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		Color bgColor = getBgColor(jtable, isSelected, row, false);
+		if (bgColor != null && renderer instanceof JComponent) ((JComponent)renderer).setOpaque(true);
 		Color fgColor = getFgColor(jtable, isSelected, row);
 		Font font = getFont(jtable, isSelected, row);
 
