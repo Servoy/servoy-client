@@ -541,9 +541,17 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	private void relinkFormIfNeeded()
 	{
-		if (currentForm != null && isVisibleInHierarchy() && currentForm.getWebForm().getParent() != this)
+		if (currentForm != null && isVisibleInHierarchy() && (currentForm.getWebForm() == null || currentForm.getWebForm().getParent() != this))
 		{
-			if (get(currentForm.getWebForm().getId()) != null)
+			if (currentForm.getWebForm() == null)
+			{
+				if (size() == 0)
+				{
+					// probably current form was destroyed from js code
+					WebTabPanel.this.add(new Label("webform", new Model<String>("")));
+				}
+			}
+			else if (get(currentForm.getWebForm().getId()) != null)
 			{
 				// replace it
 				replace(currentForm.getWebForm());
@@ -598,7 +606,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			WebTabHolder holder = allTabs.get(0);
 			setCurrentForm(holder.getPanel(), -1, invokeLaterRunnables);
 		}
-		if (currentForm != null)
+		if (currentForm != null && currentForm.getWebForm() != null)
 		{
 			FormController controller = currentForm.getWebForm().getController();
 
