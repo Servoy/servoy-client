@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
 
@@ -2990,9 +2991,11 @@ public class TemplateGenerator
 		Pair<IStyleSheet, IStyleRule> styleInfo = ComponentFactory.getStyleForBasicComponent(sp, component, form);
 
 		Insets insetsBorder = null;
+		Border designBorder = null;
 		if (component.getBorderType() != null)
 		{
 			insetsBorder = ComponentFactoryHelper.createBorderCSSProperties(component.getBorderType(), styleObj);
+			designBorder = ComponentFactoryHelper.createBorder(component.getBorderType());
 		}
 
 		Insets insetsMargin = null;
@@ -3068,7 +3071,6 @@ public class TemplateGenerator
 						Border b = ss.getBorder(s);
 						if (b != null)
 						{
-							// TODO??
 							try
 							{
 								insetsBorder = b.getBorderInsets(null);
@@ -3076,6 +3078,15 @@ public class TemplateGenerator
 							catch (Exception e)
 							{
 								Debug.error("for border " + b + " no insets could be extracted.", e);
+							}
+							TextualStyle borderStyle = new TextualStyle();
+							ComponentFactoryHelper.createBorderCSSProperties(ComponentFactoryHelper.createBorderString(b), borderStyle);
+							Enumeration<Object> cssAttributes = borderStyle.keys();
+							while (cssAttributes.hasMoreElements())
+							{
+								String att = (String)cssAttributes.nextElement();
+								// put the default values, if not all specified in css
+								styleObj.setProperty(att, borderStyle.getProperty(att), false);
 							}
 						}
 					}
@@ -3120,7 +3131,7 @@ public class TemplateGenerator
 		if (insetsMargin == null && defaultPadding != null) insetsMargin = defaultPadding;
 
 		BorderAndPadding bp = new BorderAndPadding(insetsBorder, insetsMargin);
-		styleObj.setProperty("padding", createInsetsText(bp.getPadding()));
+		styleObj.setProperty("padding", (designBorder instanceof EmptyBorder) ? createInsetsText(bp.getSum()) : createInsetsText(bp.getPadding()));
 		return bp;
 	}
 

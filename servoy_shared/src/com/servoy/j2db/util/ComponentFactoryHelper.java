@@ -438,16 +438,19 @@ public class ComponentFactoryHelper
 							}
 							else
 							{
-								if (PersistHelper.createColorString(shadowO) != null)
+								if (PersistHelper.createColorString(highlightO) != null)
 								{
 									StringBuffer pad = new StringBuffer();
 									pad.append(PersistHelper.createColorString(highlightO));
-									pad.append(' ');
-									pad.append(PersistHelper.createColorString(shadowI));
-									pad.append(' ');
-									pad.append(PersistHelper.createColorString(shadowO));
-									pad.append(' ');
-									pad.append(PersistHelper.createColorString(highlightI));
+									if (PersistHelper.createColorString(shadowO) != null)
+									{
+										pad.append(' ');
+										pad.append(PersistHelper.createColorString(shadowI));
+										pad.append(' ');
+										pad.append(PersistHelper.createColorString(shadowO));
+										pad.append(' ');
+										pad.append(PersistHelper.createColorString(highlightI));
+									}
 									style.setProperty("border-color", pad.toString()); //$NON-NLS-1$
 								}
 								if (type.equals(BEVEL_BORDER))

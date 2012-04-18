@@ -202,13 +202,15 @@ public class FixedStyleSheet extends StyleSheet
 
 				if (colors != null && colors.length > 0)
 				{
-					if (colors.length == 1)
+					if (colors.length == 1 ||
+						(colors.length == 4 && Utils.equalObjects(colors[0], colors[1]) && Utils.equalObjects(colors[0], colors[2]) && Utils.equalObjects(
+							colors[0], colors[3])))
 					{
 						// this tries to do the same thing as the web does..
 						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(),
 							customBorderInsets) : new BevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker());
 					}
-					if (colors.length == 2)
+					else if (colors.length == 2)
 					{
 						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0], colors[1], customBorderInsets) : new BevelBorder(style,
 							colors[0], colors[1]);
