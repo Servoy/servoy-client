@@ -983,12 +983,14 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return new Dimension(width, height);
 	}
 
+	protected final Object onBeginRequestLock = new Object();
+
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
 		Solution solution = getSolution();
 		if (solution != null)
 		{
-			synchronized (webClientSession)
+			synchronized (onBeginRequestLock)
 			{
 				long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime(solution);
 				if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != solution.getLastModifiedTime())

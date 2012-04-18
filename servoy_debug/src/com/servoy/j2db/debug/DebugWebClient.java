@@ -385,6 +385,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		return changed;
 	}
 
+
 	@Override
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
@@ -392,7 +393,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		{
 			addEventDispatchThread();
 			checkForChanges();
-			synchronized (webClientSession.getWebClient())
+			synchronized (onBeginRequestLock)
 			{
 				executeEvents();
 			}
