@@ -669,11 +669,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				converter = super.getConverter(cls);
 			}
 		}
-		else if (list != null)
-		{
-			converter = new ValuelistValueConverter(list, this);
-		}
-		else if (displayFormat == null)
+		else if (displayFormat == null && list == null)
 		{
 			converter = super.getConverter(cls);
 		}
@@ -713,6 +709,12 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
 			}
 		}
+
+		if (list != null)
+		{
+			converter = new ValuelistValueConverter(list, this, converter);
+		}
+
 		return converter;
 	}
 

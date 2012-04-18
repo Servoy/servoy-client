@@ -24,7 +24,9 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.HasRuntimeScroll;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
@@ -36,14 +38,39 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @since 6.0
  */
 public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFieldComponent, F extends JComponent> extends AbstractRuntimeValuelistComponent<C>
-	implements HasRuntimeScroll
+	implements HasRuntimeScroll, IFormatScriptComponent
 {
 	protected F field;
 	protected ComboModelListModelWrapper list;
+	private ComponentFormat componentFormat;
 
 	public AbstractRuntimeScrollableValuelistComponent(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
 		super(jsChangeRecorder, application);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.scripting.IFormatScriptComponent#setComponentFormat(com.servoy.j2db.component.ComponentFormat)
+	 */
+	public void setComponentFormat(ComponentFormat componentFormat)
+	{
+		this.componentFormat = componentFormat;
+		if (componentFormat != null && getComponent() instanceof IFormattingComponent)
+		{
+			((IFormattingComponent)getComponent()).installFormat(componentFormat.uiType, componentFormat.parsedFormat.getFormatString());
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.scripting.IFormatScriptComponent#getComponentFormat()
+	 */
+	public ComponentFormat getComponentFormat()
+	{
+		return componentFormat;
 	}
 
 	/**

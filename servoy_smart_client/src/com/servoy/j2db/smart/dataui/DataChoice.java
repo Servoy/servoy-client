@@ -32,6 +32,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -67,11 +68,14 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.gui.editlist.JNavigableEditList;
 import com.servoy.j2db.gui.editlist.NavigableCellEditor;
 import com.servoy.j2db.gui.editlist.NavigableCellRenderer;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.smart.dataui.DataComboBox.VariableSizeJSeparator;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
@@ -79,9 +83,13 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
+import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
@@ -94,7 +102,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author jblok, jcompagner
  */
 public class DataChoice extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IDisplayRelatedData, ListDataListener,
-	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportValueList
+	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportValueList, IFormattingComponent
 {
 	private String dataProviderID;
 	protected final ComboModelListModelWrapper list;
@@ -110,6 +118,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	private MouseAdapter rightclickMouseAdapter = null;
 	private IValueList vl;
 	private final AbstractRuntimeValuelistComponent<IFieldComponent> scriptable;
+	private Format format;
 
 	public DataChoice(IApplication app, AbstractRuntimeValuelistComponent<IFieldComponent> scriptable, IValueList vl, int choiceType)
 	{
@@ -156,6 +165,43 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 //		enclosedComponent.setPrototypeCellValue(new Integer(0));
 
 		getViewport().setView(enclosedComponent);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.IFormattingComponent#installFormat(int, java.lang.String)
+	 */
+	public void installFormat(int dataType, String formatString)
+	{
+		if (formatString != null && formatString.length() != 0)
+		{
+			String displayFormat = FormatParser.parseFormatString(formatString, null, null).getDisplayFormat();
+			try
+			{
+				switch (Column.mapToDefaultType(dataType))
+				{
+					case IColumnTypes.NUMBER :
+						format = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
+						break;
+					case IColumnTypes.INTEGER :
+						format = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
+						break;
+					case IColumnTypes.DATETIME :
+						format = new StateFullSimpleDateFormat(displayFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
+							IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE)));
+						// format = new SimpleDateFormat(formatString);
+						break;
+					default :
+						// TODO Jan/Johan what to do here? Should we create our own MaskFormatter? Where we can insert a mask??
+						break;
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
 	}
 
 	protected ListModel createJListModel(ComboModelListModelWrapper comboModel)
@@ -458,7 +504,19 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				((JToggleButton)editorComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+				Object formattedValue = value;
+				if (!"".equals(formattedValue) && format != null && formattedValue != null && !(formattedValue instanceof String)) //$NON-NLS-1$
+				{
+					try
+					{
+						formattedValue = format.format(formattedValue);
+					}
+					catch (IllegalArgumentException ex)
+					{
+						Debug.error("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
+					}
+				}
+				((JToggleButton)editorComponent).setText(resolver != null ? Text.processTags(formattedValue.toString(), resolver) : formattedValue.toString());
 			}
 			return editorComponent;
 		}
@@ -482,7 +540,19 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				((JToggleButton)rendererComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+				Object formattedValue = value;
+				if (!"".equals(formattedValue) && format != null && formattedValue != null && !(formattedValue instanceof String)) //$NON-NLS-1$
+				{
+					try
+					{
+						formattedValue = format.format(formattedValue);
+					}
+					catch (IllegalArgumentException ex)
+					{
+						Debug.error("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
+					}
+				}
+				((JToggleButton)rendererComponent).setText(resolver != null ? Text.processTags(formattedValue.toString(), resolver) : formattedValue.toString());
 			}
 			return rendererComponent;
 		}
@@ -682,7 +752,19 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				((JLabel)editorComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+				Object formattedValue = value;
+				if (!"".equals(formattedValue) && format != null && formattedValue != null && !(formattedValue instanceof String)) //$NON-NLS-1$
+				{
+					try
+					{
+						formattedValue = format.format(formattedValue);
+					}
+					catch (IllegalArgumentException ex)
+					{
+						Debug.error("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
+					}
+				}
+				((JLabel)editorComponent).setText(resolver != null ? Text.processTags(formattedValue.toString(), resolver) : formattedValue.toString());
 			}
 			return editorComponent;
 		}
@@ -721,7 +803,19 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			}
 			else
 			{
-				((JLabel)rendererComponent).setText(resolver != null ? Text.processTags(value.toString(), resolver) : value.toString());
+				Object formattedValue = value;
+				if (!"".equals(formattedValue) && format != null && formattedValue != null && !(formattedValue instanceof String)) //$NON-NLS-1$
+				{
+					try
+					{
+						formattedValue = format.format(formattedValue);
+					}
+					catch (IllegalArgumentException ex)
+					{
+						Debug.error("Error formatting value for combobox " + dataProviderID + ", " + ex); //$NON-NLS-1$//$NON-NLS-2$
+					}
+				}
+				((JLabel)rendererComponent).setText(resolver != null ? Text.processTags(formattedValue.toString(), resolver) : formattedValue.toString());
 			}
 			rendererComponent.setBorder(marginBorder);
 			if (cellHasFocus)

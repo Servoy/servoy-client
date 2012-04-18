@@ -28,6 +28,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
+import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
 import org.wicketstuff.minis.spinner.Spinner;
 
@@ -75,6 +76,17 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		return spinnerBehavior = new ModifiedSpinner(currentValues);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.Component#getConverter(java.lang.Class)
+	 */
+	@Override
+	public IConverter getConverter(Class< ? > type)
+	{
+		return field.getConverter(type);
+	}
+
 	private String[] getNewValues(IValueList vl)
 	{
 		String[] values = null;
@@ -85,11 +97,18 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 			{
 				values = new String[size];
 				Object v;
+				IConverter converter = field.getConverter(field.getType());
 				for (int i = 0; i < size; i++)
 				{
 					v = vl.getElementAt(i);
-					values[size - i - 1] = (v == null) ? "" : String.valueOf(v); //$NON-NLS-1$
-//					values[i] = (v == null) ? "" : String.valueOf(v); //$NON-NLS-1$
+					if (v == null)
+					{
+						values[size - i - 1] = "";
+					}
+					else
+					{
+						values[size - i - 1] = converter.convertToString(v, getLocale());
+					}
 				}
 			}
 		}
@@ -220,7 +239,6 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		{
 			// do not allow this to change - currently spinner field is never editable
 		}
-
 	}
 
 	protected class ModifiedSpinner extends Spinner

@@ -34,10 +34,13 @@ final class ValuelistValueConverter implements IConverter
 	private final IValueList list;
 	private final WebDataField component;
 
-	ValuelistValueConverter(IValueList list, WebDataField component)
+	private final IConverter converter;
+
+	ValuelistValueConverter(IValueList list, WebDataField component, IConverter converter)
 	{
 		this.list = list;
 		this.component = component;
+		this.converter = converter;
 	}
 
 	/**
@@ -54,14 +57,16 @@ final class ValuelistValueConverter implements IConverter
 			// have trailing spaces. The user input is trimmed and otherwise nothing could be
 			// selected from among the values that have trailing spaces.
 			if (component instanceof WebDataLookupField) value = ((WebDataLookupField)component).mapTrimmedToNotTrimmed(value);
-			int index = list.indexOf(value);
+			Object convertedValue = value;
+			if (converter != null) convertedValue = converter.convertToObject(value, locale);
+			int index = list.indexOf(convertedValue);
 			if (index != -1)
 			{
 				return list.getRealElementAt(index);
 			}
 			else if (!list.hasRealValues() || !component.getEventExecutor().getValidationEnabled())
 			{
-				return value;
+				return convertedValue;
 			}
 		}
 		return null;
@@ -80,6 +85,7 @@ final class ValuelistValueConverter implements IConverter
 				value = list.getElementAt(index);
 				if (value != null)
 				{
+					if (converter != null) return converter.convertToString(value, locale);
 					return value.toString();
 				}
 			}

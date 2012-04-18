@@ -38,22 +38,26 @@ import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
@@ -62,6 +66,8 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
+import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -72,7 +78,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane,
-	ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList
+	ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -92,6 +98,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	private int tabIndex = -1;
 	private int vScrollPolicy;
 	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > scriptable;
+	private FormatConverter converter;
 
 	public WebDataRadioChoice(IApplication application, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > scriptable, String id, IValueList vl)
 	{
@@ -105,7 +112,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		list = new WebComboModelListModelWrapper(vl, true, false);
 		setChoices(list);
 
-		setChoiceRenderer(new WebChoiceRenderer(null, list)); // null because this component does not use a converter (for date/number formats)
+		setChoiceRenderer(new WebChoiceRenderer(this, list)); // null because this component does not use a converter (for date/number formats)
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
@@ -114,6 +121,39 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 
 		this.scriptable = scriptable;
 		scriptable.setList(list);
+	}
+
+	@Override
+	public IConverter getConverter(Class< ? > cls)
+	{
+		if (converter != null) return converter;
+
+		ComponentFormat cf = getScriptObject().getComponentFormat();
+		switch (cf.uiType)
+		{
+			case IColumnTypes.DATETIME :
+				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
+				null, application.getLocale(), true), cf.parsedFormat);
+				break;
+
+			case IColumnTypes.INTEGER :
+			case IColumnTypes.NUMBER :
+				converter = new FormatConverter(this, eventExecutor, new RoundHalfUpDecimalFormat(cf.parsedFormat.getDisplayFormat(), application.getLocale()),
+					cf.parsedFormat);
+				break;
+
+			default :
+				return super.getConverter(cls);
+		}
+		return converter;
+	}
+
+	/*
+	 * format---------------------------------------------------
+	 */
+	public void installFormat(int type, String format)
+	{
+		converter = null;
 	}
 
 	public final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > getScriptObject()

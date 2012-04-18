@@ -39,24 +39,27 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
@@ -65,6 +68,8 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
+import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -74,7 +79,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
-	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList
+	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -95,6 +100,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	private int tabIndex = -1;
 	private int vScrollPolicy;
 	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable;
+	private FormatConverter converter;
 
 	public WebDataCheckBoxChoice(IApplication application, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String id,
 		IValueList vl)
@@ -111,18 +117,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		list.setMultiValueSelect(true);
 		setChoices(list);
 
-		setChoiceRenderer(new IChoiceRenderer()
-		{
-			public String getIdValue(Object object, int index)
-			{
-				return String.valueOf(list.getRealElementAt(index));
-			}
-
-			public Object getDisplayValue(Object object)
-			{
-				return String.valueOf(list.getElementAt(list.indexOf(object)));
-			}
-		});
+		setChoiceRenderer(new WebChoiceRenderer(this, list));
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
@@ -130,6 +125,39 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		updatePrefix();
 		this.scriptable = scriptable;
 		scriptable.setList(list);
+	}
+
+	@Override
+	public IConverter getConverter(Class< ? > cls)
+	{
+		if (converter != null) return converter;
+
+		ComponentFormat cf = getScriptObject().getComponentFormat();
+		switch (cf.uiType)
+		{
+			case IColumnTypes.DATETIME :
+				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
+				null, application.getLocale(), true), cf.parsedFormat);
+				break;
+
+			case IColumnTypes.INTEGER :
+			case IColumnTypes.NUMBER :
+				converter = new FormatConverter(this, eventExecutor, new RoundHalfUpDecimalFormat(cf.parsedFormat.getDisplayFormat(), application.getLocale()),
+					cf.parsedFormat);
+				break;
+
+			default :
+				return super.getConverter(cls);
+		}
+		return converter;
+	}
+
+	/*
+	 * format---------------------------------------------------
+	 */
+	public void installFormat(int type, String format)
+	{
+		converter = null;
 	}
 
 	public final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> getScriptObject()

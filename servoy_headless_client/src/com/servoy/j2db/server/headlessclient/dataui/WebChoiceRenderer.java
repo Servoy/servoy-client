@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
@@ -55,6 +56,6 @@ public final class WebChoiceRenderer implements IChoiceRenderer
 		Object display = list.getElementAt(index);
 		if (display == null) return "";
 		// if component != null then it's converter will convert this to String
-		return (component == null) ? display.toString() : display;
+		return (component == null && !IValueList.SEPARATOR.equals(display)) ? display.toString() : display;
 	}
 }
