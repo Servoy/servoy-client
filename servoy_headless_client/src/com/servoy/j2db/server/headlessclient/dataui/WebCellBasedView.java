@@ -1291,9 +1291,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			public String getObject()
 			{
+				if (isScrollMode()) return "overflow: hidden;"; //$NON-NLS-1$
 				if (findParent(IWebFormContainer.class) != null)
 				{
-					return "";
+					return ""; //$NON-NLS-1$
 				}
 				return "overflow: auto;"; //$NON-NLS-1$
 			}
@@ -1594,7 +1595,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				public String getObject()
 				{
 
-					return "overflow-x: hidden; overflow-y: auto; position: absolute; left: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
+					return "overflow-x: auto; overflow-y: auto; position: absolute; left: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
 				}
 			}));
 
