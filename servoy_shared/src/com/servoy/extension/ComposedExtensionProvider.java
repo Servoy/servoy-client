@@ -17,6 +17,8 @@
 
 package com.servoy.extension;
 
+import java.io.File;
+
 /**
  * Extension provider that is able to find extensions from multiple sources.
  * For example you might want to combine a local folder extension provider with a Marketplace extension provider. Or you might want to combine two local folders extension providers.
@@ -42,6 +44,18 @@ public class ComposedExtensionProvider implements IExtensionProvider
 	}
 
 	public DependencyMetadata[] getDependencyMetadata(ExtensionDependencyDeclaration extensionDependency)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public File getEXPFile(String extensionId, String version)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String[] getWarnings()
 	{
 		// TODO Auto-generated method stub
 		return null;

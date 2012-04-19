@@ -19,18 +19,19 @@ package com.servoy.extension;
 
 
 /**
- * Dependency information listed by an extension in it's extension.xml file.
+ * Dependency information listed by an extension in it's extension.xml file (only what's needed for dependency resolving).
  * @author acostescu
  */
 @SuppressWarnings("nls")
 public class DependencyMetadata
 {
+
 	public final String id;
 	public final String version;
 	public final String extensionName;
-	public final ServoyDependencyDeclaration servoyDependency;
-	public final ExtensionDependencyDeclaration[] extensionDependencies;
-	public final LibDependencyDeclaration[] libDependencies;
+	protected ServoyDependencyDeclaration servoyDependency;
+	protected ExtensionDependencyDeclaration[] extensionDependencies;
+	protected LibDependencyDeclaration[] libDependencies;
 
 	public DependencyMetadata(String id, String version, String extensionName, ServoyDependencyDeclaration servoyDependency,
 		ExtensionDependencyDeclaration[] extensionDependencies, LibDependencyDeclaration[] libDependencies)
@@ -44,6 +45,21 @@ public class DependencyMetadata
 		this.extensionDependencies = extensionDependencies;
 		this.libDependencies = libDependencies;
 		this.extensionName = extensionName;
+	}
+
+	public ServoyDependencyDeclaration getServoyDependency()
+	{
+		return servoyDependency;
+	}
+
+	public ExtensionDependencyDeclaration[] getExtensionDependencies()
+	{
+		return extensionDependencies;
+	}
+
+	public LibDependencyDeclaration[] getLibDependencies()
+	{
+		return libDependencies;
 	}
 
 	@Override

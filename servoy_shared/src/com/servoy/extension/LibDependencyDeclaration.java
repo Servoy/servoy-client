@@ -19,7 +19,7 @@ package com.servoy.extension;
 
 
 /**
- * Library dependency declaration (as defined in extension.xml)
+ * Library dependency declaration (as defined in extension.xml, only what is needed for dependency resolving)
  * @author acostescu
  */
 @SuppressWarnings("nls")

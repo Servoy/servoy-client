@@ -17,6 +17,15 @@
 
 package com.servoy.extension;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -35,6 +44,67 @@ public class ExtensionUtils
 	public static void assertValidId(String id) throws IllegalArgumentException
 	{
 		if (!Utils.isValidJavaSimpleOrQualifiedName(id)) throw new IllegalArgumentException("Unsupported id string format.");
+	}
+
+	/**
+	 * Runs the given runner on the given zip file entry (prepares the input stream for use in the runner).
+	 * @param file the zip file.
+	 * @param entry an entry in the zip file.
+	 * @param runner the runner.
+	 * @return first item in the pair is Boolean.TRUE if the entry was found and Boolean.FALSE otherwise.
+	 */
+	public static <T> Pair<Boolean, T> runOnEntry(File file, String entry, EntryInputStreamRunner<T> runner) throws IOException, ZipException
+	{
+		Pair<Boolean, T> result = null;
+		ZipFile zipFile = null;
+		try
+		{
+			zipFile = new ZipFile(file);
+			ZipEntry zipEntry = zipFile.getEntry(entry);
+			if (zipEntry != null)
+			{
+				InputStream is = null;
+				BufferedInputStream bis = null;
+				try
+				{
+					is = zipFile.getInputStream(zipEntry);
+					bis = new BufferedInputStream(is);
+
+					result = new Pair<Boolean, T>(Boolean.TRUE, runner.runOnEntryInputStream(bis));
+				}
+				finally
+				{
+					Utils.closeInputStream(bis);
+				}
+			}
+			else
+			{
+				result = new Pair<Boolean, T>(Boolean.FALSE, null);
+			}
+		}
+		finally
+		{
+			if (zipFile != null)
+			{
+				try
+				{
+					zipFile.close();
+				}
+				catch (IOException e)
+				{
+					// ignore
+				}
+			}
+		}
+
+		return result;
+	}
+
+	public static interface EntryInputStreamRunner<T>
+	{
+
+		T runOnEntryInputStream(InputStream is);
+
 	}
 
 }

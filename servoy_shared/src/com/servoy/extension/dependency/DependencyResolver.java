@@ -151,9 +151,9 @@ public class DependencyResolver
 		for (DependencyMetadata extension : installedExtensions)
 		{
 			allInstalledExtensions.put(extension.id, extension);
-			if (extension.libDependencies != null)
+			if (extension.getLibDependencies() != null)
 			{
-				addToLibsMap(extension.id, extension.libDependencies, allInstalledLibs);
+				addToLibsMap(extension.id, extension.getLibDependencies(), allInstalledLibs);
 			}
 		}
 	}
@@ -176,9 +176,9 @@ public class DependencyResolver
 		LibDependencyDeclaration[][] libsToBeRemovedBecauseOfReplace = new LibDependencyDeclaration[][] { null }; // if this call will result in an installed extension replacement (update), the old lib dependencies are no longer relevant; ARRAY to be able to modify it when send as parameter
 
 		// check compatibility with current servoy installation
-		if (extension.servoyDependency == null ||
-			VersionStringUtils.belongsToInterval(VersionStringUtils.getCurrentServoyVersion(), extension.servoyDependency.minVersion,
-				extension.servoyDependency.maxVersion))
+		if (extension.getServoyDependency() == null ||
+			VersionStringUtils.belongsToInterval(VersionStringUtils.getCurrentServoyVersion(), extension.getServoyDependency().minVersion,
+				extension.getServoyDependency().maxVersion))
 		{
 			if (visitedExtensions.containsKey(extension.id))
 			{
@@ -219,7 +219,7 @@ public class DependencyResolver
 		{
 			// else not compatible with Servoy version - invalid tree path
 			reasons.add("Extension " + extension + " is not compatible with current Servoy version (" + VersionStringUtils.getCurrentServoyVersion() + ", " +
-				extension.servoyDependency.minVersion + ", " + extension.servoyDependency.maxVersion + ").");
+				extension.getServoyDependency().minVersion + ", " + extension.getServoyDependency().maxVersion + ").");
 		}
 
 		if (ok)
@@ -228,7 +228,7 @@ public class DependencyResolver
 			{
 				// add lib and extension dependencies to this tree path
 				visitedExtensions.put(extension.id, extension.version);
-				if (extension.libDependencies != null) addToLibsMap(extension.id, extension.libDependencies, visitedLibs);
+				if (extension.getLibDependencies() != null) addToLibsMap(extension.id, extension.getLibDependencies(), visitedLibs);
 				treePath.push(node);
 				if (libsToBeRemovedBecauseOfReplace[0] != null) removeFromLibsMap(extension.id, libsToBeRemovedBecauseOfReplace[0], allInstalledLibs);
 			} // else it's an already resolved or already installed node
@@ -262,7 +262,7 @@ public class DependencyResolver
 			{
 				// remove lib and extension dependencies from this tree path
 				visitedExtensions.remove(extension.id);
-				if (extension.libDependencies != null) removeFromLibsMap(extension.id, extension.libDependencies, visitedLibs);
+				if (extension.getLibDependencies() != null) removeFromLibsMap(extension.id, extension.getLibDependencies(), visitedLibs);
 				treePath.pop();
 				if (libsToBeRemovedBecauseOfReplace[0] != null) addToLibsMap(extension.id, libsToBeRemovedBecauseOfReplace[0], allInstalledLibs);
 			} // else it's an already resolved or already installed node
@@ -279,19 +279,19 @@ public class DependencyResolver
 		boolean dependenciesOKForNow;
 
 		// check for lib dependency conflicts with this version for current tree path
-		dependenciesOKForNow = checkNoLibConflicts(extension.libDependencies, visitedLibs);
+		dependenciesOKForNow = checkNoLibConflicts(extension.getLibDependencies(), visitedLibs);
 
 		// schedule resolve on all extension dependencies of this version
 		if (dependenciesOKForNow)
 		{
-			if (extension.extensionDependencies != null && extension.extensionDependencies.length > 0)
+			if (extension.getExtensionDependencies() != null && extension.getExtensionDependencies().length > 0)
 			{
-				for (int i = extension.extensionDependencies.length - 1; dependenciesOKForNow && (i >= 0); i--)
+				for (int i = extension.getExtensionDependencies().length - 1; dependenciesOKForNow && (i >= 0); i--)
 				{
-					DependencyMetadata[] availableDependencyVersions = extensionProvider.getDependencyMetadata(extension.extensionDependencies[i]);
+					DependencyMetadata[] availableDependencyVersions = extensionProvider.getDependencyMetadata(extension.getExtensionDependencies()[i]);
 
 					// the provider might not have available a version of this dependency that is already installed and can be used
-					DependencyMetadata installedExtDep = allInstalledExtensions.get(extension.extensionDependencies[i].id);
+					DependencyMetadata installedExtDep = allInstalledExtensions.get(extension.getExtensionDependencies()[i].id);
 					if (installedExtDep != null)
 					{
 						boolean foundInProvider = false;
@@ -316,7 +316,7 @@ public class DependencyResolver
 					}
 					else
 					{
-						reasons.add("Cannot find a compatible version for extension dependency: " + extension.extensionDependencies[i] + ".");
+						reasons.add("Cannot find a compatible version for extension dependency: " + extension.getExtensionDependencies()[i] + ".");
 						dependenciesOKForNow = false;
 					}
 				}
@@ -339,7 +339,7 @@ public class DependencyResolver
 		boolean dependenciesOKForNow;
 
 		// check for lib dependency conflicts with this version for current tree path
-		dependenciesOKForNow = checkNoLibConflicts(extension.libDependencies, visitedLibs);
+		dependenciesOKForNow = checkNoLibConflicts(extension.getLibDependencies(), visitedLibs);
 
 		if (dependenciesOKForNow)
 		{
@@ -349,19 +349,19 @@ public class DependencyResolver
 			{
 				if (dmd.id.equals(extension.id))
 				{
-					libsToBeRemovedBecauseOfUpdate[0] = dmd.libDependencies;
+					libsToBeRemovedBecauseOfUpdate[0] = dmd.getLibDependencies();
 				}
 				else
 				{
 					boolean noBrokenDep = true;
-					if (dmd.extensionDependencies != null && dmd.extensionDependencies.length > 0)
+					if (dmd.getExtensionDependencies() != null && dmd.getExtensionDependencies().length > 0)
 					{
-						for (int i = 0; noBrokenDep && (i < dmd.extensionDependencies.length); i++)
+						for (int i = 0; noBrokenDep && (i < dmd.getExtensionDependencies().length); i++)
 						{
 							// see if it's a dependency broken by this update
-							if (dmd.extensionDependencies[i].id == extension.id &&
-								!VersionStringUtils.belongsToInterval(extension.version, dmd.extensionDependencies[i].minVersion,
-									dmd.extensionDependencies[i].maxVersion))
+							if (dmd.getExtensionDependencies()[i].id == extension.id &&
+								!VersionStringUtils.belongsToInterval(extension.version, dmd.getExtensionDependencies()[i].minVersion,
+									dmd.getExtensionDependencies()[i].maxVersion))
 							{
 								brokenDependenciesToOldVersion.add(dmd);
 								noBrokenDep = false;
@@ -383,13 +383,13 @@ public class DependencyResolver
 					for (DependencyMetadata candidate : possibleReplacements)
 					{
 						boolean noDependencyConflict = true;
-						if (candidate.extensionDependencies != null && candidate.extensionDependencies.length > 0)
+						if (candidate.getExtensionDependencies() != null && candidate.getExtensionDependencies().length > 0)
 						{
-							for (int j = 0; noDependencyConflict && (j < candidate.extensionDependencies.length); j++)
+							for (int j = 0; noDependencyConflict && (j < candidate.getExtensionDependencies().length); j++)
 							{
-								if (candidate.extensionDependencies[j].id.equals(extension.id) &&
-									!VersionStringUtils.belongsToInterval(extension.version, candidate.extensionDependencies[j].minVersion,
-										candidate.extensionDependencies[j].maxVersion))
+								if (candidate.getExtensionDependencies()[j].id.equals(extension.id) &&
+									!VersionStringUtils.belongsToInterval(extension.version, candidate.getExtensionDependencies()[j].minVersion,
+										candidate.getExtensionDependencies()[j].maxVersion))
 								{
 									noDependencyConflict = false;
 								}
@@ -486,7 +486,8 @@ public class DependencyResolver
 						conflictsFound[0] = true;
 						if (!ignoreLibConflicts)
 						{
-							reasons.add("Library dependency incompatibility for lib id '" + entry.getKey() + "': " + libChoices.get(libChoices.size() - 1) + ".");
+							reasons.add("Library dependency incompatibility for lib id '" + entry.getKey() + "': " + libChoices.get(libChoices.size() - 1) +
+								".");
 						}
 					}
 				}

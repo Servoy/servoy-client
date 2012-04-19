@@ -17,6 +17,9 @@
 
 package com.servoy.extension;
 
+import java.io.File;
+
+
 /**
  * Classes that implement this interface have access to .exp packages.<br>
  * They are able to provide dependency & other information from the extension.xml file as well as the full contents of the .exp package.
@@ -32,5 +35,21 @@ public interface IExtensionProvider
 	 * @return information about the available compatible versions of the extension.
 	 */
 	DependencyMetadata[] getDependencyMetadata(ExtensionDependencyDeclaration extensionDependency);
+
+	/**
+	 * Gives the extension package file that corresponds to a version of an extension.<BR>
+	 * This method must be able to provide a valid .exp file for every DependencyMetadata object that {@link #getDependencyMetadata(ExtensionDependencyDeclaration)} returned.
+	 * 
+	 * @param extensionId the extension contained in the .exp file.
+	 * @param version the version of the extension from the .exp file.
+	 * @return the .exp package file or null if not available.
+	 */
+	File getEXPFile(String extensionId, String version);
+
+	/**
+	 * If problems were encountered while trying to provide extension contents, they will be remembered.
+	 * @return any problems encountered that might be of interest to the user.
+	 */
+	String[] getWarnings();
 
 }
