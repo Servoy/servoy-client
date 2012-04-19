@@ -73,10 +73,10 @@ public class CopyZipEntryImporter
 			try
 			{
 				zipFile = new ZipFile(expFile);
-				Enumeration entries = zipFile.entries();
+				Enumeration< ? extends ZipEntry> entries = zipFile.entries();
 				while (entries.hasMoreElements())
 				{
-					ZipEntry entry = (ZipEntry)entries.nextElement();
+					ZipEntry entry = entries.nextElement();
 					if (!entry.isDirectory())
 					{
 						String fileName = entry.getName().replace('\\', '/');
@@ -114,7 +114,7 @@ public class CopyZipEntryImporter
 		else
 		{
 			// shouldn't happen
-			Debug.error("Invalid import file/destination: " + expFile + " " + installDir); //$NON-NLS-1$
+			Debug.error("Invalid import file/destination: " + expFile + ", " + installDir); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -133,7 +133,7 @@ public class CopyZipEntryImporter
 			}
 			if (outputFile.exists())
 			{
-				warnings.add("Duplicate file found, will be overwritten: " + outputFile); //$NON-NLS-1$
+				warnings.add("A file to be copied (installed) is already there; overwriting: " + outputFile); //$NON-NLS-1$
 			}
 			else
 			{
