@@ -143,14 +143,24 @@ public class CopyZipEntryImporter
 				}
 				outputFile.createNewFile();
 			}
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
-			Utils.streamCopy(inputStream, out);
-			Utils.closeOutputStream(out);
-			Utils.closeInputStream(inputStream);
+			BufferedOutputStream out = null;
+			try
+			{
+				out = new BufferedOutputStream(new FileOutputStream(outputFile));
+				Utils.streamCopy(inputStream, out);
+			}
+			finally
+			{
+				Utils.closeOutputStream(out);
+			}
 		}
-		catch (IOException ex)
+		catch (Exception ex)
 		{
 			Debug.error("Exception while writing file: " + outputFile, ex); //$NON-NLS-1$
+		}
+		finally
+		{
+			Utils.closeInputStream(inputStream);
 		}
 	}
 
