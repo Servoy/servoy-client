@@ -48,19 +48,17 @@ public class CopyZipEntryImporter
 	private final File installDir;
 	private final File screenshotsFolder;
 	private final File developerFolder;
-	private final File docsFolfer;
+	private final File docsFolder;
 
 	private final List<String> warnings = new ArrayList<String>();
-	private final String extensionID;
 
 	public CopyZipEntryImporter(File expFile, File installDir, String extensionID)
 	{
 		this.expFile = expFile;
 		this.installDir = installDir;
-		this.extensionID = extensionID;
 		screenshotsFolder = new File(installDir, "screenshots"); //$NON-NLS-1$
 		developerFolder = new File(installDir, "developer"); //$NON-NLS-1$
-		docsFolfer = new File(installDir, "application_server/docs/" + extensionID); //$NON-NLS-1$
+		docsFolder = new File(installDir, "application_server/docs/" + extensionID); //$NON-NLS-1$
 	}
 
 	public void importFile()
@@ -179,7 +177,7 @@ public class CopyZipEntryImporter
 			warnings.add("Skipping file because developer folder does not exist: " + outputFile); //$NON-NLS-1$
 			return true;
 		}
-		if (isInParentDir(docsFolfer.getParentFile(), outputFile) && !isInParentDir(docsFolfer, outputFile))
+		if (isInParentDir(docsFolder.getParentFile(), outputFile) && !isInParentDir(docsFolder, outputFile))
 		{
 			warnings.add("Skipping file because is incorrect extension id folder: " + outputFile); //$NON-NLS-1$
 			return true;
