@@ -184,10 +184,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			protected void renderChoice(Object object, Response response, String criteria)
 			{
+				response.write("<span style=\"white-space: nowrap;\">"); //$NON-NLS-1$
 				int fontSize = (getFont() == null ? 12 : getFont().getSize());
 				if (fontSize != 12)
 				{
-					response.write("<font style='font-size: " + fontSize + "px'>");
+					response.write("<font style='font-size: " + fontSize + "px'>"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 
 				String renderedObject = (object == null) ? "" : object.toString();
@@ -196,8 +197,9 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				super.renderChoice(renderedObject, response, criteria);
 				if (fontSize != 12)
 				{
-					response.write("</font>");
+					response.write("</font>"); //$NON-NLS-1$
 				}
+				response.write("</span>"); //$NON-NLS-1$
 			}
 		};
 		AutoCompleteBehavior<Object> beh = new AutoCompleteBehavior<Object>(renderer, behSettings)
