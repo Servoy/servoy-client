@@ -205,12 +205,11 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 	private boolean needsWrapperDivForAnchoring(String type, boolean editable)
 	{
-		// this needs to be in sync with TemplateGenerator.needsWrapperDivForAnchoring(Field field)
+		// this needs to be in sync with WebAnchoringHelper.needsWrapperDivForAnchoring(Field field)
 		// and TemplateGenerator.isButton(GraphicalComponent label)
 		return IRuntimeComponent.PASSWORD.equals(type) || IRuntimeComponent.TEXT_AREA.equals(type) || IRuntimeComponent.COMBOBOX.equals(type) ||
-			IRuntimeComponent.TYPE_AHEAD.equals(type) || IRuntimeComponent.TEXT_FIELD.equals(type) ||
-			(IRuntimeComponent.HTML_AREA.equals(type) && editable) || (IRuntimeComponent.LIST_BOX.equals(type)) ||
-			(IRuntimeComponent.MULTISELECT_LISTBOX.equals(type)) || IRuntimeComponent.BUTTON.equals(type);
+			IRuntimeComponent.TYPE_AHEAD.equals(type) || IRuntimeComponent.TEXT_FIELD.equals(type) || (IRuntimeComponent.HTML_AREA.equals(type) && editable) ||
+			(IRuntimeComponent.LIST_BOX.equals(type)) || (IRuntimeComponent.MULTISELECT_LISTBOX.equals(type)) || IRuntimeComponent.BUTTON.equals(type);
 	}
 
 	/**
