@@ -850,7 +850,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			if (SwingUtilities.isLeftMouseButton(e))
 			{
 				boolean selected = isRowSelected(enclosedComponent.getEditingRow());
-				if (!UIUtils.isCommandKeyDown(e) && choiceType == Field.MULTISELECT_LISTBOX)
+				if (!UIUtils.isCommandKeyDown(e) && !e.isShiftDown() && choiceType == Field.MULTISELECT_LISTBOX)
 				{
 					list.setMultiValueSelect(false);
 				}
@@ -869,6 +869,17 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 				else
 				{
 					((JLabel)editorComponent).setBackground(enclosedComponent.getSelectionBackground());
+				}
+				if (e.isShiftDown() && choiceType == Field.MULTISELECT_LISTBOX)
+				{
+					int clicked = enclosedComponent.getEditingRow();
+					int firstSelected = list.getSelectedRow();
+					int start = Math.min(clicked, firstSelected);
+					int end = Math.max(clicked, firstSelected);
+					for (int i = 0; i < list.getSize(); i++)
+					{
+						setElementAt((i >= start && i <= end) ? Boolean.TRUE : Boolean.FALSE, i);
+					}
 				}
 				stopCellEditing();
 				list.setMultiValueSelect(choiceType == Field.MULTISELECT_LISTBOX);
