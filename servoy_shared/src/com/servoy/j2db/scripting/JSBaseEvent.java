@@ -90,6 +90,7 @@ public class JSBaseEvent implements IConstantsObject
 	 */
 	public Object js_getSource()
 	{
+		if (source instanceof IScriptableProvider) return ((IScriptableProvider)source).getScriptObject();
 		return source;
 	}
 
