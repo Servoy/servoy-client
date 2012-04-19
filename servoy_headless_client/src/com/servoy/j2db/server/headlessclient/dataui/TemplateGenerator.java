@@ -1412,7 +1412,7 @@ public class TemplateGenerator
 		styleObj.setProperty("color", "#000000");
 
 		//default field stuff
-		styleObj = css.addStyle(".field , .listbox");//input, select, textarea, listbox"); 
+		styleObj = css.addStyle(".field , .listbox, .spinner");//input, select, textarea, listbox"); 
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_FIELD_PADDING));
 		styleObj.setProperty("margin", "0");
 		styleObj.setProperty("border-style", "inset");
@@ -1487,6 +1487,7 @@ public class TemplateGenerator
 				a_style_name = Utils.stringReplaceExact(a_style_name, "check", ".check");
 				a_style_name = Utils.stringReplaceExact(a_style_name, "radio", ".radio");
 				a_style_name = Utils.stringReplaceExact(a_style_name, "listbox", ".listbox");
+				a_style_name = Utils.stringReplaceExact(a_style_name, "spinner", ".spinner");
 				// hack if previous command replaced label_field with label_.field
 				a_style_name = Utils.stringReplace(a_style_name, "..field", ".field");
 
@@ -2698,7 +2699,7 @@ public class TemplateGenerator
 		html.append("<div ");
 		html.append(getWicketIDParameter(form, field));
 		html.append(getDataProviderIDParameter(field));
-		html.append(getCSSClassParameter("field"));
+		html.append(getCSSClassParameter(field.getDisplayType() == Field.SPINNER ? "spinner" : "field"));
 		html.append("style = 'overflow:hidden' ");
 		html.append("><table ");
 		TextualStyle inline = new TextualStyle();
