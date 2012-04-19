@@ -273,13 +273,15 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			(pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))) //$NON-NLS-1$
 		{
 			Color background = ComponentFactory.getPartBackground(sp, part, f);
-			if (background != null)
+			if (!f.getTransparent() && part.getBackground() == null && pairStyle != null && pairStyle.getRight() != null &&
+				pairStyle.getRight().hasAttribute("background-color"))
+			{
+				// for fallback mechanism
+				partStyle.setProperty("background-color", pairStyle.getRight().getValues("background-color"), true);
+			}
+			else if (background != null)
 			{
 				partStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
-			}
-			else if (pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))
-			{
-				partStyle.setProperty("background-color", pairStyle.getRight().getValues("background-color"), true);
 			}
 		}
 
