@@ -42,7 +42,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class CopyZipEntryImporter
 {
-	private final static String EXPFILES_FOLDER = "application_server/.extensions";
+	private final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
+	private final static String WEBTEMPLATES_SOURCE_FOLDER = "application_server/webtemplates"; //$NON-NLS-1$
+	private final static String WEBTEMPLATES_DESTINATION_FOLDER = "application_server/server/webapps/ROOT/servoy-webclient/templates"; //$NON-NLS-1$
 
 	private final File expFile;
 	private final File installDir;
@@ -78,7 +80,7 @@ public class CopyZipEntryImporter
 					if (!entry.isDirectory())
 					{
 						String fileName = entry.getName().replace('\\', '/');
-						fileName = fileName.replace("application_server/webtemplates", "application_server/server/webapps/ROOT/servoy-webclient/templates");
+						fileName = fileName.replace(WEBTEMPLATES_SOURCE_FOLDER, WEBTEMPLATES_DESTINATION_FOLDER);
 						File outputFile = new File(installDir, fileName);
 						copyFile(outputFile, zipFile.getInputStream(entry));
 					}
@@ -185,6 +187,7 @@ public class CopyZipEntryImporter
 		return false;
 	}
 
+	//TODO remove this when we have ui for testing
 	public static void main(String[] args)
 	{
 		// for testing only
