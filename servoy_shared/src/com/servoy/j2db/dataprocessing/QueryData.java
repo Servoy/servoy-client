@@ -152,10 +152,8 @@ public class QueryData implements Serializable, IVisitable, IWriteReplace
 
 	public Object writeReplace()
 	{
-		return new ReplacedObject(
-			DATAPROCESSING_SERIALIZE_DOMAIN,
-			getClass(),
-			new Object[] { sqlSelect, filters, Boolean.valueOf(distinctInMemory), Integer.valueOf(startRow), Integer.valueOf(rowsToRetrieve), Integer.valueOf(type), trackingInfo });
+		return new ReplacedObject(DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
+			new Object[] { sqlSelect, filters, new int[] { distinctInMemory ? 1 : 0, startRow, rowsToRetrieve, type }, trackingInfo });
 	}
 
 	public QueryData(ReplacedObject s)
@@ -163,13 +161,13 @@ public class QueryData implements Serializable, IVisitable, IWriteReplace
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
 		sqlSelect = (ISQLSelect)members[i++];
-		filters = (ArrayList)members[i++];
+		filters = (ArrayList<TableFilter>)members[i++];
 
-		distinctInMemory = ((Boolean)members[i++]).booleanValue();
-		startRow = ((Number)members[i++]).intValue();
-		rowsToRetrieve = ((Number)members[i++]).intValue();
-		type = ((Number)members[i++]).intValue();
-
+		int[] numbers = (int[])members[i++];
+		distinctInMemory = numbers[0] == 1;
+		startRow = numbers[1];
+		rowsToRetrieve = numbers[2];
+		type = numbers[3];
 		trackingInfo = (ITrackingSQLStatement)members[i++];
 	}
 }
