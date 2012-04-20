@@ -716,11 +716,11 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			Object o = getValue();
 
 			int index = -1;
-			if (!ScopesUtils.isVariableScope(dataProviderID))
+			if (dataProviderID != null && !ScopesUtils.isVariableScope(dataProviderID))
 			{
 				index = dataProviderID.lastIndexOf('.');
 			}
-			if (index == -1 || parentState == null)
+			if (index == -1 || parentState == null || dataProviderID == null)
 			{
 				list.fill(parentState);
 			}
