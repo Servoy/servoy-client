@@ -242,34 +242,6 @@
 						</attribute>
 					</complexType>
 				</element>
-				<element name="svnCheckout">
-					<annotation>
-						<documentation>
-							Specifies some SVN locations that should be
-							checked out if
-							possible when installing
-							in developer.
-						</documentation>
-					</annotation>
-					<complexType>
-						<sequence>
-							<element minOccurs="0" maxOccurs="unbounded" name="path"
-								type="tns:relativePathType">
-								<annotation>
-									<documentation>
-										relative paths to check out from the given
-										root SVN url
-									</documentation>
-								</annotation>
-							</element>
-						</sequence>
-						<attribute use="required" name="url" type="tns:urlType">
-							<annotation>
-								<documentation>SVN root URL</documentation>
-							</annotation>
-						</attribute>
-					</complexType>
-				</element>
 				<element name="teamProjectSet">
 					<annotation>
 						<documentation>

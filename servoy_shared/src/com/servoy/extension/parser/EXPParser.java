@@ -1,5 +1,4 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -84,7 +83,6 @@ public class EXPParser
 	public static final String ID = "id"; //$NON-NLS-1$
 	public static final String CONTENT = "content"; //$NON-NLS-1$
 	public static final String IMPORT_SOLUTION = "importSolution"; //$NON-NLS-1$
-	public static final String SVN_CHECKOUT = "svnCheckout"; //$NON-NLS-1$
 	public static final String TEAM_PROJECT_SET = "teamProjectSet"; //$NON-NLS-1$
 	public static final String ECLIPSE_UPDATE_SITE = "eclipseUpdateSite"; //$NON-NLS-1$
 	public static final String URL = "url"; //$NON-NLS-1$
@@ -534,7 +532,6 @@ public class EXPParser
 							if (list != null && list.getLength() == 1)
 							{
 								List<String> solutionToImportPaths = new ArrayList<String>();
-								List<SVNCheckout> svnCheckouts = new ArrayList<SVNCheckout>();
 								List<String> teamProjectSetPaths = new ArrayList<String>();
 								List<String> eclipseUpdateSiteURLs = new ArrayList<String>();
 
@@ -548,25 +545,6 @@ public class EXPParser
 								{
 									element = ((Element)list.item(i++));
 									solutionToImportPaths.add(element.getAttribute(PATH));
-								}
-
-								i = 0;
-								list = contentNode.getElementsByTagName(SVN_CHECKOUT);
-								while (list != null && list.getLength() > i)
-								{
-									element = ((Element)list.item(i++));
-									String url = element.getAttribute(URL);
-									List<String> paths = new ArrayList<String>();
-
-									NodeList pathList = element.getElementsByTagName(PATH);
-									int j = 0;
-									while (pathList != null && pathList.getLength() > j)
-									{
-										element = ((Element)pathList.item(j++));
-										paths.add(element.getTextContent());
-									}
-
-									svnCheckouts.add(new SVNCheckout(url, paths.size() == 0 ? null : paths.toArray(new String[paths.size()])));
 								}
 
 								i = 0;
@@ -585,9 +563,8 @@ public class EXPParser
 									eclipseUpdateSiteURLs.add(element.getAttribute(URL));
 								}
 
-								content = new Content(solutionToImportPaths.size() > 0
-									? solutionToImportPaths.toArray(new String[solutionToImportPaths.size()]) : null, svnCheckouts.size() > 0
-									? svnCheckouts.toArray(new SVNCheckout[svnCheckouts.size()]) : null, teamProjectSetPaths.size() > 0
+								content = new Content(zipFile, solutionToImportPaths.size() > 0
+									? solutionToImportPaths.toArray(new String[solutionToImportPaths.size()]) : null, teamProjectSetPaths.size() > 0
 									? teamProjectSetPaths.toArray(new String[teamProjectSetPaths.size()]) : null, eclipseUpdateSiteURLs.size() > 0
 									? eclipseUpdateSiteURLs.toArray(new String[eclipseUpdateSiteURLs.size()]) : null);
 							}

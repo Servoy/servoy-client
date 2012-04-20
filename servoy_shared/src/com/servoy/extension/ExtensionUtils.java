@@ -21,6 +21,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -107,4 +109,16 @@ public class ExtensionUtils
 
 	}
 
+
+	public static String[] getZipEntryNames(File zipFile) throws IOException
+	{
+		ArrayList<String> zipEntryNames = new ArrayList<String>();
+
+		ZipFile zip = new ZipFile(zipFile);
+		Enumeration< ? extends ZipEntry> zipEntries = zip.entries();
+		while (zipEntries.hasMoreElements())
+			zipEntryNames.add(zipEntries.nextElement().getName());
+
+		return zipEntryNames.toArray(new String[zipEntryNames.size()]);
+	}
 }
