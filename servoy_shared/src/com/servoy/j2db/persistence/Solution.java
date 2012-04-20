@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -422,7 +423,15 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		});
 		if (sort)
 		{
-			return Utils.asSortedIterator(vars, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(vars, new Comparator<ScriptVariable>()
+			{
+				public int compare(ScriptVariable o1, ScriptVariable o2)
+				{
+					if (o1.getLineNumberOffset() > o2.getLineNumberOffset()) return 1;
+					else if (o1.getLineNumberOffset() < o2.getLineNumberOffset()) return -1;
+					else return 0;
+				}
+			});
 		}
 		return vars;
 	}

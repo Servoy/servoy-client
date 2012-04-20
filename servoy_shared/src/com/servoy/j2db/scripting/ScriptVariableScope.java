@@ -125,7 +125,7 @@ public class ScriptVariableScope extends LazyCompilationScope
 					}
 					str = '(' + str + ')'; // add brackets so that unnamed objects are evaluated correctly (otherwise it will give a syntax error) 
 				}
-				Integer linenumber = var.getSerializableRuntimeProperty(IScriptProvider.LINENUMBER);
+				Integer linenumber = Integer.valueOf(var.getLineNumberOffset());
 				String sourceName = var.getSerializableRuntimeProperty(IScriptProvider.FILENAME);
 				if (sourceName == null)
 				{

@@ -748,7 +748,15 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		Iterator<ScriptVariable> vars = new TypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES);
 		if (sort)
 		{
-			return Utils.asSortedIterator(vars, NameComparator.INSTANCE);
+			return Utils.asSortedIterator(vars, new Comparator<ScriptVariable>()
+			{
+				public int compare(ScriptVariable o1, ScriptVariable o2)
+				{
+					if (o1.getLineNumberOffset() > o2.getLineNumberOffset()) return 1;
+					else if (o1.getLineNumberOffset() < o2.getLineNumberOffset()) return -1;
+					else return 0;
+				}
+			});
 		}
 		return vars;
 	}

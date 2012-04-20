@@ -28,11 +28,6 @@ public interface IScriptProvider extends IPersist, ISupportName, ISupportScope
 		private static final long serialVersionUID = 1L;
 	};
 
-	public static final SerializableRuntimeProperty<Integer> LINENUMBER = new SerializableRuntimeProperty<Integer>()
-	{
-		private static final long serialVersionUID = 1L;
-	};
-
 	public static final SerializableRuntimeProperty<String> TYPE = new SerializableRuntimeProperty<String>()
 	{
 		private static final long serialVersionUID = 1L;
