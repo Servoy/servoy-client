@@ -17,11 +17,9 @@
 package com.servoy.j2db.server.headlessclient.mask;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataField;
@@ -38,8 +36,6 @@ import com.servoy.j2db.ui.runtime.IRuntimeInputComponent;
  */
 public class MaskBehavior extends AbstractBehavior
 {
-	private final static ResourceReference jquery_js = new JavascriptResourceReference(MaskBehavior.class, "jquery.min.js"); //$NON-NLS-1$
-	private final static ResourceReference masked_js = new JavascriptResourceReference(MaskBehavior.class, "jquery.maskedinput-1.2.2.js"); //$NON-NLS-1$
 	private final TextField< ? > textField;
 	private final String displayFormat;
 	private final String placeHolder;
@@ -60,8 +56,6 @@ public class MaskBehavior extends AbstractBehavior
 	public void renderHead(IHeaderResponse response)
 	{
 		super.renderHead(response);
-		response.renderJavascriptReference(jquery_js);
-		response.renderJavascriptReference(masked_js);
 
 		String js = "jQuery(function($){$(\"#" + textField.getMarkupId() + "\").mask(\"" + displayFormat.replace("\"", "\\\"") + "\",{placeholder:\"" +
 			placeHolder.replace("\"", "\\\"") + "\"});});";
