@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitable;
@@ -44,36 +46,36 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	static
 	{
-		Map<String, Short> classMapping = new HashMap<String, Short>();
+		Map<Class< ? extends IWriteReplace>, Short> classMapping = new HashMap<Class< ? extends IWriteReplace>, Short>();
 
-		classMapping.put(AndCondition.class.getName(), Short.valueOf((short)1));
-		classMapping.put(BooleanCondition.class.getName(), Short.valueOf((short)2));
-		classMapping.put(ColumnType.class.getName(), Short.valueOf((short)3));
-		classMapping.put(CompareCondition.class.getName(), Short.valueOf((short)4));
-		classMapping.put(CustomCondition.class.getName(), Short.valueOf((short)5));
-		classMapping.put(OrCondition.class.getName(), Short.valueOf((short)6));
-		classMapping.put(Placeholder.class.getName(), Short.valueOf((short)7));
-		classMapping.put(TablePlaceholderKey.class.getName(), Short.valueOf((short)8));
-		classMapping.put(QueryAggregate.class.getName(), Short.valueOf((short)9));
-		classMapping.put(QueryColumn.class.getName(), Short.valueOf((short)10));
-		classMapping.put(QueryColumnValue.class.getName(), Short.valueOf((short)11));
-		classMapping.put(QueryCustomElement.class.getName(), Short.valueOf((short)12));
-		classMapping.put(QueryCustomJoin.class.getName(), Short.valueOf((short)13));
-		classMapping.put(QueryCustomSelect.class.getName(), Short.valueOf((short)14));
-		classMapping.put(QueryCustomSort.class.getName(), Short.valueOf((short)15));
-		classMapping.put(QueryCustomUpdate.class.getName(), Short.valueOf((short)16));
-		classMapping.put(QueryDelete.class.getName(), Short.valueOf((short)17));
-		classMapping.put(QueryFunction.class.getName(), Short.valueOf((short)18));
-		classMapping.put(QueryInsert.class.getName(), Short.valueOf((short)19));
-		classMapping.put(QueryJoin.class.getName(), Short.valueOf((short)20));
-		classMapping.put(QuerySelect.class.getName(), Short.valueOf((short)21));
-		classMapping.put(QuerySort.class.getName(), Short.valueOf((short)22));
-		classMapping.put(QueryTable.class.getName(), Short.valueOf((short)23));
-		classMapping.put(QueryUpdate.class.getName(), Short.valueOf((short)24));
-		classMapping.put(SetCondition.class.getName(), Short.valueOf((short)25));
-		classMapping.put(ExistsCondition.class.getName(), Short.valueOf((short)26));
-		classMapping.put(ObjectPlaceholderKey.class.getName(), Short.valueOf((short)27));
-		classMapping.put(QueryCompositeJoin.class.getName(), Short.valueOf((short)28));
+		classMapping.put(AndCondition.class, Short.valueOf((short)1));
+		classMapping.put(BooleanCondition.class, Short.valueOf((short)2));
+		classMapping.put(ColumnType.class, Short.valueOf((short)3));
+		classMapping.put(CompareCondition.class, Short.valueOf((short)4));
+		classMapping.put(CustomCondition.class, Short.valueOf((short)5));
+		classMapping.put(OrCondition.class, Short.valueOf((short)6));
+		classMapping.put(Placeholder.class, Short.valueOf((short)7));
+		classMapping.put(TablePlaceholderKey.class, Short.valueOf((short)8));
+		classMapping.put(QueryAggregate.class, Short.valueOf((short)9));
+		classMapping.put(QueryColumn.class, Short.valueOf((short)10));
+		classMapping.put(QueryColumnValue.class, Short.valueOf((short)11));
+		classMapping.put(QueryCustomElement.class, Short.valueOf((short)12));
+		classMapping.put(QueryCustomJoin.class, Short.valueOf((short)13));
+		classMapping.put(QueryCustomSelect.class, Short.valueOf((short)14));
+		classMapping.put(QueryCustomSort.class, Short.valueOf((short)15));
+		classMapping.put(QueryCustomUpdate.class, Short.valueOf((short)16));
+		classMapping.put(QueryDelete.class, Short.valueOf((short)17));
+		classMapping.put(QueryFunction.class, Short.valueOf((short)18));
+		classMapping.put(QueryInsert.class, Short.valueOf((short)19));
+		classMapping.put(QueryJoin.class, Short.valueOf((short)20));
+		classMapping.put(QuerySelect.class, Short.valueOf((short)21));
+		classMapping.put(QuerySort.class, Short.valueOf((short)22));
+		classMapping.put(QueryTable.class, Short.valueOf((short)23));
+		classMapping.put(QueryUpdate.class, Short.valueOf((short)24));
+		classMapping.put(SetCondition.class, Short.valueOf((short)25));
+		classMapping.put(ExistsCondition.class, Short.valueOf((short)26));
+		classMapping.put(ObjectPlaceholderKey.class, Short.valueOf((short)27));
+		classMapping.put(QueryCompositeJoin.class, Short.valueOf((short)28));
 
 		ReplacedObject.installClassMapping(QUERY_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -475,7 +477,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 					Object[] values = (Object[])ccOperand2;
 
 					if (values.length > 1 && values[0] instanceof Comparable && values[1] instanceof Comparable &&
-						((Comparable)values[0]).compareTo(values[1]) > 0)
+						((Comparable<Object>)values[0]).compareTo(values[1]) > 0)
 					{
 						invalidRangeConditions.add(columnName);
 					}
@@ -572,4 +574,38 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	}
 
+
+	/*
+	 * Thread local to configure query object serialization, when full disable optimizations
+	 */
+	private static ThreadLocal<List<Boolean>> queryFullSerialization = new ThreadLocal<List<Boolean>>();
+
+	public static void pushQueryFullSerialization(boolean full)
+	{
+		List<Boolean> stack = queryFullSerialization.get();
+		if (stack == null)
+		{
+			queryFullSerialization.set(stack = new ArrayList<Boolean>(1));
+		}
+		stack.add(Boolean.valueOf(full));
+	}
+
+	public static boolean popQueryFullSerialization()
+	{
+		List<Boolean> stack = queryFullSerialization.get();
+		if (stack == null || stack.size() == 0)
+		{
+			throw new IllegalStateException("QueryFullSerialization: empty stack");
+		}
+		return stack.remove(stack.size() - 1).booleanValue();
+	}
+
+	public static boolean doQueryFullSerialization()
+	{
+		for (Boolean full : Utils.iterate(queryFullSerialization.get()))
+		{
+			if (full.booleanValue()) return true;
+		}
+		return false;
+	}
 }

@@ -71,45 +71,39 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	private QBParameters params;
 
-	private Scriptable scriptableParent;
+	private final Scriptable scriptableParent;
 
 	private final IGlobalValueEntry globalScopeProvider;
 
 	private final IDataProviderHandler dataProviderHandler;
 
-	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler, String dataSource,
-		String alias)
+	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+		Scriptable scriptableParent, String dataSource, String alias)
 	{
 		super(dataSource, alias);
 		this.tableProvider = tableProvider;
 		this.globalScopeProvider = globalScopeProvider;
 		this.dataProviderHandler = dataProviderHandler;
+		this.scriptableParent = scriptableParent;
 	}
 
 	/**
 	 * @param querySelect
 	 */
 	public QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
-		String dataSource, QuerySelect querySelect)
+		Scriptable scriptableParent, String dataSource, String alias, QuerySelect querySelect)
 	{
-		super(dataSource, null);
+		super(dataSource, alias);
 		this.tableProvider = tableProvider;
 		this.globalScopeProvider = globalScopeProvider;
 		this.dataProviderHandler = dataProviderHandler;
+		this.scriptableParent = scriptableParent;
 		this.query = querySelect;
 	}
 
 	public QuerySelect build() throws RepositoryException
 	{
 		return AbstractBaseQuery.deepClone(getQuery());
-	}
-
-	/**
-	 * @param scriptableParent
-	 */
-	public void setScriptableParent(Scriptable scriptableParent)
-	{
-		this.scriptableParent = scriptableParent;
 	}
 
 	/**
@@ -380,7 +374,12 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	public QuerySelect getQuery() throws RepositoryException
 	{
-		if (query == null)
+		return getQuery(true);
+	}
+
+	public QuerySelect getQuery(boolean create) throws RepositoryException
+	{
+		if (query == null && create)
 		{
 			query = new QuerySelect(getQueryTable());
 		}
@@ -431,5 +430,4 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		}
 		return new QueryColumnValue(val, null);
 	}
-
 }

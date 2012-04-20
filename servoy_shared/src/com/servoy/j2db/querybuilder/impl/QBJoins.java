@@ -30,6 +30,7 @@ import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
@@ -287,5 +288,10 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 		}
 		// not found
 		return null;
+	}
+
+	public ISQLSelect build() throws RepositoryException
+	{
+		return getRoot().build();
 	}
 }

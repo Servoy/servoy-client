@@ -214,12 +214,26 @@ public final class QueryTable implements IQueryElement, Immutable
 		// just need to serialize the name, the alias can be regenerated.
 		// Note: this only works if the query object was packed before serialization!
 		// catalogName and schemaName will be regenerated on the server
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), generatedAlias ? (needsQuoting ? (Object)name : new Object[] { name })
-			: new Object[] { name, alias, Boolean.valueOf(needsQuoting) });
+		Object replaced;
+		if (AbstractBaseQuery.doQueryFullSerialization())
+		{
+			replaced = generatedAlias ? new Object[] { name, catalogName, schemaName, Boolean.valueOf(needsQuoting) }
+				: new Object[] { name, catalogName, schemaName, alias, Boolean.valueOf(needsQuoting) };
+		}
+		else
+		{
+			replaced = generatedAlias ? (needsQuoting ? (Object)name : new Object[] { name }) : new Object[] { name, alias, Boolean.valueOf(needsQuoting) };
+		}
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), replaced);
 	}
 
 	public QueryTable(ReplacedObject s)
 	{
+		// catalogName and schemaName will be regenerated on the server
+		isComplete = false;
+		catalogName = null;
+		schemaName = null;
+
 		Object o = s.getObject();
 		if (o instanceof Object[])
 		{
@@ -232,6 +246,33 @@ public final class QueryTable implements IQueryElement, Immutable
 				needsQuoting = false;
 				alias = generateAlias(name);
 				generatedAlias = true;
+			}
+			else if (members.length == 3)
+			{
+				// [name, alias, needsQuoting]
+				alias = (String)members[i++];
+				needsQuoting = ((Boolean)members[i++]).booleanValue();
+				generatedAlias = false;
+			}
+			else if (members.length == 4)
+			{
+				// [name, catalog, schema, needsQuoting]
+				catalogName = (String)members[i++];
+				schemaName = (String)members[i++];
+				isComplete = true;
+				needsQuoting = ((Boolean)members[i++]).booleanValue();
+				alias = generateAlias(name);
+				generatedAlias = true;
+			}
+			else if (members.length == 5)
+			{
+				// [name, catalog, schema, alias, needsQuoting]
+				catalogName = (String)members[i++];
+				schemaName = (String)members[i++];
+				isComplete = true;
+				alias = (String)members[i++];
+				needsQuoting = ((Boolean)members[i++]).booleanValue();
+				generatedAlias = false;
 			}
 			else
 			{
@@ -248,12 +289,8 @@ public final class QueryTable implements IQueryElement, Immutable
 			alias = generateAlias(name);
 			generatedAlias = true;
 		}
-
-		// catalogName and schemaName will be regenerated on the server
-		isComplete = false;
-		catalogName = null;
-		schemaName = null;
 	}
+
 
 	/**
 	 * Update the fields that have not been set in serialization

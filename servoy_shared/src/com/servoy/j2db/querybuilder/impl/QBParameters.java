@@ -20,11 +20,14 @@ package com.servoy.j2db.querybuilder.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -59,7 +62,13 @@ public class QBParameters extends QBScope
 		{
 			if (param != null)
 			{
-				return param.getValue();
+				Object o = param.getValue();
+				if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
+				{
+					Context context = Context.getCurrentContext();
+					if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
+				}
+				return o;
 			}
 		}
 		catch (RepositoryException e)
@@ -70,10 +79,19 @@ public class QBParameters extends QBScope
 	}
 
 	@Override
-	public void put(String name, Scriptable start, Object value)
+	public void put(String name, Scriptable start, Object val)
 	{
+		Object value = val;
+		if (value instanceof Wrapper)
+		{
+			value = ((Wrapper)value).unwrap();
+		}
 		try
 		{
+			if (value instanceof IQueryBuilderPart)
+			{
+				value = ((IQueryBuilderPart)value).build();
+			}
 			getParameter(name).setValue(value);
 		}
 		catch (RepositoryException e)

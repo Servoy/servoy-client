@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,34 +15,18 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder;
+package com.servoy.j2db.util.serialize;
 
-import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.IQueryElement;
-
+import com.servoy.j2db.querybuilder.impl.QBFactory;
 
 /**
- * Base interface for parts in Servoy Query Objects.
+ * Get access to a query builder factory for the current client.
  * 
  * @author rgansevles
- *
+ * 
  * @since 6.1
  */
-
-public interface IQueryBuilderPart
+public interface IQueryBuilderFactoryProvider
 {
-	/**
-	 * Get query builder parent table clause, this may be a query or a join clause.
-	 */
-	IQueryBuilderTableClause getParent();
-
-	/**
-	 * Get query builder parent.
-	 */
-	IQueryBuilder getRoot();
-
-	/**
-	 * Build the query for performing query in the db
-	 */
-	IQueryElement build() throws RepositoryException;
+	QBFactory getQueryBuilderFactory();
 }

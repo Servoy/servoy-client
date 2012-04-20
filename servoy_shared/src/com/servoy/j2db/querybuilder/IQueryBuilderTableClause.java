@@ -30,6 +30,16 @@ import com.servoy.j2db.persistence.RepositoryException;
 public interface IQueryBuilderTableClause extends IQueryBuilderPart
 {
 	/**
+	 * @return the dataSource
+	 */
+	String getDataSource();
+
+	/**
+	 * @return the tableAlias
+	 */
+	String getTableAlias();
+
+	/**
 	 * Get a column from the table.
 	 */
 	IQueryBuilderColumn getColumn(String name) throws RepositoryException;
@@ -45,4 +55,5 @@ public interface IQueryBuilderTableClause extends IQueryBuilderPart
 	 * <p>Joins added to this clause will be based on this table clauses table.
 	 */
 	IQueryBuilderJoins joins() throws RepositoryException;
+
 }

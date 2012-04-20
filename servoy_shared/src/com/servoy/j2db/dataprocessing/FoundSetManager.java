@@ -2268,7 +2268,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public IQueryBuilderFactory getQueryFactory()
 	{
-		return new QBFactory(this, getScopesScopeProvider(), getApplication().getFlattenedSolution());
+		return new QBFactory(this, getScopesScopeProvider(), getApplication().getFlattenedSolution(), getApplication().getScriptEngine().getSolutionScope());
 	}
 
 	public IFoundSetInternal getFoundSet(String dataSource) throws ServoyException

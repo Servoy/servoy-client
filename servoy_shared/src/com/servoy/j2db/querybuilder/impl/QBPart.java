@@ -18,6 +18,8 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -82,5 +84,10 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	public QBSelect getRoot()
 	{
 		return root;
+	}
+
+	public IQueryElement build() throws RepositoryException
+	{
+		return getRoot().build();
 	}
 }

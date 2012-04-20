@@ -20,12 +20,15 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.servoy.j2db.util.serialize.IWriteReplace;
+import com.servoy.j2db.util.serialize.ReplacedObject;
+
 
 /** Container for column types describing type, length and scale (for numerical columns).
  * @author rgansevles
  *
  */
-public class ColumnType implements Serializable
+public class ColumnType implements Serializable, IWriteReplace
 {
 	private static final Map<ColumnType, ColumnType> instances;
 	public static final ColumnType DUMMY;
@@ -79,6 +82,11 @@ public class ColumnType implements Serializable
 		return instance;
 	}
 
+	public ColumnType intern()
+	{
+		return getInstance(sqlType, length, scale);
+	}
+
 	@Override
 	public String toString()
 	{
@@ -107,5 +115,20 @@ public class ColumnType implements Serializable
 		if (this.scale != other.scale) return false;
 		if (this.sqlType != other.sqlType) return false;
 		return true;
+	}
+
+///////// serialization ////////////////
+
+	public Object writeReplace()
+	{
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new int[] { sqlType, length, scale });
+	}
+
+	public ColumnType(ReplacedObject s)
+	{
+		int[] ints = (int[])s.getObject();
+		sqlType = ints[0];
+		length = ints[1];
+		scale = ints[2];
 	}
 }

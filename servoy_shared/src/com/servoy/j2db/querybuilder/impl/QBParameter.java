@@ -19,6 +19,8 @@ package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilderParameter;
@@ -70,11 +72,13 @@ public class QBParameter extends QBPart implements IQueryBuilderParameter
 
 	public void setValue(Object value) throws RepositoryException
 	{
-		Placeholder placeholder = getParent().getQuery().getPlaceholder(key);
-		if (placeholder != null)
-		{
-			placeholder.setValue(value);
-		}
+		// Do not set placeholder directly, some objects handle setValue special, see SetCondition
+		AbstractBaseQuery.setPlaceholderValue(getParent().getQuery(), key, value);
+//		Placeholder placeholder = getParent().getQuery().getPlaceholder(key);
+//		if (placeholder != null)
+//		{
+//			placeholder.setValue(value);
+//		}
 		this.value = value;
 		isSet = true;
 	}
@@ -89,4 +93,15 @@ public class QBParameter extends QBPart implements IQueryBuilderParameter
 		return isSet;
 	}
 
+	/*
+	 * The quey object for parameter is the placeholder
+	 * 
+	 * @see com.servoy.j2db.querybuilder.impl.QBPart#build()
+	 */
+	@Override
+	public IQueryElement build() throws RepositoryException
+	{
+		Placeholder placeholder = getParent().getQuery().getPlaceholder(key);
+		return placeholder == null ? new Placeholder(key) : placeholder;
+	}
 }

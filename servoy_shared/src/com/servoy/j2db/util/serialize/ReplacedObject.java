@@ -13,13 +13,13 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.serialize;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -29,90 +29,93 @@ import java.util.Map.Entry;
  */
 public class ReplacedObject implements Serializable
 {
-	private static Map classMapping = new HashMap();
-	private static Map typeMapping = new HashMap();
-	
-	private short t; // type
-	private Object o; // object
-	private String d; // domain;
-	
-	public ReplacedObject(String domain, Class cls, Object o)
+	private static Map<String, Map<Class< ? extends IWriteReplace>, Short>> classMapping = new HashMap<String, Map<Class< ? extends IWriteReplace>, Short>>();
+	private static Map<String, Map<Short, Class< ? extends IWriteReplace>>> typeMapping = new HashMap<String, Map<Short, Class< ? extends IWriteReplace>>>();
+
+	private final short t; // type
+	private final Object o; // object
+	private final String d; // domain;
+
+	public ReplacedObject(String domain, Class< ? > cls, Object o)
 	{
 		this.d = domain;
 		this.t = getType(domain, cls);
 		this.o = o;
 	}
-	
-	
-	
-	public static void installClassMapping(String domain, Map map)
+
+	public static void installClassMapping(String domain, Map<Class< ? extends IWriteReplace>, Short> map)
 	{
 		classMapping.put(domain, map);
 	}
 
-	private static short getType(String domain, Class cls)
+	public static Collection<Class< ? extends IWriteReplace>> getDomainClasses(String domain)
 	{
-		Map domainMapping = (Map) classMapping.get(domain);
+		Map<Class< ? extends IWriteReplace>, Short> domainMapping = classMapping.get(domain);
 		if (domainMapping == null)
 		{
-			throw new IllegalStateException("Classmapping for domain "+domain+" not installed"); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalStateException("Classmapping for domain " + domain + " not installed"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		String className = cls.getName();
-		Number type = (Number)domainMapping.get(className);
+		return domainMapping.keySet();
+	}
+
+	private static short getType(String domain, Class< ? > cls)
+	{
+		Map<Class< ? extends IWriteReplace>, Short> domainMapping = classMapping.get(domain);
+		if (domainMapping == null)
+		{
+			throw new IllegalStateException("Classmapping for domain " + domain + " not installed"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		Short type = domainMapping.get(cls);
 		if (type == null)
 		{
-			throw new IllegalArgumentException("No class mapping defined for serialization for class "+className+" in domain "+domain); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalArgumentException("No class mapping defined for serialization for class " + cls.getName() + " in domain " + domain); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		
+
 		return type.shortValue();
 	}
-	
-	
-	private static Class getClass(String domain, short type) throws ClassNotFoundException
+
+
+	private static Class< ? extends IWriteReplace> getClass(String domain, short type)
 	{
-		Map domainTypeMapping = (Map) typeMapping.get(domain);
+		Map<Short, Class< ? extends IWriteReplace>> domainTypeMapping = typeMapping.get(domain);
 		if (domainTypeMapping == null)
 		{
-			domainTypeMapping = new HashMap();
-			
-			Map domainMapping = (Map) classMapping.get(domain);
+			domainTypeMapping = new HashMap<Short, Class< ? extends IWriteReplace>>();
+
+			Map<Class< ? extends IWriteReplace>, Short> domainMapping = classMapping.get(domain);
 			if (domainMapping == null)
 			{
-				throw new IllegalStateException("Classmapping for domain "+domain+" not installed"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IllegalStateException("Classmapping for domain " + domain + " not installed"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			
-			Iterator it = domainMapping.entrySet().iterator();
-			while (it.hasNext())
+
+			for (Entry<Class< ? extends IWriteReplace>, Short> entry : domainMapping.entrySet())
 			{
-				Map.Entry entry = (Entry) it.next();
 				domainTypeMapping.put(entry.getValue(), entry.getKey());
 			}
 			typeMapping.put(domain, domainTypeMapping);
 		}
-		
-		String className = (String) domainTypeMapping.get(new Short(type));
-		if (className == null)
+
+		Class< ? extends IWriteReplace> cls = domainTypeMapping.get(Short.valueOf(type));
+		if (cls == null)
 		{
-			throw new IllegalStateException("Class name not found for type "+type+" in domain "+domain); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalStateException("Class name not found for type " + type + " in domain " + domain); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return Class.forName(className);
+		return cls;
 	}
-	
-	
+
 	protected Object readResolve()
 	{
 		try
 		{
-			Class cls = getClass(d, t);
-			Constructor constructor = cls.getConstructor(new Class[] { getClass()});
-			return constructor.newInstance(new Object[] { this} );
+			Class< ? extends IWriteReplace> cls = getClass(d, t);
+			Constructor< ? extends IWriteReplace> constructor = cls.getConstructor(new Class[] { getClass() });
+			return constructor.newInstance(new Object[] { this });
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Error resolving replaced object in domain "+d+" of type "+t+':'+o, e); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new RuntimeException("Error resolving replaced object in domain " + d + " of type " + t + ':' + o, e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
-
 
 
 	/**
@@ -124,20 +127,18 @@ public class ReplacedObject implements Serializable
 	}
 
 
-
 	/** Utility method to convert array type and copy elements.
 	 * @param array
 	 * @param componentClass
 	 * @return
 	 */
-	public static Object[] convertArray(Object[] array, Class componentClass)
+	public static Object[] convertArray(Object[] array, Class< ? > componentClass)
 	{
 		if (array == null)
 		{
 			return null;
 		}
-		Object[] res = (Object[])java.lang.reflect.Array.newInstance(
-				componentClass, array.length);
+		Object[] res = (Object[])java.lang.reflect.Array.newInstance(componentClass, array.length);
 		System.arraycopy(array, 0, res, 0, array.length);
 		return res;
 	}

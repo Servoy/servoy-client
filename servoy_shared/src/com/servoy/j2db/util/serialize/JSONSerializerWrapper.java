@@ -39,6 +39,8 @@ import org.json.JSONObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.j2db.dataprocessing.IDatabaseManager;
+import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -48,12 +50,14 @@ import com.servoy.j2db.util.Debug;
  * 
  */
 @SuppressWarnings("nls")
-public class JSONSerializerWrapper
+public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 {
 	private JSONSerializer serializer;
 	private final Serializer defaultSerializer;
 	private final boolean handleArrays;
 	private final boolean handleByteArrays;
+
+	ThreadLocal<IDatabaseManager> currentDBMGR = new ThreadLocal<IDatabaseManager>();
 
 	public JSONSerializerWrapper(Serializer defaultSerializer)
 	{
@@ -72,19 +76,63 @@ public class JSONSerializerWrapper
 		this.handleByteArrays = handleByteArrays;
 	}
 
-	public Object toJSON(Object obj) throws Exception
+	public Object toJSON(Object obj) throws MarshallException
 	{
 		if (obj instanceof String) return JSONObject.quote((String)obj);
 		SerializerState state = new SerializerState();
 		return getSerializer().marshall(state, null, wrapToJSON(obj), "result");
 	}
 
-	public Object fromJSON(String data) throws Exception
+	public Object fromJSON(IDatabaseManager databaseManager, String data) throws UnmarshallException
 	{
-		return unwrapFromJSON(getSerializer().fromJSON(data));
+		if (databaseManager == null)
+		{
+			return fromJSON(data);
+		}
+		IDatabaseManager tmp = currentDBMGR.get();
+		try
+		{
+			currentDBMGR.set(databaseManager);
+			return fromJSON(data);
+		}
+		finally
+		{
+			currentDBMGR.set(tmp);
+		}
 	}
 
-	public Object fromJSON(JSONObject json) throws Exception
+	public Object fromJSON(String data) throws UnmarshallException
+	{
+		try
+		{
+			return unwrapFromJSON(getSerializer().fromJSON(data));
+		}
+		catch (UnmarshallException e)
+		{
+			Debug.error(e);
+			throw e;
+		}
+	}
+
+	public Object fromJSON(IDatabaseManager databaseManager, JSONObject json) throws UnmarshallException
+	{
+		if (databaseManager == null)
+		{
+			return fromJSON(json);
+		}
+		IDatabaseManager tmp = currentDBMGR.get();
+		try
+		{
+			currentDBMGR.set(databaseManager);
+			return fromJSON(json);
+		}
+		finally
+		{
+			currentDBMGR.set(tmp);
+		}
+	}
+
+	public Object fromJSON(JSONObject json) throws UnmarshallException
 	{
 		SerializerState state = new SerializerState();
 		return unwrapFromJSON(getSerializer().unmarshall(state, null, json));
@@ -116,6 +164,11 @@ public class JSONSerializerWrapper
 					{
 						// default object array when there is no class hint
 						clazz = Object[].class;
+					}
+					if ((clazz == null || clazz == Object.class) && json instanceof Boolean)
+					{
+						// hack to make sure BooleanSerializer is used
+						clazz = Boolean.class;
 					}
 					return super.unmarshall(state, clazz, json);
 				}
@@ -156,6 +209,8 @@ public class JSONSerializerWrapper
 				serializer.registerSerializer(new BooleanSerializer());
 				serializer.registerSerializer(new PrimitiveSerializer());
 
+				serializer.registerSerializer(new QueryBuilderSerializer(this));
+
 				if (defaultSerializer != null)
 				{
 					serializer.registerSerializer(defaultSerializer);
@@ -167,6 +222,16 @@ public class JSONSerializerWrapper
 			}
 		}
 		return serializer;
+	}
+
+	public QBFactory getQueryBuilderFactory()
+	{
+		IDatabaseManager dbmgr = currentDBMGR.get();
+		if (dbmgr != null)
+		{
+			return (QBFactory)dbmgr.getQueryFactory();
+		}
+		return null;
 	}
 
 	/**

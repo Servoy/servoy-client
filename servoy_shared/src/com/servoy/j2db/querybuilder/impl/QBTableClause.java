@@ -70,6 +70,14 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return dataSource;
 	}
 
+	/**
+	 * @return the tableAlias
+	 */
+	public String getTableAlias()
+	{
+		return tableAlias;
+	}
+
 	abstract QueryTable getQueryTable() throws RepositoryException;
 
 

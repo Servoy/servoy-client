@@ -69,7 +69,6 @@ import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
 import com.servoy.j2db.querybuilder.impl.QBCondition;
-import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBFunction;
 import com.servoy.j2db.querybuilder.impl.QBFunctions;
 import com.servoy.j2db.querybuilder.impl.QBGroupBy;
@@ -513,8 +512,9 @@ public class JSDatabaseManager
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
 
 
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
-					: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
+				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
+					dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale()
+						: 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)
@@ -3340,10 +3340,7 @@ public class JSDatabaseManager
 	 */
 	public QBSelect js_createSelect(String dataSource) throws ServoyException
 	{
-		QBFactory factory = new QBFactory(application.getFoundSetManager(), application.getFoundSetManager().getScopesScopeProvider(),
-			application.getFlattenedSolution());
-		factory.setScriptableParent(application.getScriptEngine().getSolutionScope());
-		return factory.createSelect(dataSource);
+		return (QBSelect)application.getFoundSetManager().getQueryFactory().createSelect(dataSource);
 	}
 
 	/**

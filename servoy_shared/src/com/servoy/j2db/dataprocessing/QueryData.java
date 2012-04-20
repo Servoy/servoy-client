@@ -23,6 +23,7 @@ import java.util.Map;
 
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitable;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -31,10 +32,10 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author jcompagner
  * 
  */
-public class QueryData implements Serializable, IVisitable
+public class QueryData implements Serializable, IVisitable, IWriteReplace
 {
 	private ISQLSelect sqlSelect;
-	private ArrayList filters;
+	private ArrayList<TableFilter> filters;
 	private final boolean distinctInMemory;
 	private final int startRow;
 	private final int rowsToRetrieve;
@@ -45,10 +46,10 @@ public class QueryData implements Serializable, IVisitable
 
 	static
 	{
-		Map<String, Short> classMapping = new HashMap<String, Short>();
+		Map<Class< ? extends IWriteReplace>, Short> classMapping = new HashMap<Class< ? extends IWriteReplace>, Short>();
 
-		classMapping.put(QueryData.class.getName(), Short.valueOf((short)1));
-		classMapping.put(TableFilter.class.getName(), Short.valueOf((short)2));
+		classMapping.put(QueryData.class, Short.valueOf((short)1));
+		classMapping.put(TableFilter.class, Short.valueOf((short)2));
 
 		ReplacedObject.installClassMapping(DATAPROCESSING_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -69,7 +70,7 @@ public class QueryData implements Serializable, IVisitable
 	 * @param type
 	 * @param trackingInfo
 	 */
-	public QueryData(ISQLSelect sqlSelect, ArrayList filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type,
+	public QueryData(ISQLSelect sqlSelect, ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type,
 		ITrackingSQLStatement trackingInfo)
 	{
 		this.sqlSelect = sqlSelect;
@@ -92,7 +93,7 @@ public class QueryData implements Serializable, IVisitable
 	/**
 	 * @return the filters
 	 */
-	public ArrayList getFilters()
+	public ArrayList<TableFilter> getFilters()
 	{
 		return this.filters;
 	}
@@ -151,8 +152,10 @@ public class QueryData implements Serializable, IVisitable
 
 	public Object writeReplace()
 	{
-		return new ReplacedObject(DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { sqlSelect, filters, new int[] { distinctInMemory ? 1 : 0, startRow, rowsToRetrieve, type }, trackingInfo });
+		return new ReplacedObject(
+			DATAPROCESSING_SERIALIZE_DOMAIN,
+			getClass(),
+			new Object[] { sqlSelect, filters, Boolean.valueOf(distinctInMemory), Integer.valueOf(startRow), Integer.valueOf(rowsToRetrieve), Integer.valueOf(type), trackingInfo });
 	}
 
 	public QueryData(ReplacedObject s)
@@ -162,11 +165,11 @@ public class QueryData implements Serializable, IVisitable
 		sqlSelect = (ISQLSelect)members[i++];
 		filters = (ArrayList)members[i++];
 
-		int[] numbers = (int[])members[i++];
-		distinctInMemory = numbers[0] == 1;
-		startRow = numbers[1];
-		rowsToRetrieve = numbers[2];
-		type = numbers[3];
+		distinctInMemory = ((Boolean)members[i++]).booleanValue();
+		startRow = ((Number)members[i++]).intValue();
+		rowsToRetrieve = ((Number)members[i++]).intValue();
+		type = ((Number)members[i++]).intValue();
+
 		trackingInfo = (ITrackingSQLStatement)members[i++];
 	}
 }

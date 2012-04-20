@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
 
@@ -29,7 +30,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * @author rgansevles
  * 
  */
-public class TableFilter implements Serializable
+public class TableFilter implements Serializable, IWriteReplace
 {
 
 	private final String name;
@@ -196,7 +197,7 @@ public class TableFilter implements Serializable
 	public Object writeReplace()
 	{
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, serverName, tableName, tableSQLName, dataprovider, new Integer(operator), value });
+			new Object[] { name, serverName, tableName, tableSQLName, dataprovider, Integer.valueOf(operator), value });
 	}
 
 	public TableFilter(ReplacedObject s)

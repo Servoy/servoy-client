@@ -38,5 +38,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/wiquery.jar" sourcepath="libsrc/wiquery-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/fs-commons.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/fs-parser.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
+	<classpathentry kind="lib" path="lib/xstream.jar" sourcepath="libsrc/xstream-1.4.3-20120321.180636-1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

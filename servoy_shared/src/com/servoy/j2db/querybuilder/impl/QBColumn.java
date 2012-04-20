@@ -142,7 +142,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	public QBCondition in(IQueryBuilderPart query) throws RepositoryException
 	{
-		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, query.getRoot().build(), true));
+		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, query.build(), true));
 	}
 
 	/**

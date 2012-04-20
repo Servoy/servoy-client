@@ -20,6 +20,7 @@ package com.servoy.j2db.util.serialize;
 import org.json.JSONObject;
 import org.mozilla.javascript.Undefined;
 
+import com.servoy.j2db.dataprocessing.IDatabaseManager;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IRecord;
 
@@ -27,10 +28,19 @@ public class JSONConverter
 {
 
 	private JSONSerializerWrapper serializerWrapper;
+	private final IDatabaseManager databaseManager;
 
 	public JSONConverter()
 	{
-		super();
+		this(null);
+	}
+
+	/**
+	 * @param databaseManager
+	 */
+	public JSONConverter(IDatabaseManager databaseManager)
+	{
+		this.databaseManager = databaseManager;
 	}
 
 	private JSONSerializerWrapper getJSONSerializer()
@@ -57,20 +67,31 @@ public class JSONConverter
 
 	/**
 	 * @param retval
+	 * @param args 
 	 * @return
 	 * @throws Exception 
 	 */
 	public Object convertFromJSON(Object retval) throws Exception
 	{
+		return convertFromJSON(databaseManager, retval);
+	}
+
+	/**
+	 * @param retval
+	 * @param args 
+	 * @return
+	 * @throws Exception 
+	 */
+	public Object convertFromJSON(IDatabaseManager dbmgr, Object retval) throws Exception
+	{
 		if (retval instanceof String)
 		{
-			return getJSONSerializer().fromJSON((String)retval);
+			return getJSONSerializer().fromJSON(dbmgr, (String)retval);
 		}
 		if (retval instanceof JSONObject)
 		{
-			return getJSONSerializer().fromJSON((JSONObject)retval);
+			return getJSONSerializer().fromJSON(dbmgr, (JSONObject)retval);
 		}
 		return retval;
 	}
-
 }

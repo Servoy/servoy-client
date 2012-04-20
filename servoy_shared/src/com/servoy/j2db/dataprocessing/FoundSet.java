@@ -1063,49 +1063,49 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
-	 * @param query select statement
+	 * @param queryString select statement
 	 * @param argumentsArray arguments to query
 	 * @return true if successful
 	 */
-	public boolean js_loadRecords(String query, Object[] argumentsArray) throws ServoyException
+	public boolean js_loadRecords(String queryString, Object[] argumentsArray) throws ServoyException
 	{
-		return checkLoadRecordsAllowed(false) && loadByQuery(query, argumentsArray);
+		return checkLoadRecordsAllowed(false) && loadByQuery(queryString, argumentsArray);
 	}
 
 	/**
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
-	 * @param query select statement
+	 * @param queryString select statement
 	 * @return true if successful
 	 */
-	public boolean js_loadRecords(String query) throws ServoyException
+	public boolean js_loadRecords(String queryString) throws ServoyException
 	{
-		return js_loadRecords(query, null);
+		return js_loadRecords(queryString, null);
 	}
 
 	/**
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
-	 * @param pk single-column pk value
+	 * @param numberpk single-column pk value
 	 * @return true if successful
 	 */
-	public boolean js_loadRecords(Number pk) throws ServoyException
+	public boolean js_loadRecords(Number numberpk) throws ServoyException
 	{
-		return loadRecordsBySinglePK(pk);
+		return loadRecordsBySinglePK(numberpk);
 	}
 
 	/**
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
-	 * @param pk single-column pk value
+	 * @param uuidpk single-column pk value
 	 * @return true if successful
 	 */
-	public boolean js_loadRecords(UUID pk) throws ServoyException
+	public boolean js_loadRecords(UUID uuidpk) throws ServoyException
 	{
-		return loadRecordsBySinglePK(pk);
+		return loadRecordsBySinglePK(uuidpk);
 	}
 
 	protected boolean loadRecordsBySinglePK(Object pk) throws ServoyException
@@ -1187,12 +1187,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //-cannot contain 'group by', 'having' or 'union'
 	 * //-all columns must be fully qualified like 'orders.order_id'
 	 *
-	 * @param query query builder
+	 * @param querybuilder query builder
 	 * @return true if successful
 	 */
-	public boolean js_loadRecords(QBSelect query) throws ServoyException
+	public boolean js_loadRecords(QBSelect querybuilder) throws ServoyException
 	{
-		return checkLoadRecordsAllowed(false) && loadByQuery(query);
+		return checkLoadRecordsAllowed(false) && loadByQuery(querybuilder);
 	}
 
 	/**
@@ -1419,15 +1419,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean loadByQuery(IQueryBuilder query) throws ServoyException
 	{
-		QuerySelect sqlSelect = ((QBSelect)query).build();
-
 		// check if this query is on our base table
-		if (!Utils.stringSafeEquals(getTable().getSQLName(), sqlSelect.getTable().getName()) || //
-			!Utils.stringSafeEquals(getTable().getSchema(), sqlSelect.getTable().getSchemaName()) || //
-			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
+		if (!Utils.stringSafeEquals(getDataSource(), query.getDataSource()))
 		{
-			throw new RepositoryException("Cannot load foundset with query based on another table (" + getTable() + '/' + sqlSelect.getTable() + ')'); //$NON-NLS-1$
+			throw new RepositoryException("Cannot load foundset with query based on another table (" + getDataSource() + " != " + query.getDataSource() + ')'); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+
+		QuerySelect sqlSelect = ((QBSelect)query).build();
 
 		if (sqlSelect.getColumns() == null)
 		{
@@ -1462,13 +1460,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	@JSFunction
 	public QBSelect getQuery()
 	{
-		QBSelect qbSelect = new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(),
-			getFoundSetManager().getApplication().getFlattenedSolution(), getDataSource(), getPksAndRecords().getQuerySelectForModification());
-		qbSelect.setScriptableParent(getFoundSetManager().getApplication().getScriptEngine().getSolutionScope());
-		return qbSelect;
+		return new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
+			getFoundSetManager().getApplication().getScriptEngine().getSolutionScope(), getDataSource(), null,
+			getPksAndRecords().getQuerySelectForModification());
 	}
 
-	public boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
+	private boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
 	{
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
@@ -1484,15 +1481,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		clearOmit(sqlSelect);
-
-		// check if this query is on our base table
-		if (!Utils.stringSafeEquals(getTable().getSQLName(), sqlSelect.getTable().getName()) || //
-			!Utils.stringSafeEquals(getTable().getSchema(), sqlSelect.getTable().getSchemaName()) || //
-			!Utils.stringSafeEquals(getTable().getCatalog(), sqlSelect.getTable().getCatalogName()))
-		{
-			// should not happen here (was already checked with all callers)
-			throw new RuntimeException("Table mismatch: " + getTable() + '/' + sqlSelect.getTable() + ')'); //$NON-NLS-1$
-		}
 
 		//do query with sqlSelect
 		String transaction_id = fsm.getTransactionID(sheet);

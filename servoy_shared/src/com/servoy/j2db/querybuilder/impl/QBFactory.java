@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.util.Debug;
@@ -41,36 +42,33 @@ import com.servoy.j2db.util.Utils;
  */
 public class QBFactory implements IQueryBuilderFactory
 {
-	private Scriptable scriptableParent;
+	private final Scriptable scriptableParent;
 	private final ITableAndRelationProvider tableProvider;
 	private final IGlobalValueEntry globalScopeProvider;
 	private final IDataProviderHandler dataProviderHandler;
 
-	public QBFactory(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler)
+	public QBFactory(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+		Scriptable scriptableParent)
 	{
 		this.tableProvider = tableProvider;
 		this.globalScopeProvider = globalScopeProvider;
 		this.dataProviderHandler = dataProviderHandler;
-	}
-
-	/**
-	 * @param scriptableParent the scriptableParent to set
-	 */
-	public void setScriptableParent(Scriptable scriptableParent)
-	{
 		this.scriptableParent = scriptableParent;
 	}
 
 	public QBSelect createSelect(String dataSource, String alias) throws RepositoryException
 	{
-		QBSelect queryBuilder = new QBSelect(tableProvider, globalScopeProvider, dataProviderHandler, dataSource, alias);
-		queryBuilder.setScriptableParent(scriptableParent);
-		return queryBuilder;
+		return new QBSelect(tableProvider, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias);
 	}
 
 	public QBSelect createSelect(String dataSource) throws RepositoryException
 	{
 		return createSelect(dataSource, null);
+	}
+
+	public QBSelect createSelect(String dataSource, String alias, QuerySelect querySelect)
+	{
+		return new QBSelect(tableProvider, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias, querySelect);
 	}
 
 	public static Map<String, NativeJavaMethod> getJsFunctions(Class< ? > clazz)

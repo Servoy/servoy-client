@@ -189,7 +189,7 @@ public final class QueryColumn implements IQuerySelectValue
 
 	public Object writeReplace()
 	{
-		if (id == -1)
+		if (id == -1 || AbstractBaseQuery.doQueryFullSerialization())
 		{
 			// server id not known, must serialize complete info
 			return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
@@ -227,6 +227,7 @@ public final class QueryColumn implements IQuerySelectValue
 			id = -1;
 		}
 	}
+
 
 	/**
 	 * Update the fields that have not been set in serialization

@@ -487,7 +487,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		JSONConverter jsonConverter;
 		try
 		{
-			jsonConverter = new JSONConverter();
+			jsonConverter = new JSONConverter(foundSetManager);
 			jscredentials = jsonConverter.convertToJSON(credentials);
 		}
 		catch (Exception e)
