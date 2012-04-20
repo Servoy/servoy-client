@@ -341,4 +341,14 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	{
 		return getComment() != null && getComment().indexOf("@private") != -1;
 	}
+
+	public int getLineNumberOffset()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LINENUMBEROFFSET).intValue();
+	}
+
+	public void setLineNumberOffset(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LINENUMBEROFFSET, arg);
+	}
 }

@@ -770,6 +770,11 @@ public class StaticContentSpecLoader
 			cs.new Element(398, IRepository.METHODS, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(399, IRepository.FORMS, PROPERTY_SELECTIONMODE.getPropertyName(), IRepository.INTEGER);
 		}
+
+		if (old_repository_version < 42)
+		{
+			cs.new Element(400, IRepository.SCRIPTVARIABLES, PROPERTY_LINENUMBEROFFSET.getPropertyName(), IRepository.INTEGER);
+		}
 		//##add property adds here
 
 		return cs;
