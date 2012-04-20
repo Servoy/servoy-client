@@ -264,6 +264,8 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			realWidth -= (insets.left + insets.right);
 			realheight -= (insets.top + insets.bottom);
 		}
+		if (realWidth < 0) realWidth = 0;
+		if (realheight < 0) realheight = 0;
 
 		if (properties != null)
 		{

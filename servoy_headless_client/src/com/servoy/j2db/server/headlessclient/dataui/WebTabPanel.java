@@ -311,7 +311,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 				@Override
 				public String getObject()
 				{
-					return "visibility: hidden;"; //$NON-NLS-1$
+					return "visibility: hidden;overflow:hidden"; //$NON-NLS-1$
 				}
 			}));
 
