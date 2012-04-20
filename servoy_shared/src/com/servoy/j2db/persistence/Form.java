@@ -728,7 +728,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * Get the form variables.
 	 * 
-	 * @param sort the flag (true for sorted, false for not sorted)	 * 
+	 * @param sort the flag (true for sorted by name, false for sorted by line number) 
 	 * @return the form variables
 	 */
 	public Iterator<ScriptVariable> getScriptVariables(boolean sort)
@@ -740,7 +740,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * Get the form variables.
 	 * 
 	 * @param childs list of child objects
-	 * @param sort the flag (true for sorted, false for not sorted)
+	 * @param sort the flag (true for sorted by name, false for sorted by line number)
 	 * @return the form variables
 	 */
 	public static Iterator<ScriptVariable> getScriptVariables(List<IPersist> childs, boolean sort)
@@ -748,17 +748,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		Iterator<ScriptVariable> vars = new TypeIterator<ScriptVariable>(childs, IRepository.SCRIPTVARIABLES);
 		if (sort)
 		{
-			return Utils.asSortedIterator(vars, new Comparator<ScriptVariable>()
-			{
-				public int compare(ScriptVariable o1, ScriptVariable o2)
-				{
-					if (o1.getLineNumberOffset() > o2.getLineNumberOffset()) return 1;
-					else if (o1.getLineNumberOffset() < o2.getLineNumberOffset()) return -1;
-					else return 0;
-				}
-			});
+			return Utils.asSortedIterator(vars, NameComparator.INSTANCE);
 		}
-		return vars;
+		return Utils.asSortedIterator(vars, LineNumberComparator.INSTANCE);
 	}
 
 	/**
