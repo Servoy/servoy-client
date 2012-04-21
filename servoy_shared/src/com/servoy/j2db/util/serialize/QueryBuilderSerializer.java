@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.util.serialize;
 
+import java.io.ObjectStreamException;
 import java.io.StringWriter;
 import java.io.Writer;
 
@@ -34,8 +35,16 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.core.util.HierarchicalStreams;
+import com.thoughtworks.xstream.io.ExtendedHierarchicalStreamWriterHelper;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * Responsible for serializing QBSelect objects
@@ -99,19 +108,10 @@ public class QueryBuilderSerializer extends AbstractSerializer
 			throw new MarshallException(e.getMessage(), e);
 		}
 
-		String xml;
 		// make sure that queries are serialized in full, standard serialization optimizations result in missing data that cannot be resolved
-		AbstractBaseQuery.pushQueryFullSerialization(true);
-		try
-		{
-			Writer writer = new StringWriter();
-			getXstream().marshal(query, new CompactWriter(writer));
-			xml = writer.toString();
-		}
-		finally
-		{
-			AbstractBaseQuery.popQueryFullSerialization();
-		}
+		Writer writer = new StringWriter();
+		getXstream().marshal(query, new CompactWriter(writer));
+		String xml = writer.toString();
 
 		JSONObject obj = new JSONObject();
 		try
@@ -217,12 +217,67 @@ public class QueryBuilderSerializer extends AbstractSerializer
 		if (xStream == null)
 		{
 			xStream = new XStream(new DomDriver());
-			xStream.alias("replacer", ReplacedObject.class);
+			xStream.registerConverter(new ReplacedObjectConverter(xStream.getMapper(), AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN));
 			for (Class< ? extends IWriteReplace> cls : ReplacedObject.getDomainClasses(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN))
 			{
 				xStream.alias(cls.getSimpleName(), cls);
 			}
 		}
 		return xStream;
+	}
+
+	static class ReplacedObjectConverter implements Converter
+	{
+		private final Mapper mapper;
+		private final String domain;
+
+		public ReplacedObjectConverter(Mapper mapper, String domain)
+		{
+			this.domain = domain;
+			this.mapper = mapper;
+		}
+
+		public boolean canConvert(@SuppressWarnings("rawtypes")
+		Class type)
+		{
+			return ReplacedObject.getDomainClasses(domain).contains(type);
+		}
+
+		public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context)
+		{
+			try
+			{
+				ReplacedObject replaced;
+				if (source instanceof IWriteReplaceExtended)
+				{
+					replaced = ((IWriteReplaceExtended)source).writeReplace(true);
+				}
+				else
+				{
+					replaced = (ReplacedObject)((IWriteReplace)source).writeReplace();
+				}
+
+				Object o = replaced.getObject();
+				String name = mapper.serializedClass(o.getClass());
+				ExtendedHierarchicalStreamWriterHelper.startNode(writer, name, o.getClass());
+				context.convertAnother(o);
+				writer.endNode();
+			}
+			catch (ObjectStreamException e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+
+		public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
+		{
+			reader.moveDown();
+			Class< ? > type = HierarchicalStreams.readClassType(reader, mapper);
+			Object o = context.convertAnother(null, type);
+			reader.moveUp();
+
+			Class< ? > realClass = mapper.realClass(reader.getNodeName());
+			return new ReplacedObject(domain, realClass, o).readResolve();
+		}
 	}
 }

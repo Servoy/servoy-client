@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.j2db.util.serialize.IWriteReplaceExtended;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -26,7 +27,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public final class QueryColumn implements IQuerySelectValue
+public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtended
 {
 	private QueryTable table;
 	private transient String name;
@@ -189,7 +190,12 @@ public final class QueryColumn implements IQuerySelectValue
 
 	public Object writeReplace()
 	{
-		if (id == -1 || AbstractBaseQuery.doQueryFullSerialization())
+		return writeReplace(false);
+	}
+
+	public ReplacedObject writeReplace(boolean full)
+	{
+		if (id == -1 || full)
 		{
 			// server id not known, must serialize complete info
 			return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),

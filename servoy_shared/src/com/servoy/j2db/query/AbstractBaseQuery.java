@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.DeepCloneVisitor;
@@ -571,41 +570,5 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		{
 			return returnCompareConditions;
 		}
-
-	}
-
-
-	/*
-	 * Thread local to configure query object serialization, when full disable optimizations
-	 */
-	private static ThreadLocal<List<Boolean>> queryFullSerialization = new ThreadLocal<List<Boolean>>();
-
-	public static void pushQueryFullSerialization(boolean full)
-	{
-		List<Boolean> stack = queryFullSerialization.get();
-		if (stack == null)
-		{
-			queryFullSerialization.set(stack = new ArrayList<Boolean>(1));
-		}
-		stack.add(Boolean.valueOf(full));
-	}
-
-	public static boolean popQueryFullSerialization()
-	{
-		List<Boolean> stack = queryFullSerialization.get();
-		if (stack == null || stack.size() == 0)
-		{
-			throw new IllegalStateException("QueryFullSerialization: empty stack");
-		}
-		return stack.remove(stack.size() - 1).booleanValue();
-	}
-
-	public static boolean doQueryFullSerialization()
-	{
-		for (Boolean full : Utils.iterate(queryFullSerialization.get()))
-		{
-			if (full.booleanValue()) return true;
-		}
-		return false;
 	}
 }

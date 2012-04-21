@@ -19,6 +19,7 @@ package com.servoy.j2db.query;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.servoy.j2db.util.Immutable;
+import com.servoy.j2db.util.serialize.IWriteReplaceExtended;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -28,7 +29,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public final class QueryTable implements IQueryElement, Immutable
+public final class QueryTable implements IQueryElement, Immutable, IWriteReplaceExtended
 {
 	private final String name;
 	private final String alias;
@@ -211,11 +212,16 @@ public final class QueryTable implements IQueryElement, Immutable
 
 	public Object writeReplace()
 	{
+		return writeReplace(false);
+	}
+
+	public ReplacedObject writeReplace(boolean full)
+	{
 		// just need to serialize the name, the alias can be regenerated.
 		// Note: this only works if the query object was packed before serialization!
 		// catalogName and schemaName will be regenerated on the server
 		Object replaced;
-		if (AbstractBaseQuery.doQueryFullSerialization())
+		if (full)
 		{
 			replaced = generatedAlias ? new Object[] { name, catalogName, schemaName, Boolean.valueOf(needsQuoting) }
 				: new Object[] { name, catalogName, schemaName, alias, Boolean.valueOf(needsQuoting) };
