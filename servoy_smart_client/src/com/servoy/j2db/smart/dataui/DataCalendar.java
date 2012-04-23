@@ -291,32 +291,35 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 			{
 				chooser = new JDateChooser((JFrame)windowParent, application.getI18NMessage("servoy.dateChooser.selectDate"), dateFormat); //$NON-NLS-1$
 			}
-			else
+			else if (windowParent instanceof JDialog)
 			{
 				chooser = new JDateChooser((JDialog)windowParent, application.getI18NMessage("servoy.dateChooser.selectDate"), dateFormat); //$NON-NLS-1$
 			}
-			((ISmartClientApplication)application).registerWindow("JDateChooser", chooser); //$NON-NLS-1$
+			if (chooser != null) ((ISmartClientApplication)application).registerWindow("JDateChooser", chooser); //$NON-NLS-1$
 		}
 
-		enclosedComponent.requestFocus();
-		Object value = enclosedComponent.getValue();
-		if (value != null && value instanceof Date)
-		{
-			Calendar cal = chooser.getSelectedDate();
-			cal.setTime((Date)value);
-			chooser.updateCalendar(cal);
-		}
-		else if (value == null)
-		{
-			Calendar cal = chooser.getSelectedDate();
-			cal.setTime(chooser.format(new Date(), enclosedComponent.getFormat()));
-			chooser.updateCalendar(cal);
-		}
-		if (chooser.showDialog(enclosedComponent.getFormat()) == JDateChooser.ACCEPT_OPTION)
+		if (chooser != null)
 		{
 			enclosedComponent.requestFocus();
-			Calendar selectedDate = chooser.getSelectedDate();
-			enclosedComponent.setValueExFromCalendar(selectedDate.getTime());
+			Object value = enclosedComponent.getValue();
+			if (value != null && value instanceof Date)
+			{
+				Calendar cal = chooser.getSelectedDate();
+				cal.setTime((Date)value);
+				chooser.updateCalendar(cal);
+			}
+			else if (value == null)
+			{
+				Calendar cal = chooser.getSelectedDate();
+				cal.setTime(chooser.format(new Date(), enclosedComponent.getFormat()));
+				chooser.updateCalendar(cal);
+			}
+			if (chooser.showDialog(enclosedComponent.getFormat()) == JDateChooser.ACCEPT_OPTION)
+			{
+				enclosedComponent.requestFocus();
+				Calendar selectedDate = chooser.getSelectedDate();
+				enclosedComponent.setValueExFromCalendar(selectedDate.getTime());
+			}
 		}
 	}
 
