@@ -18,10 +18,10 @@ package com.servoy.j2db.persistence;
 
 
 /**
- * Interface to handle script object in a simular way
+ * Interface to handle script object in a similar way
  * @author jblok
  */
-public interface IScriptProvider extends IPersist, ISupportName, ISupportScope
+public interface IScriptProvider extends IScriptElement
 {
 	public static final SerializableRuntimeProperty<String> FILENAME = new SerializableRuntimeProperty<String>()
 	{
@@ -35,12 +35,10 @@ public interface IScriptProvider extends IPersist, ISupportName, ISupportScope
 
 	public static final RuntimeProperty<MethodArgument[]> METHOD_ARGUMENTS = new RuntimeProperty<MethodArgument[]>()
 	{
-		private static final long serialVersionUID = 1L;
 	};
 
 	public static final RuntimeProperty<String> COMMENT = new RuntimeProperty<String>()
 	{
-		private static final long serialVersionUID = 1L;
 	};
 
 	public String getDisplayName();
@@ -52,6 +50,4 @@ public interface IScriptProvider extends IPersist, ISupportName, ISupportScope
 	public String getSource();
 
 	public String getDeclaration();
-
-	public int getLineNumberOffset();
 }

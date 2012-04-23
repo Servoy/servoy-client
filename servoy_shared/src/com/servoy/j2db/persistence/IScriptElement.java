@@ -16,12 +16,16 @@
  */
 package com.servoy.j2db.persistence;
 
-/** Interface for script variables.
+/** Interface for script file elements.
  * 
- * @author jblok
- *
+ * @author rgansevles
+ * 
+ * @since 6.1
  */
 
-public interface IVariable extends IScriptElement
+public interface IScriptElement extends IPersist, ISupportScope
 {
+	int getLineNumberOffset();
+
+	void setLineNumberOffset(int arg);
 }
