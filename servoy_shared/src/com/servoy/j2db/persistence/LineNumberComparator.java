@@ -37,6 +37,21 @@ public class LineNumberComparator implements Comparator<Object>
 		{
 			ScriptVariable sv1 = (ScriptVariable)o1;
 			ScriptVariable sv2 = (ScriptVariable)o2;
+			if (!sv1.getParent().equals(sv2.getParent()) && sv1.getParent() instanceof Form)
+			{
+				Form sv1Form = (Form)sv1.getParent();
+				Form sv2Form = (Form)sv2.getParent();
+				Form extendsForm = sv1Form.getExtendsForm();
+				while (extendsForm != null)
+				{
+					if (extendsForm.equals(sv2Form))
+					{
+						return 1;
+					}
+					extendsForm = extendsForm.getExtendsForm();
+				}
+				return -1;
+			}
 			if (sv1.getLineNumberOffset() > sv2.getLineNumberOffset()) return 1;
 			else if (sv1.getLineNumberOffset() < sv2.getLineNumberOffset()) return -1;
 			else return 0;
