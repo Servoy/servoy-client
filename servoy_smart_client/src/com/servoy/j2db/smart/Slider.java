@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.smart;
 
 
@@ -30,13 +30,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
-import javax.swing.UIDefaults;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ComponentUI;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.smart.dataui.SolutionSkin;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -97,14 +95,6 @@ public class Slider extends EnablePanel implements ChangeListener, ActionListene
 
 		setBorder(BorderFactory.createEmptyBorder(10, 3, 0, 3));
 //		setMaximumSize(new Dimension(DEFAULT_WIDTH,100));
-		if (app instanceof J2DBClient)
-		{
-			UIDefaults defs = ((J2DBClient)app).getSkinLookAndFeelDefaults();
-			if (defs != null)
-			{
-				SolutionSkin.updateComponentTreeUI(defs, this);
-			}
-		}
 		setOpaque(false);
 	}
 

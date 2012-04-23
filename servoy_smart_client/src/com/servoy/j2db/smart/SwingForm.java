@@ -81,7 +81,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
@@ -139,7 +138,6 @@ import com.servoy.j2db.smart.dataui.InvisibleBean;
 import com.servoy.j2db.smart.dataui.PortalComponent;
 import com.servoy.j2db.smart.dataui.ScriptButton;
 import com.servoy.j2db.smart.dataui.ScriptLabel;
-import com.servoy.j2db.smart.dataui.SolutionSkin;
 import com.servoy.j2db.smart.dataui.SpecialSplitPane;
 import com.servoy.j2db.smart.dataui.SpecialTabPanel;
 import com.servoy.j2db.smart.dataui.SplitPane;
@@ -762,14 +760,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 		getVerticalScrollBar().setValue(1);
 		getVerticalScrollBar().setValue(0);
-		if (application instanceof J2DBClient)
-		{
-			UIDefaults defs = ((J2DBClient)application).getSkinLookAndFeelDefaults();
-			if (defs != null)
-			{
-				SolutionSkin.updateComponentTreeUI(defs, (Component)view);
-			}
-		}
 		setViewportView((JComponent)view);
 		if (view instanceof TableView)
 		{

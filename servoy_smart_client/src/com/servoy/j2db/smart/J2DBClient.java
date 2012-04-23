@@ -170,7 +170,6 @@ import com.servoy.j2db.gui.JFontChooser;
 import com.servoy.j2db.gui.LoginDialog;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -235,7 +234,6 @@ import com.servoy.j2db.smart.cmd.MenuViewAction;
 import com.servoy.j2db.smart.dataui.DataField;
 import com.servoy.j2db.smart.dataui.DataRendererFactory;
 import com.servoy.j2db.smart.dataui.DataTextArea;
-import com.servoy.j2db.smart.dataui.SolutionSkin;
 import com.servoy.j2db.smart.dataui.SwingItemFactory;
 import com.servoy.j2db.smart.plugins.ClientPluginManager;
 import com.servoy.j2db.smart.plugins.PluginManager;
@@ -2063,9 +2061,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			if (!super.closeSolution(force, args)) return false;
 
 			if (frame != null) frame.setTitle(getDisplayApplicationName());
-
-			loadedSkin = false;
-			skinLaf = null;
 
 			// delete all dialogs
 			Iterator<Window> it = dialogs.values().iterator();
@@ -4314,35 +4309,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 		}
 		return null;
-	}
-
-	private boolean loadedSkin = false;
-
-	public void loadSkin()
-	{
-		try
-		{
-			Media m = getFlattenedSolution().getMedia("skin.zip"); //$NON-NLS-1$
-			if (m != null)
-			{
-				skinLaf = SolutionSkin.load(this, m.getMediaData());
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-			reportError(getI18NMessage("servoy.formManager.error.LoadingSkin"), ex);
-		}
-		loadedSkin = true;
-	}
-
-	private UIDefaults skinLaf;
-
-
-	public UIDefaults getSkinLookAndFeelDefaults()
-	{
-		if (!loadedSkin) loadSkin();
-		return skinLaf;
 	}
 
 	// these methods are added because this class extends JPanel which is serializable
