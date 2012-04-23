@@ -2739,8 +2739,6 @@ public class JSDatabaseManager
 	 * //databaseManager.rollbackEditedRecords(foundset); // rollback all records from foundset
 	 * //databaseManager.rollbackEditedRecords(foundset.getSelectedRecord()); // rollback only one record
 	 * databaseManager.setAutoSave(true)
-	 * 
-	 * @param foundset/record optional A JSFoundset or a JSRecord to rollback
 	 */
 	public void js_rollbackEditedRecords() throws ServoyException
 	{
