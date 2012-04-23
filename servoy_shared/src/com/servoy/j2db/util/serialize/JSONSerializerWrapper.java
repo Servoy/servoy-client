@@ -138,7 +138,7 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 		return unwrapFromJSON(getSerializer().unmarshall(state, null, json));
 	}
 
-	protected JSONSerializer getSerializer()
+	protected synchronized JSONSerializer getSerializer()
 	{
 		if (serializer == null)
 		{
