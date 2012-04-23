@@ -1291,7 +1291,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			public String getObject()
 			{
-				if (isScrollMode()) return "overflow: hidden;"; //$NON-NLS-1$
+				if (isScrollMode()) return "overflow-x: hidden; overflow-y: hidden;"; //$NON-NLS-1$
 				if (findParent(IWebFormContainer.class) != null)
 				{
 					return ""; //$NON-NLS-1$
