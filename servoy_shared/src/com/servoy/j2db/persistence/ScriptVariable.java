@@ -212,10 +212,26 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 			}
 
 			case IColumnTypes.NUMBER :
-				return ("null".equalsIgnoreCase(defaultValue) ? null : new Double(Utils.getAsDouble(defaultValue))); //$NON-NLS-1$
+				try
+				{
+					double number = Utils.getAsDouble(defaultValue, true);
+					return ("null".equalsIgnoreCase(defaultValue) ? null : new Double(number)); //$NON-NLS-1$
+				}
+				catch (RuntimeException e)
+				{
+					return defaultValue;
+				}
 
 			case IColumnTypes.INTEGER :
-				return ("null".equalsIgnoreCase(defaultValue) ? null : new Integer(Utils.getAsInteger(defaultValue))); //$NON-NLS-1$
+				try
+				{
+					int number = Utils.getAsInteger(defaultValue, true);
+					return ("null".equalsIgnoreCase(defaultValue) ? null : new Integer(number)); //$NON-NLS-1$
+				}
+				catch (RuntimeException e)
+				{
+					return defaultValue;
+				}
 
 			case IColumnTypes.MEDIA :
 				if ("null".equalsIgnoreCase(defaultValue))
