@@ -736,10 +736,10 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					int index = -1;
 					if (!printing && (index = dataProviderID.indexOf('.')) > 0)
 					{
-						String partName = dataProviderID.substring(0, index + 1);
-						final String restName = dataProviderID.substring(index + 1);
-						if (!ScopesUtils.isVariableScope(partName))
+						if (!ScopesUtils.isVariableScope(dataProviderID))
 						{
+							String partName = dataProviderID.substring(0, index);
+							final String restName = dataProviderID.substring(index + 1);
 							String relationName = partName;
 							if (relationName != null && !state.isRelatedFoundSetLoaded(relationName, restName))
 							{
