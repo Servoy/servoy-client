@@ -35,7 +35,7 @@ import com.servoy.j2db.util.ImageLoader;
  */
 public class StyledEnablePanel extends EnablePanel
 {
-	private final IApplication application;
+	private IApplication application;
 	private IStyleRule partRule = null;
 	private boolean paintBackgroundOnTopOfFormImage = false;
 
@@ -44,10 +44,21 @@ public class StyledEnablePanel extends EnablePanel
 		this.application = application;
 	}
 
+	public StyledEnablePanel()
+	{
+		this(null);
+	}
+
 	public IApplication getApplication()
 	{
 		return application;
 	}
+
+	public void setApplication(IApplication application)
+	{
+		this.application = application;
+	}
+
 
 	public void setPaintBackgroundOnTopOfFormImage(boolean paintBackgroundOnTopOfFormImage)
 	{

@@ -1924,6 +1924,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	private IStyleSheet stylesheet = null;
 	private IStyleRule styleRule = null, styleOdd = null, styleEven = null, styleSelected = null, styleHeader = null;
+	private IStyleRule bodyRule = null;
 
 	void init()
 	{
@@ -2068,14 +2069,15 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				bodyPart = part;
 				bgColor = partColor;
 				bodyPartBgColor = part.getBackground();
+				Pair<IStyleSheet, IStyleRule> partStyle = ComponentFactory.getStyleForBasicComponent(application, part, form);
 				if (bodyPartBgColor == null)
 				{
-					Pair<IStyleSheet, IStyleRule> partStyle = ComponentFactory.getStyleForBasicComponent(application, part, form);
 					if (partStyle != null && partStyle.getRight() != null && partStyle.getRight().hasAttribute(CSSName.BACKGROUND_COLOR.toString()))
 					{
 						bodyPartBgColor = partStyle.getLeft().getBackground(partStyle.getRight());
 					}
 				}
+				bodyRule = partStyle != null ? partStyle.getRight() : null;
 			}
 
 			if (part.getPartType() == Part.BODY && v == FormController.LOCKED_TABLE_VIEW)
@@ -5115,6 +5117,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	public IStyleRule getFormStyle()
 	{
 		return styleRule;
+	}
+
+	public IStyleRule getBodyStyle()
+	{
+		return bodyRule;
 	}
 
 	public Color getBodyPartBackgroundColor()

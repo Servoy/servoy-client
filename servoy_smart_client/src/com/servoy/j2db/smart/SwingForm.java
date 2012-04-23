@@ -143,6 +143,7 @@ import com.servoy.j2db.smart.dataui.SolutionSkin;
 import com.servoy.j2db.smart.dataui.SpecialSplitPane;
 import com.servoy.j2db.smart.dataui.SpecialTabPanel;
 import com.servoy.j2db.smart.dataui.SplitPane;
+import com.servoy.j2db.smart.dataui.StyledEnablePanel;
 import com.servoy.j2db.smart.dataui.VisibleBean;
 import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
 import com.servoy.j2db.ui.IComponent;
@@ -727,6 +728,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				view = new TableView(application, fp, fp.getForm(), fp.getForm(), fp.getScriptExecuter(), dataRenderers[Part.HEADER],
 					dataRenderers[Part.LEADING_GRAND_SUMMARY], false);
 				dataRenderers[FormController.FORM_EDITOR] = (IDataRenderer)view;
+				if (formController.getBodyStyle() != null)
+				{
+					((StyledEnablePanel)innerPanel).setCssRule(formController.getBodyStyle());
+					((StyledEnablePanel)innerPanel).setApplication(application);
+				}
 				break;
 
 			case IForm.LOCKED_RECORD_VIEW :

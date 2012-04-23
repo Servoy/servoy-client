@@ -16,7 +16,9 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,26 +57,29 @@ public class StyleAppendingModifier extends AttributeModifier
 	@Override
 	protected String newValue(final String currentValue, String replacementValue)
 	{
-		LinkedHashMap<String, String> currentProperties = parseStyleString(currentValue);
-		LinkedHashMap<String, String> replacementProperties = parseStyleString(replacementValue);
+		LinkedHashMap<String, List<String>> currentProperties = parseStyleString(currentValue);
+		LinkedHashMap<String, List<String>> replacementProperties = parseStyleString(replacementValue);
 		currentProperties.putAll(replacementProperties);
 
 		StringBuffer sb = new StringBuffer();
 		for (String propKey : currentProperties.keySet())
 		{
-			sb.append(propKey);
-			sb.append(":"); //$NON-NLS-1$
-			sb.append(currentProperties.get(propKey));
-			sb.append(";"); //$NON-NLS-1$
+			for (String value : currentProperties.get(propKey))
+			{
+				sb.append(propKey);
+				sb.append(":"); //$NON-NLS-1$
+				sb.append(value);
+				sb.append(";"); //$NON-NLS-1$
+			}
 		}
 		return sb.toString().length() == 0 ? null : sb.toString();
 	}
 
 	private static final Pattern reCssProperty = Pattern.compile("^([^:]*):(.*)$"); //$NON-NLS-1$
 
-	private static LinkedHashMap<String, String> parseStyleString(String styleString)
+	private static LinkedHashMap<String, List<String>> parseStyleString(String styleString)
 	{
-		LinkedHashMap<String, String> properties = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, List<String>> properties = new LinkedHashMap<String, List<String>>();
 		if (styleString == null) return properties;
 		String[] sProperties = styleString.split(";");
 		for (int i = 0; i < sProperties.length; i++)
@@ -87,7 +92,13 @@ public class StyleAppendingModifier extends AttributeModifier
 				if (propertyName.trim().length() > 0)
 				{
 					String propertyValue = mOneProperty.group(2);
-					properties.put(propertyName.trim(), propertyValue.trim());
+					List<String> values = properties.get(propertyName.trim());
+					if (values == null)
+					{
+						values = new ArrayList<String>();
+						properties.put(propertyName.trim(), values);
+					}
+					values.add(propertyValue.trim());
 				}
 			}
 			else if (i > 0)
@@ -99,11 +110,10 @@ public class StyleAppendingModifier extends AttributeModifier
 					if (prevOneProperty.find())
 					{
 						String propertyName = prevOneProperty.group(1);
-						String propertyValue = properties.get(propertyName);
+						List<String> propertyValue = properties.get(propertyName);
 						if (propertyValue != null)
 						{
-							propertyValue += ";" + property.trim();
-							properties.put(propertyName, propertyValue);
+							propertyValue.add(property.trim());
 						}
 						break;
 					}

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.gui;
 
 
@@ -33,6 +33,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicBorders;
 
+import com.servoy.j2db.smart.dataui.StyledEnablePanel;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -51,7 +52,7 @@ public class PartsScrollPane extends EnablePanel implements javax.swing.plaf.UIR
 	public PartsScrollPane()
 	{
 		setLayout(new VerticalBorderLayout());
-		innerPanel = new EnablePanel();
+		innerPanel = new StyledEnablePanel();
 		innerPanel.setLayout(new BorderLayout());
 		add(innerPanel, BorderLayout.CENTER);
 		scroll = new PartsScroller();
