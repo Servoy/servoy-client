@@ -774,6 +774,7 @@ public class StaticContentSpecLoader
 		if (old_repository_version < 42)
 		{
 			cs.new Element(400, IRepository.SCRIPTVARIABLES, PROPERTY_LINENUMBEROFFSET.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(401, IRepository.PARTS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
 		}
 		//##add property adds here
 
