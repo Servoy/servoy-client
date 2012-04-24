@@ -36,7 +36,6 @@ import java.util.Map.Entry;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.UIDefaults;
 import javax.swing.border.Border;
 import javax.swing.text.html.CSS;
 
@@ -61,7 +60,6 @@ import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -367,15 +365,6 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 						{
 							panel.add(comp, index);
 						}
-					}
-				}
-
-				if (app instanceof J2DBClient)
-				{
-					UIDefaults defs = ((J2DBClient)app).getSkinLookAndFeelDefaults();
-					if (defs != null)
-					{
-						SolutionSkin.updateComponentTreeUI(defs, panel);
 					}
 				}
 			}
