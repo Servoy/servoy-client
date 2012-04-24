@@ -1105,7 +1105,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	protected void createPluginManager()
 	{
 		pluginManager = new ClientPluginManager(this);
-		pluginAccess = new SmartClientPluginAccessProvider(this);
+		pluginAccess = createClientPluginAccessProvider();
 
 		getScheduledExecutor().execute(new Runnable()
 		{
@@ -1117,6 +1117,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					getPluginManager().getColumnConverterManager(), getPluginManager().getUIConverterManager());
 			}
 		});
+	}
+
+	protected SmartClientPluginAccessProvider createClientPluginAccessProvider()
+	{
+		return new SmartClientPluginAccessProvider(this);
 	}
 
 	protected IBeanManager createBeanManager()

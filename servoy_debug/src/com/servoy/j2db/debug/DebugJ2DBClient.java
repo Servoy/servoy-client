@@ -103,12 +103,14 @@ import com.servoy.j2db.smart.SwingRuntimeWindow;
 import com.servoy.j2db.smart.SwingRuntimeWindowManager;
 import com.servoy.j2db.smart.cmd.CmdManager;
 import com.servoy.j2db.smart.dataui.FormLookupPanel;
+import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.ThreadingInvocationHandler;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -819,6 +821,27 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		return ApplicationServerSingleton.get().getLafManager();
 	}
 
+	@Override
+	protected SmartClientPluginAccessProvider createClientPluginAccessProvider()
+	{
+		return new SmartClientPluginAccessProvider(this)
+		{
+			private final boolean useSerializingDataserverProxy = new DeveloperPreferences(Settings.getInstance()).useSerializingDataserverProxy();
+
+			@Override
+			public Remote getRemoteService(String name) throws Exception
+			{
+				// (de)serialize arguments and result of 'remote' services in developer to mimic rmi in smart client
+				Remote remoteService = super.getRemoteService(name);
+				if (useSerializingDataserverProxy)
+				{
+					return SerializingInvocationHandler.createSerializingSerializingInvocationHandler(remoteService);
+				}
+				return remoteService;
+			}
+		};
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -832,7 +855,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			if (new DeveloperPreferences(Settings.getInstance()).useSerializingDataserverProxy())
 			{
-				dataServer = SerializingDataserverProxy.createSerializingDataserverProxy(dataServer);
+				dataServer = SerializingInvocationHandler.createSerializingSerializingInvocationHandler(ThreadingInvocationHandler.createThreadingInvocationHandler(dataServer));
 			}
 			dataServer = new ProfileDataServer(dataServer);
 		}

@@ -19,6 +19,7 @@ package com.servoy.j2db.plugins;
 
 import java.awt.Component;
 import java.awt.Window;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
@@ -63,6 +64,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
+import com.servoy.j2db.util.ThreadingInvocationHandler;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 /**
@@ -73,10 +75,12 @@ import com.servoy.j2db.util.toolbar.IToolbarPanel;
 public class ClientPluginAccessProvider implements IClientPluginAccess
 {
 	private final IApplication application;
+	private final boolean useThreadingInvocationHandler;
 
 	public ClientPluginAccessProvider(IApplication app)
 	{
 		application = app;
+		useThreadingInvocationHandler = Boolean.parseBoolean(application.getSettings().getProperty("servoy.plugins.services.threaded", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public IDataServer getDataServer()
@@ -105,14 +109,9 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	@Deprecated
 	public Object getUserID()
 	{
-		return application.getUserUID();
+		return getUserUID();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IPluginAccess#getUserID()
-	 */
 	public Object getUserUID()
 	{
 		return application.getUserUID();
@@ -123,6 +122,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		return application.getClientID();
 	}
 
+	@Deprecated
 	public String getTransactionID(String serverName)
 	{
 		try
@@ -330,14 +330,21 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		return application.getServerURL();
 	}
 
+	@Deprecated
 	public Remote getServerService(String name) throws Exception
 	{
-		return application.getServerService(name);
+		return getRemoteService(name);
 	}
 
 	public Remote getRemoteService(String name) throws Exception
 	{
-		return application.getServerService(name);
+		Remote remote = application.getServerService(name);
+		if (!useThreadingInvocationHandler || Proxy.isProxyClass(remote.getClass()))
+		{
+			// When remote object is already a proxy, we assume it is a rmi object, the code runs separate already anyway.
+			return remote;
+		}
+		return ThreadingInvocationHandler.createThreadingInvocationHandler(remote);
 	}
 
 	/*

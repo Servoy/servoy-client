@@ -28,10 +28,8 @@ import java.lang.reflect.Proxy;
 
 import org.apache.wicket.util.io.ByteArrayOutputStream;
 
-import com.servoy.j2db.dataprocessing.IDataServer;
-
 /**
- * IDataServer proxy invocationHandler that serializes/deserializes arguments to dataserver calls and the result.
+ * Proxy invocationHandler that serializes/deserializes arguments to method calls and the result.
  * This can be used to mimic rmi access from debug SC in developer.
  * 
  * @author rgansevles
@@ -39,20 +37,21 @@ import com.servoy.j2db.dataprocessing.IDataServer;
  * @since 6.0
  *
  */
-public class SerializingDataserverProxy implements InvocationHandler
+public class SerializingInvocationHandler implements InvocationHandler
 {
-	private final IDataServer dataServer;
+	private final Object object;
 
-	private SerializingDataserverProxy(IDataServer dataServer)
+	private SerializingInvocationHandler(Object object)
 	{
-		this.dataServer = dataServer;
+		this.object = object;
 	}
 
 
-	public static IDataServer createSerializingDataserverProxy(IDataServer dataServer)
+	@SuppressWarnings("unchecked")
+	public static <T> T createSerializingSerializingInvocationHandler(T object)
 	{
-		return (IDataServer)Proxy.newProxyInstance(IDataServer.class.getClassLoader(), new Class[] { IDataServer.class }, new SerializingDataserverProxy(
-			dataServer));
+		if (object == null) return null;
+		return (T)Proxy.newProxyInstance(object.getClass().getClassLoader(), object.getClass().getInterfaces(), new SerializingInvocationHandler(object));
 	}
 
 
@@ -88,7 +87,7 @@ public class SerializingDataserverProxy implements InvocationHandler
 		Object res;
 		try
 		{
-			res = method.invoke(dataServer, serializedArgs);
+			res = method.invoke(object, serializedArgs);
 		}
 		catch (InvocationTargetException e)
 		{
