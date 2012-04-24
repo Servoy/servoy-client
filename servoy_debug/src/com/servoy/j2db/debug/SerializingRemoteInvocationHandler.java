@@ -21,12 +21,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.rmi.Remote;
 
 import org.apache.wicket.util.io.ByteArrayOutputStream;
+
+import com.servoy.j2db.util.AbstractRemoteInvocationHandler;
 
 /**
  * Proxy invocationHandler that serializes/deserializes arguments to method calls and the result.
@@ -37,23 +38,31 @@ import org.apache.wicket.util.io.ByteArrayOutputStream;
  * @since 6.0
  *
  */
-public class SerializingInvocationHandler implements InvocationHandler
+public class SerializingRemoteInvocationHandler extends AbstractRemoteInvocationHandler
 {
-	private final Object object;
-
-	private SerializingInvocationHandler(Object object)
+	private SerializingRemoteInvocationHandler(Remote remote)
 	{
-		this.object = object;
+		super(remote);
 	}
-
 
 	@SuppressWarnings("unchecked")
-	public static <T> T createSerializingSerializingInvocationHandler(T object)
+	public static <T extends Remote> T createSerializingSerializingInvocationHandler(T obj)
 	{
-		if (object == null) return null;
-		return (T)Proxy.newProxyInstance(object.getClass().getClassLoader(), object.getClass().getInterfaces(), new SerializingInvocationHandler(object));
+		if (obj == null)
+		{
+			return null;
+		}
+		return createSerializingSerializingInvocationHandler(obj, getRemoteInterfaces(obj.getClass()));
 	}
 
+	public static <T extends Remote> T createSerializingSerializingInvocationHandler(T obj, Class[] interfaces)
+	{
+		if (obj == null)
+		{
+			return null;
+		}
+		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new SerializingRemoteInvocationHandler(obj));
+	}
 
 	/**
 	 * Write the object to an object stream and read it back.
@@ -84,15 +93,7 @@ public class SerializingInvocationHandler implements InvocationHandler
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
 		Object[] serializedArgs = serializeAndDeserialize(args);
-		Object res;
-		try
-		{
-			res = method.invoke(object, serializedArgs);
-		}
-		catch (InvocationTargetException e)
-		{
-			throw e.getCause();
-		}
+		Object res = invokeMethod(method, serializedArgs);
 		return serializeAndDeserialize(res);
 	}
 }

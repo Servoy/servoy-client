@@ -110,7 +110,7 @@ import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.ThreadingInvocationHandler;
+import com.servoy.j2db.util.ThreadingRemoteInvocationHandler;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -836,7 +836,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				Remote remoteService = super.getRemoteService(name);
 				if (useSerializingDataserverProxy)
 				{
-					return SerializingInvocationHandler.createSerializingSerializingInvocationHandler(remoteService);
+					return SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(remoteService);
 				}
 				return remoteService;
 			}
@@ -856,7 +856,9 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			if (new DeveloperPreferences(Settings.getInstance()).useSerializingDataserverProxy())
 			{
-				dataServer = SerializingInvocationHandler.createSerializingSerializingInvocationHandler(ThreadingInvocationHandler.createThreadingInvocationHandler(dataServer));
+				dataServer = SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(
+					ThreadingRemoteInvocationHandler.createThreadingRemoteInvocationHandler(dataServer, new Class[] { IDataServer.class }),
+					new Class[] { IDataServer.class });
 			}
 			dataServer = new ProfileDataServer(dataServer);
 		}

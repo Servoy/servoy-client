@@ -17,10 +17,9 @@
 
 package com.servoy.j2db.util;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.rmi.Remote;
 
 import com.servoy.j2db.persistence.RepositoryException;
 
@@ -31,23 +30,30 @@ import com.servoy.j2db.persistence.RepositoryException;
  *
  * @since 6.1
  */
-public class ThreadingInvocationHandler implements InvocationHandler
+public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHandler
 {
-	private final Object obj;
-
-	private ThreadingInvocationHandler(Object obj)
+	private ThreadingRemoteInvocationHandler(Remote remote)
 	{
-		this.obj = obj;
+		super(remote);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T createThreadingInvocationHandler(T obj)
+	public static <T extends Remote> T createThreadingRemoteInvocationHandler(T obj)
 	{
 		if (obj == null)
 		{
 			return null;
 		}
-		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), obj.getClass().getInterfaces(), new ThreadingInvocationHandler(obj));
+		return createThreadingRemoteInvocationHandler(obj, getRemoteInterfaces(obj.getClass()));
+	}
+
+	public static <T extends Remote> T createThreadingRemoteInvocationHandler(T obj, Class[] interfaces)
+	{
+		if (obj == null)
+		{
+			return null;
+		}
+		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new ThreadingRemoteInvocationHandler(obj));
 	}
 
 	/*
@@ -66,11 +72,7 @@ public class ThreadingInvocationHandler implements InvocationHandler
 			{
 				try
 				{
-					result[0] = method.invoke(obj, args);
-				}
-				catch (InvocationTargetException e)
-				{
-					throwable[0] = e.getCause();
+					result[0] = invokeMethod(method, args);
 				}
 				catch (Throwable t)
 				{
@@ -79,7 +81,7 @@ public class ThreadingInvocationHandler implements InvocationHandler
 			}
 		};
 
-		Thread thread = new Thread(methodRunner, "ThreadingInvocationHandler"); //$NON-NLS-1$
+		Thread thread = new Thread(methodRunner, "ThreadingRemoteInvocationHandler"); //$NON-NLS-1$
 		thread.start();
 		try
 		{

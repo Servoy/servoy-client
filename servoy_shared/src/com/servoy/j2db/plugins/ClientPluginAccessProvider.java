@@ -64,7 +64,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
-import com.servoy.j2db.util.ThreadingInvocationHandler;
+import com.servoy.j2db.util.ThreadingRemoteInvocationHandler;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 /**
@@ -344,7 +344,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 			// When remote object is already a proxy, we assume it is a rmi object, the code runs separate already anyway.
 			return remote;
 		}
-		return ThreadingInvocationHandler.createThreadingInvocationHandler(remote);
+		return ThreadingRemoteInvocationHandler.createThreadingRemoteInvocationHandler(remote);
 	}
 
 	/*
