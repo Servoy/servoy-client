@@ -18,12 +18,14 @@ package com.servoy.j2db.util.gui;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
@@ -32,6 +34,11 @@ import com.servoy.j2db.util.ImageLoader;
 
 public class SnapShot
 {
+	public enum IMAGE_TYPE
+	{
+		JPG, PNG
+	}
+
 	/**
 	 * Create an jpg image blob from a live component (or existing image blob to scale it).
 	 * @param window parent window to use for offscreen drawings
@@ -42,13 +49,28 @@ public class SnapShot
 	 */
 	public static byte[] createJPGImage(Window window, Object obj, int width, int height)
 	{
+		return createImage(window, obj, width, height, IMAGE_TYPE.JPG);
+	}
+
+	/**
+	 * Create an image blob from a live component (or existing image blob to scale it).
+	 * @param window parent window to use for offscreen drawings
+	 * @param obj the imageblob-bytearray,ImageIcon,Image or Component
+	 * @param width desired width (-1 = leave as is)
+	 * @param height desired height (-1 = leave as is)
+	 * @param imageType the type of the returned image, JPG or PNG
+	 * @return the image blob
+	 */
+	public static byte[] createImage(Window window, Object obj, int width, int height, IMAGE_TYPE imageType)
+	{
 		ImageIcon imageIcon = null;
 		Component comp = null;
 		if (obj instanceof Component)
 		{
 			comp = (Component)obj;
 			final Component finalComp = comp;
-			final BufferedImage buf = new BufferedImage(comp.getWidth(), comp.getHeight(), BufferedImage.TYPE_INT_RGB);
+			final BufferedImage buf = new BufferedImage(comp.getWidth(), comp.getHeight(), imageType == IMAGE_TYPE.PNG ? BufferedImage.TYPE_INT_ARGB
+				: BufferedImage.TYPE_INT_RGB);
 			Runnable run = new Runnable()
 			{
 				public void run()
@@ -116,13 +138,37 @@ public class SnapShot
 
 			if (imageIcon.getImage() instanceof RenderedImage)
 			{
-				return ImageLoader.getByteArray("image/jpeg", (RenderedImage)imageIcon.getImage());
+				return ImageLoader.getByteArray(imageType == IMAGE_TYPE.JPG ? "image/jpg" : "image/png", (RenderedImage)imageIcon.getImage()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else
 			{
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				JpegEncoder encoder = new JpegEncoder(comp, imageIcon.getImage(), 100, baos);
-				encoder.compress();
+
+				if (imageType == IMAGE_TYPE.JPG)
+				{
+					JpegEncoder encoder = new JpegEncoder(comp, imageIcon.getImage(), 100, baos);
+					encoder.compress();
+				}
+				else
+				// IMAGE_TYPE.PNG
+				{
+					BufferedImage bufferedImage = new BufferedImage(imageIcon.getImage().getWidth(null), imageIcon.getImage().getHeight(null),
+						BufferedImage.TYPE_INT_ARGB);
+					//bufferedImage is the RenderedImage to be written
+					Graphics2D g2 = bufferedImage.createGraphics();
+					g2.drawImage(imageIcon.getImage(), null, null);
+
+					try
+					{
+						ImageIO.write(bufferedImage, "png", baos); //$NON-NLS-1$
+					}
+					catch (Exception ex)
+					{
+						Debug.log("Error saving image as png", ex);
+						return null;
+					}
+				}
+
 				return baos.toByteArray();
 			}
 		}

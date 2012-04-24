@@ -42,6 +42,7 @@ import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SnapShot;
+import com.servoy.j2db.util.gui.SnapShot.IMAGE_TYPE;
 
 /**
  * Shows an image from a bean running in the server
@@ -220,12 +221,14 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 				return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
 			}
 		};
+
+		parent.setOpaque(false);
 		parent.add(bean, BorderLayout.CENTER);
 		parent.setSize(size);
 		parent.doLayout();
 		parent.addNotify();
 
-		byte[] mostRecent = SnapShot.createJPGImage(null, parent, size.width, size.height);
+		byte[] mostRecent = SnapShot.createImage(null, parent, size.width, size.height, IMAGE_TYPE.PNG);
 
 		parent.remove(bean);
 
