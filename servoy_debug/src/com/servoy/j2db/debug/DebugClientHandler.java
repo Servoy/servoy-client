@@ -342,8 +342,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		if (debugJ2DBClient == null)
 		{
-			debugJ2DBClient = createDebugSmartClient();
-			J2DBGlobals.setSingletonServiceProvider(debugJ2DBClient);
+			debugJ2DBClient = createDebugSmartClient(true);
 		}
 		return debugJ2DBClient;
 	}
@@ -353,7 +352,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		if (jsunitJ2DBClient == null)
 		{
-			jsunitJ2DBClient = createDebugSmartClient();
+			jsunitJ2DBClient = createDebugSmartClient(false);
 			// Do not call J2DBGlobals.setSingletonServiceProvider here now, it will be set temporary when the unit tests are run
 			jsunitJ2DBClient.setUnitTestMode(true);
 		}
@@ -381,7 +380,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	/**
 	 * @param sol
 	 */
-	public DebugJ2DBClient createDebugSmartClient()
+	public DebugJ2DBClient createDebugSmartClient(final boolean setSingletonServiceProvider)
 	{
 		if (!ApplicationServerSingleton.waitForInstanceStarted())
 		{
@@ -420,7 +419,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									Debug.log(e);
 								}
 
-								client[0] = new DebugJ2DBClient(DebugClientHandler.this);
+								client[0] = new DebugJ2DBClient(setSingletonServiceProvider, DebugClientHandler.this);
 								client[0].setCurrent(currentSolution);
 							}
 						}

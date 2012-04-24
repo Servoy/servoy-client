@@ -675,6 +675,14 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	 */
 	protected J2DBClient()
 	{
+		this(true);
+	}
+
+	/**
+	 * Main application constructor
+	 */
+	protected J2DBClient(boolean setSingletonServiceProvider)
+	{
 		super();
 		//security check: when run as this class instance it must run under webstart for security!
 		if (getClass() == J2DBClient.class && !(WebStart.isRunningWebStart() && WebStart.getWebStartURL() != null))
@@ -682,6 +690,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			throw new IllegalStateException();
 		}
 		getClientInfo().setApplicationType(getApplicationType());
+		if (setSingletonServiceProvider) J2DBGlobals.setSingletonServiceProvider(this);
 	}
 
 	protected boolean getAppleScreenMenuBar()

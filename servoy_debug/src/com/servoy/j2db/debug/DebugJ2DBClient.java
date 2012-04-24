@@ -102,6 +102,7 @@ import com.servoy.j2db.smart.SwingRuntimeWindow;
 import com.servoy.j2db.smart.SwingRuntimeWindowManager;
 import com.servoy.j2db.smart.cmd.CmdManager;
 import com.servoy.j2db.smart.dataui.FormLookupPanel;
+import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
@@ -420,8 +421,9 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	@SuppressWarnings("nls")
-	public DebugJ2DBClient(final IDesignerCallback callback)
+	public DebugJ2DBClient(boolean setSingletonServiceProvider, final IDesignerCallback callback)
 	{
+		super(setSingletonServiceProvider);
 		this.designerCallback = callback;
 		refreshPersistsSequencer = new RefreshPersistsSequencer();
 		startupApplication(new String[0]);
