@@ -30,6 +30,11 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -201,6 +206,8 @@ public class LibChoiceHandler
 						if (removedXML.length() > 0)
 						{
 							removedLibReferences.add(new RemovedLibReference(relativePath, removedXML.toString(), getRelativePluginPath(jnlp)));
+							// save back the jnlp file
+							writeBackXML(doc, jnlp);
 						}
 					}
 				}
@@ -217,6 +224,21 @@ public class LibChoiceHandler
 			{
 				Debug.log("Cannot parse jnlp '" + jnlp.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
 			}
+		}
+	}
+
+	protected void writeBackXML(Document doc, File jnlp)
+	{
+		DOMSource source = new DOMSource(doc);
+		try
+		{
+			Transformer newTransformer = TransformerFactory.newInstance().newTransformer();
+			newTransformer.transform(source, new StreamResult(jnlp));
+		}
+		catch (TransformerException e)
+		{
+			warnings.add("Cannot write modified jnlp file (when deactivating lib): " + jnlp); //$NON-NLS-1$ 
+			Debug.error(e);
 		}
 	}
 
@@ -397,6 +419,7 @@ public class LibChoiceHandler
 					{
 						Node resourcesNode = list.item(0);
 						resourcesNode.setNodeValue(resourcesNode.getNodeValue() + removedResourcesXML);
+						writeBackXML(doc, jnlpFile);
 					}
 				}
 			}
