@@ -343,6 +343,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugJ2DBClient == null)
 		{
 			debugJ2DBClient = createDebugSmartClient();
+			J2DBGlobals.setSingletonServiceProvider(debugJ2DBClient);
 		}
 		return debugJ2DBClient;
 	}
@@ -353,6 +354,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (jsunitJ2DBClient == null)
 		{
 			jsunitJ2DBClient = createDebugSmartClient();
+			// Do not call J2DBGlobals.setSingletonServiceProvider here now, it will be set temporary when the unit tests are run
 			jsunitJ2DBClient.setUnitTestMode(true);
 		}
 		return jsunitJ2DBClient;

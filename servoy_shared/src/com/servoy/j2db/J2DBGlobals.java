@@ -33,9 +33,11 @@ public class J2DBGlobals
 	private static WeakHashMap<Object, SwingPropertyChangeSupport> changeSupportMap = new WeakHashMap<Object, SwingPropertyChangeSupport>();
 	private static IServiceProvider singletonServiceProvider;
 
-	public static void setSingletonServiceProvider(IServiceProvider serviceprovider)
+	public static IServiceProvider setSingletonServiceProvider(IServiceProvider serviceprovider)
 	{
+		IServiceProvider old = J2DBGlobals.singletonServiceProvider;
 		J2DBGlobals.singletonServiceProvider = serviceprovider;
+		return old;
 	}
 
 	public static IServiceProvider getSingletonServiceProvider()
