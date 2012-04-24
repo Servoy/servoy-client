@@ -439,7 +439,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									Debug.log(e);
 								}
 
-								client[0] = new DebugJ2DBClient(DebugClientHandler.this);
+								client[0] = new DebugJ2DBClient(true, DebugClientHandler.this);
 								client[0].setCurrent(currentSolution);
 							}
 						}
@@ -505,7 +505,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									Debug.log(e);
 								}
 
-								client[0] = new DebugJ2DBClient(DebugClientHandler.this)
+								// Do not call J2DBGlobals.setSingletonServiceProvider here now, it will be set temporary when the unit tests are run
+								client[0] = new DebugJ2DBClient(false, DebugClientHandler.this)
 								{
 									private final List<Runnable> events = new ArrayList<Runnable>();
 
