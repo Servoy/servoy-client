@@ -164,7 +164,7 @@ public class SnapShot
 					}
 					catch (Exception ex)
 					{
-						Debug.log("Error saving image as png", ex);
+						Debug.error("Error saving image as png", ex);
 						return null;
 					}
 				}
