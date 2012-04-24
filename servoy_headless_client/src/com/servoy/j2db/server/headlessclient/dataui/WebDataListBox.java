@@ -67,6 +67,8 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
@@ -83,7 +85,8 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public class WebDataListBox extends ListMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
-	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent
+	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent,
+	ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -1003,5 +1006,10 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		{
 			super.appendOptionHtml(buffer, choice, index, selected);
 		}
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

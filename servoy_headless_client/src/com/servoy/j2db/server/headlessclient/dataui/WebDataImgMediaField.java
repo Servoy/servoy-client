@@ -77,6 +77,8 @@ import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
@@ -93,7 +95,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataImgMediaField extends WebMarkupContainer implements IDisplayData, IFieldComponent, IScrollPane, ILinkListener,
-	IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener
+	IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener, ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1152,5 +1154,10 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

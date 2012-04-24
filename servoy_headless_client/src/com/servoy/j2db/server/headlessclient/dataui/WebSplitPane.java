@@ -66,6 +66,8 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.ISplitPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
 import com.servoy.j2db.util.IStyleSheet;
@@ -77,7 +79,7 @@ import com.servoy.j2db.util.Utils;
  * @author gboros
  */
 public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer, ISupportSimulateBoundsProvider
 {
 	private final IApplication application;
 	private final int orient;
@@ -1007,5 +1009,10 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void addScriptExecuter(IScriptExecuter el)
 	{
 		this.scriptExecutor = el;
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

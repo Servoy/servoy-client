@@ -63,6 +63,8 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
@@ -79,7 +81,8 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner, jblok
  */
 public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent
+	IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent,
+	ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1063,5 +1066,10 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public void setAnchors(int arg)
 	{
 		this.anchors = arg;
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

@@ -61,6 +61,8 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
@@ -76,7 +78,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public abstract class WebBaseSelectBox extends MarkupContainer implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, INullableAware,
-	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList
+	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList, ISupportSimulateBoundsProvider
 {
 	protected static final long serialVersionUID = 1L;
 	protected static final String NO_COLOR = "NO_COLOR";
@@ -852,5 +854,10 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			// If form validation fails, we don't execute the method.
 			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
 		}
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

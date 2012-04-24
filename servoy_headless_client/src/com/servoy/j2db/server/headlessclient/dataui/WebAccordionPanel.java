@@ -74,6 +74,8 @@ import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
@@ -91,7 +93,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer, ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1206,5 +1208,10 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	public void setHorizontalAlignment(int alignment)
 	{
 
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

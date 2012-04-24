@@ -64,6 +64,8 @@ import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
@@ -82,7 +84,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataComboBox extends DropDownChoice implements IFieldComponent, IDisplayData, IDisplayRelatedData, IProviderStylePropertyChanges,
-	ISupportWebBounds, IRightClickListener, ISupportValueList, IFormattingComponent
+	ISupportWebBounds, IRightClickListener, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1207,5 +1209,10 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			}
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

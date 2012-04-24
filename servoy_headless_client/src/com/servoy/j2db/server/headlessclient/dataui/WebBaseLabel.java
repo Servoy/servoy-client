@@ -68,6 +68,8 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
@@ -85,7 +87,7 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IResourceListener, IProviderStylePropertyChanges, IDoubleClickListener, IRightClickListener,
-	ISupportWebBounds, IImageDisplay, IAnchoredComponent
+	ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1122,5 +1124,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void setAnchors(int arg)
 	{
 		this.anchors = arg;
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

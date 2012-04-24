@@ -59,6 +59,8 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportInputSelection;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.util.ITagResolver;
@@ -73,7 +75,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataTextArea extends TextArea implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener,
-	ISupportInputSelection
+	ISupportInputSelection, ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -863,5 +865,10 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			}
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

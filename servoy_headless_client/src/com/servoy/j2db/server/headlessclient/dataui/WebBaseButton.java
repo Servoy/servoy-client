@@ -64,6 +64,8 @@ import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.util.Debug;
@@ -80,7 +82,7 @@ import com.servoy.j2db.util.Utils;
  * 
  */
 public abstract class WebBaseButton extends Button implements IButton, IResourceListener, IProviderStylePropertyChanges, ILinkListener, IAjaxIndicatorAware,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider
 {
 	private int mediaOptions;
 //	private int rotation;
@@ -1351,5 +1353,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public String getRolloverUrl()
 	{
 		return rolloverUrl;
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 }

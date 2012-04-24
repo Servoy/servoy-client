@@ -76,6 +76,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
@@ -84,6 +85,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataui.IServoyAwareBean;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IPersist;
@@ -131,6 +133,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
@@ -146,7 +149,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * 
  */
-public class WebForm extends Panel implements IFormUIInternal<Component>, IMarkupCacheKeyProvider, IProviderStylePropertyChanges
+public class WebForm extends Panel implements IFormUIInternal<Component>, IMarkupCacheKeyProvider, IProviderStylePropertyChanges, ISupportSimulateBounds
 {
 	private static final long serialVersionUID = 1L;
 	/**
@@ -1604,13 +1607,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	public int getAnchors(String componentId)
 	{
+		IPersist obj = getPersist(componentId);
+		if ((obj instanceof ISupportAnchors)) return ((ISupportAnchors)obj).getAnchors();
+
+		return IAnchorConstants.DEFAULT;
+	}
+
+	private IPersist getPersist(String componentId)
+	{
 		Iterator<IPersist> e1 = formController.getForm().getAllObjects();
 		while (e1.hasNext())
 		{
 			IPersist obj = e1.next();
-			if ((obj instanceof ISupportAnchors) && ComponentFactory.getWebID(formController.getForm(), obj).equals(componentId)) return ((ISupportAnchors)obj).getAnchors();
+			if (ComponentFactory.getWebID(formController.getForm(), obj).equals(componentId)) return obj;
 		}
-		return IAnchorConstants.DEFAULT;
+		return null;
 	}
 
 	/**
@@ -1940,5 +1951,73 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public void prepareForSave(boolean looseFocus)
 	{
 		// was in FormController only called for SwingForm
+	}
+
+	public Rectangle getBounds(IComponent component)
+	{
+		if (component instanceof Component && Utils.getAsBoolean(formController.getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+		{
+			IPersist persist = getPersist(((Component)component).getId());
+			if (persist instanceof ISupportAnchors && ((ISupportAnchors)persist).getAnchors() > 0 &&
+				((ISupportAnchors)persist).getAnchors() != IAnchorConstants.DEFAULT)
+			{
+				int anchors = ((ISupportAnchors)persist).getAnchors();
+				IDataRenderer renderer = ((Component)component).findParent(IDataRenderer.class);
+				int partHeight = 0;
+				if (renderer != null)
+				{
+					partHeight = renderer.getSize().height;
+				}
+				int designWidth = formController.getForm().getWidth();
+				int designHeight = 0;
+				Part part = formController.getForm().getPartAt(((BaseComponent)persist).getLocation().y);
+				if (part != null)
+				{
+					int top = formController.getForm().getPartStartYPos(part.getID());
+					designHeight = part.getHeight() - top;
+				}
+				if (partHeight > 0 && formWidth > 0 && designWidth > 0 && designHeight > 0)
+				{
+					int navid = formController.getForm().getNavigatorID();
+					int navigatorWidth = 0;
+					if (navid == Form.NAVIGATOR_DEFAULT && formController.getForm().getView() != FormController.TABLE_VIEW &&
+						formController.getForm().getView() != FormController.LOCKED_TABLE_VIEW)
+					{
+						navigatorWidth = WebDefaultRecordNavigator.DEFAULT_WIDTH;
+					}
+					else if (navid != Form.NAVIGATOR_NONE)
+					{
+						ISupportNavigator navigatorSupport = findParent(ISupportNavigator.class);
+						if (navigatorSupport != null)
+						{
+							FormController currentNavFC = navigatorSupport.getNavigator();
+							if (currentNavFC != null)
+							{
+								navigatorWidth = currentNavFC.getForm().getWidth();
+							}
+						}
+					}
+					Rectangle bounds = new Rectangle(component.getLocation(), component.getSize());
+					if ((anchors & IAnchorConstants.EAST) != 0 && (anchors & IAnchorConstants.WEST) == 0)
+					{
+						bounds.x += formWidth - designWidth - navigatorWidth;
+					}
+					if ((anchors & IAnchorConstants.SOUTH) != 0 && (anchors & IAnchorConstants.NORTH) == 0)
+					{
+						bounds.y += partHeight - designHeight;
+					}
+					if ((anchors & IAnchorConstants.EAST) != 0 && (anchors & IAnchorConstants.WEST) != 0 && (formWidth - designWidth - navigatorWidth > 0))
+					{
+						bounds.width += formWidth - designWidth - navigatorWidth;
+					}
+					if ((anchors & IAnchorConstants.SOUTH) != 0 && (anchors & IAnchorConstants.NORTH) != 0 && (partHeight - designHeight > 0))
+					{
+						bounds.height += partHeight - designHeight;
+					}
+					return bounds;
+				}
+			}
+		}
+		return null;
 	}
 }

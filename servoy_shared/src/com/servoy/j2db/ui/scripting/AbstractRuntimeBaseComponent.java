@@ -19,6 +19,7 @@ package com.servoy.j2db.ui.scripting;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
@@ -123,11 +125,29 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public int getWidth()
 	{
+		if (!sizeSet && getComponent() instanceof ISupportSimulateBoundsProvider &&
+			((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider() != null)
+		{
+			Rectangle bounds = ((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider().getBounds(getComponent());
+			if (bounds != null)
+			{
+				return bounds.width;
+			}
+		}
 		return getComponent().getSize().width;
 	}
 
 	public int getHeight()
 	{
+		if (!sizeSet && getComponent() instanceof ISupportSimulateBoundsProvider &&
+			((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider() != null)
+		{
+			Rectangle bounds = ((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider().getBounds(getComponent());
+			if (bounds != null)
+			{
+				return bounds.height;
+			}
+		}
 		return getComponent().getSize().height;
 	}
 
@@ -170,6 +190,9 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		return getComponent().isEnabled();
 	}
 
+	private boolean locationSet = false;
+	private boolean sizeSet = false;
+
 	public void setLocation(int x, int y)
 	{
 		getComponent().setLocation(new Point(x, y));
@@ -182,6 +205,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		{
 			((JComponent)getComponent()).validate();
 		}
+		locationSet = true;
 	}
 
 	protected void setComponentSize(int x, int y)
@@ -196,6 +220,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		{
 			((JComponent)getComponent()).validate();
 		}
+		sizeSet = true;
 	}
 
 	public String getName()
@@ -208,11 +233,29 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public int getLocationX()
 	{
+		if (!locationSet && getComponent() instanceof ISupportSimulateBoundsProvider &&
+			((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider() != null)
+		{
+			Rectangle bounds = ((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider().getBounds(getComponent());
+			if (bounds != null)
+			{
+				return bounds.x;
+			}
+		}
 		return getComponent().getLocation().x;
 	}
 
 	public int getLocationY()
 	{
+		if (!locationSet && getComponent() instanceof ISupportSimulateBoundsProvider &&
+			((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider() != null)
+		{
+			Rectangle bounds = ((ISupportSimulateBoundsProvider)getComponent()).getBoundsProvider().getBounds(getComponent());
+			if (bounds != null)
+			{
+				return bounds.y;
+			}
+		}
 		return getComponent().getLocation().y;
 	}
 

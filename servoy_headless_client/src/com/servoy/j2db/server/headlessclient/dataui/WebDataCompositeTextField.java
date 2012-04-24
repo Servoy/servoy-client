@@ -48,6 +48,8 @@ import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSimulateBounds;
+import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
@@ -64,7 +66,8 @@ import com.servoy.j2db.util.PersistHelper;
  * @author jcompagner
  */
 public abstract class WebDataCompositeTextField extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds,
-	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent, IDesignModeListener
+	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent, IDesignModeListener,
+	ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -624,6 +627,11 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 			}
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
+	}
+
+	public ISupportSimulateBounds getBoundsProvider()
+	{
+		return findParent(ISupportSimulateBounds.class);
 	}
 
 	protected class AugmentedTextField extends WebDataField
