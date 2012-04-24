@@ -17,15 +17,6 @@
 
 package com.servoy.extension.parser;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
-import com.servoy.extension.ExtensionUtils;
-import com.servoy.extension.ExtensionUtils.EntryInputStreamRunner;
-import com.servoy.j2db.util.Debug;
 
 
 /**
@@ -42,111 +33,10 @@ public class Content
 	/** Eclipse update sites to be added to developer. */
 	public final String[] eclipseUpdateSiteURLs;
 
-	private final File zipFile;
-
-	public Content(File zipFile, String[] solutionToImportPaths, String[] teamProjectSetPaths, String[] eclipseUpdateSiteURLs)
+	public Content(String[] solutionToImportPaths, String[] teamProjectSetPaths, String[] eclipseUpdateSiteURLs)
 	{
-		this.zipFile = zipFile;
 		this.solutionToImportPaths = solutionToImportPaths;
 		this.teamProjectSetPaths = teamProjectSetPaths;
 		this.eclipseUpdateSiteURLs = eclipseUpdateSiteURLs;
-	}
-
-	public File[] getTeamProjectSets(String installDir)
-	{
-		return getFilesForImportPaths(installDir, teamProjectSetPaths);
-	}
-
-	public File[] getSolutionFiles(String installDir)
-	{
-		return getFilesForImportPaths(installDir, solutionToImportPaths);
-	}
-
-	public File[] getStyleFiles(String installDir)
-	{
-		ArrayList<String> stylePaths = new ArrayList<String>();
-
-		try
-		{
-			String[] zipEntryNames = ExtensionUtils.getZipEntryNames(zipFile);
-
-			for (String zipEntry : zipEntryNames)
-			{
-				if (zipEntry.startsWith("application_server/styles/")) stylePaths.add(zipEntry); //$NON-NLS-1$
-			}
-		}
-		catch (IOException ex)
-		{
-			Debug.error(ex);
-		}
-
-		String[] styleToImportPaths = stylePaths.size() > 0 ? stylePaths.toArray(new String[stylePaths.size()]) : null;
-
-		return getFilesForImportPaths(installDir, styleToImportPaths);
-	}
-
-	private File[] getFilesForImportPaths(String installDir, String[] paths)
-	{
-		File[] files = null;
-
-		if (paths != null)
-		{
-			files = new File[paths.length];
-			for (int i = 0; i < paths.length; i++)
-			{
-				final File file = new File(installDir + paths[i]);
-				if (!file.exists())
-				{
-					try
-					{
-						file.getParentFile().mkdirs();
-						ExtensionUtils.runOnEntry(zipFile, paths[i], new EntryInputStreamRunner<File>()
-						{
-							private FileOutputStream fos;
-
-							public File runOnEntryInputStream(InputStream is)
-							{
-								try
-								{
-									fos = new FileOutputStream(file);
-									byte[] buffer = new byte[1024];
-									int len;
-
-									while ((len = is.read(buffer)) != -1)
-									{
-										fos.write(buffer, 0, len);
-									}
-									fos.flush();
-								}
-								catch (Exception ex)
-								{
-									Debug.error(ex);
-								}
-								finally
-								{
-									if (fos != null) try
-									{
-										fos.close();
-									}
-									catch (IOException ex)
-									{
-										Debug.error(ex);
-									}
-								}
-
-								return file;
-							}
-						});
-					}
-					catch (Exception ex)
-					{
-						Debug.error(ex);
-					}
-				}
-				files[i] = file;
-			}
-		}
-
-		return files;
 	}
 }

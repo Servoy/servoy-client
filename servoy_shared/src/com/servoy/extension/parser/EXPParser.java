@@ -563,7 +563,7 @@ public class EXPParser
 									eclipseUpdateSiteURLs.add(element.getAttribute(URL));
 								}
 
-								content = new Content(zipFile, solutionToImportPaths.size() > 0
+								content = new Content(solutionToImportPaths.size() > 0
 									? solutionToImportPaths.toArray(new String[solutionToImportPaths.size()]) : null, teamProjectSetPaths.size() > 0
 									? teamProjectSetPaths.toArray(new String[teamProjectSetPaths.size()]) : null, eclipseUpdateSiteURLs.size() > 0
 									? eclipseUpdateSiteURLs.toArray(new String[eclipseUpdateSiteURLs.size()]) : null);
