@@ -17,11 +17,8 @@
 
 package com.servoy.extension.install;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -46,11 +43,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.servoy.extension.ExtensionUtils;
-import com.servoy.extension.ExtensionUtils.EntryInputStreamRunner;
 import com.servoy.extension.parser.FullLibDependencyDeclaration;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.Utils;
 
 /**
  * When installed extensions contain multiple versions of the same lib, only one of them will be chosen to be used.<br>
@@ -341,32 +335,7 @@ public class LibChoiceHandler
 			{
 				try
 				{
-					Pair<Boolean, Object> result = ExtensionUtils.runOnEntry(libActivation.toSelectSourceExp, libActivation.toSelect.relativePath,
-						new EntryInputStreamRunner<Object>()
-						{
-
-							public Object runOnEntryInputStream(InputStream is)
-							{
-								BufferedOutputStream os = null;
-								try
-								{
-									os = new BufferedOutputStream(new FileOutputStream(libFile));
-									Utils.streamCopy(is, os);
-								}
-								catch (IOException e)
-								{
-									warnings.add("Cannot restore lib file for version " + libActivation.toSelect + " from .exp file: " + libActivation.toSelectSourceExp); //$NON-NLS-1$//$NON-NLS-2$
-									Debug.error(e);
-								}
-								finally
-								{
-									Utils.closeOutputStream(os);
-								}
-								return null;
-							}
-
-						});
-					if (Boolean.FALSE == result.getLeft())
+					if (!ExtensionUtils.extractZipEntryToFile(libActivation.toSelectSourceExp, libActivation.toSelect.relativePath, libFile))
 					{
 						warnings.add("Cannot find lib version " + libActivation.toSelect + " in .exp file: " + libActivation.toSelectSourceExp); //$NON-NLS-1$//$NON-NLS-2$
 						Debug.error(warnings.get(warnings.size() - 1));

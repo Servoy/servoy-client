@@ -18,7 +18,9 @@
 package com.servoy.extension;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -57,7 +59,7 @@ public class ExtensionUtils
 	 */
 	public static <T> Pair<Boolean, T> runOnEntry(File file, String entry, EntryInputStreamRunner<T> runner) throws IOException, ZipException
 	{
-		Pair<Boolean, T> result = null;
+		Pair<Boolean, T> result; // not initialized; should never be null and if it's not initialized and no compiler warnings, then all branches are covered
 		ZipFile zipFile = null;
 		try
 		{
@@ -105,8 +107,40 @@ public class ExtensionUtils
 	public static interface EntryInputStreamRunner<T>
 	{
 
-		T runOnEntryInputStream(InputStream is);
+		T runOnEntryInputStream(InputStream is) throws IOException;
 
+	}
+
+	/**
+	 * Extracts a zip file entry to a destination file.
+	 * @param zipFile the zip file.
+	 * @param entryPath path of the entry in the zip file.
+	 * @param destinationFile the file to be created/copied to.
+	 * @return true if a zip entry with the given path was found and false otherwise.
+	 * @throws IOException if problems occurred in the process.
+	 * @throws ZipException if problems occurred in the process.
+	 */
+	public static boolean extractZipEntryToFile(File zipFile, String entryPath, final File destinationFile) throws IOException, ZipException
+	{
+		return ExtensionUtils.runOnEntry(zipFile, entryPath, new EntryInputStreamRunner<Object>()
+		{
+
+			public Object runOnEntryInputStream(InputStream is) throws IOException
+			{
+				BufferedOutputStream os = null;
+				try
+				{
+					os = new BufferedOutputStream(new FileOutputStream(destinationFile));
+					Utils.streamCopy(is, os);
+				}
+				finally
+				{
+					Utils.closeOutputStream(os);
+				}
+				return null;
+			}
+
+		}).getLeft().booleanValue();
 	}
 
 	public static String[] getZipEntryNames(File zipFile) throws IOException
