@@ -30,6 +30,7 @@ import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 
 import com.servoy.j2db.FormController;
@@ -456,7 +457,11 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		if (fp != null && fp.getName().equals(formName))
 		{
 			sfd.setModal(windowModal);
-			if (!sfd.isDisplayable()) sfd.setUndecorated(isUndecorated());
+			if (!sfd.isDisplayable() && isUndecorated())
+			{
+				sfd.setUndecorated(true);
+				sfd.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+			}
 			if (windowModal)
 			{
 				testAndSetJava6Modality(sfd);
