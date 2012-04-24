@@ -641,7 +641,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			{
 				// init application
 				J2DBClient base = new J2DBClient();
-				J2DBGlobals.setSingletonServiceProvider(base);
 				base.startupApplication(args);
 			}
 		};
