@@ -295,6 +295,10 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 			{
 				chooser = new JDateChooser((JDialog)windowParent, application.getI18NMessage("servoy.dateChooser.selectDate"), dateFormat); //$NON-NLS-1$
 			}
+			else
+			{
+				Debug.warn("Cannot create date chooser for parent container " + windowParent);
+			}
 			if (chooser != null) ((ISmartClientApplication)application).registerWindow("JDateChooser", chooser); //$NON-NLS-1$
 		}
 
