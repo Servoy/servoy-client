@@ -20,10 +20,10 @@ package com.servoy.extension.parser;
 import com.servoy.extension.LibDependencyDeclaration;
 
 /**
- * Full library dependency declaration (as defined in extension.xml).
+ * Full library dependency declaration (as defined in extension.xml); it also knows the extension .
  * @author acostescu
  */
-public class FullLibDependenncyDeclaration extends LibDependencyDeclaration
+public class FullLibDependencyDeclaration extends LibDependencyDeclaration
 {
 
 	public final String relativePath;
@@ -32,7 +32,7 @@ public class FullLibDependenncyDeclaration extends LibDependencyDeclaration
 	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
 	 * @param relativePath relative path in the .exp package to the lib's file.
 	 */
-	public FullLibDependenncyDeclaration(String id, String version, String minVersion, String maxVersion, String relativePath) throws IllegalArgumentException
+	public FullLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String relativePath) throws IllegalArgumentException
 	{
 		super(id, version, minVersion, maxVersion);
 		this.relativePath = relativePath;

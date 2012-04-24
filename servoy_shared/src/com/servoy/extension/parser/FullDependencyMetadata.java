@@ -31,13 +31,13 @@ public class FullDependencyMetadata extends DependencyMetadata
 {
 
 	@SuppressWarnings("hiding")
-	protected FullLibDependenncyDeclaration[] libDependencies;
+	protected FullLibDependencyDeclaration[] libDependencies;
 
 	/**
 	 * See {@link DependencyMetadata#DependencyMetadata(String, String, String, ServoyDependencyDeclaration, ExtensionDependencyDeclaration[], LibDependencyDeclaration[])}.
 	 */
 	public FullDependencyMetadata(String id, String version, String extensionName, ServoyDependencyDeclaration servoyDependency,
-		ExtensionDependencyDeclaration[] extensionDependencies, FullLibDependenncyDeclaration[] libDependencies)
+		ExtensionDependencyDeclaration[] extensionDependencies, FullLibDependencyDeclaration[] libDependencies)
 	{
 		super(id, version, extensionName, servoyDependency, extensionDependencies, libDependencies);
 	}

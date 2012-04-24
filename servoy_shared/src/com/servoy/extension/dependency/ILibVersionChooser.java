@@ -28,10 +28,10 @@ public interface ILibVersionChooser
 {
 
 	/**
-	 * Picks one of lib versions for each conflicting/multiple occurrence of a lib.
-	 * @param libChoices a list of lib choices that must be handled for the desired dependency resolve path.
-	 * @return for each libChoice one lib declaration is selected and returned.
+	 * Picks one of lib versions for the given conflicting/multiple occurrence of a lib.
+	 * @param libChoice a lib choice that must be handled for the desired dependency resolve path.
+	 * @return one lib declaration is selected and returned.
 	 */
-	TrackableLibDependencyDeclaration[] chooseLibDeclarations(LibChoice[] libChoices);
+	TrackableLibDependencyDeclaration chooseLibDeclaration(LibChoice libChoices);
 
 }

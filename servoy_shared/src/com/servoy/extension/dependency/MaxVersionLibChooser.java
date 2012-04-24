@@ -26,23 +26,12 @@ import com.servoy.extension.VersionStringUtils;
 public class MaxVersionLibChooser implements ILibVersionChooser
 {
 
-	public TrackableLibDependencyDeclaration[] chooseLibDeclarations(LibChoice[] libChoices)
-	{
-		TrackableLibDependencyDeclaration[] results = new TrackableLibDependencyDeclaration[libChoices.length];
-		for (int i = 0; i < libChoices.length; i++)
-		{
-			results[i] = chooseLibDeclaration(libChoices[i]);
-		}
-
-		return results;
-	}
-
 	/**
 	 * Chooses highest version lib declaration from the version list.
 	 * @param libChoice the choices available for this a lib.
 	 * @return the highest version of the lib.
 	 */
-	protected TrackableLibDependencyDeclaration chooseLibDeclaration(LibChoice libChoice)
+	public TrackableLibDependencyDeclaration chooseLibDeclaration(LibChoice libChoice)
 	{
 		TrackableLibDependencyDeclaration chosenOne = null;
 		for (TrackableLibDependencyDeclaration libVersion : libChoice.libDependencies)

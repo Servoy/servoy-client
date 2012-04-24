@@ -325,7 +325,7 @@ public class EXPParser
 							DocumentBuilder db = dbf.newDocumentBuilder();
 							db.setErrorHandler(new ParseDependencyMetadataErrorHandler(zipFile.getName()));
 
-							Document doc = db.parse(is);
+							Document doc = db.parse(is); // should we use UTF-8 here?
 							Element root = doc.getDocumentElement(); // "servoy-extension" tag
 							root.normalize();
 
@@ -340,7 +340,7 @@ public class EXPParser
 
 								ServoyDependencyDeclaration sdd = null;
 								List<ExtensionDependencyDeclaration> edds = new ArrayList<ExtensionDependencyDeclaration>();
-								List<FullLibDependenncyDeclaration> ldds = new ArrayList<FullLibDependenncyDeclaration>();
+								List<FullLibDependencyDeclaration> ldds = new ArrayList<FullLibDependencyDeclaration>();
 
 								if (dependencies != null && dependencies.getLength() == 1)
 								{
@@ -384,7 +384,7 @@ public class EXPParser
 											// no min/max specified for lib so it is a fixed version dependency
 											minVersion = maxVersion = libVersion;
 										}
-										ldds.add(new FullLibDependenncyDeclaration(element.getElementsByTagName(ID).item(0).getTextContent(), libVersion,
+										ldds.add(new FullLibDependencyDeclaration(element.getElementsByTagName(ID).item(0).getTextContent(), libVersion,
 											minVersion, maxVersion, path));
 									}
 								}
@@ -412,7 +412,7 @@ public class EXPParser
 								// cache dependency info about this version of the extension
 								dmd = new FullDependencyMetadata(extensionId, version, extensionName, sdd, (edds.size() > 0)
 									? edds.toArray(new ExtensionDependencyDeclaration[edds.size()]) : null, (ldds.size() > 0)
-									? ldds.toArray(new FullLibDependenncyDeclaration[ldds.size()]) : null);
+									? ldds.toArray(new FullLibDependencyDeclaration[ldds.size()]) : null);
 							}
 							catch (IllegalArgumentException e)
 							{
@@ -521,7 +521,7 @@ public class EXPParser
 							DocumentBuilder db = dbf.newDocumentBuilder();
 							db.setErrorHandler(new ParseDependencyMetadataErrorHandler(zipFile.getName()));
 
-							Document doc = db.parse(is);
+							Document doc = db.parse(is); // should we use UTF-8 here?
 							Element root = doc.getDocumentElement(); // "servoy-extension" tag
 							root.normalize();
 

@@ -109,7 +109,6 @@ public class ExtensionUtils
 
 	}
 
-
 	public static String[] getZipEntryNames(File zipFile) throws IOException
 	{
 		ArrayList<String> zipEntryNames = new ArrayList<String>();
@@ -121,4 +120,24 @@ public class ExtensionUtils
 
 		return zipEntryNames.toArray(new String[zipEntryNames.size()]);
 	}
+
+	// FIXME I think this might not work well for paths like [...]/../[...]
+	// moved out of CopyZipEntryImporter for reuse
+	public static boolean isInParentDir(File parentDir, File file)
+	{
+		File current = file;
+		if (current != null && parentDir != null)
+		{
+			while (current.getParentFile() != null)
+			{
+				if (parentDir.equals(current.getParentFile()))
+				{
+					return true;
+				}
+				current = current.getParentFile();
+			}
+		}
+		return false;
+	}
+
 }

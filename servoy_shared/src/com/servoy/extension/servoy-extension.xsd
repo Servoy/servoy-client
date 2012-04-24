@@ -48,7 +48,7 @@
 						<documentation>
 							Lists content that needs to be processed when the
 							extension
-							gets installed.
+							gets installed. This is about content that needs more then just default copy.
 						</documentation>
 					</annotation>
 				</element>
@@ -199,20 +199,15 @@
 				<element name="lib" type="tns:libComplexType">
 					<annotation>
 						<documentation>
-							&quot;lib&quot; type dependency specifies that
-							this
-							extension
-							depends on a 3rd party lib/jar
-							(that is
-							included in the archive),
-							but you
-							need to keep track of used
-							version
-							because it might conflict with
-							other
-							extensions that
-							use the same 3rd party
-							lib/jar.
+							&quot;lib&quot; type dependency specifies that this extension
+							depends on a 3rd party lib/jar (that is included in the archive), but you need
+							to keep track of used
+							version because it might conflict with other
+							extensions that use the same 3rd party lib/jar.
+							When working with multiple versions
+							of the same lib, Servoy may find and alter references to libs inside
+							plugin JNLP files (if needed) as well as manage (remove/restore) the lib files
+							themselfes.
 						</documentation>
 					</annotation>
 				</element>
@@ -595,5 +590,5 @@ By default inclusive is true. If it is set to false, the actual version will not
 	<simpleType name="fileNameType">
 		<restriction base="anyURI" />
 	</simpleType>
-	
+
 </schema>

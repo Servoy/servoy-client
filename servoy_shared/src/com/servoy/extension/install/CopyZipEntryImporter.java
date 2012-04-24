@@ -25,13 +25,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FileUtils;
+
+import com.servoy.extension.ExtensionUtils;
 import com.servoy.extension.FileBasedExtensionProvider;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -43,6 +49,7 @@ import com.servoy.j2db.util.Utils;
 public class CopyZipEntryImporter
 {
 	private final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
+	private final static String BACKUP_FOLDER = EXPFILES_FOLDER + "/.backup"; //$NON-NLS-1$
 	private final static String WEBTEMPLATES_SOURCE_FOLDER = "application_server/webtemplates"; //$NON-NLS-1$
 	private final static String WEBTEMPLATES_DESTINATION_FOLDER = "application_server/server/webapps/ROOT/servoy-webclient/templates"; //$NON-NLS-1$
 
@@ -82,13 +89,19 @@ public class CopyZipEntryImporter
 						String fileName = entry.getName().replace('\\', '/');
 						fileName = fileName.replace(WEBTEMPLATES_SOURCE_FOLDER, WEBTEMPLATES_DESTINATION_FOLDER);
 						File outputFile = new File(installDir, fileName);
-						copyFile(outputFile, zipFile.getInputStream(entry));
+						copyFile(outputFile, new BufferedInputStream(zipFile.getInputStream(entry)));
 					}
 				}
 				File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, expFile.getName());
-				InputStream stream = new FileInputStream(expFile);
-				copyFile(expCopy, new BufferedInputStream(stream));
-				Utils.closeInputStream(stream);
+				InputStream stream = new BufferedInputStream(new FileInputStream(expFile));
+				try
+				{
+					copyFile(expCopy, stream);
+				}
+				finally
+				{
+					Utils.closeInputStream(stream);
+				}
 
 			}
 			catch (IOException ex)
@@ -108,8 +121,9 @@ public class CopyZipEntryImporter
 						// ignore
 					}
 				}
-			}
 
+				enforceBackUpFolderLimit();
+			}
 		}
 		else
 		{
@@ -118,11 +132,45 @@ public class CopyZipEntryImporter
 		}
 	}
 
+	private void enforceBackUpFolderLimit()
+	{
+		// limit backup folder size to 1 GB; although it's hudge, it's there just not to cause HDD problems because of un-called for backups
+		final int MAX = 1024 * 1024 * 1024;
+
+		File backUpFolder = new File(installDir + File.separator + BACKUP_FOLDER);
+		if (backUpFolder.exists() && backUpFolder.isDirectory())
+		{
+			long size = FileUtils.sizeOfDirectory(backUpFolder);
+			if (size > MAX)
+			{
+				// delete oldest files first
+				long sizeOverflow = size - MAX;
+				List<File> sortedByDate = new SortedList<File>(new Comparator<File>()
+				{
+					public int compare(File o1, File o2)
+					{
+						long result = o1.lastModified() - o2.lastModified();
+						return (result < 0) ? -1 : (result == 0 ? 0 : 1);
+					}
+				});
+				sortedByDate.addAll(Arrays.asList(backUpFolder.listFiles()));
+				for (File f : sortedByDate)
+				{
+					sizeOverflow -= FileUtils.sizeOf(f);
+					FileUtils.deleteQuietly(f);
+					if (f.exists()) sizeOverflow += FileUtils.sizeOf(f);
+
+					if (sizeOverflow < 0) break;
+				}
+			}
+		}
+	}
+
 	private void copyFile(File outputFile, InputStream inputStream)
 	{
 		try
 		{
-			if (!isInParentDir(installDir, outputFile))
+			if (!ExtensionUtils.isInParentDir(installDir, outputFile))
 			{
 				warnings.add("Cannot copy file outside install dir, will be skipped: " + outputFile); //$NON-NLS-1$
 				return;
@@ -133,7 +181,8 @@ public class CopyZipEntryImporter
 			}
 			if (outputFile.exists())
 			{
-				warnings.add("A file to be copied (installed) is already there; overwriting: " + outputFile); //$NON-NLS-1$
+				warnings.add("A file to be copied (installed) is already there; it will be backed up and overwritten: " + outputFile); //$NON-NLS-1$
+				backUpReplacedFile(outputFile);
 			}
 			else
 			{
@@ -164,37 +213,77 @@ public class CopyZipEntryImporter
 		}
 	}
 
-	private boolean isInParentDir(File parentDir, File outputFile)
+	private void backUpReplacedFile(File sourceFile)
 	{
-		if (outputFile != null && parentDir != null)
+		File backUpFolder = new File(installDir + File.separator + BACKUP_FOLDER);
+		boolean ok = true;
+		if (!backUpFolder.exists())
 		{
-			while (outputFile.getParentFile() != null)
+			ok = backUpFolder.mkdirs();
+		}
+		else if (!backUpFolder.isDirectory())
+		{
+			ok = backUpFolder.delete();
+			if (ok) ok = backUpFolder.mkdirs();
+		}
+
+		if (ok)
+		{
+			int i = 0;
+			File backUpDestFile;
+			do
 			{
-				if (parentDir.equals(outputFile.getParentFile()))
-				{
-					return true;
-				}
-				outputFile = outputFile.getParentFile();
+				backUpDestFile = new File(backUpFolder, sourceFile.getName() + ".bk" + i++); //$NON-NLS-1$
+			}
+			while (backUpDestFile.exists());
+
+			// do actual copy
+			BufferedOutputStream out = null;
+			BufferedInputStream in = null;
+			try
+			{
+				out = new BufferedOutputStream(new FileOutputStream(backUpDestFile));
+				in = new BufferedInputStream(new FileInputStream(sourceFile));
+				Utils.streamCopy(in, out);
+			}
+			catch (IOException e)
+			{
+				warnings.add("Cannot back-up replaced file at extension install: " + sourceFile); //$NON-NLS-1$
+				Debug.error(warnings.get(warnings.size() - 1), e);
+			}
+			finally
+			{
+				Utils.closeInputStream(in);
+				Utils.closeOutputStream(out);
 			}
 		}
-		return false;
+		else
+		{
+			warnings.add("Cannot back-up replaced file at extension install; backup folder not accessible: " + sourceFile); //$NON-NLS-1$
+			Debug.error(warnings.get(warnings.size() - 1));
+		}
 	}
 
 	private boolean skipFile(File outputFile)
 	{
 		if (outputFile.getName().equals("extension.xml")) return true; //$NON-NLS-1$
-		if (isInParentDir(screenshotsFolder, outputFile)) return true;
-		if (!developerFolder.exists() && isInParentDir(developerFolder, outputFile))
+		if (ExtensionUtils.isInParentDir(screenshotsFolder, outputFile)) return true;
+		if (!developerFolder.exists() && ExtensionUtils.isInParentDir(developerFolder, outputFile))
 		{
 			warnings.add("Skipping file because developer folder does not exist: " + outputFile); //$NON-NLS-1$
 			return true;
 		}
-		if (isInParentDir(docsFolder.getParentFile(), outputFile) && !isInParentDir(docsFolder, outputFile))
+		if (ExtensionUtils.isInParentDir(docsFolder.getParentFile(), outputFile) && !ExtensionUtils.isInParentDir(docsFolder, outputFile))
 		{
 			warnings.add("Skipping file because is incorrect extension id folder: " + outputFile); //$NON-NLS-1$
 			return true;
 		}
 		return false;
+	}
+
+	public String[] getWarnings()
+	{
+		return (warnings == null || warnings.size() == 0) ? null : warnings.toArray(new String[warnings.size()]);
 	}
 
 	//TODO remove this when we have ui for testing
