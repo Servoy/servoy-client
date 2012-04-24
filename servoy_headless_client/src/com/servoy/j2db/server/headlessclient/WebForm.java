@@ -130,6 +130,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
@@ -1146,6 +1147,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				if (comp instanceof WrapperContainer)
 				{
 					comp = ((WrapperContainer)comp).getDelegate();
+				}
+				if (comp instanceof ISupportSecuritySettings && !((ISupportSecuritySettings)comp).isViewable())
+				{
+					// do not register non viewable components
+					continue;
 				}
 				if (comp instanceof IComponent)
 				{

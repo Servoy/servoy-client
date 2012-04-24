@@ -147,6 +147,7 @@ import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISplitPane;
+import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
@@ -975,6 +976,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 						hmChildrenJavaMembers);
 				}
 
+				if (comp instanceof ISupportSecuritySettings && !((ISupportSecuritySettings)comp).isViewable())
+				{
+					// do not register non viewable components
+					continue;
+				}
 				String name = null;
 
 				if (comp instanceof IComponent)
