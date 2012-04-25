@@ -775,7 +775,20 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		if ((bgColor != null) && (view instanceof ListView)) ((ListView)view).setBackground(bgColor);
 		// Apply the opacity to the newly added view (and slider if any),
 		// except if it's a table view, that is always transparent
-		if (!(view instanceof TableView)) setOpaque(isOpaque());
+		if (!(view instanceof TableView))
+		{
+			setOpaque(isOpaque());
+		}
+		else
+		{
+			for (int i = FormController.FORM_RENDERER + 1; i < dataRenderers.length; i++)
+			{
+				if (dataRenderers[i] != null && !(dataRenderers[i] instanceof TableView))
+				{
+					dataRenderers[i].setOpaque(isOpaque());
+				}
+			}
+		}
 
 		if (west != null && hasBackgroundImage() && !formController.getForm().getTransparent() && formController.getBodyPartBackgroundColor() != null)
 		{
