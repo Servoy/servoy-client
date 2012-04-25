@@ -5965,7 +5965,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 
-	private IDataSet performQuery(String transaction_id, ISQLSelect theQuery, boolean distinctInMemory, int startRow, int rowsToRetrive, int type)
+	protected IDataSet performQuery(String transaction_id, ISQLSelect theQuery, boolean distinctInMemory, int startRow, int rowsToRetrive, int type)
 		throws RemoteException, ServoyException
 	{
 		if (!hasAccess(IRepository.READ))

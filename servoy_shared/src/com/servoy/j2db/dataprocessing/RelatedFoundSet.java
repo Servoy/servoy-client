@@ -906,9 +906,9 @@ public abstract class RelatedFoundSet extends FoundSet
 				int oldSize = getRawSize();
 				String transaction_id = fsm.getTransactionID(sheet);
 				QuerySelect sqlSelect = getPksAndRecords().getQuerySelectForReading();
-				IDataSet pks = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, sqlSelect,
-					fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), !sqlSelect.isUnique(), 0,
-					Math.max(getSelectedIndex(), fsm.chunkSize) + fsm.chunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+
+				IDataSet pks = performQuery(transaction_id, sqlSelect, !sqlSelect.isUnique(), 0, Math.max(getSelectedIndex(), fsm.chunkSize) + fsm.chunkSize,
+					IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() +
