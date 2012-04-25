@@ -143,11 +143,19 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 			{
 				bodyText = Text.processTags(tagText, resolver);
 			}
+
 			if (bodyText != null)
 			{
-				// convert the text (strip html if needed)
-				final IConverter converter = getConverter(String.class);
-				bodyText = converter.convertToString(bodyText, getLocale());
+				if (HtmlUtils.startsWithHtml(bodyText))
+				{
+					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution()).getBodyTxt();
+				}
+				else
+				{
+					// convert the text
+					final IConverter converter = getConverter(String.class);
+					bodyText = converter.convertToString(bodyText, getLocale());
+				}
 			}
 		}
 		else
