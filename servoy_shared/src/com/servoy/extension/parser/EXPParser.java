@@ -30,6 +30,7 @@ import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -315,130 +316,127 @@ public class EXPParser
 
 				if (schema != null)
 				{
-					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-					if (dbf != null)
+					try
 					{
+						DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+						dbf.setNamespaceAware(true);
+						dbf.setSchema(schema);
+						DocumentBuilder db = dbf.newDocumentBuilder();
+						db.setErrorHandler(new ParseDependencyMetadataErrorHandler(zipFile.getName()));
+
+						Document doc = db.parse(is); // should we use UTF-8 here?
+						Element root = doc.getDocumentElement(); // "servoy-extension" tag
+						root.normalize();
+
+						// as this was already validated by schema, we need less null-checks and less structure checks
 						try
 						{
-							dbf.setNamespaceAware(true);
-							dbf.setSchema(schema);
-							DocumentBuilder db = dbf.newDocumentBuilder();
-							db.setErrorHandler(new ParseDependencyMetadataErrorHandler(zipFile.getName()));
+							String extensionId = root.getElementsByTagName(EXTENSION_ID).item(0).getTextContent();
+							String extensionName = root.getElementsByTagName(EXTENSION_NAME).item(0).getTextContent();
+							String version = root.getElementsByTagName(VERSION).item(0).getTextContent();
 
-							Document doc = db.parse(is); // should we use UTF-8 here?
-							Element root = doc.getDocumentElement(); // "servoy-extension" tag
-							root.normalize();
+							NodeList dependencies = root.getElementsByTagName(DEPENDENCIES);
 
-							// as this was already validated by schema, we need less null-checks and less structure checks
-							try
+							ServoyDependencyDeclaration sdd = null;
+							List<ExtensionDependencyDeclaration> edds = new ArrayList<ExtensionDependencyDeclaration>();
+							List<FullLibDependencyDeclaration> ldds = new ArrayList<FullLibDependencyDeclaration>();
+
+							if (dependencies != null && dependencies.getLength() == 1)
 							{
-								String extensionId = root.getElementsByTagName(EXTENSION_ID).item(0).getTextContent();
-								String extensionName = root.getElementsByTagName(EXTENSION_NAME).item(0).getTextContent();
-								String version = root.getElementsByTagName(VERSION).item(0).getTextContent();
+								Element dependenciesNode = (Element)dependencies.item(0);
+								dependencies = dependenciesNode.getElementsByTagName(SERVOY_DEPENDENCY);
 
-								NodeList dependencies = root.getElementsByTagName(DEPENDENCIES);
-
-								ServoyDependencyDeclaration sdd = null;
-								List<ExtensionDependencyDeclaration> edds = new ArrayList<ExtensionDependencyDeclaration>();
-								List<FullLibDependencyDeclaration> ldds = new ArrayList<FullLibDependencyDeclaration>();
-
+								Element element;
 								if (dependencies != null && dependencies.getLength() == 1)
 								{
-									Element dependenciesNode = (Element)dependencies.item(0);
-									dependencies = dependenciesNode.getElementsByTagName(SERVOY_DEPENDENCY);
-
-									Element element;
-									if (dependencies != null && dependencies.getLength() == 1)
-									{
-										element = ((Element)dependencies.item(0));
-										sdd = new ServoyDependencyDeclaration(element.getElementsByTagName(MIN_VERSION).item(0).getTextContent(),
-											element.getElementsByTagName(MAX_VERSION).item(0).getTextContent());
-									}
-
-									int i = 0;
-									dependencies = dependenciesNode.getElementsByTagName(EXTENSION_DEPENDENCY);
-									while (dependencies != null && dependencies.getLength() > i)
-									{
-										element = ((Element)dependencies.item(i++));
-
-										String minVersion = getMinMaxVersion(element, MIN_VERSION);
-										String maxVersion = getMinMaxVersion(element, MAX_VERSION);
-
-										edds.add(new ExtensionDependencyDeclaration(element.getElementsByTagName(ID).item(0).getTextContent(), minVersion,
-											maxVersion));
-									}
-
-									i = 0;
-									dependencies = dependenciesNode.getElementsByTagName(LIB_DEPENDENCY);
-									while (dependencies != null && dependencies.getLength() > i)
-									{
-										element = ((Element)dependencies.item(i++));
-
-										String libVersion = element.getElementsByTagName(VERSION).item(0).getTextContent();
-										String path = element.getElementsByTagName(PATH).item(0).getTextContent();
-										String minVersion = getMinMaxVersion(element, MIN_VERSION);
-										String maxVersion = getMinMaxVersion(element, MAX_VERSION);
-
-										if (minVersion == VersionStringUtils.UNBOUNDED && maxVersion == VersionStringUtils.UNBOUNDED)
-										{
-											// no min/max specified for lib so it is a fixed version dependency
-											minVersion = maxVersion = libVersion;
-										}
-										ldds.add(new FullLibDependencyDeclaration(element.getElementsByTagName(ID).item(0).getTextContent(), libVersion,
-											minVersion, maxVersion, path));
-									}
+									element = ((Element)dependencies.item(0));
+									sdd = new ServoyDependencyDeclaration(element.getElementsByTagName(MIN_VERSION).item(0).getTextContent(),
+										element.getElementsByTagName(MAX_VERSION).item(0).getTextContent());
 								}
 
-								// check that there are no duplicate dependency/lib declarations
-								Set<String> ids = new HashSet<String>();
-								for (ExtensionDependencyDeclaration dep : edds)
+								int i = 0;
+								dependencies = dependenciesNode.getElementsByTagName(EXTENSION_DEPENDENCY);
+								while (dependencies != null && dependencies.getLength() > i)
 								{
-									if (!ids.add(dep.id))
-									{
-										throw new IllegalArgumentException("multiple extension dependency declarations with id '" + dep.id + "' in '" + //$NON-NLS-1$ //$NON-NLS-2$
-											zipFile.getName() + "'"); //$NON-NLS-1$
-									}
-								}
-								ids.clear();
-								for (LibDependencyDeclaration dep : ldds)
-								{
-									if (!ids.add(dep.id))
-									{
-										throw new IllegalArgumentException("multiple lib dependency declarations with id '" + dep.id + "' in '" + //$NON-NLS-1$ //$NON-NLS-2$
-											zipFile.getName() + "'"); //$NON-NLS-1$
-									}
+									element = ((Element)dependencies.item(i++));
+
+									String minVersion = getMinMaxVersion(element, MIN_VERSION);
+									String maxVersion = getMinMaxVersion(element, MAX_VERSION);
+
+									edds.add(new ExtensionDependencyDeclaration(element.getElementsByTagName(ID).item(0).getTextContent(), minVersion,
+										maxVersion));
 								}
 
-								// cache dependency info about this version of the extension
-								dmd = new FullDependencyMetadata(extensionId, version, extensionName, sdd, (edds.size() > 0)
-									? edds.toArray(new ExtensionDependencyDeclaration[edds.size()]) : null, (ldds.size() > 0)
-									? ldds.toArray(new FullLibDependencyDeclaration[ldds.size()]) : null);
+								i = 0;
+								dependencies = dependenciesNode.getElementsByTagName(LIB_DEPENDENCY);
+								while (dependencies != null && dependencies.getLength() > i)
+								{
+									element = ((Element)dependencies.item(i++));
+
+									String libVersion = element.getElementsByTagName(VERSION).item(0).getTextContent();
+									String path = element.getElementsByTagName(PATH).item(0).getTextContent();
+									String minVersion = getMinMaxVersion(element, MIN_VERSION);
+									String maxVersion = getMinMaxVersion(element, MAX_VERSION);
+
+									if (minVersion == VersionStringUtils.UNBOUNDED && maxVersion == VersionStringUtils.UNBOUNDED)
+									{
+										// no min/max specified for lib so it is a fixed version dependency
+										minVersion = maxVersion = libVersion;
+									}
+									ldds.add(new FullLibDependencyDeclaration(element.getElementsByTagName(ID).item(0).getTextContent(), libVersion,
+										minVersion, maxVersion, path));
+								}
 							}
-							catch (IllegalArgumentException e)
+
+							// check that there are no duplicate dependency/lib declarations
+							Set<String> ids = new HashSet<String>();
+							for (ExtensionDependencyDeclaration dep : edds)
 							{
-								warnings.add("Incorrect content when parsing 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+								if (!ids.add(dep.id))
+								{
+									throw new IllegalArgumentException("multiple extension dependency declarations with id '" + dep.id + "' in '" + //$NON-NLS-1$ //$NON-NLS-2$
+										zipFile.getName() + "'"); //$NON-NLS-1$
+								}
 							}
+							ids.clear();
+							for (LibDependencyDeclaration dep : ldds)
+							{
+								if (!ids.add(dep.id))
+								{
+									throw new IllegalArgumentException("multiple lib dependency declarations with id '" + dep.id + "' in '" + //$NON-NLS-1$ //$NON-NLS-2$
+										zipFile.getName() + "'"); //$NON-NLS-1$
+								}
+							}
+
+							// cache dependency info about this version of the extension
+							dmd = new FullDependencyMetadata(extensionId, version, extensionName, sdd, (edds.size() > 0)
+								? edds.toArray(new ExtensionDependencyDeclaration[edds.size()]) : null, (ldds.size() > 0)
+								? ldds.toArray(new FullLibDependencyDeclaration[ldds.size()]) : null);
 						}
-						catch (ParserConfigurationException e)
+						catch (IllegalArgumentException e)
 						{
-							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-						catch (SAXException e)
-						{
-							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-						catch (IOException e)
-						{
-							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
+							warnings.add("Incorrect content when parsing 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					}
-					else
+					catch (FactoryConfigurationError e)
 					{
 						warnings.add("Unable to parse 'package.xml'. Please report this problem to Servoy."); //$NON-NLS-1$
 						Debug.error("Cannot find document builder factory."); //$NON-NLS-1$
+					}
+					catch (ParserConfigurationException e)
+					{
+						warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+						Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					catch (SAXException e)
+					{
+						warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					catch (IOException e)
+					{
+						warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+						Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
 					}
 				}
 			}
@@ -511,83 +509,79 @@ public class EXPParser
 
 				if (schema != null)
 				{
-					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-					if (dbf != null)
+					try
 					{
-						try
+						DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+						dbf.setNamespaceAware(true);
+						dbf.setSchema(schema);
+						DocumentBuilder db = dbf.newDocumentBuilder();
+						db.setErrorHandler(new ParseDependencyMetadataErrorHandler(zipFile.getName()));
+
+						Document doc = db.parse(is); // should we use UTF-8 here?
+						Element root = doc.getDocumentElement(); // "servoy-extension" tag
+						root.normalize();
+
+						// as this was already validated by schema, we need less null-checks and less structure checks
+						Content content = null;
+
+						NodeList list = root.getElementsByTagName(CONTENT);
+						if (list != null && list.getLength() == 1)
 						{
-							dbf.setNamespaceAware(true);
-							dbf.setSchema(schema);
-							DocumentBuilder db = dbf.newDocumentBuilder();
-							db.setErrorHandler(new ParseDependencyMetadataErrorHandler(zipFile.getName()));
+							List<String> solutionToImportPaths = new ArrayList<String>();
+							List<String> teamProjectSetPaths = new ArrayList<String>();
+							List<String> eclipseUpdateSiteURLs = new ArrayList<String>();
 
-							Document doc = db.parse(is); // should we use UTF-8 here?
-							Element root = doc.getDocumentElement(); // "servoy-extension" tag
-							root.normalize();
+							Element contentNode = (Element)list.item(0);
 
-							// as this was already validated by schema, we need less null-checks and less structure checks
-							Content content = null;
+							Element element;
 
-							NodeList list = root.getElementsByTagName(CONTENT);
-							if (list != null && list.getLength() == 1)
+							int i = 0;
+							list = contentNode.getElementsByTagName(IMPORT_SOLUTION);
+							while (list != null && list.getLength() > i)
 							{
-								List<String> solutionToImportPaths = new ArrayList<String>();
-								List<String> teamProjectSetPaths = new ArrayList<String>();
-								List<String> eclipseUpdateSiteURLs = new ArrayList<String>();
-
-								Element contentNode = (Element)list.item(0);
-
-								Element element;
-
-								int i = 0;
-								list = contentNode.getElementsByTagName(IMPORT_SOLUTION);
-								while (list != null && list.getLength() > i)
-								{
-									element = ((Element)list.item(i++));
-									solutionToImportPaths.add(element.getAttribute(PATH));
-								}
-
-								i = 0;
-								list = contentNode.getElementsByTagName(TEAM_PROJECT_SET);
-								while (list != null && list.getLength() > i)
-								{
-									element = ((Element)list.item(i++));
-									teamProjectSetPaths.add(element.getAttribute(PATH));
-								}
-
-								i = 0;
-								list = contentNode.getElementsByTagName(ECLIPSE_UPDATE_SITE);
-								while (list != null && list.getLength() > i)
-								{
-									element = ((Element)list.item(i++));
-									eclipseUpdateSiteURLs.add(element.getAttribute(URL));
-								}
-
-								content = new Content(solutionToImportPaths.size() > 0
-									? solutionToImportPaths.toArray(new String[solutionToImportPaths.size()]) : null, teamProjectSetPaths.size() > 0
-									? teamProjectSetPaths.toArray(new String[teamProjectSetPaths.size()]) : null, eclipseUpdateSiteURLs.size() > 0
-									? eclipseUpdateSiteURLs.toArray(new String[eclipseUpdateSiteURLs.size()]) : null);
+								element = ((Element)list.item(i++));
+								solutionToImportPaths.add(element.getAttribute(PATH));
 							}
 
-							wholeXML = new ExtensionConfiguration(dependencyInfo, content);
+							i = 0;
+							list = contentNode.getElementsByTagName(TEAM_PROJECT_SET);
+							while (list != null && list.getLength() > i)
+							{
+								element = ((Element)list.item(i++));
+								teamProjectSetPaths.add(element.getAttribute(PATH));
+							}
+
+							i = 0;
+							list = contentNode.getElementsByTagName(ECLIPSE_UPDATE_SITE);
+							while (list != null && list.getLength() > i)
+							{
+								element = ((Element)list.item(i++));
+								eclipseUpdateSiteURLs.add(element.getAttribute(URL));
+							}
+
+							content = new Content(solutionToImportPaths.size() > 0 ? solutionToImportPaths.toArray(new String[solutionToImportPaths.size()])
+								: null, teamProjectSetPaths.size() > 0 ? teamProjectSetPaths.toArray(new String[teamProjectSetPaths.size()]) : null,
+								eclipseUpdateSiteURLs.size() > 0 ? eclipseUpdateSiteURLs.toArray(new String[eclipseUpdateSiteURLs.size()]) : null);
 						}
-						catch (ParserConfigurationException e)
-						{
-							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-						catch (SAXException e)
-						{
-							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-						catch (IOException e)
-						{
-							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
-						}
+
+						wholeXML = new ExtensionConfiguration(dependencyInfo, content);
 					}
-					else
+					catch (ParserConfigurationException e)
+					{
+						warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+						Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					catch (SAXException e)
+					{
+						warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					catch (IOException e)
+					{
+						warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+						Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
+					}
+					catch (FactoryConfigurationError e)
 					{
 						warnings.add("Unable to parse 'package.xml'. Please report this problem to Servoy."); //$NON-NLS-1$
 						Debug.error("Cannot find document builder factory."); //$NON-NLS-1$

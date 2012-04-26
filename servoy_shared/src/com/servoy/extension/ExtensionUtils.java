@@ -130,6 +130,7 @@ public class ExtensionUtils
 				BufferedOutputStream os = null;
 				try
 				{
+					destinationFile.getParentFile().mkdirs();
 					os = new BufferedOutputStream(new FileOutputStream(destinationFile));
 					Utils.streamCopy(is, os);
 				}

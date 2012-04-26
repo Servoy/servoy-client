@@ -48,7 +48,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class CopyZipEntryImporter
 {
-	private final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
+	public final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
 	private final static String BACKUP_FOLDER = EXPFILES_FOLDER + "/.backup"; //$NON-NLS-1$
 	private final static String WEBTEMPLATES_SOURCE_FOLDER = "application_server/webtemplates"; //$NON-NLS-1$
 	private final static String WEBTEMPLATES_DESTINATION_FOLDER = "application_server/server/webapps/ROOT/servoy-webclient/templates"; //$NON-NLS-1$
