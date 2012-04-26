@@ -11,6 +11,7 @@ function layoutOneElement(elementInfo, partHeight, formsInfo, formName, currentC
 	if (/TabPanel/.test(elementHint))
 	{
 		rearrageTabsInTabPanel(element.id);
+		updateTablesPreferredSize();
 	}	
 
 	else if (/Label/.test(elementHint))
@@ -77,16 +78,7 @@ function layoutEntirePageWorker()
 				layoutOneContainer(formsInfo, i, false);
 		}
 		
-		for(var i in tablesPreferredHeight)
-		{
-			var newPreferredSize = getPreferredTableSize(i);
-			if(newPreferredSize[0] != 0 && newPreferredSize[1] != 0 && 
-			   (newPreferredSize[1] != tablesPreferredHeight[i]['height'] || 
-			    newPreferredSize[0] != tablesPreferredHeight[i]['width']))
-			{
-				wicketAjaxGet(tablesPreferredHeight[i]['callback'] + "&bodyWidth=" + newPreferredSize[0] + "&bodyHeight=" + newPreferredSize[1]);
-			}
-		}
+		updateTablesPreferredSize();
 		
 		for(var i in splitPanes)
 		{			
@@ -153,4 +145,17 @@ function layoutEntirePage()
 	if (layoutTimeout)
 		clearTimeout(layoutTimeout);
 	layoutTimeout = setTimeout("layoutEntirePageWorker();", 200);
+}
+
+function updateTablesPreferredSize()
+{
+	for(var i in tablesPreferredHeight)
+	{
+		var newPreferredSize = getPreferredTableSize(i);
+		if(newPreferredSize[1] != tablesPreferredHeight[i]['height'] || 
+		    newPreferredSize[0] != tablesPreferredHeight[i]['width'])
+		{
+			wicketAjaxGet(tablesPreferredHeight[i]['callback'] + "&bodyWidth=" + newPreferredSize[0] + "&bodyHeight=" + newPreferredSize[1]);
+		}
+	}
 }
