@@ -18,7 +18,7 @@
 package com.servoy.extension.parser;
 
 /**
- * An object built from & representing the extension.xml of an .exp file.
+ * An object built from & representing the package.xml of an .exp file.
  * @author acostescu
  */
 public class ExtensionConfiguration

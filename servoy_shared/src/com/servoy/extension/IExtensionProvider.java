@@ -22,7 +22,7 @@ import java.io.File;
 
 /**
  * Classes that implement this interface have access to .exp packages.<br>
- * They are able to provide dependency & other information from the extension.xml file as well as the full contents of the .exp package.
+ * They are able to provide dependency & other information from the package.xml file as well as the full contents of the .exp package.
  * 
  * @author acostescu
  */

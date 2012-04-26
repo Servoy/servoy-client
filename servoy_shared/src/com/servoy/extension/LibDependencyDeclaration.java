@@ -19,7 +19,7 @@ package com.servoy.extension;
 
 
 /**
- * Library dependency declaration (as defined in extension.xml, only what is needed for dependency resolving)
+ * Library dependency declaration (as defined in package.xml, only what is needed for dependency resolving)
  * @author acostescu
  */
 @SuppressWarnings("nls")
@@ -36,7 +36,7 @@ public class LibDependencyDeclaration
 	public final String maxVersion;
 
 	/**
-	 * Creates a new library dependency declaration (as defined in extension.xml).
+	 * Creates a new library dependency declaration (as defined in package.xml).
 	 * @param id the library's id.
 	 * @param version the version of the library that is included with the extension package.
 	 * @param minVersion minimum version. Can be {@link VersionStringUtils#UNBOUNDED}.

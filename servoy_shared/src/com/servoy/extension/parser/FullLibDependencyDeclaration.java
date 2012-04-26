@@ -20,7 +20,7 @@ package com.servoy.extension.parser;
 import com.servoy.extension.LibDependencyDeclaration;
 
 /**
- * Full library dependency declaration (as defined in extension.xml); it also knows the extension .
+ * Full library dependency declaration (as defined in package.xml); it also knows the extension .
  * @author acostescu
  */
 public class FullLibDependencyDeclaration extends LibDependencyDeclaration

@@ -28,7 +28,7 @@ public interface IExtensionHook
 
 	/**
 	 * Starts this hook's execution.
-	 * @param parameters string key-value pairs as they were specified in the 'extension.xml' file.
+	 * @param parameters string key-value pairs as they were specified in the 'package.xml' file.
 	 * @param context liaison to the install/uninstall process.
 	 */
 	void run(Map<String, String> parameters, IHookContext context);

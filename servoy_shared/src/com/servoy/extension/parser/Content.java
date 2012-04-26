@@ -18,9 +18,8 @@
 package com.servoy.extension.parser;
 
 
-
 /**
- * Stores the 'content' (as declared in the extension.xml).<br>
+ * Stores the 'content' (as declared in the package.xml).<br>
  * This content is used to do special developer install actions. (things to do when installing an extension in developer)
  * @author acostescu
  */

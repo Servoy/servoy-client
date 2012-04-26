@@ -266,7 +266,7 @@ public class CopyZipEntryImporter
 
 	private boolean skipFile(File outputFile)
 	{
-		if (outputFile.getName().equals("extension.xml")) return true; //$NON-NLS-1$
+		if (outputFile.getName().equals("package.xml")) return true; //$NON-NLS-1$
 		if (ExtensionUtils.isInParentDir(screenshotsFolder, outputFile)) return true;
 		if (!developerFolder.exists() && ExtensionUtils.isInParentDir(developerFolder, outputFile))
 		{

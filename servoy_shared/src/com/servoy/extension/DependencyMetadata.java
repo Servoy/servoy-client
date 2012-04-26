@@ -19,7 +19,7 @@ package com.servoy.extension;
 
 
 /**
- * Dependency information listed by an extension in it's extension.xml file (only what's needed for dependency resolving).
+ * Dependency information listed by an extension in it's package.xml file (only what's needed for dependency resolving).
  * @author acostescu
  */
 @SuppressWarnings("nls")

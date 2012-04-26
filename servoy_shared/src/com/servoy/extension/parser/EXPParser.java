@@ -64,7 +64,7 @@ import com.servoy.j2db.util.Utils;
 public class EXPParser
 {
 
-	public static final String EXTENSION_XML = "extension.xml"; //$NON-NLS-1$
+	public static final String EXTENSION_XML = "package.xml"; //$NON-NLS-1$
 	public static final String EXTENSION_SCHEMA = "servoy-extension.xsd"; //$NON-NLS-1$
 
 	// xml tag/attribute names & values
@@ -123,7 +123,7 @@ public class EXPParser
 				}
 				else
 				{
-					warnings.add("Reading extension package '" + expFile.getName() + "' failed; it will be ignored. Reason: missing 'extension.xml'.");
+					warnings.add("Reading extension package '" + expFile.getName() + "' failed; it will be ignored. Reason: missing 'package.xml'.");
 				}
 			}
 			catch (ZipException e)
@@ -172,21 +172,21 @@ public class EXPParser
 					xml = result.getRight();
 					if (Boolean.FALSE.equals(result.getLeft()))
 					{
-						// this shouldn't happen as extension.xml was found before when parsing the same zip file for dependency info
-						Debug.warn("'extension.xml' no longer found when trying to parse it for extension '" + dependencyMetadata.id + "'. File: '" +
+						// this shouldn't happen as package.xml was found before when parsing the same zip file for dependency info
+						Debug.warn("'package.xml' no longer found when trying to parse it for extension '" + dependencyMetadata.id + "'. File: '" +
 							expFile.getCanonicalPath() + "'.");
 					}
 				}
 				catch (ZipException e)
 				{
-					warnings.add("Zip problems encountered while trying to parse entire 'extension.xml' for extension '" + dependencyMetadata.id +
-						"'. Reason: " + e.getMessage());
+					warnings.add("Zip problems encountered while trying to parse entire 'package.xml' for extension '" + dependencyMetadata.id + "'. Reason: " +
+						e.getMessage());
 					Debug.trace(e);
 				}
 				catch (IOException e)
 				{
-					warnings.add("IO problems encountered while trying to parse entire 'extension.xml' for extension '" + dependencyMetadata.id +
-						"'. Reason: " + e.getMessage());
+					warnings.add("IO problems encountered while trying to parse entire 'package.xml' for extension '" + dependencyMetadata.id + "'. Reason: " +
+						e.getMessage());
 					Debug.trace(e);
 				}
 
@@ -256,24 +256,24 @@ public class EXPParser
 					}
 					catch (SAXException ex)
 					{
-						warnings.add("Invalid 'extension.xml' in package '" + zipFileName + "'; .xsd validation failed. Reason: " + ex.getMessage());
-						Debug.trace("Invalid 'extension.xml' in package '" + zipFileName + "'; .xsd validation failed.", ex);
+						warnings.add("Invalid 'package.xml' in package '" + zipFileName + "'; .xsd validation failed. Reason: " + ex.getMessage());
+						Debug.trace("Invalid 'package.xml' in package '" + zipFileName + "'; .xsd validation failed.", ex);
 					}
 					catch (IOException ex)
 					{
-						warnings.add("Invalid 'extension.xml' in package '" + zipFileName + "'; .xsd validation failed. Reason: " + ex.getMessage());
-						Debug.trace("Invalid 'extension.xml' in package '" + zipFileName + "'; .xsd validation failed.", ex);
+						warnings.add("Invalid 'package.xml' in package '" + zipFileName + "'; .xsd validation failed. Reason: " + ex.getMessage());
+						Debug.trace("Invalid 'package.xml' in package '" + zipFileName + "'; .xsd validation failed.", ex);
 					}
 				}
 				catch (SAXException ex)
 				{
-					warnings.add("Unable to validate 'extension.xml' against the .xsd. Please report this problem to Servoy.");
+					warnings.add("Unable to validate 'package.xml' against the .xsd. Please report this problem to Servoy.");
 					Debug.error("Error compiling 'servoy-extension.xsd'.");
 				}
 			}
 			else
 			{
-				warnings.add("Unable to validate 'extension.xml' against the .xsd. Please report this problem to Servoy.");
+				warnings.add("Unable to validate 'package.xml' against the .xsd. Please report this problem to Servoy.");
 				Debug.error("Cannot find schema factory.");
 			}
 
@@ -283,7 +283,7 @@ public class EXPParser
 	}
 
 	/**
-	 * Parses the extension.xml file to get the dependency info.
+	 * Parses the package.xml file to get the dependency info.
 	 */
 	protected class ParseDependencyMetadata implements EntryInputStreamRunner<FullDependencyMetadata>
 	{
@@ -309,7 +309,7 @@ public class EXPParser
 				}
 				catch (SAXException ex)
 				{
-					warnings.add("Unable to validate 'extension.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
+					warnings.add("Unable to validate 'package.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
 					Debug.error("Error compiling 'servoy-extension.xsd'."); //$NON-NLS-1$
 				}
 
@@ -416,35 +416,35 @@ public class EXPParser
 							}
 							catch (IllegalArgumentException e)
 							{
-								warnings.add("Incorrect content when parsing 'extension.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+								warnings.add("Incorrect content when parsing 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 							}
 						}
 						catch (ParserConfigurationException e)
 						{
-							warnings.add("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						catch (SAXException e)
 						{
-							warnings.add("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-							Debug.trace("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						catch (IOException e)
 						{
-							warnings.add("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
+							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
 						}
 					}
 					else
 					{
-						warnings.add("Unable to parse 'extension.xml'. Please report this problem to Servoy."); //$NON-NLS-1$
+						warnings.add("Unable to parse 'package.xml'. Please report this problem to Servoy."); //$NON-NLS-1$
 						Debug.error("Cannot find document builder factory."); //$NON-NLS-1$
 					}
 				}
 			}
 			else
 			{
-				warnings.add("Unable to validate 'extension.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
+				warnings.add("Unable to validate 'package.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
 				Debug.error("Cannot find schema factory."); //$NON-NLS-1$
 			}
 			return dmd;
@@ -505,7 +505,7 @@ public class EXPParser
 				}
 				catch (SAXException ex)
 				{
-					warnings.add("Unable to validate 'extension.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
+					warnings.add("Unable to validate 'package.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
 					Debug.error("Error compiling 'servoy-extension.xsd'."); //$NON-NLS-1$
 				}
 
@@ -573,30 +573,30 @@ public class EXPParser
 						}
 						catch (ParserConfigurationException e)
 						{
-							warnings.add("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						catch (SAXException e)
 						{
-							warnings.add("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-							Debug.trace("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						catch (IOException e)
 						{
-							warnings.add("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-							Debug.trace("Cannot parse 'extension.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
+							warnings.add("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'. Reason: " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+							Debug.trace("Cannot parse 'package.xml' in package '" + zipFile.getName() + "'.", e); //$NON-NLS-1$//$NON-NLS-2$
 						}
 					}
 					else
 					{
-						warnings.add("Unable to parse 'extension.xml'. Please report this problem to Servoy."); //$NON-NLS-1$
+						warnings.add("Unable to parse 'package.xml'. Please report this problem to Servoy."); //$NON-NLS-1$
 						Debug.error("Cannot find document builder factory."); //$NON-NLS-1$
 					}
 				}
 			}
 			else
 			{
-				warnings.add("Unable to validate 'extension.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
+				warnings.add("Unable to validate 'package.xml' against the .xsd. Please report this problem to Servoy."); //$NON-NLS-1$
 				Debug.error("Cannot find schema factory."); //$NON-NLS-1$
 			}
 			return wholeXML;
@@ -640,21 +640,21 @@ public class EXPParser
 
 		public void warning(SAXParseException exception) throws SAXException
 		{
-			warnings.add("Warning when parsing 'extension.xml' in package '" + zipFileName + "'. Warning: " + exception.getMessage());
-			Debug.trace("Warning when parsing 'extension.xml' in package '" + zipFileName + "'.", exception);
+			warnings.add("Warning when parsing 'package.xml' in package '" + zipFileName + "'. Warning: " + exception.getMessage());
+			Debug.trace("Warning when parsing 'package.xml' in package '" + zipFileName + "'.", exception);
 		}
 
 		public void error(SAXParseException exception) throws SAXException
 		{
-			warnings.add("Error when parsing 'extension.xml' in package '" + zipFileName + "'. Error: " + exception.getMessage());
-			Debug.trace("Error when parsing 'extension.xml' in package '" + zipFileName + "'.", exception);
+			warnings.add("Error when parsing 'package.xml' in package '" + zipFileName + "'. Error: " + exception.getMessage());
+			Debug.trace("Error when parsing 'package.xml' in package '" + zipFileName + "'.", exception);
 
 		}
 
 		public void fatalError(SAXParseException exception) throws SAXException
 		{
-			warnings.add("Cannot parse 'extension.xml' in package '" + zipFileName + "'. Reason: " + exception.getMessage());
-			Debug.trace("Cannot parse 'extension.xml' in package '" + zipFileName + "'.", exception);
+			warnings.add("Cannot parse 'package.xml' in package '" + zipFileName + "'. Reason: " + exception.getMessage());
+			Debug.trace("Cannot parse 'package.xml' in package '" + zipFileName + "'.", exception);
 		}
 
 	}

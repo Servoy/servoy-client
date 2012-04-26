@@ -18,7 +18,7 @@
 package com.servoy.extension;
 
 /**
- * Extension dependency declaration (as defined in extension.xml)
+ * Extension dependency declaration (as defined in package.xml)
  * @author acostescu
  */
 @SuppressWarnings("nls")
@@ -32,7 +32,7 @@ public class ExtensionDependencyDeclaration
 	public final String maxVersion;
 
 	/**
-	 * Creates a new extension dependency declaration (as defined in extension.xml).
+	 * Creates a new extension dependency declaration (as defined in package.xml).
 	 * @param id the extension's id.
 	 * @param minVersion minimum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED}.
 	 * @param maxVersion maximum version (inclusive). Can be {@link VersionStringUtils#UNBOUNDED}.
