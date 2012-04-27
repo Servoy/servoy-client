@@ -101,10 +101,10 @@ public class DataServerProxy implements IDataServer
 		return ds.getNextSequence(getMappedServerName(serverName), tableName, columnName, columnInfoID);
 	}
 
-	public IDataSet performCustomQuery(String client_id, String serverName, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+	public IDataSet performCustomQuery(String client_id, String serverName, String driverTableName, String transaction_id, ISQLSelect sqlSelect, int startRow,
+		int rowsToRetrieve) throws ServoyException, RemoteException
 	{
-		return ds.performCustomQuery(client_id, getMappedServerName(serverName), driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve);
+		return ds.performCustomQuery(client_id, getMappedServerName(serverName), driverTableName, transaction_id, sqlSelect, startRow, rowsToRetrieve);
 	}
 
 	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ArrayList filters, boolean distinctInMemory,

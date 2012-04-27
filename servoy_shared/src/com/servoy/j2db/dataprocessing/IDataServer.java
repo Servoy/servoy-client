@@ -93,8 +93,8 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException;
 
 	//special case only used by user query, does add column info to resultset
-	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
+	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect, int startRow,
+		int rowsToRetrieve) throws ServoyException, RemoteException;
 
 	/**
 	 * 

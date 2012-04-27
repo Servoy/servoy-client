@@ -387,26 +387,25 @@ public class ProfileDataServer implements IDataServer
 	 * @param server_name
 	 * @param driverTableName
 	 * @param transaction_id
-	 * @param sql
-	 * @param questiondata
 	 * @param startRow
 	 * @param rowsToRetrieve
 	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#performCustomQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int, int)
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#performCustomQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, ISQLSelect, int, int)
 	 */
-	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect, int startRow,
+		int rowsToRetrieve) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.performCustomQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve);
+			return dataserver.performCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, startRow, rowsToRetrieve);
 		}
 		finally
 		{
-			informListeners("Query", server_name, sql, transaction_id, startTime, questiondata);
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, null, 0, 1, false);
+			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 		}
 	}
 

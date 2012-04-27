@@ -1778,8 +1778,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		try
 		{
 			long time = System.currentTimeMillis();
-			set = ds.performQuery(application.getClientID(), serverName, transaction_id, sqlSelect, getTableFilterParams(serverName, sqlSelect), false, 0,
-				maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY);
+			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect, 0, maxNumberOfRowsToRetrieve);
 			if (Debug.tracing())
 			{
 				Debug.trace("Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
