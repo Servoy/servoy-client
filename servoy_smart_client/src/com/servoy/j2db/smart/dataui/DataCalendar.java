@@ -89,7 +89,7 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	{
 		this.application = app;
 		setLayout(new BorderLayout());
-		enclosedComponent = new DataField(app, null)
+		enclosedComponent = new DataField(app, null, this)
 		{
 			@Override
 			public void setFormat(int dataType, String format)

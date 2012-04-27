@@ -405,7 +405,7 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 		 */
 		public DateField(IApplication application, RuntimeDataField scriptable, String id, DatePicker settings)
 		{
-			super(application, scriptable, id);
+			super(application, scriptable, id, WebDataCalendar.this);
 			this.settings = settings;
 		}
 

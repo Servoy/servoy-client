@@ -80,6 +80,7 @@ import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -818,6 +819,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	public DataField(IApplication application, RuntimeDataField scriptable)
 	{
+		this(application, scriptable, (IComponent)null);
+	}
+
+	public DataField(IApplication application, RuntimeDataField scriptable, final IComponent enclosingComponent)
+	{
 		super();// new InternationalFormatter()); //why is InternationalFormatter
 		// needed, causes trouble on date objects??
 		this.application = application;
@@ -839,6 +845,16 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				}
 
 				super.fireLeaveCommands(display, focusEvent, modifiers);
+			}
+
+			@Override
+			protected Object getSource(Object display)
+			{
+				if (enclosingComponent != null)
+				{
+					return enclosingComponent;
+				}
+				return super.getSource(display);
 			}
 		};
 		plainDocument = getDocument();
