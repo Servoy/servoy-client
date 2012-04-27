@@ -67,6 +67,7 @@ import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
@@ -182,16 +183,28 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		this.horizontalAlignment = ISupportTextSetup.LEFT;
 	}
 
+	public WebDataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
+	{
+		this(application, scriptable, id, (IComponent)null);
+	}
+
 	/**
 	 * @param id
 	 */
-	public WebDataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
+	public WebDataField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id, final IComponent enclosingComponent)
 	{
 		super(id);
 		this.horizontalAlignment = ISupportTextSetup.LEFT;
 		this.application = application;
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		eventExecutor = new WebEventExecutor(this, useAJAX);
+		eventExecutor = new WebEventExecutor(this, useAJAX)
+		{
+			@Override
+			protected Object getSource(Object display)
+			{
+				return enclosingComponent != null ? enclosingComponent : super.getSource(display);
+			}
+		};
 		setOutputMarkupPlaceholderTag(true);
 		setVersioned(false);
 

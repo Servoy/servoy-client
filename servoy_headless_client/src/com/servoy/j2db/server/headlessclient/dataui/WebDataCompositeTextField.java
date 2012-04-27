@@ -42,6 +42,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
@@ -111,7 +112,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	protected WebDataField createTextField(RuntimeDataField fieldScriptable)
 	{
-		return new AugmentedTextField(application, fieldScriptable);
+		return new AugmentedTextField(application, fieldScriptable, this);
 	}
 
 	protected String getTextFieldId()
@@ -637,9 +638,9 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	protected class AugmentedTextField extends WebDataField
 	{
 
-		public AugmentedTextField(IApplication application, RuntimeDataField scriptable)
+		public AugmentedTextField(IApplication application, RuntimeDataField scriptable, IComponent enclosingComponent)
 		{
-			super(application, scriptable, getTextFieldId());
+			super(application, scriptable, getTextFieldId(), enclosingComponent);
 		}
 
 		// When the composite field is neither editable nor read-only, we want the text field to be not editable, but

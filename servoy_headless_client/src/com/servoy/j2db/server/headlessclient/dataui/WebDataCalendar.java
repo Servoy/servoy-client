@@ -31,6 +31,7 @@ import org.wicketstuff.calendar.markup.html.form.DatePicker;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
@@ -129,7 +130,7 @@ public class WebDataCalendar extends WebDataCompositeTextField
 	protected WebDataField createTextField(RuntimeDataField fieldScriptable)
 	{
 		DatePicker settings = new DatePicker();
-		return new DateField(application, fieldScriptable, settings);
+		return new DateField(application, fieldScriptable, settings, this);
 	}
 
 	@Override
@@ -150,9 +151,9 @@ public class WebDataCalendar extends WebDataCompositeTextField
 
 		private final DatePicker settings;
 
-		public DateField(IApplication application, RuntimeDataField scriptable, DatePicker settings)
+		public DateField(IApplication application, RuntimeDataField scriptable, DatePicker settings, IComponent enclosingComponent)
 		{
-			super(application, scriptable);
+			super(application, scriptable, enclosingComponent);
 			this.settings = settings;
 		}
 

@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.ui.scripting.RuntimeSpinner;
@@ -67,7 +68,7 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 	@Override
 	protected WebDataField createTextField(RuntimeDataField fieldScriptable)
 	{
-		return new SpinField(application, fieldScriptable);
+		return new SpinField(application, fieldScriptable, this);
 	}
 
 	private Spinner createNewSpinner()
@@ -228,9 +229,9 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 	protected class SpinField extends AugmentedTextField
 	{
 
-		public SpinField(IApplication application, RuntimeDataField scriptable)
+		public SpinField(IApplication application, RuntimeDataField scriptable, IComponent enclosingComponent)
 		{
-			super(application, scriptable);
+			super(application, scriptable, enclosingComponent);
 			super.setEditable(false);
 		}
 
