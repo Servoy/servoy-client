@@ -571,6 +571,10 @@ public class ComponentFactory
 
 				IStyleRule s = null;
 				String styleClass = (bc instanceof BaseComponent) ? ((BaseComponent)bc).getStyleClass() : null;
+				if (bc instanceof Part)
+				{
+					styleClass = ((Part)bc).getStyleClass();
+				}
 				if (lookupName.equals("check") || lookupName.equals("combobox") || "radio".equals(lookupName))
 				{
 					if (styleClass != null && styleClass.length() != 0)

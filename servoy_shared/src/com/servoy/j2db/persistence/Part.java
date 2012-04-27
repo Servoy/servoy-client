@@ -436,4 +436,17 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
+
+	/**
+	 * The Cascading Style Sheet (CSS) class name applied to the part. 
+	 */
+	public String getStyleClass()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
+	}
+
+	public void setStyleClass(String arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
+	}
 }

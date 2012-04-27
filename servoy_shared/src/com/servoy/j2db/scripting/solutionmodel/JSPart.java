@@ -271,6 +271,18 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 		return getBaseComponent(false).getSinkWhenLast();
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Part#getStyleClass()
+	 * 
+	 * @sample
+	 * var body = form.newPart(JSPart.BODY, 320);
+	 * body.styleClass = 'myBody';
+	 */
+	public String js_getStyleClass()
+	{
+		return getBaseComponent(false).getStyleClass();
+	}
+
 	public void js_setAllowBreakAcrossPageBounds(boolean b)
 	{
 		getBaseComponent(true).setAllowBreakAcrossPageBounds(b);
@@ -319,6 +331,11 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	public void js_setSinkWhenLast(boolean b)
 	{
 		getBaseComponent(true).setSinkWhenLast(b);
+	}
+
+	public void js_setStyleClass(String styleClass)
+	{
+		getBaseComponent(true).setStyleClass(styleClass);
 	}
 
 	/**
