@@ -150,6 +150,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		foreign = foreignColumns; //faster
 		operators = ops; //faster
 		isGlobal = null;
+		isLiteral = null;
 		valid = null;
 		usedScopes = null;
 	}
@@ -177,6 +178,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		foreign = null;
 		operators = null;
 		isGlobal = null;
+		isLiteral = null;
 		valid = null;
 		usedScopes = null;
 
@@ -830,6 +832,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			operators = null;
 			isGlobal = null;
 			usedScopes = null;
+			isLiteral = null;
 		}
 	}
 
@@ -962,6 +965,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	private transient Boolean isGlobal;
+	private transient Boolean isLiteral;
 
 	public boolean isGlobal()
 	{
@@ -985,6 +989,32 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			String primaryDataProviderID = ((RelationItem)ri).getPrimaryDataProviderID();
 			if (!ScopesUtils.isVariableScope(primaryDataProviderID) && !primaryDataProviderID.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean isLiteral()
+	{
+		if (isLiteral == null)
+		{
+			isLiteral = Boolean.valueOf(isLiteralEx());
+		}
+		return isLiteral.booleanValue();
+	}
+
+	private boolean isLiteralEx()
+	{
+		if (!isValid()) return false;//don't know
+
+		List<IPersist> allobjects = getAllObjectsAsList();
+		if (allobjects.size() == 0) return false;
+		for (IPersist ri : allobjects)
+		{
+			String primaryDataProviderID = ((RelationItem)ri).getPrimaryDataProviderID();
+			if (!primaryDataProviderID.startsWith(LiteralDataprovider.LITERAL_PREFIX))
 			{
 				return false;
 			}

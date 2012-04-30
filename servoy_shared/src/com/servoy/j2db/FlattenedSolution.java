@@ -2043,9 +2043,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort, boolean addGlobalsWhenPrimary,
-		boolean onlyGlobalsWhenForeign) throws RepositoryException
+		boolean onlyGlobalsWhenForeign, boolean onlyLiteralsWhenForeign) throws RepositoryException
 	{
-		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary, onlyGlobalsWhenForeign);
+		return Solution.getRelations(getRepository(), getAllObjectsAsList(), filterOnTable, isPrimaryTable, sort, addGlobalsWhenPrimary,
+			onlyGlobalsWhenForeign, onlyLiteralsWhenForeign);
 	}
 
 	public Iterator<Relation> getRelations(ITable filterOnTable, boolean isPrimaryTable, boolean sort) throws RepositoryException
