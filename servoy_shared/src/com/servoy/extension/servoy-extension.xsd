@@ -468,9 +468,13 @@
 			<element name="id" type="tns:libIdType">
 				<annotation>
 					<documentation>
-						The lib id should be the name of the main
-						package in the
-						library's jar file.
+						The lib id should be (the first one available in this order)
+						either the &quot;Extension-Name&quot; from MANIFEST.MF, or the
+						&quot;Bundle-SymbolicName&quot; from MANIFEST.MF (available for OSGI bundles)
+						or the name of the main package (the package that describes the
+						jar best) in the lib jar file; if even this one is hard to pin-point, then just
+						use a library name that is most well known/widely
+						used to point to this particular library.
 					</documentation>
 				</annotation>
 			</element>

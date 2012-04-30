@@ -34,7 +34,6 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -225,7 +224,7 @@ public class LibChoiceHandler
 						{
 							writeBackXML(doc, jnlp, doc.getXmlEncoding());
 						}
-						catch (IOException e)
+						catch (Exception e)
 						{
 							warnings.add("Cannot write back jnlp file (when deactivating lib): " + jnlp); //$NON-NLS-1$ 
 							Debug.error(e);
@@ -315,7 +314,8 @@ public class LibChoiceHandler
 		}
 	}
 
-	protected void writeBackXML(Document doc, File f, String encoding) throws IOException
+	protected void writeBackXML(Document doc, File f, String encoding) throws IOException, TransformerFactoryConfigurationError, TransformerException,
+		DocumentException
 	{
 		BufferedOutputStream os = null;
 		try
@@ -329,30 +329,12 @@ public class LibChoiceHandler
 			newTransformer.setOutputProperty(OutputKeys.INDENT, "yes"); //$NON-NLS-1$
 			newTransformer.transform(source, new StreamResult(sw));
 
+			// normally the transformer code above should have been enough for producing pretty formatted XML (needed so that repeated remove/restore of tags
+			// doesn't produce endless newlines or other bad looking XML); but it seems that with some versions of the JDK that doesn't do it's job so we use dom4j
 			final OutputFormat format = OutputFormat.createPrettyPrint();
 			format.setEncoding(encoding);
 			final XMLWriter writer = new XMLWriter(os, format);
 			writer.write(DocumentHelper.parseText(sw.toString()));
-		}
-		catch (TransformerConfigurationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (TransformerFactoryConfigurationError e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (TransformerException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (DocumentException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		finally
 		{
@@ -499,7 +481,7 @@ public class LibChoiceHandler
 					{
 						writeBackXML(doc, jnlpFile, doc.getXmlEncoding());
 					}
-					catch (IOException e)
+					catch (Exception e)
 					{
 						warnings.add("Cannot write back jnlp file (when deactivating lib): " + jnlpFile); //$NON-NLS-1$ 
 						Debug.error(e);
@@ -564,12 +546,7 @@ public class LibChoiceHandler
 
 				writeBackXML(document, f, "UTF-8"); //$NON-NLS-1$
 			}
-			catch (ParserConfigurationException e)
-			{
-				warnings.add("Cannot generate contents for removed lib references file."); //$NON-NLS-1$
-				Debug.error(e);
-			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				warnings.add("Cannot generate contents for removed lib references file."); //$NON-NLS-1$
 				Debug.error(e);
