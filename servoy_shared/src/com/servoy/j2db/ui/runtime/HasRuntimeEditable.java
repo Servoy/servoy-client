@@ -24,7 +24,7 @@ import org.mozilla.javascript.annotations.JSSetter;
  * @author rob
  *
  */
-public interface HasRuntimeEditable extends HasRuntimeEditableGet
+public interface HasRuntimeEditable
 {
 	/**
 	 * Gets or sets the editable/read-only state of a field; true - editable; false - read-only.
