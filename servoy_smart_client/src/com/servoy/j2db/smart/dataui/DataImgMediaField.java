@@ -1151,13 +1151,13 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 	public boolean isReadOnly()
 	{
-		return (popup == null);
+		return popup == null;
 	}
 
 
 	public boolean isEditable()
 	{
-		return isEnabled();
+		return editState;
 	}
 
 	public void setComponentEnabled(final boolean b)

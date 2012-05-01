@@ -21,7 +21,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 /**
- * @author rob
+ * @author rgansevles
  *
  */
 public interface HasRuntimeEditable

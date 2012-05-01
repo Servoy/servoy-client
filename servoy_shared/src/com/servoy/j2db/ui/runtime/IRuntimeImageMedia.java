@@ -27,6 +27,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeImageMedia", extendsComponent = "RuntimeComponent")
 public interface IRuntimeImageMedia extends HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeTitleText, IRuntimeComponent, HasRuntimeDataproviderID,
-	HasRuntimeEditableGet
+	HasRuntimeEditable
 {
 }

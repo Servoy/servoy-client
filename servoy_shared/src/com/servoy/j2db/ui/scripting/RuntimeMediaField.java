@@ -85,4 +85,10 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 	{
 		return getComponent().isEditable();
 	}
+
+	public void setEditable(boolean b)
+	{
+		getComponent().setEditable(b);
+		getChangesRecorder().setChanged();
+	}
 }
