@@ -1834,7 +1834,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		sqlSelect.clearSorts();
 		sqlSelect.setDistinct(false); // not needed when you have no joins and may conflict with order by
 		//not possible to keep related, can limit the just supplied pkset, which would awkward
-		SQLGenerator.addSorts(fsm.getApplication(), sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false);
+		fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false);
 		clearOmit(sqlSelect);
 		int sizeAfter = set.getRowCount();
 		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
