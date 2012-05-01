@@ -102,6 +102,7 @@ public class SQLGenerator
 	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
 	private final boolean relatedSearchJoinTypeAlwaysOverride;
 	private final boolean relatedNullSearchAddPkCondition;
+	private final boolean enforcePkInSort;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -112,6 +113,8 @@ public class SQLGenerator
 		relatedSearchJoinTypeAlwaysOverride = Utils.getAsBoolean(application.getSettings().getProperty("servoy.client.relatedSearchJoinTypeAlwaysOverride",
 			"false"));
 		relatedNullSearchAddPkCondition = Utils.getAsBoolean(application.getSettings().getProperty("servoy.client.relatedNullSearchAddPkCondition", "true"));
+		// sort should always contain the pk, so that when sorting values are not unique the sorting result is stable
+		enforcePkInSort = Utils.getAsBoolean(application.getSettings().getProperty("servoy.foundset.sort.enforcepk", "true")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 /*
@@ -252,7 +255,7 @@ public class SQLGenerator
 			}
 		}
 
-		addSorts(application, retval, retval.getTable(), provider, table, orderBy, true);
+		addSorts(retval, retval.getTable(), provider, table, orderBy, true);
 
 		if (removeUnusedJoins)
 		{
@@ -276,9 +279,10 @@ public class SQLGenerator
 		return retval;
 	}
 
-	public static void addSorts(IServiceProvider app, QuerySelect sqlSelect, QueryTable selectTable, IGlobalValueEntry provider, Table table,
-		List<SortColumn> orderByFields, boolean includeRelated) throws RepositoryException
+	public void addSorts(QuerySelect sqlSelect, QueryTable selectTable, IGlobalValueEntry provider, Table table, List<SortColumn> orderByFields,
+		boolean includeRelated) throws RepositoryException
 	{
+		List<Column> unusedRowidentColumns = new ArrayList<Column>(table.getRowIdentColumns());
 		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
 		{
 			SortColumn sc = orderByFields.get(i);
@@ -323,7 +327,7 @@ public class SQLGenerator
 							foreignQtable = join.getForeignTable();
 						}
 
-						sqlSelect.addJoin(createJoin(app.getFlattenedSolution(), relation, primaryQtable, foreignQtable, provider));
+						sqlSelect.addJoin(createJoin(application.getFlattenedSolution(), relation, primaryQtable, foreignQtable, provider));
 						primaryQtable = foreignQtable;
 					}
 					IQuerySelectValue queryColumn;
@@ -331,6 +335,7 @@ public class SQLGenerator
 					{
 						queryColumn = new QueryColumn(foreignQtable, ((Column)column).getID(), ((Column)column).getSQLName(), ((Column)column).getType(),
 							column.getLength());
+						unusedRowidentColumns.remove(column);
 					}
 					else if (column instanceof AggregateVariable)
 					{
@@ -352,7 +357,7 @@ public class SQLGenerator
 					else
 					{
 						Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
-						return;
+						continue;
 					}
 					sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == SortColumn.ASCENDING));
 				}
@@ -363,6 +368,7 @@ public class SQLGenerator
 					{
 						sqlSelect.addSort(new QuerySort(new QueryColumn(selectTable, ((Column)column).getID(), ((Column)column).getSQLName(),
 							((Column)column).getType(), column.getLength()), sc.getSortOrder() == SortColumn.ASCENDING));
+						unusedRowidentColumns.remove(column);
 					}
 					else
 					{
@@ -373,6 +379,15 @@ public class SQLGenerator
 			catch (RemoteException e)
 			{
 				throw new RepositoryException(e);
+			}
+		}
+
+		// Make sure pk is part of the sort, in case of non-unique sort columns, the sorted result may not be the same in each fetch
+		if (enforcePkInSort)
+		{
+			for (Column column : unusedRowidentColumns)
+			{
+				sqlSelect.addSort(new QuerySort(new QueryColumn(selectTable, column.getID(), column.getSQLName(), column.getType(), column.getLength()), true));
 			}
 		}
 	}
