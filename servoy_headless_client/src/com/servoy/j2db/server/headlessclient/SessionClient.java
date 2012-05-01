@@ -442,7 +442,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		if (foundSetManager != null)
 		{
-			foundSetManager.rollbackTransaction(true, false);
+			foundSetManager.rollbackTransaction(true, false, true);
 		}
 	}
 
@@ -1541,12 +1541,12 @@ public class SessionClient extends ClientState implements ISessionClient
 		return defaultUserProperties;
 	}
 
-	public boolean setUIProperty(Object name, Object val)
+	public boolean putClientProperty(Object name, Object val)
 	{
 		return false;
 	}
 
-	public Object getUIProperty(Object name)
+	public Object getClientProperty(Object name)
 	{
 		return null;
 	}

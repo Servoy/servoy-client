@@ -292,7 +292,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		else
 		{
 			wasEditable = editable;
-			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			if (!Boolean.TRUE.equals(application.getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
 				setEditable(true);
 			}

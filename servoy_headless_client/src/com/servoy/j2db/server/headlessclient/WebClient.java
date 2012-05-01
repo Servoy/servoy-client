@@ -414,12 +414,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	public boolean setUIProperty(Object name, Object val)
+	public boolean putClientProperty(Object name, Object val)
 	{
 		if (WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR.equals(name))
 		{
 			WebClientSession.get().setTemplateDirectoryName((val == null ? null : val.toString()));
-			return true;
 		}
 		else
 		{
@@ -429,11 +428,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			}
 			uiProperties.put(name, val);
 		}
-		return super.setUIProperty(name, val);
+		return true;
 	}
 
 	@Override
-	public Object getUIProperty(Object name)
+	public Object getClientProperty(Object name)
 	{
 		if (WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR.equals(name))
 		{

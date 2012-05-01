@@ -278,7 +278,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		}
 		else
 		{
-			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			if (!Boolean.TRUE.equals(application.getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
 				boolean oldReadonly = readOnly;
 				setReadOnly(false);

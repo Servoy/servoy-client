@@ -266,7 +266,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 		else
 		{
 			wasEditable = !isReadOnly();
-			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			if (!Boolean.TRUE.equals(application.getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
 				setEditable(true);
 			}

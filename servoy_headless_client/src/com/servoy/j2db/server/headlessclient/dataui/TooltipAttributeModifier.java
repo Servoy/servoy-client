@@ -173,9 +173,9 @@ public class TooltipAttributeModifier extends AttributeModifier
 							}
 							WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
 							tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "").toString();
-							Object initialDelayValue = webClient.getUIProperty(IApplication.TOOLTIP_INITIAL_DELAY);
+							Object initialDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_INITIAL_DELAY);
 							if (initialDelayValue instanceof Number) initialDelay = ((Number)initialDelayValue).intValue();
-							Object dismissDelayValue = webClient.getUIProperty(IApplication.TOOLTIP_DISMISS_DELAY);
+							Object dismissDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_DISMISS_DELAY);
 							if (dismissDelayValue instanceof Number) dismissDelay = ((Number)dismissDelayValue).intValue();
 
 						}

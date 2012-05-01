@@ -69,7 +69,7 @@ public class UIUtils
 		Object val = component.getClientProperty(name);
 		if (val == null)
 		{
-			val = application.getUIProperty(name);
+			val = application.getClientProperty(name);
 		}
 		if (val == null) val = defaultValue;
 		return val;

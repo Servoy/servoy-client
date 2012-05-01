@@ -488,28 +488,57 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
+	 * 
+	 * @param name Name of the UI property
+	 * @param value New value of the UI property
+	 * 
+	 * @return Boolean (true) if the UI property was set with the new value
+	 * 
+	 * @deprecated use putClientProperty(Object,Object)
+	 */
+	@Deprecated
+	public boolean js_setUIProperty(Object name, Object value)
+	{
+		return js_putClientProperty(name, value);
+	}
+
+	/**
 	 * Sets a UI property.
 	 *
 	 * @sample
 	 * //Only use this function from the solution on open method!
 	 * //In smart client, use this to set javax.swing.UIDefaults properties.
-	 * application.setUIProperty('ToolTip.hideAccelerator', true)
+	 * application.putClientProperty('ToolTip.hideAccelerator', true)
 	 * //To change the comboboxes selection background color, do this:
-	 * application.setUIProperty('ComboBox.selectionBackground', new Packages.javax.swing.plaf.ColorUIResource(java.awt.Color.RED)) 
+	 * application.putClientProperty('ComboBox.selectionBackground', new Packages.javax.swing.plaf.ColorUIResource(java.awt.Color.RED)) 
 	 * 
 	 * //In web client, use this to change the template directory.
 	 * //To change the default dir of templates/default to templates/green_skin, do this:
-	 * application.setUIProperty('templates.dir','green_skin');
+	 * application.putClientProperty('templates.dir','green_skin');
 	 *
-	 * @param name Name of the UI property
-	 * @param value New value of the UI property
+	 * @param name Name of the client property
+	 * @param value New value of the client property
 	 * 
-	 * @return Boolean (true) if the UI property was set with the new value
+	 * @return Boolean (true) if the client property was set with the new value
 	 */
-	public boolean js_setUIProperty(Object name, Object value)
+	public boolean js_putClientProperty(Object name, Object value)
 	{
 		if (name == null) return false;
-		return application.setUIProperty(name, value);
+		return application.putClientProperty(name, value);
+	}
+
+	/**
+	 * @clonedesc js_putClientProperty(Object,Object)
+	 * 
+	 * @sampleas js_putClientProperty(Object,Object)
+	 * 
+	 * @param name Name of the client property
+	 * 
+	 * @return the property value for the given name/key, null of nothing was found
+	 */
+	public Object js_getClientProperty(Object name)
+	{
+		return application.getClientProperty(name);
 	}
 
 	/**

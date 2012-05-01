@@ -1856,7 +1856,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		else
 		{
 			wasEditable = isEditable();
-			if (!Boolean.TRUE.equals(application.getUIProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
+			if (!Boolean.TRUE.equals(application.getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
 				setEditable(true);
 			}

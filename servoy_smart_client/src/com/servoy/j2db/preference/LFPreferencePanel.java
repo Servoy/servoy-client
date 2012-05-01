@@ -272,7 +272,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 		{
 			String s_laf = UIManager.getSystemLookAndFeelClassName();
 			if (selected != null) s_laf = selected.getClassName();
-			if (_application.setUIProperty(LookAndFeelInfo.class.getName(), s_laf) && _application.setUIProperty(Font.class.getName(), _selectedFont))
+			if (_application.putClientProperty(LookAndFeelInfo.class.getName(), s_laf) && _application.putClientProperty(Font.class.getName(), _selectedFont))
 			{
 				String c_laf = (_current == null ? "" : _current.getClassName());
 				_application.getSettings().setProperty(clientPrefix + "selectedlnf", c_laf); //$NON-NLS-1$

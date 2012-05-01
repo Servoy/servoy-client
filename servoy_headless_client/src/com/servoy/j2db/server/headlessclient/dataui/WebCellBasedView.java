@@ -1582,7 +1582,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Debug.error(ex);
 		}
 
-		Object defaultScrollable = application.getUIProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE);
+		Object defaultScrollable = application.getClientProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE);
 		setScrollMode(defaultScrollable == null || Boolean.TRUE.equals(defaultScrollable));
 		table.setPageabeMode(!isScrollMode());
 		if (isScrollMode())

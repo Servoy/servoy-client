@@ -1517,7 +1517,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				lnf = defaultLAFClassName;
 			}
 
-			setUIProperty(LookAndFeelInfo.class.getName(), lnf);
+			putClientProperty(LookAndFeelInfo.class.getName(), lnf);
 
 
 			String font = settings.getProperty("font");
@@ -1544,7 +1544,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 			replaceCtrlShortcutsWithMacShortcuts();
 
-			if (dfltFont != null) setUIProperty(Font.class.getName(), dfltFont);
+			if (dfltFont != null) putClientProperty(Font.class.getName(), dfltFont);
 
 		}
 		catch (Exception e)
@@ -1626,7 +1626,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 	}
 
-	public Object getUIProperty(Object name)
+	public Object getClientProperty(Object name)
 	{
 		if (name == null) return null;
 		if (LookAndFeelInfo.class.getName().equals(name))
@@ -1669,7 +1669,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 	}
 
-	public boolean setUIProperty(Object name, Object value)
+	public boolean putClientProperty(Object name, Object value)
 	{
 		if (name == null) return false;
 		try
@@ -2055,11 +2055,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				}
 				if (but == JOptionPane.OK_OPTION)
 				{
-					foundSetManager.commitTransaction(true);
+					foundSetManager.commitTransaction(true, true);
 				}
 				else
 				{
-					foundSetManager.rollbackTransaction(true, false);
+					foundSetManager.rollbackTransaction(true, false, true);
 				}
 			}
 		}
