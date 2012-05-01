@@ -411,7 +411,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		}
 
 		List<SortColumn> defaultSort = foundSetManager.getSortColumns(relations[relations.length - 1].getForeignDataSource(), valueList.getSortOptions());
-		SQLGenerator.addSorts(application, select, lastTable, globalScopeProvider, foreignTable, defaultSort, true);
+		foundSetManager.getSQLGenerator().addSorts(select, lastTable, globalScopeProvider, foreignTable, defaultSort, true);
 
 		int showValues = valueList.getShowDataProviders();
 		int returnValues = valueList.getReturnDataProviders();
