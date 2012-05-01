@@ -189,9 +189,9 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param name of property
 	 * @see javax.swing.UIDefaults (for swing side)
 	 */
-	public boolean setUIProperty(Object name, Object val);
+	public boolean putClientProperty(Object name, Object val);
 
-	public Object getUIProperty(Object key);
+	public Object getClientProperty(Object key);
 
 	/**
 	 * Set the window title.
