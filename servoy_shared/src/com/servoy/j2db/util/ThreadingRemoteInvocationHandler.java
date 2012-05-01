@@ -20,6 +20,9 @@ package com.servoy.j2db.util;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.rmi.Remote;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.servoy.j2db.persistence.RepositoryException;
 
@@ -32,6 +35,8 @@ import com.servoy.j2db.persistence.RepositoryException;
  */
 public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHandler
 {
+	private static ExecutorService threadPool = Executors.newCachedThreadPool();
+
 	private ThreadingRemoteInvocationHandler(Remote remote)
 	{
 		super(remote);
@@ -65,6 +70,7 @@ public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHa
 	{
 		final Object[] result = { null };
 		final Throwable[] throwable = { null };
+		final AtomicBoolean done = new AtomicBoolean(false);
 
 		Runnable methodRunner = new Runnable()
 		{
@@ -78,20 +84,31 @@ public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHa
 				{
 					throwable[0] = t;
 				}
+				synchronized (this)
+				{
+					done.set(true);
+					this.notifyAll();
+				}
 			}
 		};
 
-		Thread thread = new Thread(methodRunner, "ThreadingRemoteInvocationHandler"); //$NON-NLS-1$
-		thread.start();
-		try
+		synchronized (methodRunner)
 		{
-			thread.join();
+			threadPool.execute(methodRunner);
+			while (!done.get())
+			{
+				try
+				{
+					methodRunner.wait();
+				}
+				catch (InterruptedException e)
+				{
+					Debug.error(e);
+					throw new RepositoryException(e.getMessage());
+				}
+			}
 		}
-		catch (InterruptedException e)
-		{
-			Debug.error(e);
-			throw new RepositoryException(e.getMessage());
-		}
+
 		if (throwable[0] != null)
 		{
 			throw throwable[0];
