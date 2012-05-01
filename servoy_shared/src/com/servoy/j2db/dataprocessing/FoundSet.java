@@ -3674,6 +3674,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 				}
 				Row data = state.getRawData();
+				GlobalTransaction gt = fsm.getGlobalTransaction();
+				if (gt != null)
+				{
+					gt.addRow(sheet.getServerName(), state);
+				}
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
 				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID);

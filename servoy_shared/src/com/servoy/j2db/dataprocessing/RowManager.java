@@ -47,7 +47,6 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLUpdate;
-import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
@@ -55,6 +54,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -260,11 +260,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 * Rollback data from db, return whether the data was found
 	 * @param row
 	 * @param doFires
-	 * @param overwrite
+	 * @param mode
 	 * @return
 	 * @throws ServoyException
 	 */
-	boolean rollbackFromDB(Row row, boolean doFires, boolean overwrite) throws ServoyException
+	boolean rollbackFromDB(Row row, boolean doFires, Row.ROLLBACK_MODE mode) throws ServoyException
 	{
 		if (!row.existInDB())
 		{
@@ -298,7 +298,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		boolean found = formdata.getRowCount() >= 1;
 		if (found)
 		{
-			row.setRollbackData(formdata.getRow(0), overwrite);
+			row.setRollbackData(formdata.getRow(0), mode);
 		}
 		// else // whoa, row is deleted or pk is updated!
 
@@ -330,7 +330,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					try
 					{
 						adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
-						boolean found = rollbackFromDB(rowData, false, false);
+						boolean found = rollbackFromDB(rowData, false, Row.ROLLBACK_MODE.UPDATE_CHANGES);
 						int eventType = RowEvent.UPDATE;
 						if (!found && rowData.existInDB())
 						{
@@ -476,8 +476,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 			if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), values))
 			{
-				Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-					" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+				Debug.error(new RuntimeException(
+					"Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+						" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 			}
 
 			long time = System.currentTimeMillis();
@@ -708,8 +709,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					pkValues[j] = row.getOldRequiredValue(dataProviderID);
 				}
 
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY),
-					pkValues);
+				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(),
+					SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}
 			else
 			{
@@ -772,8 +773,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY),
-					argsArray.toArray());
+				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(),
+					SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
 			}
 			Object[] pk = row.getPK();
 			IDataSet pks = new BufferedDataSet();
@@ -782,7 +783,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			GlobalTransaction gt = fsm.getGlobalTransaction();
 			if (gt != null)
 			{
-				tid = gt.addRow(sheet.getServerName(), row);
+				tid = gt.getTransactionID(sheet.getServerName());
 			}
 			QuerySelect requerySelect = null;
 			if (mustRequeryRow)
@@ -949,8 +950,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			Object[] pk = r.getPK();
 			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 			{
-				Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-					" in query " + sqlDelete + "-- continuing")); //$NON-NLS-1$ //$NON-NLS-2$
+				Debug.error(new RuntimeException(
+					"Could not set placeholder " + new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+						" in query " + sqlDelete + "-- continuing")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			IDataSet pks = new BufferedDataSet();
@@ -960,7 +962,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			GlobalTransaction gt = fsm.getGlobalTransaction();
 			if (gt != null)
 			{
-				tid = gt.addRow(sheet.getServerName(), r);
+				tid = gt.getTransactionID(sheet.getServerName());
 			}
 
 			SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, tid, sqlDelete,
@@ -1035,7 +1037,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					Object[] currentData = rowData.getRawColumnData();
 					if (!Utils.equalObjects(data, currentData))
 					{
-						rowData.setRollbackData(data, false);
+						rowData.setRollbackData(data, Row.ROLLBACK_MODE.UPDATE_CHANGES);
 						fireNotifyChange(null, rowData, null, RowEvent.UPDATE);
 					}
 				}

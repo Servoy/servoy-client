@@ -42,6 +42,12 @@ import com.servoy.j2db.util.Utils;
  */
 public class Row
 {
+	public enum ROLLBACK_MODE
+	{
+		OVERWRITE_CHANGES, UPDATE_CHANGES, KEEP_CHANGES
+
+	}
+
 	public static final Object UNINITIALIZED = new Object();
 
 	private Exception lastException;
@@ -471,7 +477,7 @@ public class Row
 		return null;//getValue(dataProviderID, true);
 	}
 
-	private synchronized void createOldValuesIfNeeded()
+	synchronized void createOldValuesIfNeeded()
 	{
 		if (oldValues == null && existInDB)
 		{
@@ -599,30 +605,33 @@ public class Row
 
 	void rollbackFromDB() throws Exception
 	{
-		parent.rollbackFromDB(this, true, true);
+		parent.rollbackFromDB(this, true, ROLLBACK_MODE.OVERWRITE_CHANGES);
 	}
 
-	void rollbackFromDB(boolean overwrite) throws Exception
+	void rollbackFromDB(ROLLBACK_MODE mode) throws Exception
 	{
-		parent.rollbackFromDB(this, true, overwrite);
+		parent.rollbackFromDB(this, true, mode);
 	}
 
-	void setRollbackData(Object[] array, boolean overwrite)
+	void setRollbackData(Object[] array, ROLLBACK_MODE mode)
 	{
 		synchronized (this)
 		{
-			if (overwrite || oldValues == null)
+			if (mode == ROLLBACK_MODE.OVERWRITE_CHANGES || oldValues == null)
 			{
 				columndata = array;
 				oldValues = null;
 			}
 			else
 			{
-				for (int i = 0; i < oldValues.length; i++)
+				if (mode != ROLLBACK_MODE.KEEP_CHANGES)
 				{
-					if (!Utils.equalObjects(oldValues[i], array[i]))
+					for (int i = 0; i < oldValues.length; i++)
 					{
-						columndata[i] = array[i];
+						if (!Utils.equalObjects(oldValues[i], array[i]))
+						{
+							columndata[i] = array[i];
+						}
 					}
 				}
 				oldValues = array;

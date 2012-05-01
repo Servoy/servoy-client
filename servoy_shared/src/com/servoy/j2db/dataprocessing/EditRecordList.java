@@ -653,7 +653,7 @@ public class EditRecordList
 								Debug.error("Requery data has different length from row data.");
 							}
 						}
-						row.setRollbackData(rowData, false);
+						row.setRollbackData(rowData, Row.ROLLBACK_MODE.UPDATE_CHANGES);
 					}
 					else if (!Boolean.TRUE.equals(retValue))
 					{
@@ -872,6 +872,12 @@ public class EditRecordList
 		if (doesExistInDB && !hasAccess(table, IRepository.UPDATE))
 		{
 			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS);
+		}
+
+		GlobalTransaction gt = fsm.getGlobalTransaction();
+		if (gt != null)
+		{
+			gt.addRow(table.getServerName(), state);
 		}
 
 		RowUpdateInfo rowUpdateInfo = rowManager.getRowUpdateInfo(rowData, hasAccess(table, IRepository.TRACKING));

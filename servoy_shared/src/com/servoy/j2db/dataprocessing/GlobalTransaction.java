@@ -36,7 +36,7 @@ import com.servoy.j2db.util.Debug;
  */
 public class GlobalTransaction
 {
-	private WeakHashMap<Row, GlobalTransaction> rows;//all rows to prevent they are gc'ed
+	private WeakHashMap<IRecordInternal, GlobalTransaction> rows;//all rows to prevent they are gc'ed
 	private Map<String, String> serverTransactions;//serverName->transactionID
 	private final IDataServer dataServer;
 	private final String clientID;
@@ -44,12 +44,12 @@ public class GlobalTransaction
 	GlobalTransaction(IDataServer ds, String cid)
 	{
 		serverTransactions = new HashMap<String, String>();
-		rows = new WeakHashMap<Row, GlobalTransaction>();
+		rows = new WeakHashMap<IRecordInternal, GlobalTransaction>();
 		dataServer = ds;
 		clientID = cid;
 	}
 
-	Collection<String> rollback(boolean queryForNewData)
+	Collection<String> rollback(boolean queryForNewData, boolean revertSavedRecords)
 	{
 		if (serverTransactions != null)
 		{
@@ -70,13 +70,25 @@ public class GlobalTransaction
 			Set<String> set = new HashSet<String>();
 			try
 			{
-				Iterator<Row> it2 = rows.keySet().iterator();
+				Iterator<IRecordInternal> it2 = rows.keySet().iterator();
 				while (it2.hasNext())
 				{
 					// TODO this can be optimized.
 					// Search for all the rows with the same table and do a in query (per 200 rows..)
-					Row row = it2.next();
-					row.rollbackFromDB();
+					IRecordInternal record = it2.next();
+					Row row = record.getRawData();
+					if (!revertSavedRecords && row.getRowManager().getFoundsetManager().getEditRecordList().startEditing(record, false))
+					{
+						// if we shouldn't revert to database values,
+						// quickly create the old values (edit values) array
+						row.createOldValuesIfNeeded();
+						// then revert by keeping the current column data values.
+						row.rollbackFromDB(Row.ROLLBACK_MODE.KEEP_CHANGES);
+					}
+					else
+					{
+						row.rollbackFromDB(Row.ROLLBACK_MODE.OVERWRITE_CHANGES);
+					}
 					set.add(row.getRowManager().getFoundsetManager().getDataSource(row.getRowManager().getSQLSheet().getTable()));
 				}
 				rows = null;
@@ -90,7 +102,7 @@ public class GlobalTransaction
 		return Collections.<String> emptyList();
 	}
 
-	Collection<String> commit()
+	Collection<String> commit(boolean revertSavedRecords)
 	{
 		String[] tids = new String[serverTransactions.size()];
 		serverTransactions.values().toArray(tids);
@@ -106,12 +118,12 @@ public class GlobalTransaction
 		if (rows != null)
 		{
 			serverTransactions = new HashMap<String, String>();//clear, so they are not processes on IDataService
-			return rollback(true);//all others
+			return rollback(true, revertSavedRecords);//all others
 		}
 		return null;
 	}
 
-	String addRow(String serverName, Row r) throws RepositoryException
+	String addRow(String serverName, IRecordInternal r) throws RepositoryException
 	{
 		if (!rows.containsKey(r))
 		{

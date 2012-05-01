@@ -749,7 +749,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		trackingInfoMap.clear();
 		//just to make sure
-		rollbackTransaction(true, true);
+		rollbackTransaction(true, true, true);
 		releaseAllLocks(null);
 
 		createEmptyFoundsets = false;
@@ -1685,17 +1685,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public boolean commitTransaction()
 	{
-		return commitTransaction(true);
+		return commitTransaction(true, true);
 	}
 
-	public boolean commitTransaction(boolean saveFirst)
+	public boolean commitTransaction(boolean saveFirst, boolean revertSavedRecords)
 	{
 		// first stop all edits, 'force' stop the edit by saying that it is a javascript stop
 		if (globalTransaction != null && (!saveFirst || getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED))
 		{
 			GlobalTransaction gt = globalTransaction;
 			globalTransaction = null;
-			Collection<String> dataSourcesToRefresh = gt.commit();
+			Collection<String> dataSourcesToRefresh = gt.commit(revertSavedRecords);
 			if (infoListener != null) infoListener.showTransactionStatus(false);
 			performActionIfRequired();
 			if (dataSourcesToRefresh != null)
@@ -1718,10 +1718,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public void rollbackTransaction()
 	{
-		rollbackTransaction(true, true);
+		rollbackTransaction(true, true, true);
 	}
 
-	public void rollbackTransaction(boolean rollbackEdited, boolean queryForNewData)
+	public void rollbackTransaction(boolean rollbackEdited, boolean queryForNewData, boolean revertSavedRecords)
 	{
 		if (globalTransaction != null)
 		{
@@ -1735,7 +1735,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			GlobalTransaction gt = globalTransaction;
 			globalTransaction = null;
-			Collection<String> dataSourcesToRefresh = gt.rollback(queryForNewData);
+			Collection<String> dataSourcesToRefresh = gt.rollback(queryForNewData, revertSavedRecords);
 			if (infoListener != null) infoListener.showTransactionStatus(false);
 			performActionIfRequired();
 			// refresh foundsets only if rollbackEdited is true, else the foundsets will even save/stopedit the record they where editing..

@@ -2561,6 +2561,23 @@ public class JSDatabaseManager
 	/**
 	 * Returns true if a transaction is committed; rollback if commit fails. 
 	 * 
+	 * @param saveFirst save edited records to the database first (default true)\
+	 * @param revertSavedRecords if a commit fails and a rollback is done, the when given false the records are not reverted to the database state (and are in edited records again)
+	 * 
+	 * @sampleas js_startTransaction()
+	 * 
+	 * @return if the transaction could be committed.
+	 */
+	public boolean js_commitTransaction(boolean saveFirst, boolean revertSavedRecords) throws ServoyException
+	{
+		checkAuthorized();
+		IFoundSetManagerInternal fsm = application.getFoundSetManager();
+		return fsm.commitTransaction(saveFirst, true);
+	}
+
+	/**
+	 * Returns true if a transaction is committed; rollback if commit fails. 
+	 * 
 	 * @param saveFirst save edited records to the database first (default true)
 	 * 
 	 * @sampleas js_startTransaction()
@@ -2571,7 +2588,7 @@ public class JSDatabaseManager
 	{
 		checkAuthorized();
 		IFoundSetManagerInternal fsm = application.getFoundSetManager();
-		return fsm.commitTransaction(saveFirst);
+		return fsm.commitTransaction(saveFirst, true);
 	}
 
 	/**
@@ -2590,6 +2607,7 @@ public class JSDatabaseManager
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
 	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Also, saved records within the transactions are restored to the database values, so user input is lost, to controll this see rollbackTransaction(boolean,boolean)
 	 * 
 	 * @param rollbackEdited call rollbackEditedRecords() before rolling back the transaction
 	 * 
@@ -2599,13 +2617,30 @@ public class JSDatabaseManager
 	{
 		checkAuthorized();
 		IFoundSetManagerInternal fsm = application.getFoundSetManager();
-		fsm.rollbackTransaction(rollbackEdited, true);
+		fsm.rollbackTransaction(rollbackEdited, true, true);
 	}
 
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
 	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
-	 * Also, rollbackEditedRecords() is called before rolling back the transaction.
+	 * 
+	 * @param rollbackEdited call rollbackEditedRecords() before rolling back the transaction
+	 * @param revertSavedRecords if false then all records in the transaction do keep the user input and are back in the edited records list
+	 * 
+	 * @sampleas js_startTransaction() 
+	 */
+	public void js_rollbackTransaction(boolean rollbackEdited, boolean revertSavedRecords) throws ServoyException
+	{
+		checkAuthorized();
+		IFoundSetManagerInternal fsm = application.getFoundSetManager();
+		fsm.rollbackTransaction(rollbackEdited, true, revertSavedRecords);
+	}
+
+	/**
+	 * Rollback a transaction started by databaseManager.startTransaction().
+	 * Note that when autosave is false, rollbackEditedRecords() will not handle deleted records, while rollbackTransaction() does.
+	 * Also, rollbackEditedRecords() is called before rolling back the transaction see rollbackTransaction(boolean) to controll that behavior
+	 * and saved records within the transactions are restored to the database values, so user input is lost, to controll this see rollbackTransaction(boolean,boolean)
 	 * 
 	 * @sampleas js_startTransaction() 
 	 */
