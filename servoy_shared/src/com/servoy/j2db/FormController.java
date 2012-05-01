@@ -58,6 +58,7 @@ import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplay;
+import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetListener;
@@ -2338,6 +2339,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				dataRenderers[i] = null;
 			}
 		}
+	}
+
+	public boolean loadRecords(IFoundSet foundSet)
+	{
+		return loadData(foundSet, null);
 	}
 
 	public boolean loadData(Object data, Object[] args)

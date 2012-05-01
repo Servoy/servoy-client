@@ -237,4 +237,13 @@ public interface IForm
 	 * @since 6.1
 	 */
 	public IRuntimeComponent[] getElements();
+
+	/**
+	 * @return Load the controller with the foundset.
+	 * 
+	 * @param foundSet foundset to load
+	 * 
+	 * @since 6.1
+	 */
+	public boolean loadRecords(IFoundSet foundSet);
 }
