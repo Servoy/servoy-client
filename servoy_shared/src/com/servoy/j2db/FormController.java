@@ -47,6 +47,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.cmd.ICmdManagerInternal;
@@ -92,7 +93,6 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
-import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
@@ -5104,13 +5104,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			List<IRuntimeComponent> elements = new ArrayList<IRuntimeComponent>(values.length);
 			for (Object value : values)
 			{
-				if (value instanceof IScriptableProvider)
+				if (value instanceof Wrapper)
 				{
-					IScriptable scriptObject = ((IScriptableProvider)value).getScriptObject();
-					if (scriptObject instanceof IRuntimeComponent)
-					{
-						elements.add((IRuntimeComponent)scriptObject);
-					}
+					value = ((Wrapper)value).unwrap();
+				}
+				if (value instanceof IRuntimeComponent)
+				{
+					elements.add((IRuntimeComponent)value);
 				}
 			}
 
