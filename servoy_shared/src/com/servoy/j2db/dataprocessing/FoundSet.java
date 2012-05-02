@@ -1410,7 +1410,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					foundTable = true;
 					if (lcTableName.length > 1) // alias
 					{
-						mainTableAlias = tableName.split(whitespace)[1];
+						// either 'tabname aliasname' or 'tabname AS aliasname'
+						mainTableAlias = tableName.split(whitespace)[lcTableName.length - 1];
 					}
 				}
 				else
