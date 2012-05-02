@@ -22,7 +22,6 @@ import java.lang.reflect.Proxy;
 import java.rmi.Remote;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.servoy.j2db.persistence.RepositoryException;
 
@@ -70,7 +69,6 @@ public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHa
 	{
 		final Object[] result = { null };
 		final Throwable[] throwable = { null };
-		final AtomicBoolean done = new AtomicBoolean(false);
 
 		Runnable methodRunner = new Runnable()
 		{
@@ -84,10 +82,12 @@ public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHa
 				{
 					throwable[0] = t;
 				}
-				synchronized (this)
+				finally
 				{
-					done.set(true);
-					this.notifyAll();
+					synchronized (this)
+					{
+						this.notifyAll();
+					}
 				}
 			}
 		};
@@ -95,17 +95,14 @@ public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHa
 		synchronized (methodRunner)
 		{
 			threadPool.execute(methodRunner);
-			while (!done.get())
+			try
 			{
-				try
-				{
-					methodRunner.wait();
-				}
-				catch (InterruptedException e)
-				{
-					Debug.error(e);
-					throw new RepositoryException(e.getMessage());
-				}
+				methodRunner.wait();
+			}
+			catch (InterruptedException e)
+			{
+				Debug.error(e);
+				throw new RepositoryException(e.getMessage());
 			}
 		}
 
