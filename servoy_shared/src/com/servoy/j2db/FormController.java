@@ -4204,7 +4204,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			if (destroyed)
 			{
-				Debug.error("Calling initForJSUsage on a destroyed form: " + this, new RuntimeException());
+				Debug.error("Calling initForJSUsage on a destroyed form: " + this, new RuntimeException()); //$NON-NLS-1$
 				return null;
 			}
 			Context.enter();
