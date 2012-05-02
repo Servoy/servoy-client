@@ -156,7 +156,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					if (element != null)
 					{
 						element.flushAllCachedRows();
-						refreshFoundSetsFromDB(dataSource);
+						refreshFoundSetsFromDB(dataSource, false);
 						fireTableEvent(element.getSQLSheet().getTable());
 					}
 				}
@@ -205,7 +205,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public void refreshFoundSetsFromDB()
 	{
-		refreshFoundSetsFromDB(null);
+		refreshFoundSetsFromDB(null, false);
 	}
 
 	private boolean mustRefresh(FoundSet element, String dataSource)
@@ -230,11 +230,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * Used by rollback and flush table/all
-	 * 
+	 * @param skipStopEdit TODO
 	 * @param server_name can be null if not relevant
 	 * @param table_name can be null if not relevant
 	 */
-	private void refreshFoundSetsFromDB(String dataSource)
+	private void refreshFoundSetsFromDB(String dataSource, boolean skipStopEdit)
 	{
 		Object[] foundSetsArray = sharedDataSourceFoundSet.values().toArray();
 		for (Object element : foundSetsArray)
@@ -244,7 +244,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (mustRefresh(fs, dataSource) && fs.isInitialized())
 				{
-					fs.refreshFromDB(false);
+					fs.refreshFromDB(false, skipStopEdit);
 				}
 			}
 			catch (Exception e)
@@ -260,7 +260,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (mustRefresh(fs, dataSource) && fs.isInitialized())
 				{
-					fs.refreshFromDB(false);
+					fs.refreshFromDB(false, false);
 				}
 			}
 			catch (Exception e)
@@ -276,7 +276,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (mustRefresh(fs, dataSource) && fs.isInitialized())
 				{
-					fs.refreshFromDB(false);
+					fs.refreshFromDB(false, false);
 				}
 			}
 			catch (Exception e)
@@ -989,7 +989,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			params.add(filter);
 
-			refreshFoundSetsFromDB(getDataSource(t));
+			refreshFoundSetsFromDB(getDataSource(t), false);
 			fireTableEvent(t);
 		}
 		return true;
@@ -1034,7 +1034,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			for (ITable table : tables)
 			{
-				refreshFoundSetsFromDB(getDataSource(table));
+				refreshFoundSetsFromDB(getDataSource(table), false);
 				fireTableEvent(table);
 			}
 		}
@@ -1700,7 +1700,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			performActionIfRequired();
 			if (dataSourcesToRefresh != null)
 			{
-				refreshFoundsets(dataSourcesToRefresh);
+				refreshFoundsetsWithoutEditedRecords(dataSourcesToRefresh);
 				return false;
 			}
 			return true;
@@ -1708,11 +1708,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return false;
 	}
 
-	private void refreshFoundsets(Collection<String> dataSourcesToRefresh)
+	private void refreshFoundsetsWithoutEditedRecords(Collection<String> dataSourcesToRefresh)
 	{
-		for (String dataSource : dataSourcesToRefresh)
+		try
 		{
-			refreshFoundSetsFromDB(dataSource);
+			getEditRecordList().ignoreSave(true);
+			for (String dataSource : dataSourcesToRefresh)
+			{
+				refreshFoundSetsFromDB(dataSource, true);
+			}
+		}
+		finally
+		{
+			getEditRecordList().ignoreSave(false);
 		}
 	}
 
@@ -1739,9 +1747,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (infoListener != null) infoListener.showTransactionStatus(false);
 			performActionIfRequired();
 			// refresh foundsets only if rollbackEdited is true, else the foundsets will even save/stopedit the record they where editing..
-			if (dataSourcesToRefresh != null && (rollbackEdited || getEditRecordList().getEditedRecords().length == 0))
+			if (dataSourcesToRefresh != null)
 			{
-				refreshFoundsets(dataSourcesToRefresh);
+				refreshFoundsetsWithoutEditedRecords(dataSourcesToRefresh);
 			}
 		}
 	}

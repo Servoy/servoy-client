@@ -312,7 +312,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// just display the records without the omitted pks (when clear omit is false)
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
-			flushRelatedFS, false, fsm.pkChunkSize, false);
+			flushRelatedFS, false, fsm.pkChunkSize, false, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -335,7 +335,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		try
 		{
-			refreshFromDB(true);
+			refreshFromDB(true, false);
 		}
 		catch (ServoyException e)
 		{
@@ -347,10 +347,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * browse all part which can be used by subclasses this also acts as refresh and performs the pk query (again) can be called on any thread
 	 * 
 	 * @param flushRelatedFS
+	 * @param skipStopEdit 
 	 */
-	void refreshFromDB(boolean flushRelatedFS) throws ServoyException
+	void refreshFromDB(boolean flushRelatedFS, boolean skipStopEdit) throws ServoyException
 	{
-		refreshFromDBInternal(null, flushRelatedFS, true, fsm.pkChunkSize, false);
+		refreshFromDBInternal(null, flushRelatedFS, true, fsm.pkChunkSize, false, skipStopEdit);
 	}
 
 	/**
@@ -358,9 +359,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @param querySelect will not be modified, null for the current active query
 	 * @param flushRelatedFS
+	 * @param skipStopEdit 
 	 */
-	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean flushRelatedFS, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder)
-		throws ServoyException
+	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean flushRelatedFS, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder,
+		boolean skipStopEdit) throws ServoyException
 	{
 		if (fsm.getDataServer() == null)
 		{
@@ -395,7 +397,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			else
 			{
 				// TODO check.. call stop edit? Records will be only referenced in the foundset manager:
-				editingRecord.stopEditing();
+				if (!skipStopEdit) editingRecord.stopEditing();
 			}
 		}
 		int oldSize = getSize();
@@ -491,6 +493,35 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				Debug.log("refreshFromDBInternal: cached records were changed during refresh, not reading editing records (would be duplicated)"); //$NON-NLS-1$
 			}
+
+			IRecordInternal[] currentEditedRecords = editRecordList.getEditedRecords(this);
+			outer : for (IRecordInternal record : currentEditedRecords)
+			{
+				Object[] pk = record.getPK();
+				pks = pksAndRecords.getPks();
+				int i = 0;
+				while (true)
+				{
+					for (; i < pks.getRowCount(); i++)
+					{
+						if (Utils.equalObjects(pks.getRow(i), pk))
+						{
+							pksAndRecords.getCachedRecords().set(i, record);
+							continue outer;
+						}
+					}
+					if (getSize() < oldSize && pks.hadMoreRows())
+					{
+						int hint = ((getSize() / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
+						queryForMorePKs(pksAndRecords, pks.getRowCount(), hint, true);
+					}
+					else
+					{
+						break;
+					}
+				}
+
+			}
 		}
 
 		//let the List know the model changed
@@ -503,7 +534,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			setSelectedIndex((pks != null && pks.getRowCount() > 0 && selectedIndex == -1) ? 0 : selectedIndex);
 		}
 	}
-
 
 	public boolean hasAccess(int access)
 	{
@@ -1836,7 +1866,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null && set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter);
-			refreshFromDBInternal(null, false, true, set.getRowCount(), true); // some PKs in the set may not be valid for the current filters
+			refreshFromDBInternal(null, false, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
 		}
 		else
 		{
@@ -3667,14 +3697,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 				}
 				Row data = state.getRawData();
-				GlobalTransaction gt = fsm.getGlobalTransaction();
-				if (gt != null)
-				{
-					gt.addRow(sheet.getServerName(), state);
-				}
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
 				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID);
+
+				GlobalTransaction gt = fsm.getGlobalTransaction();
+				if (gt != null)
+				{
+					gt.addDeletedRecord(state);
+				}
+
 				// really remove the state from the edited records, can't be saved at all anymore after delete.
 				fsm.getEditRecordList().removeEditedRecord(state);
 			}
@@ -4003,7 +4035,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sqlSelect.setCondition(SQLGenerator.CONDITION_OMIT, SQLGenerator.createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR,
 				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), sheet.getTable().getRowIdentColumns(), omittedPKs));
 
-			refreshFromDBInternal(sqlSelect, false, false, fsm.pkChunkSize, true);
+			refreshFromDBInternal(sqlSelect, false, false, fsm.pkChunkSize, true, false);
 		}
 
 		return success;
@@ -5706,7 +5738,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void setSQLSelect(QuerySelect select) throws Exception
 	{
-		refreshFromDBInternal(select, false, false, fsm.pkChunkSize, false);
+		refreshFromDBInternal(select, false, false, fsm.pkChunkSize, false, false);
 	}
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)

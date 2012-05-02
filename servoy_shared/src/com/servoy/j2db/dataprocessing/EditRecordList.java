@@ -205,6 +205,8 @@ public class EditRecordList
 	private boolean isSaving = false;
 	private Exception lastStopEditingException;
 
+	private boolean ignoreSave;
+
 	public int stopIfEditing(IFoundSetInternal fs)
 	{
 		if (hasEditedRecords(fs))
@@ -249,6 +251,10 @@ public class EditRecordList
 		{
 			fsm.getApplication().reportJSError("stopEditing max recursion exceeded", new RuntimeException());
 			return ISaveConstants.SAVE_FAILED;
+		}
+		if (ignoreSave)
+		{
+			return ISaveConstants.AUTO_SAVE_BLOCKED;
 		}
 
 		//prevent recursive calls
@@ -877,7 +883,7 @@ public class EditRecordList
 		GlobalTransaction gt = fsm.getGlobalTransaction();
 		if (gt != null)
 		{
-			gt.addRow(table.getServerName(), state);
+			gt.addRecord(table.getServerName(), state);
 		}
 
 		RowUpdateInfo rowUpdateInfo = rowManager.getRowUpdateInfo(rowData, hasAccess(table, IRepository.TRACKING));
@@ -1485,6 +1491,14 @@ public class EditRecordList
 			}
 		}
 
+	}
+
+	/**
+	 * @param b
+	 */
+	public void ignoreSave(boolean ignore)
+	{
+		this.ignoreSave = ignore;
 	}
 
 }

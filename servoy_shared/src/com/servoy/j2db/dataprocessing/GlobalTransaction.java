@@ -36,7 +36,8 @@ import com.servoy.j2db.util.Debug;
  */
 public class GlobalTransaction
 {
-	private WeakHashMap<IRecordInternal, GlobalTransaction> rows;//all rows to prevent they are gc'ed
+	private WeakHashMap<IRecordInternal, GlobalTransaction> records;//all rows to prevent they are gc'ed
+	private WeakHashMap<IRecordInternal, GlobalTransaction> deletedRecords;//all rows to prevent they are gc'ed
 	private Map<String, String> serverTransactions;//serverName->transactionID
 	private final IDataServer dataServer;
 	private final String clientID;
@@ -44,7 +45,8 @@ public class GlobalTransaction
 	GlobalTransaction(IDataServer ds, String cid)
 	{
 		serverTransactions = new HashMap<String, String>();
-		rows = new WeakHashMap<IRecordInternal, GlobalTransaction>();
+		records = new WeakHashMap<IRecordInternal, GlobalTransaction>();
+		deletedRecords = new WeakHashMap<IRecordInternal, GlobalTransaction>();
 		dataServer = ds;
 		clientID = cid;
 	}
@@ -65,19 +67,22 @@ public class GlobalTransaction
 			}
 		}
 
-		if (queryForNewData && !rows.isEmpty())
+		if (queryForNewData && (!records.isEmpty() || !deletedRecords.isEmpty()))
 		{
 			Set<String> set = new HashSet<String>();
 			try
 			{
-				Iterator<IRecordInternal> it2 = rows.keySet().iterator();
+				Iterator<IRecordInternal> it2 = records.keySet().iterator();
 				while (it2.hasNext())
 				{
 					// TODO this can be optimized.
 					// Search for all the rows with the same table and do a in query (per 200 rows..)
 					IRecordInternal record = it2.next();
 					Row row = record.getRawData();
-					if (!revertSavedRecords && row.getRowManager().getFoundsetManager().getEditRecordList().startEditing(record, false))
+					// call startEdit with false so that start edit on a formcontroller (of the current visible one so only for that record)
+					// if a deleted record was first updated then just overwrite with the database. 
+					if (!revertSavedRecords && !deletedRecords.containsKey(record) &&
+						row.getRowManager().getFoundsetManager().getEditRecordList().startEditing(record, false))
 					{
 						// if we shouldn't revert to database values,
 						// quickly create the old values (edit values) array
@@ -89,9 +94,16 @@ public class GlobalTransaction
 					{
 						row.rollbackFromDB(Row.ROLLBACK_MODE.OVERWRITE_CHANGES);
 					}
-					set.add(row.getRowManager().getFoundsetManager().getDataSource(row.getRowManager().getSQLSheet().getTable()));
+					set.add(record.getParentFoundSet().getDataSource());
 				}
-				rows = null;
+
+				Iterator<IRecordInternal> it3 = deletedRecords.keySet().iterator();
+				while (it3.hasNext())
+				{
+					set.add(it3.next().getParentFoundSet().getDataSource());
+				}
+				records = null;
+				deletedRecords = null;
 			}
 			catch (Exception e)
 			{
@@ -109,13 +121,13 @@ public class GlobalTransaction
 		try
 		{
 			dataServer.endTransactions(clientID, tids, true);
-			rows = null;
+			records = null;
 		}
 		catch (Exception e)
 		{
 			Debug.error(e);//TODO: add to application
 		}
-		if (rows != null)
+		if (records != null)
 		{
 			serverTransactions = new HashMap<String, String>();//clear, so they are not processes on IDataService
 			return rollback(true, revertSavedRecords);//all others
@@ -123,14 +135,23 @@ public class GlobalTransaction
 		return null;
 	}
 
-	String addRow(String serverName, IRecordInternal r) throws RepositoryException
+	String addRecord(String serverName, IRecordInternal r) throws RepositoryException
 	{
-		if (!rows.containsKey(r))
+		if (!records.containsKey(r))
 		{
-			rows.put(r, this);
+			records.put(r, this);
 		}
 		return getTransactionID(serverName);
 	}
+
+	void addDeletedRecord(IRecordInternal r)
+	{
+		if (!deletedRecords.containsKey(r))
+		{
+			deletedRecords.put(r, this);
+		}
+	}
+
 
 	public synchronized String getTransactionID(String serverName) throws RepositoryException
 	{

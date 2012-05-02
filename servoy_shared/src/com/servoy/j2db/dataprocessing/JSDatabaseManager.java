@@ -2572,7 +2572,7 @@ public class JSDatabaseManager
 	{
 		checkAuthorized();
 		IFoundSetManagerInternal fsm = application.getFoundSetManager();
-		return fsm.commitTransaction(saveFirst, true);
+		return fsm.commitTransaction(saveFirst, revertSavedRecords);
 	}
 
 	/**
