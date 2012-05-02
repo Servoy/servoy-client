@@ -62,7 +62,6 @@ import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -71,7 +70,6 @@ import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
@@ -574,38 +572,6 @@ public class JSApplication implements IReturnedTypesProvider
 		ComponentFactory.overrideStyle(originalStyleName, newStyleName);
 	}
 
-	private int guessValuelistType(Object[] realValues)
-	{
-		if (realValues == null)
-		{
-			return Types.OTHER;
-		}
-
-		//try to make number object in realValues, do content type guessing
-		int entries = 0;
-		for (int i = 0; i < realValues.length; i++)
-		{
-			if (realValues[i] == null)
-			{
-				continue;
-			}
-			if ((realValues[i] instanceof Number) || !Utils.equalObjects(Long.valueOf(Utils.getAsLong(realValues[i])), realValues[i]))
-			{
-				return Types.OTHER;
-			}
-			entries++;
-		}
-
-		if (entries == 0)
-		{
-			// nothing found to base the guess on
-			return Types.OTHER;
-		}
-
-		// all non-null elements can be interpreted as numbers
-		return IColumnTypes.INTEGER;
-	}
-
 	/**
 	 * Fill a custom type valuelist with values from array(s) or dataset.
 	 *
@@ -713,43 +679,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
 	{
-		ValueList vl = application.getFlattenedSolution().getValueList(name);
-		if (vl != null && vl.getValueListType() == ValueList.CUSTOM_VALUES)
-		{
-			// TODO should getValueListItems not specify type and format??					
-			IValueList valuelist = ComponentFactory.getRealValueList(application, vl, false, Types.OTHER, null, null);
-			if (valuelist instanceof CustomValueList)
-			{
-				int guessedType = Types.OTHER;
-				if (autoconvert && realValues != null)
-				{
-					guessedType = guessValuelistType(realValues);
-				}
-				else if (autoconvert && displayValues != null)
-				{
-					guessedType = guessValuelistType(displayValues);
-				}
-				if (guessedType != Types.OTHER)
-				{
-					((CustomValueList)valuelist).setValueType(guessedType);
-				}
-
-				((CustomValueList)valuelist).fillWithArrayValues(displayValues, realValues);
-
-				FormManager fm = (FormManager)application.getFormManager();
-				Iterator<String> formNamesIte = fm.getPossibleFormNames();
-				String formName;
-				while (formNamesIte.hasNext())
-				{
-					formName = formNamesIte.next();
-					FormController form = fm.getCachedFormController(formName);
-					if (form != null)
-					{
-						form.refreshView();
-					}
-				}
-			}
-		}
+		application.setValueListItems(name, displayValues, realValues, autoconvert);
 	}
 
 	/**

@@ -377,7 +377,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public String getSolutionName();
 
 	/**
-	 * Loose the focus, helpfull to get an cursor out of the fields.
+	 * Loose the focus, helpful to get an cursor out of the fields.
 	 */
 	public void looseFocus();
 
@@ -385,4 +385,12 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param time
 	 */
 	public void updateUI(int time);
+
+	/**
+	 * @param name
+	 * @param displayValues
+	 * @param realValues
+	 * @param autoconvert
+	 */
+	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert);
 }

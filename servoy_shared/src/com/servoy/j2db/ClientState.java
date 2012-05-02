@@ -23,6 +23,7 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.UnmarshalException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,9 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IClientHost;
@@ -43,13 +46,16 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.IUserClient;
+import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.ClientMethodTemplatesLoader;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
@@ -115,7 +121,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//mode manager handling the application mode
 	protected transient IModeManager modeManager;
 
-	//foundset manager handling the foundsets
+	//foundset manager handling the foundsets 
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
 
 	//plugin manager handling the (scriptable plugins)
@@ -1645,5 +1651,81 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	boolean immediate)
 	{
 		invokeLater(r);
+	}
+
+	/**
+	 * @param name
+	 * @param displayValues
+	 * @param realValues
+	 * @param autoconvert
+	 */
+	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
+	{
+		ValueList vl = getFlattenedSolution().getValueList(name);
+		if (vl != null && vl.getValueListType() == ValueList.CUSTOM_VALUES)
+		{
+			// TODO should getValueListItems not specify type and format??					
+			IValueList valuelist = ComponentFactory.getRealValueList(this, vl, false, Types.OTHER, null, null);
+			if (valuelist instanceof CustomValueList)
+			{
+				int guessedType = Types.OTHER;
+				if (autoconvert && realValues != null)
+				{
+					guessedType = guessValuelistType(realValues);
+				}
+				else if (autoconvert && displayValues != null)
+				{
+					guessedType = guessValuelistType(displayValues);
+				}
+				if (guessedType != Types.OTHER)
+				{
+					((CustomValueList)valuelist).setValueType(guessedType);
+				}
+
+				((CustomValueList)valuelist).fillWithArrayValues(displayValues, realValues);
+
+				FormManager fm = (FormManager)getFormManager();
+				for (String formName : Utils.iterate(fm.getPossibleFormNames()))
+				{
+					FormController form = fm.getCachedFormController(formName);
+					if (form != null)
+					{
+						form.refreshView();
+					}
+				}
+			}
+		}
+	}
+
+	private int guessValuelistType(Object[] realValues)
+	{
+		if (realValues == null)
+		{
+			return Types.OTHER;
+		}
+
+		//try to make number object in realValues, do content type guessing
+		int entries = 0;
+		for (int i = 0; i < realValues.length; i++)
+		{
+			if (realValues[i] == null)
+			{
+				continue;
+			}
+			if ((realValues[i] instanceof Number) || !Utils.equalObjects(Long.valueOf(Utils.getAsLong(realValues[i])), realValues[i]))
+			{
+				return Types.OTHER;
+			}
+			entries++;
+		}
+
+		if (entries == 0)
+		{
+			// nothing found to base the guess on
+			return Types.OTHER;
+		}
+
+		// all non-null elements can be interpreted as numbers
+		return IColumnTypes.INTEGER;
 	}
 }

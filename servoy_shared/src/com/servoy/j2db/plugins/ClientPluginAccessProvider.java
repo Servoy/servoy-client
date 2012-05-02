@@ -690,4 +690,23 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		return application.getRuntimeWindowManager().getWindow(null);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.plugins.IClientPluginAccess#setValueListItems(java.lang.String, java.lang.Object[], java.lang.Object[])
+	 */
+	public void setValueListItems(String name, Object[] displayValues, Object[] realValues)
+	{
+		application.setValueListItems(name, displayValues, realValues, true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.plugins.IClientPluginAccess#setValueListItems(java.lang.String, java.lang.Object[])
+	 */
+	public void setValueListItems(String name, Object[] displayValues)
+	{
+		application.setValueListItems(name, displayValues, null, true);
+	}
 }

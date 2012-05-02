@@ -435,4 +435,23 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @see IWebRuntimeWindow
 	 */
 	public IRuntimeWindow getCurrentRuntimeWindow();
+
+	/**
+	 * Fill a custom type valuelist with values, display and real values are the same.
+	 * 
+	 * @param name value list name (custom value list)
+	 * @param displayValues
+	 * @since 6.1
+	 */
+	public void setValueListItems(String name, Object[] displayValues);
+
+	/**
+	 * Fill a custom type valuelist with values, separate display and real values.
+	 * 
+	 * @param name value list name (custom value list)
+	 * @param displayValues
+	 * @param realValues
+	 * @since 6.1
+	 */
+	public void setValueListItems(String name, Object[] displayValues, Object[] realValues);
 }
