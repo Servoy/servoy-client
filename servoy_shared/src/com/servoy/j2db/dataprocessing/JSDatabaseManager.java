@@ -2762,7 +2762,9 @@ public class JSDatabaseManager
 	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
 	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
-	 *
+	 * 
+	 * @deprecated  As of release 6.1, renamed to {@link #revertEditedRecords()}.
+	 * 
 	 * @sample
 	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
 	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
@@ -2775,20 +2777,75 @@ public class JSDatabaseManager
 	 * //databaseManager.rollbackEditedRecords(foundset.getSelectedRecord()); // rollback only one record
 	 * databaseManager.setAutoSave(true)
 	 */
+	@Deprecated
 	public void js_rollbackEditedRecords() throws ServoyException
+	{
+		js_revertEditedRecords();
+	}
+
+	/**
+	 * @clonedesc js_rollbackEditedRecords()
+	 * 
+	 * @deprecated  As of release 6.1, renamed to {@link #revertEditedRecords()}.
+	 * 
+	 * @sampleas js_rollbackEditedRecords()
+	 *  
+	 * @param foundset A JSFoundset to rollback.
+	 */
+	@Deprecated
+	public void js_rollbackEditedRecords(IFoundSetInternal foundset) throws ServoyException
+	{
+		js_revertEditedRecords(foundset);
+	}
+
+	/**
+	 * @clonedesc js_rollbackEditedRecords()
+	 * 
+	 * @deprecated  As of release 6.1, renamed to {@link #revertEditedRecords()}.
+	 * 
+	 * @sampleas js_rollbackEditedRecords()
+	 * 
+	 * @param record A JSRecord to rollback.
+	 */
+	@Deprecated
+	public void js_rollbackEditedRecords(IRecordInternal record) throws ServoyException
+	{
+		js_revertEditedRecords(record);
+	}
+
+	/**
+	 * Reverts outstanding (not saved) in memory changes from edited records. 
+	 * Can specify a record or foundset as parameter to rollback.
+	 * Best used in combination with the function databaseManager.setAutoSave()
+	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
+	 * 
+	 * 
+	 * @sample
+	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
+	 * //reverts in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * databaseManager.setAutoSave(false)
+	 * //Now let users input data
+	 * 
+	 * //On save or cancel, when data has been entered:
+	 * if (cancel) databaseManager.revertEditedRecords()
+	 * //databaseManager.revertEditedRecords(foundset); // rollback all records from foundset
+	 * //databaseManager.revertEditedRecords(foundset.getSelectedRecord()); // rollback only one record
+	 * databaseManager.setAutoSave(true)
+	 */
+	public void js_revertEditedRecords() throws ServoyException
 	{
 		checkAuthorized();
 		application.getFoundSetManager().getEditRecordList().rollbackRecords();
 	}
 
 	/**
-	 * @clonedesc js_rollbackEditedRecords()
+	 * @clonedesc js_revertEditedRecords()
 	 * 
-	 * @sampleas js_rollbackEditedRecords()
+	 * @sampleas js_revertEditedRecords()
 	 *  
-	 * @param foundset A JSFoundset to rollback.
+	 * @param foundset A JSFoundset to revert.
 	 */
-	public void js_rollbackEditedRecords(IFoundSetInternal foundset) throws ServoyException
+	public void js_revertEditedRecords(IFoundSetInternal foundset) throws ServoyException
 	{
 		checkAuthorized();
 		if (foundset != null)
@@ -2801,13 +2858,13 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_rollbackEditedRecords()
+	 * @clonedesc js_revertEditedRecords()
 	 * 
-	 * @sampleas js_rollbackEditedRecords()
+	 * @sampleas js_revertEditedRecords()
 	 * 
 	 * @param record A JSRecord to rollback.
 	 */
-	public void js_rollbackEditedRecords(IRecordInternal record) throws ServoyException
+	public void js_revertEditedRecords(IRecordInternal record) throws ServoyException
 	{
 		checkAuthorized();
 		if (record != null)

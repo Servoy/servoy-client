@@ -988,15 +988,40 @@ public class Record implements Scriptable, IRecordInternal
 	 * NOTE: If you use transactions then it will be the data of your last update of this record in the transaction,
 	 * not the latest committed data of that record in the datasource. 
 	 * 
+	 * @deprecated  As of release 6.1, replaced by {@link #revertChanges()}. Note that revertChanges does in memory revert of outstanding changes, does not query the database.
+	 * 
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.rollbackChanges();
 	 */
+	@Deprecated
 	public void js_rollbackChanges()
 	{
 		try
 		{
 			getRawData().rollbackFromDB();
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Reverts the in memory outstanding (not saved) changes of the record.
+	 * 
+	 * 
+	 * @sample
+	 * var record= %%prefix%%foundset.getSelectedRecord();
+	 * record.revertChanges();
+	 */
+	public void js_revertChanges()
+	{
+		try
+		{
+			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
+			records.add(this);
+			getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(records);
 		}
 		catch (Exception e)
 		{
