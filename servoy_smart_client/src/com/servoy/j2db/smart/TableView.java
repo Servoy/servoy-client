@@ -256,13 +256,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			sortable = meta.getSortable();
 			setRowBGColorScript(meta.getRowBGColorCalculation(), meta.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 
-			if (cellview instanceof ISupportScrollbars)
-			{
-				if ((((ISupportScrollbars)cellview).getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
-				{
-					setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				}
-			}
 			onRenderMethodID = meta.getOnRenderMethodID();
 			onRenderPersist = meta;
 		}
@@ -272,25 +265,26 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			setShowVerticalLines(false);
 			setIntercellSpacing(new Dimension());
 
-			if (cellview instanceof ISupportScrollbars)
-			{
-				if (((ISupportScrollbars)cellview).getScrollbars() == 0)
-				{
-					setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				}
-				else if ((((ISupportScrollbars)cellview).getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
-				{
-					setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				}
-				else if ((((ISupportScrollbars)cellview).getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED)
-				{
-					setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				}
-			}
-
 			onRenderMethodID = fc.getForm().getOnRenderMethodID();
 			onRenderPersist = fc.getForm();
 		}
+
+		if (cellview instanceof ISupportScrollbars)
+		{
+			if (((ISupportScrollbars)cellview).getScrollbars() == 0)
+			{
+				setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			}
+			if ((((ISupportScrollbars)cellview).getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
+			{
+				setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			}
+			if ((((ISupportScrollbars)cellview).getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+			{
+				setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			}
+		}
+
 		if (onRenderMethodID > 0)
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),

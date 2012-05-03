@@ -1533,15 +1533,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		//hide all further records (and navigator) if explicitly told that there should be no vertical scrollbar 
-		int scrollbars = 0;
-		if (cellview instanceof Portal)
-		{
-			scrollbars = ((Portal)cellview).getScrollbars();
-		}
-		if (cellview instanceof Form)
-		{
-			scrollbars = ((Form)cellview).getScrollbars();
-		}
+		final int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
 		showPageNavigator = !((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER);
 
 		try
@@ -1594,8 +1586,32 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public String getObject()
 				{
-
-					return "overflow-x: auto; overflow-y: auto; position: absolute; left: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
+					String overflow = "";
+					if ((scrollbars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
+					{
+						overflow += "overflow-x: hidden;"; //$NON-NLS-1$
+					}
+					else if ((scrollbars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
+					{
+						overflow += "overflow-x: scroll;"; //$NON-NLS-1$
+					}
+					else
+					{
+						overflow += "overflow-x: auto;"; //$NON-NLS-1$
+					}
+					if ((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER)
+					{
+						overflow += "overflow-y: hidden;"; //$NON-NLS-1$
+					}
+					else if ((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS)
+					{
+						overflow += "overflow-y: scroll;"; //$NON-NLS-1$
+					}
+					else
+					{
+						overflow += "overflow-y: auto;"; //$NON-NLS-1$
+					}
+					return overflow + "position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
 				}
 			}));
 
@@ -3662,14 +3678,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				scrollPadding = "'12px'";
 			}
 
-			if (!(cellview instanceof Portal))
-			{
-				right = "'0px'";
-			}
 
 			StringBuffer tbodyStyle = new StringBuffer("$('#").append(tableContainerBody.getMarkupId()).append("').css('top',").append(top).append(");");
 			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('padding-right',").append(scrollPadding).append(");");
-			if (right != null) tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('right',").append(right).append(");");
 			container.getHeaderResponse().renderOnDomReadyJavascript(tbodyStyle.toString());
 		}
 	}
