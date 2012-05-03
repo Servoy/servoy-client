@@ -241,9 +241,14 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(app, part, form);
 			if (panel != null)
 			{
-				if (pair != null && pair.getRight() != null)
+				if (pair != null && pair.getRight() != null && pair.getLeft() != null)
 				{
 					panel.setCssRule(pair.getRight());
+					Border border = pair.getLeft().getBorder(pair.getRight());
+					if (border != null)
+					{
+						panel.setBorder(border);
+					}
 				}
 				boolean partHasBgColor = (part.getBackground() != null) ||
 					(pair != null && pair.getRight() != null && pair.getRight().hasAttribute(CSS.Attribute.BACKGROUND_COLOR.toString()));

@@ -144,6 +144,7 @@ import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.RoundedBorder;
 
 /**
  * @author jcompagner
@@ -310,6 +311,20 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					if (controller.getForm().getTransparent() && !((IComponent)formContainer).isOpaque())
 					{
 						return "background:transparent;"; //$NON-NLS-1$
+					}
+					else if (getBorder() instanceof RoundedBorder)
+					{
+						float[] radius = ((RoundedBorder)getBorder()).getRadius();
+						StringBuilder builder = new StringBuilder();
+						builder.append("border-radius:");
+						for (int i = 0; i < 8; i++)
+						{
+							builder.append(radius[i]);
+							builder.append("px ");
+							if (i == 3) builder.append("/ ");
+						}
+						builder.append(";");
+						return builder.toString();
 					}
 				}
 				return null;

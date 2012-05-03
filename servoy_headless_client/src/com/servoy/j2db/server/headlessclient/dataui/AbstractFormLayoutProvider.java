@@ -320,6 +320,15 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		partStyle.setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
 		fillPartLayoutCSS(partStyle, part, spaceUsedOnlyInPrintAbove, spaceUsedOnlyInPrintBelow);
+
+		if (pairStyle != null && pairStyle.getLeft() != null && pairStyle.getRight() != null)
+		{
+			Border partBoder = pairStyle.getLeft().getBorder(pairStyle.getRight());
+			if (partBoder != null)
+			{
+				ComponentFactoryHelper.createBorderCSSProperties(ComponentFactoryHelper.createBorderString(partBoder), partStyle);
+			}
+		}
 	}
 
 	private void renderNavigator(StringBuffer html, Part bodyPart)

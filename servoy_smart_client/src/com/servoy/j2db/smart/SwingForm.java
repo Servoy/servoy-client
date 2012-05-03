@@ -82,6 +82,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.text.html.CSS;
@@ -153,10 +154,13 @@ import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
+import com.servoy.j2db.util.IStyleRule;
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.ITabPaneAlike;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.OrientationApplier;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.AutoTransferFocusListener;
 import com.servoy.j2db.util.gui.PartsScrollPane;
@@ -731,6 +735,15 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				{
 					((StyledEnablePanel)innerPanel).setCssRule(formController.getBodyStyle());
 					((StyledEnablePanel)innerPanel).setApplication(application);
+					Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(application, fp.getForm());
+					if (pairStyle != null && pairStyle.getLeft() != null)
+					{
+						Border border = pairStyle.getLeft().getBorder(formController.getBodyStyle());
+						if (border != null)
+						{
+							innerPanel.setBorder(border);
+						}
+					}
 				}
 				break;
 
