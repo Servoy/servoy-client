@@ -916,7 +916,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 			{
 				private boolean armed = false;
 				// simulates multiClickThreshhold of button
-				private long lastPressedTimestamp = -1;
+				private long lastPressedTimestamp = 0;
 				private boolean shouldDiscardRelease = false;
 
 				/*
@@ -953,7 +953,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 					{
 						long lastTime = lastPressedTimestamp;
 						long currentTime = lastPressedTimestamp = e.getWhen();
-						if (lastTime != -1 && currentTime - lastTime < getClickInterval())
+						if (currentTime - lastTime < getClickInterval())
 						{
 							shouldDiscardRelease = true;
 							return;
