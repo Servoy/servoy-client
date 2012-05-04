@@ -53,6 +53,9 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
+
+	public boolean hiddenBecauseNoPk = false;
+
 	/**
 	 * Flag to mark this table as meta data, meta data will be included in export files
 	 */
@@ -215,6 +218,16 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	public void setMarkedAsHiddenInDeveloperInternal(boolean hidden)
 	{
 		hiddenInDeveloper = hidden;
+	}
+
+	public boolean isHiddenInDeveloperBecauseNoPk()
+	{
+		return hiddenBecauseNoPk;
+	}
+
+	public void setHiddenInDeveloperBecauseNoPk(boolean b)
+	{
+		hiddenBecauseNoPk = b;
 	}
 
 	/**
