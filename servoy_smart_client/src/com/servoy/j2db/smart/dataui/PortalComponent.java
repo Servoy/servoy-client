@@ -69,16 +69,15 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.persistence.AbstractBase;
-import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.printing.ISupportXMLOutput;
 import com.servoy.j2db.printing.XMLPrintHelper;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.smart.TableView;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -87,9 +86,9 @@ import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportOnRenderWrapper;
 import com.servoy.j2db.ui.ISupportRowStyling;
-import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.IDestroyable;
@@ -167,20 +166,11 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 				Iterator<IPersist> portalObjectsIte = meta.getAllObjects();
 				IPersist portalObj;
-				IDisplay portalComponent;
 				while (portalObjectsIte.hasNext())
 				{
 					portalObj = portalObjectsIte.next();
-					portalComponent = renderer.getFieldComponents().get(portalObj);
-					if (portalComponent instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor() != null)
-					{
-						addPortalOnRenderCallback(meta, ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor(), portalObj, el);
-					}
-					portalComponent = editor.getFieldComponents().get(portalObj);
-					if (portalComponent instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor() != null)
-					{
-						addPortalOnRenderCallback(meta, ((ISupportOnRenderCallback)portalComponent).getRenderEventExecutor(), portalObj, el);
-					}
+					addOnRender(renderer.getFieldComponents().get(portalObj), meta, portalObj, el);
+					addOnRender(editor.getFieldComponents().get(portalObj), meta, portalObj, el);
 				}
 			}
 			catch (Exception ex)
@@ -448,7 +438,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 
 		currentData = (ISwingFoundSet)relatedFoundSet;
-
+		ISupportOnRenderCallback portalRenderComponent = null;
 		if (table != null)
 		{
 			if (currentData == null)
@@ -471,6 +461,8 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 				valueChanged(null, stopEditing);
 			}
+
+			portalRenderComponent = table.getOnRenderComponent();
 		}
 		else
 		{
@@ -502,12 +494,15 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 				valueChanged(null, stopEditing);
 			}
+
+			portalRenderComponent = list.getOnRender();
 		}
 		scriptable.setFoundset(currentData);
-		if (list != null && list.getOnRender().getRenderEventExecutor().hasRenderCallback())
+
+		if (portalRenderComponent != null && portalRenderComponent.getRenderEventExecutor().hasRenderCallback())
 		{
-			list.getOnRender().getRenderEventExecutor().setRenderState(null, -1, false);
-			list.getOnRender().getRenderEventExecutor().fireOnRender(false);
+			portalRenderComponent.getRenderEventExecutor().setRenderState(null, -1, false);
+			portalRenderComponent.getRenderEventExecutor().fireOnRender(false);
 		}
 	}
 
@@ -982,32 +977,6 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		this.transferFocusBackwards = transferBackwards;
 	}
 
-	private void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj, IScriptExecuter se)
-	{
-		int onRenderMethodID = 0;
-		AbstractBase onRenderPersist = null;
-		if (obj instanceof Field)
-		{
-			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
-			onRenderPersist = ((Field)obj);
-		}
-		else if (obj instanceof GraphicalComponent)
-		{
-			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
-			onRenderPersist = ((GraphicalComponent)obj);
-		}
-		if (onRenderMethodID <= 0)
-		{
-			onRenderMethodID = portal.getOnRenderMethodID();
-			onRenderPersist = portal;
-		}
-		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
-			Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
-		else renderEventExecutor.setRenderCallback(null, null);
-
-		renderEventExecutor.setRenderScriptExecuter(se);
-	}
-
 	private class GoOutOfPortalComponentAction extends AbstractAction
 	{
 		private final boolean moveBackward;
@@ -1085,6 +1054,19 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 	public IStyleRule getHeaderStyle()
 	{
 		return headerStyle;
+	}
+
+	private void addOnRender(IDisplay display, Portal portal, IPersist portalObj, IScriptExecuter el)
+	{
+		if (display instanceof IScriptableProvider)
+		{
+			IScriptable s = ((IScriptableProvider)display).getScriptObject();
+
+			if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor() != null)
+			{
+				ComponentFactoryHelper.addPortalOnRenderCallback(portal, ((ISupportOnRenderCallback)s).getRenderEventExecutor(), portalObj, el);
+			}
+		}
 	}
 
 	private class PortalMultilineList extends JEditList implements ISupportRowStyling, ISupportOnRenderWrapper

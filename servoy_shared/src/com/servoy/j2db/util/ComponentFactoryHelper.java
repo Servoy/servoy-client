@@ -34,7 +34,14 @@ import javax.swing.border.TitledBorder;
 
 import org.xhtmlrenderer.css.constants.CSSName;
 
+import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -591,5 +598,31 @@ public class ComponentFactoryHelper
 				return null;
 			}
 		}
+	}
+
+	public static void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj, IScriptExecuter se)
+	{
+		int onRenderMethodID = 0;
+		AbstractBase onRenderPersist = null;
+		if (obj instanceof Field)
+		{
+			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
+			onRenderPersist = ((Field)obj);
+		}
+		else if (obj instanceof GraphicalComponent)
+		{
+			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
+			onRenderPersist = ((GraphicalComponent)obj);
+		}
+		if (onRenderMethodID <= 0)
+		{
+			onRenderMethodID = portal.getOnRenderMethodID();
+			onRenderPersist = portal;
+		}
+		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+			Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID"))); //$NON-NLS-1$
+		else renderEventExecutor.setRenderCallback(null, null);
+
+		renderEventExecutor.setRenderScriptExecuter(se);
 	}
 }

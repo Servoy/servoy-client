@@ -102,7 +102,6 @@ import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.gui.FixedJTable;
 import com.servoy.j2db.gui.LFAwareSortableHeaderRenderer;
 import com.servoy.j2db.persistence.AbstractBase;
-import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
@@ -147,6 +146,7 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -441,9 +441,15 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 					if (l.y >= start && l.y < start + height)
 					{
 						Component editor = (Component)ComponentFactory.createComponent(app, formForStyles, obj, dpl, scriptExecuter, false);
-						if (editor instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
-							((ISupportOnRenderCallback)editor).getRenderEventExecutor() != null) addPortalOnRenderCallback((Portal)cellview,
-							((ISupportOnRenderCallback)editor).getRenderEventExecutor(), obj);
+
+						if (editor instanceof IScriptableProvider)
+						{
+							IScriptable scriptable = ((IScriptableProvider)editor).getScriptObject();
+							if (scriptable instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
+								((ISupportOnRenderCallback)scriptable).getRenderEventExecutor() != null) ComponentFactoryHelper.addPortalOnRenderCallback(
+								(Portal)cellview, ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor(), obj, fc != null ? fc.getScriptExecuter()
+									: null);
+						}
 
 						if (dragMouseListener != null && editor instanceof JComponent)
 						{
@@ -504,9 +510,14 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						}
 
 						Component renderer = (Component)ComponentFactory.createComponent(app, formForStyles, obj, dpl, null, false);
-						if (renderer instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
-							((ISupportOnRenderCallback)renderer).getRenderEventExecutor() != null) addPortalOnRenderCallback((Portal)cellview,
-							((ISupportOnRenderCallback)renderer).getRenderEventExecutor(), obj);
+						if (renderer instanceof IScriptableProvider)
+						{
+							IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
+							if (scriptable instanceof ISupportOnRenderCallback && cellview instanceof Portal &&
+								((ISupportOnRenderCallback)scriptable).getRenderEventExecutor() != null) ComponentFactoryHelper.addPortalOnRenderCallback(
+								(Portal)cellview, ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor(), obj, fc != null ? fc.getScriptExecuter()
+									: null);
+						}
 
 						if (dragMouseListener != null && renderer instanceof JComponent)
 						{
@@ -1946,33 +1957,6 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		boolean isCTRLDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
 		TransferHandler handler = getTransferHandler();
 		handler.exportAsDrag(TableView.this, e, isCTRLDown ? TransferHandler.COPY : TransferHandler.MOVE);
-	}
-
-
-	private void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj)
-	{
-		int onRenderMethodID = 0;
-		AbstractBase onRenderPersist = null;
-		if (obj instanceof Field)
-		{
-			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
-			onRenderPersist = ((Field)obj);
-		}
-		else if (obj instanceof GraphicalComponent)
-		{
-			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
-			onRenderPersist = ((GraphicalComponent)obj);
-		}
-		if (onRenderMethodID <= 0)
-		{
-			onRenderMethodID = portal.getOnRenderMethodID();
-			onRenderPersist = portal;
-		}
-		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
-			Utils.parseJSExpressions(onRenderPersist.getInstanceMethodArguments("onRenderMethodID")));
-		else renderEventExecutor.setRenderCallback(null, null);
-
-		renderEventExecutor.setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 	}
 
 	private class DragStartTester extends MouseAdapter implements MouseMotionListener

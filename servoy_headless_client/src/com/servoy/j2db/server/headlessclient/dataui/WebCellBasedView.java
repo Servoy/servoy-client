@@ -2159,6 +2159,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					IComponent c = ComponentFactory.createComponent(app, form, element, dataProviderLookup, el, false);
 
+					if (cellview instanceof Portal && c instanceof IScriptableProvider)
+					{
+						IScriptable s = ((IScriptableProvider)c).getScriptObject();
+						if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor() != null) ComponentFactoryHelper.addPortalOnRenderCallback(
+							(Portal)cellview, ((ISupportOnRenderCallback)s).getRenderEventExecutor(), element, fc != null ? fc.getScriptExecuter() : null);
+					}
+
 					initializeComponent((Component)c, view, element);
 					output.add(element, (Component)c);
 
