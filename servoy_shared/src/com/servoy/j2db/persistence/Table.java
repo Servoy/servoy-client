@@ -52,7 +52,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
-	private boolean hiddenBecauseNoPk = false;
+	private volatile boolean hiddenBecauseNoPk = false;
 
 	private final LinkedHashMap<String, Column> columns = new LinkedHashMap<String, Column>();
 	private final List<Column> keyColumns = new ArrayList<Column>();
