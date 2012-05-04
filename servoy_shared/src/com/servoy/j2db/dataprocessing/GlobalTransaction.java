@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -36,8 +36,14 @@ import com.servoy.j2db.util.Debug;
  */
 public class GlobalTransaction
 {
-	private WeakHashMap<IRecordInternal, GlobalTransaction> records;//all rows to prevent they are gc'ed
-	private WeakHashMap<IRecordInternal, GlobalTransaction> deletedRecords;//all rows to prevent they are gc'ed
+
+
+	enum crud
+	{
+		Created, Updated, Deleted
+	};
+
+	private WeakHashMap<IRecordInternal, crud> records;//all rows to prevent they are gc'ed
 	private Map<String, String> serverTransactions;//serverName->transactionID
 	private final IDataServer dataServer;
 	private final String clientID;
@@ -45,8 +51,7 @@ public class GlobalTransaction
 	GlobalTransaction(IDataServer ds, String cid)
 	{
 		serverTransactions = new HashMap<String, String>();
-		records = new WeakHashMap<IRecordInternal, GlobalTransaction>();
-		deletedRecords = new WeakHashMap<IRecordInternal, GlobalTransaction>();
+		records = new WeakHashMap<IRecordInternal, crud>();
 		dataServer = ds;
 		clientID = cid;
 	}
@@ -67,43 +72,51 @@ public class GlobalTransaction
 			}
 		}
 
-		if (queryForNewData && (!records.isEmpty() || !deletedRecords.isEmpty()))
+		if (queryForNewData && !records.isEmpty())
 		{
 			Set<String> set = new HashSet<String>();
 			try
 			{
-				Iterator<IRecordInternal> it2 = records.keySet().iterator();
-				while (it2.hasNext())
+				for (Entry<IRecordInternal, crud> entry : records.entrySet())
 				{
 					// TODO this can be optimized.
 					// Search for all the rows with the same table and do a in query (per 200 rows..)
-					IRecordInternal record = it2.next();
+					IRecordInternal record = entry.getKey();
 					Row row = record.getRawData();
 					// call startEdit with false so that start edit on a formcontroller (of the current visible one so only for that record)
-					// if a deleted record was first updated then just overwrite with the database. 
-					if (!revertSavedRecords && !deletedRecords.containsKey(record) &&
-						row.getRowManager().getFoundsetManager().getEditRecordList().startEditing(record, false))
+					// if a deleted record was first updated then just overwrite with the database.
+
+					switch (entry.getValue())
 					{
-						// if we shouldn't revert to database values,
-						// quickly create the old values (edit values) array
-						row.createOldValuesIfNeeded();
-						// then revert by keeping the current column data values.
-						row.rollbackFromDB(Row.ROLLBACK_MODE.KEEP_CHANGES);
-					}
-					else
-					{
-						row.rollbackFromDB(Row.ROLLBACK_MODE.OVERWRITE_CHANGES);
+						case Created :
+							if (!revertSavedRecords && row.getRowManager().getFoundsetManager().getEditRecordList().startEditing(record, false))
+							{
+								row.clearExistInDB();
+							}
+							break;
+
+						case Updated :
+							if (!revertSavedRecords && row.getRowManager().getFoundsetManager().getEditRecordList().startEditing(record, false))
+							{
+								// if we shouldn't revert to database values,
+								// quickly create the old values (edit values) array
+								row.createOldValuesIfNeeded();
+								// then revert by keeping the current column data values.
+								row.rollbackFromDB(Row.ROLLBACK_MODE.KEEP_CHANGES);
+							}
+							else
+							{
+								row.rollbackFromDB(Row.ROLLBACK_MODE.OVERWRITE_CHANGES);
+							}
+							break;
+
+						case Deleted :
+							break;
 					}
 					set.add(record.getParentFoundSet().getDataSource());
 				}
 
-				Iterator<IRecordInternal> it3 = deletedRecords.keySet().iterator();
-				while (it3.hasNext())
-				{
-					set.add(it3.next().getParentFoundSet().getDataSource());
-				}
 				records = null;
-				deletedRecords = null;
 			}
 			catch (Exception e)
 			{
@@ -139,17 +152,14 @@ public class GlobalTransaction
 	{
 		if (!records.containsKey(r))
 		{
-			records.put(r, this);
+			records.put(r, r.existInDataSource() ? crud.Updated : crud.Created);
 		}
 		return getTransactionID(serverName);
 	}
 
 	void addDeletedRecord(IRecordInternal r)
 	{
-		if (!deletedRecords.containsKey(r))
-		{
-			deletedRecords.put(r, this);
-		}
+		records.put(r, crud.Deleted);
 	}
 
 

@@ -501,6 +501,11 @@ public class Row
 		softReferenceAllByteArrays();
 	}
 
+	void clearExistInDB()
+	{
+		existInDB = false;
+	}
+
 	private void softReferenceAllByteArrays()
 	{
 		for (int i = 0; i < columndata.length; i++)
