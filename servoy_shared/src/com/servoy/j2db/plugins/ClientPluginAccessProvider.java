@@ -580,6 +580,10 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 								}
 								retval = fp.executeFunction(methodname, arguments, true, null, true, null, true, false, true);
 							}
+							else
+							{
+								retval = new IllegalArgumentException("form: " + context + " didnt resolve to a form in solution " + getSolutionName()); //$NON-NLS-1$ //$NON-NLS-2$
+							}
 						}
 						catch (Exception e)
 						{
