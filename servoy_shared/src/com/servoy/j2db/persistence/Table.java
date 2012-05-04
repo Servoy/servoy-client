@@ -52,6 +52,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
+	private boolean hiddenBecauseNoPk = false;
 
 	private final LinkedHashMap<String, Column> columns = new LinkedHashMap<String, Column>();
 	private final List<Column> keyColumns = new ArrayList<Column>();
@@ -210,6 +211,16 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	public void setMarkedAsHiddenInDeveloperInternal(boolean hidden)
 	{
 		hiddenInDeveloper = hidden;
+	}
+
+	public boolean isHiddenInDeveloperBecauseNoPk()
+	{
+		return hiddenBecauseNoPk;
+	}
+
+	public void setHiddenInDeveloperBecauseNoPk(boolean b)
+	{
+		hiddenBecauseNoPk = b;
 	}
 
 	public String getCatalog()
