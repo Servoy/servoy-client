@@ -53,8 +53,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
-
-	public boolean hiddenBecauseNoPk = false;
+	private volatile boolean hiddenBecauseNoPk = false;
 
 	/**
 	 * Flag to mark this table as meta data, meta data will be included in export files
