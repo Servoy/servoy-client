@@ -2218,7 +2218,13 @@ public class JSDatabaseManager
 	public boolean js_saveData() throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
+		EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+		IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
+		for (IRecordInternal record : failedRecords)
+		{
+			editRecordList.startEditing(record, false);
+		}
+		return editRecordList.stopEditing(true) == ISaveConstants.STOPPED;
 	}
 
 	/**
@@ -2235,10 +2241,16 @@ public class JSDatabaseManager
 		checkAuthorized();
 		if (foundset != null)
 		{
-			return application.getFoundSetManager().getEditRecordList().stopEditing(true,
-				Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset))) == ISaveConstants.STOPPED;
+			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+			IRecordInternal[] failedRecords = editRecordList.getFailedRecords(foundset);
+			for (IRecordInternal record : failedRecords)
+			{
+				editRecordList.startEditing(record, false);
+			}
+			return editRecordList.stopEditing(true,
+				Arrays.asList(editRecordList.getEditedRecords(foundset))) == ISaveConstants.STOPPED;
 		}
-		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
+		return js_saveData();
 	}
 
 	/**
@@ -2255,9 +2267,15 @@ public class JSDatabaseManager
 		checkAuthorized();
 		if (record != null)
 		{
-			return application.getFoundSetManager().getEditRecordList().stopEditing(true, record) == ISaveConstants.STOPPED;
+			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
+			if (Arrays.asList(failedRecords).contains(record))
+			{
+				editRecordList.startEditing(record, false);
+			}
+			return editRecordList.stopEditing(true, record) == ISaveConstants.STOPPED;
 		}
-		return application.getFoundSetManager().getEditRecordList().stopEditing(true) == ISaveConstants.STOPPED;
+		return js_saveData();
 	}
 
 	/**
