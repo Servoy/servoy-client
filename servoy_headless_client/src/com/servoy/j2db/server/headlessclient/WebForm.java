@@ -131,6 +131,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.OrientationApplier;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -230,12 +231,24 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			@Override
 			public String getObject()
 			{
-				WebTabPanel tabpanel = findParent(WebTabPanel.class);
-				if (tabpanel != null)
+				Component container = getParent();
+				while (container != null)
 				{
-					if (controller.getForm().getTransparent() && !tabpanel.isOpaque())
+					if (container instanceof WebTabPanel || container instanceof WebSplitPane) break;
+					container = container.getParent();
+				}
+				if (container instanceof WebTabPanel || container instanceof WebSplitPane)
+				{
+					if (controller.getForm().getTransparent())
 					{
-						return "background-color:transparent;";
+						if (!((IComponent)container).isOpaque())
+						{
+							return "background:transparent;"; //$NON-NLS-1$
+						}
+						else if (((IComponent)container).getBackground() != null)
+						{
+							return "background-color:" + PersistHelper.createColorString(((IComponent)container).getBackground()) + ";";
+						}
 					}
 				}
 				return null;
