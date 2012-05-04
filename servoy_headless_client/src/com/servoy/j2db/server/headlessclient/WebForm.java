@@ -142,6 +142,7 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -308,11 +309,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				IWebFormContainer formContainer = findParent(IWebFormContainer.class);
 				if (formContainer != null)
 				{
-					if (controller.getForm().getTransparent() && !((IComponent)formContainer).isOpaque())
-					{
-						return "background:transparent;"; //$NON-NLS-1$
-					}
-					else if (getBorder() instanceof RoundedBorder)
+					String styleAddition = "";
+					if (getBorder() instanceof RoundedBorder)
 					{
 						float[] radius = ((RoundedBorder)getBorder()).getRadius();
 						StringBuilder builder = new StringBuilder();
@@ -324,8 +322,20 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 							if (i == 3) builder.append("/ ");
 						}
 						builder.append(";");
-						return builder.toString();
+						styleAddition = builder.toString();
 					}
+					if (controller.getForm().getTransparent())
+					{
+						if (!formContainer.isOpaque())
+						{
+							styleAddition += "background:transparent;"; //$NON-NLS-1$
+						}
+						else if (formContainer.getBackground() != null)
+						{
+							styleAddition += "background-color:" + PersistHelper.createColorString(formContainer.getBackground()) + ";";
+						}
+					}
+					return styleAddition;
 				}
 				return null;
 			}
