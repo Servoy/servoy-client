@@ -840,6 +840,12 @@ public class JSDatabaseManager
 	{
 		if (select != null)
 		{
+			if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
+			{
+				Debug.log("Custom query: " + select + " not executed because no columns are selected"); //$NON-NLS-1$ //$NON-NLS-2$
+				return false;
+			}
+
 			final List<Placeholder> placeHolders = new ArrayList<Placeholder>();
 			AbstractBaseQuery.acceptVisitor(select, new IVisitor()
 			{
