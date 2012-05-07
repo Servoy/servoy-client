@@ -1284,6 +1284,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		((ChangesRecorder)scriptable.getChangesRecorder()).setAdditionalChangesRecorder(jsChangeRecorder);
 
 		add(TooltipAttributeModifier.INSTANCE);
+
+		final int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
 		add(new StyleAppendingModifier(new Model<String>()
 		{
 			private static final long serialVersionUID = 1L;
@@ -1292,6 +1294,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			public String getObject()
 			{
 				if (isScrollMode()) return "overflow-x: hidden; overflow-y: hidden;"; //$NON-NLS-1$
+				if (cellview instanceof Portal)
+				{
+					return scrollBarDefinitioToOverflowAttribute(scrollbars);
+				}
 				if (findParent(IWebFormContainer.class) != null)
 				{
 					return ""; //$NON-NLS-1$
@@ -1533,7 +1539,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 
 		//hide all further records (and navigator) if explicitly told that there should be no vertical scrollbar 
-		final int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
 		showPageNavigator = !((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER);
 
 		try
@@ -1586,32 +1591,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public String getObject()
 				{
-					String overflow = "";
-					if ((scrollbars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
-					{
-						overflow += "overflow-x: hidden;"; //$NON-NLS-1$
-					}
-					else if ((scrollbars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
-					{
-						overflow += "overflow-x: scroll;"; //$NON-NLS-1$
-					}
-					else
-					{
-						overflow += "overflow-x: auto;"; //$NON-NLS-1$
-					}
-					if ((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER)
-					{
-						overflow += "overflow-y: hidden;"; //$NON-NLS-1$
-					}
-					else if ((scrollbars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS)
-					{
-						overflow += "overflow-y: scroll;"; //$NON-NLS-1$
-					}
-					else
-					{
-						overflow += "overflow-y: auto;"; //$NON-NLS-1$
-					}
-					return overflow + "position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
+					return scrollBarDefinitioToOverflowAttribute(scrollbars) +
+						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
 				}
 			}));
 
@@ -1646,6 +1627,37 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return false;
 			}
 		});
+	}
+
+	private static String scrollBarDefinitioToOverflowAttribute(int scrollbarDefinition)
+	{
+		String overflow = "";
+		if ((scrollbarDefinition & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
+		{
+			overflow += "overflow-x: hidden;"; //$NON-NLS-1$
+		}
+		else if ((scrollbarDefinition & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
+		{
+			overflow += "overflow-x: scroll;"; //$NON-NLS-1$
+		}
+		else
+		{
+			overflow += "overflow-x: auto;"; //$NON-NLS-1$
+		}
+		if ((scrollbarDefinition & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER)
+		{
+			overflow += "overflow-y: hidden;"; //$NON-NLS-1$
+		}
+		else if ((scrollbarDefinition & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS)
+		{
+			overflow += "overflow-y: scroll;"; //$NON-NLS-1$
+		}
+		else
+		{
+			overflow += "overflow-y: auto;"; //$NON-NLS-1$
+		}
+
+		return overflow;
 	}
 
 	public final RuntimePortal getScriptObject()
