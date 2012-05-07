@@ -118,17 +118,17 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 	};
 
-	private SolutionMetaData mainSolutionMetaData;
-	private Solution mainSolution;
-	private Solution[] modules;
-	private FlattenedSolution loginFlattenedSolution;
+	private volatile SolutionMetaData mainSolutionMetaData;
+	private volatile Solution mainSolution;
+	private volatile Solution[] modules;
+	private volatile FlattenedSolution loginFlattenedSolution;
 
-	private Solution copySolution = null;
+	private volatile Solution copySolution = null;
 
-	private ConcurrentMap<Object, Integer> securityAccess;
+	private volatile ConcurrentMap<Object, Integer> securityAccess;
 
-	private ConcurrentMap<Table, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
-	private ConcurrentMap<String, IDataProvider> globalProviders = null; //global -> dp ,runtime var
+	private volatile ConcurrentMap<Table, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
+	private volatile ConcurrentMap<String, IDataProvider> globalProviders = null; //global -> dp ,runtime var
 
 	// concurrent caches.
 	private volatile Map<String, Relation> relationCacheByName = null;
@@ -145,15 +145,14 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private final Map<String, Set<String>> liveForms = new HashMap<String, Set<String>>();
 	private final Map<String, ChangedFormData> changedForms = new HashMap<String, ChangedFormData>();
 
-	private HashMap<String, Style> all_styles; // concurrent modification exceptions can happen; see comments from Solution->PRE_LOADED_STYLES.
-	private HashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
+	private volatile HashMap<String, Style> all_styles; // concurrent modification exceptions can happen; see comments from Solution->PRE_LOADED_STYLES.
+	private volatile HashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
 
-	private SimplePersistFactory persistFactory;
-	private IFlattenedSolutionDebugListener debugListener;
+	private volatile SimplePersistFactory persistFactory;
+	private volatile IFlattenedSolutionDebugListener debugListener;
 
 	private final ConcurrentMap<Form, FlattenedForm[]> flattenedFormCache;
-	private ConcurrentMap<Bean, Object> beanDesignInstances;
-
+	private volatile ConcurrentMap<Bean, Object> beanDesignInstances;
 
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
