@@ -269,21 +269,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			addBackgroundImageAttributeIfExists(pairStyle.getRight(), partStyle);
 		}
 
-		if (!hasImage || part.getBackground() != null ||
-			(pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))) //$NON-NLS-1$
-		{
-			Color background = ComponentFactory.getPartBackground(sp, part, f);
-			if (!f.getTransparent() && part.getBackground() == null && pairStyle != null && pairStyle.getRight() != null &&
-				pairStyle.getRight().hasAttribute("background-color"))
-			{
-				// for fallback mechanism
-				partStyle.setProperty("background-color", pairStyle.getRight().getValues("background-color"), true);
-			}
-			else if (background != null)
-			{
-				partStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
-			}
-		}
+		fillPartBackground(partStyle, part);
 
 		if (part.getPartType() == Part.BODY)
 		{
@@ -335,17 +321,9 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 	{
 		if (defaultNavigatorShift != 0)
 		{
-			Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getStyleForBasicComponent(sp, bodyPart, f);
 			TextualStyle navigatorStyle = new TextualStyle();
-			if (!hasImage || bodyPart.getBackground() != null ||
-				(pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))) //$NON-NLS-1$
-			{
-				Color background = ComponentFactory.getPartBackground(sp, bodyPart, f);
-				if (background != null)
-				{
-					navigatorStyle.setProperty("background-color", PersistHelper.createColorString(background)); //$NON-NLS-1$ 
-				}
-			}
+			fillPartBackground(navigatorStyle, bodyPart);
+
 			navigatorStyle.setProperty("overflow", "auto"); //$NON-NLS-1$ //$NON-NLS-2$
 			navigatorStyle.setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
 			fillNavigatorLayoutCSS(navigatorStyle);
@@ -359,6 +337,25 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 	private String buildFormID()
 	{
 		return "form_" + ComponentFactory.stripIllegalCSSChars(getFormInstanceName()); //$NON-NLS-1$
+	}
+
+	private void fillPartBackground(TextualStyle partStyle, Part part)
+	{
+		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getStyleForBasicComponent(sp, part, f);
+		if (!hasImage || part.getBackground() != null ||
+			(pairStyle != null && pairStyle.getRight() != null && pairStyle.getRight().hasAttribute("background-color"))) //$NON-NLS-1$
+		{
+			String[] cssValues = ComponentFactory.getPartBackgroundCSSDeclarations(sp, part, f);
+			if (cssValues != null)
+			{
+				// for fallback mechanism
+				partStyle.setProperty("background-color", cssValues, true);
+			}
+			else if (part.getBackground() != null && !f.getTransparent())
+			{
+				partStyle.setProperty("background-color", PersistHelper.createColorString(part.getBackground())); //$NON-NLS-1$ 
+			}
+		}
 	}
 
 	protected abstract void fillFormLayoutCSS(TextualStyle formStyle);

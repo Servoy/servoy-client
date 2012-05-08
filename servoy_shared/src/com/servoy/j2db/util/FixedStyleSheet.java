@@ -589,6 +589,10 @@ public class FixedStyleSheet extends StyleSheet
 			{
 				return super.getBackground(a);
 			}
+			else
+			{
+				return PersistHelper.COLOR_TRANSPARENT;
+			}
 		}
 		return null;
 	}

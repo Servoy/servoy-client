@@ -637,6 +637,21 @@ public class ComponentFactory
 		return null;
 	}
 
+	public static String[] getPartBackgroundCSSDeclarations(IServiceProvider sp, Part part, Form form)
+	{
+		if (part != null && form != null)
+		{
+			if (form.getTransparent()) return null;
+			if (part.getBackground() != null) return null;
+			Pair<IStyleSheet, IStyleRule> partStyle = getStyleForBasicComponent(sp, part, form);
+			if (partStyle != null && partStyle.getRight() != null && partStyle.getRight().hasAttribute(CSSName.BACKGROUND_COLOR.toString()))
+			{
+				return partStyle.getRight().getValues(CSSName.BACKGROUND_COLOR.toString());
+			}
+		}
+		return null;
+	}
+
 	public static final String[] LOOKUP_NAMES = { "body", "button", "check", "combobox", ISupportRowStyling.CLASS_EVEN, "field", "footer", "form", "header", "label", "listbox", ISupportRowStyling.CLASS_ODD, "portal", "radio", ISupportRowStyling.CLASS_SELECTED, ISupportRowStyling.CLASS_HEADER, "spinner", "tabpanel", "title_header", "title_footer" };
 
 	/**

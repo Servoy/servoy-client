@@ -38,6 +38,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyStyleSheet;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.ISupportCustomBorderInsets;
 
@@ -181,6 +182,14 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		if (border != null)
 		{
 			Properties properties = new Properties();
+			if (!border.contains(ComponentFactoryHelper.ROUNDED_BORDER))
+			{
+				for (String prefix : ServoyStyleSheet.ROUNDED_RADIUS_PREFIX)
+				{
+					properties.put(prefix + "border-radius", "0px");
+				}
+				properties.put("border-radius", "0px");
+			}
 			ComponentFactoryHelper.createBorderCSSProperties(border, properties);
 			changedProperties.putAll(properties);
 		}
@@ -189,6 +198,11 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			changedProperties.put("border-style", "none"); //$NON-NLS-1$ //$NON-NLS-2$
 			changedProperties.remove("border-width"); //$NON-NLS-1$
 			changedProperties.remove("border-color"); //$NON-NLS-1$
+			changedProperties.remove("border-radius"); //$NON-NLS-1$
+			for (String prefix : ServoyStyleSheet.ROUNDED_RADIUS_PREFIX)
+			{
+				changedProperties.remove(prefix + "border-radius");
+			}
 		}
 	}
 

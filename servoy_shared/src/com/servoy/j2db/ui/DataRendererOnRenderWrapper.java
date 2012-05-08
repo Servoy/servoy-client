@@ -47,6 +47,11 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 
 	public void setBgcolor(String clr)
 	{
+		if (onRenderComponent instanceof IProviderStylePropertyChanges &&
+			((IProviderStylePropertyChanges)onRenderComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
+		{
+			((IStylePropertyChangesRecorder)((IProviderStylePropertyChanges)onRenderComponent).getStylePropertyChanges()).setBgcolor(clr);
+		}
 		onRenderComponent.setBackground(PersistHelper.createColor(clr));
 	}
 
@@ -122,6 +127,11 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 
 	public void setBorder(String spec)
 	{
+		if (onRenderComponent instanceof IProviderStylePropertyChanges &&
+			((IProviderStylePropertyChanges)onRenderComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
+		{
+			((IStylePropertyChangesRecorder)((IProviderStylePropertyChanges)onRenderComponent).getStylePropertyChanges()).setBorder(spec);
+		}
 		onRenderComponent.setBorder(ComponentFactoryHelper.createBorder(spec));
 	}
 

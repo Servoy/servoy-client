@@ -267,7 +267,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	public void setBackground(Color background)
 	{
 		this.background = background;
-		jsChangeRecorder.setBgcolor(PersistHelper.createColorString(background));
 	}
 
 	public void setFont(Font font)

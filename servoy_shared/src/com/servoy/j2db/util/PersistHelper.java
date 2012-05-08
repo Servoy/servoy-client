@@ -55,7 +55,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 public class PersistHelper
 {
 	private static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
-	private static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
+	public static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
 
 
 	private PersistHelper()
@@ -325,16 +325,27 @@ public class PersistHelper
 		}
 		if (s != null && s.startsWith(COLOR_RGBA_DEF))
 		{
-			try
+			String definition = s.substring(s.indexOf("(") + 1, s.lastIndexOf(")")); //$NON-NLS-1$//$NON-NLS-2$
+			StringTokenizer tokenizer = new StringTokenizer(definition, ","); //$NON-NLS-1$
+			if (tokenizer.countTokens() == 4)
 			{
-				String comaSeparatedColorValues = s.substring(COLOR_RGBA_DEF.length() + 1, s.length() - 1);
-				StringTokenizer st = new StringTokenizer(comaSeparatedColorValues, ","); //$NON-NLS-1$
-				retval = new Color(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()),
-					(int)(Float.parseFloat(st.nextToken()) * 255));
+				try
+				{
+					int r = Utils.getAsInteger(tokenizer.nextToken(), true);
+					int g = Utils.getAsInteger(tokenizer.nextToken(), true);
+					int b = Utils.getAsInteger(tokenizer.nextToken(), true);
+					int a = (int)(Utils.getAsFloat(tokenizer.nextToken(), true) * 255);
+					return new Color(r, g, b, a);
+				}
+				catch (Exception ex)
+				{
+					Debug.warn("Cannot parse rgba color : " + s); //$NON-NLS-1$
+					return null;
+				}
 			}
-			catch (Exception ex)
+			else
 			{
-				Debug.warn("Cannot parse rgba color : " + s);
+				Debug.warn("Cannot parse rgba color : " + s); //$NON-NLS-1$
 			}
 		}
 
@@ -380,8 +391,8 @@ public class PersistHelper
 			}
 			else
 			{
-				retval = COLOR_RGBA_DEF + '(' + c.getRed() + ',' + c.getGreen() + ',' + c.getBlue() + ',' +
-					Utils.formatNumber(Locale.US, alpha / 255f, 1) + ')';
+				retval = COLOR_RGBA_DEF + '(' + c.getRed() + ',' + c.getGreen() + ',' + c.getBlue() + ',' + Utils.formatNumber(Locale.US, alpha / 255f, 1) +
+					')';
 			}
 		}
 		return retval;
