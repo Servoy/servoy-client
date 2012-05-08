@@ -55,7 +55,6 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 public class PersistHelper
 {
 	private static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
-	private static final String COLOR_TRANSPARENT_DEF = "transparent"; //$NON-NLS-1$
 	private static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
 
 
@@ -339,7 +338,7 @@ public class PersistHelper
 			}
 		}
 
-		if (COLOR_TRANSPARENT_DEF.equals(s))
+		if (IStyleSheet.COLOR_TRANSPARENT.equals(s))
 		{
 			retval = COLOR_TRANSPARENT;
 		}
@@ -364,7 +363,8 @@ public class PersistHelper
 		String retval = null;
 		if (c != null)
 		{
-			if (c.getAlpha() == 255)
+			int alpha = c.getAlpha();
+			if (alpha == 255)
 			{
 				String r = Integer.toHexString(c.getRed());
 				if (r.length() == 1) r = "0" + r; //$NON-NLS-1$
@@ -374,10 +374,14 @@ public class PersistHelper
 				if (b.length() == 1) b = "0" + b; //$NON-NLS-1$
 				retval = "#" + r + g + b; //$NON-NLS-1$
 			}
+			else if (alpha == 0)
+			{
+				retval = IStyleSheet.COLOR_TRANSPARENT;
+			}
 			else
 			{
 				retval = COLOR_RGBA_DEF + '(' + c.getRed() + ',' + c.getGreen() + ',' + c.getBlue() + ',' +
-					Utils.formatNumber(Locale.US, c.getAlpha() / 255f, 1) + ')';
+					Utils.formatNumber(Locale.US, alpha / 255f, 1) + ')';
 			}
 		}
 		return retval;
