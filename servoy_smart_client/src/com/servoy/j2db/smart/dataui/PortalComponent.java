@@ -499,7 +499,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		}
 		scriptable.setFoundset(currentData);
 
-		if (portalRenderComponent != null && portalRenderComponent.getRenderEventExecutor().hasRenderCallback())
+		if (currentData != null && portalRenderComponent != null && portalRenderComponent.getRenderEventExecutor().hasRenderCallback())
 		{
 			portalRenderComponent.getRenderEventExecutor().setRenderState(null, -1, false);
 			portalRenderComponent.getRenderEventExecutor().fireOnRender(false);
