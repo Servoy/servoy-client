@@ -572,6 +572,7 @@ public class ComponentFactoryHelper
 								}
 								else
 								{
+									style.remove("border-style"); //$NON-NLS-1$
 									String[] styles = RoundedBorder.createBorderStyles(borderStyle);
 									style.setProperty("border-top-style", styles[0]); //$NON-NLS-1$
 									style.setProperty("border-left-style", styles[1]); //$NON-NLS-1$

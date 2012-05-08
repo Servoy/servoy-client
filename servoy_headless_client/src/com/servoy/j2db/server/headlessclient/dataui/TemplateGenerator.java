@@ -3065,7 +3065,7 @@ public class TemplateGenerator
 						if (val.toString() != null) styleObj.setProperty(s_attr, s.getValues(s_attr), false);
 					}
 				}
-				if (insetsBorder == null)
+				if (component.getBorderType() == null)
 				{
 					if (ss.hasBorder(s))
 					{

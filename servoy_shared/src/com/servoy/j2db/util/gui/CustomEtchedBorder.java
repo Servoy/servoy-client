@@ -18,6 +18,7 @@
 package com.servoy.j2db.util.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Insets;
 
 import javax.swing.border.EtchedBorder;
@@ -31,11 +32,20 @@ import javax.swing.border.EtchedBorder;
 public class CustomEtchedBorder extends EtchedBorder implements ISupportCustomBorderInsets
 {
 	private final Insets customBorderInsets;
+	// tries to imitate web behavior when only one color is defined
+	private Color customColor = null;
 
 	public CustomEtchedBorder(int etcheType, Insets customBorderInsets)
 	{
 		super(etcheType);
 		this.customBorderInsets = customBorderInsets;
+	}
+
+	public CustomEtchedBorder(int etcheType, Color customColor, Insets customBorderInsets)
+	{
+		super(etcheType);
+		this.customBorderInsets = customBorderInsets;
+		this.customColor = customColor;
 	}
 
 	public CustomEtchedBorder(int etcheType, Color highlight, Color shadow, Insets customBorderInsets)
@@ -46,6 +56,30 @@ public class CustomEtchedBorder extends EtchedBorder implements ISupportCustomBo
 
 	public Insets getCustomBorderInsets()
 	{
-		return customBorderInsets;
+		if (customBorderInsets != null)
+		{
+			return customBorderInsets;
+		}
+		return getBorderInsets(null);
+	}
+
+	@Override
+	public Color getShadowColor(Component c)
+	{
+		if (customColor != null)
+		{
+			return customColor.brighter().brighter();
+		}
+		return super.getShadowColor(c);
+	}
+
+	@Override
+	public Color getHighlightColor(Component c)
+	{
+		if (customColor != null)
+		{
+			return customColor.darker().darker();
+		}
+		return super.getHighlightColor(c);
 	}
 }

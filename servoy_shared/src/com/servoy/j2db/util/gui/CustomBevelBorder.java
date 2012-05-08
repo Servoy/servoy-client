@@ -18,6 +18,7 @@
 package com.servoy.j2db.util.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Insets;
 
 import javax.swing.border.BevelBorder;
@@ -31,11 +32,20 @@ import javax.swing.border.BevelBorder;
 public class CustomBevelBorder extends BevelBorder implements ISupportCustomBorderInsets
 {
 	private final Insets customBorderInsets;
+	// tries to imitate web behavior when only one color is defined
+	private Color customColor = null;
 
 	public CustomBevelBorder(int bevelType, Insets customBorderInsets)
 	{
 		super(bevelType);
 		this.customBorderInsets = customBorderInsets;
+	}
+
+	public CustomBevelBorder(int bevelType, Color customColor, Insets customBorderInsets)
+	{
+		super(bevelType);
+		this.customBorderInsets = customBorderInsets;
+		this.customColor = customColor;
 	}
 
 	public CustomBevelBorder(int bevelType, Color highlight, Color shadow, Insets customBorderInsets)
@@ -51,14 +61,52 @@ public class CustomBevelBorder extends BevelBorder implements ISupportCustomBord
 		this.customBorderInsets = customBorderInsets;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.util.gui.ISupportCustomBorderInsets#getCustomBorderInsets()
-	 */
 	public Insets getCustomBorderInsets()
 	{
-		return customBorderInsets;
+		if (customBorderInsets != null)
+		{
+			return customBorderInsets;
+		}
+		return getBorderInsets(null);
 	}
 
+	@Override
+	public Color getHighlightInnerColor(Component c)
+	{
+		if (customColor != null)
+		{
+			return customColor.brighter().brighter();
+		}
+		return super.getHighlightInnerColor(c);
+	}
+
+	@Override
+	public Color getHighlightOuterColor(Component c)
+	{
+		if (customColor != null)
+		{
+			return customColor.brighter().brighter().brighter();
+		}
+		return super.getHighlightOuterColor(c);
+	}
+
+	@Override
+	public Color getShadowInnerColor(Component c)
+	{
+		if (customColor != null)
+		{
+			return customColor.darker().darker();
+		}
+		return super.getShadowInnerColor(c);
+	}
+
+	@Override
+	public Color getShadowOuterColor(Component c)
+	{
+		if (customColor != null)
+		{
+			return customColor.darker().darker().darker();
+		}
+		return super.getShadowOuterColor(c);
+	}
 }

@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
+import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -113,12 +114,33 @@ public class RoundedBorder extends SpecialMatteBorder
 					borderStyles[i] = styles[i];
 				}
 			}
+			setPaintingBorderStyle();
 		}
 	}
 
 	public void setBorderStyles(String styles)
 	{
 		borderStyles = createBorderStyles(styles);
+		setPaintingBorderStyle();
+	}
+
+	private void setPaintingBorderStyle()
+	{
+		if (borderStyles != null && borderStyles[0] != null)
+		{
+			if (borderStyles[0].equals(IStyleSheet.BORDER_STYLE_DASHED))
+			{
+				setDashPattern(new float[] { 3, 3 });
+			}
+			else if (borderStyles[0].equals(IStyleSheet.BORDER_STYLE_DOTTED))
+			{
+				setDashPattern(new float[] { 1, 1 });
+			}
+			else
+			{
+				setDashPattern(null);
+			}
+		}
 	}
 
 	public String getBorderStylesString()

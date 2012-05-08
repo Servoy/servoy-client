@@ -207,23 +207,20 @@ public class FixedStyleSheet extends StyleSheet
 							colors[0], colors[3])))
 					{
 						// this tries to do the same thing as the web does..
-						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(),
-							customBorderInsets) : new BevelBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker());
+						b = new CustomBevelBorder(style, colors[0], customBorderInsets);
 					}
 					else if (colors.length == 2)
 					{
-						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0], colors[1], customBorderInsets) : new BevelBorder(style,
-							colors[0], colors[1]);
+						b = new CustomBevelBorder(style, colors[0], colors[1], customBorderInsets);
 					}
 					else if (colors.length > 3)
 					{
-						b = customBorderInsets != null ? new CustomBevelBorder(style, colors[0], colors[1], colors[2], colors[3], customBorderInsets)
-							: new BevelBorder(style, colors[0], colors[1], colors[2], colors[3]);
+						b = new CustomBevelBorder(style, colors[0], colors[1], colors[2], colors[3], customBorderInsets);
 					}
 				}
 				else
 				{
-					b = customBorderInsets != null ? new CustomBevelBorder(style, customBorderInsets) : new BevelBorder(style);
+					b = new CustomBevelBorder(style, customBorderInsets);
 				}
 			}
 			else if (bstyle.equals(IStyleSheet.BORDER_STYLE_NONE))
@@ -256,21 +253,21 @@ public class FixedStyleSheet extends StyleSheet
 
 				if (colors != null && colors.length > 0)
 				{
-					if (colors.length == 1)
+					if (colors.length == 1 ||
+						(colors.length == 4 && Utils.equalObjects(colors[0], colors[1]) && Utils.equalObjects(colors[0], colors[2]) && Utils.equalObjects(
+							colors[0], colors[3])))
 					{
 						// this tries to do the same thing as the web does..
-						b = customBorderInsets != null ? new CustomEtchedBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker(),
-							customBorderInsets) : new EtchedBorder(style, colors[0].brighter().brighter(), colors[0].darker().darker());
+						b = new CustomEtchedBorder(style, colors[0], customBorderInsets);
 					}
-					if (colors.length == 2)
+					else if (colors.length >= 2)
 					{
-						b = customBorderInsets != null ? new CustomEtchedBorder(style, colors[0], colors[1], customBorderInsets) : new EtchedBorder(style,
-							colors[0], colors[1]);
+						b = new CustomEtchedBorder(style, colors[0], colors[1], customBorderInsets);
 					}
 				}
 				else
 				{
-					b = customBorderInsets != null ? new CustomEtchedBorder(style, customBorderInsets) : new EtchedBorder(style);
+					b = new CustomEtchedBorder(style, customBorderInsets);
 				}
 			}
 			else if (bstyle.equals(IStyleSheet.BORDER_STYLE_SOLID) || bstyle.equals(IStyleSheet.BORDER_STYLE_DOTTED) ||
