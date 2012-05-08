@@ -54,6 +54,11 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
  */
 public class PersistHelper
 {
+	private static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
+	private static final String COLOR_TRANSPARENT_DEF = "transparent"; //$NON-NLS-1$
+	private static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
+
+
 	private PersistHelper()
 	{
 	}
@@ -319,6 +324,25 @@ public class PersistHelper
 				//ignore;
 			}
 		}
+		if (s != null && s.startsWith(COLOR_RGBA_DEF))
+		{
+			try
+			{
+				String comaSeparatedColorValues = s.substring(COLOR_RGBA_DEF.length() + 1, s.length() - 1);
+				StringTokenizer st = new StringTokenizer(comaSeparatedColorValues, ","); //$NON-NLS-1$
+				retval = new Color(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()),
+					(int)(Float.parseFloat(st.nextToken()) * 255));
+			}
+			catch (Exception ex)
+			{
+				Debug.warn("Cannot parse rgba color : " + s);
+			}
+		}
+
+		if (COLOR_TRANSPARENT_DEF.equals(s))
+		{
+			retval = COLOR_TRANSPARENT;
+		}
 		if (s != null && retval == null)
 		{
 			try
@@ -340,13 +364,21 @@ public class PersistHelper
 		String retval = null;
 		if (c != null)
 		{
-			String r = Integer.toHexString(c.getRed());
-			if (r.length() == 1) r = "0" + r; //$NON-NLS-1$
-			String g = Integer.toHexString(c.getGreen());
-			if (g.length() == 1) g = "0" + g; //$NON-NLS-1$
-			String b = Integer.toHexString(c.getBlue());
-			if (b.length() == 1) b = "0" + b; //$NON-NLS-1$
-			retval = "#" + r + g + b; //$NON-NLS-1$
+			if (c.getAlpha() == 255)
+			{
+				String r = Integer.toHexString(c.getRed());
+				if (r.length() == 1) r = "0" + r; //$NON-NLS-1$
+				String g = Integer.toHexString(c.getGreen());
+				if (g.length() == 1) g = "0" + g; //$NON-NLS-1$
+				String b = Integer.toHexString(c.getBlue());
+				if (b.length() == 1) b = "0" + b; //$NON-NLS-1$
+				retval = "#" + r + g + b; //$NON-NLS-1$
+			}
+			else
+			{
+				retval = COLOR_RGBA_DEF + '(' + c.getRed() + ',' + c.getGreen() + ',' + c.getBlue() + ',' +
+					Utils.formatNumber(Locale.US, c.getAlpha() / 255f, 1) + ')';
+			}
 		}
 		return retval;
 	}
