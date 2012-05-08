@@ -129,7 +129,7 @@ public class SpecialMatteBorder extends AbstractBorder
 		g.translate(x, y);
 		try
 		{
-			if (roundingRadius > 0)
+			if (roundingRadius > 0 && top > 0f && topColor != null)
 			{
 				((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				float lineWidth = top;
