@@ -1296,7 +1296,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (isScrollMode()) return "overflow-x: hidden; overflow-y: hidden;"; //$NON-NLS-1$
 				if (cellview instanceof Portal)
 				{
-					return scrollBarDefinitioToOverflowAttribute(scrollbars);
+					return scrollBarDefinitionToOverflowAttribute(scrollbars);
 				}
 				if (findParent(IWebFormContainer.class) != null)
 				{
@@ -1591,7 +1591,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public String getObject()
 				{
-					return scrollBarDefinitioToOverflowAttribute(scrollbars) +
+					return scrollBarDefinitionToOverflowAttribute(scrollbars) +
 						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
 				}
 			}));
@@ -1629,7 +1629,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		});
 	}
 
-	private static String scrollBarDefinitioToOverflowAttribute(int scrollbarDefinition)
+	private static String scrollBarDefinitionToOverflowAttribute(int scrollbarDefinition)
 	{
 		String overflow = "";
 		if ((scrollbarDefinition & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
