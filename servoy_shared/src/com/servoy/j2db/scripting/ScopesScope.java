@@ -94,7 +94,7 @@ public class ScopesScope extends DefaultScope
 		}
 		else
 		{
-			gs = new GlobalScope(this, scopeName, scriptEngine, application);
+			gs = new GlobalScope(getParentScope(), scopeName, scriptEngine, application);
 			allVars.put(scopeName, gs);
 		}
 		gs.createVars();
