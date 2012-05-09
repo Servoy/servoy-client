@@ -300,7 +300,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				if (result == null)
 				{
 					dlm.fill(parentState, getDataProviderID(), null, false);
-					if (list.hasRealValues())
+					if (list.hasRealValues() && !"".equals(trimmed))
 					{
 						//if it doesn't have real values, just keep what is typed
 						// now just try to match it be start with matching instead of equals:
