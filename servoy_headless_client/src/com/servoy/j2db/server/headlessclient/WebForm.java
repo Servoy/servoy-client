@@ -753,7 +753,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				RuntimePortal viewScriptable = new RuntimePortal(new ChangesRecorder(null, null), app);
 				view = new WebCellBasedView("View", app, viewScriptable, f, f, app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), f),
 					fp.getScriptExecuter(), addHeaders, startY, endY, sizeHint, viewType);
-				viewScriptable.setComponent((WebCellBasedView)view);
+				viewScriptable.setComponent((WebCellBasedView)view, f);
 
 				dataRenderers[FormController.FORM_EDITOR] = (WebCellBasedView)view;
 			}

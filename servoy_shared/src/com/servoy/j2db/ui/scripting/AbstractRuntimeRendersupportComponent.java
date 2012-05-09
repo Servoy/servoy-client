@@ -22,6 +22,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -55,9 +56,9 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 	}
 
 	@Override
-	public void setComponent(C component)
+	public void setComponent(C component, IPersist persist)
 	{
-		super.setComponent(component);
+		super.setComponent(component, persist);
 		if (component instanceof Component)
 		{
 			((Component)component).addFocusListener(new FocusListener()

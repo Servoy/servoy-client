@@ -30,7 +30,9 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplayData;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -41,6 +43,7 @@ import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable component for {@link BaseComponent}.
@@ -51,6 +54,7 @@ import com.servoy.j2db.util.PersistHelper;
 public abstract class AbstractRuntimeBaseComponent<C extends IComponent> implements IScriptable, IRuntimeComponent, Wrapper
 {
 	private C component;
+	private IPersist persist;
 	private final IStylePropertyChangesRecorder jsChangeRecorder;
 	private Map<Object, Object> clientProperties;
 	protected final IApplication application;
@@ -70,11 +74,20 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	}
 
 	/**
+	 * @return the persist
+	 */
+	public IPersist getPersist()
+	{
+		return persist;
+	}
+
+	/**
 	 * @param component the component to set
 	 */
-	public void setComponent(C component)
+	public void setComponent(C component, IPersist persist)
 	{
 		this.component = component;
+		this.persist = persist;
 	}
 
 	public Object unwrap()
@@ -313,6 +326,20 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		if (getComponent() instanceof ILabel)
 		{
 			return "label: " + ((ILabel)getComponent()).getText(); //$NON-NLS-1$
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesigntimeProperty#getDesigntimeProperty(java.lang.String)
+	 */
+	public Object getDesigntimeProperty(String key)
+	{
+		if (getPersist() instanceof AbstractBase)
+		{
+			return Utils.parseJSExpression(((AbstractBase)getPersist()).getCustomDesigntimeProperty(key));
 		}
 		return null;
 	}

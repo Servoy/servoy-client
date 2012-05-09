@@ -1808,6 +1808,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			return formController.getPartYOffset(partType);
 		}
 
+		/** Get a design-time property of a form.
+		 *
+		 * @sample 
+		 * var prop = forms.orders.getDesigntimeProperty('myprop')	
+		 */
+		public Object js_getDesigntimeProperty(String key)
+		{
+			checkDestroyed();
+			return formController.getDesigntimeProperty(key);
+		}
+
 		/**
 		 * @see java.lang.Object#toString()
 		 */
@@ -4194,7 +4205,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			return renderers[partType].getYOffset();
 		}
 		return 0;
+	}
 
+	public Object getDesigntimeProperty(String key)
+	{
+		return Utils.parseJSExpression(getForm().getCustomDesigntimeProperty(key));
 	}
 
 	/**

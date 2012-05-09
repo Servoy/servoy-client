@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
@@ -197,6 +197,24 @@ public class RuntimeGroup implements HasRuntimeReadOnly, IRuntimeComponent
 		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
 			Object value = obj.getClientProperty(key);
+			if (value != null)
+			{
+				return value;
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesigntimeProperty#getDesigntimeProperty(java.lang.String)
+	 */
+	public Object getDesigntimeProperty(String key)
+	{
+		for (IRuntimeComponent obj : scriptBaseObjects)
+		{
+			Object value = obj.getDesigntimeProperty(key);
 			if (value != null)
 			{
 				return value;

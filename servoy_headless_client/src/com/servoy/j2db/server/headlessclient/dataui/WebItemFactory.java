@@ -89,7 +89,7 @@ public class WebItemFactory implements ItemFactory
 	{
 		RuntimeScriptLabel scriptable = new RuntimeScriptLabel(createChangesRecorder(), application);
 		ILabel label = new WebBaseLabel(application, scriptable, name, text);
-		scriptable.setComponent(label);
+		scriptable.setComponent(label, null);
 		return label;
 	}
 
@@ -106,13 +106,13 @@ public class WebItemFactory implements ItemFactory
 		{
 			RuntimeScriptButton scriptable = new RuntimeScriptButton(createChangesRecorder(), application);
 			beanHolder = new WebImageBeanHolder(application, scriptable, name, (JComponent)obj, anchoring);
-			scriptable.setComponent((IButton)beanHolder);
+			scriptable.setComponent((IButton)beanHolder, null);
 		}
 		else
 		{
 			RuntimeScriptLabel scriptable = new RuntimeScriptLabel(createChangesRecorder(), application);
 			beanHolder = new WebBeanHolder(application, scriptable, name, obj);
-			scriptable.setComponent(beanHolder);
+			scriptable.setComponent(beanHolder, null);
 		}
 		return beanHolder;
 	}
@@ -121,7 +121,7 @@ public class WebItemFactory implements ItemFactory
 	{
 		RuntimeScriptLabel scriptable = new RuntimeScriptLabel(createChangesRecorder(), application);
 		ILabel invisibleBean = new WebBeanHolder(application, scriptable, name, obj);
-		scriptable.setComponent(invisibleBean);
+		scriptable.setComponent(invisibleBean, null);
 		return invisibleBean;
 	}
 
@@ -176,10 +176,7 @@ public class WebItemFactory implements ItemFactory
 		{
 			return new WebDataRadioChoice(application, scriptable, name, list);
 		}
-		else
-		{
-			return new WebDataCheckBoxChoice(application, scriptable, name, list);
-		}
+		return new WebDataCheckBoxChoice(application, scriptable, name, list);
 	}
 
 	public IFieldComponent createDataComboBox(RuntimeDataCombobox scriptable, String name, IValueList list)
@@ -218,15 +215,9 @@ public class WebItemFactory implements ItemFactory
 			{
 				return new WebDataHtmlArea(application, scriptable, name);
 			}
-			else
-			{
-				return new WebDataHtmlView(application, scriptable, name);
-			}
+			return new WebDataHtmlView(application, scriptable, name);
 		}
-		else
-		{
-			return new WebDataRtfField(application, scriptable, name);
-		}
+		return new WebDataRtfField(application, scriptable, name);
 	}
 
 	public IPortalComponent createPortalComponent(RuntimePortal scriptable, Portal meta, Form form, IDataProviderLookup dataProviderLookup, IScriptExecuter el,

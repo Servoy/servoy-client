@@ -92,7 +92,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		RuntimeDataField fieldScriptable = new RuntimeDataField(new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
 			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
 		field = createTextField(fieldScriptable);
-		fieldScriptable.setComponent(field);
+		fieldScriptable.setComponent(field, null);
 
 		field.setIgnoreOnRender(true);
 

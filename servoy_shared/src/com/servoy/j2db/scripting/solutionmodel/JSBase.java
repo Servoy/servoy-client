@@ -24,6 +24,7 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -60,6 +61,42 @@ public class JSBase<T extends AbstractBase>
 	public IJSParent< ? > getJSParent()
 	{
 		return parent;
+	}
+
+	/** Get a design-time property of an element.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * var prop = fld.getDesigntimeProperty('myprop')	
+	 */
+	public Object js_getDesigntimeProperty(String key)
+	{
+		return Utils.parseJSExpression(getBaseComponent(false).getCustomDesigntimeProperty(key));
+	}
+
+	/** Set a design-time property of an element.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * fld.putDesigntimeProperty('myprop', 'strawberry')	
+	 */
+	public Object js_putDesigntimeProperty(String key, Object value)
+	{
+		return Utils.parseJSExpression(getBaseComponent(false).putCustomDesigntimeProperty(key, Utils.makeJSExpression(value)));
+	}
+
+	/** Clear a design-time property of an element.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * fld.removeDesigntimeProperty('myprop')
+	 */
+	public Object js_removeDesigntimeProperty(String key)
+	{
+		return js_putDesigntimeProperty(key, null);
 	}
 
 	@SuppressWarnings("unchecked")

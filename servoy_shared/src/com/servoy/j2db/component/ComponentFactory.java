@@ -959,7 +959,7 @@ public class ComponentFactory
 	{
 		RuntimeRectangle scriptable = new RuntimeRectangle(application.getItemFactory().createChangesRecorder(), application);
 		IRect panel = application.getItemFactory().createRect(scriptable, getWebID(form, rec), rec.getShapeType());
-		scriptable.setComponent(panel);
+		scriptable.setComponent(panel, rec);
 //		panel.setOpaque(!rec.getTransparent());
 		panel.setLineWidth(rec.getLineSize());
 		panel.setRadius(rec.getRoundedRadius());
@@ -1241,7 +1241,7 @@ public class ComponentFactory
 				RuntimeDataPassword so;
 				scriptable = so = new RuntimeDataPassword(jsChangeRecorder, application);
 				fl = application.getItemFactory().createDataPassword(so, getWebID(form, field));
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 			}
 				break;
 
@@ -1250,7 +1250,7 @@ public class ComponentFactory
 				RuntimeRtfArea so;
 				scriptable = so = new RuntimeRtfArea(jsChangeRecorder, application);
 				fl = application.getItemFactory().createDataTextEditor(so, getWebID(form, field), RTF_AREA, field.getEditable());
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1263,7 +1263,7 @@ public class ComponentFactory
 				RuntimeHTMLArea so;
 				scriptable = so = new RuntimeHTMLArea(jsChangeRecorder, application);
 				fl = application.getItemFactory().createDataTextEditor(so, getWebID(form, field), HTML_AREA, field.getEditable());
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1276,7 +1276,7 @@ public class ComponentFactory
 				RuntimeTextArea so;
 				scriptable = so = new RuntimeTextArea(jsChangeRecorder, application);
 				fl = application.getItemFactory().createDataTextArea(so, getWebID(form, field));
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 				if (fl instanceof IScrollPane)
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
@@ -1312,7 +1312,7 @@ public class ComponentFactory
 					fl = application.getItemFactory().createCheckBox((RuntimeCheckbox)so, getWebID(form, field),
 						application.getI18NMessageIfPrefixed(field.getText()), null);
 				}
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 			}
 				break;
 
@@ -1335,7 +1335,7 @@ public class ComponentFactory
 						applyScrollBarsProperty((IScrollPane)fl, field);
 					}
 				}
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 			}
 				break;
 
@@ -1345,7 +1345,7 @@ public class ComponentFactory
 				scriptable = so = new RuntimeDataCombobox(jsChangeRecorder, application);
 				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
 				fl = application.getItemFactory().createDataComboBox(so, getWebID(form, field), list);
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 			}
 				break;
 
@@ -1354,7 +1354,7 @@ public class ComponentFactory
 				RuntimeDataCalendar so;
 				scriptable = so = new RuntimeDataCalendar(jsChangeRecorder, application);
 				fl = application.getItemFactory().createDataCalendar(so, getWebID(form, field));
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 			}
 				break;
 
@@ -1367,7 +1367,7 @@ public class ComponentFactory
 				{
 					applyScrollBarsProperty((IScrollPane)fl, field);
 				}
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 			}
 				break;
 
@@ -1386,7 +1386,7 @@ public class ComponentFactory
 					scriptable = so = new RuntimeDataLookupField(jsChangeRecorder, application);
 					fl = application.getItemFactory().createDataLookupField(so, getWebID(form, field), form.getServerName(), form.getTableName(),
 						dp == null ? field.getDataProviderID() : dp.getDataProviderID());
-					so.setComponent(fl);
+					so.setComponent(fl, field);
 					break;
 				}
 
@@ -1399,7 +1399,7 @@ public class ComponentFactory
 				scriptable = so = new RuntimeListBox(jsChangeRecorder, application, multiSelect);
 				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
 				fl = application.getItemFactory().createListBox(so, getWebID(form, field), list, multiSelect);
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 			}
 				break;
 
@@ -1409,7 +1409,7 @@ public class ComponentFactory
 				scriptable = so = new RuntimeSpinner(jsChangeRecorder, application);
 				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
 				fl = application.getItemFactory().createSpinner(so, getWebID(form, field), list);
-				so.setComponent(fl);
+				so.setComponent(fl, field);
 				break;
 			}
 
@@ -1427,7 +1427,7 @@ public class ComponentFactory
 					RuntimeDataField so;
 					scriptable = so = new RuntimeDataField(jsChangeRecorder, application);
 					fl = application.getItemFactory().createDataField(so, getWebID(form, field));
-					so.setComponent(fl);
+					so.setComponent(fl, field);
 				}
 		}
 
@@ -1627,7 +1627,7 @@ public class ComponentFactory
 				return null;
 			}
 		}
-		scriptable.setComponent(fl);
+		scriptable.setComponent(fl, field);
 		return fl;
 	}
 
@@ -1759,7 +1759,7 @@ public class ComponentFactory
 				((IDisplayTagText)button).setTagText(application.getI18NMessageIfPrefixed(label.getText()));
 				((IDisplayData)button).setNeedEntireState(label.getDisplaysTags());
 			}
-			((AbstractRuntimeButton<IButton>)scriptable).setComponent(button);
+			((AbstractRuntimeButton<IButton>)scriptable).setComponent(button, label);
 			button.setMediaOption(label.getMediaOptions());
 			if (label.getRolloverImageMediaID() > 0)
 			{
@@ -1799,7 +1799,7 @@ public class ComponentFactory
 				((IDisplayTagText)l).setTagText(application.getI18NMessageIfPrefixed(label.getText()));
 				((IDisplayData)l).setNeedEntireState(label.getDisplaysTags());
 			}
-			((AbstractHTMLSubmitRuntimeLabel<ILabel>)scriptable).setComponent(l);
+			((AbstractHTMLSubmitRuntimeLabel<ILabel>)scriptable).setComponent(l, label);
 			l.setMediaOption(label.getMediaOptions());
 			if (label.getRolloverImageMediaID() > 0)
 			{
@@ -1992,7 +1992,7 @@ public class ComponentFactory
 	{
 		RuntimePortal scriptable = new RuntimePortal(application.getItemFactory().createChangesRecorder(), application);
 		IPortalComponent portalComponent = application.getItemFactory().createPortalComponent(scriptable, meta, form, dataProviderLookup, el, printing);
-		scriptable.setComponent(portalComponent);
+		scriptable.setComponent(portalComponent, meta);
 		IStyleSheet ss = ComponentFactory.getCSSStyleForForm(application, form);
 		if (ss != null)
 		{
@@ -2021,7 +2021,7 @@ public class ComponentFactory
 	{
 		RuntimeSplitPane scriptable = new RuntimeSplitPane(application.getItemFactory().createChangesRecorder(), application);
 		ISplitPane splitPane = application.getItemFactory().createSplitPane(scriptable, getWebID(form, meta), meta.getTabOrientation());
-		scriptable.setComponent(splitPane);
+		scriptable.setComponent(splitPane, meta);
 		applyBasicComponentProperties(application, splitPane, meta, getStyleForBasicComponent(application, meta, form));
 		try
 		{
@@ -2077,7 +2077,7 @@ public class ComponentFactory
 			scriptable = new RuntimeTabPanel(application.getItemFactory().createChangesRecorder(), application);
 			tabs = application.getItemFactory().createTabPanel((RuntimeTabPanel)scriptable, getWebID(form, meta), orient, meta.hasOneTab());
 		}
-		scriptable.setComponent(tabs);
+		scriptable.setComponent(tabs, meta);
 		if (meta.getScrollTabs())
 		{
 			tabs.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);

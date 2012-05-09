@@ -58,6 +58,7 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -4406,6 +4407,40 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	{
 		checkModification();
 		form.setEncapsulation(arg);
+	}
+
+	/** Get a design-time property of a form.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var prop = frm.getDesigntimeProperty('myprop')	
+	 */
+	public Object js_getDesigntimeProperty(String key)
+	{
+		return Utils.parseJSExpression(form.getCustomDesigntimeProperty(key));
+	}
+
+	/** Set a design-time property of a form.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * frm.putDesigntimeProperty('myprop', 'lemon')	
+	 */
+	public Object js_putDesigntimeProperty(String key, Object value)
+	{
+		checkModification();
+		return Utils.parseJSExpression(form.putCustomDesigntimeProperty(key, Utils.makeJSExpression(value)));
+	}
+
+	/** Clear a design-time property of a form.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * frm.removeDesigntimeProperty('myprop')
+	 */
+	public Object js_removeDesigntimeProperty(String key)
+	{
+		return js_putDesigntimeProperty(key, null);
 	}
 
 	/**

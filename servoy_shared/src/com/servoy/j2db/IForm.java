@@ -246,4 +246,10 @@ public interface IForm
 	 * @since 6.1
 	 */
 	public boolean loadRecords(IFoundSet foundSet);
+
+	/** @return Get a design-time property of a form.
+	 *
+	 * @since 6.1
+	 */
+	public Object getDesigntimeProperty(String key);
 }

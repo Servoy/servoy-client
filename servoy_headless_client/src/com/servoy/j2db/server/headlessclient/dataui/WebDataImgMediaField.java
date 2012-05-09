@@ -170,7 +170,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 		RuntimeScriptButton imgScriptable = new RuntimeScriptButton(new ChangesRecorder(null, null), application);
 		imgd = new ImageDisplay(application, imgScriptable, id); //uses the same name
-		imgScriptable.setComponent(imgd);
+		imgScriptable.setComponent(imgd, null);
 		add(imgd);
 
 		upload = new Image("upload_icon", new ResourceReference(IApplication.class, "images/open_project.gif")) //$NON-NLS-1$//$NON-NLS-2$

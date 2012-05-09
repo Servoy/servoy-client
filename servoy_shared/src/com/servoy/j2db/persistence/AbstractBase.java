@@ -816,12 +816,11 @@ public abstract class AbstractBase implements IPersist
 	 */
 	public String getCustomProperties()
 	{
-		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 		if (jsonCustomProperties != null)
 		{
-			customProperties = jsonCustomProperties.toString();
+			return jsonCustomProperties.toString();
 		}
-		return customProperties;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 	}
 
 	public Object getCustomProperty(String[] path)
@@ -926,6 +925,39 @@ public abstract class AbstractBase implements IPersist
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
 		return old;
+	}
+
+	public Map<String, Object> getCustomDesigntimeProperties()
+	{
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { "design" });
+		if (map == null || map.size() == 0)
+		{
+			return null;
+		}
+		return map;
+	}
+
+	public Map<String, Object> setCustomDesigntimeProperties(Map<String, Object> map)
+	{
+		return (Map<String, Object>)putCustomProperty(new String[] { "design" }, map);
+	}
+
+	public Object getCustomDesigntimeProperty(String key)
+	{
+		if (key != null)
+		{
+			return getCustomProperty(new String[] { "design", key }); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return null;
+	}
+
+	public Object putCustomDesigntimeProperty(String key, Object value)
+	{
+		if (key != null)
+		{
+			return putCustomProperty(new String[] { "design", key }, value); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

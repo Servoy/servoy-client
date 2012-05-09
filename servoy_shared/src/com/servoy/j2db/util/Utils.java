@@ -682,15 +682,15 @@ public class Utils
 
 	/**
 	 * Parse a javascript string into a java string, example parseJSString("'HelloWorld'") returns:HelloWorld
+	 * @param o
 	 * 
-	 * @param s
-	 * @return the result string
+	 * @return the parsed object
 	 */
-	public static Object parseJSExpression(String s)
+	public static Object parseJSExpression(Object o)
 	{
-		if (s != null)
+		if (o instanceof String)
 		{
-			s = s.trim();
+			String s = ((String)o).trim();
 			if ("".equals(s)) return null;
 			if ("true".equals(s)) return Boolean.TRUE;
 			if ("false".equals(s)) return Boolean.FALSE;
@@ -705,8 +705,11 @@ public class Utils
 					return s.substring(1, s.length() - 1);
 				}
 			}
+			return null;
 		}
-		return null;
+
+		// non-string, keep original
+		return o;
 	}
 
 	public static Object[] parseJSExpressions(List<Object> exprs)
@@ -715,10 +718,28 @@ public class Utils
 		Object[] parsed = new Object[exprs.size()];
 		for (int i = 0; i < parsed.length; i++)
 		{
-			Object s = exprs.get(i);
-			parsed[i] = (s instanceof String) ? parseJSExpression((String)s) : s;
+			parsed[i] = parseJSExpression(exprs.get(i));
 		}
 		return parsed;
+	}
+
+	/** 
+	 * Represent a primitive as js string.
+	 * Booleans and Numbers are converted to their string representation.
+	 * Strings are quoted with single quotes.
+	 * 
+	 * @see parseJSExpression(Object) reverse method
+	 * 
+	 * @param s
+	 * @return the result string
+	 */
+	public static String makeJSExpression(Object o)
+	{
+		if (o instanceof CharSequence)
+		{
+			return '\'' + o.toString().replaceAll("'", "\\\\$0") + '\''; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return o == null ? null : o.toString();
 	}
 
 	//exact word match
