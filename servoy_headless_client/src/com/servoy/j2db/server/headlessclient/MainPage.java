@@ -99,6 +99,7 @@ import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualSty
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -833,6 +834,9 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 		response.renderJavascriptReference(servoy_js);
 		YUILoader.renderDragNDrop(response);
+
+		response.renderJavascriptReference(MaskBehavior.jquery_js);
+		response.renderJavascriptReference(MaskBehavior.masked_js);
 	}
 
 	/**
