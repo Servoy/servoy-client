@@ -143,8 +143,16 @@ public class SpecialMatteBorder extends AbstractBorder
 				}
 
 				float halfLW = lineWidth / 2f;
+				float shapeWidth = width - lineWidth;
+				float shapeHeight = height - lineWidth;
+				// subtract 1px if needed
+				if (2 * (int)halfLW == lineWidth)
+				{
+					shapeWidth -= 1;
+					shapeHeight -= 1;
+				}
 				// make this more in line with WC
-				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, width - lineWidth, height - lineWidth, 3 * roundingRadius / 2, 3 * roundingRadius / 2);
+				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, shapeWidth, shapeHeight, 3 * roundingRadius / 2, 3 * roundingRadius / 2);
 
 				g.setColor(topColor);
 				((Graphics2D)g).draw(shape);
