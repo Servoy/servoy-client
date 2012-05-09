@@ -120,7 +120,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.size() > 0;
+			return editedRecords.size() + failedRecords.size() > 0;
 		}
 		finally
 		{
