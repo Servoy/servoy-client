@@ -34,12 +34,25 @@ public class ScopesUtils
 	 * <br> scopes.s.x -> (s, x)
 	 * <br> x -> (null, x)
 	 */
-	public static Pair<String, String> getVariableScope(String id)
+	public static Pair<String, String> getVariableScope(String idParam)
 	{
-		if (id == null) return null;
+		if (idParam == null) return null;
+		String id = idParam;
+
+		int firstDotIdx = id.indexOf('.');
+		if (firstDotIdx != -1 && firstDotIdx < id.length() - 1)
+		{
+			String idWithoutPrefix = id.substring(firstDotIdx + 1);
+			if (idWithoutPrefix.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX) || idWithoutPrefix.startsWith(ScriptVariable.SCOPES_DOT_PREFIX))
+			{
+				// this is a variable from a module, remove the module name from the id
+				id = idWithoutPrefix;
+			}
+		}
 
 		String scopeName = null;
 		String dpName = id;
+
 		if (id.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
 		{
 			scopeName = ScriptVariable.GLOBAL_SCOPE;

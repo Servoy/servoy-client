@@ -1913,6 +1913,30 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return AbstractBase.selectById(getScriptMethods(null, false), methodId);
 	}
 
+	public ScriptMethod getScriptMethod(String methodNameOrUUID)
+	{
+		if (methodNameOrUUID == null) return null;
+		if (methodNameOrUUID.indexOf('-') > 0)
+		{
+			IRepository repository = getRepository();
+			if (repository instanceof AbstractRepository)
+			{
+				AbstractRepository abstractRepository = (AbstractRepository)repository;
+				try
+				{
+					return getScriptMethod(abstractRepository.getElementIdForUUIDString(methodNameOrUUID.toString()));
+				}
+				catch (RepositoryException ex)
+				{
+					Debug.log("Cannot get script method for UUID " + methodNameOrUUID, ex);
+					return null;
+				}
+			}
+		}
+
+		return getScriptMethod(null, methodNameOrUUID);
+	}
+
 	/**
 	 * Get global script method.
 	 * Scope name may be in methodName (globals.x, scopes.globals.x or scopes.myscope.x) or may be supplied in arg scopeName.

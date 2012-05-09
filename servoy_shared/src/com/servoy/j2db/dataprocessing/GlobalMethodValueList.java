@@ -21,6 +21,7 @@ import java.sql.Types;
 import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.util.Pair;
@@ -49,7 +50,9 @@ public class GlobalMethodValueList extends CustomValueList
 	{
 		super(application, vl);
 		setValueType(Types.OTHER);
-		Pair<String, String> scope = ScopesUtils.getVariableScope(vl.getCustomValues());
+
+		ScriptMethod globalScriptMethod = application.getFlattenedSolution().getScriptMethod(vl.getCustomValues());
+		Pair<String, String> scope = ScopesUtils.getVariableScope(globalScriptMethod != null ? globalScriptMethod.getPrefixedName() : null);
 		if (vl.getValueListType() != ValueList.GLOBAL_METHOD_VALUES || scope == null || scope.getLeft() == null)
 		{
 			throw new RuntimeException("GlobalMethodValueList couldnt be made for: " + ScopesUtils.getScopeString(scope)); //$NON-NLS-1$

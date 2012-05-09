@@ -593,7 +593,7 @@ public class JSValueList implements IConstantsObject
 			ScriptMethod scriptMethod = method.getScriptMethod();
 			if (scriptMethod.getParent() instanceof Solution)
 			{
-				valuelist.setCustomValues(scriptMethod.getPrefixedName());
+				valuelist.setCustomValues(scriptMethod.getUUID().toString());
 				valuelist.setValueListType(ValueList.GLOBAL_METHOD_VALUES);
 			}
 			else
@@ -745,7 +745,8 @@ public class JSValueList implements IConstantsObject
 				typeString = "Custom";
 				break;
 			case ValueList.GLOBAL_METHOD_VALUES :
-				typeString = "GlobalMethod:" + valuelist.getCustomValues();
+				ScriptMethod globalMethod = application.getFlattenedSolution().getScriptMethod(valuelist.getCustomValues());
+				typeString = "GlobalMethod:" + globalMethod != null ? globalMethod.getPrefixedName() : valuelist.getCustomValues();
 				break;
 			case ValueList.TABLE_VALUES :
 				typeString = valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES ? "Table:" + valuelist.getDataSource() : "Related:" +
