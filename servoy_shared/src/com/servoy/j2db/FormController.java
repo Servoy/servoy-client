@@ -2255,7 +2255,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			}
 			if (form.getOnUnLoadMethodID() > 0)
 			{
-				executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, new Object[] { getJSEvent(formScope) }, true, true, true);
+				executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, new Object[] { getJSEvent(formScope) }, Boolean.TRUE, true, true);
 			}
 			containerImpl.destroy();
 
@@ -2530,7 +2530,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, null, false, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, null, Boolean.FALSE, true, true);
 		}
 	}
 
@@ -2750,7 +2750,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -2892,7 +2892,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -2926,7 +2926,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -2961,7 +2961,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -2991,7 +2991,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			}
 			return true;
 		}
-		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, null, true, true, true));
+		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, null, Boolean.TRUE, true, true));
 	}
 
 	private boolean deleteRecordImpl() throws ServoyException
@@ -3035,7 +3035,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 		return false;
 	}
@@ -3068,7 +3068,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -3112,7 +3112,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -3188,7 +3188,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -3294,7 +3294,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -3685,7 +3685,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		else if (isInFindMode())
 		{
 			Object o = executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID,
-				new Object[] { Boolean.valueOf(clear), Boolean.valueOf(reduce) }, false, true, true);
+				new Object[] { Boolean.valueOf(clear), Boolean.valueOf(reduce) }, Boolean.FALSE, true, true);
 			if (o instanceof Number)
 			{
 				return ((Number)o).intValue();
@@ -4674,7 +4674,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				try
 				{
 					Object[] args = new Object[] { getJSEvent(formScope) };
-					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, false, true, false /* foundset is not yet initialized */);
+					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
 				}
 				finally
 				{
@@ -4692,7 +4692,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope) };//isFirstTime
 			didOnShowOnce = true;
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, args, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, args, null, true, true);
 		}
 	}
 
@@ -4703,7 +4703,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	private boolean executeOnHideMethod()
 	{
 		return form.getOnHideMethodID() == 0 ||
-			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope) }, true, true, true));
+			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope) }, null, true, true));
 	}
 
 	private boolean runningExecuteOnRecordEditStop;
@@ -4715,8 +4715,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			try
 			{
 				runningExecuteOnRecordEditStop = true;
-				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record }, true,
-					true, true));
+				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record },
+					Boolean.TRUE, true, true));
 				if (ret)
 				{
 					// for this record, record edit saved is called successfully shouldn't happen the second time.
@@ -4747,7 +4747,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		if (containerImpl.getUndoManager() != null) containerImpl.getUndoManager().discardAllEdits();
 		if (isFormVisible)//this is added because many onrecordSelect actions are display dependent (in that case you only want the visible forms to be set) or data action which are likely on the same table so obsolete any way.
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -4759,18 +4759,18 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		// saveData is false because otherwise focus is lost on stopUIEditing in ListView
 		// see issue 154845
-		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, null, true, false, true));
+		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, null, Boolean.TRUE, false, true));
 	}
 
 	private void executeOnResize()
 	{
 		if (isFormVisible())
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, null, null, true, true);
 		}
 	}
 
-	public Object executeFormMethod(TypedProperty<Integer> methodProperty, Object[] args, boolean testFindMode, boolean saveData, boolean allowFoundsetMethods)
+	public Object executeFormMethod(TypedProperty<Integer> methodProperty, Object[] args, Boolean testFindMode, boolean saveData, boolean allowFoundsetMethods)
 	{
 		Object ret = null;
 		Integer id = ((Integer)form.getProperty(methodProperty.getPropertyName()));
@@ -4818,9 +4818,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 				if (function instanceof Function)
 				{
+					if (testFindMode == null)
+					{
+						testFindMode = Boolean.valueOf(!Utils.getAsBoolean(((Function)function).get("_AllowToRunInFind_", (Function)function))); //$NON-NLS-1$
+					}
 					ret = executeFunction((Function)function,
 						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getInstanceMethodArguments(methodProperty.getPropertyName()))), scope, scope,
-						saveData, null, testFindMode, false, methodProperty.getPropertyName(), false, true, false);
+						saveData, null, testFindMode.booleanValue(), false, methodProperty.getPropertyName(), false, true, false);
 				}
 			}
 			catch (Exception ex)
@@ -4917,7 +4921,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
@@ -4955,7 +4959,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, null, true, true, true);
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, null, Boolean.TRUE, true, true);
 		}
 	}
 
