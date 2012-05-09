@@ -230,9 +230,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * Used by rollback and flush table/all
-	 * @param skipStopEdit TODO
-	 * @param server_name can be null if not relevant
-	 * @param table_name can be null if not relevant
+	 * @param dataSource the datasource the foundsets must be build on to refresh (null then all)
+	 * @param skipStopEdit If true then stop edit will not be called
 	 */
 	private void refreshFoundSetsFromDB(String dataSource, boolean skipStopEdit)
 	{

@@ -1494,7 +1494,11 @@ public class EditRecordList
 	}
 
 	/**
-	 * @param b
+	 * If true then the save/stopedit of records will be ignored for that time.
+	 * Do make sure that you turn this boolean back to false when you are done ignoring the possible saves.
+	 * (try/finally)
+	 * 
+	 * @param ignore
 	 */
 	public void ignoreSave(boolean ignore)
 	{
