@@ -38,8 +38,8 @@ import com.servoy.j2db.ui.ISupportEventExecutor;
  */
 public class MaskBehavior extends AbstractBehavior
 {
-	private final static ResourceReference jquery_js = new JavascriptResourceReference(MaskBehavior.class, "jquery.min.js"); //$NON-NLS-1$
-	private final static ResourceReference masked_js = new JavascriptResourceReference(MaskBehavior.class, "jquery.maskedinput-1.2.2.js"); //$NON-NLS-1$
+	public final static ResourceReference jquery_js = new JavascriptResourceReference(MaskBehavior.class, "jquery.min.js"); //$NON-NLS-1$
+	public final static ResourceReference masked_js = new JavascriptResourceReference(MaskBehavior.class, "jquery.maskedinput-1.2.2.js"); //$NON-NLS-1$
 	private final TextField< ? > textField;
 	private final String displayFormat;
 	private final String placeHolder;
