@@ -775,6 +775,7 @@ public class StaticContentSpecLoader
 		{
 			cs.new Element(400, IRepository.SCRIPTVARIABLES, PROPERTY_LINENUMBEROFFSET.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(401, IRepository.PARTS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(402, IRepository.TABS, PROPERTY_MNEMONIC.getPropertyName(), IRepository.STRING);
 		}
 		//##add property adds here
 
