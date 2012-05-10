@@ -158,7 +158,7 @@ public class VersionStringUtils
 			compareBlock2 = getNextBlock(ver2Matcher);
 			result = compareBlocks(compareBlock1 == null ? "0" : compareBlock1, compareBlock2 == null ? "0" : compareBlock2);
 		}
-		while (result == 0 && compareBlock1 != null && compareBlock2 != null);
+		while (result == 0 && (compareBlock1 != null || compareBlock2 != null));
 
 		return result;
 	}

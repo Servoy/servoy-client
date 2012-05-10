@@ -18,6 +18,9 @@
 package com.servoy.extension;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Extension provider that is able to find extensions from multiple sources.
@@ -45,20 +48,63 @@ public class ComposedExtensionProvider implements IExtensionProvider
 
 	public DependencyMetadata[] getDependencyMetadata(ExtensionDependencyDeclaration extensionDependency)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		DependencyMetadata[] dmd1 = provider1.getDependencyMetadata(extensionDependency);
+		DependencyMetadata[] dmd2 = provider2.getDependencyMetadata(extensionDependency);
+
+		// if there are duplicates (same extension id/version), only return the ones from provider1
+		List<DependencyMetadata> result = new ArrayList<DependencyMetadata>((dmd1 != null ? dmd1.length : 0) + (dmd2 != null ? dmd2.length : 0));
+		if (dmd1 != null) result.addAll(Arrays.asList(dmd1));
+		if (dmd2 != null)
+		{
+			for (DependencyMetadata dmd : dmd2)
+			{
+				// check to see that it's not already present from provider1
+				boolean found = false;
+				for (int i = result.size() - 1; !found && i >= 0; i--)
+				{
+					if (dmd.id.equals(result.get(i).id) && VersionStringUtils.sameVersion(dmd.version, result.get(i).version))
+					{
+						found = true;
+					}
+				}
+				if (!found)
+				{
+					result.add(dmd);
+				}
+			}
+		}
+
+		return result.size() > 0 ? result.toArray(new DependencyMetadata[result.size()]) : null;
 	}
 
 	public File getEXPFile(String extensionId, String version)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		File f = provider1.getEXPFile(extensionId, version);
+		if (f == null) f = provider2.getEXPFile(extensionId, version);
+		return f;
 	}
 
-	public String[] getWarnings()
+	public Message[] getMessages()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Message[] w1 = provider1.getMessages();
+		Message[] w2 = provider2.getMessages();
+		ArrayList<Message> messages = new ArrayList<Message>((w1 == null ? 0 : w1.length) + (w2 == null ? 0 : w2.length));
+
+		if (w1 != null) messages.addAll(Arrays.asList(w1));
+		if (w2 != null) messages.addAll(Arrays.asList(w2));
+		return messages.size() > 0 ? messages.toArray(new Message[messages.size()]) : null;
+	}
+
+	public void clearMessages()
+	{
+		provider1.clearMessages();
+		provider2.clearMessages();
+	}
+
+	public void dispose()
+	{
+		provider1.dispose();
+		provider2.dispose();
 	}
 
 }

@@ -17,7 +17,9 @@
 
 package com.servoy.extension.dependency;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A extension dependency path result found when trying to resolve an install/update.
@@ -31,6 +33,8 @@ public class DependencyPath
 	/** Any lib choices that must be made on this dependency path. Each lib choice is a list of conflicting/non-conflicting lib declarations with the same lib id but other versions. Can be null. */
 	public final LibChoice[] libChoices;
 
+	public final InstallStep[] installSequence;
+
 	/**
 	 * Creates a new extension dependency path result.
 	 * @param extensionPath the list of extension/version nodes in this valid dependency path.
@@ -40,6 +44,60 @@ public class DependencyPath
 	{
 		this.extensionPath = extensionPath;
 		this.libChoices = libChoices;
+
+		ArrayList<InstallStep> installSeq = new ArrayList<InstallStep>(extensionPath.length * 2);
+		computeInstallDep(extensionPath[0], installSeq); // at this time, all ExtensionNode children members are usable (valid search tree)
+		installSequence = installSeq.toArray(new InstallStep[installSeq.size()]);
+	}
+
+	protected void computeInstallDep(ExtensionNode node, List<InstallStep> installSeq)
+	{
+		if (node.resolveType != ExtensionNode.SIMPLE_DEPENDENCY_RESOLVE)
+		{
+			// recurse through reverse broken dependencies for uninstall
+			for (ExtensionNode n : node.brokenDepChildren)
+			{
+				computeInverseBrokenDepUninstall(n, installSeq);
+			}
+
+			installSeq.add(new InstallStep(InstallStep.UNINSTALL, node));
+		}
+
+		for (ExtensionNode n : node.depChildren)
+		{
+			computeInstallDep(n, installSeq);
+		}
+		installSeq.add(new InstallStep(InstallStep.INSTALL, node));
+
+		if (node.resolveType != ExtensionNode.SIMPLE_DEPENDENCY_RESOLVE)
+		{
+			for (ExtensionNode n : node.brokenDepChildren)
+			{
+				computeInverseBrokenDepInstall(n, installSeq);
+			}
+		}
+	}
+
+	protected void computeInverseBrokenDepUninstall(ExtensionNode node, List<InstallStep> installSeq)
+	{
+		for (ExtensionNode n : node.brokenDepChildren)
+		{
+			computeInverseBrokenDepUninstall(n, installSeq);
+		}
+		installSeq.add(new InstallStep(InstallStep.UNINSTALL, node));
+	}
+
+	protected void computeInverseBrokenDepInstall(ExtensionNode node, List<InstallStep> installSeq)
+	{
+		for (ExtensionNode n : node.depChildren)
+		{
+			computeInstallDep(n, installSeq);
+		}
+		installSeq.add(new InstallStep(InstallStep.INSTALL, node));
+		for (ExtensionNode n : node.brokenDepChildren)
+		{
+			computeInverseBrokenDepInstall(n, installSeq);
+		}
 	}
 
 	@Override

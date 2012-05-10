@@ -17,25 +17,23 @@
 
 package com.servoy.extension.parser;
 
-import com.servoy.extension.LibDependencyDeclaration;
 
 /**
- * Full library dependency declaration (as defined in package.xml); it also knows the extension.
+ * Stores the 'info' (as declared in the package.xml).<br>
+ * This is used for nice UI integration and listing information about this version of the extension. (icon path, ...)
  * @author acostescu
  */
-public class FullLibDependencyDeclaration extends LibDependencyDeclaration
+public class Info
 {
 
-	public final String relativePath;
+	public final String description;
+	/** Relative zip paths pointing to the icon file of this extension. */
+	public final String iconPath;
 
-	/**
-	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
-	 * @param relativePath relative path in the .exp package to the lib's file.
-	 */
-	public FullLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String relativePath) throws IllegalArgumentException
+	public Info(String description, String iconPath)
 	{
-		super(id, version, minVersion, maxVersion);
-		this.relativePath = relativePath;
+		this.description = description;
+		this.iconPath = iconPath;
 	}
 
 }

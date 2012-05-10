@@ -17,25 +17,21 @@
 
 package com.servoy.extension.parser;
 
-import com.servoy.extension.LibDependencyDeclaration;
+import java.io.File;
 
 /**
- * Full library dependency declaration (as defined in package.xml); it also knows the extension.
+ * Holds a pool of EXPParsers. It can create or give an existing parser for a file.
  * @author acostescu
  */
-public class FullLibDependencyDeclaration extends LibDependencyDeclaration
+public interface IEXPParserPool
 {
 
-	public final String relativePath;
-
 	/**
-	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
-	 * @param relativePath relative path in the .exp package to the lib's file.
+	 * If it is called the first time with this file argument, it creates an EXPParser for the file.
+	 * Otherwise, it just returns the previously created parser for that file.
+	 * @param f the file that needs a parser.
+	 * @return the parser, new or old.
 	 */
-	public FullLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String relativePath) throws IllegalArgumentException
-	{
-		super(id, version, minVersion, maxVersion);
-		this.relativePath = relativePath;
-	}
+	EXPParser getOrCreateParser(File f);
 
 }

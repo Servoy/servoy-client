@@ -17,6 +17,9 @@
 
 package com.servoy.extension.dependency;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.servoy.extension.VersionStringUtils;
 
 /**
@@ -35,11 +38,25 @@ public class ExtensionNode
 	public final String id;
 	public final String version;
 	public final int resolveType;
+	public final String installedVersion;
+
+	/** 
+	 * used for computing the install order; is only filled properly when a new
+	 * dependency resolving result was found and is created, afterwards it will keep changing
+	 */
+	protected List<ExtensionNode> depChildren = new ArrayList<ExtensionNode>();
+	/** 
+	 * used for computing the install order; is only filled properly when a new
+	 * dependency resolving result was found and is created, afterwards it will keep changing
+	 */
+	protected List<ExtensionNode> brokenDepChildren = new ArrayList<ExtensionNode>();
+
 
 	public ExtensionNode(String id, String version, String installedVersion)
 	{
 		this.id = id;
 		this.version = version;
+		this.installedVersion = installedVersion;
 		if (installedVersion == null)
 		{
 			this.resolveType = SIMPLE_DEPENDENCY_RESOLVE;
@@ -55,6 +72,7 @@ public class ExtensionNode
 		this.id = id;
 		this.version = version;
 		this.resolveType = resolveType;
+		installedVersion = null;
 	}
 
 	@Override

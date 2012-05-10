@@ -19,12 +19,13 @@ package com.servoy.extension;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.servoy.extension.parser.EXPParser;
+import com.servoy.extension.parser.IEXPParserPool;
 
 /**
  * This class provides extension info & data taken from all extension packages within an OS directory or from a single file.
@@ -39,24 +40,27 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 
 	protected final File file;
 	protected boolean thinkDir;
+	protected IEXPParserPool parserSource;
 
 	protected boolean extensionXMLsParsed = false;
 	protected Map<String, Map<String, File>> extensionVersionToFile; // <extensionid, <version, File>>
-	protected List<String> warnings;
+	protected MessageKeeper messages = new MessageKeeper();
+
 
 	/**
-	 * Creates a new file base extension provider. It can use a directory of .exp files or a single .exp file.
+	 * Creates a new file based extension provider. It can use a directory of .exp files or a single .exp file.
 	 * @param file the file or folder.
 	 * @param thinkDir if it should be considered a directory; false for file.
 	 */
-	public FileBasedExtensionProvider(File file, boolean thinkDir)
+	public FileBasedExtensionProvider(File file, boolean thinkDir, IEXPParserPool parserSource)
 	{
-		if (!file.exists() || !file.canRead() || (thinkDir && !file.isDirectory()) || (!thinkDir && file.isFile()))
+		if (!file.exists() || !file.canRead() || (thinkDir && !file.isDirectory()) || (!thinkDir && !file.isFile()))
 		{
 			throw new IllegalArgumentException("'" + file + "' is not a valid/accessible directory/file.");
 		}
 		this.file = file;
 		this.thinkDir = thinkDir;
+		this.parserSource = parserSource;
 	}
 
 	@Override
@@ -77,6 +81,22 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 		return result;
 	}
 
+	public DependencyMetadata[] getAllAvailableExtensions()
+	{
+		if (!extensionXMLsParsed)
+		{
+			parseExtensionXMLs(); // fill up cache
+		}
+		List<DependencyMetadata> allAvailable = new ArrayList<DependencyMetadata>();
+
+		Iterator<List<DependencyMetadata>> it = cachedDependencyMetadata.values().iterator();
+		while (it.hasNext())
+		{
+			allAvailable.addAll(it.next());
+		}
+		return allAvailable.toArray(new DependencyMetadata[allAvailable.size()]);
+	}
+
 	/**
 	 * Parses all available extension packages and caches the dependency meta-data.
 	 */
@@ -88,7 +108,6 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 
 		if (fileList != null)
 		{
-			warnings = new ArrayList<String>();
 			for (File f : fileList)
 			{
 				if (f.exists() && f.isFile() && f.getName().endsWith(EXTENSION_PACKAGE_FILE_EXTENSION))
@@ -98,10 +117,9 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 				}
 			}
 		}
-		if (count == 0)
+		if (count == 0 && !thinkDir)
 		{
-			warnings.add((thinkDir ? "Cannot find any extension package in directory '" : "The file is not an extension package: '") + file.getAbsolutePath() +
-				"'.");
+			messages.addWarning("The file is not an extension package: '" + file.getAbsolutePath() + "'.");
 		}
 	}
 
@@ -111,7 +129,7 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 	 */
 	protected void parseExtensionXML(File f)
 	{
-		EXPParser parser = new EXPParser(f);
+		EXPParser parser = ((parserSource == null) ? new EXPParser(f) : parserSource.getOrCreateParser(f));
 		DependencyMetadata dependencyMetadata = parser.parseDependencyInfo();
 		// cache dependency info about this version of the extension
 		if (dependencyMetadata != null)
@@ -127,15 +145,12 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 			}
 			else
 			{
-				warnings.add("More then one package contains extension ('" + dependencyMetadata.id + "', " + dependencyMetadata.version +
-					"). Ignoring package: " + f.getName());
+				messages.addWarning("More then one package contains extension ('" + dependencyMetadata.id + "', " + dependencyMetadata.version +
+					"). Ignoring package: " + f.getName() + ".");
 			}
 		}
-		String[] parserWarnings = parser.getWarnings();
-		if (parserWarnings != null)
-		{
-			warnings.addAll(Arrays.asList(parser.getWarnings()));
-		}
+		messages.addAll(parser.getMessages());
+		parser.clearMessages();
 	}
 
 	protected void associateExtensionVersionWithFile(String extensionId, String version, File zipFile)
@@ -160,9 +175,14 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 	 * If problems were encountered while reading contents of given directory/file, they will be remembered and returned by this method.
 	 * @return any problems encountered that might be of interest to the user.
 	 */
-	public String[] getWarnings()
+	public Message[] getMessages()
 	{
-		return (warnings == null || warnings.size() == 0) ? null : warnings.toArray(new String[warnings.size()]);
+		return messages.getMessages();
+	}
+
+	public void clearMessages()
+	{
+		messages.clear();
 	}
 
 	@Override
@@ -170,8 +190,14 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 	{
 		extensionXMLsParsed = false;
 		extensionVersionToFile = null;
-		warnings = null;
+		clearMessages();
 		super.flushCache();
+	}
+
+	public void dispose()
+	{
+		// not much to do here as we don't keep resources allocated
+		flushCache();
 	}
 
 }

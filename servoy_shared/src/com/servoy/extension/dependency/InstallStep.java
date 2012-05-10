@@ -15,27 +15,40 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.extension.parser;
-
-import com.servoy.extension.LibDependencyDeclaration;
+package com.servoy.extension.dependency;
 
 /**
- * Full library dependency declaration (as defined in package.xml); it also knows the extension.
+ * This class represents either an extension install or an extension uninstall.
+ * 
  * @author acostescu
  */
-public class FullLibDependencyDeclaration extends LibDependencyDeclaration
+public class InstallStep
 {
 
-	public final String relativePath;
+	public static final int INSTALL = 1;
+	public static final int UNINSTALL = 2;
 
 	/**
-	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
-	 * @param relativePath relative path in the .exp package to the lib's file.
+	 * If type is UNINSTALL, then the extension node must be either a upgrade, a downgrade or uninstall.
 	 */
-	public FullLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String relativePath) throws IllegalArgumentException
+	public final int type;
+	public final ExtensionNode extension;
+
+	public InstallStep(int type, ExtensionNode extension)
 	{
-		super(id, version, minVersion, maxVersion);
-		this.relativePath = relativePath;
+		this.type = type;
+		this.extension = extension;
+	}
+
+	@Override
+	@SuppressWarnings("nls")
+	public String toString()
+	{
+		String typeS;
+		if (type == INSTALL) typeS = "INSTALL";
+		else if (type == UNINSTALL) typeS = "UNINSTALL";
+		else typeS = "-unknown-";
+		return typeS + extension;
 	}
 
 }

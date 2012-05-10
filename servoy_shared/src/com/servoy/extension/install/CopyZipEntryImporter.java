@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -36,6 +35,9 @@ import org.apache.commons.io.FileUtils;
 
 import com.servoy.extension.ExtensionUtils;
 import com.servoy.extension.FileBasedExtensionProvider;
+import com.servoy.extension.IMessageProvider;
+import com.servoy.extension.Message;
+import com.servoy.extension.MessageKeeper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -46,7 +48,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class CopyZipEntryImporter
+public class CopyZipEntryImporter implements IMessageProvider
 {
 	public final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
 	private final static String BACKUP_FOLDER = EXPFILES_FOLDER + "/.backup"; //$NON-NLS-1$
@@ -59,7 +61,7 @@ public class CopyZipEntryImporter
 	private final File developerFolder;
 	private final File docsFolder;
 
-	private final List<String> warnings = new ArrayList<String>();
+	private final MessageKeeper messages = new MessageKeeper();
 
 	public CopyZipEntryImporter(File expFile, File installDir, String extensionID)
 	{
@@ -106,7 +108,9 @@ public class CopyZipEntryImporter
 			}
 			catch (IOException ex)
 			{
-				Debug.error("Exception while reading expFile: " + expFile, ex); //$NON-NLS-1$
+				String tmp = "Exception while reading expFile: " + expFile; //$NON-NLS-1$
+				messages.addError(tmp);
+				Debug.error(tmp, ex);
 			}
 			finally
 			{
@@ -128,7 +132,9 @@ public class CopyZipEntryImporter
 		else
 		{
 			// shouldn't happen
-			Debug.error("Invalid import file/destination: " + expFile + ", " + installDir); //$NON-NLS-1$ //$NON-NLS-2$
+			String tmp = "Invalid import file/destination: " + expFile + ", " + installDir; //$NON-NLS-1$//$NON-NLS-2$
+			messages.addError(tmp);
+			Debug.error(tmp);
 		}
 	}
 
@@ -172,7 +178,7 @@ public class CopyZipEntryImporter
 		{
 			if (!ExtensionUtils.isInParentDir(installDir, outputFile))
 			{
-				warnings.add("Cannot copy file outside install dir, will be skipped: " + outputFile); //$NON-NLS-1$
+				messages.addWarning("Cannot copy file outside install dir, will be skipped: " + outputFile); //$NON-NLS-1$
 				return;
 			}
 			if (skipFile(outputFile))
@@ -181,7 +187,7 @@ public class CopyZipEntryImporter
 			}
 			if (outputFile.exists())
 			{
-				warnings.add("A file to be copied (installed) is already there; it will be backed up and overwritten: " + outputFile); //$NON-NLS-1$
+				messages.addWarning("A file to be copied (installed) is already there; it will be backed up and overwritten: " + outputFile); //$NON-NLS-1$
 				backUpReplacedFile(outputFile);
 			}
 			else
@@ -205,7 +211,9 @@ public class CopyZipEntryImporter
 		}
 		catch (Exception ex)
 		{
-			Debug.error("Exception while writing file: " + outputFile, ex); //$NON-NLS-1$
+			String tmp = "Exception while writing file: " + outputFile; //$NON-NLS-1$
+			messages.addError(tmp);
+			Debug.error(tmp, ex);
 		}
 		finally
 		{
@@ -248,8 +256,9 @@ public class CopyZipEntryImporter
 			}
 			catch (IOException e)
 			{
-				warnings.add("Cannot back-up replaced file at extension install: " + sourceFile); //$NON-NLS-1$
-				Debug.error(warnings.get(warnings.size() - 1), e);
+				String tmp = "Cannot back-up replaced file at extension install: " + sourceFile; //$NON-NLS-1$
+				messages.addError(tmp);
+				Debug.error(tmp, e);
 			}
 			finally
 			{
@@ -259,8 +268,9 @@ public class CopyZipEntryImporter
 		}
 		else
 		{
-			warnings.add("Cannot back-up replaced file at extension install; backup folder not accessible: " + sourceFile); //$NON-NLS-1$
-			Debug.error(warnings.get(warnings.size() - 1));
+			String tmp = "Cannot back-up replaced file at extension install; backup folder not accessible: " + sourceFile; //$NON-NLS-1$
+			messages.addError(tmp);
+			Debug.error(tmp);
 		}
 	}
 
@@ -270,20 +280,25 @@ public class CopyZipEntryImporter
 		if (ExtensionUtils.isInParentDir(screenshotsFolder, outputFile)) return true;
 		if (!developerFolder.exists() && ExtensionUtils.isInParentDir(developerFolder, outputFile))
 		{
-			warnings.add("Skipping file because developer folder does not exist: " + outputFile); //$NON-NLS-1$
+			messages.addWarning("Skipping file because developer folder does not exist: " + outputFile); //$NON-NLS-1$
 			return true;
 		}
 		if (ExtensionUtils.isInParentDir(docsFolder.getParentFile(), outputFile) && !ExtensionUtils.isInParentDir(docsFolder, outputFile))
 		{
-			warnings.add("Skipping file because is incorrect extension id folder: " + outputFile); //$NON-NLS-1$
+			messages.addWarning("Skipping file because is incorrect extension id folder: " + outputFile); //$NON-NLS-1$
 			return true;
 		}
 		return false;
 	}
 
-	public String[] getWarnings()
+	public Message[] getMessages()
 	{
-		return (warnings == null || warnings.size() == 0) ? null : warnings.toArray(new String[warnings.size()]);
+		return messages.getMessages();
+	}
+
+	public void clearMessages()
+	{
+		messages.clear();
 	}
 
 	//TODO remove this when we have ui for testing
@@ -294,6 +309,7 @@ public class CopyZipEntryImporter
 		File targetDir = new File("E:\\temp\\test_extensions");
 		CopyZipEntryImporter importer = new CopyZipEntryImporter(expFile, targetDir, "test");
 		importer.importFile();
-		System.out.println(importer.warnings);
+		System.out.println(Arrays.asList(importer.messages.getMessages()));
 	}
+
 }

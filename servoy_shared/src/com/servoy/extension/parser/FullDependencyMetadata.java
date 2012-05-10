@@ -30,9 +30,6 @@ import com.servoy.extension.ServoyDependencyDeclaration;
 public class FullDependencyMetadata extends DependencyMetadata
 {
 
-	@SuppressWarnings("hiding")
-	protected FullLibDependencyDeclaration[] libDependencies;
-
 	/**
 	 * See {@link DependencyMetadata#DependencyMetadata(String, String, String, ServoyDependencyDeclaration, ExtensionDependencyDeclaration[], LibDependencyDeclaration[])}.
 	 */
@@ -40,6 +37,12 @@ public class FullDependencyMetadata extends DependencyMetadata
 		ExtensionDependencyDeclaration[] extensionDependencies, FullLibDependencyDeclaration[] libDependencies)
 	{
 		super(id, version, extensionName, servoyDependency, extensionDependencies, libDependencies);
+	}
+
+	@Override
+	public FullLibDependencyDeclaration[] getLibDependencies()
+	{
+		return (FullLibDependencyDeclaration[])libDependencies;
 	}
 
 }

@@ -15,27 +15,25 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.extension.parser;
-
-import com.servoy.extension.LibDependencyDeclaration;
+package com.servoy.extension;
 
 /**
- * Full library dependency declaration (as defined in package.xml); it also knows the extension.
+ * Class that provide Messages should implement this interface.
+ * Class {@link MessageKeeper} might be of use to classes that implement this interface.
  * @author acostescu
  */
-public class FullLibDependencyDeclaration extends LibDependencyDeclaration
+public interface IMessageProvider
 {
 
-	public final String relativePath;
+	/**
+	 * If problems were encountered while during operation, they will be remembered.
+	 * @return any problems encountered that might be of interest to the user.
+	 */
+	Message[] getMessages();
 
 	/**
-	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
-	 * @param relativePath relative path in the .exp package to the lib's file.
+	 * Clears all warning messages.
 	 */
-	public FullLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String relativePath) throws IllegalArgumentException
-	{
-		super(id, version, minVersion, maxVersion);
-		this.relativePath = relativePath;
-	}
+	void clearMessages();
 
 }

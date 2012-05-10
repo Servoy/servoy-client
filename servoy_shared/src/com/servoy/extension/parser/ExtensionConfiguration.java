@@ -26,11 +26,15 @@ public class ExtensionConfiguration
 
 	protected FullDependencyMetadata dependencyInfo;
 	protected Content content;
+	protected Info info;
+	public final boolean requiresRestart;
 
-	public ExtensionConfiguration(FullDependencyMetadata dependencyInfo, Content content)
+	public ExtensionConfiguration(FullDependencyMetadata dependencyInfo, Content content, Info info, boolean requiresRestart)
 	{
 		this.dependencyInfo = dependencyInfo;
 		this.content = content;
+		this.info = info;
+		this.requiresRestart = requiresRestart;
 		// TODO add members for the rest of the xml
 	}
 
@@ -42,6 +46,11 @@ public class ExtensionConfiguration
 	public Content getContent()
 	{
 		return content;
+	}
+
+	public Info getInfo()
+	{
+		return info;
 	}
 
 	/**

@@ -34,10 +34,10 @@ public abstract class CachingExtensionProvider implements IExtensionProvider
 {
 
 	// keeps track of the version intervals already cached per extension id; the list must be a sorted List
-	private final Map<String, List<VersionInterval>> cachedDepencencyMetadataVersions = new HashMap<String, List<VersionInterval>>();
+	protected final Map<String, List<VersionInterval>> cachedDepencencyMetadataVersions = new HashMap<String, List<VersionInterval>>();
 
 	// all cached versions of DependencyMetadata info per extension id
-	private final Map<String, List<DependencyMetadata>> cachedDependencyMetadata = new HashMap<String, List<DependencyMetadata>>();
+	protected final Map<String, List<DependencyMetadata>> cachedDependencyMetadata = new HashMap<String, List<DependencyMetadata>>();
 
 	public DependencyMetadata[] getDependencyMetadata(ExtensionDependencyDeclaration extensionDependency)
 	{

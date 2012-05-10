@@ -27,26 +27,31 @@ public class TrackableLibDependencyDeclaration extends LibDependencyDeclaration
 {
 
 	public final String declaringExtensionId;
+	public final String declaringExtensionVersion;
+	public final boolean declaringExtensionInstalled;
 
 	/**
 	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
 	 * @param declaringExtensionId the extension that defines this lib dependency.
 	 */
-	public TrackableLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String declaringExtensionId)
-		throws IllegalArgumentException
+	public TrackableLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String declaringExtensionId,
+		String declaringExtensionVersion, boolean declaringExtensionInstalled) throws IllegalArgumentException
 	{
 		super(id, version, minVersion, maxVersion);
+
 		this.declaringExtensionId = declaringExtensionId;
+		this.declaringExtensionVersion = declaringExtensionVersion;
+		this.declaringExtensionInstalled = declaringExtensionInstalled;
 	}
 
 	/**
 	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
 	 * @param declaringExtensionId the extension that defines this lib dependency.
 	 */
-	public TrackableLibDependencyDeclaration(LibDependencyDeclaration lib, String declaringExtensionId)
+	public TrackableLibDependencyDeclaration(LibDependencyDeclaration lib, String declaringExtensionId, String declaringExtensionVersion,
+		boolean declaringExtensionInstalled)
 	{
-		super(lib.id, lib.version, lib.minVersion, lib.maxVersion);
-		this.declaringExtensionId = declaringExtensionId;
+		this(lib.id, lib.version, lib.minVersion, lib.maxVersion, declaringExtensionId, declaringExtensionVersion, declaringExtensionInstalled);
 	}
 
 	@Override

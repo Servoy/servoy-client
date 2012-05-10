@@ -15,27 +15,48 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.extension.parser;
-
-import com.servoy.extension.LibDependencyDeclaration;
+package com.servoy.extension;
 
 /**
- * Full library dependency declaration (as defined in package.xml); it also knows the extension.
+ * A text message containing either a info, a warning or an error.
+ * 
  * @author acostescu
  */
-public class FullLibDependencyDeclaration extends LibDependencyDeclaration
+public class Message
 {
+	public final static int INFO = 1;
+	public final static int WARNING = 2;
+	public final static int ERROR = 3;
 
-	public final String relativePath;
+	public final int severity;
+	public final String message;
 
-	/**
-	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
-	 * @param relativePath relative path in the .exp package to the lib's file.
-	 */
-	public FullLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String relativePath) throws IllegalArgumentException
+	public Message(String message, int severity)
 	{
-		super(id, version, minVersion, maxVersion);
-		this.relativePath = relativePath;
+		this.message = message;
+		this.severity = severity;
+	}
+
+	@Override
+	@SuppressWarnings("nls")
+	public String toString()
+	{
+		String severityS;
+		switch (severity)
+		{
+			case INFO :
+				severityS = "INFO";
+				break;
+			case WARNING :
+				severityS = "INFO";
+				break;
+			case ERROR :
+				severityS = "INFO";
+				break;
+			default :
+				severityS = "-unknown-";
+		}
+		return "(" + severityS + ", " + message + ")";
 	}
 
 }

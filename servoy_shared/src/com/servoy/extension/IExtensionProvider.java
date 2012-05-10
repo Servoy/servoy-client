@@ -26,7 +26,7 @@ import java.io.File;
  * 
  * @author acostescu
  */
-public interface IExtensionProvider
+public interface IExtensionProvider extends IMessageProvider
 {
 
 	/**
@@ -47,9 +47,8 @@ public interface IExtensionProvider
 	File getEXPFile(String extensionId, String version);
 
 	/**
-	 * If problems were encountered while trying to provide extension contents, they will be remembered.
-	 * @return any problems encountered that might be of interest to the user.
+	 * Release any held resources. Do cleanup if necessary.
 	 */
-	String[] getWarnings();
+	void dispose();
 
 }

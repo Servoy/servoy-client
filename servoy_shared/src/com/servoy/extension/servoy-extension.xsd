@@ -62,7 +62,7 @@
 					</annotation>
 				</element>
 				<element name="onpostinstall" minOccurs="0"
-					type="tns:onpostinstallComplexType">
+					type="tns:hooksComplexType">
 					<annotation>
 						<documentation>
 							Supplementary things to do after default
@@ -91,7 +91,20 @@
 						</documentation>
 					</annotation>
 				</element>
-			</sequence>
+                <element name="requiresRestart" minOccurs="0">
+					<annotation>
+						<documentation>
+							This should be specified if the extension needs Servoy to restart
+							when being installed/uninstalled. For example a plugin extension will need
+							to restart Servoy in order for the plugins to be loaded, and it will need restart when
+							being removed in order for the jars not to be write-locked.
+							When 'requiresRestart' is used, post-install and uninstall hooks will also be ran at startup,
+							when as little as possible of Servoy is loaded to prevent file write locks.
+						</documentation>
+					</annotation>
+					<complexType />
+				</element>
+            </sequence>
 		</complexType>
 	</element>
 
@@ -272,68 +285,44 @@
 		</sequence>
 	</complexType>
 
-	<complexType name="onpostinstallComplexType">
-		<sequence>
-			<choice minOccurs="1" maxOccurs="unbounded">
-				<element name="runAtStartup">
-					<annotation>
-						<documentation>
-							If this is present onPostInstall will require
-							a restart
-							before it's ran and
-							it will run at startup.
-						</documentation>
-					</annotation>
-					<complexType />
-				</element>
-				<element name="hook" type="tns:hookComplexType">
-					<annotation>
-						<documentation>
-							Run a java class that implements a hook interface.
-						</documentation>
-					</annotation>
-				</element>
-				<element name="runjar" type="tns:runjarComplexType">
-					<annotation>
-						<documentation>Run a jar file.</documentation>
-					</annotation>
-				</element>
-			</choice>
-		</sequence>
-	</complexType>
-
 	<complexType name="infoComplexType">
 		<sequence>
-			<choice minOccurs="1" maxOccurs="unbounded">
-				<element name="description" type="string">
+				<element name="description" type="string" minOccurs="0">
 					<annotation>
 						<documentation>
-							The description text of this extension package
-							(may be
-							version specific). It will be used in the Marketplace
-							and other UIs.
+							The description text of this extension package (may
+							be version specific). It will be used in the
+							Marketplace and other UIs.
 						</documentation>
 					</annotation>
 				</element>
-				<element name="screenshots">
+            <element name="icon" minOccurs="0">
+					<complexType>
+						<attribute name="path" type="tns:relativePathType" use="required"></attribute>
+					</complexType></element>
+            <element name="screenshots" minOccurs="0">
 					<annotation>
 						<documentation>
-							Specifies screenshots of this extension to be added to
-							Servoy Marketplace.
+							Specifies screenshots of this extension to be added
+							to Servoy Marketplace.
 						</documentation>
 					</annotation>
 					<complexType>
 						<sequence>
-							<element minOccurs="1" maxOccurs="unbounded" name="screenshot">
+							<element minOccurs="1" maxOccurs="unbounded"
+								name="screenshot">
 								<complexType>
 									<simpleContent>
 										<extension base="string">
-											<attribute use="required" name="fileName" type="tns:fileNameType">
+											<attribute use="required"
+												name="fileName" type="tns:fileNameType">
 												<annotation>
 													<documentation>
-														The filename of this screenshot. The screenshot file
-														must be located
-														in the package's "screenshots" directory.
+														The filename of this
+														screenshot. The
+														screenshot file must be
+														located in the package's
+														"screenshots" directory.
 													</documentation>
 												</annotation>
 											</attribute>
@@ -344,7 +333,6 @@
 						</sequence>
 					</complexType>
 				</element>
-			</choice>
 		</sequence>
 	</complexType>
 
