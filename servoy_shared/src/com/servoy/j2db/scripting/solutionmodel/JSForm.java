@@ -288,6 +288,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
 	 * variable.defaultValue = "'This is a default value (with tripple quotes)!'";
+	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 *

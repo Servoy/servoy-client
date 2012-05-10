@@ -994,6 +994,7 @@ public class JSSolutionModel
 	 * @sample 
 	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', JSVariable.INTEGER); 
 	 * myGlobalVariable.defaultValue = 12;
+	 *	//myGlobalVariable.defaultValue = "{a:'First letter',b:'Second letter'}"
 	 *
 	 * @param scopeName the scope in which the variable is created
 	 * @param name the specified name for the global variable 
