@@ -17,6 +17,7 @@
 
 package com.servoy.extension.dependency;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ import com.servoy.extension.VersionStringUtils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class ExtensionNode
+public class ExtensionNode implements Serializable
 {
 
 	public final static int SIMPLE_DEPENDENCY_RESOLVE = 1;
@@ -44,12 +45,12 @@ public class ExtensionNode
 	 * used for computing the install order; is only filled properly when a new
 	 * dependency resolving result was found and is created, afterwards it will keep changing
 	 */
-	protected List<ExtensionNode> depChildren = new ArrayList<ExtensionNode>();
+	protected transient List<ExtensionNode> depChildren = new ArrayList<ExtensionNode>();
 	/** 
 	 * used for computing the install order; is only filled properly when a new
 	 * dependency resolving result was found and is created, afterwards it will keep changing
 	 */
-	protected List<ExtensionNode> brokenDepChildren = new ArrayList<ExtensionNode>();
+	protected transient List<ExtensionNode> brokenDepChildren = new ArrayList<ExtensionNode>();
 
 
 	public ExtensionNode(String id, String version, String installedVersion)

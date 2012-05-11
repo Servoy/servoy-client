@@ -28,7 +28,10 @@ import java.util.Stack;
 import com.servoy.extension.DependencyMetadata;
 import com.servoy.extension.ExtensionDependencyDeclaration;
 import com.servoy.extension.IExtensionProvider;
+import com.servoy.extension.IMessageProvider;
 import com.servoy.extension.LibDependencyDeclaration;
+import com.servoy.extension.Message;
+import com.servoy.extension.MessageKeeper;
 import com.servoy.extension.VersionStringUtils;
 import com.servoy.j2db.util.Utils;
 
@@ -41,7 +44,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class DependencyResolver
+public class DependencyResolver implements IMessageProvider
 {
 
 	private final IExtensionProvider extensionProvider;
@@ -59,7 +62,7 @@ public class DependencyResolver
 	private Stack<ExtensionNode> treePath;
 
 	private List<DependencyPath> results;
-	private List<String> reasons; // TODO Change this into a list of objects with more info? Like abandoned extension path/reason type + some arguments used to construct the String message
+	private final MessageKeeper messages = new MessageKeeper();
 
 	/**
 	 * See class docs.
@@ -101,7 +104,7 @@ public class DependencyResolver
 	public synchronized void resolveDependencies(String extensionId, String version)
 	{
 		results = null;
-		reasons = new ArrayList<String>();
+		messages.clear();
 
 		if (extensionId != null)
 		{
@@ -110,17 +113,25 @@ public class DependencyResolver
 			{
 				processInstalledExtensions(); // prepare working copies of installed extensions/libs
 
-				visitedExtensions = new HashMap<String, String>();
-				visitedLibs = new HashMap<String, List<TrackableLibDependencyDeclaration>>();
-				stillToResolve = new Stack<StillToResolve>();
-				treePath = new Stack<ExtensionNode>();
-				uninstalledLibIds = new HashMap<String, Integer>();
+				DependencyMetadata alreadyInstalledVersion = allInstalledExtensions.get(extensionId);
+				if (alreadyInstalledVersion != null && alreadyInstalledVersion.version.equals(version))
+				{
+					messages.addInfo("This version of the extension is already installed.");
+				}
+				else
+				{
+					visitedExtensions = new HashMap<String, String>();
+					visitedLibs = new HashMap<String, List<TrackableLibDependencyDeclaration>>();
+					stillToResolve = new Stack<StillToResolve>();
+					treePath = new Stack<ExtensionNode>();
+					uninstalledLibIds = new HashMap<String, Integer>();
 
-				resolveDependenciesRecursive(extension[0], null, false);
+					resolveDependenciesRecursive(extension[0], null, false);
+				}
 			}
 			else
 			{
-				reasons.add("Cannot resolve extension ('" + extensionId + "', " + version + ").");
+				messages.addWarning("Cannot resolve extension ('" + extensionId + "', " + version + ").");
 			}
 		}
 	}
@@ -140,9 +151,14 @@ public class DependencyResolver
 	 * Can be called after a call to {@link #resolveDependencies(String, String)}.
 	 * @return a list of reasons why some tree paths were not resolved. Useful especially when no tree path was resolved ({@link #getResults()} == null).
 	 */
-	public synchronized String[] getFailReasons()
+	public synchronized Message[] getMessages()
 	{
-		return reasons.toArray(new String[reasons.size()]);
+		return messages.getMessages();
+	}
+
+	public void clearMessages()
+	{
+		messages.clear();
 	}
 
 	protected void processInstalledExtensions()
@@ -195,7 +211,7 @@ public class DependencyResolver
 				else
 				{
 					// else invalid tree path
-					reasons.add("The same extension is required twice due to dependencies, but with different versions (" +
+					messages.addWarning("The same extension is required twice due to dependencies, but with different versions (" +
 						visitedExtensions.get(extension.id) + ", " + extension.version + "). Extension id '" + extension.id + "'.");
 				}
 			}
@@ -234,8 +250,9 @@ public class DependencyResolver
 		else
 		{
 			// else not compatible with Servoy version - invalid tree path
-			reasons.add("Extension " + extension + " is not compatible with current Servoy version (" + VersionStringUtils.getCurrentServoyVersion() + ", " +
-				extension.getServoyDependency().minVersion + ", " + extension.getServoyDependency().maxVersion + ").");
+			messages.addWarning("Extension " + extension + " is not compatible with current Servoy version (" + VersionStringUtils.getCurrentServoyVersion() +
+				"); it requires " + (extension.getServoyDependency().minVersion != null ? "minimum '" + extension.getServoyDependency().minVersion + "'" : "") +
+				(extension.getServoyDependency().maxVersion != null ? " and maximum '" + extension.getServoyDependency().maxVersion + "'" : "") + ".");
 		}
 
 		if (ok)
@@ -349,7 +366,7 @@ public class DependencyResolver
 					}
 					else
 					{
-						reasons.add("Cannot find a compatible version for extension dependency: " + extension.getExtensionDependencies()[i] + ".");
+						messages.addWarning("Cannot find a compatible version for extension dependency: " + extension.getExtensionDependencies()[i] + ".");
 						dependenciesOKForNow = false;
 					}
 				}
@@ -440,14 +457,14 @@ public class DependencyResolver
 					}
 					else
 					{
-						reasons.add("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " + extension +
-							"'. Broken extension: '" + brokenDependenciesToOldVersion.get(i) + "'.");
+						messages.addWarning("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " +
+							extension + "'. Broken extension: '" + brokenDependenciesToOldVersion.get(i) + "'.");
 						dependenciesOKForNow = false; // other versions of a broken dependency were found, but none was compatible; invalid tree path
 					}
 				}
 				else
 				{
-					reasons.add("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " + extension +
+					messages.addWarning("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " + extension +
 						"'. Broken extension: '" + brokenDependenciesToOldVersion.get(i) + "'.");
 					dependenciesOKForNow = false; // no replacements for a broken dependency; invalid tree path
 				}
@@ -522,8 +539,8 @@ public class DependencyResolver
 						conflictsFound[0] = true;
 						if (!ignoreLibConflicts)
 						{
-							reasons.add("Library dependency incompatibility for lib id '" + entry.getKey() + "': " + libChoices.get(libChoices.size() - 1) +
-								".");
+							messages.addWarning("Library dependency incompatibility for lib id '" + entry.getKey() + "': " +
+								libChoices.get(libChoices.size() - 1) + ".");
 						}
 					}
 				}
@@ -583,7 +600,7 @@ public class DependencyResolver
 						List<TrackableLibDependencyDeclaration> libDepsToList = new ArrayList<TrackableLibDependencyDeclaration>(sameVisitedLibs);
 						libDepsToList.add(new TrackableLibDependencyDeclaration(lib, extensionId, extensionVersion, false));
 						LibChoice justForTheWarning = new LibChoice(true, libDepsToList.toArray(new TrackableLibDependencyDeclaration[libDepsToList.size()]));
-						reasons.add("Library dependency incompatibility for lib id '" + lib.id + "': " + justForTheWarning + ".");
+						messages.addWarning("Library dependency incompatibility for lib id '" + lib.id + "': " + justForTheWarning + ".");
 					}
 				}
 			}

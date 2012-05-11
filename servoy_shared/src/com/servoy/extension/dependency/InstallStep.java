@@ -17,12 +17,14 @@
 
 package com.servoy.extension.dependency;
 
+import java.io.Serializable;
+
 /**
  * This class represents either an extension install or an extension uninstall.
  * 
  * @author acostescu
  */
-public class InstallStep
+public class InstallStep implements Serializable
 {
 
 	public static final int INSTALL = 1;

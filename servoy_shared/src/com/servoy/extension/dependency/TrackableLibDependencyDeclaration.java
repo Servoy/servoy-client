@@ -17,13 +17,15 @@
 
 package com.servoy.extension.dependency;
 
+import java.io.Serializable;
+
 import com.servoy.extension.LibDependencyDeclaration;
 
 /**
  * Lib dependency declaration that knows which extension declared it. Convenient for use when resolving dependencies.
  * @author acostescu
  */
-public class TrackableLibDependencyDeclaration extends LibDependencyDeclaration
+public class TrackableLibDependencyDeclaration extends LibDependencyDeclaration implements Serializable
 {
 
 	public final String declaringExtensionId;

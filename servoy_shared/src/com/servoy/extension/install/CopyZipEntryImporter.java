@@ -91,14 +91,14 @@ public class CopyZipEntryImporter implements IMessageProvider
 						String fileName = entry.getName().replace('\\', '/');
 						fileName = fileName.replace(WEBTEMPLATES_SOURCE_FOLDER, WEBTEMPLATES_DESTINATION_FOLDER);
 						File outputFile = new File(installDir, fileName);
-						copyFile(outputFile, new BufferedInputStream(zipFile.getInputStream(entry)));
+						copyFile(outputFile, new BufferedInputStream(zipFile.getInputStream(entry)), false);
 					}
 				}
 				File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, expFile.getName());
 				InputStream stream = new BufferedInputStream(new FileInputStream(expFile));
 				try
 				{
-					copyFile(expCopy, stream);
+					copyFile(expCopy, stream, true);
 				}
 				finally
 				{
@@ -172,7 +172,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 		}
 	}
 
-	private void copyFile(File outputFile, InputStream inputStream)
+	private void copyFile(File outputFile, InputStream inputStream, boolean skipBackup)
 	{
 		try
 		{
@@ -187,8 +187,11 @@ public class CopyZipEntryImporter implements IMessageProvider
 			}
 			if (outputFile.exists())
 			{
-				messages.addWarning("A file to be copied (installed) is already there; it will be backed up and overwritten: " + outputFile); //$NON-NLS-1$
-				backUpReplacedFile(outputFile);
+				if (!skipBackup)
+				{
+					messages.addWarning("A file to be copied (installed) is already there; it will be backed up and overwritten: " + outputFile); //$NON-NLS-1$
+					backUpReplacedFile(outputFile);
+				}
 			}
 			else
 			{

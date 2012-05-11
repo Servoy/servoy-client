@@ -17,6 +17,7 @@
 
 package com.servoy.extension.dependency;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -25,7 +26,7 @@ import java.util.Arrays;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class LibChoice
+public class LibChoice implements Serializable
 {
 
 	/** Whether or not the listed lib versions/dependencies are in conflict, or there is no conflict, but still one must be chosen. */

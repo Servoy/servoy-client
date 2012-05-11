@@ -26,8 +26,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 
 import com.servoy.extension.install.CopyZipEntryImporter;
@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 {
-	public static final String MARKETPLACE_WS = "http://localhost:8080/servoy-service/rest_ws/marketplace/ws_extensions/"; //$NON-NLS-1$
+	public static final String MARKETPLACE_WS = "http://192.168.1.16:8080/servoy-service/rest_ws/marketplace/ws_extensions/"; //$NON-NLS-1$
 	private static final String WS_ACTION_VERSIONS = "versions"; //$NON-NLS-1$
 	private static final String WS_ACTION_EXP = "exp"; //$NON-NLS-1$
 	private static final String WS_ACTION_PACKAGE_XML = "xml"; //$NON-NLS-1$
@@ -65,11 +65,6 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		return availableVersionsMap.get(extensionID);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.extension.IExtensionProvider#getEXPFile(java.lang.String, java.lang.String)
-	 */
 	public File getEXPFile(String extensionId, String version)
 	{
 		Pair<String, String> extVersion = new Pair<String, String>(extensionId, version);
@@ -77,11 +72,6 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		return expFileMap.get(extVersion);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.extension.CachingExtensionProvider#getDependencyMetadataImpl(com.servoy.extension.ExtensionDependencyDeclaration)
-	 */
 	@Override
 	protected DependencyMetadata[] getDependencyMetadataImpl(ExtensionDependencyDeclaration extensionDependency)
 	{
@@ -117,36 +107,17 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 	{
 		messages.clear();
 		availableVersionsMap.clear();
-		Iterator<File> expFileIte = expFileMap.values().iterator();
-		while (expFileIte.hasNext())
-		{
-			try
-			{
-				expFileIte.next().delete();
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
+		flushCache();
+
+		FileUtils.deleteQuietly(destinationDir);
 		expFileMap.clear();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.extension.IExtensionProvider#getMessages()
-	 */
 	public Message[] getMessages()
 	{
 		return messages.getMessages();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.extension.IExtensionProvider#clearMessages()
-	 */
 	public void clearMessages()
 	{
 		messages.clear();

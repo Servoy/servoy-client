@@ -17,6 +17,7 @@
 
 package com.servoy.extension.dependency;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
  * A extension dependency path result found when trying to resolve an install/update.
  * @author acostescu
  */
-public class DependencyPath
+public class DependencyPath implements Serializable
 {
 
 	/** The list of extension/version nodes in this valid dependency path. */

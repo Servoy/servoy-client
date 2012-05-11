@@ -220,7 +220,7 @@ public class EXPParser implements IMessageProvider
 
 	public void clearMessages()
 	{
-		messages.clear();
+//		messages.clear(); as all is cached, clearing error messages is misleading, cause they won't reappear; cached data is returned
 	}
 
 	// this is done separately, although schema is used when parsing also, because in

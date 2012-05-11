@@ -159,7 +159,7 @@ public abstract class CachingExtensionProvider implements IExtensionProvider
 
 			// merge this new interval with existing intervals
 			int cacheSize = cachedVersionIntervals.size();
-			int insertIndex = cacheSize;
+			int insertIndex = 0;
 			for (int i = 0; insertIndex == cacheSize && i < cacheSize; i++)
 			{
 				if (compareVersions(intervalToAdd.min, cachedVersionIntervals.get(i).min, true, true) >= 0)
@@ -179,23 +179,23 @@ public abstract class CachingExtensionProvider implements IExtensionProvider
 					cachedVersionIntervals.remove(previousInterval);
 					insertIndex--;
 				}
-				int nextIntervalIndex = insertIndex + 1;
-				while (nextIntervalIndex < cachedVersionIntervals.size())
-				{
-					VersionInterval nextInterval = cachedVersionIntervals.get(nextIntervalIndex);
-					if (compareVersions(nextInterval.min, intervalToAdd.max, true, false) <= 0)
-					{
-						intervalToAdd = reunion(nextInterval, intervalToAdd);
-						cachedVersionIntervals.remove(nextIntervalIndex);
-					}
-					else
-					{
-						// no more overlapping intervals
-						nextIntervalIndex = cachedVersionIntervals.size();
-					}
-				}
-				cachedVersionIntervals.add(insertIndex, intervalToAdd);
 			}
+			int nextIntervalIndex = insertIndex;
+			while (nextIntervalIndex < cachedVersionIntervals.size())
+			{
+				VersionInterval nextInterval = cachedVersionIntervals.get(nextIntervalIndex);
+				if (compareVersions(nextInterval.min, intervalToAdd.max, true, false) <= 0)
+				{
+					intervalToAdd = reunion(nextInterval, intervalToAdd);
+					cachedVersionIntervals.remove(nextIntervalIndex);
+				}
+				else
+				{
+					// no more overlapping intervals
+					nextIntervalIndex = cachedVersionIntervals.size();
+				}
+			}
+			cachedVersionIntervals.add(insertIndex, intervalToAdd);
 
 		}
 	}

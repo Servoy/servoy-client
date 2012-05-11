@@ -17,13 +17,15 @@
 
 package com.servoy.extension;
 
+import java.io.Serializable;
+
 
 /**
  * Library dependency declaration (as defined in package.xml, only what is needed for dependency resolving)
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class LibDependencyDeclaration
+public class LibDependencyDeclaration implements Serializable
 {
 
 	/** the library's id */
