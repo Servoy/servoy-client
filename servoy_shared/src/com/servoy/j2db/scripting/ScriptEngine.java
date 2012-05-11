@@ -19,7 +19,9 @@ package com.servoy.j2db.scripting;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.mozilla.javascript.Context;
@@ -100,7 +102,7 @@ public class ScriptEngine implements IScriptSupport
 	private HashMap<ITable, Scriptable> tableScopes;
 
 	//scopes
-	protected Scriptable toplevelScope;
+	protected ServoyTopLevelScope toplevelScope;
 	protected SolutionScope solutionScope;
 	protected ScopesScope scopesScope;
 	private PluginScope pluginScope;
@@ -147,7 +149,7 @@ public class ScriptEngine implements IScriptSupport
 
 		try
 		{
-			toplevelScope = new ImporterTopLevel(cx);
+			toplevelScope = new ServoyTopLevelScope(cx);
 
 			ScriptObjectRegistry.getJavaMembers(UUID.class, toplevelScope);
 			ScriptObjectRegistry.getJavaMembers(JSMethodWithArguments.class, toplevelScope);
@@ -239,6 +241,7 @@ public class ScriptEngine implements IScriptSupport
 			tmpSolutionScope.setScopesScope(scopesScope);
 
 			solutionScope = tmpSolutionScope;
+			toplevelScope.setSealReadOnly(true);
 		}
 		catch (Exception ex)
 		{
@@ -284,43 +287,51 @@ public class ScriptEngine implements IScriptSupport
 		if (scriptObject == null) return;
 		Class< ? >[] allReturnedTypes = scriptObject.getAllReturnedTypes();
 		if (allReturnedTypes == null) return;
-		for (Class< ? > element : allReturnedTypes)
+		try
 		{
-			if (!(Scriptable.class.isAssignableFrom(element)))
+			toplevelScope.setSealReadOnly(false);
+			for (Class< ? > element : allReturnedTypes)
 			{
-				ScriptObjectRegistry.getJavaMembers(element, toplevelScope);
-			}
-			if (IPrefixedConstantsObject.class.isAssignableFrom(element))
-			{
-				try
+				if (!(Scriptable.class.isAssignableFrom(element)))
 				{
-					IPrefixedConstantsObject constants = (IPrefixedConstantsObject)element.newInstance();
-					toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element));
-					if (scriptableAddition != null)
+					ScriptObjectRegistry.getJavaMembers(element, toplevelScope);
+				}
+				if (IPrefixedConstantsObject.class.isAssignableFrom(element))
+				{
+					try
 					{
-						scriptableAddition.addVar(constants.getPrefix(), new NativeJavaClass(scriptableAddition, element));
+						IPrefixedConstantsObject constants = (IPrefixedConstantsObject)element.newInstance();
+						toplevelScope.put(constants.getPrefix(), toplevelScope, new NativeJavaClass(toplevelScope, element));
+						if (scriptableAddition != null)
+						{
+							scriptableAddition.addVar(constants.getPrefix(), new NativeJavaClass(scriptableAddition, element));
+						}
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
 					}
 				}
-				catch (Exception e)
+				else if (IJavaScriptType.class.isAssignableFrom(element)) // constants or javascript types
 				{
-					Debug.error(e);
-				}
-			}
-			else if (IJavaScriptType.class.isAssignableFrom(element)) // constants or javascript types
-			{
-				try
-				{
-					toplevelScope.put(element.getSimpleName(), toplevelScope, new NativeJavaClass(toplevelScope, element));
-					if (scriptableAddition != null)
+					try
 					{
-						scriptableAddition.addVar(element.getSimpleName(), new NativeJavaClass(scriptableAddition, element));
+						toplevelScope.put(element.getSimpleName(), toplevelScope, new NativeJavaClass(toplevelScope, element));
+						if (scriptableAddition != null)
+						{
+							scriptableAddition.addVar(element.getSimpleName(), new NativeJavaClass(scriptableAddition, element));
+						}
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
 					}
 				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
 			}
+		}
+		finally
+		{
+			toplevelScope.setSealReadOnly(true);
 		}
 	}
 
@@ -689,4 +700,50 @@ public class ScriptEngine implements IScriptSupport
 	{
 		return jsApplication;
 	}
+
+	/**
+	 * @author jcompagner
+	 *
+	 */
+	private final class ServoyTopLevelScope extends ImporterTopLevel
+	{
+		private final Set<String> readonlyProperties = new HashSet<String>();
+		// if false then the properties are recorded as readonly
+		// if true then the properties are checked as readonly
+		// default it starts in recording mode
+		private boolean sealedReadOnly = false;
+
+		/**
+		 * @param cx
+		 */
+		private ServoyTopLevelScope(Context cx)
+		{
+			super(cx);
+		}
+
+		public void setSealReadOnly(boolean sealed)
+		{
+			this.sealedReadOnly = sealed;
+		}
+
+		@SuppressWarnings("nls")
+		@Override
+		public void put(String name, Scriptable start, Object value)
+		{
+			// must test for null, because put is already called by the super class.
+			if (readonlyProperties != null)
+			{
+				if (!sealedReadOnly)
+				{
+					readonlyProperties.add(name);
+				}
+				else if (readonlyProperties.contains(name))
+				{
+					throw new RuntimeException("Property " + name + " is readonly");
+				}
+			}
+			super.put(name, start, value);
+		}
+	}
+
 }
