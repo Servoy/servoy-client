@@ -158,4 +158,25 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0,
 			false, SwingConstants.TOP);
 	}
+
+	@Override
+	public boolean isTransparent()
+	{
+		if (enclosingComponent != null)
+		{
+			return !enclosingComponent.isOpaque();
+		}
+		return super.isTransparent();
+	}
+
+	@Override
+	public void setTransparent(boolean b)
+	{
+		if (enclosingComponent != null)
+		{
+			enclosingComponent.setOpaque(!b);
+			enclosingComponent.repaint();
+		}
+		super.setTransparent(b);
+	}
 }

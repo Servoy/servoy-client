@@ -142,7 +142,6 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -326,14 +325,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					}
 					if (controller.getForm().getTransparent())
 					{
-						if (!formContainer.isOpaque())
-						{
-							styleAddition += "background:transparent;"; //$NON-NLS-1$
-						}
-						else if (formContainer.getBackground() != null)
-						{
-							styleAddition += "background-color:" + PersistHelper.createColorString(formContainer.getBackground()) + ";";
-						}
+						styleAddition += "background:transparent;"; //$NON-NLS-1$
 					}
 					return styleAddition;
 				}

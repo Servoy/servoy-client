@@ -611,7 +611,8 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	@Override
 	public void setOpaque(boolean isOpaque)
 	{
-		super.setOpaque(isOpaque);
+		// always transparent to support semi transparent colors
+		super.setOpaque(false);
 		if (enclosingComponent instanceof JComponent) ((JComponent)enclosingComponent).setOpaque(isOpaque);
 	}
 

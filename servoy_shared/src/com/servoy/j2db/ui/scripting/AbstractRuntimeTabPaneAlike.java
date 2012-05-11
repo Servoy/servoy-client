@@ -70,7 +70,6 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		return getComponent().isReadOnly();
 	}
 
-
 	public int getAbsoluteFormLocationY()
 	{
 		return getComponent().getAbsoluteFormLocationY();
