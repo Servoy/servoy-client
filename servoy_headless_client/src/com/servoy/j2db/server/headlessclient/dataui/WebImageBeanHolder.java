@@ -297,7 +297,7 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 	@Override
 	public boolean isVisible()
 	{
-		return bean.isVisible();
+		return super.isVisible() && bean.isVisible();
 	}
 
 	@Override
