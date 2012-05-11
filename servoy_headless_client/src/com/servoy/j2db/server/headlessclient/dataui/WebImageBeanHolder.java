@@ -297,7 +297,18 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 	@Override
 	public boolean isVisible()
 	{
-		return super.isVisible() && bean.isVisible();
+		return bean.isVisible();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseButton#setComponentVisible(boolean)
+	 */
+	@Override
+	public void setComponentVisible(boolean visible)
+	{
+		bean.setVisible(visible);
 	}
 
 	@Override
