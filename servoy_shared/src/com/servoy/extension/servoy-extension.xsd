@@ -296,6 +296,14 @@
 						</documentation>
 					</annotation>
 				</element>
+				<element name="url" type="string" minOccurs="0">
+					<annotation>
+						<documentation>
+							The product info URL of this extension package. It will be used in the
+							Marketplace and other UIs.
+						</documentation>
+					</annotation>
+				</element>				
             <element name="icon" minOccurs="0">
 					<complexType>
 						<attribute name="path" type="tns:relativePathType" use="required"></attribute>
