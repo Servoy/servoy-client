@@ -2320,6 +2320,7 @@ public class ComponentFactory
 			if (obj instanceof Component)
 			{
 				((Component)obj).setName(bean.getName());
+				((Component)obj).setVisible(bean.getVisible());
 			}
 			else if (obj instanceof IComponent)
 			{
