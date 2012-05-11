@@ -292,7 +292,7 @@
 						<documentation>
 							The description text of this extension package (may
 							be version specific). It will be used in the
-							Marketplace and other UIs.
+							Marketplace, as 'long description', and other UIs.
 						</documentation>
 					</annotation>
 				</element>
@@ -300,11 +300,17 @@
 					<annotation>
 						<documentation>
 							The product info URL of this extension package. It will be used in the
-							Marketplace and other UIs.
+							Marketplace, as 'product info URL', and other UIs.
 						</documentation>
 					</annotation>
 				</element>				
             <element name="icon" minOccurs="0">
+            		<annotation>
+						<documentation>
+							The icon of this extension package. It will be used in the
+							Marketplace, as 'thumbnail', and other UIs.
+						</documentation>
+					</annotation>
 					<complexType>
 						<attribute name="path" type="tns:relativePathType" use="required"></attribute>
 					</complexType></element>
