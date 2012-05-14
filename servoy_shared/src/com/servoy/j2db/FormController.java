@@ -2986,7 +2986,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				if (!dataRenderer.stopUIEditing(looseFocus)) return false;
 			}
 		}
-		if (form.getOnRecordEditStopMethodID() != 0)
+		if ((looseFocus || Boolean.parseBoolean(application.getSettings().getProperty("servoy.client.property.call.stopedit.keepfocus", "false"))) &&
+			form.getOnRecordEditStopMethodID() != 0)
 		{
 			//allow beans to store there data via method
 			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel);
