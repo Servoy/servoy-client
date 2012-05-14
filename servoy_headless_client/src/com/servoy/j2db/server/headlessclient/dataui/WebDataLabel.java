@@ -241,7 +241,8 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 		if (dataProviderID == null && tagText != null)
 		{
 			CharSequence current = Text.processTags(tagText, resolver);
-			if (current != null)
+			// test for the page else this field is not yet attached to a page yet and must be rerendered anyway.
+			if (current != null && findPage() != null)
 			{
 				if (HtmlUtils.startsWithHtml(current))
 				{
