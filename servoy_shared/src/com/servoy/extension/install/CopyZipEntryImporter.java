@@ -52,16 +52,16 @@ public class CopyZipEntryImporter implements IMessageProvider
 {
 	public final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
 	private final static String BACKUP_FOLDER = EXPFILES_FOLDER + "/.backup"; //$NON-NLS-1$
-	private final static String WEBTEMPLATES_SOURCE_FOLDER = "application_server/webtemplates"; //$NON-NLS-1$
-	private final static String WEBTEMPLATES_DESTINATION_FOLDER = "application_server/server/webapps/ROOT/servoy-webclient/templates"; //$NON-NLS-1$
+	final static String WEBTEMPLATES_SOURCE_FOLDER = "application_server/webtemplates"; //$NON-NLS-1$
+	final static String WEBTEMPLATES_DESTINATION_FOLDER = "application_server/server/webapps/ROOT/servoy-webclient/templates"; //$NON-NLS-1$
 
-	private final File expFile;
-	private final File installDir;
+	protected final File expFile;
+	protected final File installDir;
 	private final File screenshotsFolder;
 	private final File developerFolder;
 	private final File docsFolder;
 
-	private final MessageKeeper messages = new MessageKeeper();
+	protected final MessageKeeper messages = new MessageKeeper();
 
 	public CopyZipEntryImporter(File expFile, File installDir, String extensionID)
 	{
@@ -72,7 +72,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 		docsFolder = new File(installDir, "application_server/docs/" + extensionID); //$NON-NLS-1$
 	}
 
-	public void importFile()
+	public void handleFile()
 	{
 		if (expFile != null && expFile.exists() && expFile.isFile() && expFile.canRead() &&
 			expFile.getName().endsWith(FileBasedExtensionProvider.EXTENSION_PACKAGE_FILE_EXTENSION) && installDir != null && installDir.exists() &&
@@ -91,20 +91,10 @@ public class CopyZipEntryImporter implements IMessageProvider
 						String fileName = entry.getName().replace('\\', '/');
 						fileName = fileName.replace(WEBTEMPLATES_SOURCE_FOLDER, WEBTEMPLATES_DESTINATION_FOLDER);
 						File outputFile = new File(installDir, fileName);
-						copyFile(outputFile, new BufferedInputStream(zipFile.getInputStream(entry)), false);
+						handleZipEntry(outputFile, zipFile, entry);
 					}
 				}
-				File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, expFile.getName());
-				InputStream stream = new BufferedInputStream(new FileInputStream(expFile));
-				try
-				{
-					copyFile(expCopy, stream, true);
-				}
-				finally
-				{
-					Utils.closeInputStream(stream);
-				}
-
+				handleExpFile();
 			}
 			catch (IOException ex)
 			{
@@ -138,7 +128,26 @@ public class CopyZipEntryImporter implements IMessageProvider
 		}
 	}
 
-	private void enforceBackUpFolderLimit()
+	protected void handleZipEntry(File outputFile, ZipFile zipFile, ZipEntry entry) throws IOException
+	{
+		copyFile(outputFile, new BufferedInputStream(zipFile.getInputStream(entry)), false);
+	}
+
+	protected void handleExpFile() throws IOException
+	{
+		File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, expFile.getName());
+		InputStream stream = new BufferedInputStream(new FileInputStream(expFile));
+		try
+		{
+			copyFile(expCopy, stream, true);
+		}
+		finally
+		{
+			Utils.closeInputStream(stream);
+		}
+	}
+
+	protected void enforceBackUpFolderLimit()
 	{
 		// limit backup folder size to 1 GB; although it's hudge, it's there just not to cause HDD problems because of un-called for backups
 		final int MAX = 1024 * 1024 * 1024;
@@ -277,7 +286,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 		}
 	}
 
-	private boolean skipFile(File outputFile)
+	protected boolean skipFile(File outputFile)
 	{
 		if (outputFile.getName().equals("package.xml")) return true; //$NON-NLS-1$
 		if (ExtensionUtils.isInParentDir(screenshotsFolder, outputFile)) return true;
@@ -311,7 +320,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 		File expFile = new File("E:\\trunk\\j2db_test\\src\\com\\servoy\\extension\\expfiles\\Aver1.exp");
 		File targetDir = new File("E:\\temp\\test_extensions");
 		CopyZipEntryImporter importer = new CopyZipEntryImporter(expFile, targetDir, "test");
-		importer.importFile();
+		importer.handleFile();
 		System.out.println(Arrays.asList(importer.messages.getMessages()));
 	}
 
