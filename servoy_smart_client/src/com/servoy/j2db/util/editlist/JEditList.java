@@ -53,6 +53,7 @@ import javax.swing.text.Position.Bias;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 import com.servoy.j2db.util.model.IEditListModel;
 
 //"editable" JList
@@ -676,6 +677,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 		{
 			getCellEditor().stopCellEditing();
 		}
+		if (getSelectionModel() instanceof AlwaysRowSelectedSelectionModel && !((AlwaysRowSelectedSelectionModel)getSelectionModel()).canChangeSelection()) return;
 		super.setSelectedIndex(index);
 	}
 

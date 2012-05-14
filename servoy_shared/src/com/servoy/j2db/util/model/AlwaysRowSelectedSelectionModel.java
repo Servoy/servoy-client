@@ -18,6 +18,7 @@ package com.servoy.j2db.util.model;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +28,10 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.dataprocessing.EditRecordList;
 import com.servoy.j2db.dataprocessing.IRecord;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.util.Debug;
 
@@ -74,9 +78,15 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		for (Object fco : formControllers.toArray())
 		{
 			FormController fc = (FormController)fco;
-			if (fc.isFormVisible() && !fc.stopUIEditing(false))
+			if (fc.isFormVisible())
 			{
-				return false;
+				EditRecordList editRecordList = fc.getApplication().getFoundSetManager().getEditRecordList();
+				IRecordInternal[] editedRecords = editRecordList.getEditedRecords(fc.getFoundSet());
+				if (editedRecords.length > 0)
+				{
+					int stopEditing = editRecordList.stopEditing(false, Arrays.asList(editedRecords));
+					return stopEditing == ISaveConstants.STOPPED || stopEditing == ISaveConstants.AUTO_SAVE_BLOCKED;
+				}
 			}
 		}
 		return true;
