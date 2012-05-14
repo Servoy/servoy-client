@@ -189,7 +189,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 			{
 				if (!skipBackup)
 				{
-					messages.addWarning("A file to be copied (installed) is already there; it will be backed up and overwritten: " + outputFile); //$NON-NLS-1$
+					messages.addWarning("Destination file is already there; old file will be backed up and overwritten: " + outputFile); //$NON-NLS-1$
 					backUpReplacedFile(outputFile);
 				}
 			}

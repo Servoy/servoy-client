@@ -80,6 +80,7 @@ public class EXPParser implements IMessageProvider
 	public static final String ID = "id"; //$NON-NLS-1$
 	public static final String CONTENT = "content"; //$NON-NLS-1$
 	public static final String IMPORT_SOLUTION = "importSolution"; //$NON-NLS-1$
+	public static final String IMPORT_STYLE = "importStyle"; //$NON-NLS-1$
 	public static final String TEAM_PROJECT_SET = "teamProjectSet"; //$NON-NLS-1$
 	public static final String ECLIPSE_UPDATE_SITE = "eclipseUpdateSite"; //$NON-NLS-1$
 	public static final String URL = "url"; //$NON-NLS-1$
@@ -338,6 +339,7 @@ public class EXPParser implements IMessageProvider
 						if (list != null && list.getLength() == 1)
 						{
 							List<String> solutionToImportPaths = new ArrayList<String>();
+							List<String> styleToImportPaths = new ArrayList<String>();
 							List<String> teamProjectSetPaths = new ArrayList<String>();
 							List<String> eclipseUpdateSiteURLs = new ArrayList<String>();
 
@@ -351,6 +353,14 @@ public class EXPParser implements IMessageProvider
 							{
 								element = ((Element)list.item(i++));
 								solutionToImportPaths.add(element.getAttribute(PATH));
+							}
+
+							i = 0;
+							list = contentNode.getElementsByTagName(IMPORT_STYLE);
+							while (list != null && list.getLength() > i)
+							{
+								element = ((Element)list.item(i++));
+								styleToImportPaths.add(element.getAttribute(PATH));
 							}
 
 							i = 0;
@@ -370,7 +380,8 @@ public class EXPParser implements IMessageProvider
 							}
 
 							content = new Content(solutionToImportPaths.size() > 0 ? solutionToImportPaths.toArray(new String[solutionToImportPaths.size()])
-								: null, teamProjectSetPaths.size() > 0 ? teamProjectSetPaths.toArray(new String[teamProjectSetPaths.size()]) : null,
+								: null, styleToImportPaths.size() > 0 ? styleToImportPaths.toArray(new String[styleToImportPaths.size()]) : null,
+								teamProjectSetPaths.size() > 0 ? teamProjectSetPaths.toArray(new String[teamProjectSetPaths.size()]) : null,
 								eclipseUpdateSiteURLs.size() > 0 ? eclipseUpdateSiteURLs.toArray(new String[eclipseUpdateSiteURLs.size()]) : null);
 						}
 

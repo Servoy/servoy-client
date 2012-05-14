@@ -233,39 +233,47 @@
 			<choice minOccurs="1" maxOccurs="unbounded">
 				<element name="importSolution">
 					<annotation>
-						<documentation>Specifies that a solution included in the
-							extension package
-							should be imported during default install,
-							when installed in developer.
+						<documentation>
+							Specifies that a solution included in the extension
+							package should be imported when installing in developer.
 						</documentation>
 					</annotation>
 					<complexType>
-						<attribute use="required" name="path" type="tns:relativePathType">
+						<attribute use="required" name="path"
+							type="tns:relativePathType">
 							<annotation>
-								<documentation>relative path to the .servoy file inside the
-									extension
-									package
+								<documentation>
+									relative path to the .servoy file inside the
+									extension package
 								</documentation>
 							</annotation>
 						</attribute>
 					</complexType>
 				</element>
-				<element name="teamProjectSet">
+                <element name="importStyle">
+                    <annotation>
+                    	<documentation>Specifies that a Servoy style (.css) included in the extension package should be imported when installing in developer.</documentation>
+                    </annotation>
+                    <complexType>
+                		<attribute name="path" type="tns:relativePathType" use="required">
+                			<annotation>
+                				<documentation>relative path to the .css file (Servoy style) inside the extension package.</documentation>
+                			</annotation></attribute>
+                	</complexType></element>
+                <element name="teamProjectSet">
 					<annotation>
 						<documentation>
-							Specifies an Eclipse .pfs file to be imported
-							when
-							installed
-							in developer.
+							Specifies an Eclipse .pfs file to be imported when
+							installed in developer.
 						</documentation>
 					</annotation>
 					<complexType>
-						<attribute use="required" name="path" type="tns:relativePathType">
+						<attribute use="required" name="path"
+							type="tns:relativePathType">
 							<annotation>
 								<documentation>
 									relative path to the .pfs file inside the
-									extension
-									package
+									extension package
 								</documentation>
 							</annotation>
 						</attribute>

@@ -27,14 +27,17 @@ public class Content
 {
 	/** Relative zip paths pointing to .servoy files that should be imported in developer. */
 	public final String[] solutionToImportPaths;
+	/** Relative zip paths pointing to .css Servoy style files that should be imported in developer. */
+	public final String[] styleToImportPaths;
 	/** Relative zip paths pointing to .psf files that should be imported in developer. */
 	public final String[] teamProjectSetPaths;
 	/** Eclipse update sites to be added to developer. */
 	public final String[] eclipseUpdateSiteURLs;
 
-	public Content(String[] solutionToImportPaths, String[] teamProjectSetPaths, String[] eclipseUpdateSiteURLs)
+	public Content(String[] solutionToImportPaths, String[] styleToImportPaths, String[] teamProjectSetPaths, String[] eclipseUpdateSiteURLs)
 	{
 		this.solutionToImportPaths = solutionToImportPaths;
+		this.styleToImportPaths = styleToImportPaths;
 		this.teamProjectSetPaths = teamProjectSetPaths;
 		this.eclipseUpdateSiteURLs = eclipseUpdateSiteURLs;
 	}
