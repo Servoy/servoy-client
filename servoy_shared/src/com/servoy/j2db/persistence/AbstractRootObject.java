@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.rmi.RemoteException;
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Reposository tree root object
@@ -124,24 +125,24 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 	public IServer getServer(String name) throws RepositoryException
 	{
 		if (name == null) return null;
-
+		String lowerCaseBame = Utils.toEnglishLocaleLowerCase(name);
 		try
 		{
 			IServer server = null;
 			Map<String, IServer> proxies = getServerProxies();
 
-			server = proxies.get(name);
+			server = proxies.get(lowerCaseBame);
 			if (server == null)
 			{
 				// fetch a server that is not pre-loaded (could be  referred to in custom query)
-				server = getRepository().getServer(name);
+				server = getRepository().getServer(lowerCaseBame);
 				if (server != null && !(server instanceof IServerInternal))
 				{
 					//wrap	
 					server = new ServerProxy(server);
 					synchronized (proxies)
 					{
-						proxies.put(name, server);
+						proxies.put(lowerCaseBame, server);
 					}
 				}
 			}
@@ -155,7 +156,10 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 
 	public Map<String, IServer> getServerProxies()
 	{
-		if (serverProxies == null) serverProxies = new HashMap<String, IServer>();
+		if (serverProxies == null)
+		{
+			serverProxies = new HashMap<String, IServer>();
+		}
 		return serverProxies;
 	}
 
