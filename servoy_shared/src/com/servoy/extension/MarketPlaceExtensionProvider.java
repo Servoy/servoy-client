@@ -21,7 +21,6 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -83,7 +82,8 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 				BufferedInputStream bis = null;
 				try
 				{
-					bis = new BufferedInputStream(ws_getStream(WS_ACTION_PACKAGE_XML, "application/binary", extensionDependency.id, version)); //$NON-NLS-1$
+					URLConnection ws_connection = ws_getConnection(WS_ACTION_PACKAGE_XML, "application/binary", extensionDependency.id, version); //$NON-NLS-1$
+					bis = new BufferedInputStream(ws_connection.getInputStream());
 					ParseDependencyMetadata parseDM = new ParseDependencyMetadata(extensionDependency.id, messages);
 					dmA.add(parseDM.runOnEntryInputStream(bis));
 				}
@@ -131,14 +131,15 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		BufferedInputStream bis = null;
 		try
 		{
+			URLConnection ws_connection = ws_getConnection(WS_ACTION_VERSIONS, "text/json", extensionId, null); //$NON-NLS-1$
 			bos = new ByteArrayOutputStream();
-			bis = new BufferedInputStream(ws_getStream(WS_ACTION_VERSIONS, "text/json", extensionId, null)); //$NON-NLS-1$
+			bis = new BufferedInputStream(ws_connection.getInputStream());
 			byte[] buffer = new byte[1024];
 			int len;
 			while ((len = bis.read(buffer)) != -1)
 				bos.write(buffer, 0, len);
 
-			JSONArray jsonVersions = new JSONArray(new String(bos.toByteArray()));
+			JSONArray jsonVersions = new JSONArray(new String(bos.toByteArray(), ws_connection.getContentEncoding()));
 			for (int i = 0; i < jsonVersions.length(); i++)
 				versions.add(jsonVersions.getString(i));
 
@@ -166,8 +167,9 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		try
 		{
 			destinationDir.mkdirs();
+			URLConnection ws_connection = ws_getConnection(WS_ACTION_EXP, "application/binary", extensionId, version); //$NON-NLS-1$
 			fos = new FileOutputStream(outputFile);
-			bis = new BufferedInputStream(ws_getStream(WS_ACTION_EXP, "application/binary", extensionId, version)); //$NON-NLS-1$
+			bis = new BufferedInputStream(ws_connection.getInputStream());
 			byte[] buffer = new byte[1024];
 			int len;
 			while ((len = bis.read(buffer)) != -1)
@@ -188,12 +190,13 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		return outputFile;
 	}
 
-	private InputStream ws_getStream(String action, String acceptContentType, String extensionId, String version) throws Exception
+	private URLConnection ws_getConnection(String action, String acceptContentType, String extensionId, String version) throws Exception
 	{
 		URL mpURL = new URL(MARKETPLACE_WS + action + "/" + extensionId + (version != null ? "/" + version : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		URLConnection urlConnection = mpURL.openConnection();
 
 		urlConnection.addRequestProperty("accept", acceptContentType); //$NON-NLS-1$
-		return urlConnection.getInputStream();
+
+		return urlConnection;
 	}
 }
