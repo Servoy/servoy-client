@@ -84,6 +84,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 					s.setRepository(getRepository()); // transient
 				}
 				loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
+				s.setServerProxies(sps);
 			}
 
 			retval[i] = s;
@@ -111,11 +112,12 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 			sol_ids[i] = loginSolutionDefinitions[i].getRootObjectId();
 		}
 		long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
+		Map<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
 
 		Solution[] solutions = new Solution[loginSolutionDefinitions.length];
 		for (int i = 0; i < loginSolutionDefinitions.length; i++)
 		{
-			Solution s = loadCachedSolution(loginSolutionDefinitions[i], asus[i], null);
+			Solution s = loadCachedSolution(loginSolutionDefinitions[i], asus[i], sps);
 			if (s == null)
 			{
 				//do full load
@@ -128,6 +130,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 					s.setRepository(getRepository()); // transient
 				}
 				loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
+				s.setServerProxies(sps);
 			}
 
 			solutions[i] = s;
