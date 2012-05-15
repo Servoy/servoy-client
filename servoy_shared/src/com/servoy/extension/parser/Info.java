@@ -26,14 +26,16 @@ package com.servoy.extension.parser;
 public class Info
 {
 
-	public final String description;
 	/** Relative zip paths pointing to the icon file of this extension. */
 	public final String iconPath;
+	public final String url;
+	public final String description;
 
-	public Info(String description, String iconPath)
+	public Info(String iconPath, String url, String description)
 	{
-		this.description = description;
 		this.iconPath = iconPath;
+		this.url = url;
+		this.description = description;
 	}
 
 }

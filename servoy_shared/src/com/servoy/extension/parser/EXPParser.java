@@ -407,7 +407,15 @@ public class EXPParser implements IMessageProvider
 								iconPath = ((Element)list.item(0)).getAttribute(PATH);
 							}
 
-							info = new Info(description, iconPath);
+							String url = null;
+
+							list = infoNode.getElementsByTagName(URL);
+							if (list != null && list.getLength() == 1)
+							{
+								url = list.item(0).getTextContent();
+							}
+
+							info = new Info(iconPath, url, description);
 						}
 
 						boolean requiresRestart = false;

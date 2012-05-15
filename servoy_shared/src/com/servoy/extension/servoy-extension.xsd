@@ -295,23 +295,6 @@
 
 	<complexType name="infoComplexType">
 		<sequence>
-				<element name="description" type="string" minOccurs="0">
-					<annotation>
-						<documentation>
-							The description text of this extension package (may
-							be version specific). It will be used in the
-							Marketplace, as 'long description', and other UIs.
-						</documentation>
-					</annotation>
-				</element>
-				<element name="url" type="string" minOccurs="0">
-					<annotation>
-						<documentation>
-							The product info URL of this extension package. It will be used in the
-							Marketplace, as 'product info URL', and other UIs.
-						</documentation>
-					</annotation>
-				</element>				
             <element name="icon" minOccurs="0">
             		<annotation>
 						<documentation>
@@ -322,6 +305,23 @@
 					<complexType>
 						<attribute name="path" type="tns:relativePathType" use="required"></attribute>
 					</complexType></element>
+            <element name="url" type="string" minOccurs="0">
+					<annotation>
+						<documentation>
+							The product info URL of this extension package. It will be used in the
+							Marketplace, as 'product info URL', and other UIs.
+						</documentation>
+					</annotation>
+				</element>
+            <element name="description" type="string" minOccurs="0">
+					<annotation>
+						<documentation>
+							The description text of this extension package (may
+							be version specific). It will be used in the
+							Marketplace, as 'long description', and other UIs.
+						</documentation>
+					</annotation>
+				</element>				
             <element name="screenshots" minOccurs="0">
 					<annotation>
 						<documentation>
