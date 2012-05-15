@@ -242,19 +242,23 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		if ((selectedObject != null && !selectedObject.equals(anObject)) || (selectedObject == null && anObject != null))
 		{
 			selectedObject = anObject;
-			int index = listModel.indexOf(selectedObject);
-
+			int listIndex = listModel.indexOf(selectedObject);
 			if (!onlyUpdateValues)
 			{
 				Set<Integer> srows = getSelectedRows();
 				srows.clear();
-				if (index >= 0) srows.add(Integer.valueOf(index));
+				int index = listIndex;
+				if (hideFirstValue) index--;
+				if (index >= 0)
+				{
+					srows.add(Integer.valueOf(index));
+				}
 			}
 
 			realSelectedObject = selectedObject;
-			if (selectedObject != null && index != -1)
+			if (selectedObject != null && listIndex != -1)
 			{
-				realSelectedObject = listModel.getRealElementAt(index);
+				realSelectedObject = listModel.getRealElementAt(listIndex);
 			}
 			if (!onlyUpdateValues) fireContentsChanged(this, -1, -1);
 		}
