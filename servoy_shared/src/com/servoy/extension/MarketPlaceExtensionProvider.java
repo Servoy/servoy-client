@@ -147,7 +147,7 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 			while ((len = bis.read(buffer)) != -1)
 				bos.write(buffer, 0, len);
 
-			String encoding = null; // get charset from Content-type of ws_connection
+			String encoding = getCharset(ws_connection.getContentType());
 			if (encoding == null) encoding = "UTF-8"; //$NON-NLS-1$
 			JSONArray jsonVersions = new JSONArray(new String(bos.toByteArray(), encoding));
 			for (int i = 0; i < jsonVersions.length(); i++)
@@ -228,6 +228,28 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		}
 
 		return outputFile;
+	}
+
+	private String getCharset(String contentType)
+	{
+		String charset = null;
+		if (contentType != null)
+		{
+			String[] split = contentType.split("; *"); //$NON-NLS-1$
+			for (String element : split)
+			{
+				if (element.toLowerCase().startsWith("charset=")) //$NON-NLS-1$
+				{
+					charset = element.substring("charset=".length()); //$NON-NLS-1$
+					if (charset.length() > 1 && charset.charAt(0) == '"' && charset.charAt(charset.length() - 1) == '"')
+					{
+						charset = charset.substring(1, charset.length() - 1);
+					}
+					return charset;
+				}
+			}
+		}
+		return charset;
 	}
 
 	private String getSizeString(int size)
