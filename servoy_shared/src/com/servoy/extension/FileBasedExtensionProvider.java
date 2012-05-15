@@ -165,7 +165,7 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 		versions.put(version, zipFile);
 	}
 
-	public File getEXPFile(String extensionId, String version)
+	public File getEXPFile(String extensionId, String version, IProgress progressMonitor)
 	{
 		if (!extensionXMLsParsed) parseExtensionXMLs();
 		return extensionVersionToFile != null ? extensionVersionToFile.get(extensionId).get(version) : null;

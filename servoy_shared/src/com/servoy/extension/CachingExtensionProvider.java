@@ -93,6 +93,7 @@ public abstract class CachingExtensionProvider implements IExtensionProvider
 		}
 		else
 		{
+			// TODO can be improved to break down this interval into cached/non-cached intervals and merge the results
 			result = getDependencyMetadataImpl(extensionDependency);
 			// update cache
 			addCachedDependencyMetadataVersionInterval(extensionDependency.id, new VersionInterval(extensionDependency.minVersion,

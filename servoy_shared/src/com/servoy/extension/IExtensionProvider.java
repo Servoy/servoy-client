@@ -42,9 +42,10 @@ public interface IExtensionProvider extends IMessageProvider
 	 * 
 	 * @param extensionId the extension contained in the .exp file.
 	 * @param version the version of the extension from the .exp file.
+	 * @param progressMonitor a chance to give progress information if needed; can be null.
 	 * @return the .exp package file or null if not available.
 	 */
-	File getEXPFile(String extensionId, String version);
+	File getEXPFile(String extensionId, String version, IProgress progressMonitor);
 
 	/**
 	 * Release any held resources. Do cleanup if necessary.

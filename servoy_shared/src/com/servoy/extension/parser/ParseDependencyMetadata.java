@@ -48,9 +48,10 @@ import com.servoy.extension.VersionStringUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Parses the package.xml file to get the dependency info.
- * @author gboros
+ * Parses the package.xml file (received as a stream) to get the dependency info.
  * 
+ * @author acostescu
+ * @author gboros
  */
 public class ParseDependencyMetadata implements EntryInputStreamRunner<FullDependencyMetadata>
 {

@@ -21,6 +21,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -64,10 +65,17 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		return availableVersionsMap.get(extensionID);
 	}
 
-	public File getEXPFile(String extensionId, String version)
+	public File getEXPFile(String extensionId, String version, IProgress progressMonitor)
 	{
 		Pair<String, String> extVersion = new Pair<String, String>(extensionId, version);
-		if (!expFileMap.containsKey(extVersion)) expFileMap.put(extVersion, ws_getEXP(extensionId, version));
+		if (!expFileMap.containsKey(extVersion))
+		{
+			expFileMap.put(extVersion, ws_getEXP(extensionId, version, progressMonitor));
+			if (progressMonitor != null && progressMonitor.shouldCancelOperation())
+			{
+				expFileMap.remove(extVersion); // don't cache it then
+			}
+		}
 		return expFileMap.get(extVersion);
 	}
 
@@ -89,8 +97,8 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 				}
 				catch (Exception ex)
 				{
-					String msg = "Cannot get extension definition from marketplace. Error is : " + ex.getMessage();
-					Debug.error(msg);
+					String msg = "Cannot get extension definition from marketplace. Error is : " + ex.getMessage(); //$NON-NLS-1$
+					Debug.error(ex);
 					messages.addError(msg);
 				}
 				finally
@@ -139,15 +147,17 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 			while ((len = bis.read(buffer)) != -1)
 				bos.write(buffer, 0, len);
 
-			JSONArray jsonVersions = new JSONArray(new String(bos.toByteArray(), ws_connection.getContentEncoding()));
+			String encoding = null; // get charset from Content-type of ws_connection
+			if (encoding == null) encoding = "UTF-8"; //$NON-NLS-1$
+			JSONArray jsonVersions = new JSONArray(new String(bos.toByteArray(), encoding));
 			for (int i = 0; i < jsonVersions.length(); i++)
 				versions.add(jsonVersions.getString(i));
 
 		}
 		catch (Exception ex)
 		{
-			String msg = "Cannot get extension versions from marketplace. Error is : " + ex.getMessage();
-			Debug.error(msg);
+			String msg = "Cannot get extension versions from marketplace. Error is : " + ex.getMessage(); //$NON-NLS-1$
+			Debug.error(ex);
 			messages.addError(msg);
 		}
 		finally
@@ -159,7 +169,7 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		return versions.toArray(new String[versions.size()]);
 	}
 
-	private File ws_getEXP(String extensionId, String version)
+	private File ws_getEXP(String extensionId, String version, IProgress progressMonitor)
 	{
 		BufferedInputStream bis = null;
 		FileOutputStream fos = null;
@@ -170,15 +180,39 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 			URLConnection ws_connection = ws_getConnection(WS_ACTION_EXP, "application/binary", extensionId, version); //$NON-NLS-1$
 			fos = new FileOutputStream(outputFile);
 			bis = new BufferedInputStream(ws_connection.getInputStream());
-			byte[] buffer = new byte[1024];
+
+			int total = ws_connection.getContentLength();
+			if (progressMonitor != null)
+			{
+				progressMonitor.setStatusMessage("0 KB of " + getSizeString(total) + "..."); //$NON-NLS-1$//$NON-NLS-2$
+				progressMonitor.start(total);
+			}
+
+			byte[] buffer = new byte[1091];
 			int len;
+			int downloaded = 0;
+			long lastLabelUpdateTime = System.currentTimeMillis();
 			while ((len = bis.read(buffer)) != -1)
+			{
 				fos.write(buffer, 0, len);
+				if (progressMonitor != null)
+				{
+					downloaded += len;
+					progressMonitor.worked(len);
+					if (System.currentTimeMillis() - lastLabelUpdateTime > 500)
+					{
+						// do not update label faster then 0.5 sec - it looks strange
+						progressMonitor.setStatusMessage(getSizeString(downloaded) + " of " + getSizeString(total) + "..."); //$NON-NLS-1$//$NON-NLS-2$
+						lastLabelUpdateTime = System.currentTimeMillis();
+					}
+					if (progressMonitor.shouldCancelOperation()) break;
+				}
+			}
 		}
 		catch (Exception ex)
 		{
-			String msg = "Cannot get extension file from marketplace. Error is : " + ex.getMessage();
-			Debug.error(msg);
+			String msg = "Cannot get extension file from marketplace. Error is : " + ex.getMessage(); //$NON-NLS-1$
+			Debug.error(ex);
 			messages.addError(msg);
 		}
 		finally
@@ -187,7 +221,34 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 			Utils.closeOutputStream(fos);
 		}
 
+		if (progressMonitor != null && progressMonitor.shouldCancelOperation())
+		{
+			FileUtils.deleteQuietly(outputFile);
+			outputFile = null;
+		}
+
 		return outputFile;
+	}
+
+	private String getSizeString(int size)
+	{
+		String unit;
+		double value;
+		if (size > 1024 * 1024)
+		{
+			unit = " MB"; //$NON-NLS-1$
+			value = ((double)size) / 1024 / 1024;
+		}
+		else
+		{
+			unit = " KB"; //$NON-NLS-1$
+			value = ((double)size) / 1024;
+		}
+
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+
+		return bd.toPlainString() + unit;
 	}
 
 	private URLConnection ws_getConnection(String action, String acceptContentType, String extensionId, String version) throws Exception

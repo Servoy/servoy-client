@@ -79,11 +79,11 @@ public class LibChoiceHandler implements IMessageProvider
 		File f;
 		if (tldd.declaringExtensionInstalled)
 		{
-			f = installedExtensionsProvider.getEXPFile(tldd.declaringExtensionId, tldd.declaringExtensionVersion);
+			f = installedExtensionsProvider.getEXPFile(tldd.declaringExtensionId, tldd.declaringExtensionVersion, null);
 		}
 		else
 		{
-			f = extensionProvider.getEXPFile(tldd.declaringExtensionId, tldd.declaringExtensionVersion);
+			f = extensionProvider.getEXPFile(tldd.declaringExtensionId, tldd.declaringExtensionVersion, null);
 		}
 		return f;
 	}

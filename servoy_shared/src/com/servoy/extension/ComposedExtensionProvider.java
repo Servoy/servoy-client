@@ -77,10 +77,11 @@ public class ComposedExtensionProvider implements IExtensionProvider
 		return result.size() > 0 ? result.toArray(new DependencyMetadata[result.size()]) : null;
 	}
 
-	public File getEXPFile(String extensionId, String version)
+	public File getEXPFile(String extensionId, String version, IProgress progress)
 	{
-		File f = provider1.getEXPFile(extensionId, version);
-		if (f == null) f = provider2.getEXPFile(extensionId, version);
+		// TODO create separate sub-progress monitors
+		File f = provider1.getEXPFile(extensionId, version, progress);
+		if (f == null) f = provider2.getEXPFile(extensionId, version, progress);
 		return f;
 	}
 

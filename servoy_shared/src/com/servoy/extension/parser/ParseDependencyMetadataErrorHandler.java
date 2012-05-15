@@ -25,8 +25,9 @@ import com.servoy.extension.MessageKeeper;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Gathers any problem messages that could happen during XML parsing.
+ * @author acostescu
  * @author gboros
- *
  */
 @SuppressWarnings("nls")
 public class ParseDependencyMetadataErrorHandler implements ErrorHandler
