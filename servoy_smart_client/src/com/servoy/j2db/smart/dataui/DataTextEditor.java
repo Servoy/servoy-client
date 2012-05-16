@@ -86,6 +86,7 @@ import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.smart.SwingRuntimeWindow;
 import com.servoy.j2db.smart.TextToolbar;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -113,11 +114,12 @@ import com.servoy.j2db.util.rtf.FixedRTFEditorKit;
  * 
  * @author jblok
  */
-public class DataTextEditor extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, ISupportAsyncLoading, IFixedPreferredWidth,
-	ISupportCachedLocationAndSize, ISupplyFocusChildren, ISupportDragNDropTextTransfer, ISupportEditProvider
+public class DataTextEditor extends EnableScrollPanel implements IDisplayData, IDisplayTagText, IFieldComponent, IScrollPane, ISupportAsyncLoading,
+	IFixedPreferredWidth, ISupportCachedLocationAndSize, ISupplyFocusChildren, ISupportDragNDropTextTransfer, ISupportEditProvider
 {
 	private final FixedJEditorPane enclosedComponent;
 	private String dataProviderID;
+	private String tagText;
 	private EditorKit editorKit;
 	private final EditorKit plainEditorKit;
 
@@ -1078,14 +1080,21 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		{
 			if (resolver != null)
 			{
-				if (obj != null)
+				if (dataProviderID == null && !isEditable())
 				{
-					String val = Text.processTags(resolver.getStringValue(dataProviderID), resolver);
-					setValueThreadSafe(val);
+					setValueThreadSafe(Text.processTags(tagText, resolver));
 				}
 				else
 				{
-					setValueThreadSafe(null);
+					if (obj != null)
+					{
+						String val = Text.processTags(resolver.getStringValue(dataProviderID), resolver);
+						setValueThreadSafe(val);
+					}
+					else
+					{
+						setValueThreadSafe(null);
+					}
 				}
 				if (tooltip != null)
 				{
@@ -1556,5 +1565,25 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	public TransferHandler getTextTransferHandler()
 	{
 		return enclosedComponent instanceof ISupportDragNDropTextTransfer ? ((ISupportDragNDropTextTransfer)enclosedComponent).getTextTransferHandler() : null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.IDisplayTagText#setTagText(java.lang.String)
+	 */
+	public void setTagText(String tagText)
+	{
+		this.tagText = tagText;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.IDisplayTagText#getTagText()
+	 */
+	public String getTagText()
+	{
+		return tagText;
 	}
 }
