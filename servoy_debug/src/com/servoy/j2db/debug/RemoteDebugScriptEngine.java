@@ -415,7 +415,6 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	@Override
 	public void destroy()
 	{
-		ContextFactory.getGlobal().removeListener(contextListener);
 		if (debugger != null)
 		{
 			List<Context> list = contexts.remove(application);

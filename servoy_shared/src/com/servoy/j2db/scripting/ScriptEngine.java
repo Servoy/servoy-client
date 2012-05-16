@@ -357,7 +357,6 @@ public class ScriptEngine implements IScriptSupport
 	public void destroy()
 	{
 		ScriptObjectRegistry.removeEntryFromCache(toplevelScope);
-		ContextFactory.getGlobal().removeListener(contextListener);
 
 		jsApplication.destroy();
 		scopesScope.destroy();
