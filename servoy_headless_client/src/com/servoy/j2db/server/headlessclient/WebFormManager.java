@@ -41,6 +41,8 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.smart.SwingForm;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -169,6 +171,22 @@ public class WebFormManager extends FormManager
 				WebForm wf = (WebForm)fp.getFormUI();
 				MarkupContainer wfParent = wf.getParent();
 
+				boolean refresh = false;
+				//datasource has changed, but foundset has not
+				if (!foundset.getDataSource().equals(fp.getDataSource()))
+				{
+					try
+					{
+						foundset = (FoundSet)(getApplication()).getFoundSetManager().getSharedFoundSet(fp.getDataSource());
+						foundset.loadAllRecords();
+						refresh = true;
+					}
+					catch (ServoyException e)
+					{
+						Debug.error("Failed to reload foundset.", e); //$NON-NLS-1$
+					}
+				}
+
 				fp.destroy();
 
 				while (wfParent != null && !(wfParent instanceof IWebFormContainer) && !(wfParent.getParent() instanceof MainPage) &&
@@ -181,7 +199,9 @@ public class WebFormManager extends FormManager
 				{
 					if (formVisible)
 					{
-						leaseFormPanel(fp.getName()).loadData(foundset, null);
+						FormController fc = leaseFormPanel(fp.getName());
+						fc.loadData(foundset, null);
+						if (refresh) fc.recreateUI();
 						List<Runnable> runnables = new ArrayList<Runnable>();
 						((IWebFormContainer)wfParent).notifyVisible(true, runnables);
 						Utils.invokeLater(getApplication(), runnables);
