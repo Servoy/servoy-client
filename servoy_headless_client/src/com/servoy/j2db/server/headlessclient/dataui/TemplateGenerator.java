@@ -1022,7 +1022,6 @@ public class TemplateGenerator
 			style.setProperty("margin-left", val + "px");
 		}
 		else style.setProperty("margin-left", "-3px");
-		System.out.println(style.selector + "->> " + style.getProperty("margin-left"));
 	}
 
 	private static void addAttributeToStyle(TextualStyle style, String attributeKey, Object attributeValue)
