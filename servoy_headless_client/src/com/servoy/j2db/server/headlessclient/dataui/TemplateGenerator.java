@@ -1001,7 +1001,28 @@ public class TemplateGenerator
 			TextualStyle classBasedTextStyle = css.get("#" + s);
 			if (classBasedTextStyle != null) css.put("." + s, classBasedTextStyle);
 		}
+
+		if (form.getView() == IForm.LIST_VIEW || form.getView() == FormController.LOCKED_LIST_VIEW)
+		{
+			setListViewElementsLeftAlignment(classBasedStyle);
+			setListViewElementsLeftAlignment(idBasedStyle);
+		}
+
 		return classBasedStyle;
+	}
+
+	private static void setListViewElementsLeftAlignment(TextualStyle style)
+	{
+		String left = style.getProperty("margin-left");
+		if (left != null)
+		{
+			int px = left.indexOf("px");
+			if (px != -1) left = left.substring(0, px);
+			int val = Integer.parseInt(left) - 3;
+			style.setProperty("margin-left", val + "px");
+		}
+		else style.setProperty("margin-left", "-3px");
+		System.out.println(style.selector + "->> " + style.getProperty("margin-left"));
 	}
 
 	private static void addAttributeToStyle(TextualStyle style, String attributeKey, Object attributeValue)
