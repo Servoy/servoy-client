@@ -186,7 +186,7 @@ public class StripHTMLTagsConverter implements IConverter
 						me = (XmlTag)parser.nextTag();
 						if (srcUrl != null)
 						{
-							st.getJavascriptUrls().add(convertMediaReferences(srcUrl, solutionName, rr, ""));
+							st.getJavascriptUrls().add(convertMediaReferences(srcUrl, solutionName, rr, "").toString().replace("&", "&amp;"));
 						}
 						else
 						{
