@@ -23,7 +23,7 @@ import com.servoy.j2db.persistence.Solution;
  * @author rgansevles
  *
  */
-public interface IDebugJ2DBClient extends ISmartClientApplication
+public interface IDebugJ2DBClient extends ISmartClientApplication, IDebugClient
 {
 
 	Solution getCurrent();

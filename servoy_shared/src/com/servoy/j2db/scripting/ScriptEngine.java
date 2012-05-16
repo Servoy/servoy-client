@@ -42,7 +42,9 @@ import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager.HistoryProvider;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -96,9 +98,36 @@ public class ScriptEngine implements IScriptSupport
 {
 	private final static Pattern docStripper = Pattern.compile("\\A\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)?\\s*function\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)*\\s*([\\w\\$]+)"); //$NON-NLS-1$
 
-	protected IApplication application;
 
-	private final ContextFactory.Listener contextListener;
+	private final static ContextFactory.Listener contextListener = new ContextFactory.Listener()
+	{
+		@SuppressWarnings("nls")
+		public void contextCreated(Context cx)
+		{
+			IServiceProvider sp = J2DBGlobals.getServiceProvider();
+			if (sp instanceof IApplication)
+			{
+				IApplication application = (IApplication)sp;
+				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
+				cx.setWrapFactory(new ServoyWrapFactory(application));
+			}
+			else
+			{
+				Debug.error("unexpected state", new RuntimeException("application not an IApplication: " + sp));
+			}
+		}
+
+		public void contextReleased(Context cx)
+		{
+			cx.setApplicationClassLoader(null);
+		}
+	};
+	static
+	{
+		ContextFactory.getGlobal().addListener(contextListener);
+	}
+
+	protected IApplication application;
 	private HashMap<ITable, Scriptable> tableScopes;
 
 	//scopes
@@ -129,21 +158,6 @@ public class ScriptEngine implements IScriptSupport
 		i18n = new JSI18N(application);
 		historyProvider = new HistoryProvider(application);
 		solutionModifier = new JSSolutionModel(application);
-
-		contextListener = new ContextFactory.Listener()
-		{
-			public void contextCreated(Context cx)
-			{
-				cx.setWrapFactory(new ServoyWrapFactory(application));
-				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
-			}
-
-			public void contextReleased(Context cx)
-			{
-				cx.setApplicationClassLoader(null);
-			}
-		};
-		ContextFactory.getGlobal().addListener(contextListener);
 
 		Context cx = Context.enter();
 

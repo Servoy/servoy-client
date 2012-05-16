@@ -22,6 +22,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.wicket.RequestCycle;
@@ -36,6 +37,8 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDebugClient;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -55,9 +58,79 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	private static Socket socket;
 	private static volatile DBGPDebugger debugger;
 	private static volatile ServerSocket ss;
+	private static final ConcurrentHashMap<IApplication, List<Context>> contexts = new ConcurrentHashMap<IApplication, List<Context>>();
 
-	private final AtomicInteger executingFunction = new AtomicInteger(0);
-	private final List<Context> contexts = Collections.synchronizedList(new ArrayList<Context>());
+	private static final ContextFactory.Listener contextListener = new ContextFactory.Listener()
+	{
+		private final ThreadLocal<DBGPStackManager> manager = new ThreadLocal<DBGPStackManager>();
+
+		public void contextReleased(Context cx)
+		{
+			IServiceProvider sp = J2DBGlobals.getServiceProvider();
+			if (sp instanceof IApplication && sp instanceof IDebugClient)
+			{
+				IApplication application = (IApplication)sp;
+				if (manager.get() != null && application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger))
+				{
+					if (debugger != null) debugger.setStackManager(manager.get());
+					manager.remove();
+				}
+				List<Context> list = contexts.get(application);
+				if (list != null) list.remove(cx);
+			}
+		}
+
+		public void contextCreated(Context cx)
+		{
+			IServiceProvider sp = J2DBGlobals.getServiceProvider();
+			if (sp instanceof IApplication && sp instanceof IDebugClient)
+			{
+				IApplication application = (IApplication)sp;
+				if (debugger != null && debugger.isInited)
+				{
+					// executing can be done multiply in a thread (calc)
+					// only allow the event threads (AWT and web client request thread) to debug.
+					boolean isDispatchThread = application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger);
+					if (isDispatchThread && application instanceof IWebClientApplication)
+					{
+						isDispatchThread = RequestCycle.get() != null; // for web client test extra if this is a Request thread.
+					}
+					if (isDispatchThread)
+					{
+						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
+						manager.set(debugger.getStackManager());
+						debugger.setContext(cx);
+						cx.setDebugger(debugger, null);
+						cx.setGeneratingDebug(true);
+						cx.setOptimizationLevel(-1);
+					}
+					else if (!(cx.getApplicationClassLoader() instanceof ExtendableURLClassLoader))
+					{
+						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
+					}
+				}
+				else
+				{
+					manager.remove();
+				}
+
+				// context for this client
+				List<Context> list = contexts.get(application);
+				if (list == null)
+				{
+					list = Collections.synchronizedList(new ArrayList<Context>());
+					contexts.put(application, list);
+				}
+				list.add(cx);
+			}
+		}
+
+	};
+
+	static
+	{
+		ContextFactory.getGlobal().addListener(contextListener);
+	}
 
 	private static final List<IProfileListener> profileListeners = new ArrayList<IProfileListener>();
 
@@ -125,7 +198,8 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	}
 
 	private boolean listenerAdded;
-	private final ContextFactory.Listener contextListener;
+	private final AtomicInteger executingFunction = new AtomicInteger(0);
+
 
 	/**
 	 * @param app
@@ -133,72 +207,6 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	public RemoteDebugScriptEngine(IApplication app)
 	{
 		super(app);
-		contextListener = new ContextFactory.Listener()
-		{
-			private final ThreadLocal<DBGPStackManager> manager = new ThreadLocal<DBGPStackManager>();
-
-			public void contextReleased(Context cx)
-			{
-				if (manager.get() != null && application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger))
-				{
-					if (debugger != null) debugger.setStackManager(manager.get());
-					manager.remove();
-				}
-
-				if (application == J2DBGlobals.getServiceProvider())
-				{
-					contexts.remove(cx);
-				}
-			}
-
-			public void contextCreated(Context cx)
-			{
-				if (debugger != null && debugger.isInited)
-				{
-					if (!listenerAdded)
-					{
-						listenerAdded = true;
-						debugger.addTerminationListener(RemoteDebugScriptEngine.this);
-					}
-					// executing can be done multiply in a thread (calc)
-					// only allow the event threads (AWT and web client request thread) to debug.
-					boolean isDispatchThread = application.isEventDispatchThread() && !(Thread.currentThread() instanceof ServoyDebugger);
-					if (isDispatchThread && application instanceof IWebClientApplication)
-					{
-						isDispatchThread = RequestCycle.get() != null; // for web client test extra if this is a Request thread.
-					}
-					if (isDispatchThread && application.getApplicationType() == IApplication.HEADLESS_CLIENT)
-					{
-						isDispatchThread = J2DBGlobals.getServiceProvider() == application;
-					}
-					if (isDispatchThread)
-					{
-						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
-						manager.set(debugger.getStackManager());
-						debugger.setContext(cx);
-						cx.setDebugger(debugger, null);
-						cx.setGeneratingDebug(true);
-						cx.setOptimizationLevel(-1);
-					}
-					else if (!(cx.getApplicationClassLoader() instanceof ExtendableURLClassLoader))
-					{
-						cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
-					}
-				}
-				else
-				{
-					manager.remove();
-				}
-
-				if (application == J2DBGlobals.getServiceProvider())
-				{
-					// context for this client
-					contexts.add(cx);
-				}
-			}
-
-		};
-		ContextFactory.getGlobal().addListener(contextListener);
 	}
 
 	public static boolean isConnected()
@@ -373,6 +381,11 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException)
 		throws Exception
 	{
+		if (debugger != null && !listenerAdded)
+		{
+			listenerAdded = true;
+			debugger.addTerminationListener(RemoteDebugScriptEngine.this);
+		}
 		try
 		{
 			executingFunction.incrementAndGet();
@@ -405,13 +418,14 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		ContextFactory.getGlobal().removeListener(contextListener);
 		if (debugger != null)
 		{
-			if (contexts.size() > 0)
+			List<Context> list = contexts.remove(application);
+			if (list.size() > 0)
 			{
 				Context[] array;
-				synchronized (contexts)
+				synchronized (list)
 				{
-					array = contexts.toArray(new Context[contexts.size()]);
-					contexts.clear();
+					array = list.toArray(new Context[list.size()]);
+					list.clear();
 				}
 
 				for (Context cx : array)
