@@ -29,6 +29,8 @@ import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Default implementation of the {@link IDataSet} interface.
+ * 
  * ContentList like result, can be serialized between server and client
  * 
  * @author jblok
@@ -342,7 +344,8 @@ public class BufferedDataSet implements IDataSet
 
 		if (size == 0 || columnTypes != null)
 		{
-			ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) },index,1);
+			ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) }, index,
+				1);
 			columnTypes = newColumnTypes;
 		}
 
