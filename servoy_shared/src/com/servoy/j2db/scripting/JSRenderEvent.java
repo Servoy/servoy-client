@@ -21,7 +21,9 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.IScriptRenderMethods;
+import com.servoy.j2db.ui.IScriptRenderMethodsWithFormat;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
+import com.servoy.j2db.ui.RenderableWrapper;
 
 /**
  * JSRenderEvent, used as argument to render callbacks.
@@ -60,9 +62,11 @@ public class JSRenderEvent implements IJavaScriptType
 	 * 
 	 * @return Renderable the element that is being rendered 
 	 */
-	public IScriptRenderMethods js_getRenderable()
+	public IScriptRenderMethodsWithFormat js_getRenderable()
 	{
-		return element.getRenderable();
+		IScriptRenderMethods renderable = element.getRenderable();
+		if (renderable instanceof IScriptRenderMethodsWithFormat) return (IScriptRenderMethodsWithFormat)renderable;
+		return new RenderableWrapper(renderable);
 	}
 
 	public void setRecord(IRecordInternal record)

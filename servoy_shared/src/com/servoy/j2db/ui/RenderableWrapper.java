@@ -20,6 +20,8 @@ package com.servoy.j2db.ui;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
+
 
 /**
  * 
@@ -28,11 +30,11 @@ import java.util.Iterator;
  * @author gboros
  *
  */
-public class RenderableWrapper implements IScriptRenderMethods
+public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 {
 	private static enum PROPERTY
 	{
-		BGCOLOR, BORDER, ENABLED, FGCOLOR, FONT, TOOLTIP, TRANSPARENT, VISIBLE
+		BGCOLOR, BORDER, ENABLED, FGCOLOR, FONT, TOOLTIP, TRANSPARENT, VISIBLE, FORMAT
 	}
 
 	private final IScriptRenderMethods renderable;
@@ -41,6 +43,27 @@ public class RenderableWrapper implements IScriptRenderMethods
 	public RenderableWrapper(IScriptRenderMethods renderable)
 	{
 		this.renderable = renderable;
+	}
+
+	public String getFormat()
+	{
+		if (renderable instanceof HasRuntimeFormat)
+		{
+			return ((HasRuntimeFormat)renderable).getFormat();
+		}
+		return null;
+	}
+
+	public void setFormat(String format)
+	{
+		if (renderable instanceof HasRuntimeFormat)
+		{
+			if (!properties.containsKey(PROPERTY.FORMAT))
+			{
+				properties.put(PROPERTY.FORMAT, ((HasRuntimeFormat)renderable).getFormat());
+			}
+			((HasRuntimeFormat)renderable).setFormat(format);
+		}
 	}
 
 	public String getBgcolor()
@@ -235,6 +258,12 @@ public class RenderableWrapper implements IScriptRenderMethods
 					break;
 				case VISIBLE :
 					renderable.setVisible(((Boolean)properties.get(PROPERTY.VISIBLE)).booleanValue());
+					break;
+				case FORMAT :
+					if (renderable instanceof HasRuntimeFormat)
+					{
+						((HasRuntimeFormat)renderable).setFormat((String)properties.get(PROPERTY.FORMAT));
+					}
 					break;
 			}
 		}

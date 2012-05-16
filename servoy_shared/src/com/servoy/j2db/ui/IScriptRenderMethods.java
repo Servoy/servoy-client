@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.HasRuntimeBorder;
 import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
 import com.servoy.j2db.ui.runtime.HasRuntimeDataproviderID;
@@ -36,14 +35,9 @@ import com.servoy.j2db.ui.runtime.HasRuntimeVisible;
  * @author gboros
  * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable", publicName = "Renderable")
 public interface IScriptRenderMethods extends HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder, HasRuntimeTransparant,
 	HasRuntimeTooltip, HasRuntimeFont, HasRuntimeSizeGet, HasRuntimeLocationGet, HasRuntimeClientProperty, HasRuntimeName, HasRuntimeElementType,
 	HasRuntimeDataproviderID
 {
-	/**
-	 * @see IScriptRenderMethods
-	 */
-	public static final String JS_RENDERABLE = "Renderable";//$NON-NLS-1$
 
 }
