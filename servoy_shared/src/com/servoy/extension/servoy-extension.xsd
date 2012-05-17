@@ -197,7 +197,7 @@
 					</documentation>
 				</annotation>
 			</element>
-			<choice minOccurs="1" maxOccurs="unbounded">
+			<choice minOccurs="0" maxOccurs="unbounded">
 				<element name="extension" type="tns:extensionComplexType">
 					<annotation>
 						<documentation>
