@@ -702,7 +702,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
 			}
 		}
-		else if ((mappedType == IColumnTypes.INTEGER || mappedType == IColumnTypes.NUMBER) && (list == null || !list.hasRealValues()))
+		else if ((mappedType == IColumnTypes.INTEGER || mappedType == IColumnTypes.NUMBER) &&
+			(list == null || (!list.hasRealValues() && !(list instanceof CustomValueList))))
 		{
 			int maxLength = parsedFormat.getMaxLength() == null ? -1 : parsedFormat.getMaxLength().intValue();
 			// if there is no display format, but the max length is set, then generate a display format.
