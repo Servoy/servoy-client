@@ -297,24 +297,28 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			responded = true;
 
-			String sBodyWidthHint = getComponent().getRequest().getParameter("bodyWidth"); //$NON-NLS-1$ 
-			String sBodyHeightHint = getComponent().getRequest().getParameter("bodyHeight"); //$NON-NLS-1$ 
-			bodyWidthHint = Integer.parseInt(sBodyWidthHint);
-			bodyHeightHint = Integer.parseInt(sBodyHeightHint);
-			bodySizeHintSetFromClient = true;
+			int newBodyWidthHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyWidth")); //$NON-NLS-1$ 
+			int newBodyHeightHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyHeight")); //$NON-NLS-1$ 
 
-			distributeExtraSpace();
-
-			IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
-			if (tabPanel instanceof WebTabPanel)
+			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
 			{
-				int bodyDesignHeight = resizeEndY - resizeStartY;
-				int otherPartsHeight = (resizeCellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
-				((WebTabPanel)tabPanel).setTabSize(new Dimension(Integer.parseInt(sBodyWidthHint), bodyHeightHint + otherPartsHeight));
+				bodyWidthHint = newBodyWidthHint;
+				bodyHeightHint = newBodyHeightHint;
+				bodySizeHintSetFromClient = true;
+
+				distributeExtraSpace();
+
+				IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
+				if (tabPanel instanceof WebTabPanel)
+				{
+					int bodyDesignHeight = resizeEndY - resizeStartY;
+					int otherPartsHeight = (resizeCellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
+					((WebTabPanel)tabPanel).setTabSize(new Dimension(bodyWidthHint, bodyHeightHint + otherPartsHeight));
+				}
+				WebCellBasedView.this.setVisibilityAllowed(true);
+				WebCellBasedView.this.getStylePropertyChanges().setChanged();
+				WebEventExecutor.generateResponse(target, getComponent().getPage());
 			}
-			WebCellBasedView.this.setVisibilityAllowed(true);
-			WebCellBasedView.this.getStylePropertyChanges().setChanged();
-			WebEventExecutor.generateResponse(target, getComponent().getPage());
 		}
 	}
 
