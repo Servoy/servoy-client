@@ -94,11 +94,10 @@ public class CopyZipEntryImporter implements IMessageProvider
 						handleZipEntry(outputFile, zipFile, entry);
 					}
 				}
-				handleExpFile();
 			}
 			catch (IOException ex)
 			{
-				String tmp = "Exception while reading expFile: " + expFile; //$NON-NLS-1$
+				String tmp = "Exception while handling entries of expFile: " + expFile; //$NON-NLS-1$
 				messages.addError(tmp);
 				Debug.error(tmp, ex);
 			}
@@ -118,11 +117,12 @@ public class CopyZipEntryImporter implements IMessageProvider
 
 				enforceBackUpFolderLimit();
 			}
+			handleExpFile();
 		}
 		else
 		{
 			// shouldn't happen
-			String tmp = "Invalid import file/destination: " + expFile + ", " + installDir; //$NON-NLS-1$//$NON-NLS-2$
+			String tmp = "Invalid install/uninstall file/destination: " + expFile + ", " + installDir; //$NON-NLS-1$//$NON-NLS-2$
 			messages.addError(tmp);
 			Debug.error(tmp);
 		}
@@ -133,13 +133,20 @@ public class CopyZipEntryImporter implements IMessageProvider
 		copyFile(outputFile, new BufferedInputStream(zipFile.getInputStream(entry)), false);
 	}
 
-	protected void handleExpFile() throws IOException
+	protected void handleExpFile()
 	{
 		File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, expFile.getName());
-		InputStream stream = new BufferedInputStream(new FileInputStream(expFile));
+		InputStream stream = null;
 		try
 		{
+			stream = new BufferedInputStream(new FileInputStream(expFile));
 			copyFile(expCopy, stream, true);
+		}
+		catch (IOException ex)
+		{
+			String tmp = "Exception while handling expFile: " + expFile; //$NON-NLS-1$
+			messages.addError(tmp);
+			Debug.error(tmp, ex);
 		}
 		finally
 		{
@@ -185,12 +192,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 	{
 		try
 		{
-			if (!ExtensionUtils.isInParentDir(installDir, outputFile))
-			{
-				messages.addWarning("Cannot copy file outside install dir, will be skipped: " + outputFile); //$NON-NLS-1$
-				return;
-			}
-			if (skipFile(outputFile))
+			if (skipFile(outputFile, true))
 			{
 				return;
 			}
@@ -223,7 +225,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 		}
 		catch (Exception ex)
 		{
-			String tmp = "Exception while writing file: " + outputFile; //$NON-NLS-1$
+			String tmp = "Cannot copy file: " + outputFile; //$NON-NLS-1$
 			messages.addError(tmp);
 			Debug.error(tmp, ex);
 		}
@@ -286,18 +288,23 @@ public class CopyZipEntryImporter implements IMessageProvider
 		}
 	}
 
-	protected boolean skipFile(File outputFile)
+	protected boolean skipFile(File outputFile, boolean logReasons)
 	{
+		if (!ExtensionUtils.isInParentDir(installDir, outputFile))
+		{
+			if (logReasons) messages.addWarning("Cannot affect files outside of the install dir; this file will be skipped: " + outputFile); //$NON-NLS-1$
+			return true;
+		}
 		if (outputFile.getName().equals("package.xml")) return true; //$NON-NLS-1$
 		if (ExtensionUtils.isInParentDir(screenshotsFolder, outputFile)) return true;
 		if (!developerFolder.exists() && ExtensionUtils.isInParentDir(developerFolder, outputFile))
 		{
-			messages.addWarning("Skipping file because developer folder does not exist: " + outputFile); //$NON-NLS-1$
+			if (logReasons) messages.addWarning("Skipping file because developer folder does not exist: " + outputFile); //$NON-NLS-1$
 			return true;
 		}
 		if (ExtensionUtils.isInParentDir(docsFolder.getParentFile(), outputFile) && !ExtensionUtils.isInParentDir(docsFolder, outputFile))
 		{
-			messages.addWarning("Skipping file because is incorrect extension id folder: " + outputFile); //$NON-NLS-1$
+			if (logReasons) messages.addWarning("Skipping documentation file (incorrect extension id folder): " + outputFile); //$NON-NLS-1$
 			return true;
 		}
 		return false;

@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.servoy.extension.ExtensionUtils;
-
 /**
  * Deletes installed zip entries.
  * 
@@ -33,9 +31,14 @@ import com.servoy.extension.ExtensionUtils;
 public class UninstallZipEntries extends CopyZipEntryImporter
 {
 
-	public UninstallZipEntries(File installDir, String extensionID, String fileName)
+	public UninstallZipEntries(String expfileName, File installDir, String extensionID)
 	{
-		super(new File(installDir + File.separator + CopyZipEntryImporter.EXPFILES_FOLDER, fileName), installDir, extensionID);
+		super(new File(installDir + File.separator + CopyZipEntryImporter.EXPFILES_FOLDER, expfileName), installDir, extensionID);
+	}
+
+	public UninstallZipEntries(File expFile, File installDir, String extensionID)
+	{
+		super(expFile, installDir, extensionID);
 	}
 
 	@Override
@@ -45,45 +48,28 @@ public class UninstallZipEntries extends CopyZipEntryImporter
 	}
 
 	@Override
-	protected void handleExpFile() throws IOException
+	protected void handleExpFile()
 	{
 		deleteFile(expFile);
 	}
 
-	private void deleteFile(File file) throws IOException
+	private void deleteFile(File file)
 	{
-		if (!ExtensionUtils.isInParentDir(installDir, file))
-		{
-			messages.addWarning("Cannot delete file outside install dir, will be skipped: " + file); //$NON-NLS-1$
-			return;
-		}
-		if (skipFile(file))
+		if (skipFile(file, false))
 		{
 			return;
 		}
-		if (file.exists() && file.canWrite())
+		if (file.exists())
 		{
-			if (!file.delete())
+			if (!file.canWrite() || !file.delete())
 			{
-				messages.addWarning("Cannot delete file: " + file); //$NON-NLS-1$
+				messages.addError("Cannot delete file: " + file); //$NON-NLS-1$
 			}
 		}
 		else
 		{
-			messages.addWarning("Cannot find file to delete: " + file); //$NON-NLS-1$
+			messages.addInfo("A file was already removed (before uninstall): " + file); //$NON-NLS-1$
 		}
-	}
-
-	@Override
-	protected void enforceBackUpFolderLimit()
-	{
-		// not needed
-	}
-
-	//TODO remove this when we have ui for testing
-	public static void main(String[] args)
-	{
-
 	}
 
 }
