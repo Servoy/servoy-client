@@ -702,8 +702,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
 			}
 		}
-		else if ((mappedType == IColumnTypes.INTEGER || mappedType == IColumnTypes.NUMBER) &&
-			(list == null || (!list.hasRealValues() && !(list instanceof CustomValueList))))
+		else if ((mappedType == IColumnTypes.INTEGER || mappedType == IColumnTypes.NUMBER) && (list == null || !list.hasRealValues()))
 		{
 			int maxLength = parsedFormat.getMaxLength() == null ? -1 : parsedFormat.getMaxLength().intValue();
 			// if there is no display format, but the max length is set, then generate a display format.
@@ -714,15 +713,18 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					chars[i] = '#';
 				displayFormat = new String(chars);
 			}
-			RoundHalfUpDecimalFormat displayFormatter = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
-			if (parsedFormat.getEditFormat() != null)
+			if (displayFormat != null)
 			{
-				RoundHalfUpDecimalFormat editFormatter = new RoundHalfUpDecimalFormat(parsedFormat.getEditFormat(), application.getLocale());
-				converter = new FormatConverter(this, eventExecutor, displayFormatter, editFormatter, parsedFormat);
-			}
-			else
-			{
-				converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
+				RoundHalfUpDecimalFormat displayFormatter = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());
+				if (parsedFormat.getEditFormat() != null)
+				{
+					RoundHalfUpDecimalFormat editFormatter = new RoundHalfUpDecimalFormat(parsedFormat.getEditFormat(), application.getLocale());
+					converter = new FormatConverter(this, eventExecutor, displayFormatter, editFormatter, parsedFormat);
+				}
+				else
+				{
+					converter = new FormatConverter(this, eventExecutor, displayFormatter, parsedFormat);
+				}
 			}
 		}
 
@@ -781,9 +783,9 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		getStylePropertyChanges().setChanged();
 		converter = null;
 		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
+		parsedFormat = FormatParser.parseFormatString(format, null, null);
 		if (format != null && format.length() != 0 && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
-			parsedFormat = FormatParser.parseFormatString(format, null, null);
 			if (formatAttributeModifier != null) remove(formatAttributeModifier);
 			if (parsedFormat.isAllUpperCase())
 			{
