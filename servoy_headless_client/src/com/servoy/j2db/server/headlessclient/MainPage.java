@@ -47,6 +47,7 @@ import org.apache.wicket.Response;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AbstractBehavior;
@@ -1913,6 +1914,17 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			return getWindowOpenJavascript();
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow#newWindowClosedBehavior()
+		 */
+		@Override
+		protected IWindowClosedBehavior newWindowClosedBehavior()
+		{
+			return new WindowClosedBehavior();
+		}
+
 		@Override
 		protected void onAfterRender()
 		{
@@ -1931,6 +1943,39 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 			return buffer;
 		}
+
+		private class WindowClosedBehavior extends AbstractDefaultAjaxBehavior implements IWindowClosedBehavior, AlwaysLastPageVersionRequestListenerInterface
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void respond(AjaxRequestTarget target)
+			{
+				respondOnWindowClosed(target);
+			}
+
+			@Override
+			public CharSequence getCallbackScript()
+			{
+				return super.getCallbackScript(true);
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.apache.wicket.behavior.AbstractAjaxBehavior#getCallbackUrl(boolean)
+			 */
+			@Override
+			public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
+			{
+				if (getComponent() == null)
+				{
+					throw new IllegalArgumentException("Behavior must be bound to a component to create the URL");
+				}
+
+				return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
+			}
+		};
 	}
 
 	private class TriggerResizeAjaxBehavior extends AbstractServoyDefaultAjaxBehavior
