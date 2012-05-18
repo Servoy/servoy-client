@@ -42,7 +42,14 @@ import com.servoy.j2db.util.Utils;
  */
 public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 {
-	public static final String MARKETPLACE_WS = "http://192.168.1.16:8080/servoy-service/rest_ws/marketplace/ws_extensions/"; //$NON-NLS-1$
+	public static final String MARKETPLACE_HOST;
+
+	static
+	{
+		MARKETPLACE_HOST = System.getProperty("market_place_host_url", "https://crm.servoy.com"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public static final String MARKETPLACE_WS = MARKETPLACE_HOST + "/servoy-service/rest_ws/marketplace/ws_extensions/"; //$NON-NLS-1$
 	private static final String WS_ACTION_VERSIONS = "versions"; //$NON-NLS-1$
 	private static final String WS_ACTION_EXP = "exp"; //$NON-NLS-1$
 	private static final String WS_ACTION_PACKAGE_XML = "xml"; //$NON-NLS-1$
