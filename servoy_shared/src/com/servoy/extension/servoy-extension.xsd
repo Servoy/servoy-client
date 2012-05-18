@@ -9,7 +9,7 @@
 				<element name="extension-id" type="tns:extensionIdType">
 					<annotation>
 						<documentation>
-							Unique identifier string of the Servoy Extension.
+							Unique identifier string of the Servoy Extension. It must start with the prefix: &quot;com.servoy.&quot;
 						</documentation>
 					</annotation>
 				</element>
@@ -31,7 +31,7 @@
 							only a-zA-Z chars followed by optionally space followed
 							by a number). When letters are used in version strings,
 							the letter version will be considered below the non-letter one. For example
-							"15.2.53 bata 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53".
+							"15.2.53 beta 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53".
 						</documentation>
 					</annotation>
 				</element>
