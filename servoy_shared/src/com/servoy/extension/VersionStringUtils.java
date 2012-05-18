@@ -156,11 +156,48 @@ public class VersionStringUtils
 		{
 			compareBlock1 = getNextBlock(ver1Matcher);
 			compareBlock2 = getNextBlock(ver2Matcher);
+
+			// handle cases like 6.1 rc1 - 6.1.0.0 rc1
+			if (getInteger(compareBlock1) == null)
+			{
+				Integer i = getInteger(compareBlock2);
+				while (i != null && i.intValue() == 0)
+				{
+					compareBlock2 = getNextBlock(ver2Matcher);
+					i = getInteger(compareBlock2);
+				}
+			}
+			else if (getInteger(compareBlock2) == null)
+			{
+				Integer i = getInteger(compareBlock1);
+				while (i != null && i.intValue() == 0)
+				{
+					compareBlock1 = getNextBlock(ver1Matcher);
+					i = getInteger(compareBlock1);
+				}
+			}
+
 			result = compareBlocks(compareBlock1 == null ? "0" : compareBlock1, compareBlock2 == null ? "0" : compareBlock2);
 		}
 		while (result == 0 && (compareBlock1 != null || compareBlock2 != null));
 
 		return result;
+	}
+
+	private static Integer getInteger(String block)
+	{
+		Integer val = null;
+		if (block != null)
+		{
+			try
+			{
+				val = Integer.valueOf(Integer.parseInt(block));
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		}
+		return val;
 	}
 
 	private static String getNextBlock(Matcher matcher)
@@ -197,21 +234,8 @@ public class VersionStringUtils
 
 	private static int compareBlocks(String compareBlock1, String compareBlock2)
 	{
-		Integer i1 = null, i2 = null;
-		try
-		{
-			i1 = Integer.valueOf(Integer.parseInt(compareBlock1));
-		}
-		catch (NumberFormatException e)
-		{
-		}
-		try
-		{
-			i2 = Integer.valueOf(Integer.parseInt(compareBlock2));
-		}
-		catch (NumberFormatException e)
-		{
-		}
+		Integer i1 = getInteger(compareBlock1);
+		Integer i2 = getInteger(compareBlock2);
 
 		if (i1 == null && i2 != null)
 		{
