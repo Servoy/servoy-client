@@ -397,5 +397,17 @@ Export-Package: antlr,
  org.wicketstuff.calendar.markup.html.form,
  org.wicketstuff.calendar.util,
  org.wicketstuff.minis.spinner,
- org.xhtmlrenderer.css.constants
+ org.xhtmlrenderer,
+ org.xhtmlrenderer.css.constants,
+ org.xhtmlrenderer.css.extend,
+ org.xhtmlrenderer.css.extend.lib,
+ org.xhtmlrenderer.css.newmatch,
+ org.xhtmlrenderer.css.parser,
+ org.xhtmlrenderer.css.parser.property,
+ org.xhtmlrenderer.css.sheet,
+ org.xhtmlrenderer.css.style,
+ org.xhtmlrenderer.css.style.derived,
+ org.xhtmlrenderer.css.util,
+ org.xhtmlrenderer.css.value,
+ org.xhtmlrenderer.util
 Import-Package: org.w3c.dom
