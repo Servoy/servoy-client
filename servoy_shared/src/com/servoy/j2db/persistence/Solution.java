@@ -157,7 +157,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		if (size != null) f.setSize(size);
 		if (style != null) f.setStyleName(style.getName());
 		addChild(f);
-		if (getForm(getFirstFormID()) == null) setFirstFormID(f.getID());
+		if (getFirstFormID() <= 0) setFirstFormID(f.getID());
 		return f;
 	}
 
