@@ -17,8 +17,8 @@
 package com.servoy.j2db.query;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 /** Container for column types describing type, length and scale (for numerical columns).
@@ -27,12 +27,12 @@ import java.util.Map;
  */
 public class ColumnType implements Serializable
 {
-	private static final Map<ColumnType, ColumnType> instances;
+	private static final ConcurrentMap<ColumnType, ColumnType> instances;
 	public static final ColumnType DUMMY;
 
 	static
 	{
-		instances = new HashMap<ColumnType, ColumnType>();
+		instances = new ConcurrentHashMap<ColumnType, ColumnType>();
 		DUMMY = getInstance(-1, -1, 0);
 	}
 
@@ -65,16 +65,11 @@ public class ColumnType implements Serializable
 
 	public static ColumnType getInstance(int sqlType, int length, int scale)
 	{
-		ColumnType instance;
-		synchronized (instances)
+		ColumnType instance = new ColumnType(sqlType, length, scale);
+		ColumnType previous = instances.putIfAbsent(instance, instance);
+		if (previous != null)
 		{
-			ColumnType ct = new ColumnType(sqlType, length, scale);
-			instance = instances.get(ct);
-			if (instance == null)
-			{
-				instances.put(ct, ct);
-				instance = ct;
-			}
+			instance = previous;
 		}
 		return instance;
 	}
