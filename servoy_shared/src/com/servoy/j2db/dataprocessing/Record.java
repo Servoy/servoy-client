@@ -227,8 +227,6 @@ public class Record implements Scriptable, IRecordInternal
 				{
 					value = Utils.mapToNullIfUnmanageble(value);
 
-					// Reset the mustRecalculate here, before setValue fires events, so if it is an every time changing calculation it will not be calculated again and again
-					row.mustRecalculate(dataProviderID, false);
 					row.setValue(this, dataProviderID, value);
 				}
 
