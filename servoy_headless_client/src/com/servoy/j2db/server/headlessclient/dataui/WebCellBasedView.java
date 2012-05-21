@@ -2055,16 +2055,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			public Object component(Component component)
 			{
-				if (b && !component.isEnabled())
-				{
-					// component may be disabled by scripting, do not enable it
-					return CONTINUE_TRAVERSAL;
-				}
-
 				if (component.isEnabled() != b)
 				{
 					if (component instanceof IComponent)
 					{
+						if (b)
+						{
+							// component may be disabled by scripting, do not enable it
+							return CONTINUE_TRAVERSAL;
+						}
 						((IComponent)component).setComponentEnabled(b);
 					}
 					else
