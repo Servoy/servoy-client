@@ -1570,7 +1570,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 								if (!((IProviderStylePropertyChanges)comp).getStylePropertyChanges().isChanged())
 								{
 									boolean hasBgImage = false;
-									if (comp instanceof ILabel && ((ILabel)comp).getMediaIcon() > 0)
+									if (comp instanceof ILabel && (((ILabel)comp).getMediaIcon() > 0 || comp.getDefaultModelObject() instanceof byte[]))
 									{
 										hasBgImage = true;
 									}
