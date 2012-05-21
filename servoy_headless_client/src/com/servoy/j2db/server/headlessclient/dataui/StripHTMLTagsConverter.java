@@ -157,10 +157,16 @@ public class StripHTMLTagsConverter implements IConverter
 	@SuppressWarnings("nls")
 	public static StrippedText convertBodyText(Component component, CharSequence bodyText, FlattenedSolution solutionRoot)
 	{
+		StrippedText st = new StrippedText();
+		if (RequestCycle.get() == null)
+		{
+			st.setBodyTxt(bodyText);
+			return st;
+		}
+
 		ResourceReference rr = new ResourceReference("media"); //$NON-NLS-1$
 		String solutionName = solutionRoot.getSolution().getName();
 
-		StrippedText st = new StrippedText();
 
 		StringBuffer bodyTxt = new StringBuffer(bodyText.length());
 		XmlPullParser parser = new XmlPullParser();
@@ -355,8 +361,9 @@ public class StripHTMLTagsConverter implements IConverter
 
 	public static CharSequence convertBlobLoaderReferences(CharSequence text, Component component)
 	{
-		return Strings.replaceAll(text,
+		if (RequestCycle.get() != null) return Strings.replaceAll(text,
 			"media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&servoy_blobloader=true&"); //$NON-NLS-1$//$NON-NLS-2$
+		return text;
 	}
 
 	public static CharSequence convertMediaReferences(CharSequence text, String solutionName, ResourceReference media, String prefix)
