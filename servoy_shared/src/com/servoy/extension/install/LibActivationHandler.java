@@ -109,14 +109,14 @@ public class LibActivationHandler implements IMessageProvider
 		{
 			if (libActivation.toBeRemoved != null)
 			{
-				removeLibs(libActivation.toBeRemoved, libActivation.toSelect.relativePath);
+				removeLibs(libActivation.toBeRemoved, libActivation.toSelect);
 			}
 
 			activateLib(libActivation);
 		}
 	}
 
-	protected void removeLibs(FullLibDependencyDeclaration[] toBeRemoved, String libPathToActivate)
+	protected void removeLibs(FullLibDependencyDeclaration[] toBeRemoved, FullLibDependencyDeclaration toActivate)
 	{
 		for (FullLibDependencyDeclaration libVersion : toBeRemoved)
 		{
@@ -124,7 +124,7 @@ public class LibActivationHandler implements IMessageProvider
 			if (libFileToBeRemoved != null && libFileToBeRemoved.exists())
 			{
 				// check to see if it's used in any plugin jnlp file; if it is, edit the JNLP and remember the change
-				if (!libPathToActivate.equals(libVersion.relativePath))
+				if (!toActivate.relativePath.equals(libVersion.relativePath))
 				{
 					if (pluginsDir.exists() && pluginsDir.isDirectory())
 					{
@@ -133,7 +133,7 @@ public class LibActivationHandler implements IMessageProvider
 						while (it.hasNext())
 						{
 							File jnlp = it.next();
-							replaceReferencesInJNLP(jnlp, libFileToBeRemoved, libPathToActivate);
+							replaceReferencesInJNLP(jnlp, libFileToBeRemoved, toActivate);
 						}
 					}
 					else
@@ -185,7 +185,7 @@ public class LibActivationHandler implements IMessageProvider
 		return f;
 	}
 
-	protected void replaceReferencesInJNLP(File jnlp, File libFileToBeRemoved, String libPathToActivate)
+	protected void replaceReferencesInJNLP(File jnlp, File libFileToBeRemoved, FullLibDependencyDeclaration toActivate)
 	{
 		try
 		{
@@ -205,8 +205,8 @@ public class LibActivationHandler implements IMessageProvider
 				{
 					File appServerDir = new File(installDir, APP_SERVER_DIR);
 					Element resourcesNode = (Element)list.item(0);
-					boolean replaced1 = findAndReplaceReferences(resourcesNode, "jar", appServerDir, libFileToBeRemoved, libPathToActivate); //$NON-NLS-1$
-					boolean replaced2 = findAndReplaceReferences(resourcesNode, "nativelib", appServerDir, libFileToBeRemoved, libPathToActivate); //$NON-NLS-1$
+					boolean replaced1 = findAndReplaceReferences(resourcesNode, "jar", appServerDir, libFileToBeRemoved, toActivate); //$NON-NLS-1$
+					boolean replaced2 = findAndReplaceReferences(resourcesNode, "nativelib", appServerDir, libFileToBeRemoved, toActivate); //$NON-NLS-1$
 
 					if (replaced1 || replaced2)
 					{
@@ -268,7 +268,7 @@ public class LibActivationHandler implements IMessageProvider
 		return f;
 	}
 
-	protected boolean findAndReplaceReferences(Element el, String tagName, File appServerDir, File libFileToBeRemoved, String libPathToActivate)
+	protected boolean findAndReplaceReferences(Element el, String tagName, File appServerDir, File libFileToBeRemoved, FullLibDependencyDeclaration toActivate)
 	{
 		boolean replaced = false;
 		NodeList list = el.getElementsByTagName(tagName);
@@ -287,7 +287,12 @@ public class LibActivationHandler implements IMessageProvider
 						if (new File(appServerDir, href).equals(libFileToBeRemoved))
 						{
 							// found one reference
-							element.setAttribute("href", getJNLPHrefFromRelativePath(libPathToActivate)); //$NON-NLS-1$
+							element.setAttribute("href", getJNLPHrefFromRelativePath(toActivate.relativePath)); //$NON-NLS-1$
+							String version = element.getAttribute("version"); //$NON-NLS-1$
+							if (version != null && !version.equals("%%version%%")) //$NON-NLS-1$
+							{
+								element.setAttribute("version", toActivate.version); //$NON-NLS-1$
+							}
 							replaced = true;
 						}
 					}
