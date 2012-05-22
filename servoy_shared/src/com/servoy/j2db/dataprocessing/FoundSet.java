@@ -67,6 +67,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.BooleanCondition;
 import com.servoy.j2db.query.CustomCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -877,6 +878,27 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return nfound < 0 ? /* blocked */0 : nfound;
 		}
 		return 0;
+	}
+
+	/** Check wether the foundset has any conditions from a previous find action.
+	 * 
+	 * @sample
+	 * if (%%prefix%%foundset.hasConditions())
+	 * {
+	 * 		// foundset had find actions
+	 * }
+	 *
+	 * @return wether the foundset has foind-conditions
+	 */
+	public boolean js_hasConditions()
+	{
+		QuerySelect query = pksAndRecords.getQuerySelectForReading();
+		if (query == null)
+		{
+			return false;
+		}
+		AndCondition searchCondition = query.getCondition(SQLGenerator.CONDITION_SEARCH);
+		return searchCondition != null && searchCondition.getConditions().size() > 0;
 	}
 
 	/**
