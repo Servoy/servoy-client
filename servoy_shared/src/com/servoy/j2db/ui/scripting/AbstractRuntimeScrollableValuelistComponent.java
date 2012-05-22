@@ -29,6 +29,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.HasRuntimeScroll;
+import com.servoy.j2db.ui.runtime.HasRuntimeValuelistItems;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 
 /**
@@ -38,7 +39,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @since 6.0
  */
 public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFieldComponent, F extends JComponent> extends AbstractRuntimeValuelistComponent<C>
-	implements HasRuntimeScroll, IFormatScriptComponent
+	implements HasRuntimeScroll, IFormatScriptComponent, HasRuntimeValuelistItems
 {
 	protected F field;
 	protected ComboModelListModelWrapper list;

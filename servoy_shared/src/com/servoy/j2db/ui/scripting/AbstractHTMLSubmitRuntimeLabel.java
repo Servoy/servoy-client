@@ -29,6 +29,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.HasRuntimeLabelFor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 
 /**
@@ -37,7 +38,7 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends AbstractRuntimeLabel<C>
+public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends AbstractRuntimeLabel<C> implements HasRuntimeLabelFor
 {
 	public AbstractHTMLSubmitRuntimeLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
