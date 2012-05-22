@@ -1392,7 +1392,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						// Have repository access, don't need authorised access
 						solutionRoot.setSolution(solutionMetaData, false, true, getActiveSolutionHandler());
 						if (solutionMetaData.getMustAuthenticate() && clientInfo.getUserUid() == null && solutionRoot.getSolution() != null &&
-							solutionRoot.getSolution().getLoginFormID() == 0)
+							solutionRoot.getSolution().getLoginFormID() <= 0)
 						{
 							// must login the old fashioned way
 							showDefaultLogin();
