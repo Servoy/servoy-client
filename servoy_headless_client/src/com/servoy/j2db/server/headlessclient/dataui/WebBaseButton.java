@@ -473,7 +473,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public String getText()
 	{
-		return getDefaultModelObjectAsString();
+		Object o = getDefaultModelObject();
+		return o == null ? null : o.toString();
 	}
 
 	/**

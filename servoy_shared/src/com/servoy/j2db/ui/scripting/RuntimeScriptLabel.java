@@ -30,7 +30,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
  */
 public class RuntimeScriptLabel extends AbstractHTMLSubmitRuntimeLabel<ILabel> implements IScriptScriptLabelMethods
 {
-	private String i18n;
+	private String text;
 
 	public RuntimeScriptLabel(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
@@ -39,22 +39,21 @@ public class RuntimeScriptLabel extends AbstractHTMLSubmitRuntimeLabel<ILabel> i
 
 	public String js_getText()
 	{
-		if (i18n != null) return i18n;
+		if (text != null) return text;
 		return getComponent().getText();
 	}
 
 	public void js_setText(String txt)
 	{
+		text = txt;
 		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
 		{
-			i18n = txt;
-			txt = application.getI18NMessage(txt);
+			getComponent().setText(application.getI18NMessage(txt));
 		}
 		else
 		{
-			i18n = null;
+			getComponent().setText(txt);
 		}
-		getComponent().setText(txt);
 		getChangesRecorder().setChanged();
 	}
 }
