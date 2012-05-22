@@ -9,7 +9,10 @@
 				<element name="extension-id" type="tns:extensionIdType">
 					<annotation>
 						<documentation>
-							Unique identifier string of the Servoy Extension. It must start with the prefix: &quot;com.servoy.&quot;
+							Unique identifier string of this Servoy Extension.
+							It should be prefixed (in order to avoid conflicts) with the top level domain name, the organization's name
+							then the organization's domain and any other sub-domains. For example 'com.mycompany.myExtensionName'
+							or 'org.myorg.myExtensionCategory.myExtensionName'.
 						</documentation>
 					</annotation>
 				</element>
@@ -24,14 +27,7 @@
 				<element name="version" type="tns:declaredVersionType">
 					<annotation>
 						<documentation>
-							The extension version is a string that must begin with a
-							number, optionally followed by one or more constructs
-							like (&quot;.&quot; followed by a number)
-							or (optionally space followed by a word made out of
-							only a-zA-Z chars followed by optionally space followed
-							by a number). When letters are used in version strings,
-							the letter version will be considered below the non-letter one. For example
-							"15.2.53 beta 1" &lt; "15.2.53 beta 1" &lt; "15.2.53 beta 5" &lt; "15.2.53".
+							The extension's version.
 						</documentation>
 					</annotation>
 				</element>
