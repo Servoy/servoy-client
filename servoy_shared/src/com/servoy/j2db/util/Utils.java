@@ -2216,7 +2216,7 @@ public class Utils
 			try
 			{
 				int length = (int)f.length();
-				if (length > 0)
+				if (f.exists())
 				{
 					fis = new FileInputStream(f);
 					FileChannel fc = fis.getChannel();
