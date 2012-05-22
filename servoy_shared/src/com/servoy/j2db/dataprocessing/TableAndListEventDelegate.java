@@ -183,7 +183,7 @@ public class TableAndListEventDelegate
 		{
 			if (changeType == FoundSetEvent.CHANGE_DELETE || changeType == FoundSetEvent.CHANGE_INSERT)
 			{
-				Debug.log("Listener invoked from non event dispatch thread.", new RuntimeException()); //$NON-NLS-1$
+				Debug.trace("Listener invoked from non event dispatch thread.", new RuntimeException()); //$NON-NLS-1$
 			}
 			eventDelegator.invokeLater(runner);
 		}
