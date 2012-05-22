@@ -73,7 +73,7 @@ public class DivWindow extends ModalWindow
 		public void onMove(AjaxRequestTarget target);
 	}
 
-	private class WindowClosedBehavior extends AbstractDefaultAjaxBehavior implements IWindowClosedBehavior
+	private class WindowClosedBehavior extends AbstractDefaultAjaxBehavior implements IWindowClosedBehavior, AlwaysLastPageVersionRequestListenerInterface
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -89,6 +89,21 @@ public class DivWindow extends ModalWindow
 			return getCallbackScript(true);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.behavior.AbstractAjaxBehavior#getCallbackUrl(boolean)
+		 */
+		@Override
+		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
+		{
+			if (getComponent() == null)
+			{
+				throw new IllegalArgumentException("Behavior must be bound to a component to create the URL"); //$NON-NLS-1$
+			}
+
+			return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
+		}
 	}
 
 	private class ResizeBehavior extends AbstractDefaultAjaxBehavior
