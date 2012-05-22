@@ -30,7 +30,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeButton;
  */
 public class RuntimeScriptButton extends AbstractRuntimeButton<IButton> implements IRuntimeButton
 {
-	private String i18n;
+	private String text;
 
 	public RuntimeScriptButton(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)
 	{
@@ -39,23 +39,21 @@ public class RuntimeScriptButton extends AbstractRuntimeButton<IButton> implemen
 
 	public String getText()
 	{
-		if (i18n != null) return i18n;
+		if (text != null) return text;
 		return getComponent().getText();
 	}
 
-	public void setText(String text)
+	public void setText(String txt)
 	{
-		String txt = text;
+		text = txt;
 		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
 		{
-			i18n = txt;
-			txt = application.getI18NMessage(txt);
+			getComponent().setText(application.getI18NMessage(txt));
 		}
 		else
 		{
-			i18n = null;
+			getComponent().setText(txt);
 		}
-		getComponent().setText(txt);
 		getChangesRecorder().setChanged();
 	}
 }
