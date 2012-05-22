@@ -57,4 +57,9 @@ public class OnlyFinalVersionsFilter implements IDependencyPathFilter
 		return containsLetters;
 	}
 
+	public String getFilterMessage()
+	{
+		return "Alpha/beta/intermediate (non-final) versions are not allowed by advanced dependency resolve options."; //$NON-NLS-1$
+	}
+
 }

@@ -31,14 +31,14 @@ import java.util.zip.ZipFile;
 public class UninstallZipEntries extends CopyZipEntryImporter
 {
 
-	public UninstallZipEntries(String expfileName, File installDir, String extensionID)
+	public UninstallZipEntries(String expfileName, File installDir, String extensionID, String version)
 	{
-		super(new File(installDir + File.separator + CopyZipEntryImporter.EXPFILES_FOLDER, expfileName), installDir, extensionID);
+		super(new File(installDir + File.separator + CopyZipEntryImporter.EXPFILES_FOLDER, expfileName), installDir, extensionID, version);
 	}
 
-	public UninstallZipEntries(File expFile, File installDir, String extensionID)
+	public UninstallZipEntries(File expFile, File installDir, String extensionID, String version)
 	{
-		super(expFile, installDir, extensionID);
+		super(expFile, installDir, extensionID, version);
 	}
 
 	@Override

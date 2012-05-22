@@ -56,4 +56,9 @@ public class DisallowVersionReplacementFilter implements IDependencyPathFilter
 		}
 	}
 
+	public String getFilterMessage()
+	{
+		return (onlyDisallowDowngrades ? "Downgrading" : "Upgrading/downgrading") + " is not allowed by advanced dependency resolve options."; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+	}
+
 }

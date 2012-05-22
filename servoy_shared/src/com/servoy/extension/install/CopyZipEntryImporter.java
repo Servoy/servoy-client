@@ -57,16 +57,21 @@ public class CopyZipEntryImporter implements IMessageProvider
 
 	protected final File expFile;
 	protected final File installDir;
+	protected final String extensionID;
+	protected final String version;
+
 	private final File screenshotsFolder;
 	private final File developerFolder;
 	private final File docsFolder;
 
 	protected final MessageKeeper messages = new MessageKeeper();
 
-	public CopyZipEntryImporter(File expFile, File installDir, String extensionID)
+	public CopyZipEntryImporter(File expFile, File installDir, String extensionID, String version)
 	{
 		this.expFile = expFile;
 		this.installDir = installDir;
+		this.version = version;
+		this.extensionID = extensionID;
 		screenshotsFolder = new File(installDir, "screenshots"); //$NON-NLS-1$
 		developerFolder = new File(installDir, "developer"); //$NON-NLS-1$
 		docsFolder = new File(installDir, "application_server/docs/" + extensionID); //$NON-NLS-1$
@@ -135,12 +140,13 @@ public class CopyZipEntryImporter implements IMessageProvider
 
 	protected void handleExpFile()
 	{
-		File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, expFile.getName());
+		String generatedName = extensionID + "_" + version + ".exp"; //$NON-NLS-1$ //$NON-NLS-2$
+		File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, generatedName);
 		InputStream stream = null;
 		try
 		{
 			stream = new BufferedInputStream(new FileInputStream(expFile));
-			copyFile(expCopy, stream, true);
+			copyFile(expCopy, stream, false);
 		}
 		catch (IOException ex)
 		{
@@ -318,17 +324,6 @@ public class CopyZipEntryImporter implements IMessageProvider
 	public void clearMessages()
 	{
 		messages.clear();
-	}
-
-	//TODO remove this when we have ui for testing
-	public static void main(String[] args)
-	{
-		// for testing only
-		File expFile = new File("E:\\trunk\\j2db_test\\src\\com\\servoy\\extension\\expfiles\\Aver1.exp");
-		File targetDir = new File("E:\\temp\\test_extensions");
-		CopyZipEntryImporter importer = new CopyZipEntryImporter(expFile, targetDir, "test");
-		importer.handleFile();
-		System.out.println(Arrays.asList(importer.messages.getMessages()));
 	}
 
 }

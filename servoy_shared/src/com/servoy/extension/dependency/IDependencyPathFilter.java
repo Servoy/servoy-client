@@ -43,4 +43,10 @@ public interface IDependencyPathFilter
 	 */
 	void filterResolvePaths(List<DependencyPath> allResolvedPaths);
 
+	/**
+	 * Provides a user-friendly message that explains why some paths were filtered out if they were filtered out.
+	 * @return  a user-friendly message that explains why some paths were filtered out if they were filtered out.
+	 */
+	String getFilterMessage();
+
 }
