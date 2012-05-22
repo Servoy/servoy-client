@@ -23,6 +23,8 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.runtime.HasRuntimeEditable;
+import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
 import com.servoy.j2db.util.FormatParser;
 
 /**
@@ -32,7 +34,7 @@ import com.servoy.j2db.util.FormatParser;
  * @since 6.0
  */
 public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFieldComponent> extends AbstractRuntimeValuelistComponent<C> implements
-	IFormatScriptComponent
+	IFormatScriptComponent, HasRuntimeFormat, HasRuntimeEditable
 {
 	private ComponentFormat componentFormat;
 
