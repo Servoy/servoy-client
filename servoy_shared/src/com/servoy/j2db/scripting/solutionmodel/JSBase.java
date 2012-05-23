@@ -84,7 +84,7 @@ public class JSBase<T extends AbstractBase>
 	 */
 	public Object js_putDesignTimeProperty(String key, Object value)
 	{
-		return Utils.parseJSExpression(getBaseComponent(false).putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
+		return Utils.parseJSExpression(getBaseComponent(true).putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
 	}
 
 	/** Clear a design-time property of an element.
