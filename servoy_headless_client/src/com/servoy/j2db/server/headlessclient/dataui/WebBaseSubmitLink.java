@@ -448,7 +448,8 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	public String getText()
 	{
-		return getDefaultModelObjectAsString();
+		Object o = getDefaultModelObject();
+		return o == null ? null : o.toString();
 	}
 
 	public void setCursor(Cursor cursor)
