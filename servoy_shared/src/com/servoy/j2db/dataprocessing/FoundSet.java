@@ -42,6 +42,7 @@ import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.ApplicationException;
@@ -1245,6 +1246,52 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean js_loadRecords(QBSelect querybuilder) throws ServoyException
 	{
 		return checkLoadRecordsAllowed(false) && loadByQuery(querybuilder);
+	}
+
+	/** 
+	 * Method to handle old foundset loadRecords calls.
+	 * Deprecated method to handle pre-6.1 calls to varargs function foundset.loadRecords([1]), this was called with vargs=[1] in stead of vargs=[[1]].
+	 * 
+	 * @param vargs
+	 * @deprecated
+	 */
+	@Deprecated
+	public boolean js_loadRecords(Object[] vargs) throws ServoyException
+	{
+		if (vargs == null || vargs.length != 1)
+		{
+			throw new IllegalArgumentException("Cannot find function loadRecords for " + (vargs == null ? "no" : String.valueOf(vargs.length)) + " args");
+		}
+
+		Object data = vargs[0];
+
+		if (data instanceof Wrapper)
+		{
+			data = ((Wrapper)data).unwrap();
+		}
+
+		if (data instanceof IDataSet)
+		{
+			return js_loadRecords((IDataSet)data);
+		}
+		if (data instanceof FoundSet)
+		{
+			return js_loadRecords((FoundSet)data);
+		}
+		if (data instanceof String)
+		{
+			return js_loadRecords((String)data);
+		}
+		if (data instanceof Number)
+		{
+			return js_loadRecords((Number)data);
+		}
+		if (data instanceof UUID)
+		{
+			return js_loadRecords((UUID)data);
+		}
+
+		throw new IllegalArgumentException("Cannot find function loadRecords for argument " + (data == null ? "null" : data.getClass().getName()));
 	}
 
 	/**
