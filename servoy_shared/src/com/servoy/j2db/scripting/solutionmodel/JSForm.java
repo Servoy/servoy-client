@@ -4414,34 +4414,34 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *
 	 * @sample 
 	 * var frm = solutionModel.getForm('orders')
-	 * var prop = frm.getDesigntimeProperty('myprop')	
+	 * var prop = frm.getDesignTimeProperty('myprop')	
 	 */
-	public Object js_getDesigntimeProperty(String key)
+	public Object js_getDesignTimeProperty(String key)
 	{
-		return Utils.parseJSExpression(form.getCustomDesigntimeProperty(key));
+		return Utils.parseJSExpression(form.getCustomDesignTimeProperty(key));
 	}
 
 	/** Set a design-time property of a form.
 	 *
 	 * @sample 
 	 * var frm = solutionModel.getForm('orders')
-	 * frm.putDesigntimeProperty('myprop', 'lemon')	
+	 * frm.putDesignTimeProperty('myprop', 'lemon')	
 	 */
-	public Object js_putDesigntimeProperty(String key, Object value)
+	public Object js_putDesignTimeProperty(String key, Object value)
 	{
 		checkModification();
-		return Utils.parseJSExpression(form.putCustomDesigntimeProperty(key, Utils.makeJSExpression(value)));
+		return Utils.parseJSExpression(form.putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
 	}
 
 	/** Clear a design-time property of a form.
 	 *
 	 * @sample 
 	 * var frm = solutionModel.getForm('orders')
-	 * frm.removeDesigntimeProperty('myprop')
+	 * frm.removeDesignTimeProperty('myprop')
 	 */
-	public Object js_removeDesigntimeProperty(String key)
+	public Object js_removeDesignTimeProperty(String key)
 	{
-		return js_putDesigntimeProperty(key, null);
+		return js_putDesignTimeProperty(key, null);
 	}
 
 	/**

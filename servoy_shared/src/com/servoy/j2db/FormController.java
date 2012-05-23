@@ -1811,12 +1811,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/** Get a design-time property of a form.
 		 *
 		 * @sample 
-		 * var prop = forms.orders.getDesigntimeProperty('myprop')	
+		 * var prop = forms.orders.getDesignTimeProperty('myprop')	
 		 */
-		public Object js_getDesigntimeProperty(String key)
+		public Object js_getDesignTimeProperty(String key)
 		{
 			checkDestroyed();
-			return formController.getDesigntimeProperty(key);
+			return formController.getDesignTimeProperty(key);
 		}
 
 		/**
@@ -4207,9 +4207,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		return 0;
 	}
 
-	public Object getDesigntimeProperty(String key)
+	public Object getDesignTimeProperty(String key)
 	{
-		return Utils.parseJSExpression(getForm().getCustomDesigntimeProperty(key));
+		return Utils.parseJSExpression(getForm().getCustomDesignTimeProperty(key));
 	}
 
 	/**

@@ -333,13 +333,13 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesigntimeProperty#getDesigntimeProperty(java.lang.String)
+	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesignTimeProperty#getDesignTimeProperty(java.lang.String)
 	 */
-	public Object getDesigntimeProperty(String key)
+	public Object getDesignTimeProperty(String key)
 	{
 		if (getPersist() instanceof AbstractBase)
 		{
-			return Utils.parseJSExpression(((AbstractBase)getPersist()).getCustomDesigntimeProperty(key));
+			return Utils.parseJSExpression(((AbstractBase)getPersist()).getCustomDesignTimeProperty(key));
 		}
 		return null;
 	}

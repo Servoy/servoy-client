@@ -251,5 +251,5 @@ public interface IForm
 	 *
 	 * @since 6.1
 	 */
-	public Object getDesigntimeProperty(String key);
+	public Object getDesignTimeProperty(String key);
 }

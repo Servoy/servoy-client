@@ -208,13 +208,13 @@ public class RuntimeGroup implements HasRuntimeReadOnly, IRuntimeComponent
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesigntimeProperty#getDesigntimeProperty(java.lang.String)
+	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesignTimeProperty#getDesignTimeProperty(java.lang.String)
 	 */
-	public Object getDesigntimeProperty(String key)
+	public Object getDesignTimeProperty(String key)
 	{
 		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
-			Object value = obj.getDesigntimeProperty(key);
+			Object value = obj.getDesignTimeProperty(key);
 			if (value != null)
 			{
 				return value;

@@ -68,11 +68,11 @@ public class JSBase<T extends AbstractBase>
 	 * @sample 
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
-	 * var prop = fld.getDesigntimeProperty('myprop')	
+	 * var prop = fld.getDesignTimeProperty('myprop')	
 	 */
-	public Object js_getDesigntimeProperty(String key)
+	public Object js_getDesignTimeProperty(String key)
 	{
-		return Utils.parseJSExpression(getBaseComponent(false).getCustomDesigntimeProperty(key));
+		return Utils.parseJSExpression(getBaseComponent(false).getCustomDesignTimeProperty(key));
 	}
 
 	/** Set a design-time property of an element.
@@ -80,11 +80,11 @@ public class JSBase<T extends AbstractBase>
 	 * @sample 
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
-	 * fld.putDesigntimeProperty('myprop', 'strawberry')	
+	 * fld.putDesignTimeProperty('myprop', 'strawberry')	
 	 */
-	public Object js_putDesigntimeProperty(String key, Object value)
+	public Object js_putDesignTimeProperty(String key, Object value)
 	{
-		return Utils.parseJSExpression(getBaseComponent(false).putCustomDesigntimeProperty(key, Utils.makeJSExpression(value)));
+		return Utils.parseJSExpression(getBaseComponent(false).putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
 	}
 
 	/** Clear a design-time property of an element.
@@ -92,11 +92,11 @@ public class JSBase<T extends AbstractBase>
 	 * @sample 
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
-	 * fld.removeDesigntimeProperty('myprop')
+	 * fld.removeDesignTimeProperty('myprop')
 	 */
-	public Object js_removeDesigntimeProperty(String key)
+	public Object js_removeDesignTimeProperty(String key)
 	{
-		return js_putDesigntimeProperty(key, null);
+		return js_putDesignTimeProperty(key, null);
 	}
 
 	@SuppressWarnings("unchecked")

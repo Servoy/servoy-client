@@ -927,7 +927,7 @@ public abstract class AbstractBase implements IPersist
 		return old;
 	}
 
-	public Map<String, Object> getCustomDesigntimeProperties()
+	public Map<String, Object> getCustomDesignTimeProperties()
 	{
 		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { "design" });
 		if (map == null || map.size() == 0)
@@ -937,12 +937,12 @@ public abstract class AbstractBase implements IPersist
 		return map;
 	}
 
-	public Map<String, Object> setCustomDesigntimeProperties(Map<String, Object> map)
+	public Map<String, Object> setCustomDesignTimeProperties(Map<String, Object> map)
 	{
 		return (Map<String, Object>)putCustomProperty(new String[] { "design" }, map);
 	}
 
-	public Object getCustomDesigntimeProperty(String key)
+	public Object getCustomDesignTimeProperty(String key)
 	{
 		if (key != null)
 		{
@@ -951,7 +951,7 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
-	public Object putCustomDesigntimeProperty(String key, Object value)
+	public Object putCustomDesignTimeProperty(String key, Object value)
 	{
 		if (key != null)
 		{
