@@ -171,6 +171,7 @@ public class ScriptEngine implements IScriptSupport
 
 			toplevelScope.put(Record.JS_RECORD, toplevelScope, new InstanceOfScope(Record.JS_RECORD, Record.class));
 			toplevelScope.put(FoundSet.JS_FOUNDSET, toplevelScope, new InstanceOfScope(FoundSet.JS_FOUNDSET, FoundSet.class));
+			toplevelScope.put("JSFoundset", toplevelScope, new InstanceOfScope("JSFoundset", FoundSet.class));
 			toplevelScope.put("JSDataSet", toplevelScope, new InstanceOfScope("JSDataSet", JSDataSet.class));
 			toplevelScope.put("Form", toplevelScope, new InstanceOfScope("Form", FormScope.class));
 
