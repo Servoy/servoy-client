@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.servoy.extension.ExtensionUtils;
+
 /**
  * Deletes installed zip entries.
  * 
@@ -33,7 +35,7 @@ public class UninstallZipEntries extends CopyZipEntryImporter
 
 	public UninstallZipEntries(String expfileName, File installDir, String extensionID, String version)
 	{
-		super(new File(installDir + File.separator + CopyZipEntryImporter.EXPFILES_FOLDER, expfileName), installDir, extensionID, version);
+		super(new File(installDir + File.separator + ExtensionUtils.EXPFILES_FOLDER, expfileName), installDir, extensionID, version);
 	}
 
 	public UninstallZipEntries(File expFile, File installDir, String extensionID, String version)

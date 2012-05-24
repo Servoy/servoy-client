@@ -89,11 +89,11 @@ public class ComposedExtensionProvider implements IExtensionProvider
 	{
 		Message[] w1 = provider1.getMessages();
 		Message[] w2 = provider2.getMessages();
-		ArrayList<Message> messages = new ArrayList<Message>((w1 == null ? 0 : w1.length) + (w2 == null ? 0 : w2.length));
+		ArrayList<Message> messages = new ArrayList<Message>(w1.length + w2.length);
 
-		if (w1 != null) messages.addAll(Arrays.asList(w1));
-		if (w2 != null) messages.addAll(Arrays.asList(w2));
-		return messages.size() > 0 ? messages.toArray(new Message[messages.size()]) : null;
+		messages.addAll(Arrays.asList(w1));
+		messages.addAll(Arrays.asList(w2));
+		return messages.toArray(new Message[messages.size()]);
 	}
 
 	public void clearMessages()

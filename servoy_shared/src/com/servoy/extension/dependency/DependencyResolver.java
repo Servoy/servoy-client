@@ -104,7 +104,7 @@ public class DependencyResolver implements IMessageProvider
 	public synchronized void resolveDependencies(String extensionId, String version)
 	{
 		results = null;
-		messages.clear();
+		messages.clearMessages();
 
 		if (extensionId != null)
 		{
@@ -158,7 +158,7 @@ public class DependencyResolver implements IMessageProvider
 
 	public void clearMessages()
 	{
-		messages.clear();
+		messages.clearMessages();
 	}
 
 	protected void processInstalledExtensions()

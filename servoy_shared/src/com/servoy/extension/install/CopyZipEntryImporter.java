@@ -50,8 +50,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class CopyZipEntryImporter implements IMessageProvider
 {
-	public final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
-	private final static String BACKUP_FOLDER = EXPFILES_FOLDER + "/.backup"; //$NON-NLS-1$
+	private final static String BACKUP_FOLDER = ExtensionUtils.EXPFILES_FOLDER + "/.backup"; //$NON-NLS-1$
 	final static String WEBTEMPLATES_SOURCE_FOLDER = "application_server/webtemplates"; //$NON-NLS-1$
 	final static String WEBTEMPLATES_DESTINATION_FOLDER = "application_server/server/webapps/ROOT/servoy-webclient/templates"; //$NON-NLS-1$
 
@@ -141,7 +140,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 	protected void handleExpFile()
 	{
 		String generatedName = extensionID + "_" + version + ".exp"; //$NON-NLS-1$ //$NON-NLS-2$
-		File expCopy = new File(installDir + File.separator + EXPFILES_FOLDER, generatedName);
+		File expCopy = new File(installDir + File.separator + ExtensionUtils.EXPFILES_FOLDER, generatedName);
 		InputStream stream = null;
 		try
 		{
@@ -323,7 +322,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 
 	public void clearMessages()
 	{
-		messages.clear();
+		messages.clearMessages();
 	}
 
 }

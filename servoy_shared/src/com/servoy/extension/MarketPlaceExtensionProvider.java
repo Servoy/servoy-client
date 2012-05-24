@@ -30,7 +30,6 @@ import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 
-import com.servoy.extension.install.CopyZipEntryImporter;
 import com.servoy.extension.parser.ParseDependencyMetadata;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -63,7 +62,7 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 
 	public MarketPlaceExtensionProvider(File installDir)
 	{
-		destinationDir = new File(new File(installDir, CopyZipEntryImporter.EXPFILES_FOLDER), TO_BE_INSTALLED_FOLDER);
+		destinationDir = new File(new File(installDir, ExtensionUtils.EXPFILES_FOLDER), TO_BE_INSTALLED_FOLDER);
 	}
 
 	public String[] getAvailableVersions(String extensionID)
@@ -120,7 +119,7 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 
 	public void dispose()
 	{
-		messages.clear();
+		messages.clearMessages();
 		availableVersionsMap.clear();
 		flushCache();
 
@@ -135,7 +134,7 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 
 	public void clearMessages()
 	{
-		messages.clear();
+		messages.clearMessages();
 	}
 
 	private String[] ws_getVersions(String extensionId)

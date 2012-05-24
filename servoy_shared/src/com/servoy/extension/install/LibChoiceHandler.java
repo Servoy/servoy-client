@@ -21,8 +21,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.servoy.extension.FileBasedExtensionProvider;
 import com.servoy.extension.IExtensionProvider;
+import com.servoy.extension.IFileBasedExtensionProvider;
 import com.servoy.extension.IMessageProvider;
 import com.servoy.extension.Message;
 import com.servoy.extension.MessageKeeper;
@@ -45,11 +45,11 @@ public class LibChoiceHandler implements IMessageProvider
 
 	protected IEXPParserPool parserPool;
 	protected IExtensionProvider extensionProvider;
-	protected FileBasedExtensionProvider installedExtensionsProvider;
+	protected IFileBasedExtensionProvider installedExtensionsProvider;
 
 	protected MessageKeeper messages = new MessageKeeper();
 
-	public LibChoiceHandler(FileBasedExtensionProvider installedExtensionsProvider, IExtensionProvider extensionProvider, IEXPParserPool parserPool)
+	public LibChoiceHandler(IFileBasedExtensionProvider installedExtensionsProvider, IExtensionProvider extensionProvider, IEXPParserPool parserPool)
 	{
 		this.installedExtensionsProvider = installedExtensionsProvider;
 		this.extensionProvider = extensionProvider;
@@ -94,9 +94,8 @@ public class LibChoiceHandler implements IMessageProvider
 
 		EXPParser parser = parserPool != null ? parserPool.getOrCreateParser(getEXPFile(tldd)) : new EXPParser(getEXPFile(tldd));
 		FullDependencyMetadata dmd = parser.parseDependencyInfo();
-		Message[] problems = parser.getMessages();
+		messages.addAll(parser.getMessages());
 		parser.clearMessages();
-		if (problems != null) messages.addAll(problems);
 
 		if (dmd != null)
 		{
@@ -126,7 +125,7 @@ public class LibChoiceHandler implements IMessageProvider
 
 	public void clearMessages()
 	{
-		messages.clear();
+		messages.clearMessages();
 	}
 
 }

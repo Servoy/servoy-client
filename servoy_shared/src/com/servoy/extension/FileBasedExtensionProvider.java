@@ -33,7 +33,7 @@ import com.servoy.extension.parser.IEXPParserPool;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class FileBasedExtensionProvider extends CachingExtensionProvider
+public class FileBasedExtensionProvider extends CachingExtensionProvider implements IFileBasedExtensionProvider
 {
 
 	public static final String EXTENSION_PACKAGE_FILE_EXTENSION = ".exp";
@@ -192,7 +192,7 @@ public class FileBasedExtensionProvider extends CachingExtensionProvider
 
 	public void clearMessages()
 	{
-		messages.clear();
+		messages.clearMessages();
 	}
 
 	@Override

@@ -363,7 +363,7 @@ public class LibActivationHandler implements IMessageProvider
 
 	public void clearMessages()
 	{
-		messages.clear();
+		messages.clearMessages();
 	}
 
 	@SuppressWarnings("nls")

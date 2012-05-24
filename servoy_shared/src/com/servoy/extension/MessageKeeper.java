@@ -26,7 +26,7 @@ import java.util.List;
  * 
  * @author acostescu
  */
-public class MessageKeeper
+public class MessageKeeper implements IMessageProvider
 {
 
 	protected List<Message> messages;
@@ -54,14 +54,14 @@ public class MessageKeeper
 		if (messages == null) messages = new ArrayList<Message>();
 	}
 
-	public void clear()
+	public void clearMessages()
 	{
 		messages = null;
 	}
 
 	public Message[] getMessages()
 	{
-		return (messages != null && messages.size() > 0) ? messages.toArray(new Message[messages.size()]) : null;
+		return (messages != null) ? messages.toArray(new Message[messages.size()]) : new Message[0];
 	}
 
 	public void addAll(Message[] messagesToAdd)

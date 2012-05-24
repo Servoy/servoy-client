@@ -18,22 +18,15 @@
 package com.servoy.extension;
 
 /**
- * Class that provide Messages should implement this interface.
- * Class {@link MessageKeeper} might be of use to classes that implement this interface.
+ * This interface is for extension providers that are able to provider all the extensions they hold and are also
+ * able to flush their cache (for the case the underlying representation changes)
  * @author acostescu
  */
-public interface IMessageProvider
+public interface IFileBasedExtensionProvider extends IExtensionProvider
 {
 
-	/**
-	 * If problems were encountered while during operation, they will be remembered.
-	 * @return any problems encountered that might be of interest to the user. If no problems were found, an 0 length array is returned.
-	 */
-	Message[] getMessages();
+	void flushCache();
 
-	/**
-	 * Clears all warning messages.
-	 */
-	void clearMessages();
+	DependencyMetadata[] getAllAvailableExtensions();
 
 }
