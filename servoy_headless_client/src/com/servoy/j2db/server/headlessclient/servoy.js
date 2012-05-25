@@ -386,7 +386,7 @@ function rearrageTabsInTabPanel(tabPanelId)
 			} 
 			formContainer.style.top = bottomOfLastRow + "px";
 		}
-		tabPanel.style.visibility = 'visible';
+		tabPanel.style.visibility = 'inherit';
 		
 		if(focusedTabLink)
 		{
@@ -2649,7 +2649,7 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		            Dom.setStyle(fc, 'top', '-9999px');
 		            Dom.setStyle(fc, 'left', '-9999px');
 		            myEditor.get('element_cont').removeClass('yui-editor-container');
-		            Dom.setStyle(el, 'visibility', 'visible');
+		            Dom.setStyle(el, 'visibility', 'inherit');
 		            Dom.setStyle(el, 'top', '');
             		Dom.setStyle(el, 'left', '');
 		            Dom.setStyle(el, 'width', (width-10)+'px');

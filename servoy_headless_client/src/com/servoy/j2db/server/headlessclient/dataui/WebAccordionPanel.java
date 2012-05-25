@@ -270,7 +270,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 				super.renderHead(response);
 				// avoid flickering, see also tabpanel
 				response.renderOnDomReadyJavascript("var accordion = document.getElementById('" + WebAccordionPanel.this.getMarkupId() +
-					"');if (accordion){accordion.style.visibility = 'visible';}");
+					"');if (accordion){accordion.style.visibility = 'inherit';}");
 			}
 		});
 
