@@ -91,18 +91,26 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 				if (newRow >= 0) newSelectedSet.add(Integer.valueOf(newRow));
 			}
 		}
-		int prevSize = listModel != null ? listModel.getSize() : 0;
+		int prevSize = getSize();
 		if (listModel instanceof SeparatorProcessingValueList) ((SeparatorProcessingValueList)listModel).setWrapped(newModel);
+		else listModel = newModel;
 		selectedSet = newSelectedSet;
 		listModel.addListDataListener(listener);
 		this.hideFirstValue = (listModel.getAllowEmptySelection() && shouldHideEmptyValueIfPresent);
-		if (listModel.getSize() > 0)
+		int currentSize = getSize();
+		if (currentSize > prevSize)
 		{
-			this.fireIntervalAdded(this, 0, listModel.getSize() - 1);
+			this.fireIntervalAdded(this, prevSize, currentSize - 1);
+			this.fireContentsChanged(this, 0, prevSize - 1);
 		}
-		else if (prevSize > 0)
+		else if (prevSize != currentSize)
 		{
-			this.fireIntervalRemoved(this, 0, prevSize);
+			this.fireIntervalRemoved(this, currentSize, prevSize - 1);
+			this.fireContentsChanged(this, 0, currentSize - 1);
+		}
+		else
+		{
+			this.fireContentsChanged(this, 0, currentSize - 1);
 		}
 	}
 
@@ -311,6 +319,7 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 	 */
 	public void setElementAt(Object aValue, int rowIndex, boolean allowEmptySelection)
 	{
+		// this index is the ui index (so 0 is 1 in the list model if hideFirstValue = true)
 		Integer i = new Integer(rowIndex);
 
 		getSelectedRows();//to be sure it present
@@ -406,7 +415,14 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			valueListChanging = true;
 			try
 			{
-				fireIntervalAdded(this, e.getIndex0(), e.getIndex1());
+				if (hideFirstValue)
+				{
+					fireIntervalAdded(this, e.getIndex0() - 1, e.getIndex1() - 1);
+				}
+				else
+				{
+					fireIntervalAdded(this, e.getIndex0(), e.getIndex1());
+				}
 			}
 			finally
 			{
@@ -419,7 +435,14 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			valueListChanging = true;
 			try
 			{
-				fireIntervalRemoved(this, e.getIndex0(), e.getIndex1());
+				if (hideFirstValue)
+				{
+					fireIntervalRemoved(this, e.getIndex0() - 1, e.getIndex1() - 1);
+				}
+				else
+				{
+					fireIntervalRemoved(this, e.getIndex0(), e.getIndex1());
+				}
 			}
 			finally
 			{
@@ -444,7 +467,14 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 						setSelectedItem(getElementAt(index));
 					}
 				}
-				fireContentsChanged(this, e.getIndex0(), e.getIndex1());
+				if (hideFirstValue)
+				{
+					fireContentsChanged(this, e.getIndex0() - 1, e.getIndex1() - 1);
+				}
+				else
+				{
+					fireContentsChanged(this, e.getIndex0(), e.getIndex1());
+				}
 			}
 			finally
 			{
