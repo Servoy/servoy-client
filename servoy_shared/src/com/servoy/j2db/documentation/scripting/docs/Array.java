@@ -90,9 +90,21 @@ public class Array
 	 * 
 	 * @param value1
 	 * @param value2
-	 * @param valueN optional
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array
+	 */
+	public void jsConstructor_Array(Object value1, Object value2)
+	{
+	}
+
+	/**
+	 * @clonedesc jsConstructor_Array(Object, Object)
+	 * @sampleas jsConstructor_Array(Object, Object)
+	 * 
+	 * @param value1
+	 * @param value2
+	 * @param valueN
+	 * 
 	 */
 	public void jsConstructor_Array(Object value1, Object value2, Object valueN)
 	{
@@ -104,10 +116,35 @@ public class Array
 	 * @sample array.concat();
 	 * 
 	 * @param value1 
-	 * @param value2 optional 
-	 * @param valueN optional
 	 *  
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/concat
+	 */
+	public Array js_concat(Object value1)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_concat(Object)
+	 * @sampleas js_concat(Object)
+	 * 
+	 * @param value1 
+	 * @param value2
+	 *  
+	 */
+	public Array js_concat(Object value1, Object value2)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_concat(Object)
+	 * @sampleas js_concat(Object)
+	 * 
+	 * @param value1 
+	 * @param value2 
+	 * @param valueN
+	 *  
 	 */
 	public Array js_concat(Object value1, Object value2, Object valueN)
 	{
@@ -124,10 +161,22 @@ public class Array
 	 * var a2 = [1, '2', 3]; 
 	 * application.output(a2.every(isNumber));
 	 *
-	 * @param callback 
-	 * @param thisObject optional 
+	 * @param callback  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/every
+	 */
+	public Boolean js_every(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_every(Function)
+	 * @sampleas js_every(Function)
+	 *
+	 * @param callback 
+	 * @param thisObject
+	 * 
 	 */
 	public Boolean js_every(Function callback, Array thisObject)
 	{
@@ -142,10 +191,22 @@ public class Array
 	 * var a2 = a1.filter(function(item) { return typeof item == 'number'; });
 	 * application.output(a2);
 	 *
-	 * @param callback 
-	 * @param thisObject optional 
+	 * @param callback  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
+	 */
+	public Array js_filter(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_filter(Function)
+	 * @sampleas js_filter(Function)
+	 *
+	 * @param callback 
+	 * @param thisObject
+	 * 
 	 */
 	public Array js_filter(Function callback, Array thisObject)
 	{
@@ -160,10 +221,21 @@ public class Array
 	 * var a = ['a', 'b', 'c'];	
 	 * a.forEach(printThemOut);
 	 *
-	 * @param callback 
-	 * @param thisObject optional 
+	 * @param callback  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/forEach
+	 */
+	public void js_forEach(Function callback)
+	{
+	}
+
+	/**
+	 * @clonedesc js_forEach(Function)
+	 * @sampleas js_forEach(Function)
+	 *
+	 * @param callback 
+	 * @param thisObject 
+	 * 
 	 */
 	public void js_forEach(Function callback, Array thisObject)
 	{
@@ -178,10 +250,22 @@ public class Array
 	 * application.output(a.indexOf('b', 2));
 	 * application.output(a.indexOf('z'));
 	 *
-	 * @param searchElement 
-	 * @param fromIndex optional 
+	 * @param searchElement  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
+	 */
+	public Number js_indexOf(Object searchElement)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_indexOf(Object)
+	 * @sampleas js_indexOf(Object)
+	 *
+	 * @param searchElement 
+	 * @param fromIndex
+	 * 
 	 */
 	public Number js_indexOf(Object searchElement, Number fromIndex)
 	{
@@ -213,10 +297,22 @@ public class Array
 	 * application.output(a.lastIndexOf('b', 4));
 	 * application.output(a.lastIndexOf('z'));
 	 *
-	 * @param searchElement 
-	 * @param fromIndex optional 
+	 * @param searchElement  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/lastIndexOf
+	 */
+	public Number js_lastIndexOf(Object searchElement)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_lastIndexOf(Object)
+	 * @sampleas js_lastIndexOf(Object)
+	 *
+	 * @param searchElement 
+	 * @param fromIndex
+	 * 
 	 */
 	public Number js_lastIndexOf(Object searchElement, Number fromIndex)
 	{
@@ -232,9 +328,21 @@ public class Array
 	 * application.output(a2);
 	 *
 	 * @param callback 
-	 * @param thisObject optional
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/map
+	 */
+	public Array js_map(Object callback)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_map(Object)
+	 * @sampleas js_map(Object)
+	 *
+	 * @param callback 
+	 * @param thisObject
+	 * 
 	 */
 	public Array js_map(Object callback, Array thisObject)
 	{
@@ -263,10 +371,35 @@ public class Array
 	 * words.push("In","Out");
 	 *
 	 * @param value1
-	 * @param value2 optional
-	 * @param valueN optional
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/push
+	 */
+	public Number js_push(Object value1)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_push(Object)
+	 * @sampleas js_push(Object)
+	 *
+	 * @param value1
+	 * @param value2
+	 * 
+	 */
+	public Number js_push(Object value1, Object value2)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_push(Object)
+	 * @sampleas js_push(Object)
+	 *
+	 * @param value1
+	 * @param value2
+	 * @param valueN
+	 * 
 	 */
 	public Number js_push(Object value1, Object value2, Object valueN)
 	{
@@ -308,10 +441,22 @@ public class Array
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
 	 * var nwords1 = words.slice(3, 5);
 	 *
-	 * @param begin 
-	 * @param end optional 
+	 * @param begin  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/slice
+	 */
+	public Array js_slice(Object begin)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_slice(Object)
+	 * @sampleas js_slice(Object)
+	 *
+	 * @param begin 
+	 * @param end
+	 * 
 	 */
 	public Array js_slice(Object begin, Object end)
 	{
@@ -328,10 +473,22 @@ public class Array
 	 * var a2 = [1, '2', 3];  
 	 * application.output(a2.some(isNumber));
 	 *
-	 * @param callback 
-	 * @param thisObject optional 
+	 * @param callback  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/some
+	 */
+	public Boolean js_some(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_some(Function)
+	 * @sampleas js_some(Function)
+	 *
+	 * @param callback 
+	 * @param thisObject
+	 * 
 	 */
 	public Boolean js_some(Function callback, Array thisObject)
 	{
@@ -343,11 +500,21 @@ public class Array
 	 *
 	 * @sample
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
-	 * words.sort();
-	 *
-	 * @param function optional 
+	 * words.sort(); 
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/sort
+	 */
+	public Array js_sort()
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_sort()
+	 * @sampleas js_sort()
+	 *
+	 * @param function 
+	 * 
 	 */
 	public Array js_sort(Function function)
 	{
@@ -363,11 +530,53 @@ public class Array
 	 *
 	 * @param arrayIndex 
 	 * @param length 
-	 * @param value1 optional
-	 * @param value2 optional
-	 * @param valueN optional
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/splice
+	 */
+	public Array js_splice(Object arrayIndex, Object length)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_splice(Object, Object)
+	 * @sampleas js_splice(Object, Object)
+	 *
+	 * @param arrayIndex 
+	 * @param length 
+	 * @param value1
+	 * 
+	 */
+	public Array js_splice(Object arrayIndex, Object length, Object value1)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_splice(Object, Object)
+	 * @sampleas js_splice(Object, Object)
+	 *
+	 * @param arrayIndex 
+	 * @param length 
+	 * @param value1
+	 * @param value2
+	 * 
+	 */
+	public Array js_splice(Object arrayIndex, Object length, Object value1, Object value2)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_splice(Object, Object)
+	 * @sampleas js_splice(Object, Object)
+	 *
+	 * @param arrayIndex 
+	 * @param length 
+	 * @param value1
+	 * @param value2
+	 * @param valueN
+	 * 
 	 */
 	public Array js_splice(Object arrayIndex, Object length, Object value1, Object value2, Object valueN)
 	{

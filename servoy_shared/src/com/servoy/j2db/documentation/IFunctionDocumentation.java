@@ -64,6 +64,8 @@ public interface IFunctionDocumentation
 
 	public String getFullSignature();
 
+	public String getFullSignature(boolean withNames, boolean withTypes);
+
 	public String getSignature(String prefix);
 
 	public boolean answersTo(String name);

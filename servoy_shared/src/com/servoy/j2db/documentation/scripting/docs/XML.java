@@ -283,10 +283,21 @@ public class XML
 	 * if no argument is passed.
 	 *
 	 * @sample xml.descendants([name])
-	 * 
-	 * @param name optional 
+	 *  
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 */
+	public XMLList js_descendants()
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_descendants()
+	* @sampleas js_descendants()
+	 * 
+	 * @param name
+	 * 
 	 */
 	public XMLList js_descendants(String name)
 	{
@@ -298,10 +309,21 @@ public class XML
 	 * all matching child elements.
 	 *
 	 * @sample xml.elements([name])
-	 * 
-	 * @param name optional 
+	 *  
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 */
+	public XMLList js_elements()
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_elements()
+	* @sampleas js_elements()
+	 * 
+	 * @param name
+	 * 
 	 */
 	public XMLList js_elements(String name)
 	{
@@ -437,9 +459,20 @@ public class XML
 	 *
 	 * @sample xml.namespace([prefix])
 	 * 
-	 * @param prefix optional
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 */
+	public Namespace js_namespace()
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_namespace()
+	* @sampleas js_namespace()
+	 * 
+	 * @param prefix
+	 * 
 	 */
 	public Namespace js_namespace(String prefix)
 	{
@@ -517,9 +550,20 @@ public class XML
 	 *
 	 * @sample xml.processingInstructions([name])
 	 * 
-	 * @param name optional
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 */
+	public XMLList js_processingInstructions()
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_processingInstructions()
+	* @sampleas js_processingInstructions()
+	 * 
+	 * @param name
+	 * 
 	 */
 	public XMLList js_processingInstructions(String name)
 	{
@@ -640,11 +684,20 @@ public class XML
 	/**
 	 * Allows the global XML settings to be adjusted or restored to their default values.
 	 * 
-	 * @param settings optional The new settings that should be applied globally to the XML object.
-
 	 * @sample xml.setSettings(settings)
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 */
+	public void js_setSettings()
+	{
+	}
+
+	/**
+	 * @clonedesc js_setSettings()
+	 * @sampleas js_setSettings()
+	 * 
+	 * @param settings The new settings that should be applied globally to the XML object.
+	 * 
 	 */
 	public void js_setSettings(Object settings)
 	{

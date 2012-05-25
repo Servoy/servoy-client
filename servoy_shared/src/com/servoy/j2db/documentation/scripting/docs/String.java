@@ -126,10 +126,22 @@ public class String
 	 *
 	 * @sample string.concat(string);
 	 * 
-	 * @param string2 
-	 * @param stringN optional 
+	 * @param string2  
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/concat
+	 */
+	public String js_concat(String string2)
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_concat(String)
+	* @sampleas js_concat(String)
+	 * 
+	 * @param string2 
+	 * @param stringN
+	 * 
 	 */
 	public String js_concat(String string2, String stringN)
 	{
@@ -319,9 +331,22 @@ public class String
 	 * @sample string.slice(start,end);
 	 * 
 	 * @param beginSlice 
-	 * @param endSlice optional
+	 * @param endSlice
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/slice
+	 */
+	public String js_slice(Number beginSlice)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_slice(Number)
+	 * @sampleas js_slice(Number)
+	 * 
+	 * @param beginSlice 
+	 * @param endSlice
+	 * 
 	 */
 	public String js_slice(Number beginSlice, Number endSlice)
 	{
@@ -385,9 +410,21 @@ public class String
 	 * @sample string.substr(start, number_of_chars);
 	 * 
 	 * @param start 
-	 * @param length optional
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/substr
+	 */
+	public String js_substr(Number start)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_substr(Number)
+	 * @sampleas js_substr(Number)
+	 * 
+	 * @param start 
+	 * @param length
+	 * 
 	 */
 	public String js_substr(Number start, Number length)
 	{
@@ -400,9 +437,21 @@ public class String
 	 * @sample string.substring(start, end);
 	 * 
 	 * @param indexA 
-	 * @param indexB optional
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/substring
+	 */
+	public String js_substring(Number indexA)
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_substring(Number)
+	* @sampleas js_substring(Number)
+	 * 
+	 * @param indexA 
+	 * @param indexB
+	 * 
 	 */
 	public String js_substring(Number indexA, Number indexB)
 	{

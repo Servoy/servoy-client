@@ -119,11 +119,23 @@ public class Number
 	 * var n = 123.45678;
 	 * application.output(n.toFixed(3));
 	 * 
-	 * @param digits optional The number of digits to appear after the decimal point. Defaults to 0.
-	 * 
 	 * @return A string representing the number in fixed-point notation.
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/toFixed
+	 */
+	public String js_toFixed()
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_toFixed()
+	 * @sampleas js_toFixed()
+	 * 
+	 * @param digits The number of digits to appear after the decimal point. Defaults to 0.
+	 * 
+	 * @return A string representing the number in fixed-point notation.
+	 * 
 	 */
 	public String js_toFixed(Number digits)
 	{
@@ -136,12 +148,25 @@ public class Number
 	 * @sample
 	 * var n = 123.45678;
 	 * application.output(n.toExponential(3));
-	 * 
-	 * @param fractionDigits optional An integer specifying the number of digits after the decimal point. Defaults to as many digits as necessary to specify the number. 
+	 *  
 	 * 
 	 * @return A string representing the number in exponential notation. 
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/toExponential
+	 */
+	public String js_toExponential()
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_toExponential()
+	 * @sampleas js_toExponential()
+	 * 
+	 * @param fractionDigits An integer specifying the number of digits after the decimal point. Defaults to as many digits as necessary to specify the number. 
+	 * 
+	 * @return A string representing the number in exponential notation. 
+	 * 
 	 */
 	public String js_toExponential(Number fractionDigits)
 	{
@@ -171,11 +196,24 @@ public class Number
 	 * var n = 123.45678;
 	 * application.output(n.toPrecision(5));
 	 * 
-	 * @param precision optional An integer specifying the number of significant digits.
 	 * 
 	 * @return A string representing the number to a specified precision in fixed-point or exponential notation.
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/toPrecision
+	 */
+	public String js_toPrecision()
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_toPrecision()
+	 * @sampleas js_toPrecision()
+	 * 
+	 * @param precision An integer specifying the number of significant digits.
+	 * 
+	 * @return A string representing the number to a specified precision in fixed-point or exponential notation.
+	 * 
 	 */
 	public String js_toPrecision(Number precision)
 	{
@@ -190,11 +228,24 @@ public class Number
 	 * application.output(n.toString()); //displays "7"
 	 * application.output(n.toString(2)); //displays "111"
 	 *   
-	 * @param radix optional An integer between 2 and 36 specifying the base to use for representing numeric values
 	 * 
 	 * @return A string representing the specified Number object.
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number/toString
+	 */
+	public String js_toString()
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_toString()
+	 * @sampleas js_toString()
+	 *   
+	 * @param radix An integer between 2 and 36 specifying the base to use for representing numeric values
+	 * 
+	 * @return A string representing the specified Number object.
+	 * 
 	 */
 	public String js_toString(Number radix)
 	{

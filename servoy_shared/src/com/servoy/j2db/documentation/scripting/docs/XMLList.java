@@ -124,10 +124,21 @@ public class XMLList
 	 * Returns an XMLList with all of the matching descendants of all XML objects.
 	 *
 	 * @sample xmlList.descendants([name])
-	 * 
-	 * @param name optional 
+	 *  
 	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 */
+	public XMLList js_descendants()
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_descendants()
+	 * @sampleas js_descendants()
+	 * 
+	 * @param name
+	 * 
 	 */
 	public XMLList js_descendants(String name)
 	{
@@ -232,9 +243,19 @@ public class XMLList
 	 *
 	 * @sample xmlList.processingInstructions([name])
 	 * 
-	 * @param name optional
-	 * 
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 */
+	public XMLList js_processingInstructions()
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_processingInstructions()
+	 * @sampleas js_processingInstructions()
+	 * 
+	 * @param name
+	 * 
 	 */
 	public XMLList js_processingInstructions(String name)
 	{
