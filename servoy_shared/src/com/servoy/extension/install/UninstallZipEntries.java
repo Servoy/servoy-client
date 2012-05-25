@@ -23,6 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.servoy.extension.ExtensionUtils;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Deletes installed zip entries.
@@ -70,7 +71,7 @@ public class UninstallZipEntries extends CopyZipEntryImporter
 		}
 		else
 		{
-			messages.addInfo("A file was already removed (before uninstall): " + file); //$NON-NLS-1$
+			Debug.trace("A file was already removed (before uninstall): " + file); //$NON-NLS-1$
 		}
 	}
 
