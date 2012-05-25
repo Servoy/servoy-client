@@ -939,30 +939,28 @@ public abstract class AbstractBase implements IPersist
 
 	/**
 	 * Merge properties from this, super, ...
+	 * This will always return a non-null map of properties which is a map that can be written to.
 	 */
 	public Map<String, Object> getMergedCustomDesignTimeProperties()
 	{
-		Map<String, Object> mergedProperties = null;
-		IPersist persist = this;
-		while (persist instanceof AbstractBase)
-		{
-			Map<String, Object> map = ((AbstractBase)persist).getCustomDesignTimeProperties();
-			if (map != null)
-			{
-				if (mergedProperties == null)
-				{
-					mergedProperties = map;
-				}
-				else
-				{
-					Map<String, Object> tmp = new HashMap<String, Object>(map);
-					tmp.putAll(mergedProperties);
-					mergedProperties = tmp;
-				}
-			}
-			persist = persist instanceof ISupportExtendsID ? PersistHelper.getSuperPersist((ISupportExtendsID)persist) : null;
-		}
+		return getMergedCustomDesignTimePropertiesInternal(new HashMap<String, Object>());
+	}
 
+	private Map<String, Object> getMergedCustomDesignTimePropertiesInternal(Map<String, Object> mergedProperties)
+	{
+		if (this instanceof ISupportExtendsID)
+		{
+			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)this);
+			if (superPersist instanceof AbstractBase)
+			{
+				((AbstractBase)superPersist).getMergedCustomDesignTimePropertiesInternal(mergedProperties);
+			}
+		}
+		Map<String, Object> map = getCustomDesignTimeProperties();
+		if (map != null)
+		{
+			mergedProperties.putAll(map);
+		}
 		return mergedProperties;
 	}
 
