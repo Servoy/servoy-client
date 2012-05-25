@@ -937,6 +937,71 @@ public abstract class AbstractBase implements IPersist
 		return map;
 	}
 
+	/**
+	 * Merge properties from this, super, ...
+	 */
+	public Map<String, Object> getMergedCustomDesignTimeProperties()
+	{
+		Map<String, Object> mergedProperties = null;
+		IPersist persist = this;
+		while (persist instanceof AbstractBase)
+		{
+			Map<String, Object> map = ((AbstractBase)persist).getCustomDesignTimeProperties();
+			if (map != null)
+			{
+				if (mergedProperties == null)
+				{
+					mergedProperties = map;
+				}
+				else
+				{
+					Map<String, Object> tmp = new HashMap<String, Object>(map);
+					tmp.putAll(mergedProperties);
+					mergedProperties = tmp;
+				}
+			}
+			persist = persist instanceof ISupportExtendsID ? PersistHelper.getSuperPersist((ISupportExtendsID)persist) : null;
+		}
+
+		return mergedProperties;
+	}
+
+	/**
+	 * Unmerge properties from this, super, ... by removing elements that are defined with equal value in super persist.
+	 */
+	public void setUnmergedCustomDesignTimeProperties(Map<String, Object> mergedProperties)
+	{
+		Map<String, Object> map = mergedProperties;
+		if (map != null)
+		{
+			IPersist superPersist = this instanceof ISupportExtendsID ? PersistHelper.getSuperPersist((ISupportExtendsID)this) : null;
+			if (superPersist instanceof AbstractBase)
+			{
+				Map<String, Object> superMergedProperties = ((AbstractBase)superPersist).getMergedCustomDesignTimeProperties();
+				if (superMergedProperties != null)
+				{
+					for (Entry<String, Object> superEntry : superMergedProperties.entrySet())
+					{
+						Object subval = map.get(superEntry.getKey());
+						if (subval != null && subval.equals(superEntry.getValue()))
+						{
+							// unmerge values same as superpersist
+							if (map == mergedProperties)
+							{
+								// make copy, do not modify original
+								map = new HashMap<String, Object>(mergedProperties);
+							}
+							map.remove(superEntry.getKey());
+						}
+					}
+				}
+			}
+		}
+
+		setCustomDesignTimeProperties(map);
+	}
+
+
 	public Map<String, Object> setCustomDesignTimeProperties(Map<String, Object> map)
 	{
 		return (Map<String, Object>)putCustomProperty(new String[] { "design" }, map);
