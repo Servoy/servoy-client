@@ -15,14 +15,12 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.extension;
+package com.servoy.extension.parser;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.servoy.extension.parser.EXPParser;
-import com.servoy.extension.parser.IEXPParserPool;
 
 /**
  * Helps to reuse parsed content instead of re-parsing each time.
