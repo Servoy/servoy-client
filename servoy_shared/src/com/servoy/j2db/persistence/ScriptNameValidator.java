@@ -171,7 +171,7 @@ public class ScriptNameValidator implements IValidateName
 			}
 		}
 		// Test the global levels. (form names and relations)null 
-		if ((searchContext.getType() == IRepository.SCRIPTVARIABLES || searchContext.getType() == IRepository.METHODS) &&
+		else if ((searchContext.getType() == IRepository.SCRIPTVARIABLES || searchContext.getType() == IRepository.METHODS) &&
 			!(searchContext.getObject() instanceof Form))
 		{
 			Iterator<ScriptVariable> vars = solutionRoot.getScriptVariables(false);
