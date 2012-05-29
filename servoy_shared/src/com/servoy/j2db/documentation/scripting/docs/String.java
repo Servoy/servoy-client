@@ -331,7 +331,6 @@ public class String
 	 * @sample string.slice(start,end);
 	 * 
 	 * @param beginSlice 
-	 * @param endSlice
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/slice
 	 */
