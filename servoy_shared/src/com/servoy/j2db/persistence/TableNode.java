@@ -75,7 +75,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		String name = methodName == null ? "untitled" : methodName; //$NON-NLS-1$
 
 		//check if name is in use
-		ValidatorSearchContext ft = new ValidatorSearchContext(getTable(), IRepository.METHODS);
+		ValidatorSearchContext ft = new ValidatorSearchContext(this, IRepository.METHODS);
 		validator.checkName(name, 0, ft, false);
 
 		ScriptMethod obj = (ScriptMethod)getRootObject().getChangeHandler().createNewObject(this, IRepository.METHODS);
