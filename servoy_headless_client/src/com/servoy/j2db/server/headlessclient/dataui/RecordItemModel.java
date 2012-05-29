@@ -28,6 +28,7 @@ import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.FindState;
@@ -36,14 +37,11 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.TagResolver;
-import com.servoy.j2db.dataprocessing.ValidationFailedException;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ITagResolver;
@@ -294,27 +292,7 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 					catch (IllegalArgumentException e)
 					{
 						Debug.trace(e);
-						JSEvent event = new JSEvent();
-						if (webForm != null && webForm.getController() != null)
-						{
-							event.setFormName(webForm.getController().getName());
-						}
-						IComponent failedComponent = null;
-						if (component instanceof IComponent)
-						{
-							failedComponent = (IComponent)component;
-						}
-						else
-						{
-							failedComponent = component.findParent(IComponent.class);
-						}
-						if (failedComponent != null)
-						{
-							event.setSource(failedComponent);
-							event.setElementName((failedComponent).getName());
-						}
-						((WebClientSession)Session.get()).getWebClient().handleException(null,
-							new ValidationFailedException(ServoyException.INVALID_INPUT, e, prevValue, obj, event));
+						((WebClientSession)Session.get()).getWebClient().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
 						Object stateValue = record.getValue(dataProviderID);
 						if (!Utils.equalObjects(prevValue, stateValue))
 						{
