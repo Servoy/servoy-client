@@ -17,7 +17,6 @@
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 /**
@@ -47,7 +46,6 @@ public class TabIndexAttributeModifier extends AttributeModifier
 		{
 			return String.valueOf(tabIndex);
 		}
-
 	}
 
 	public TabIndexAttributeModifier(int tabIndex)
@@ -58,11 +56,6 @@ public class TabIndexAttributeModifier extends AttributeModifier
 	public void setTabIndex(int newTabIndex)
 	{
 		((TabIndexModel)getReplaceModel()).setTabIndex(newTabIndex);
-	}
-
-	public IModel getReplacementModel()
-	{
-		return getReplaceModel();
 	}
 
 }
