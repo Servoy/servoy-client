@@ -3807,6 +3807,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		int methodid = ((Integer)persist.getProperty(methodProperty.getPropertyName())).intValue();
 		if (methodid > 0)
 		{
+			IJSScriptParent< ? > scriptParent = null;
 			ScriptMethod scriptMethod = null;
 			if (parent instanceof JSForm)
 			{
@@ -3820,13 +3821,29 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 						f = application.getFlattenedSolution().getForm(f.getExtendsID());
 						if (f != null) scriptMethod = f.getScriptMethod(methodid);
 					}
+					if (scriptMethod != null)
+					{
+						scriptParent = new JSForm(application, f, false);
+					}
 				}
 			}
 
-			if (scriptMethod == null && parent instanceof JSDataSourceNode)
+			if (scriptMethod == null)
 			{
 				// foundset method
-				scriptMethod = ((JSDataSourceNode)parent).getSupportChild().getFoundsetMethod(methodid);
+				if (parent instanceof JSDataSourceNode)
+				{
+					scriptMethod = ((JSDataSourceNode)parent).getSupportChild().getFoundsetMethod(methodid);
+				}
+				else if (parent instanceof JSForm && ((JSForm)parent).form.getDataSource() != null)
+				{
+					Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(((JSForm)parent).form.getDataSource(), false);
+					scriptMethod = AbstractBase.selectById(foundsetMethods, methodid);
+					if (scriptMethod != null)
+					{
+						scriptParent = new JSDataSourceNode(application, ((JSForm)parent).form.getDataSource());
+					}
+				}
 			}
 
 			if (scriptMethod == null)
@@ -3837,20 +3854,22 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 
 			if (scriptMethod != null)
 			{
-				IJSScriptParent< ? > scriptParent;
-				if (scriptMethod.getParent() instanceof TableNode && parent instanceof JSDataSourceNode)
+				if (scriptParent == null)
 				{
-					scriptParent = (JSDataSourceNode)parent;
-				}
-				else if (scriptMethod.getParent() instanceof Solution)
-				{
-					// global
-					scriptParent = null;
-				}
-				else
-				{
-					// form method
-					scriptParent = getJSFormParent(parent);
+					if (scriptMethod.getParent() instanceof TableNode && parent instanceof JSDataSourceNode)
+					{
+						scriptParent = (JSDataSourceNode)parent;
+					}
+					else if (scriptMethod.getParent() instanceof Solution)
+					{
+						// global
+						scriptParent = null;
+					}
+					else
+					{
+						// form method
+						scriptParent = getJSFormParent(parent);
+					}
 				}
 				List<Object> arguments = persist.getInstanceMethodArguments(methodProperty.getPropertyName());
 				if (arguments == null || arguments.size() == 0)
