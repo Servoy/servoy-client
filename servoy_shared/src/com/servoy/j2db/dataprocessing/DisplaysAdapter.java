@@ -39,8 +39,6 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
@@ -390,14 +388,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			catch (IllegalArgumentException e)
 			{
 				Debug.trace(e);
-				JSEvent event = new JSEvent();
-				if (display instanceof IComponent)
-				{
-					event.setSource(display);
-					event.setElementName(((IComponent)display).getName());
-				}
-				event.setFormName(dal.getFormController().getName());
-				application.handleException(null, new ValidationFailedException(ServoyException.INVALID_INPUT, e, prevValue, obj, event));
+				application.handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
 				Object stateValue = record.getValue(dataProviderID);
 				if (Utils.equalObjects(prevValue, stateValue))
 				{
