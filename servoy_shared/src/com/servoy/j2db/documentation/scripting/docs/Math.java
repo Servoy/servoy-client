@@ -301,26 +301,11 @@ public class Math
 	 *
 	 * @sample Math.max(number,number,number)
 	 * 
-	 * @param value1 
-	 * @param value2 
+	 * @param value 
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/max
 	 */
-	public Number js_max(Number value1, Number value2)
-	{
-		return null;
-	}
-
-	/**
-	 * @clonedesc js_max(Number, Number)
-	 * @sampleas js_max(Number, Number)
-	 * 
-	 * @param value1 
-	 * @param value2 
-	 * @param valueN
-	 * 
-	 */
-	public Number js_max(Number value1, Number value2, Number... valueN)
+	public Number js_max(Number... value)
 	{
 		return null;
 	}
@@ -330,26 +315,11 @@ public class Math
 	 *
 	 * @sample Math.min(number,number,number)
 	 * 
-	 * @param value1 
-	 * @param value2 
+	 * @param value 
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/min
 	 */
-	public Number js_min(Number value1, Number value2)
-	{
-		return null;
-	}
-
-	/**
-	* @clonedesc js_min(Number, Number)
-	* @sampleas js_min(Number, Number)
-	 * 
-	 * @param value1 
-	 * @param value2 
-	 * @param valueN
-	 * 
-	 */
-	public Number js_min(Number value1, Number value2, Number... valueN)
+	public Number js_min(Number... value)
 	{
 		return null;
 	}
