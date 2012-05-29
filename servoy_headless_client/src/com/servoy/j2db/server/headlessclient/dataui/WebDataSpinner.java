@@ -73,7 +73,7 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 
 	private Spinner createNewSpinner()
 	{
-		currentValues = getNewValues(valueList);
+		currentValues = getNewValues();
 		return spinnerBehavior = new ModifiedSpinner(currentValues);
 	}
 
@@ -88,11 +88,31 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		return field.getConverter(type);
 	}
 
-	private String[] getNewValues(IValueList vl)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField#setValidationEnabled(boolean)
+	 */
+	@Override
+	public void setValidationEnabled(boolean b)
+	{
+		super.setValidationEnabled(b);
+		if (valueList.getFallbackValueList() != null)
+		{
+			updateSpinnerBehavior();
+		}
+	}
+
+	private String[] getNewValues()
 	{
 		String[] values = null;
-		if (vl != null)
+		if (valueList != null)
 		{
+			IValueList vl = valueList;
+			if (!field.getEventExecutor().getValidationEnabled() && vl.getFallbackValueList() != null)
+			{
+				vl = vl.getFallbackValueList();
+			}
 			int size = vl.getSize();
 			if (size > 1 || (size == 1 && vl.getElementAt(0) != null && String.valueOf(vl.getElementAt(0)).trim().length() > 0))
 			{
@@ -177,7 +197,7 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		{
 			ignoreChanges = true;
 			valueList.fill(state);
-			listContentChanged = !Arrays.equals(currentValues, getNewValues(valueList));
+			listContentChanged = !Arrays.equals(currentValues, getNewValues());
 		}
 		finally
 		{

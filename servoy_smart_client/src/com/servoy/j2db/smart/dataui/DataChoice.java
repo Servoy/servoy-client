@@ -131,7 +131,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		application = app;
 		this.vl = vl;
 		this.choiceType = choiceType;
-		list = new ComboModelListModelWrapper(vl, true, (choiceType == Field.MULTISELECT_LISTBOX || choiceType == Field.LIST_BOX));
+		list = new ComboModelListModelWrapper(vl, choiceType != Field.SPINNER, (choiceType == Field.MULTISELECT_LISTBOX || choiceType == Field.LIST_BOX));
 		enclosedComponent = new JNavigableEditList();
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
@@ -772,7 +772,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		@Override
 		public Object getCellEditorValue()
 		{
-			return editorComponent.getBackground().equals(enclosedComponent.getSelectionBackground());
+			return paintSelection ? Boolean.valueOf(editorComponent.getBackground().equals(enclosedComponent.getSelectionBackground())) : Boolean.TRUE;
 		}
 
 		@Override
