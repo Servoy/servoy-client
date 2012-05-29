@@ -47,7 +47,10 @@ import javax.swing.border.Border;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.IMarkupCacheKeyProvider;
@@ -271,6 +274,69 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				return (component instanceof WebForm && ((WebForm)component).isDesignMode());
 			}
 		});
+
+
+		add(new AjaxEventBehavior("onkeydown") //$NON-NLS-1$
+		{
+			@Override
+			protected CharSequence getCallbackScript(boolean onlyTargetActivePage)
+			{
+				return generateCallbackScript("wicketAjaxGet('" + getCallbackUrl(onlyTargetActivePage) + "&" + KEYPRESS_PARAM + "='+wicketKeyCode(event)"); //$NON-NLS-1$//$NON-NLS-2$
+			}
+
+			private int getMaxTabSeqIndex()
+			{
+				int max = -1;
+				for (Component c : tabSeqComponentList)
+				{
+					int ind = Integer.parseInt(TabIndexHelper.getTabIndex(c));
+					if (max < ind) max = ind;
+				}
+				return max;
+			}
+
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				// 1. get id of focused element (before keyup)
+				String lastFocusedElemId = target.getLastFocusedElementId();
+				int compTabIndex = -1;
+				for (Component c : tabSeqComponentList)
+				{
+					if (c.getMarkupId().equals(lastFocusedElemId))
+					{
+						// 2. get the tabIndex of this element.
+						compTabIndex = Integer.parseInt(TabIndexHelper.getTabIndex(c));
+						break;
+					}
+				}
+
+				// 3. check if we rewind (careful with shift+tab)
+				int keyCode = Integer.parseInt(RequestCycle.get().getRequest().getParameter(KEYPRESS_PARAM));
+				boolean okToTab = true;
+				if (keyCode == 16)
+				{
+					shift = true;
+					TabIndexHelper.setFocusLost(false);
+				}
+				if (shift)
+				{
+					if (!TabIndexHelper.getFocusLost()) okToTab = false;
+					else okToTab = true;
+				}
+
+				if (compTabIndex == getMaxTabSeqIndex() && keyCode == 9 && okToTab)
+				{
+					TabIndexHelper.nextComponentInTabSeq(tabSeqComponentList.get(0));
+					TabIndexHelper.setRewind(true);
+				}
+
+				if (shift && keyCode != 16) shift = false;
+
+				TabIndexHelper.setFocusLost(false);
+			}
+		});
+
 		// set fixed markup id so that element can always be found by markup id
 		container.setOutputMarkupId(true);
 		container.setMarkupId("form_" + ComponentFactory.stripIllegalCSSChars(formController.getName())); // same as in template generator //$NON-NLS-1$
@@ -279,6 +345,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		readonly = false;
 		setOutputMarkupId(true);
 	}
+
+	private static boolean shift = false;
+	final static String KEYPRESS_PARAM = "keyPressed";
 
 	public String getContainerMarkupId()
 	{

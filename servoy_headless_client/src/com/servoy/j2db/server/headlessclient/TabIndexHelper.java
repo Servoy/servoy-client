@@ -17,10 +17,14 @@
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.IBehavior;
+import org.apache.wicket.model.IComponentAssignedModel;
+import org.apache.wicket.model.IModel;
 
 import com.servoy.j2db.server.headlessclient.dataui.IOwnTabSequenceHandler;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
+import com.servoy.j2db.server.headlessclient.dataui.ServoyAjaxEventBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.WebRect;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -88,6 +92,20 @@ public class TabIndexHelper
 			IProviderStylePropertyChanges changeable = (IProviderStylePropertyChanges)component;
 			changeable.getStylePropertyChanges().setChanged();
 		}
+
+		component.add(new ServoyAjaxEventBehavior("onblur") //$NON-NLS-1$
+		{
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				focusLost = true;
+				if (rewind)
+				{
+					rewind = false;
+					target.focusComponent(nextComponentInTabSeq);
+				}
+			}
+		});
 	}
 
 	private static boolean isTabIndexSupported(Component component)
@@ -95,4 +113,57 @@ public class TabIndexHelper
 		return !(component instanceof WebRect);
 	}
 
+	private static boolean focusLost = false;
+
+	public static void setFocusLost(boolean b)
+	{
+		focusLost = b;
+	}
+
+	public static boolean getFocusLost()
+	{
+		return focusLost;
+	}
+	
+	private static Component nextComponentInTabSeq;
+
+	public static void nextComponentInTabSeq(Component c)
+	{
+		nextComponentInTabSeq = c;
+	}
+
+	private static boolean rewind = false;
+
+	public static void setRewind(boolean b)
+	{
+		rewind = b;
+	}
+
+	public static String getTabIndex(Component c)
+	{
+		for (Object obeh : c.getBehaviors())
+		{
+			TabIndexAttributeModifier modifier = null;
+			IBehavior beh = (IBehavior)obeh;
+			if (beh instanceof TabIndexAttributeModifier)
+			{
+				modifier = (TabIndexAttributeModifier)beh;
+				if (modifier != null)
+				{
+					modifier.getAttribute();
+					IModel< ? > model = modifier.getReplacementModel();
+					if (model instanceof IComponentAssignedModel)
+					{
+						model = ((IComponentAssignedModel< ? >)model).wrapOnAssignment(c);
+					}
+					Object obj = ((model != null) ? model.getObject() : null);
+					if (obj != null && obj instanceof String)
+					{
+						return (String)obj;
+					}
+				}
+			}
+		}
+		return null;
+	}
 }
