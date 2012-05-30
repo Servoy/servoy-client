@@ -84,7 +84,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.METHODS), false);
+		validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), type), false);
 		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
 		if (declaration != null)
 		{

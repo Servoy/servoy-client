@@ -17,11 +17,11 @@
 package com.servoy.j2db.persistence;
 
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
 import com.servoy.j2db.util.keyword.SQLKeywords;
 
@@ -147,17 +147,41 @@ public class ScriptNameValidator implements IValidateName
 		}
 
 		//Test for script calculations
-		if (searchContext.getType() == IRepository.METHODS && searchContext.getObject() instanceof TableNode)
+		if (searchContext.getObject() instanceof TableNode || searchContext.getObject() instanceof Table)
 		{
-			TableNode tn = (TableNode)searchContext.getObject();
-			Table table = tn.getTable();
-			Iterator<ScriptCalculation> calculations = solutionRoot.getScriptCalculations(table, false);
-			while (calculations.hasNext())
+			Table table;
+			if (searchContext.getObject() instanceof Table)
 			{
-				ScriptCalculation sc = calculations.next();
+				table = (Table)searchContext.getObject();
+			}
+			else
+			{
+				table = ((TableNode)searchContext.getObject()).getTable();
+			}
+
+			Object obj = testRelations(nameToCheck, skip_element_id);
+			if (obj != null) return obj;
+
+			// Test table dataproviders
+			obj = testTableProviders(table, nameToCheck, skip_element_id, searchContext.getType() == IRepository.COLUMNS,
+				searchContext.getType() == IRepository.SCRIPTCALCULATIONS);
+			if (obj != null) return obj;
+
+			for (ScriptCalculation sc : Utils.iterate(solutionRoot.getScriptCalculations(table, false)))
+			{
 				if (nameToCheck.equals(sc.getName()) && sc.getID() != skip_element_id)
 				{
 					return sc;
+				}
+			}
+
+			if (searchContext.getType() != IRepository.METHODS)
+			{
+				// Test forms that uses those tables...
+				for (Form f : Utils.iterate(solutionRoot.getForms(table, false)))
+				{
+					obj = testFormScripts(f, nameToCheck, skip_element_id);
+					if (obj != null) return obj;
 				}
 			}
 
@@ -170,24 +194,21 @@ public class ScriptNameValidator implements IValidateName
 				}
 			}
 		}
+
 		// Test the global levels. (form names and relations)null 
 		else if ((searchContext.getType() == IRepository.SCRIPTVARIABLES || searchContext.getType() == IRepository.METHODS) &&
 			!(searchContext.getObject() instanceof Form))
 		{
-			Iterator<ScriptVariable> vars = solutionRoot.getScriptVariables(false);
-			while (vars.hasNext())
+			for (ScriptVariable sgv : Utils.iterate(solutionRoot.getScriptVariables(false)))
 			{
-				ScriptVariable sgv = vars.next();
 				if (nameToCheck.equals(sgv.getName()) && sgv.getID() != skip_element_id &&
 					(!(searchContext.getObject() instanceof String) || searchContext.getObject().equals(sgv.getScopeName()))) // search context string is scopeName
 				{
 					return sgv;
 				}
 			}
-			Iterator<ScriptMethod> scripts = solutionRoot.getScriptMethods(false);
-			while (scripts.hasNext())
+			for (ScriptMethod sm : Utils.iterate(solutionRoot.getScriptMethods(false)))
 			{
-				ScriptMethod sm = scripts.next();
 				if (nameToCheck.equals(sm.getName()) && sm.getID() != skip_element_id &&
 					(!(searchContext.getObject() instanceof String) || searchContext.getObject().equals(sm.getScopeName()))) // search context string is scopeName
 				{
@@ -195,18 +216,18 @@ public class ScriptNameValidator implements IValidateName
 				}
 			}
 		}
+
 		if (searchContext.getType() == IRepository.FORMS)
 		{
-			Iterator<Form> it = solutionRoot.getForms(false);
-			while (it.hasNext())
+			for (Form form : Utils.iterate(solutionRoot.getForms(false)))
 			{
-				Form form = it.next();
 				if (nameToCheck.equalsIgnoreCase(form.getName()) && form.getID() != skip_element_id)
 				{
 					return form;
 				}
 			}
 		}
+
 		if (searchContext.getObject() instanceof Form && searchContext.getType() != IRepository.ELEMENTS && searchContext.getType() != IRepository.FORMS)
 		{
 			Object obj = testRelations(nameToCheck, skip_element_id);
@@ -226,67 +247,46 @@ public class ScriptNameValidator implements IValidateName
 			obj = testTableProviders(((Form)searchContext.getObject()).getTable(), nameToCheck, skip_element_id, false, false);
 			if (obj != null) return obj;
 		}
-		if (searchContext.getObject() instanceof Table)
-		{
-			Object obj = testRelations(nameToCheck, skip_element_id);
-			if (obj != null) return obj;
 
-			// Test forms that uses those tables...
-			Iterator<Form> it = solutionRoot.getForms((Table)searchContext.getObject(), false);
-			while (it.hasNext())
-			{
-				Form f = it.next();
-				obj = testFormScripts(f, nameToCheck, skip_element_id);
-				if (obj != null) return obj;
-			}
-			// Test table dataproviders
-			obj = testTableProviders((Table)searchContext.getObject(), nameToCheck, skip_element_id, searchContext.getType() == IRepository.COLUMNS,
-				searchContext.getType() == IRepository.SCRIPTCALCULATIONS);
-			if (obj != null) return obj;
-		}
 		if (searchContext.getType() == IRepository.RELATIONS)
 		{
 			// TODO new or name change of relations must be figured out. (Now only testing form script of every form)
 			Object obj = testRelations(nameToCheck, skip_element_id);
 			if (obj != null) return obj;
 
-			Iterator<Form> it = solutionRoot.getForms(false);
-			while (it.hasNext())
+			for (Form form : Utils.iterate(solutionRoot.getForms(false)))
 			{
-				obj = testFormScripts(it.next(), nameToCheck, skip_element_id);
+				obj = testFormScripts(form, nameToCheck, skip_element_id);
 				if (obj != null) return obj;
 			}
 		}
+
 		if (searchContext.getType() == IRepository.VALUELISTS)
 		{
-			Iterator<ValueList> it = solutionRoot.getValueLists(false);
-			while (it.hasNext())
+			for (ValueList vl : Utils.iterate(solutionRoot.getValueLists(false)))
 			{
-				ValueList vl = it.next();
 				if (nameToCheck.equalsIgnoreCase(vl.getName()) && vl.getID() != skip_element_id)
 				{
 					return vl;
 				}
 			}
 		}
+
 		if (searchContext.getType() == IRepository.MEDIA)
 		{
-			Iterator<Media> it = solutionRoot.getMedias(false);
-			while (it.hasNext())
+			for (Media media : Utils.iterate(solutionRoot.getMedias(false)))
 			{
-				Media media = it.next();
 				if (nameToCheck.equalsIgnoreCase(media.getName()) && media.getID() != skip_element_id)
 				{
 					return media;
 				}
 			}
 		}
+
 		if (searchContext.getType() == IRepository.ELEMENTS)
 		{
-			Iterator<IPersist> iterator = ((ISupportChilds)searchContext.getObject()).getAllObjects();
-			while (iterator.hasNext())
+			for (IPersist persist : Utils.iterate(((ISupportChilds)searchContext.getObject()).getAllObjects()))
 			{
-				IPersist persist = iterator.next();
 				if (persist instanceof IFormElement && persist.getID() != skip_element_id)
 				{
 					if (persist instanceof ISupportName && nameToCheck.equalsIgnoreCase(((ISupportName)persist).getName()))
@@ -300,12 +300,11 @@ public class ScriptNameValidator implements IValidateName
 				}
 			}
 		}
+
 		if (searchContext.getType() == IRepository.TABS)
 		{
-			Iterator<IPersist> iterator = ((ISupportChilds)searchContext.getObject()).getAllObjects();
-			while (iterator.hasNext())
+			for (IPersist persist : Utils.iterate(((ISupportChilds)searchContext.getObject()).getAllObjects()))
 			{
-				IPersist persist = iterator.next();
 				if (persist instanceof Tab && nameToCheck.equalsIgnoreCase(((Tab)persist).getName()) && persist.getID() != skip_element_id)
 				{
 					return persist;
@@ -328,10 +327,8 @@ public class ScriptNameValidator implements IValidateName
 	private Object testTableProviders(Table table, String next, int id, boolean isColumn, boolean isCalculation) throws RepositoryException
 	{
 		if (table == null) return null;
-		Iterator<AggregateVariable> it = solutionRoot.getAggregateVariables(table, false);
-		while (it.hasNext())
+		for (AggregateVariable av : Utils.iterate(solutionRoot.getAggregateVariables(table, false)))
 		{
-			AggregateVariable av = it.next();
 			if (av.getDataProviderID().equals(next) && av.getID() != id)
 			{
 				return av;
@@ -339,10 +336,8 @@ public class ScriptNameValidator implements IValidateName
 		}
 		if (!isCalculation)
 		{
-			Iterator<Column> columns = table.getColumns().iterator();
-			while (columns.hasNext())
+			for (Column column : table.getColumns())
 			{
-				Column column = columns.next();
 				if (column.getDataProviderID().equals(next) && column.getID() != id)
 				{
 					return column;
@@ -351,10 +346,8 @@ public class ScriptNameValidator implements IValidateName
 		}
 		if (!isColumn)
 		{
-			Iterator<ScriptCalculation> calcs = solutionRoot.getScriptCalculations(table, false);
-			while (calcs.hasNext())
+			for (ScriptCalculation sc : Utils.iterate(solutionRoot.getScriptCalculations(table, false)))
 			{
-				ScriptCalculation sc = calcs.next();
 				if (sc.getDataProviderID().equals(next) && sc.getID() != id)
 				{
 					return sc;
@@ -366,10 +359,8 @@ public class ScriptNameValidator implements IValidateName
 
 	private Object testRelations(String name, int id) throws RepositoryException
 	{
-		Iterator<Relation> it = solutionRoot.getRelations(false);
-		while (it.hasNext())
+		for (Relation r : Utils.iterate(solutionRoot.getRelations(false)))
 		{
-			Relation r = it.next();
 			if (r.getName().equalsIgnoreCase(name) && r.getID() != id) // relations with mixed name casing are allowed at runtime with solution model but to avoid confusions do not allow names equalIgnoreCase in this case either
 			{
 				return r;
