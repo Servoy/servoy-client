@@ -3384,18 +3384,24 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (s instanceof IRuntimeComponent)
 			{
 				IRuntimeComponent sbm = (IRuntimeComponent)s;
-				String newBgColor = bgColor != null ? bgColor.toString() : null;
-				sbm.setBgcolor(newBgColor);
-
-				String newFgColor = fgColor != null ? fgColor.toString() : null;
-				sbm.setFgcolor(newFgColor);
-
-				String newCompFont = compFont != null ? compFont.toString() : null;
-				sbm.setFont(newCompFont);
-
-				String newBorder = compBorder != null ? compBorder.toString() : null;
-				if (newBorder != null)
+				if (bgColor != null)
 				{
+					sbm.setBgcolor(bgColor.toString());
+				}
+
+				if (fgColor != null)
+				{
+					sbm.setFgcolor(fgColor.toString());
+				}
+
+				if (compFont != null)
+				{
+					sbm.setFont(compFont.toString());
+				}
+
+				if (compBorder != null)
+				{
+					String newBorder = compBorder.toString();
 					Border currentBorder = ComponentFactoryHelper.createBorder(sbm.getBorder());
 					Border marginBorder = null;
 					if (currentBorder instanceof EmptyBorder)
