@@ -31,6 +31,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
 
 public class HeadlessClientFactoryInternal
@@ -53,15 +54,22 @@ public class HeadlessClientFactoryInternal
 				{
 					IApplicationServerSingleton as = ApplicationServerSingleton.get();
 
-					// When last entry in solutionOpenMethodArgs in "nodebug" a non-debugging client is created.
-					if (as.isDeveloperStartup() &&
-						(solutionOpenMethodArgs == null || solutionOpenMethodArgs.length == 0 || !"nodebug".equals(solutionOpenMethodArgs[solutionOpenMethodArgs.length - 1])))
+					boolean nodebug = false;
+					Object[] openArgs = solutionOpenMethodArgs;
+					if (solutionOpenMethodArgs != null && solutionOpenMethodArgs.length != 0 &&
+						"nodebug".equals(solutionOpenMethodArgs[solutionOpenMethodArgs.length - 1]))
 					{
-						sc[0] = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, solutionOpenMethodArgs);
+						nodebug = true;
+						openArgs = Utils.arraySub(solutionOpenMethodArgs, 0, solutionOpenMethodArgs.length - 1);
+					}
+					// When last entry in solutionOpenMethodArgs in "nodebug" a non-debugging client is created.
+					if (as.isDeveloperStartup() && !nodebug)
+					{
+						sc[0] = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, openArgs);
 					}
 					else
 					{
-						sc[0] = new SessionClient(req, username, password, null, solutionOpenMethodArgs, solutionname);
+						sc[0] = new SessionClient(req, username, password, null, openArgs, solutionname);
 					}
 					sc[0].setUseLoginSolution(false);
 					sc[0].loadSolution(solutionname);
