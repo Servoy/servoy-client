@@ -357,17 +357,23 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	private static boolean connect(String file, String sessionId) throws IOException
 	{
 		Context cx = Context.enter();
-		debugger = new ServoyDebugger(socket, file, sessionId, cx, profileListeners);
-		if (Debug.tracing())
+		try
 		{
-			Debug.trace("Created Servoy Debugger on socket " + socket + ", starting the debugger command thread."); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+			debugger = new ServoyDebugger(socket, file, sessionId, cx, profileListeners);
+			if (Debug.tracing())
+			{
+				Debug.trace("Created Servoy Debugger on socket " + socket + ", starting the debugger command thread."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
-		debugger.start();
-		cx.setDebugger(debugger, null);
-		cx.setGeneratingDebug(true);
-		cx.setOptimizationLevel(-1);
-		Context.exit();
+			debugger.start();
+			cx.setDebugger(debugger, null);
+			cx.setGeneratingDebug(true);
+			cx.setOptimizationLevel(-1);
+		}
+		finally
+		{
+			Context.exit();
+		}
 		if (!socket.isConnected())
 		{
 			socket = null;
