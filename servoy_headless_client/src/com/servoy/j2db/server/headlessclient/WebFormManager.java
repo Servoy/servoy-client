@@ -177,7 +177,7 @@ public class WebFormManager extends FormManager
 
 				boolean refresh = false;
 				//datasource has changed, but foundset has not
-				if (foundset != null && !foundset.getDataSource().equals(fp.getDataSource()))
+				if (foundset != null && !Utils.equalObjects(foundset.getDataSource(), fp.getDataSource()))
 				{
 					try
 					{
