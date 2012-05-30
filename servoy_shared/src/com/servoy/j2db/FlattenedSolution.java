@@ -763,10 +763,13 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	 * Get a flattened form from this flattened solution.
 	 * 
 	 * <p>When the form does not have a parent, the form itself is returned
-	 * 
-	 * TODO: cache flattened forms for performance
 	 */
 	public Form getFlattenedForm(IPersist persist)
+	{
+		return getFlattenedForm(persist, true);
+	}
+
+	public Form getFlattenedForm(IPersist persist, boolean useCached)
 	{
 		if (persist == null)
 		{
@@ -797,7 +800,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 		synchronized (flattedFormRef)
 		{
-			if (flattedFormRef[0] == null)
+			if (flattedFormRef[0] == null || !useCached)
 			{
 				flattedFormRef[0] = new FlattenedForm(this, form);
 			}
