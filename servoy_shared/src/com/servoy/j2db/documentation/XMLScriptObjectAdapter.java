@@ -121,6 +121,16 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		return null;
 	}
 
+	public String getSignature(String methodName, Class< ? >[] argTypes)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			return fdoc.getFullSignature(false, true);
+		}
+		return null;
+	}
+
 	public String getSample(String methodName)
 	{
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName);
