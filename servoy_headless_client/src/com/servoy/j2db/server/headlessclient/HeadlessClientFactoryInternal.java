@@ -52,7 +52,10 @@ public class HeadlessClientFactoryInternal
 				try
 				{
 					IApplicationServerSingleton as = ApplicationServerSingleton.get();
-					if (as.isDeveloperStartup())
+
+					// When last entry in solutionOpenMethodArgs in "nodebug" a non-debugging client is created.
+					if (as.isDeveloperStartup() &&
+						(solutionOpenMethodArgs == null || solutionOpenMethodArgs.length == 0 || !"nodebug".equals(solutionOpenMethodArgs[solutionOpenMethodArgs.length - 1])))
 					{
 						sc[0] = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, solutionOpenMethodArgs);
 					}
