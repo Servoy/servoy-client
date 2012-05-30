@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.IPageMap;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageMap;
@@ -153,11 +152,16 @@ public class WebFormManager extends FormManager
 
 	public void reload(FormController[] fcontrollers)
 	{
-		IMainContainer main = getMainContainer(null);
-		if (main instanceof Component)
+		HashSet<MainPage> mainPages = new HashSet<MainPage>();
+		for (FormController fc : fcontrollers)
 		{
-			// TODO other containers?
-			((Component)main).setVersioned(false);
+			WebForm formUI = (WebForm)fc.getFormUI();
+			MainPage mp = formUI.findParent(MainPage.class);
+			if (mp != null && mainPages.add(mp))
+			{
+				mp.setVersioned(false);
+				mp.setMainPageSwitched();
+			}
 		}
 
 		String navigatorName = null;
@@ -245,10 +249,9 @@ public class WebFormManager extends FormManager
 			}
 		}
 
-		if (main instanceof Component)
+		for (MainPage mainPage : mainPages)
 		{
-			// TODO and other containers?
-			((Component)main).setVersioned(true);
+			mainPage.setVersioned(true);
 		}
 	}
 
