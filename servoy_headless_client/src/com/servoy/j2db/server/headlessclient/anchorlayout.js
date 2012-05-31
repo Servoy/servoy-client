@@ -184,6 +184,8 @@ function updateTablesPreferredSize()
 		if(newPreferredSize[1] != tablesPreferredHeight[i]['height'] || 
 		    newPreferredSize[0] != tablesPreferredHeight[i]['width'])
 		{
+			tablesPreferredHeight[i]['height'] = newPreferredSize[1];
+			tablesPreferredHeight[i]['width'] = newPreferredSize[0];
 			wicketAjaxGet(tablesPreferredHeight[i]['callback'] + "&bodyWidth=" + newPreferredSize[0] + "&bodyHeight=" + newPreferredSize[1]);
 		}
 	}
