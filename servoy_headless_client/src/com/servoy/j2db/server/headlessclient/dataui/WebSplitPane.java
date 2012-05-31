@@ -630,8 +630,9 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			{
 				String formId = webTabs[i].getPanel().getFormName();
 				resizeScript.append("var div_").append(formId).append(" = document.getElementById('form_").append(formId).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				resizeScript.append("if(div_").append(formId).append(") YAHOO.util.Dom.setStyle(div_").append(formId).append( //$NON-NLS-1$ //$NON-NLS-2$
-					", 'min-width', '0px');"); //$NON-NLS-1$				
+				resizeScript.append("if(div_").append(formId).append(") { YAHOO.util.Dom.setStyle(div_").append(formId).append( //$NON-NLS-1$ //$NON-NLS-2$
+					", 'min-width', '0px');").append(" YAHOO.util.Dom.setStyle(div_").append(formId).append( //$NON-NLS-1$ //$NON-NLS-2$
+					", 'min-height', '0px'); }"); //$NON-NLS-1$
 			}
 		}
 
