@@ -265,15 +265,14 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 						fSize = Integer.toString(f.getSize()) + "px";
 					}
 				}
+
 				if (getBackground() != null)
 				{
-					bgColor = Integer.toHexString(getBackground().getRGB());
-					bgColor = "#" + bgColor.substring(2, bgColor.length());
+					bgColor = getWebColor(getBackground().getRGB());
 				}
 				if (getForeground() != null)
 				{
-					fgColor = Integer.toHexString(getForeground().getRGB());
-					fgColor = "#" + fgColor.substring(2, fgColor.length());
+					fgColor = getWebColor(getForeground().getRGB());
 				}
 				Insets _padding = getPadding();
 				if (getPadding() != null) padding = "padding:" + _padding.top + "px " + _padding.right + "px " + _padding.bottom + "px " + _padding.left + "px";
@@ -301,6 +300,25 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			public void renderFooter(Response response)
 			{
 				response.write("</ul>"); //$NON-NLS-1$
+			}
+
+			private String getWebColor(int color)
+			{
+				String webColor = Integer.toHexString(color);
+				int startIdx = webColor.length() - 6;
+				if (startIdx < 0) startIdx = 0;
+				webColor = webColor.substring(startIdx);
+
+				StringBuilder sb = new StringBuilder();
+				sb.append('#');
+				int nrMissing0 = 6 - webColor.length();
+				for (int i = 0; i < nrMissing0; i++)
+				{
+					sb.append('0');
+				}
+				sb.append(webColor);
+
+				return sb.toString();
 			}
 		};
 
