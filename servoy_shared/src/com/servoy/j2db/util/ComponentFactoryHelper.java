@@ -17,6 +17,7 @@
 package com.servoy.j2db.util;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Insets;
 import java.util.Properties;
@@ -151,14 +152,14 @@ public class ComponentFactoryHelper
 			else if (currentBorder instanceof MatteBorder)
 			{
 				MatteBorder border = (MatteBorder)currentBorder;
-				Insets i = border.getBorderInsets(null);
+				Insets i = ComponentFactoryHelper.getBorderInsetsForNoComponent(border);
 				Color lineColor = border.getMatteColor();
 				retval = MATTE_BORDER + "," + i.top + "," + i.right + "," + i.bottom + "," + i.left + "," + PersistHelper.createColorString(lineColor); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 			else if (currentBorder instanceof EmptyBorder)
 			{
 				EmptyBorder border = (EmptyBorder)currentBorder;
-				Insets i = border.getBorderInsets(null);
+				Insets i = ComponentFactoryHelper.getBorderInsetsForNoComponent(border);
 				retval = EMPTY_BORDER + "," + i.top + "," + i.right + "," + i.bottom + "," + i.left; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
 			else
@@ -625,5 +626,19 @@ public class ComponentFactoryHelper
 		else renderEventExecutor.setRenderCallback(null, null);
 
 		renderEventExecutor.setRenderScriptExecuter(se);
+	}
+
+	public static Insets getBorderInsetsForNoComponent(Border border)
+	{
+		// in java 7 calling getBorderInsets on TitleBorder with a null component throws NPE,
+		// so let call that with a dummy component
+		if (border instanceof TitledBorder)
+		{
+			return border.getBorderInsets(new Component()
+			{
+			});
+		}
+
+		return border.getBorderInsets(null);
 	}
 }

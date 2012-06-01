@@ -3094,7 +3094,7 @@ public class TemplateGenerator
 						{
 							try
 							{
-								insetsBorder = b.getBorderInsets(null);
+								insetsBorder = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
 							}
 							catch (Exception e)
 							{

@@ -168,7 +168,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		Insets ins = new Insets(0, 0, 0, 0);
 		if (b != null)
 		{
-			ins = b.getBorderInsets(null);
+			ins = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
 		}
 //		if (b instanceof EmptyBorder)
 //		{

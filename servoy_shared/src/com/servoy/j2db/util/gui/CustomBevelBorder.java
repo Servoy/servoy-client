@@ -23,6 +23,8 @@ import java.awt.Insets;
 
 import javax.swing.border.BevelBorder;
 
+import com.servoy.j2db.util.ComponentFactoryHelper;
+
 /**
  * Bevel border supporting custom border insets
  * 
@@ -67,7 +69,7 @@ public class CustomBevelBorder extends BevelBorder implements ISupportCustomBord
 		{
 			return customBorderInsets;
 		}
-		return getBorderInsets(null);
+		return ComponentFactoryHelper.getBorderInsetsForNoComponent(this);
 	}
 
 	@Override

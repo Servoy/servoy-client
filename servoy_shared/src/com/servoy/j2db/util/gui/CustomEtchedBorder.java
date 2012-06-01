@@ -23,6 +23,8 @@ import java.awt.Insets;
 
 import javax.swing.border.EtchedBorder;
 
+import com.servoy.j2db.util.ComponentFactoryHelper;
+
 /**
  * Etched border supporting custom border insets
  * 
@@ -60,7 +62,7 @@ public class CustomEtchedBorder extends EtchedBorder implements ISupportCustomBo
 		{
 			return customBorderInsets;
 		}
-		return getBorderInsets(null);
+		return ComponentFactoryHelper.getBorderInsetsForNoComponent(this);
 	}
 
 	@Override

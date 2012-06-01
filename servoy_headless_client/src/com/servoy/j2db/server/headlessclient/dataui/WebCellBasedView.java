@@ -737,7 +737,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							defaultRightPadding = 0;
 					}
 
-					Insets borderInsets = cb.getBorderInsets(null);
+					Insets borderInsets = ComponentFactoryHelper.getBorderInsetsForNoComponent(cb);
 					borderWidth[0] = borderInsets.left + defaultLeftPadding;
 					borderWidth[1] = borderInsets.right + defaultRightPadding;
 				}

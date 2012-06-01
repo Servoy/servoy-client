@@ -68,6 +68,7 @@ import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ImageLoader;
@@ -1056,7 +1057,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		else if (border instanceof EmptyBorder)
 		{
 			usePadding = true;
-			padding = border.getBorderInsets(null);
+			padding = ComponentFactoryHelper.getBorderInsetsForNoComponent(border);
 		}
 		// empty border inside compound border gets handled as margin
 		else if (border instanceof CompoundBorder)
@@ -1065,7 +1066,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			if (inside instanceof EmptyBorder)
 			{
 				usePadding = true;
-				padding = inside.getBorderInsets(null);
+				padding = ComponentFactoryHelper.getBorderInsetsForNoComponent(inside);
 			}
 		}
 		else if (!(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
@@ -1079,7 +1080,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			}
 			else
 			{
-				padding = border.getBorderInsets(null);
+				padding = ComponentFactoryHelper.getBorderInsetsForNoComponent(border);
 			}
 		}
 

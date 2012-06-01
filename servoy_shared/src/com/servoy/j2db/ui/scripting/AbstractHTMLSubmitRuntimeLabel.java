@@ -56,7 +56,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 		// empty border gets handled as margin
 		if (b instanceof EmptyBorder)
 		{
-			m = b.getBorderInsets(null);
+			m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
 			b = null;
 		}
 		getChangesRecorder().setSize(x, y, b, m, getComponent().getFontSize(), false, getComponent().getVerticalAlignment());
@@ -83,7 +83,7 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 		// empty border gets handled as margin
 		if (b instanceof EmptyBorder)
 		{
-			m = b.getBorderInsets(null);
+			m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
 			b = null;
 		}
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, b, m, getComponent().getFontSize(), false,

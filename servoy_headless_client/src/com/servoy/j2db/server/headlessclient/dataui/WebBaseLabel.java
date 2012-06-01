@@ -72,6 +72,7 @@ import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -850,7 +851,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		// empty border gets handled as margin
 		if (b instanceof EmptyBorder)
 		{
-			m = b.getBorderInsets(null);
+			m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
 			b = null;
 		}
 		Dimension d = ((ChangesRecorder)scriptable.getChangesRecorder()).calculateWebSize(size.width, size.height, b, m, getFontSize(), null, false, valign);
@@ -867,7 +868,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		// empty border gets handled as margin
 		if (b instanceof EmptyBorder)
 		{
-			m = b.getBorderInsets(null);
+			m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
 			b = null;
 		}
 		return ((ChangesRecorder)scriptable.getChangesRecorder()).getPaddingAndBorder(size.height, b, m, getFontSize(), null, false, valign);

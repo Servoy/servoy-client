@@ -312,7 +312,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			// labels do have compound borders where margin and border are stored in.
 			if (border instanceof CompoundBorder)
 			{
-				Insets marginInside = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
+				Insets marginInside = ComponentFactoryHelper.getBorderInsetsForNoComponent(((CompoundBorder)border).getInsideBorder());
 				borderMargin = TemplateGenerator.sumInsets(borderMargin, marginInside);
 				Border ob = ((CompoundBorder)border).getOutsideBorder();
 				if (ob instanceof ISupportCustomBorderInsets)
@@ -321,7 +321,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 				}
 				else
 				{
-					insets = ob.getBorderInsets(null);
+					insets = ComponentFactoryHelper.getBorderInsetsForNoComponent(ob);
 				}
 			}
 			else if (border instanceof ISupportCustomBorderInsets)
@@ -332,7 +332,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			{
 				try
 				{
-					insets = border.getBorderInsets(null);
+					insets = ComponentFactoryHelper.getBorderInsetsForNoComponent(border);
 				}
 				catch (Exception ex)
 				{
@@ -389,7 +389,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		{
 			if (border instanceof CompoundBorder)
 			{
-				Insets marginInside = ((CompoundBorder)border).getInsideBorder().getBorderInsets(null);
+				Insets marginInside = ComponentFactoryHelper.getBorderInsetsForNoComponent(((CompoundBorder)border).getInsideBorder());
 				borderMargin = TemplateGenerator.sumInsets(borderMargin, marginInside);
 			}
 		}
