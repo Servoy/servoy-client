@@ -18,7 +18,10 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
+
+import javax.swing.border.Border;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
@@ -34,6 +37,7 @@ import com.servoy.j2db.plugins.IWebRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 
 /**
  * Web implementation of the JSWindow.
@@ -293,6 +297,15 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		// "div.wicket-modal div.w_right_1" brings 10px through "margin-right" property
 		// "div.wicket-modal div.w_right_1" brings 2px through "border" property (1px from left and 1px from right)
 		size.width += 22;
+
+		Border b = ComponentFactoryHelper.createBorder(fp.getForm().getBorderType());
+		if (b != null)
+		{
+			Insets bIns = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
+			size.height = size.height + bIns.top + bIns.bottom;
+			size.width = size.width + bIns.left + bIns.right;
+		}
+
 
 		Rectangle r2 = new Rectangle(size);
 		if (r != null)
