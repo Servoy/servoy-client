@@ -59,6 +59,7 @@ public class SplitPane extends JSplitPane implements ISupportReadOnly
 
 	public void setLeftForm(FormLookupPanel flp)
 	{
+		flp.setOpaque(isOpaque());
 		int dividerLoc = getDividerLocation();
 		setLeftComponent(flp);
 		setDividerLocation(dividerLoc);
@@ -66,6 +67,7 @@ public class SplitPane extends JSplitPane implements ISupportReadOnly
 
 	public void setRightForm(FormLookupPanel flp)
 	{
+		flp.setOpaque(isOpaque());
 		int dividerLoc = getDividerLocation();
 		setRightComponent(flp);
 		setDividerLocation(dividerLoc);
