@@ -2226,7 +2226,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private IRecordInternal getRecord(int row, int sizeHint)
 	{
-		if (getSize() == 0 || row < 0) return null;
+		if (getSize() == 0 || row < 0 || row >= getSize()) return null;
 
 		PksAndRecordsHolder pksAndRecordsCopy;
 		IDataSet pks;
