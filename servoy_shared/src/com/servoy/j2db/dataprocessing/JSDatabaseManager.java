@@ -317,7 +317,7 @@ public class JSDatabaseManager
 	 * }
 	 *
 	 * @param serverName The name of the database server connection.
-	 * @param filterName optional The filter name for which to get the array.
+	 * @param filterName The filter name for which to get the array.
 	 * 
 	 * @return Two dimensional array.
 	 */
@@ -2247,8 +2247,7 @@ public class JSDatabaseManager
 			{
 				editRecordList.startEditing(record, false);
 			}
-			return editRecordList.stopEditing(true,
-				Arrays.asList(editRecordList.getEditedRecords(foundset))) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, Arrays.asList(editRecordList.getEditedRecords(foundset))) == ISaveConstants.STOPPED;
 		}
 		return js_saveData();
 	}
@@ -2929,7 +2928,6 @@ public class JSDatabaseManager
 	 * //}
 	 *
 	 * @param foundset A JSFoundset to test. 
-	 * @param qualifiedRelationString optional The relationname if the first param is a JSRecord.
 	 * 
 	 * @return true if the foundset/relation has records.
 	 */

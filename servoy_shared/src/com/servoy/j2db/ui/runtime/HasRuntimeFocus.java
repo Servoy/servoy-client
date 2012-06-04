@@ -44,7 +44,7 @@ public interface HasRuntimeFocus
 	 * //request the focus in this %%prefix%%%%elementName%% (focus is also a text cursor on text components), skip on focus gained method call
 	 * %%prefix%%%%elementName%%.requestFocus(false);
 	 *
-	 * @param mustExecuteOnFocusGainedMethod optional If true will execute onFocusGained method, else will not; default value is true. 
+	 * @param mustExecuteOnFocusGainedMethod If true will execute onFocusGained method, else will not; default value is true. 
 	 */
 	@JSFunction
 	void requestFocus(boolean mustExecuteOnFocusGainedMethod);

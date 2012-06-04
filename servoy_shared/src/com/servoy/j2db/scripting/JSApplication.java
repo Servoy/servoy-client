@@ -2700,7 +2700,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @sampleas js_updateUI()
 	 * 
-	 * @param milliseconds optional  How long the update should take in milliseconds
+	 * @param milliseconds How long the update should take in milliseconds
 	 */
 	public void js_updateUI(int milliseconds)
 	{
