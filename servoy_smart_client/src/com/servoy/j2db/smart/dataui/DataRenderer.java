@@ -218,8 +218,12 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 		if (bgColor != null)
 		{
 			super.setBackground(bgColor);
+			setOpaque(bgColor.getAlpha() != 0 && !(bgColor instanceof ColorUIResource));
 		}
-		super.setOpaque(!(bgColor == null || bgColor instanceof ColorUIResource));
+		else
+		{
+			super.setOpaque(false);
+		}
 	}
 
 	public void destroy()
@@ -540,19 +544,21 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 //Debug.trace(donotusecanbenullifinrecondview.getName()+" "+donotusecanbenullifinrecondview.isEnabled());
 				setEnabled(rendererParentCanBeNull.isEnabled()); //needed for portals
 			}
-			if (rendererParentCanBeNull.isOpaque() != isOpaque() && !bgRowColorSet)
+			// don't mess with transparency when the bg color alpha == 0 (its a transparent color)
+			if (!(getBackground() != null && getBackground().getAlpha() == 0))
 			{
-				setOpaque(rendererParentCanBeNull.isOpaque());
-			}
-			else if (bgRowColorSet && !isOpaque())
-			{
-				setOpaque(true);
+				if (rendererParentCanBeNull.isOpaque() != isOpaque() && !bgRowColorSet)
+				{
+					setOpaque(rendererParentCanBeNull.isOpaque());
+				}
+				else if (bgRowColorSet && !isOpaque())
+				{
+					setOpaque(true);
+				}
 			}
 		}
 
 //		setFont(list.getFont());
-
-		//System.out.println(this);
 
 		return this;
 	}
