@@ -836,7 +836,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				Remote remoteService = super.getRemoteService(name);
 				if (useSerializingDataserverProxy)
 				{
-					return SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(remoteService);
+					return SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(DebugJ2DBClient.this, remoteService);
 				}
 				return remoteService;
 			}
@@ -856,8 +856,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			if (new DeveloperPreferences(Settings.getInstance()).useSerializingDataserverProxy())
 			{
-				dataServer = SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(
-					ThreadingRemoteInvocationHandler.createThreadingRemoteInvocationHandler(dataServer, new Class[] { IDataServer.class }),
+				dataServer = SerializingRemoteInvocationHandler.createSerializingSerializingInvocationHandler(this,
+					ThreadingRemoteInvocationHandler.createThreadingRemoteInvocationHandler(dataServer, new Class< ? >[] { IDataServer.class }),
 					new Class[] { IDataServer.class });
 			}
 			dataServer = new ProfileDataServer(dataServer);

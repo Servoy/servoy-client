@@ -339,7 +339,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	public Remote getRemoteService(String name) throws Exception
 	{
 		Remote remote = application.getServerService(name);
-		if (!useThreadingInvocationHandler || Proxy.isProxyClass(remote.getClass()))
+		if (remote == null || !useThreadingInvocationHandler || Proxy.isProxyClass(remote.getClass()))
 		{
 			// When remote object is already a proxy, we assume it is a rmi object, the code runs separate already anyway.
 			return remote;

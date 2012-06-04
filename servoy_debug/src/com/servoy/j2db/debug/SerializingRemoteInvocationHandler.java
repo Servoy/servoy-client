@@ -21,13 +21,16 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.rmi.Remote;
 
 import org.apache.wicket.util.io.ByteArrayOutputStream;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.AbstractRemoteInvocationHandler;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Proxy invocationHandler that serializes/deserializes arguments to method calls and the result.
@@ -40,28 +43,31 @@ import com.servoy.j2db.util.AbstractRemoteInvocationHandler;
  */
 public class SerializingRemoteInvocationHandler extends AbstractRemoteInvocationHandler
 {
-	private SerializingRemoteInvocationHandler(Remote remote)
+	private final IApplication application;
+
+	private SerializingRemoteInvocationHandler(IApplication application, Remote remote)
 	{
 		super(remote);
+		this.application = application;
+	}
+
+	public static <T extends Remote> T createSerializingSerializingInvocationHandler(IApplication application, T obj)
+	{
+		if (obj == null)
+		{
+			return null;
+		}
+		return createSerializingSerializingInvocationHandler(application, obj, getRemoteInterfaces(obj.getClass()));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Remote> T createSerializingSerializingInvocationHandler(T obj)
+	public static <T extends Remote> T createSerializingSerializingInvocationHandler(IApplication application, T obj, Class< ? >[] interfaces)
 	{
 		if (obj == null)
 		{
 			return null;
 		}
-		return createSerializingSerializingInvocationHandler(obj, getRemoteInterfaces(obj.getClass()));
-	}
-
-	public static <T extends Remote> T createSerializingSerializingInvocationHandler(T obj, Class[] interfaces)
-	{
-		if (obj == null)
-		{
-			return null;
-		}
-		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new SerializingRemoteInvocationHandler(obj));
+		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new SerializingRemoteInvocationHandler(application, obj));
 	}
 
 	/**
@@ -72,14 +78,30 @@ public class SerializingRemoteInvocationHandler extends AbstractRemoteInvocation
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public static <T> T serializeAndDeserialize(T o) throws IOException, ClassNotFoundException
+	public <T> T serializeAndDeserialize(T o) throws IOException, ClassNotFoundException
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream os = new ObjectOutputStream(baos);
 		os.writeObject(o);
 		os.close();
 
-		ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+		ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))
+		{
+			@Override
+			protected Class< ? > resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException
+			{
+				String name = desc.getName();
+				try
+				{
+					return Class.forName(name, false, application.getBeanManager().getClassLoader());
+				}
+				catch (ClassNotFoundException e)
+				{
+					Debug.error("Could not load class using beanmanager classloader, trying default", e);
+					return super.resolveClass(desc);
+				}
+			}
+		};
 		@SuppressWarnings("unchecked")
 		T o2 = (T)is.readObject();
 		is.close();
