@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -906,15 +907,16 @@ public class ImageLoader
 		}
 	}
 
+
 	private static void paintGradientColor(Graphics graphics, IStyleRule styleRule, IApplication application, String url, Dimension parentSize)
 	{
 		if (url.indexOf("linear-gradient") != -1 && graphics instanceof Graphics2D)
 		{
-			String definition = url.substring(url.indexOf("(") + 1, url.lastIndexOf(")"));
-			StringTokenizer tokenizer = new StringTokenizer(definition, ",");
-			if (tokenizer.countTokens() >= 2)
+			List<String> tokens = PersistHelper.splitStringWithBracesOnSeparator(url.substring(url.indexOf("(") + 1, url.lastIndexOf(")")), ',');
+			if (tokens.size() >= 2)
 			{
-				String firstToken = tokenizer.nextToken();
+				Iterator<String> tokenizer = tokens.iterator();
+				String firstToken = tokenizer.next();
 				float startX = parentSize.width / 2;
 				float startY = 0;
 				float endX = parentSize.width / 2;
@@ -939,12 +941,12 @@ public class ImageLoader
 						startY = parentSize.height;
 						endY = 0;
 					}
-					color1 = getColor(tokenizer.nextToken());
+					color1 = getColor(tokenizer.next());
 				}
 				Color color2 = null;
 				if (color1 != null)
 				{
-					color2 = getColor(tokenizer.nextToken());
+					color2 = getColor(tokenizer.next());
 					if (color2 != null)
 					{
 						GradientPaint gradientPaint = new GradientPaint(startX, startY, color1, endX, endY, color2);

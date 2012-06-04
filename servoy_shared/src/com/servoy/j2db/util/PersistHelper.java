@@ -616,6 +616,46 @@ public class PersistHelper
 		return false;
 	}
 
+	/**
+	 * Split string no separator char, taking into account braces.
+	 * @param string
+	 * @param separator
+	 * @return
+	 */
+	public static List<String> splitStringWithBracesOnSeparator(String string, char separator)
+	{
+		List<String> tokens = new ArrayList<String>();
+		if (string != null && string.length() > 0)
+		{
+			int depth = 0;
+			StringBuilder current = new StringBuilder();
+			for (int i = 0; i < string.length(); i++)
+			{
+				char c = string.charAt(i);
+				if (depth <= 0 && c == separator)
+				{
+					tokens.add(current.toString());
+					current = new StringBuilder();
+				}
+				else
+				{
+					if (c == '(')
+					{
+						depth++;
+					}
+					else if (c == ')')
+					{
+						depth--;
+					}
+					current.append(c);
+				}
+			}
+			// add last one
+			tokens.add(current.toString());
+		}
+		return tokens;
+	}
+
 	private static String stringFormat(String fontName)
 	{
 		if (fontName == null || fontName.length() == 0) return fontName;
