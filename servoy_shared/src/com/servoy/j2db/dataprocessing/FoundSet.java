@@ -889,7 +889,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 		// foundset had find actions
 	 * }
 	 *
-	 * @return wether the foundset has foind-conditions
+	 * @return wether the foundset has find-conditions
 	 */
 	public boolean js_hasConditions()
 	{
