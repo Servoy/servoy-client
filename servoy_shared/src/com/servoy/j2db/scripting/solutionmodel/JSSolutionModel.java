@@ -619,7 +619,7 @@ public class JSSolutionModel
 	 * @param datasource the datasource the calculation belongs to
 	 * 
 	 * @return true if the removal was successful, false otherwise
-	 * @deprecated
+	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).removeCalculation(name)
 	 */
 	@Deprecated
 	public boolean js_removeCalculation(String name, String datasource)
@@ -1480,7 +1480,7 @@ public class JSSolutionModel
 	 * @param datasource The datasource the calculations belong to.
 	 * 
 	 * @sampleas js_newCalculation(String, int, String)
-	 * @deprecated
+	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).getCalculations()
 	 */
 	@Deprecated
 	public JSCalculation[] js_getCalculations(String datasource)
@@ -1495,7 +1495,7 @@ public class JSSolutionModel
 	 * @param datasource The datasource the calculation belongs to.
 	 * 
 	 * @sampleas js_newCalculation(String, int, String)
-	 * @deprecated
+	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).getCalculation(name)
 	 */
 	@Deprecated
 	public JSCalculation js_getCalculation(String name, String datasource)
@@ -1512,7 +1512,7 @@ public class JSSolutionModel
 	 * @param datasource The datasource this calculation belongs to. 
 	 * 
 	 * @sampleas js_newCalculation(String, int, String)
-	 * @deprecated
+	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).newCalculation(code)
 	 */
 	@Deprecated
 	public JSCalculation js_newCalculation(String code, String datasource)
@@ -1539,7 +1539,7 @@ public class JSSolutionModel
 	 * for (var i = 0; i < allCalcs.length; i++) {
 	 * 	application.output(allCalcs[i]);
 	 * }
-	 * @deprecated
+	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).newCalculation(code, type)
 	 */
 	@Deprecated
 	public JSCalculation js_newCalculation(String code, int type, String datasource)
@@ -1569,7 +1569,7 @@ public class JSSolutionModel
 	}
 
 	/**
-	 * clonedesc js_createPageFormat(double, double, double, double, double, double)
+	 * @clonedesc js_createPageFormat(double, double, double, double, double, double)
 	 * @sampleas js_createPageFormat(double, double, double, double, double, double)
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.
@@ -1585,7 +1585,7 @@ public class JSSolutionModel
 	}
 
 	/**
-	 * clonedesc js_createPageFormat(double, double, double, double, double, double)
+	 * @clonedesc js_createPageFormat(double, double, double, double, double, double)
 	 * @sampleas js_createPageFormat(double, double, double, double, double, double)
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.

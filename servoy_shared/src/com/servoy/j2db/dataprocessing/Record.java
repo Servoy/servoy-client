@@ -962,7 +962,7 @@ public class Record implements Scriptable, IRecordInternal
 	/**
 	 * Delete this record from the Foundset and the underlying datasource.
 	 * 
-	 * @deprecated
+	 * @deprecated Use foundset.deleteRecord(record)
 	 * 
 	 * @sample
 	 * var record= %%prefix%%foundset.getRecord(index);
@@ -1030,7 +1030,7 @@ public class Record implements Scriptable, IRecordInternal
 	/**
 	 * Saves this record to the datasource if it had changes.
 	 * 
-	 * @deprecated
+	 * @deprecated Use databasemanager.saveData(record)
 	 * 
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();

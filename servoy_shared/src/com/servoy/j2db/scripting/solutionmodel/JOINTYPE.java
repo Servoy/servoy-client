@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -28,8 +28,16 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class JOINTYPE implements IPrefixedConstantsObject, IDeprecated
 {
-
+	/**
+	 * @deprecated replaced by JSRelation.INNER_JOIN
+	 */
+	@Deprecated
 	public static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
+
+	/**
+	 * @deprecated replaced by JSRelation.LEFT_OUTER_JOIN
+	 */
+	@Deprecated
 	public static final int LEFT_OUTER_JOIN = ISQLJoin.LEFT_OUTER_JOIN;
 
 //	public static final int RIGHT_OUTER_JOIN = ISQLJoin.RIGHT_OUTER_JOIN;

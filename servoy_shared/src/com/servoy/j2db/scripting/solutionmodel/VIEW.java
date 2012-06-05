@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.FormController;
@@ -29,12 +29,37 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class VIEW implements IPrefixedConstantsObject, IDeprecated
 {
+	/**
+	 * @deprecated replaced by JSForm.RECORD_VIEW
+	 */
+	@Deprecated
 	public static final int RECORD_VIEW = IForm.RECORD_VIEW;
+
+	/**
+	 * @deprecated replaced by JSForm.LIST_VIEW
+	 */
+	@Deprecated
 	public static final int LIST_VIEW = IForm.LIST_VIEW;
+
 //	public static final int TABLE_VIEW = FormController.TABLE_VIEW;
+
+	/**
+	 * @deprecated replaced by JSForm.LOCKED_TABLE_VIEW
+	 */
+	@Deprecated
 	public static final int LOCKED_TABLE_VIEW = FormController.LOCKED_TABLE_VIEW;
+
+	/**
+	 * @deprecated replaced by JSForm.LOCKED_LIST_VIEW
+	 */
+	@Deprecated
 	public static final int LOCKED_LIST_VIEW = FormController.LOCKED_LIST_VIEW;
-	public static final int LOCKED_RECORD_VIEW = FormController.LOCKED_RECORD_VIEW;
+
+	/**
+	 * @deprecated replaced by JSForm.LOCKED_RECORD_VIEW
+	 */
+	@Deprecated
+	public static final int LOCKED_RECORD_VIEW = IForm.LOCKED_RECORD_VIEW;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

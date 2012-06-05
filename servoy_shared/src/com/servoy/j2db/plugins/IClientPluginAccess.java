@@ -71,7 +71,7 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	/**
 	 * Constant returned by getApplicationType
 	 * 
-	 * @deprecated
+	 * @deprecated Use CLIENT constant
 	 * @since Servoy 3.5
 	 */
 	@Deprecated

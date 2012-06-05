@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -28,16 +28,70 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class DISPLAYTYPE implements IPrefixedConstantsObject, IDeprecated
 {
+	/**
+	 * @deprecated replaced by JSField.TEXT_FIELD
+	 */
+	@Deprecated
 	public static final int TEXT_FIELD = Field.TEXT_FIELD;
+
+	/**
+	 * @deprecated replaced by JSField.TEXT_AREA
+	 */
+	@Deprecated
 	public static final int TEXT_AREA = Field.TEXT_AREA;
+
+	/**
+	 * @deprecated replaced by JSField.COMBOBOX
+	 */
+	@Deprecated
 	public static final int COMBOBOX = Field.COMBOBOX;
+
+	/**
+	 * @deprecated replaced by JSField.RADIOS
+	 */
+	@Deprecated
 	public static final int RADIOS = Field.RADIOS;
+
+	/**
+	 * @deprecated replaced by JSField.CHECKS
+	 */
+	@Deprecated
 	public static final int CHECKS = Field.CHECKS;
+
+	/**
+	 * @deprecated replaced by JSField.CALENDAR
+	 */
+	@Deprecated
 	public static final int CALENDAR = Field.CALENDAR;
+
+	/**
+	 * @deprecated replaced by JSField.PASSWORD
+	 */
+	@Deprecated
 	public static final int PASSWORD = Field.PASSWORD;
+
+	/**
+	 * @deprecated replaced by JSField.RTF_AREA
+	 */
+	@Deprecated
 	public static final int RTF_AREA = Field.RTF_AREA;
+
+	/**
+	 * @deprecated replaced by JSField.HTML_AREA
+	 */
+	@Deprecated
 	public static final int HTML_AREA = Field.HTML_AREA;
+
+	/**
+	 * @deprecated replaced by JSField.IMAGE_MEDIA
+	 */
+	@Deprecated
 	public static final int IMAGE_MEDIA = Field.IMAGE_MEDIA;
+
+	/**
+	 * @deprecated replaced by JSField.TYPE_AHEAD
+	 */
+	@Deprecated
 	public static final int TYPE_AHEAD = Field.TYPE_AHEAD;
 
 	/**

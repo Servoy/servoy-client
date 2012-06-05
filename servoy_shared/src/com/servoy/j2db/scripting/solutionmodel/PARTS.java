@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -28,14 +28,59 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class PARTS implements IPrefixedConstantsObject, IDeprecated
 {
+
+	/**
+	 * @deprecated replaced by JSPart.BODY
+	 */
+	@Deprecated
 	public static final int BODY = Part.BODY;
+
+	/**
+	 * @deprecated replaced by JSPart.FOOTER
+	 */
+	@Deprecated
 	public static final int FOOTER = Part.FOOTER;
+
+	/**
+	 * @deprecated replaced by JSPart.HEADER
+	 */
+	@Deprecated
 	public static final int HEADER = Part.HEADER;
+
+	/**
+	 * @deprecated replaced by JSPart.LEADING_GRAND_SUMMARY
+	 */
+	@Deprecated
 	public static final int LEADING_GRAND_SUMMARY = Part.LEADING_GRAND_SUMMARY;
+
+	/**
+	 * @deprecated replaced by JSPart.LEADING_SUBSUMMARY
+	 */
+	@Deprecated
 	public static final int LEADING_SUBSUMMARY = Part.LEADING_SUBSUMMARY;
+
+	/**
+	 * @deprecated replaced by JSPart.TITLE_FOOTER
+	 */
+	@Deprecated
 	public static final int TITLE_FOOTER = Part.TITLE_FOOTER;
+
+	/**
+	 * @deprecated replaced by JSPart.TITLE_HEADER
+	 */
+	@Deprecated
 	public static final int TITLE_HEADER = Part.TITLE_HEADER;
+
+	/**
+	 * @deprecated replaced by JSPart.TRAILING_GRAND_SUMMARY
+	 */
+	@Deprecated
 	public static final int TRAILING_GRAND_SUMMARY = Part.TRAILING_GRAND_SUMMARY;
+
+	/**
+	 * @deprecated replaced by JSPart.TRAILING_SUBSUMMARY
+	 */
+	@Deprecated
 	public static final int TRAILING_SUBSUMMARY = Part.TRAILING_SUBSUMMARY;
 
 	/**

@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -25,7 +25,16 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class FORMSECURITY implements IPrefixedConstantsObject, IDeprecated
 {
+	/**
+	 * @deprecated replaced by JSSecurity.VIEWABLE
+	 */
+	@Deprecated
 	public static final int VIEWABLE = IRepository.VIEWABLE;
+
+	/**
+	 * @deprecated replaced by JSSecurity.ACCESSIBLE
+	 */
+	@Deprecated
 	public static final int ACCESSIBLE = IRepository.ACCESSIBLE;
 
 	/**

@@ -2674,7 +2674,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * //assign the global method as a string. Or use a calculation name as the string.
 	 * form.rowBGColorCalculation = "scopes.globals.calculationDataProvider";
 	 * 
-	 * @deprecated
+	 * @deprecated onRender event replaces rowBGColorCalculation functionality
 	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnRender()
 	 */
 	@Deprecated

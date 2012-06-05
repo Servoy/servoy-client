@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -25,10 +25,34 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class TABLESECURITY implements IPrefixedConstantsObject, IDeprecated
 {
+	/**
+	 * @deprecated replaced by JSSecurity.READ
+	 */
+	@Deprecated
 	public static final int READ = IRepository.READ;
+
+	/**
+	 * @deprecated replaced by JSSecurity.INSERT
+	 */
+	@Deprecated
 	public static final int INSERT = IRepository.INSERT;
+
+	/**
+	 * @deprecated replaced by JSSecurity.UPDATE
+	 */
+	@Deprecated
 	public static final int UPDATE = IRepository.UPDATE;
+
+	/**
+	 * @deprecated replaced by JSSecurity.DELETE
+	 */
+	@Deprecated
 	public static final int DELETE = IRepository.DELETE;
+
+	/**
+	 * @deprecated replaced by JSSecurity.TRACKING
+	 */
+	@Deprecated
 	public static final int TRACKING = IRepository.TRACKING;
 
 	/**

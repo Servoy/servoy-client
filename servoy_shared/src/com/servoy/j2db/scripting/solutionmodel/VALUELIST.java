@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -28,10 +28,28 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class VALUELIST implements IPrefixedConstantsObject, IDeprecated
 {
+	/**
+	 * @deprecated replaced by JSValueList.CUSTOM_VALUES
+	 */
+	@Deprecated
 	public static final int CUSTOM_VALUES = ValueList.CUSTOM_VALUES;
+
+	/**
+	 * @deprecated replaced by JSValueList.DATABASE_VALUES
+	 */
+	@Deprecated
 	public static final int DATABASE_VALUES = ValueList.DATABASE_VALUES;
 
+	/**
+	 * @deprecated replaced by JSValueList.EMPTY_VALUE_ALWAYS
+	 */
+	@Deprecated
 	public static final int EMPTY_VALUE_ALWAYS = ValueList.EMPTY_VALUE_ALWAYS;
+
+	/**
+	 * @deprecated replaced by JSValueList.EMPTY_VALUE_NEVER
+	 */
+	@Deprecated
 	public static final int EMPTY_VALUE_NEVER = ValueList.EMPTY_VALUE_NEVER;
 
 	/**

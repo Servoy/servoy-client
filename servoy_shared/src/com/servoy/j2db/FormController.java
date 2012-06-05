@@ -5002,7 +5002,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated Use databasemanager.saveData()
 	 */
 	@Deprecated
 	public void saveData()

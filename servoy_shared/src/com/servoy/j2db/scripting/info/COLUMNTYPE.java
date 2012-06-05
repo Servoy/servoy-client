@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -29,10 +29,30 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @Deprecated
 public class COLUMNTYPE implements IPrefixedConstantsObject, IDeprecated
 {
+	/**
+	 * @deprecated replaced by JSColumn.DATETIME
+	 */
+	@Deprecated
 	public static final int DATETIME = IColumnTypes.DATETIME;
+	/**
+	 * @deprecated replaced by JSColumn.TEXT
+	 */
+	@Deprecated
 	public static final int TEXT = IColumnTypes.TEXT;
+	/**
+	 * @deprecated replaced by JSColumn.NUMBER
+	 */
+	@Deprecated
 	public static final int NUMBER = IColumnTypes.NUMBER;
+	/**
+	 * @deprecated replaced by JSColumn.INTEGER
+	 */
+	@Deprecated
 	public static final int INTEGER = IColumnTypes.INTEGER;
+	/**
+	 * @deprecated replaced by JSColumn.MEDIA
+	 */
+	@Deprecated
 	public static final int MEDIA = IColumnTypes.MEDIA;
 
 	/**
