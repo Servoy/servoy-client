@@ -600,10 +600,17 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 		if (background != null && background.getAlpha() < 255 && g != null)
 		{
 			Graphics g2 = g.create();
-			Dimension size = getSize();
-			g2.setClip(0, 0, size.width, size.height);
-			g2.setColor(background);
-			g2.fillRect(0, 0, size.width, size.height);
+			try
+			{
+				Dimension size = getSize();
+				g2.setClip(0, 0, size.width, size.height);
+				g2.setColor(background);
+				g2.fillRect(0, 0, size.width, size.height);
+			}
+			finally
+			{
+				g2.dispose();
+			}
 		}
 		super.paintComponent(g);
 	}
