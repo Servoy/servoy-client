@@ -195,7 +195,6 @@ public class SplitPane extends JSplitPane implements ISupportReadOnly
 		protected void installDefaults()
 		{
 			super.installDefaults();
-			splitPane.setBorder(null);
 		}
 
 		@Override
@@ -208,7 +207,6 @@ public class SplitPane extends JSplitPane implements ISupportReadOnly
 				{
 				}
 			};
-			d.setBorder(null);
 			return d;
 		}
 	}
