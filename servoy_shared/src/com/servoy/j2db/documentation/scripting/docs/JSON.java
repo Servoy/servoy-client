@@ -50,11 +50,11 @@ public class JSON
 	 * 
 	 * @param text The string to parse as JSON.  See the JSON object for a description of JSON syntax.
 	 * 
-	 * @param reviver If a function, prescribes how the value originally produced by parsing is transformed, before being returned. 
+	 * @param reviver A function, prescribes how the value originally produced by parsing is transformed, before being returned. 
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/JSON/parse
 	 */
-	public Object js_parse(String text, Object reviver)
+	public Object js_parse(String text, Function reviver)
 	{
 		return null;
 	}
@@ -107,11 +107,11 @@ public class JSON
 	 * 
 	 * @param replacer If a function, transforms values and properties encountered while stringifying; if an array, specifies the set of properties included in objects in the final string.
 	 * 
-	 * @param space Causes the resulting string to be pretty-printed
+	 * @param space The space argument may be used to control spacing in the final string. If it is a number, successive levels in the stringification will each be indented by this many space characters (up to 10). If it is a string, successive levels will indented by this string (or the first ten characters of it).
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/JSON/stringify
 	 */
-	public String js_stringify(Object value, Object replacer, String space)
+	public String js_stringify(Object value, Object replacer, Object space)
 	{
 		return null;
 	}
