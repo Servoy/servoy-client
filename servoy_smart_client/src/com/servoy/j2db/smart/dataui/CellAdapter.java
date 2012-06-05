@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -470,6 +471,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT | ReducedBorder.RIGHT);
 				}
 
+				if (editor instanceof AbstractButton && !((AbstractButton)editor).isBorderPainted())
+				{
+					((AbstractButton)editor).setBorderPainted(true);
+				}
+
 				Border marginBorder = null;
 				if (noFocusBorder instanceof EmptyBorder)
 				{
@@ -485,6 +491,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					styleBorder = new CompoundBorder(styleBorder, marginBorder);
 				}
+
 
 				((JComponent)editor).setBorder(styleBorder);
 			}
@@ -994,6 +1001,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT | ReducedBorder.RIGHT);
 			}
+
+			if (component instanceof AbstractButton && !((AbstractButton)component).isBorderPainted())
+			{
+				((AbstractButton)component).setBorderPainted(true);
+			}
+
 		}
 		else
 		{
