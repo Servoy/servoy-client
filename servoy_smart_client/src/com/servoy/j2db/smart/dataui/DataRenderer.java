@@ -20,6 +20,7 @@ package com.servoy.j2db.smart.dataui;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.dnd.DropTarget;
@@ -218,12 +219,8 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 		if (bgColor != null)
 		{
 			super.setBackground(bgColor);
-			setOpaque(bgColor.getAlpha() != 0 && !(bgColor instanceof ColorUIResource));
 		}
-		else
-		{
-			super.setOpaque(false);
-		}
+		setOpaque(!(bgColor == null || bgColor instanceof ColorUIResource));
 	}
 
 	public void destroy()
@@ -544,23 +541,71 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 //Debug.trace(donotusecanbenullifinrecondview.getName()+" "+donotusecanbenullifinrecondview.isEnabled());
 				setEnabled(rendererParentCanBeNull.isEnabled()); //needed for portals
 			}
-			// don't mess with transparency when the bg color alpha == 0 (its a transparent color)
-			if (!(getBackground() != null && getBackground().getAlpha() == 0))
+			if (rendererParentCanBeNull.isOpaque() != isOpaque() && !bgRowColorSet)
 			{
-				if (rendererParentCanBeNull.isOpaque() != isOpaque() && !bgRowColorSet)
-				{
-					setOpaque(rendererParentCanBeNull.isOpaque());
-				}
-				else if (bgRowColorSet && !isOpaque())
-				{
-					setOpaque(true);
-				}
+				setOpaque(rendererParentCanBeNull.isOpaque());
+			}
+			else if (bgRowColorSet && !isOpaque())
+			{
+				setOpaque(true);
 			}
 		}
 
 //		setFont(list.getFont());
 
+		//System.out.println(this);
+
 		return this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#isOpaque()
+	 */
+	@Override
+	public boolean isOpaque()
+	{
+		if (getBackground() != null && getBackground().getAlpha() < 255)
+		{
+			return false;
+		}
+		return super.isOpaque();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#setOpaque(boolean)
+	 */
+	@Override
+	public void setOpaque(boolean isOpaque)
+	{
+		if (getBackground() != null && getBackground().getAlpha() < 255)
+		{
+			super.setOpaque(false);
+		}
+		else super.setOpaque(isOpaque);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		Color background = getBackground();
+		if (background != null && background.getAlpha() < 255 && g != null)
+		{
+			Graphics g2 = g.create();
+			Dimension size = getSize();
+			g2.setClip(0, 0, size.width, size.height);
+			g2.setColor(background);
+			g2.fillRect(0, 0, size.width, size.height);
+		}
+		super.paintComponent(g);
 	}
 
 	/*
