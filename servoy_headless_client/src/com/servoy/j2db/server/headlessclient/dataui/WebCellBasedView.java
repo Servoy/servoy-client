@@ -741,25 +741,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					borderWidth[0] = borderInsets.left + defaultLeftPadding;
 					borderWidth[1] = borderInsets.right + defaultRightPadding;
 				}
-
-				comp.add(new StyleAppendingModifier(new Model<String>()
-				{
-					@Override
-					public String getObject()
-					{
-						StringBuilder style = new StringBuilder();
-						if (idx > 0)
-						{
-							style.append("border-left: none; padding-left: ").append(borderWidth[0]).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-						if (idx < WebCellBasedView.this.visibleColummIdentifierComponents.size() - 1)
-						{
-							style.append("border-right: none; padding-right: ").append(borderWidth[1]).append("px;"); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-
-						return style.toString();
-					}
-				}));
 			}
 		}
 

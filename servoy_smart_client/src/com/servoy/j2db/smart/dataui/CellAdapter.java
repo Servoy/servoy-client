@@ -458,18 +458,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			Border styleBorder = getBorder(jtable, isSelected, row);
 			if (styleBorder != null && editor instanceof JComponent)
 			{
-				if (column == 0)
-				{
-					styleBorder = new ReducedBorder(styleBorder, ReducedBorder.RIGHT);
-				}
-				else if (column == jtable.getColumnCount() - 1)
-				{
-					styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT);
-				}
-				else
-				{
-					styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT | ReducedBorder.RIGHT);
-				}
+				styleBorder = new ReducedBorder(styleBorder, 0);
 
 				if (editor instanceof AbstractButton && !((AbstractButton)editor).isBorderPainted())
 				{
@@ -989,18 +978,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		Border styleBorder = getBorder(jtable, isSelected, row);
 		if (styleBorder != null)
 		{
-			if (column == 0)
-			{
-				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.RIGHT);
-			}
-			else if (column == jtable.getColumnCount() - 1)
-			{
-				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT);
-			}
-			else
-			{
-				styleBorder = new ReducedBorder(styleBorder, ReducedBorder.LEFT | ReducedBorder.RIGHT);
-			}
+			styleBorder = new ReducedBorder(styleBorder, 0);
 
 			if (component instanceof AbstractButton && !((AbstractButton)component).isBorderPainted())
 			{
