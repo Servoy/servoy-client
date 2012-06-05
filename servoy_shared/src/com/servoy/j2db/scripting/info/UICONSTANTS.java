@@ -25,7 +25,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 {
 
 	/**
-	 * Property that can be set using application.setUIProperty() or element.putClientProperty().
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 * 
 	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
 	 * Value can be true/false/null.
@@ -35,14 +35,14 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * // make all TYPE-AHEAD fields not show the pop-up when there is empty content in the field
-	 * application.setUIProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, false);
+	 * application.putClientProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, false);
 	 * // make one TYPE-AHEAD field show the pop-up when there is empty content in the field - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, true);
 	 */
 	public static final String TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY = IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY;
 
 	/**
-	 * Property that can be set using application.setUIProperty() or element.putClientProperty().
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 * 
 	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
 	 * Value can be true/false/null.
@@ -52,14 +52,14 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * // make all TYPE-AHEAD fields not show the pop-up when gaining focus
-	 * application.setUIProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, false);
+	 * application.putClientProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, false);
 	 * // make one TYPE-AHEAD field show the pop-up when gaining focus - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, true);
 	 */
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.setUIProperty() or element.putClientProperty().
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 * 
 	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
 	 * Value can be true/false/null.
@@ -69,14 +69,14 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * // make all COMBOBOX fields not show the pop-up when gaining focus
-	 * application.setUIProperty(APP_UI_PROPERTY.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, false);
+	 * application.putClientProperty(APP_UI_PROPERTY.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, false);
 	 * // make one COMBOBOX field show the pop-up when gaining focus - overrides the application property set
 	 * forms.someForm.elements.comboboxElement.putClientProperty(APP_UI_PROPERTY.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, true);
 	 */
 	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.setUIProperty() or element.putClientProperty(). It is used only in Smart Client.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
 	 * 
 	 * If set on application it will affect all date formatted fields. If set on an element it will affect only that date formatted element/field (with priority over the application property).
 	 * Value can be true/false/null.
@@ -86,14 +86,14 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * // make all date formatted fields use roll instead of add
-	 * application.setUIProperty(APP_UI_PROPERTY.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, true);
+	 * application.putClientProperty(APP_UI_PROPERTY.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, true);
 	 * // make one date formatted field use add instead of roll - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, false);
 	 */
 	public static final String DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD = IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD;
 
 	/**
-	 * Property that can be set using application.setUIProperty() or element.putClientProperty().
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 * 
 	 * If set on application it will affect all date formatted fields. CAUTION: this property must be set on application before the fields are created (for example in solution onOpen handler). Changing it after fields were created will not affect these existing fields.
 	 * If set on an element it will affect only that date formatted element/field (with priority over the application property).
@@ -104,7 +104,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * // make all date formatted fields (created after this line is executed) not use lenient mode
-	 * application.setUIProperty(APP_UI_PROPERTY.DATE_FORMATTERS_LENIENT, false);
+	 * application.putClientProperty(APP_UI_PROPERTY.DATE_FORMATTERS_LENIENT, false);
 	 * // make one date formatted field use lenient mode - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.DATE_FORMATTERS_LENIENT, true);
 	 */
@@ -133,7 +133,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final int FULL_SCREEN = IApplication.FULL_SCREEN;
 
 	/**
-	 * Property than can be set using application.setUIProperty().
+	 * Property than can be set using application.putClientProperty().
 	 * 
 	 * If set to true, the system standard Printing dialog will be used when printing is needed.
 	 * If set to false, the Servoy Printing dialog will be used.
@@ -142,30 +142,30 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false 
 	 * 
 	 * @sample
-	 * application.setUIProperty(APP_UI_PROPERTY.USE_SYSTEM_PRINT_DIALOG, true)
+	 * application.putClientProperty(APP_UI_PROPERTY.USE_SYSTEM_PRINT_DIALOG, true)
 	 */
 	public static final String USE_SYSTEM_PRINT_DIALOG = IApplication.USE_SYSTEM_PRINT_DIALOG;
 
 	/**
-	 * Property than can be set using application.setUIProperty() and
+	 * Property than can be set using application.putClientProperty() and
 	 * indicates the delay in milliseconds before the tooltip is shown.
 	 *
 	 * @sample
-	 * application.setUIProperty(APP_UI_PROPERTY.TOOLTIP_INITIAL_DELAY, 2000)
+	 * application.putClientProperty(APP_UI_PROPERTY.TOOLTIP_INITIAL_DELAY, 2000)
 	 */
 	public static final String TOOLTIP_INITIAL_DELAY = IApplication.TOOLTIP_INITIAL_DELAY;
 
 	/**
-	 * Property than can be set using application.setUIProperty() and
+	 * Property than can be set using application.putClientProperty() and
 	 * indicates the delay in milliseconds after the tooltip is dismissed.
 	 *
 	 * @sample
-	 * application.setUIProperty(APP_UI_PROPERTY.TOOLTIP_DISMISS_DELAY, 4000)
+	 * application.putClientProperty(APP_UI_PROPERTY.TOOLTIP_DISMISS_DELAY, 4000)
 	 */
 	public static final String TOOLTIP_DISMISS_DELAY = IApplication.TOOLTIP_DISMISS_DELAY;
 
 	/**
-	 * Property than can be set using application.setUIProperty().
+	 * Property than can be set using application.putClientProperty().
 	 * 
 	 * If set to true, fields that are read-only won't be editable in find mode
 	 * If set to false, fields that are read-only will be editable in find mode
@@ -174,12 +174,12 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false 
 	 * 
 	 * @sample
-	 * application.setUIProperty(APP_UI_PROPERTY.LEAVE_FIELDS_READONLY_IN_FIND_MODE, true)
+	 * application.putClientProperty(APP_UI_PROPERTY.LEAVE_FIELDS_READONLY_IN_FIND_MODE, true)
 	 */
 	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE;
 
 	/**
-	 * Property than can be set using application.setUIProperty().
+	 * Property than can be set using application.putClientProperty().
 	 * 
 	 * If set to true, table views in web client are scrollable by default
 	 * If set to false, table views in web client are not scrollable, but pageable by default
@@ -188,7 +188,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false 
 	 * 
 	 * @sample
-	 * application.setUIProperty(APP_UI_PROPERTY.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
+	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 

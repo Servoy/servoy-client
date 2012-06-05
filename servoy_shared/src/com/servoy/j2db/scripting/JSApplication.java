@@ -3140,7 +3140,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 * var ok = application.createNewFormInstance('orders','orders_view');
 	 * if (ok)
 	 * {
-	 * 	application.showFormInDialog(forms.orders_view)
+	 * 	var dialog = application.createWindow("myDialog", JSWindow.DIALOG);
+	 *  dialog.show('orders_view')
 	 * 	//forms['orders_view'].controller.show()
 	 * 	//forms.xyz.elements.myTabPanel.addTab(forms['orders_view'])
 	 * 	//forms['orders_view'].elements.mylabel.setLocation(10,20)

@@ -121,7 +121,7 @@ public class JSCalculation implements IJavaScriptType
 	 * Returns whether this calculation is a stored one or not.
 	 * 
 	 * @sample
-	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
+	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER);
 	 * if (calc.isStored()) application.output("The calculation is stored");
 	 * else application.output("The calculation is not stored");
 	 * 
@@ -191,7 +191,7 @@ public class JSCalculation implements IJavaScriptType
 	 * Returns the UUID of the calculation.
 	 * 
 	 * @sample
-	 * var calc = solutionModel.newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER, "db:/example_data/customers");
+	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER);
 	 * application.output(calc.getUUID().toString()); 
 	 */
 	public UUID js_getUUID()

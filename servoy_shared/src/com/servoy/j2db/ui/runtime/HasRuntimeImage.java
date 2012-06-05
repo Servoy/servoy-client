@@ -76,7 +76,7 @@ public interface HasRuntimeImage
 	 *
 	 * @sample
 	 * var jpgData = %%prefix%%%%elementName%%.getThumbnailJPGImage();
-	 * application.writeFile("mypicture.jpg", jpgData);
+	 * plugins.file.writeFile("mypicture.jpg", jpgData);
 	 *
 	 * @return An array of bytes.
 	 */
@@ -88,7 +88,7 @@ public interface HasRuntimeImage
 	 *
 	 * @sample
 	 * var jpgData = %%prefix%%%%elementName%%.getThumbnailJPGImage(50, 50);
-	 * application.writeFile("mypicture.jpg", jpgData);
+	 * plugins.file.writeFile("mypicture.jpg", jpgData);
 	 *
 	 * @param width The target width, use -1 for original image width.
 	 * @param height The target height, use -1 for original image height.
