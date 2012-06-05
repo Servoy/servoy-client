@@ -410,7 +410,7 @@ public class DependencyResolver implements IMessageProvider
 						for (int i = 0; noBrokenDep && (i < dmd.getExtensionDependencies().length); i++)
 						{
 							// see if it's a dependency broken by this update
-							if (dmd.getExtensionDependencies()[i].id == extension.id &&
+							if (dmd.getExtensionDependencies()[i].id.equals(extension.id) &&
 								!VersionStringUtils.belongsToInterval(extension.version, dmd.getExtensionDependencies()[i].minVersion,
 									dmd.getExtensionDependencies()[i].maxVersion))
 							{
@@ -458,7 +458,7 @@ public class DependencyResolver implements IMessageProvider
 					else
 					{
 						messages.addWarning("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " +
-							extension + "'. Broken extension: '" + brokenDependenciesToOldVersion.get(i) + "'.");
+							extension + ". Broken extension: " + brokenDependenciesToOldVersion.get(i) + ".");
 						dependenciesOKForNow = false; // other versions of a broken dependency were found, but none was compatible; invalid tree path
 					}
 				}
