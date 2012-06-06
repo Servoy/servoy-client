@@ -2153,10 +2153,9 @@ public class ComponentFactory
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void flushValueList(ValueList vl)
+	public static void flushValueList(IServiceProvider sp, ValueList vl)
 	{
-		WeakHashMap<ValueList, Object> hmValueLists = (WeakHashMap<ValueList, Object>)J2DBGlobals.getServiceProvider().getRuntimeProperties().get(
-			IServiceProvider.RT_VALUELIST_CACHE);
+		WeakHashMap<ValueList, Object> hmValueLists = (WeakHashMap<ValueList, Object>)sp.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
 		if (hmValueLists != null)
 		{
 			hmValueLists.remove(vl);
@@ -2164,11 +2163,12 @@ public class ComponentFactory
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void flushCachedItems()
+	public static void flushCachedItems(IServiceProvider provider)
 	{
 		parsedStyles = new ConcurrentHashMap<Style, IStyleSheet>();
-		J2DBGlobals.getServiceProvider().getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
-		J2DBGlobals.getServiceProvider().getRuntimeProperties().put(IServiceProvider.RT_OVERRIDESTYLE_CACHE, null);
+		provider.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
+		provider.getRuntimeProperties().put(IServiceProvider.RT_OVERRIDESTYLE_CACHE, null);
+		provider.getRuntimeProperties().put(PARSED_STYLES, null);
 
 		Iterator<IconHolder> it = lstIcons.values().iterator();
 		while (it.hasNext())

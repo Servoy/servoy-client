@@ -2091,7 +2091,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 
 			setStatusText("", null); //$NON-NLS-1$
-			ComponentFactory.flushCachedItems();
+			ComponentFactory.flushCachedItems(this);
 			invokeLater(new Runnable()// make some stuff later null so its not created again
 			{
 				public void run()

@@ -534,7 +534,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			{
 				if (!getMainApplicationFrame().isVisible())
 				{
-					ComponentFactory.flushCachedItems(); // some stuff may have been cached while components are painted in form editor
+					ComponentFactory.flushCachedItems(DebugJ2DBClient.this); // some stuff may have been cached while components are painted in form editor
 					getMainApplicationFrame().setVisible(true);
 				}
 				else
