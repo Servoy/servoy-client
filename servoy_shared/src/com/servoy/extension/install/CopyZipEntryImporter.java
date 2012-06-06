@@ -38,6 +38,7 @@ import com.servoy.extension.FileBasedExtensionProvider;
 import com.servoy.extension.IMessageProvider;
 import com.servoy.extension.Message;
 import com.servoy.extension.MessageKeeper;
+import com.servoy.extension.parser.ExtensionConfiguration;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -58,22 +59,26 @@ public class CopyZipEntryImporter implements IMessageProvider
 	protected final File installDir;
 	protected final String extensionID;
 	protected final String version;
+	protected final ExtensionConfiguration expConfig;
 
 	private final File screenshotsFolder;
 	private final File developerFolder;
 	private final File docsFolder;
+	private final File iconFile;
 
 	protected final MessageKeeper messages = new MessageKeeper();
 
-	public CopyZipEntryImporter(File expFile, File installDir, String extensionID, String version)
+	public CopyZipEntryImporter(File expFile, File installDir, String extensionID, String version, ExtensionConfiguration expConfig)
 	{
 		this.expFile = expFile;
 		this.installDir = installDir;
 		this.version = version;
 		this.extensionID = extensionID;
+		this.expConfig = expConfig;
 		screenshotsFolder = new File(installDir, "screenshots"); //$NON-NLS-1$
 		developerFolder = new File(installDir, "developer"); //$NON-NLS-1$
 		docsFolder = new File(installDir, "application_server/docs/" + extensionID); //$NON-NLS-1$
+		iconFile = (expConfig.getInfo() != null && expConfig.getInfo().iconPath != null) ? new File(installDir, expConfig.getInfo().iconPath) : null;
 	}
 
 	public void handleFile()
@@ -301,6 +306,7 @@ public class CopyZipEntryImporter implements IMessageProvider
 			return true;
 		}
 		if (outputFile.getName().equals("package.xml")) return true; //$NON-NLS-1$
+		if (iconFile != null && iconFile.equals(outputFile)) return true;
 		if (ExtensionUtils.isInParentDir(screenshotsFolder, outputFile)) return true;
 		if (!developerFolder.exists() && ExtensionUtils.isInParentDir(developerFolder, outputFile))
 		{

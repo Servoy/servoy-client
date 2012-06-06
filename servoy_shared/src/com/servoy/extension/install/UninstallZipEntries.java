@@ -23,6 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import com.servoy.extension.ExtensionUtils;
+import com.servoy.extension.parser.ExtensionConfiguration;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -34,14 +35,14 @@ import com.servoy.j2db.util.Debug;
 public class UninstallZipEntries extends CopyZipEntryImporter
 {
 
-	public UninstallZipEntries(String expfileName, File installDir, String extensionID, String version)
+	public UninstallZipEntries(String expfileName, File installDir, String extensionID, String version, ExtensionConfiguration expConfig)
 	{
-		super(new File(installDir + File.separator + ExtensionUtils.EXPFILES_FOLDER, expfileName), installDir, extensionID, version);
+		super(new File(installDir + File.separator + ExtensionUtils.EXPFILES_FOLDER, expfileName), installDir, extensionID, version, expConfig);
 	}
 
-	public UninstallZipEntries(File expFile, File installDir, String extensionID, String version)
+	public UninstallZipEntries(File expFile, File installDir, String extensionID, String version, ExtensionConfiguration expConfig)
 	{
-		super(expFile, installDir, extensionID, version);
+		super(expFile, installDir, extensionID, version, expConfig);
 	}
 
 	@Override
