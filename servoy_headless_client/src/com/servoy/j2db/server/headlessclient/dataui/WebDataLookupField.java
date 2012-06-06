@@ -302,6 +302,13 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				response.write("</ul>"); //$NON-NLS-1$
 			}
 
+			/**
+			 * Returns web color representation of int rgba color by
+			 * removing the alpha value
+			 * 
+			 * @param color int representation of rgba color
+			 * @return web color of form #rrggbb
+			 */
 			private String getWebColor(int color)
 			{
 				String webColor = Integer.toHexString(color);
