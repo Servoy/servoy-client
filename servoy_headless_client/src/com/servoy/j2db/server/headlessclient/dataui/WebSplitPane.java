@@ -622,20 +622,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			"for(var x = 0; x < splitterDivs.length; x++) { if(splitterDivs[x].parentNode == splitter && splitterDivs[x].id.match('yui') != null) { ").append( //$NON-NLS-1$ 
 			"YAHOO.util.Dom.setStyle(splitterDivs[x], '").append(dim).append("', '").append(dividerSize).append("px');").append(dividerBg != null ? "YAHOO.util.Dom.setStyle(splitterDivs[x], 'background-color', '" + dividerBg + "');" : "").append("break; } }; "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 
-
-		// set min-width to 0 to avoid having double scroll bars
-		for (int i = 0; i < 2; i++)
-		{
-			if (webTabs[i] != null)
-			{
-				String formId = webTabs[i].getPanel().getFormName();
-				resizeScript.append("var div_").append(formId).append(" = document.getElementById('form_").append(formId).append("');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				resizeScript.append("if(div_").append(formId).append(") { YAHOO.util.Dom.setStyle(div_").append(formId).append( //$NON-NLS-1$ //$NON-NLS-2$
-					", 'min-width', '0px');").append(" YAHOO.util.Dom.setStyle(div_").append(formId).append( //$NON-NLS-1$ //$NON-NLS-2$
-					", 'min-height', '0px'); }"); //$NON-NLS-1$
-			}
-		}
-
 		if (!continuousLayout)
 		{
 			resizeScript.append("resize.on('startResize', function(ev) {"); //$NON-NLS-1$  			

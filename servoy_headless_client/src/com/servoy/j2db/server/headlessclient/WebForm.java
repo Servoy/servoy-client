@@ -266,7 +266,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			public String getObject()
 			{
 				IWebFormContainer tabpanel = findParent(IWebFormContainer.class);
-				if (tabpanel instanceof WebTabPanel || tabpanel instanceof WebAccordionPanel)
+				if (tabpanel instanceof WebTabPanel || tabpanel instanceof WebAccordionPanel || tabpanel instanceof WebSplitPane)
 				{
 					return "min-width:0px;min-height:0px;";
 				}
