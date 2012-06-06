@@ -1206,7 +1206,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			align = "right";
 		}
 		StringBuffer fieldsetMarkup = new StringBuffer(
-			"<fieldset style='top:0px;bottom:3px;left:0px;right:0px;position:absolute;border-width:2px;margin:0px 2px;padding:3px;'><legend align='");
+			"<fieldset style='top:0px;bottom:3px;left:0px;right:0px;position:absolute;margin:0px 2px;'><legend align='");
 		fieldsetMarkup.append(align);
 		fieldsetMarkup.append("' style='");
 		if (titledBorder.getTitleColor() != null)
@@ -1230,6 +1230,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				}
 			}
 		}
+		fieldsetMarkup.append("line-height:1em;");
 		fieldsetMarkup.append("'>");
 		fieldsetMarkup.append(titledBorder.getTitle());
 		fieldsetMarkup.append("</legend>"); //$NON-NLS-1$

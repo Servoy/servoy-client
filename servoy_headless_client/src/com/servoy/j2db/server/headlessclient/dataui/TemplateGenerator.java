@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
 
@@ -2060,6 +2061,7 @@ public class TemplateGenerator
 
 		if (rectshape.getLineSize() > 0)
 		{
+			boolean titledBorder = rectshape.getBorderType() != null && ComponentFactoryHelper.createBorder(rectshape.getBorderType()) instanceof TitledBorder;
 			styleObj.setProperty("border-style", "solid");
 			if (rectshape.getBorderType() != null)
 			{
@@ -2067,14 +2069,20 @@ public class TemplateGenerator
 				ComponentFactoryHelper.createBorderCSSProperties(rectshape.getBorderType(), properties);
 				styleObj.setProperty("border-style", properties.getProperty("border-style"));
 			}
-			styleObj.setProperty("border-width", rectshape.getLineSize() + "px");
-			if (ins.border == null) ins.border = new Insets(rectshape.getLineSize(), rectshape.getLineSize(), rectshape.getLineSize(), rectshape.getLineSize());
-			else
+			if (!titledBorder)
 			{
-				ins.border.top += rectshape.getLineSize();
-				ins.border.right += rectshape.getLineSize();
-				ins.border.bottom += rectshape.getLineSize();
-				ins.border.left += rectshape.getLineSize();
+				styleObj.setProperty("border-width", rectshape.getLineSize() + "px");
+				if (ins.border == null)
+				{
+					ins.border = new Insets(rectshape.getLineSize(), rectshape.getLineSize(), rectshape.getLineSize(), rectshape.getLineSize());
+				}
+				else
+				{
+					ins.border.top += rectshape.getLineSize();
+					ins.border.right += rectshape.getLineSize();
+					ins.border.bottom += rectshape.getLineSize();
+					ins.border.left += rectshape.getLineSize();
+				}
 			}
 			if (rectshape.getForeground() != null)
 			{
