@@ -20,8 +20,6 @@ package com.servoy.j2db.smart.dataui;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import javax.swing.UIManager;
-import javax.swing.text.html.CSS;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.EnablePanel;
@@ -38,7 +36,7 @@ public class StyledEnablePanel extends EnablePanel
 {
 	private IApplication application;
 	private IStyleRule partRule = null;
-	private boolean paintBackgroundOnTopOfFormImage = false;
+	private boolean paintBackgroundOnTopOfImage = false;
 
 	public StyledEnablePanel(IApplication application)
 	{
@@ -60,9 +58,9 @@ public class StyledEnablePanel extends EnablePanel
 		this.application = application;
 	}
 
-	public void setPaintBackgroundOnTopOfFormImage(boolean paintBackgroundOnTopOfFormImage)
+	public void setPaintBackgroundOnTopOfImage(boolean paintBackgroundOnTopOfImage)
 	{
-		this.paintBackgroundOnTopOfFormImage = paintBackgroundOnTopOfFormImage;
+		this.paintBackgroundOnTopOfImage = paintBackgroundOnTopOfImage;
 	}
 
 	public void setCssRule(IStyleRule rule)
@@ -73,13 +71,12 @@ public class StyledEnablePanel extends EnablePanel
 	@Override
 	public void paint(Graphics g)
 	{
-		boolean hasCssBgImage = partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString());
-		if (paintBackgroundOnTopOfFormImage || hasCssBgImage)
+		if (paintBackgroundOnTopOfImage)
 		{
 			// image always on top, set opaque to false
 			setOpaque(false);
 			Color bg = getBackground();
-			if (bg != null && bg != UIManager.getColor("Panel.background"))
+			if (bg != null)
 			{
 				Color tmp = g.getColor();
 				// paint background color first, form is transparent
@@ -89,10 +86,7 @@ public class StyledEnablePanel extends EnablePanel
 				g.setColor(tmp);
 			}
 		}
-		if (hasCssBgImage)
-		{
-			ImageLoader.paintImage(g, partRule, application, getSize());
-		}
+		ImageLoader.paintImage(g, partRule, application, getSize());
 		super.paint(g);
 	}
 }
