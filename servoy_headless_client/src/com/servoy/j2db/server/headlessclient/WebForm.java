@@ -139,6 +139,7 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -223,7 +224,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				IWebFormContainer container = findParent(IWebFormContainer.class);
 				if (container != null && container.getBorder() instanceof TitledBorder)
 				{
-					int offset = ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// height of legend
+					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
 					return "top: " + offset + "px;";
 				}
 				return ""; //$NON-NLS-1$

@@ -65,6 +65,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.IStyleRule;
@@ -125,7 +126,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				WebForm container = findParent(WebForm.class);
 				if (container != null && container.getBorder() instanceof TitledBorder)
 				{
-					int offset = ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// height of legend
+					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
 					return "top: " + offset + "px;";
 				}
 				return ""; //$NON-NLS-1$

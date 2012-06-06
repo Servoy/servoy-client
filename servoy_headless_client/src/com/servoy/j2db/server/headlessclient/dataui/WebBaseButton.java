@@ -1075,8 +1075,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			{
 				usePadding = true;
 				padding = new Insets(5, 7, 5, 7); // margin + border + padding, see beneath
-				int fontSize = ((TitledBorder)border).getTitleFont() != null ? ((TitledBorder)border).getTitleFont().getSize() : 11;
-				padding.top += fontSize + 4; // add the legend height
+				padding.top += ComponentFactoryHelper.getTitledBorderHeight(border); // add the legend height
 			}
 			else
 			{

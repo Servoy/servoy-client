@@ -641,4 +641,14 @@ public class ComponentFactoryHelper
 
 		return border.getBorderInsets(null);
 	}
+
+	public static int getTitledBorderHeight(Border border)
+	{
+		if (border instanceof TitledBorder)
+		{
+			int fontSize = ((TitledBorder)border).getTitleFont() != null ? ((TitledBorder)border).getTitleFont().getSize() : 11;
+			return fontSize + 4; // add the legend height
+		}
+		return 0;
+	}
 }

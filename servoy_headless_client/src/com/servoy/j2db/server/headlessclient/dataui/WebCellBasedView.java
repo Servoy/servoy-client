@@ -1595,7 +1595,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				WebForm container = findParent(WebForm.class);
 				if (container != null && container.getBorder() instanceof TitledBorder)
 				{
-					int offset = ((TitledBorder)container.getBorder()).getTitleFont().getSize() + 4;// height of legend
+					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
 					return "top: " + offset + "px;";
 				}
 				return ""; //$NON-NLS-1$
