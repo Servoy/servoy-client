@@ -735,6 +735,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				{
 					((StyledEnablePanel)innerPanel).setCssRule(formController.getBodyStyle());
 					((StyledEnablePanel)innerPanel).setApplication(application);
+					((StyledEnablePanel)innerPanel).setBgColor(formController.getBodyPartBackgroundColor());
 					Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(application, fp.getForm());
 					if (pairStyle != null && pairStyle.getLeft() != null)
 					{

@@ -241,7 +241,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 			Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(app, part, form);
 			if (panel != null)
 			{
-				boolean partHasBgImage = false;
+				panel.setBgColor(part.getBackground());
 				if (pair != null && pair.getRight() != null && pair.getLeft() != null)
 				{
 					panel.setCssRule(pair.getRight());
@@ -250,13 +250,12 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 					{
 						panel.setBorder(border);
 					}
-					partHasBgImage = pair.getRight().hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString());
 				}
-
-				if ((formHasBgImage || partHasBgImage))
+				boolean partHasBgColor = (part.getBackground() != null) ||
+					(pair != null && pair.getRight() != null && pair.getRight().hasAttribute(CSS.Attribute.BACKGROUND_COLOR.toString()));
+				if (formHasBgImage && !form.getTransparent() && partHasBgColor)
 				{
-					panel.setPaintBackgroundOnTopOfImage(true);
-					panel.setBgColor(bg);
+					panel.setPaintBackgroundOnTopOfFormImage(true);
 				}
 			}
 		}
