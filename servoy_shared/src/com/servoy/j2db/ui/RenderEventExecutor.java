@@ -82,7 +82,7 @@ public class RenderEventExecutor
 
 	public void fireOnRender(boolean hasFocus)
 	{
-		if (isRenderStateChanged && renderScriptExecuter != null && renderCallback != null && (renderIndex != -1 || renderRecord == null))
+		if (isRenderStateChanged && renderScriptExecuter != null && renderCallback != null)
 		{
 			IScriptRenderMethods renderable = onRenderComponent.getRenderable();
 			if (renderable instanceof RenderableWrapper) ((RenderableWrapper)renderable).resetProperties();
