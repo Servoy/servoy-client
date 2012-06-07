@@ -126,6 +126,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null) jsunitJ2DBClient.refreshForI18NChange();
 		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshForI18NChange();
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshForI18NChange();
+		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshForI18NChange();
 	}
 
 	/**
@@ -137,6 +138,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null) jsunitJ2DBClient.refreshPersists(changes);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshPersists(changes);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshPersists(changes);
+		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshPersists(changes);
 	}
 
 	public void refreshDebugClients(Table table)
@@ -160,6 +162,11 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			String dataSource = debugHeadlessClient.getFoundSetManager().getDataSource(table);
 			((FoundSetManager)debugHeadlessClient.getFoundSetManager()).flushSQLSheet(dataSource);
+		}
+		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null)
+		{
+			String dataSource = debugAuthenticator.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)debugAuthenticator.getFoundSetManager()).flushSQLSheet(dataSource);
 		}
 	}
 
@@ -694,6 +701,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugJ2DBClient != null) ComponentFactory.flushValueList(debugJ2DBClient, valueList);
 		if (debugWebClient != null) ComponentFactory.flushValueList(debugWebClient, valueList);
 		if (debugHeadlessClient != null) ComponentFactory.flushValueList(debugHeadlessClient, valueList);
+		if (debugAuthenticator != null) ComponentFactory.flushValueList(debugAuthenticator, valueList);
+		if (jsunitJ2DBClient != null) ComponentFactory.flushValueList(jsunitJ2DBClient, valueList);
 	}
 
 	public void reloadAllStyles()
@@ -703,6 +712,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugJ2DBClient != null) ComponentFactory.flushCachedItems(debugJ2DBClient);
 		if (debugWebClient != null) ComponentFactory.flushCachedItems(debugWebClient);
 		if (debugHeadlessClient != null) ComponentFactory.flushCachedItems(debugHeadlessClient);
+		if (debugAuthenticator != null) ComponentFactory.flushCachedItems(debugAuthenticator);
+		if (jsunitJ2DBClient != null) ComponentFactory.flushCachedItems(jsunitJ2DBClient);
 	}
 
 	CountDownLatch modelInitialised = new CountDownLatch(1);

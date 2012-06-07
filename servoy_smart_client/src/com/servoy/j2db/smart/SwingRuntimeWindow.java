@@ -704,6 +704,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			{
 				public void run()
 				{
+					if (wrappedWindow == null) return; // already destroyed (test client probably)
 					((RootPaneContainer)wrappedWindow).getRootPane().requestFocus();
 					if (LAFManager.isUsingAppleLAF())
 					{
