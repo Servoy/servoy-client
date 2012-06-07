@@ -152,7 +152,7 @@ public class JSUtils
 	 * @param scriptable the javascript object or foundset,record,form to be used to fill in the tags
 	 * @return the text with replaced tags
 	 */
-	public String js_stringReplaceTags(Object text, Object scriptable)
+	public String js_stringReplaceTags(String text, Object scriptable)
 	{
 		if (text != null)
 		{
@@ -273,12 +273,12 @@ public class JSUtils
 	 * @param date object to be stripped from its time elements
 	 * @return the stripped date object
 	 */
-	public Date js_timestampToDate(Object date)
+	public Date js_timestampToDate(Date date)
 	{
-		if (date instanceof Date)
+		if (date != null)
 		{
 			Calendar calendar = Calendar.getInstance();
-			calendar.setTime((Date)date);
+			calendar.setTime(date);
 			Utils.applyMinTime(calendar);
 			return calendar.getTime();
 		}
@@ -296,15 +296,15 @@ public class JSUtils
 	 * @param numberof_words to return
 	 * @return the string with number of words form the left  
 	 */
-	public String js_stringLeftWords(Object text, Object numberof_words)
+	public String js_stringLeftWords(String text, Number numberof_words)
 	{
-		if (text != null && numberof_words instanceof Number)
+		if (text != null && numberof_words != null)
 		{
 			try
 			{
-				int words = ((Number)numberof_words).intValue();
+				int words = numberof_words.intValue();
 				StringBuffer sb = new StringBuffer();
-				StringTokenizer st = new StringTokenizer(text.toString(), " "); //$NON-NLS-1$
+				StringTokenizer st = new StringTokenizer(text, " "); //$NON-NLS-1$
 				int i = 0;
 				while (st.hasMoreTokens() && i < words)
 				{
@@ -341,14 +341,14 @@ public class JSUtils
 	 * @param numberof_words the word count to return
 	 * @return the string with number of words form the left and  
 	 */
-	public String js_stringMiddleWords(Object text, Object i_start, Object numberof_words)
+	public String js_stringMiddleWords(String text, Number i_start, Number numberof_words)
 	{
-		if (text != null && i_start instanceof Number && numberof_words instanceof Number)
+		if (text != null && i_start != null && numberof_words != null)
 		{
 			try
 			{
-				int start = ((Number)i_start).intValue();
-				int words = ((Number)numberof_words).intValue();
+				int start = i_start.intValue();
+				int words = numberof_words.intValue();
 				StringBuffer sb = new StringBuffer();
 				StringTokenizer st = new StringTokenizer(text.toString(), " "); //$NON-NLS-1$
 				start = start - 1;
@@ -390,13 +390,13 @@ public class JSUtils
 	 * @param numberof_words to return
 	 * @return the string with number of words form the right  
 	 */
-	public String js_stringRightWords(Object text, Object numberof_words)
+	public String js_stringRightWords(String text, Number numberof_words)
 	{
-		if (text != null && numberof_words instanceof Number)
+		if (text != null && numberof_words != null)
 		{
 			try
 			{
-				int words = ((Number)numberof_words).intValue();
+				int words = numberof_words.intValue();
 				StringBuffer sb = new StringBuffer();
 				StringTokenizer st = new StringTokenizer(text.toString(), " "); //$NON-NLS-1$
 				int i = 0;
@@ -434,13 +434,13 @@ public class JSUtils
 	 * //returns 2 as count
 	 * var count = utils.stringPatternCount('this is a test','is');
 	 *
-	 * @param textString the text to process
+	 * @param text the text to process
 	 * @param searchString the string to search
 	 * @return the occurrenceCount that the search string is found in the text 
 	 */
-	public int js_stringPatternCount(Object textString, Object searchString)
+	public int js_stringPatternCount(String text, Object searchString)
 	{
-		if (textString != null && searchString != null)
+		if (text != null && searchString != null)
 		{
 			if ("".equals(searchString)) return -1; //$NON-NLS-1$
 
@@ -450,7 +450,6 @@ public class JSUtils
 			}
 			try
 			{
-				String text = textString.toString();
 				String search = searchString.toString();
 				int length = search.length();
 				int i = 0;
@@ -487,9 +486,9 @@ public class JSUtils
 	 * 
 	 * @return the position 
 	 */
-	public int js_stringPosition(Object textString, Object searchString, Object i_start, Object i_occurrence)
+	public int js_stringPosition(String textString, Object searchString, Number i_start, Number i_occurrence)
 	{
-		if (textString != null && searchString != null && i_start instanceof Number && i_occurrence instanceof Number)
+		if (textString != null && searchString != null && i_start != null && i_occurrence != null)
 		{
 			if (searchString instanceof Double)
 			{
@@ -498,10 +497,10 @@ public class JSUtils
 
 			try
 			{
-				int start = ((Number)i_start).intValue() - 1;
+				int start = i_start.intValue() - 1;
 				if (start < 0) start = 0;
 
-				int occurrence = ((Number)i_occurrence).intValue();
+				int occurrence = i_occurrence.intValue();
 				if (occurrence == 0) occurrence = 1;
 
 				String search = searchString.toString();
@@ -556,18 +555,17 @@ public class JSUtils
 	 * //returns 'this was a test'
 	 * var retval = utils.stringIndexReplace('this is a test',6,2,'was');
 	 *
-	 * @param textString the text to process
+	 * @param text the text to process
 	 * @param i_start the start index to work from 
 	 * @param i_size the size of the text to replace 
 	 * @param replacement_text the replacement text
 	 * @return the changed text string
 	 */
 	@SuppressWarnings("nls")
-	public String js_stringIndexReplace(Object textString, Object i_start, Object i_size, Object replacement_text)
+	public String js_stringIndexReplace(String text, Number i_start, Number i_size, Object replacement_text)
 	{
-		if (textString != null && i_start instanceof Number && i_size instanceof Number)
+		if (text != null && i_start != null && i_size != null)
 		{
-			String text = textString.toString();
 			try
 			{
 				if (replacement_text instanceof Double)
@@ -575,8 +573,8 @@ public class JSUtils
 					replacement_text = ScriptRuntime.numberToString(((Double)replacement_text).doubleValue(), 10);
 				}
 
-				int start = ((Number)i_start).intValue();
-				int size = ((Number)i_size).intValue();
+				int start = i_start.intValue();
+				int size = i_size.intValue();
 				start = start - 1;
 				String left = text.substring(0, start);
 				String right = text.substring(start + size, text.length());
@@ -589,7 +587,7 @@ public class JSUtils
 		}
 		else
 		{
-			return textString == null ? "" : String.valueOf(textString);
+			return text == null ? "" : text;
 		}
 	}
 
@@ -607,7 +605,7 @@ public class JSUtils
 	 * @return the changed text string
 	 */
 	@SuppressWarnings("nls")
-	public String js_stringReplace(Object text, Object search_text, Object replacement_text)
+	public String js_stringReplace(String text, String search_text, Object replacement_text)
 	{
 		if (text != null && search_text != null)
 		{
@@ -630,19 +628,17 @@ public class JSUtils
 	 * //returns 'this i'
 	 * var retval = utils.stringLeft('this is a test',6);
 	 *
-	 * @param textString the text to process
+	 * @param text the text to process
 	 * @param i_size the size of the text to return 
 	 * @return the result text string
 	 */
-	public String js_stringLeft(Object textString, Object i_size)
+	public String js_stringLeft(String text, Number i_size)
 	{
-		if (textString != null && i_size instanceof Number)
+		if (text != null && i_size != null)
 		{
-			String text = textString.toString();
 			try
 			{
-				int pos = ((Number)i_size).intValue();
-				return text.substring(0, pos);
+				return text.substring(0, i_size.intValue());
 			}
 			catch (Exception ex)
 			{
@@ -662,18 +658,17 @@ public class JSUtils
 	 * //returns 'his'
 	 * var retval = utils.stringMiddle('this is a test',2,3);
 	 *
-	 * @param textString the text to process
+	 * @param text the text to process
 	 * @param i_start the start index to work from 
 	 * @param i_size the size of the text to return 
 	 * @return the result text string
 	 */
-	public String js_stringMiddle(Object textString, Object i_start, Object i_size)
+	public String js_stringMiddle(String text, Number i_start, Number i_size)
 	{
-		if (textString != null && i_start instanceof Number && i_size instanceof Number)
+		if (text != null && i_start != null && i_size != null)
 		{
-			String text = textString.toString();
-			int start = ((Number)i_start).intValue();
-			int length = ((Number)i_size).intValue();
+			int start = i_start.intValue();
+			int length = i_size.intValue();
 			try
 			{
 				start = start - 1;//Filemaker starts counting at 1>>Java at 0
@@ -697,18 +692,17 @@ public class JSUtils
 	 * //returns 'a test'
 	 * var retval = utils.stringLeft('this is a test',6);
 	 *
-	 * @param textString the text to process
+	 * @param text the text to process
 	 * @param i_size the size of the text to return 
 	 * @return the result text string
 	 */
-	public String js_stringRight(Object textString, Object i_size)
+	public String js_stringRight(String text, Number i_size)
 	{
-		if (textString != null && i_size instanceof Number)
+		if (text != null && i_size != null)
 		{
-			String text = textString.toString();
 			try
 			{
-				int pos = ((Number)i_size).intValue();
+				int pos = i_size.intValue();
 				return text.substring(text.length() - pos, text.length());
 			}
 			catch (Exception ex)
@@ -782,7 +776,7 @@ public class JSUtils
 	 * @param textString the text to process
 	 * @return the resulting hashString
 	 */
-	public String js_stringPBKDF2Hash(Object textString)
+	public String js_stringPBKDF2Hash(String textString)
 	{
 		if (textString != null)
 		{
@@ -804,7 +798,7 @@ public class JSUtils
 	 * @param iterations how many hash iterations should be done, minimum should be 1000 or higher.
 	 * @return the resulting hashString
 	 */
-	public String js_stringPBKDF2Hash(Object textString, int iterations)
+	public String js_stringPBKDF2Hash(String textString, int iterations)
 	{
 		if (textString != null)
 		{
@@ -847,7 +841,7 @@ public class JSUtils
 	 * @param textString the text to process
 	 * @return the resulting hashString
 	 */
-	public String js_stringMD5HashBase64(Object textString)
+	public String js_stringMD5HashBase64(String textString)
 	{
 		if (textString != null)
 		{
@@ -868,7 +862,7 @@ public class JSUtils
 	 * @param textString the text to process
 	 * @return the resulting hashString
 	 */
-	public String js_stringMD5HashBase16(Object textString)
+	public String js_stringMD5HashBase16(String textString)
 	{
 		if (textString != null)
 		{
@@ -918,7 +912,7 @@ public class JSUtils
 	 * @param digitsOrFormat the format or digits 
 	 * @return the resulting number in text
 	 */
-	public String js_numberFormat(Object number, Object digitsOrFormat)
+	public String js_numberformat(Object number, Object digitsOrFormat)
 	{
 		if (number != null)
 		{
@@ -994,15 +988,14 @@ public class JSUtils
 	 * utils.stringFormat('Today is: %tF',new Array(new Date())) // returns current date as: Today is: 2009-02-20
 	 *
 	 * @param text_to_format the text to format
-	 * @param parameters_array the array with parameters
+	 * @param parameters the array with parameters
 	 * @return the formatted text
 	 */
-	public String js_stringFormat(String text_to_format, Object parameters_array)
+	public String js_stringFormat(String text_to_format, Object[] parameters)
 	{
 		if (text_to_format == null) return null;
-		if (parameters_array instanceof Object[])
+		if (parameters != null)
 		{
-			Object[] parameters = (Object[])parameters_array;
 			for (int i = 0; i < parameters.length; i++)
 			{
 				if (parameters[i] instanceof Integer)
@@ -1048,16 +1041,16 @@ public class JSUtils
 	 * //returns '4' as result
 	 * var retval = utils.stringWordCount('this is a test');
 	 *
-	 * @param textString the text to process
+	 * @param text the text to process
 	 * @return the word count
 	 */
-	public int js_stringWordCount(Object textString)
+	public int js_stringWordCount(String text)
 	{
-		if (textString != null)
+		if (text != null)
 		{
 			try
 			{
-				StringTokenizer st = new StringTokenizer(textString.toString(), " \n\r\t"); //$NON-NLS-1$
+				StringTokenizer st = new StringTokenizer(text, " \n\r\t"); //$NON-NLS-1$
 				return st.countTokens();
 			}
 			catch (Exception ex)
@@ -1123,7 +1116,7 @@ public class JSUtils
 	 * 
 	 * @return the changed text
 	 */
-	public String js_stringInitCap(Object text)
+	public String js_stringInitCap(String text)
 	{
 		return Utils.stringInitCap(text);
 	}
