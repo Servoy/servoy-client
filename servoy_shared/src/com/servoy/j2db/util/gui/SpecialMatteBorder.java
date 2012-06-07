@@ -152,8 +152,8 @@ public class SpecialMatteBorder extends AbstractBorder
 					shapeHeight -= 1;
 				}
 				// make this more in line with WC
-				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, shapeWidth, shapeHeight, Math.max(1, 2 * roundingRadius - lineWidth), Math.max(1, 2 *
-					roundingRadius - lineWidth));
+				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, shapeWidth, shapeHeight, getWebClientCompatibleValue(getArcWidth()),
+					getWebClientCompatibleValue(getArcHeight()));
 
 				g.setColor(topColor);
 				((Graphics2D)g).draw(shape);
@@ -351,11 +351,12 @@ public class SpecialMatteBorder extends AbstractBorder
 	private Insets applySpaceToInsets(Insets i, Component c)
 	{
 		// if c is null we are probably in wc
-		float halfRadius = (c != null) ? 3 * roundingRadius / 16f : 0f;
-		i.top = (int)Math.ceil(top + halfRadius);
-		i.left = (int)Math.ceil(left + halfRadius);
-		i.bottom = (int)Math.ceil(bottom + halfRadius);
-		i.right = (int)Math.ceil(right + halfRadius);
+		float widthInset = (c != null) ? getWebClientCompatibleValue(getArcWidth()) / 8f : 0f;
+		float heightInset = (c != null) ? getWebClientCompatibleValue(getArcHeight()) / 8f : 0f;
+		i.top = (int)Math.ceil(top + heightInset);
+		i.left = (int)Math.ceil(left + widthInset);
+		i.bottom = (int)Math.ceil(bottom + heightInset);
+		i.right = (int)Math.ceil(right + widthInset);
 		return i;
 	}
 
@@ -428,5 +429,20 @@ public class SpecialMatteBorder extends AbstractBorder
 			i++;
 		}
 		return atLeastOneTokenNotZero ? retval : null;
+	}
+
+	protected float getArcWidth()
+	{
+		return roundingRadius;
+	}
+
+	protected float getArcHeight()
+	{
+		return roundingRadius;
+	}
+
+	private float getWebClientCompatibleValue(float radius)
+	{
+		return Math.max(1, 2 * radius - top);
 	}
 }
