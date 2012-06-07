@@ -1205,7 +1205,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			align = "right";
 		}
 		StringBuffer fieldsetMarkup = new StringBuffer(
-			"<fieldset style='top:0px;bottom:3px;left:0px;right:0px;position:absolute;margin:0px 2px;'><legend align='");
+			"<fieldset style='top:0px;bottom:0px;left:0px;right:0px;position:absolute;margin:0px 2px 2px;'><legend align='");
 		fieldsetMarkup.append(align);
 		fieldsetMarkup.append("' style='");
 		if (titledBorder.getTitleColor() != null)
