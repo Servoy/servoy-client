@@ -912,7 +912,7 @@ public class JSUtils
 	 * @param digitsOrFormat the format or digits 
 	 * @return the resulting number in text
 	 */
-	public String js_numberformat(Object number, Object digitsOrFormat)
+	public String js_numberFormat(Object number, Object digitsOrFormat)
 	{
 		if (number != null)
 		{
