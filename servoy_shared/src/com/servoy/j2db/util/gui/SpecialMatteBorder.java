@@ -152,7 +152,8 @@ public class SpecialMatteBorder extends AbstractBorder
 					shapeHeight -= 1;
 				}
 				// make this more in line with WC
-				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, shapeWidth, shapeHeight, 3 * roundingRadius / 2, 3 * roundingRadius / 2);
+				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, shapeWidth, shapeHeight, Math.max(1, 2 * roundingRadius - lineWidth), Math.max(1, 2 *
+					roundingRadius - lineWidth));
 
 				g.setColor(topColor);
 				((Graphics2D)g).draw(shape);
