@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
@@ -49,6 +50,7 @@ public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
 	AccordionPanel(IApplication app)
 	{
 		application = app;
+		setBorder(BorderFactory.createEmptyBorder());
 	}
 
 	public void setTabSeqComponents(List<Component> tabSequence)
