@@ -59,7 +59,6 @@ public class CopyZipEntryImporter implements IMessageProvider
 	protected final File installDir;
 	protected final String extensionID;
 	protected final String version;
-	protected final ExtensionConfiguration expConfig;
 
 	private final File screenshotsFolder;
 	private final File developerFolder;
@@ -74,7 +73,6 @@ public class CopyZipEntryImporter implements IMessageProvider
 		this.installDir = installDir;
 		this.version = version;
 		this.extensionID = extensionID;
-		this.expConfig = expConfig;
 		screenshotsFolder = new File(installDir, "screenshots"); //$NON-NLS-1$
 		developerFolder = new File(installDir, "developer"); //$NON-NLS-1$
 		docsFolder = new File(installDir, "application_server/docs/" + extensionID); //$NON-NLS-1$
