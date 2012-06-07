@@ -253,9 +253,10 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 					partHasBgImage = pair.getRight().hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString());
 				}
 
-				if ((formHasBgImage || partHasBgImage) && bg != null)
+				if ((formHasBgImage || partHasBgImage))
 				{
 					panel.setPaintBackgroundOnTopOfImage(true);
+					panel.setBgColor(bg);
 				}
 			}
 		}

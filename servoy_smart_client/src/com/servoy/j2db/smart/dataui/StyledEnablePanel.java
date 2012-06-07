@@ -20,7 +20,6 @@ package com.servoy.j2db.smart.dataui;
 import java.awt.Color;
 import java.awt.Graphics;
 
-
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IStyleRule;
@@ -37,6 +36,7 @@ public class StyledEnablePanel extends EnablePanel
 	private IApplication application;
 	private IStyleRule partRule = null;
 	private boolean paintBackgroundOnTopOfImage = false;
+	private Color bgColor = null;
 
 	public StyledEnablePanel(IApplication application)
 	{
@@ -68,6 +68,11 @@ public class StyledEnablePanel extends EnablePanel
 		this.partRule = rule;
 	}
 
+	public void setBgColor(Color color)
+	{
+		this.bgColor = color;
+	}
+
 	@Override
 	public void paint(Graphics g)
 	{
@@ -75,12 +80,11 @@ public class StyledEnablePanel extends EnablePanel
 		{
 			// image always on top, set opaque to false
 			setOpaque(false);
-			Color bg = getBackground();
-			if (bg != null)
+			if (bgColor != null)
 			{
 				Color tmp = g.getColor();
 				// paint background color first, form is transparent
-				g.setColor(bg);
+				g.setColor(bgColor);
 				g.fillRect(0, 0, getWidth(), getHeight());
 
 				g.setColor(tmp);
