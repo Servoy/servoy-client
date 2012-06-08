@@ -626,25 +626,30 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			{
 				Properties properties = new Properties();
 				Insets borderIns = ComponentFactoryHelper.createBorderCSSProperties(headerBorder, properties);
-				extraWidth = borderIns.left + borderIns.right - TemplateGenerator.SORTABLE_HEADER_PADDING;
+				extraWidth = borderIns.left + borderIns.right;
 				headerPadding = 0;
 			}
 
 			borderWidth += extraWidth;
 		}
 
-		final int clientWidth = width - headerPadding - borderWidth; // we have only left padding
-		this.width = clientWidth;
-		StyleAppendingModifier styleModifier = new StyleAppendingModifier(new Model<String>()
+		int clientWidth = width - headerPadding - borderWidth; // we have only left padding
+
+		// if we have grid_style for the header, then don't change the header width
+		this.width = (view.labelsFor.size() == 0 && view.getHeaderBorder() != null) ? width : clientWidth;
+
+		StyleAppendingModifier widthStyleModifier = new StyleAppendingModifier(new Model<String>()
 		{
 			@Override
 			public String getObject()
 			{
-				return "width: " + clientWidth + "px"; //$NON-NLS-1$//$NON-NLS-2$
+				return "width: " + SortableCellViewHeader.this.width + "px"; //$NON-NLS-1$//$NON-NLS-2$
 			}
 		});
-		add(styleModifier);
-		headerColumnTable.add(styleModifier);
+
+		add(widthStyleModifier);
+		headerColumnTable.add(widthStyleModifier);
+
 		labelResolver.setWidth(clientWidth - SortableCellViewHeader.ARROW_WIDTH);
 		getStylePropertyChanges().setChanged();
 	}
