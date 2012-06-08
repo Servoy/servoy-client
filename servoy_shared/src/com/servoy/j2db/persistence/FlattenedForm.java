@@ -146,7 +146,6 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			Iterator<Part> parts = f.getParts();
 			while (parts.hasNext())
 			{
-				// Sub-forms can only add parts to the bottom
 				Part part = parts.next();
 				if (PersistHelper.isOverrideElement(part))
 				{
@@ -169,11 +168,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 				}
 				else
 				{
-					if (prevPart == null || prevPart.getPartType() < part.getPartType() || (prevPart.getPartType() == part.getPartType() && part.canBeMoved()))
-					{
-						internalAddChild(part);
-						prevPart = part;
-					}
+					internalAddChild(part);
+					prevPart = part;
 				}
 			}
 		}
