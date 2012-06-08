@@ -57,7 +57,7 @@ import com.servoy.j2db.util.toolbar.ToolbarPanel;
 public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWindow
 {
 
-	protected Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FormFrame or FormDialog
+	protected volatile Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FormFrame or FormDialog
 	protected JMenuBar wrappedWindowMenuBar = null;
 	private boolean createdNewWindow;
 	protected TextToolbar textToolbar;
@@ -726,9 +726,12 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				{
 					public void run()
 					{
-						// needed to work around a focus issue on Linux, text fields in a tabpanel on a dialog do not get focus.
-						wrappedWindow.setVisible(false);
-						wrappedWindow.setVisible(true);
+						if (wrappedWindow != null)
+						{
+							// needed to work around a focus issue on Linux, text fields in a tabpanel on a dialog do not get focus.
+							wrappedWindow.setVisible(false);
+							wrappedWindow.setVisible(true);
+						}
 					}
 				});
 			}
