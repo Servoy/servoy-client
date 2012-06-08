@@ -171,4 +171,16 @@ public class RoundedBorder extends SpecialMatteBorder
 		}
 		return borderStyles;
 	}
+
+	@Override
+	protected float getArcWidth()
+	{
+		return radius[0];
+	}
+
+	@Override
+	protected float getArcHeight()
+	{
+		return radius[4];
+	}
 }
