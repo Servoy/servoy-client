@@ -138,14 +138,18 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		{
 			setChanged();
 			this.bgcolor = bgcolor;
-			if (bgcolor == null)
-			{
-				changedProperties.remove("background-color"); //$NON-NLS-1$
-			}
-			else
-			{
-				changedProperties.put("background-color", bgcolor); //$NON-NLS-1$
-			}
+		}
+
+		// always update the changedProperties, as between to
+		// calls to bgcolor with same value, a setChanges call can happen
+		// and the changedProperties will not be in sync anymore
+		if (bgcolor == null)
+		{
+			changedProperties.remove("background-color"); //$NON-NLS-1$
+		}
+		else
+		{
+			changedProperties.put("background-color", bgcolor); //$NON-NLS-1$
 		}
 	}
 
@@ -160,14 +164,18 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		{
 			setChanged();
 			this.fgcolor = clr;
-			if (clr == null)
-			{
-				changedProperties.remove("color"); //$NON-NLS-1$
-			}
-			else
-			{
-				changedProperties.put("color", clr); //$NON-NLS-1$
-			}
+		}
+
+		// always update the changedProperties, as between to
+		// calls to fgcolor with same value, a setChanges call can happen
+		// and the changedProperties will not be in sync anymore		
+		if (clr == null)
+		{
+			changedProperties.remove("color"); //$NON-NLS-1$
+		}
+		else
+		{
+			changedProperties.put("color", clr); //$NON-NLS-1$
 		}
 	}
 
@@ -405,22 +413,25 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		{
 			setChanged();
 			this.font = spec;
-			Pair<String, String>[] props = PersistHelper.createFontCSSProperties(spec);
-			if (props != null)
+		}
+		// always update the changedProperties, as between to
+		// calls to font with same value, a setChanges call can happen
+		// and the changedProperties will not be in sync anymore		
+		Pair<String, String>[] props = PersistHelper.createFontCSSProperties(spec);
+		if (props != null)
+		{
+			for (Pair<String, String> element : props)
 			{
-				for (Pair<String, String> element : props)
-				{
-					if (element == null) continue;
-					changedProperties.put(element.getLeft(), element.getRight());
-				}
+				if (element == null) continue;
+				changedProperties.put(element.getLeft(), element.getRight());
 			}
-			else
-			{
-				changedProperties.remove("font-family"); //$NON-NLS-1$
-				changedProperties.remove("font-size"); //$NON-NLS-1$
-				changedProperties.remove("font-style"); //$NON-NLS-1$
-				changedProperties.remove("font-weight"); //$NON-NLS-1$
-			}
+		}
+		else
+		{
+			changedProperties.remove("font-family"); //$NON-NLS-1$
+			changedProperties.remove("font-size"); //$NON-NLS-1$
+			changedProperties.remove("font-style"); //$NON-NLS-1$
+			changedProperties.remove("font-weight"); //$NON-NLS-1$
 		}
 	}
 
