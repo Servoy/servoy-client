@@ -227,39 +227,63 @@ public class JSUtils
 	}
 
 	/**
-	 * Format a date object to a text representation or a parses a datestring to a date object.
+	 * Parse a string to a date object.
 	 *
 	 * @sample
-	 * var parsedDate = utils.dateFormat(datestring,'EEE, d MMM yyyy HH:mm:ss'); 
-	 * 
-	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss');
+	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss'); 
 	 *
-	 * @param date the date as text or date object
-	 * @param format the format to output or parse the to date
-	 * @return the date as text or date object
+	 * @param date the date as text
+	 * @param format the format to parse the to date
+	 * @return the date as date object
 	 */
+	public Date js_parseDate(String date, String format)
+	{
+		if (format != null && date != null)
+		{
+			try
+			{
+				return new SimpleDateFormat(format, application.getLocale()).parse(date);
+			}
+			catch (ParseException ex)
+			{
+				Debug.error("Date parsing error: " + date + ", format: " + format, ex); //$NON-NLS-1$//$NON-NLS-2$
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @deprecated replaced by parseDate(String, String) or dateFormat(Date, String)
+	 */
+	@Deprecated
 	public Object js_dateFormat(Object date, String format)
 	{
-		if (format != null)
+		if (date instanceof String)
 		{
-			if (date instanceof Date)
-			{
-				SimpleDateFormat sdf = new SimpleDateFormat(format, application.getLocale());
-				return sdf.format((Date)date);
-			}
-			else if (date instanceof String)
-			{
-				SimpleDateFormat sdf = new SimpleDateFormat(format, application.getLocale());
-				try
-				{
-					return sdf.parse((String)date);
-				}
-				catch (ParseException ex)
-				{
-					Debug.error("Date parsing error: " + date + ", format: " + format, ex); //$NON-NLS-1$//$NON-NLS-2$
-					return null;
-				}
-			}
+			return js_parseDate((String)date, format);
+		}
+		if (date instanceof Date)
+		{
+			return js_dateFormat((Date)date, format);
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * Format a date object to a text representation.
+	 *
+	 * @sample
+	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss');
+	 *
+	 * @param date the date
+	 * @param format the format to output
+	 * @return the date as text
+	 */
+	public String js_dateFormat(Date date, String format)
+	{
+		if (format != null && date != null)
+		{
+			return new SimpleDateFormat(format, application.getLocale()).format(date);
 		}
 		return ""; //$NON-NLS-1$
 	}
@@ -303,7 +327,7 @@ public class JSUtils
 			try
 			{
 				int words = numberof_words.intValue();
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				StringTokenizer st = new StringTokenizer(text, " "); //$NON-NLS-1$
 				int i = 0;
 				while (st.hasMoreTokens() && i < words)
@@ -349,7 +373,7 @@ public class JSUtils
 			{
 				int start = i_start.intValue();
 				int words = numberof_words.intValue();
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				StringTokenizer st = new StringTokenizer(text.toString(), " "); //$NON-NLS-1$
 				start = start - 1;
 				int i = 0;
@@ -397,7 +421,7 @@ public class JSUtils
 			try
 			{
 				int words = numberof_words.intValue();
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				StringTokenizer st = new StringTokenizer(text.toString(), " "); //$NON-NLS-1$
 				int i = 0;
 				int countwords = st.countTokens();
@@ -435,24 +459,13 @@ public class JSUtils
 	 * var count = utils.stringPatternCount('this is a test','is');
 	 *
 	 * @param text the text to process
-	 * @param searchString the string or number to search
+	 * @param search the string to search
 	 * @return the occurrenceCount that the search string is found in the text 
 	 */
-	public int js_stringPatternCount(String text, Object searchString)
+	public int js_stringPatternCount(String text, String search)
 	{
-		if (text != null && searchString != null)
+		if (text != null && search != null && search.length() > 0)
 		{
-			if ("".equals(searchString)) return -1; //$NON-NLS-1$
-
-			String search;
-			if (searchString instanceof Double)
-			{
-				search = ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10);
-			}
-			else
-			{
-				search = searchString.toString();
-			}
 			try
 			{
 				int length = search.length();
@@ -473,6 +486,23 @@ public class JSUtils
 	}
 
 	/**
+	 * @deprecated use stringPatternCount(String text, String searchString)
+	 */
+	@Deprecated
+	public int js_stringPatternCount(String text, Object searchString)
+	{
+		if (searchString instanceof String)
+		{
+			return js_stringPatternCount(text, (String)searchString);
+		}
+		if (searchString instanceof Double)
+		{
+			return js_stringPatternCount(text, ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10));
+		}
+		return -1;
+	}
+
+	/**
 	 * Returns the position of the string to search for, from a certain start position and occurrence.
 	 *
 	 * @sample 
@@ -480,26 +510,16 @@ public class JSUtils
 	 * var pos = utils.stringPosition('This is a test','s',1,1)
 	 *
 	 * @param textString the text to process
-	 * @param searchString the string or number to search
+	 * @param search the string to search
 	 * @param i_start the start index to search from 
 	 * @param i_occurrence the occurrence 
 	 * 
 	 * @return the position 
 	 */
-	public int js_stringPosition(String textString, Object searchString, Number i_start, Number i_occurrence)
+	public int js_stringPosition(String textString, String search, Number i_start, Number i_occurrence)
 	{
-		if (textString != null && searchString != null && i_start != null && i_occurrence != null)
+		if (textString != null && search != null && i_start != null && i_occurrence != null)
 		{
-			String search;
-			if (searchString instanceof Double)
-			{
-				search = ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10);
-			}
-			else
-			{
-				search = searchString.toString();
-			}
-
 			try
 			{
 				int start = i_start.intValue() - 1;
@@ -552,7 +572,24 @@ public class JSUtils
 	}
 
 	/**
-	 * Replaces a portion of a string with replacement text from a specfied index.
+	 * @deprecated use stringPosition(String, String, Number, Number)
+	 */
+	@Deprecated
+	public int js_stringPosition(String textString, Object searchString, Number i_start, Number i_occurrence)
+	{
+		if (searchString instanceof String)
+		{
+			return js_stringPosition(textString, (String)searchString, i_start, i_occurrence);
+		}
+		if (searchString instanceof Double)
+		{
+			return js_stringPosition(textString, ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10), i_start, i_occurrence);
+		}
+		return -1;
+	}
+
+	/**
+	 * Replaces a portion of a string with replacement text from a specified index.
 	 *
 	 * @sample 
 	 * //returns 'this was a test'
@@ -561,21 +598,16 @@ public class JSUtils
 	 * @param text the text to process
 	 * @param i_start the start index to work from 
 	 * @param i_size the size of the text to replace 
-	 * @param replacement_text the replacement text or number
+	 * @param replacement_text the replacement text
 	 * @return the changed text string
 	 */
 	@SuppressWarnings("nls")
-	public String js_stringIndexReplace(String text, Number i_start, Number i_size, Object replacement_text)
+	public String js_stringIndexReplace(String text, Number i_start, Number i_size, String replacement_text)
 	{
 		if (text != null && i_start != null && i_size != null)
 		{
 			try
 			{
-				if (replacement_text instanceof Double)
-				{
-					replacement_text = ScriptRuntime.numberToString(((Double)replacement_text).doubleValue(), 10);
-				}
-
 				int start = i_start.intValue();
 				int size = i_size.intValue();
 				start = start - 1;
@@ -585,13 +617,26 @@ public class JSUtils
 			}
 			catch (Exception ex)
 			{
-				return text;
 			}
 		}
-		else
+		return text == null ? "" : text;
+	}
+
+	/**
+	 * @deprecated use stringIndexReplace(String, Number, Number, String)
+	 */
+	@Deprecated
+	public String js_stringIndexReplace(String text, Number i_start, Number i_size, Object replacement_text)
+	{
+		if (replacement_text instanceof String)
 		{
-			return text == null ? "" : text;
+			return js_stringIndexReplace(text, i_start, i_size, (String)replacement_text);
 		}
+		if (replacement_text instanceof Double)
+		{
+			return js_stringIndexReplace(text, i_start, i_size, ScriptRuntime.numberToString(((Double)replacement_text).doubleValue(), 10));
+		}
+		return text == null ? "" : text; //$NON-NLS-1$
 	}
 
 	/**
@@ -603,25 +648,35 @@ public class JSUtils
 	 *
 	 * @param text the text to process
 	 * @param search_text the string to search
-	 * @param replacement_text the replacement text or number
+	 * @param replacement_text the replacement text
 	 * 
 	 * @return the changed text string
 	 */
 	@SuppressWarnings("nls")
-	public String js_stringReplace(String text, String search_text, Object replacement_text)
+	public String js_stringReplace(String text, String search_text, String replacement_text)
 	{
 		if (text != null && search_text != null)
 		{
-			if (replacement_text instanceof Double)
-			{
-				replacement_text = ScriptRuntime.numberToString(((Double)replacement_text).doubleValue(), 10);
-			}
 			return Utils.stringReplace(text.toString(), search_text.toString(), String.valueOf(replacement_text));
 		}
-		else
+		return text == null ? "" : text;
+	}
+
+	/**
+	 * @deprecated use stringReplace(String, String, String)
+	 */
+	@Deprecated
+	public String js_stringReplace(String text, String search_text, Object replacement_text)
+	{
+		if (replacement_text instanceof String)
 		{
-			return text == null ? "" : String.valueOf(text);
+			return js_stringReplace(text, search_text, (String)replacement_text);
 		}
+		if (replacement_text instanceof Double)
+		{
+			return js_stringReplace(text, search_text, ScriptRuntime.numberToString(((Double)replacement_text).doubleValue(), 10));
+		}
+		return text == null ? "" : text; //$NON-NLS-1$
 	}
 
 	/**
@@ -726,19 +781,18 @@ public class JSUtils
 	 * //returns '65567'
 	 * var retval = utils.stringToNumber('fg65gf567'); 
 	 *
-	 * @param textString the text or number to process
+	 * @param textString the text to process
 	 * @return the resulting number
 	 */
-	public double js_stringToNumber(Object textString)
+	public double js_stringToNumber(String textString)
 	{
-		if (textString instanceof Number) return ((Number)textString).doubleValue();
 		if (textString != null)
 		{
 			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
 			String decimalSeparator = String.valueOf(dfs.getDecimalSeparator());
 			int flag = 0;
-			StringBuffer sb = new StringBuffer();
-			char[] array = textString.toString().toCharArray();
+			StringBuilder sb = new StringBuilder();
+			char[] array = textString.toCharArray();
 			for (char element : array)
 			{
 				Character c = new Character(element);
@@ -760,13 +814,24 @@ public class JSUtils
 			}
 			catch (Exception ex)
 			{
-				return 0;
 			}
 		}
-		else
+		return 0;
+	}
+
+	/**
+	 * @deprecated use stringToNumber(String)
+	 */
+	@Deprecated
+	public double js_stringToNumber(Object textString)
+	{
+		if (textString instanceof Number) return ((Number)textString).doubleValue();
+		if (textString != null)
 		{
-			return 0;
+			return js_stringToNumber(textString.toString());
 		}
+
+		return 0;
 	}
 
 	/**
@@ -850,10 +915,7 @@ public class JSUtils
 		{
 			return Utils.calculateMD5HashBase64(textString.toString());
 		}
-		else
-		{
-			return null;
-		}
+		return null;
 	}
 
 	/**
@@ -871,10 +933,7 @@ public class JSUtils
 		{
 			return Utils.calculateMD5HashBase16(textString.toString());
 		}
-		else
-		{
-			return null;
-		}
+		return null;
 	}
 
 	/**
@@ -884,60 +943,103 @@ public class JSUtils
 	 * //returns 'text'
 	 * var retval = utils.stringTrim('   text   ');
 	 *
-	 * @param textString the text or number to process
+	 * @param textString the text to process
 	 * @return the resulting trimmed string
 	 */
+	public String js_stringTrim(String textString)
+	{
+		if (textString != null)
+		{
+			return textString.trim();
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * @deprecated use stringTrim(String)
+	 */
+	@Deprecated
 	public String js_stringTrim(Object textString)
 	{
 		if (textString != null)
 		{
 			if (textString instanceof Double)
 			{
-				textString = ScriptRuntime.numberToString(((Double)textString).doubleValue(), 10);
+				return js_stringTrim(ScriptRuntime.numberToString(((Double)textString).doubleValue(), 10));
 			}
 
-			return textString.toString().trim();
+			return js_stringTrim(textString.toString());
 		}
-		else
-		{
-			return ""; //$NON-NLS-1$
-		}
+		return ""; //$NON-NLS-1$
 	}
 
 	/**
-	 * Format a number to specification (or to have a defined fraction).
+	 * Format a number to have a defined fraction.
 	 *
 	 * @sample
 	 * var textalNumber = utils.numberFormat(16.749, 2); //returns 16.75
+	 *
+	 * @param number the number to format 
+	 * @param digits nr of digits 
+	 * @return the resulting number in text
+	 */
+	public String js_numberFormat(Number number, Number digits)
+	{
+		if (number != null)
+		{
+			if (digits == null)
+			{
+				return number.toString();
+			}
+			double val = number.doubleValue() + (1 / Math.pow(10, digits.intValue() + 2));
+			return Utils.formatNumber(application.getLocale(), val, digits.intValue());
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * Format a number to specification.
+	 *
+	 * @sample
 	 * var textalNumber2 = utils.numberFormat(100006.749, '#,###.00'); //returns 100,006.75
 	 *
 	 * @param number the number to format 
-	 * @param digitsOrFormat the format or digits 
+	 * @param format the format 
 	 * @return the resulting number in text
 	 */
+	public String js_numberFormat(Number number, String format)
+	{
+		if (number != null)
+		{
+			if (format == null)
+			{
+				return number.toString();
+			}
+
+			return new RoundHalfUpDecimalFormat(format, application.getLocale()).format(number.doubleValue());
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * @deprecated use numberFormat(Number, String) or numberFormat(Number, Number)
+	 */
+	@Deprecated
 	public String js_numberFormat(Object number, Object digitsOrFormat)
 	{
 		if (number != null)
 		{
 			if (digitsOrFormat instanceof Number)
 			{
-				int digits = ((Number)digitsOrFormat).intValue();
-				double val = Utils.getAsDouble(number);
-				double d = 1 / Math.pow(10, digits + 2);
-				val += d;
-				return Utils.formatNumber(application.getLocale(), val, digits);
+				return js_numberFormat(Double.valueOf(Utils.getAsDouble(number)), (Number)digitsOrFormat);
 			}
-			else if (digitsOrFormat instanceof String)
+			if (digitsOrFormat instanceof String)
 			{
-				RoundHalfUpDecimalFormat df = new RoundHalfUpDecimalFormat((String)digitsOrFormat, application.getLocale());
-				return df.format(Utils.getAsDouble(number));
+				return js_numberFormat(Double.valueOf(Utils.getAsDouble(number)), (String)digitsOrFormat);
 			}
 			return number.toString();
 		}
-		else
-		{
-			return ""; //$NON-NLS-1$
-		}
+		return ""; //$NON-NLS-1$
 	}
 
 	/**
@@ -1005,11 +1107,11 @@ public class JSUtils
 				{
 					// possible problem
 					int j = 0;
-					int position = text_to_format.indexOf("%");
+					int position = text_to_format.indexOf("%"); //$NON-NLS-1$
 					while (j != i && position >= 0)
 					{
 						j++;
-						position = text_to_format.indexOf("%", position + 1);
+						position = text_to_format.indexOf("%", position + 1); //$NON-NLS-1$
 					}
 					if (i == j && position >= 0)
 					{
@@ -1019,10 +1121,10 @@ public class JSUtils
 						{
 							if (text_to_format.charAt(k) == 'f')
 							{
-								parameters[i] = new Float((Integer)parameters[i]);
+								parameters[i] = new Float(((Integer)parameters[i]).intValue());
 								break;
 							}
-							if (conversionsList.contains(text_to_format.charAt(k)))
+							if (conversionsList.contains(Character.valueOf(text_to_format.charAt(k))))
 							{
 								break;
 							}
@@ -1035,7 +1137,10 @@ public class JSUtils
 		else return text_to_format;
 	}
 
-	private final Character[] CONVERSIONS = new Character[] { 'b', 'B', 'h', 'H', 's', 'S', 'c', 'C', 'd', 'o', 'x', 'X', 'e', 'E', 'g', 'G', 'a', 'A', 't', 'T', 'n' };
+	private final Character[] CONVERSIONS = new Character[] { Character.valueOf('b'), Character.valueOf('B'), Character.valueOf('h'), Character.valueOf('H'),//
+	Character.valueOf('s'), Character.valueOf('S'), Character.valueOf('c'), Character.valueOf('C'), Character.valueOf('d'), Character.valueOf('o'),//
+	Character.valueOf('x'), Character.valueOf('X'), Character.valueOf('e'), Character.valueOf('E'), Character.valueOf('g'), Character.valueOf('G'), //
+	Character.valueOf('a'), Character.valueOf('A'), Character.valueOf('t'), Character.valueOf('T'), Character.valueOf('n') };
 
 	/**
 	 * Returns the number of words in the text string.
