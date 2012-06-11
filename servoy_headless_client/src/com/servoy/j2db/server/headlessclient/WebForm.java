@@ -324,7 +324,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 						builder.append(";");
 						styleAddition = builder.toString();
 					}
-					if (controller.getForm().getTransparent())
+					if (controller.getForm().getTransparent() || (cbg != null && cbg.getAlpha() < 255))
 					{
 						styleAddition += "background:transparent;"; //$NON-NLS-1$
 					}
