@@ -63,7 +63,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	private static final ConcurrentMap<Integer, String> SIZE_STRINGS = new ConcurrentHashMap<Integer, String>();
 
 	private final Properties changedProperties = new Properties();
-	private String bgcolor, fgcolor, font;
+	private String bgcolor;
 	private Insets defaultBorder;
 	private Insets defaultPadding;
 	private boolean changed;
@@ -123,9 +123,12 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	public void setChanges(Properties changes)
 	{
 		changedProperties.putAll(changes);
+		if (!IStyleSheet.COLOR_TRANSPARENT.equals(changes.getProperty("background-color"))) //$NON-NLS-1$
+		{
+			bgcolor = changes.getProperty("background-color"); //$NON-NLS-1$
+		}
 		setChanged();
 	}
-
 
 	/**
 	 * Adds the background-color css property for the given color to the changed properties set.
@@ -139,10 +142,6 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			setChanged();
 			this.bgcolor = bgcolor;
 		}
-
-		// always update the changedProperties, as between to
-		// calls to bgcolor with same value, a setChanges call can happen
-		// and the changedProperties will not be in sync anymore
 		if (bgcolor == null)
 		{
 			changedProperties.remove("background-color"); //$NON-NLS-1$
@@ -160,15 +159,11 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public void setFgcolor(String clr)
 	{
-		if (!Utils.equalObjects(this.fgcolor, clr))
+		if (!Utils.equalObjects(changedProperties.get("color"), clr)) //$NON-NLS-1$
 		{
 			setChanged();
-			this.fgcolor = clr;
 		}
 
-		// always update the changedProperties, as between to
-		// calls to fgcolor with same value, a setChanges call can happen
-		// and the changedProperties will not be in sync anymore		
 		if (clr == null)
 		{
 			changedProperties.remove("color"); //$NON-NLS-1$
@@ -409,14 +404,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public void setFont(String spec)
 	{
-		if (!Utils.equalObjects(this.font, spec))
-		{
-			setChanged();
-			this.font = spec;
-		}
-		// always update the changedProperties, as between to
-		// calls to font with same value, a setChanges call can happen
-		// and the changedProperties will not be in sync anymore		
+		setChanged();
 		Pair<String, String>[] props = PersistHelper.createFontCSSProperties(spec);
 		if (props != null)
 		{
