@@ -66,6 +66,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IModeManager;
@@ -747,7 +748,8 @@ public class SessionClient extends ClientState implements ISessionClient
 
 			if (visibleFormName == null)
 			{
-				visibleFormName = ((FormManager)getFormManager()).getCurrentForm().getName();
+				IForm tmp = ((FormManager)getFormManager()).getCurrentForm();
+				if (tmp != null) visibleFormName = tmp.getName();
 			}
 
 			if (visibleFormName != null)
