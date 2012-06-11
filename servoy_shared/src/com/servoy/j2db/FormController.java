@@ -303,8 +303,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(FoundSet)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 * 
 		 * @param founset the foundset to load before showing the form.
 		 * @param window the window in which this form should be shown.
@@ -331,8 +331,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(JSDataSet)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 *  
 		 * @param pkdataset the pkdataset to load before showing the form.
 		 * @param window the window in which this form should be shown.
@@ -359,8 +359,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Number)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 *  
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
 		 * @param window the window in which this form should be shown.
@@ -387,8 +387,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[])
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown.
@@ -415,8 +415,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Object[])
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object[]) 
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(UUID)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object) 
 		 * 
 		 * @param UUIDpk the UUIDpk to load before showing the form.
 		 * @param window the window in which this form should be shown.
@@ -460,7 +460,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 *
 		 * @sample %%prefix%%controller.loadAllRecords();
 		 * 
-		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_addTableFilterParam(Object[])
+		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_addTableFilterParam(String, String, String, String, Object, String)
 		 * @return true if successful
 		 */
 		public boolean js_loadAllRecords() throws ServoyException
@@ -553,6 +553,19 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			return formController.loadData(foundset, null);
 		}
 
+		/** 
+		 * Method to handle old loadRecords calls with ignored argumentsaray.
+		 * @param foundset 
+		 * @param ignored 
+		 * 
+		 * @deprecated use loadRecords(FoundSet)
+		 */
+		@Deprecated
+		public boolean js_loadRecords(FoundSet foundset, Object ignored)
+		{
+			return js_loadRecords(foundset);
+		}
+
 		/**
 		 * @clonedesc js_loadRecords()
 		 * @param pkdataset to load
@@ -562,6 +575,19 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			checkDestroyed();
 			return formController.loadData(pkdataset, null);
+		}
+
+		/** 
+		 * Method to handle old loadRecords calls with ignored argumentsaray.
+		 * @param pkdataset 
+		 * @param ignored 
+		 * 
+		 * @deprecated use loadRecords(JSDataSet)
+		 */
+		@Deprecated
+		public boolean js_loadRecords(JSDataSet pkdataset, Object ignored)
+		{
+			return js_loadRecords(pkdataset);
 		}
 
 		/**
@@ -575,6 +601,19 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			return formController.loadData(singlenNmber_pk, null);
 		}
 
+		/** 
+		 * Method to handle old loadRecords calls with ignored argumentsaray.
+		 * @param singlenNmber_pk 
+		 * @param ignored 
+		 * 
+		 * @deprecated use loadRecords(Number)
+		 */
+		@Deprecated
+		public boolean js_loadRecords(Number singlenNmber_pk, Object ignored)
+		{
+			return js_loadRecords(singlenNmber_pk);
+		}
+
 		/**
 		 * @clonedesc js_loadRecords()
 		 * @param UUIDpk to load
@@ -584,6 +623,19 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			checkDestroyed();
 			return formController.loadData(UUIDpk, null);
+		}
+
+		/** 
+		 * Method to handle old loadRecords calls with ignored argumentsaray.
+		 * @param UUIDpk 
+		 * @param ignored 
+		 * 
+		 * @deprecated use loadRecords(UUID)
+		 */
+		@Deprecated
+		public boolean js_loadRecords(UUID UUIDpk, Object ignored)
+		{
+			return js_loadRecords(UUIDpk);
 		}
 
 		/**
@@ -1344,7 +1396,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @deprecated  As of release 3.0, replaced by {@link databaseManager#saveData(Object[])}
+		 * @deprecated  As of release 3.0, replaced by {@link databaseManager#saveData()}
 		 */
 		@Deprecated
 		public boolean js_saveData()

@@ -1253,7 +1253,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Deprecated method to handle pre-6.1 calls to varargs function foundset.loadRecords([1]), this was called with vargs=[1] in stead of vargs=[[1]].
 	 * 
 	 * @param vargs
-	 * @deprecated
+	 * @deprecated use loadRecords with single typed argument
 	 */
 	@Deprecated
 	public boolean js_loadRecords(Object[] vargs) throws ServoyException
