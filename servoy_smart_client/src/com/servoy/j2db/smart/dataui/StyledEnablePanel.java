@@ -18,6 +18,7 @@
 package com.servoy.j2db.smart.dataui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 
 import javax.swing.UIManager;
@@ -85,15 +86,33 @@ public class StyledEnablePanel extends EnablePanel
 			// image always on top, set opaque to false
 			setOpaque(false);
 			Color bg = getBackground();
-			if (bg != null && bg != UIManager.getColor("Panel.background") &&
+			if (g != null && bg != null && bg != UIManager.getColor("Panel.background") &&
 				((partRule != null && partRule.hasAttribute(CSS.Attribute.BACKGROUND_COLOR.toString())) || bgColor != null))
 			{
-				Color tmp = g.getColor();
-				// paint background color first, form is transparent
-				g.setColor(bg);
-				g.fillRect(0, 0, getWidth(), getHeight());
+				if (bg.getAlpha() < 255)
+				{
+					Graphics g2 = g.create();
+					try
+					{
+						Dimension size = getSize();
+						g2.setClip(0, 0, size.width, size.height);
+						g2.setColor(bg);
+						g2.fillRect(0, 0, size.width, size.height);
+					}
+					finally
+					{
+						g2.dispose();
+					}
+				}
+				else
+				{
+					Color tmp = g.getColor();
+					// paint background color first, form is transparent
+					g.setColor(bg);
+					g.fillRect(0, 0, getWidth(), getHeight());
 
-				g.setColor(tmp);
+					g.setColor(tmp);
+				}
 			}
 		}
 		ImageLoader.paintImage(g, partRule, application, getSize());

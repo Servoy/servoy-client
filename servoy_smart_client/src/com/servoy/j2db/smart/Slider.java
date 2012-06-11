@@ -35,12 +35,12 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ComponentUI;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.util.EnablePanel;
+import com.servoy.j2db.smart.dataui.StyledEnablePanel;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.gui.NumberField;
 
-public class Slider extends EnablePanel implements ChangeListener, ActionListener, ISupplyFocusChildren<Component>
+public class Slider extends StyledEnablePanel implements ChangeListener, ActionListener, ISupplyFocusChildren<Component>
 {
 	public static final int DEFAULT_WIDTH = 70;
 
@@ -59,6 +59,7 @@ public class Slider extends EnablePanel implements ChangeListener, ActionListene
 	 */
 	public Slider(IApplication app)
 	{
+		super(app);
 		setName("slider_panel"); //$NON-NLS-1$
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		slider = new SkinSlider(SwingConstants.VERTICAL);//, 0, 0, 0);

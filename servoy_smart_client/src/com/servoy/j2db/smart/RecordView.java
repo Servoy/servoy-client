@@ -24,7 +24,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.FocusManager;
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -40,6 +39,7 @@ import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.smart.dataui.DataRenderer;
+import com.servoy.j2db.smart.dataui.StyledEnablePanel;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.model.IEditListModel;
 
@@ -138,7 +138,7 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 		setModel(null);
 	}
 
-	public JComponent getSliderComponent()
+	public StyledEnablePanel getSliderComponent()
 	{
 		if (slider == null)
 		{

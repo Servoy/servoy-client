@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class PartsScrollPane extends EnablePanel implements javax.swing.plaf.UIResource, IScrollPane
 {
-	protected EnablePanel innerPanel;
+	protected StyledEnablePanel innerPanel;
 	protected FixedJScrollPane scroll;
 	protected EnablePanel scrollColumnHeaderPanel;
 

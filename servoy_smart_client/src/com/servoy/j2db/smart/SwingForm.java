@@ -75,7 +75,6 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
@@ -247,7 +246,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		undoManager = new ControllerUndoManager();
 		undoManager.setLimit(50);
 
-		setOpaque(!formController.getForm().getTransparent() && !hasBackgroundImage());
+		// everything transparent, because of semitransparency support
+		setOpaque(false);
 
 		ActionMap am = this.getActionMap();
 		am.put(ACTION_GO_OUT_TO_NEXT, new GoOutOfSwingFormAction(false));
@@ -641,8 +641,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		this.bgColor = bgColor;
 		if (bgColor != null)
 		{
-			JViewport viewport = getViewport();
-			if (viewport != null) viewport.setBackground(bgColor);
 			if (view instanceof ListView) ((ListView)view).setBackground(bgColor);
 		}
 	}
@@ -733,9 +731,24 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				dataRenderers[FormController.FORM_EDITOR] = (IDataRenderer)view;
 				if (formController.getBodyStyle() != null)
 				{
-					((StyledEnablePanel)innerPanel).setCssRule(formController.getBodyStyle());
-					((StyledEnablePanel)innerPanel).setApplication(application);
-					((StyledEnablePanel)innerPanel).setBgColor(formController.getBodyPartBackgroundColor());
+					Color bodyBackground = formController.getBodyPartBackgroundColor();
+					if (bodyBackground == null)
+					{
+						bodyBackground = bgColor;
+					}
+					if (bodyBackground != null) innerPanel.setBackground(bodyBackground);
+					innerPanel.setOpaque(!formController.getForm().getTransparent());
+					innerPanel.setCssRule(formController.getBodyStyle());
+					innerPanel.setApplication(application);
+					innerPanel.setBgColor(formController.getBodyPartBackgroundColor());
+					if (!formController.getForm().getTransparent() && hasBackgroundImage())
+					{
+						innerPanel.setPaintBackgroundOnTopOfFormImage(true);
+					}
+					if (((TableView)view).getTableHeader() != null)
+					{
+						((TableView)view).getTableHeader().setOpaque(false);
+					}
 					Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(application, fp.getForm());
 					if (pairStyle != null && pairStyle.getLeft() != null)
 					{
@@ -760,14 +773,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				int form_id = fp.getForm().getNavigatorID();
 				if (form_id == 0)
 				{
-					JComponent slider = ((RecordView)view).getSliderComponent();
-					// set same background color to the default navigator
-					JViewport viewport = getViewport();
-					if (viewport != null)
+					StyledEnablePanel slider = ((RecordView)view).getSliderComponent();
+					Color sliderBackground = formController.getBodyPartBackgroundColor();
+					if (sliderBackground == null)
 					{
-						Color bg = viewport.getBackground();
-						if (bg != null) slider.setBackground(bg);
-						//slider.setOpaque(!(bgColor == null || bgColor instanceof ColorUIResource));
+						sliderBackground = bgColor;
+					}
+					if (sliderBackground != null) slider.setBackground(sliderBackground);
+					slider.setOpaque(!formController.getForm().getTransparent());
+					slider.setCssRule(formController.getBodyStyle());
+					slider.setBgColor(formController.getBodyPartBackgroundColor());
+					if (!formController.getForm().getTransparent() && hasBackgroundImage())
+					{
+						slider.setPaintBackgroundOnTopOfFormImage(true);
 					}
 					setWest(slider);
 				}
@@ -789,26 +807,15 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		if ((bgColor != null) && (view instanceof ListView)) ((ListView)view).setBackground(bgColor);
 		// Apply the opacity to the newly added view (and slider if any),
 		// except if it's a table view, that is always transparent
-		if (!(view instanceof TableView))
+		((JComponent)view).setOpaque(false);
+		for (int i = FormController.FORM_RENDERER + 1; i < dataRenderers.length; i++)
 		{
-			setOpaque(isOpaque());
-		}
-		else
-		{
-			for (int i = FormController.FORM_RENDERER + 1; i < dataRenderers.length; i++)
+			if (dataRenderers[i] != null && !(dataRenderers[i] instanceof TableView))
 			{
-				if (dataRenderers[i] != null && !(dataRenderers[i] instanceof TableView))
-				{
-					dataRenderers[i].setOpaque(isOpaque());
-				}
+				dataRenderers[i].setOpaque(!formController.getForm().getTransparent());
 			}
 		}
 
-		if (west != null && hasBackgroundImage() && !formController.getForm().getTransparent() && formController.getBodyPartBackgroundColor() != null)
-		{
-			// slider is transparent because we need to paint bg image of form on top but it has bg color from body part set
-			west.setOpaque(true);
-		}
 		return view;
 	}
 
@@ -1731,19 +1738,16 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	@Override
 	public void paint(Graphics g)
 	{
-		if (hasBackgroundImage())
+		if (!formController.getForm().getTransparent() && bgColor != null)
 		{
-			if (!formController.getForm().getTransparent() && bgColor != null)
-			{
-				Color tmp = g.getColor();
-				// paint background color first, form is transparent
-				g.setColor(bgColor);
-				g.fillRect(0, 0, getWidth(), getHeight());
+			Color tmp = g.getColor();
+			// paint background color first, form is transparent
+			g.setColor(bgColor);
+			g.fillRect(0, 0, getWidth(), getHeight());
 
-				g.setColor(tmp);
-			}
-			ImageLoader.paintImage(g, formController.getFormStyle(), formController.getApplication(), getSize());
+			g.setColor(tmp);
 		}
+		ImageLoader.paintImage(g, formController.getFormStyle(), formController.getApplication(), getSize());
 		super.paint(g);
 	}
 

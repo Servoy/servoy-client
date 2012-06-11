@@ -20,7 +20,6 @@ package com.servoy.j2db.smart.dataui;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.dnd.DropTarget;
@@ -541,11 +540,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 //Debug.trace(donotusecanbenullifinrecondview.getName()+" "+donotusecanbenullifinrecondview.isEnabled());
 				setEnabled(rendererParentCanBeNull.isEnabled()); //needed for portals
 			}
-			if (rendererParentCanBeNull.isOpaque() != isOpaque() && !bgRowColorSet)
-			{
-				setOpaque(rendererParentCanBeNull.isOpaque());
-			}
-			else if (bgRowColorSet && !isOpaque())
+			if (bgRowColorSet && !isOpaque())
 			{
 				setOpaque(true);
 			}
@@ -586,33 +581,6 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			super.setOpaque(false);
 		}
 		else super.setOpaque(isOpaque);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	 */
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		Color background = getBackground();
-		if (background != null && background.getAlpha() < 255 && g != null)
-		{
-			Graphics g2 = g.create();
-			try
-			{
-				Dimension size = getSize();
-				g2.setClip(0, 0, size.width, size.height);
-				g2.setColor(background);
-				g2.fillRect(0, 0, size.width, size.height);
-			}
-			finally
-			{
-				g2.dispose();
-			}
-		}
-		super.paintComponent(g);
 	}
 
 	/*

@@ -253,7 +253,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 				}
 				boolean partHasBgColor = (part.getBackground() != null) ||
 					(pair != null && pair.getRight() != null && pair.getRight().hasAttribute(CSS.Attribute.BACKGROUND_COLOR.toString()));
-				if (formHasBgImage && !form.getTransparent() && partHasBgColor)
+				if (!form.getTransparent() && (formHasBgImage || (partHasBgColor && bg.getAlpha() < 255)))
 				{
 					panel.setPaintBackgroundOnTopOfFormImage(true);
 				}
