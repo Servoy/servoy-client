@@ -249,7 +249,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 					public void run()
 					{
 						// see FormManager showFormInMainPanel, title is set delayed, have to delay here also
-						((JFrame)wrappedWindow).setTitle(t);
+						if (wrappedWindow != null) ((JFrame)wrappedWindow).setTitle(t);
 					}
 				});
 			}

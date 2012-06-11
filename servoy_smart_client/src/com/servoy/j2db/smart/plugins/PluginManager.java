@@ -60,6 +60,8 @@ import com.servoy.j2db.util.keyword.Ident;
  */
 public class PluginManager extends JarManager implements IPluginManagerInternal, PropertyChangeListener
 {
+	private static final String PLUGIN_CL_SUFFIX = " plugins"; //$NON-NLS-1$
+
 	private final File pluginDir;
 	private static ExtendableURLClassLoader _pluginsClassLoader;
 	private final static Map<URL, Pair<String, Long>> supportLibUrls = new HashMap<URL, Pair<String, Long>>();
@@ -106,7 +108,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		allUrls.addAll(supportLibUrls.keySet());
 		allUrls.addAll(pluginUrls.keySet());
 		URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
-		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader());
+		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader(), PLUGIN_CL_SUFFIX);
 	}
 
 	public PluginManager(String pluginDirAsString, ClassLoader lafLoader)
@@ -637,7 +639,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				allUrls.addAll(supportLibUrls.keySet());
 				allUrls.addAll(pluginUrls.keySet());
 				URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
-				_pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader());
+				_pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader(), PLUGIN_CL_SUFFIX);
 			}
 			catch (Throwable th)
 			{
