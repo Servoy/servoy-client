@@ -121,7 +121,12 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	public void setChanges(Properties changes)
 	{
 		changedProperties.putAll(changes);
+		if (!"transparent".equals(changes.getProperty("background-color"))) //$NON-NLS-1$ //$NON-NLS-2$
+		{
+			bgcolor = changes.getProperty("background-color"); //$NON-NLS-1$
+		}
 		setChanged();
+
 	}
 
 
@@ -138,9 +143,6 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			this.bgcolor = bgcolor;
 		}
 
-		// always update the changedProperties, as between to
-		// calls to bgcolor with same value, a setChanges call can happen
-		// and the changedProperties will not be in sync anymore
 		if (bgcolor == null)
 		{
 			changedProperties.remove("background-color"); //$NON-NLS-1$
