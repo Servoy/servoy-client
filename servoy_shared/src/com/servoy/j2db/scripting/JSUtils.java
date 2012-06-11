@@ -61,7 +61,7 @@ public class JSUtils
 	}
 
 	/**
-	 * @deprecated As of release 2.0, replaced by {@link #hasRecords(Object[])}.
+	 * @deprecated As of release 2.0, replaced by {@link #hasRecords(JSFoundSet)}.
 	 */
 	@Deprecated
 	public boolean js_hasChildRecords(Object foundset)
@@ -238,18 +238,18 @@ public class JSUtils
 	 * @param format the format to output or parse the to date
 	 * @return the date as text or date object
 	 */
-	public Object js_dateFormat(Object date, Object format)
+	public Object js_dateFormat(Object date, String format)
 	{
 		if (format != null)
 		{
 			if (date instanceof Date)
 			{
-				SimpleDateFormat sdf = new SimpleDateFormat(format.toString(), application.getLocale());
+				SimpleDateFormat sdf = new SimpleDateFormat(format, application.getLocale());
 				return sdf.format((Date)date);
 			}
 			else if (date instanceof String)
 			{
-				SimpleDateFormat sdf = new SimpleDateFormat(format.toString(), application.getLocale());
+				SimpleDateFormat sdf = new SimpleDateFormat(format, application.getLocale());
 				try
 				{
 					return sdf.parse((String)date);
@@ -435,7 +435,7 @@ public class JSUtils
 	 * var count = utils.stringPatternCount('this is a test','is');
 	 *
 	 * @param text the text to process
-	 * @param searchString the string to search
+	 * @param searchString the string or number to search
 	 * @return the occurrenceCount that the search string is found in the text 
 	 */
 	public int js_stringPatternCount(String text, Object searchString)
@@ -444,13 +444,17 @@ public class JSUtils
 		{
 			if ("".equals(searchString)) return -1; //$NON-NLS-1$
 
+			String search;
 			if (searchString instanceof Double)
 			{
-				searchString = ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10);
+				search = ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10);
+			}
+			else
+			{
+				search = searchString.toString();
 			}
 			try
 			{
-				String search = searchString.toString();
 				int length = search.length();
 				int i = 0;
 				int index = text.indexOf(search);
@@ -463,24 +467,20 @@ public class JSUtils
 			}
 			catch (Exception ex)
 			{
-				return -1;
 			}
 		}
-		else
-		{
-			return -1;
-		}
+		return -1;
 	}
 
 	/**
-	 * Returns the position of the string to seach for, from a certain start position and occurrence.
+	 * Returns the position of the string to search for, from a certain start position and occurrence.
 	 *
 	 * @sample 
 	 * //returns 4 as position
 	 * var pos = utils.stringPosition('This is a test','s',1,1)
 	 *
 	 * @param textString the text to process
-	 * @param searchString the string to search
+	 * @param searchString the string or number to search
 	 * @param i_start the start index to search from 
 	 * @param i_occurrence the occurrence 
 	 * 
@@ -490,9 +490,14 @@ public class JSUtils
 	{
 		if (textString != null && searchString != null && i_start != null && i_occurrence != null)
 		{
+			String search;
 			if (searchString instanceof Double)
 			{
-				searchString = ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10);
+				search = ScriptRuntime.numberToString(((Double)searchString).doubleValue(), 10);
+			}
+			else
+			{
+				search = searchString.toString();
 			}
 
 			try
@@ -503,7 +508,6 @@ public class JSUtils
 				int occurrence = i_occurrence.intValue();
 				if (occurrence == 0) occurrence = 1;
 
-				String search = searchString.toString();
 				String text = textString.toString();
 
 				int length = search.length();
@@ -523,7 +527,6 @@ public class JSUtils
 						}
 						index = text.lastIndexOf(search, index);
 					}
-
 				}
 				else
 				{
@@ -558,7 +561,7 @@ public class JSUtils
 	 * @param text the text to process
 	 * @param i_start the start index to work from 
 	 * @param i_size the size of the text to replace 
-	 * @param replacement_text the replacement text
+	 * @param replacement_text the replacement text or number
 	 * @return the changed text string
 	 */
 	@SuppressWarnings("nls")
@@ -600,7 +603,7 @@ public class JSUtils
 	 *
 	 * @param text the text to process
 	 * @param search_text the string to search
-	 * @param replacement_text the replacement text
+	 * @param replacement_text the replacement text or number
 	 * 
 	 * @return the changed text string
 	 */
@@ -723,7 +726,7 @@ public class JSUtils
 	 * //returns '65567'
 	 * var retval = utils.stringToNumber('fg65gf567'); 
 	 *
-	 * @param textString the text to process
+	 * @param textString the text or number to process
 	 * @return the resulting number
 	 */
 	public double js_stringToNumber(Object textString)
@@ -881,7 +884,7 @@ public class JSUtils
 	 * //returns 'text'
 	 * var retval = utils.stringTrim('   text   ');
 	 *
-	 * @param textString the text to process
+	 * @param textString the text or number to process
 	 * @return the resulting trimmed string
 	 */
 	public String js_stringTrim(Object textString)
