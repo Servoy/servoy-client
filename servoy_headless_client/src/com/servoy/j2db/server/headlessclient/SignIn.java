@@ -13,9 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -23,9 +24,15 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.persistence.CookieValuePersister;
+import org.apache.wicket.markup.html.form.persistence.CookieValuePersisterSettings;
+import org.apache.wicket.markup.html.form.persistence.IValuePersister;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.util.value.ValueMap;
+
+import com.servoy.j2db.util.Settings;
 
 public class SignIn extends WebPage
 {
@@ -128,6 +135,18 @@ public class SignIn extends WebPage
 				error(errmsg);
 			}
 		}
+
+		@Override
+		protected IValuePersister getValuePersister()
+		{
+			// use secure cookies for persistent fields
+			CookieValuePersisterSettings settings = new CookieValuePersisterSettings();
+			settings.setSecure(Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.webclient.enforceSecureCookies", "false")) ||
+				((WebRequestCycle)RequestCycle.get()).getWebRequest().getHttpServletRequest().isSecure());
+
+			return new CookieValuePersister(settings);
+		}
+
 	}
 
 	/**
