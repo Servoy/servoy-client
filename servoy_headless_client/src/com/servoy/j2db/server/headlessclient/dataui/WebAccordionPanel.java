@@ -65,6 +65,7 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.solutionmodel.JSPart;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
@@ -222,6 +223,23 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 						}
 					}));
 				}
+				holder.getPanel().getWebForm().add(new StyleAppendingModifier(new Model<String>()
+				{
+					@Override
+					public String getObject()
+					{
+						if (getBorder() instanceof TitledBorder)
+						{
+							int fsize = 0;
+							int height = getCurrentForm().getPartHeight(JSPart.BODY);
+							TitledBorder td = (TitledBorder)getBorder();
+							if (td.getTitleFont() != null) fsize = td.getTitleFont().getSize();
+							if (fsize > 11) height = getCurrentForm().getPartHeight(JSPart.BODY) - (fsize - 11);
+							return "height: " + height + "px;"; //$NON-NLS-1$ //$NON-NLS-2$
+						}
+						return ""; //$NON-NLS-1$
+					}
+				}));
 				link.add(icon);
 				item.add(link);
 				item.add(new Label("webform", new Model<String>(""))); // temporary add  //$NON-NLS-1$//$NON-NLS-2$
@@ -274,6 +292,19 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 					"');if (accordion){accordion.style.visibility = 'inherit';}");
 			}
 		});
+
+		accordion.add(new StyleAppendingModifier(new Model<String>()
+		{
+			@Override
+			public String getObject()
+			{
+				if (getBorder() instanceof TitledBorder)
+				{
+					return "margin-top: -0.4em;"; //"padding: 6px 0px 0px 0px; margin-top: -8px;"; //$NON-NLS-1$
+				}
+				return ""; //$NON-NLS-1$
+			}
+		}));
 
 		add(new StyleAppendingModifier(new Model<String>()
 		{
