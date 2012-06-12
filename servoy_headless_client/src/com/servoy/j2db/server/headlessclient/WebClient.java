@@ -360,8 +360,10 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			Cookie cookie = new Cookie(name, encodeCookieValue(value));
 			cookie.setMaxAge(Integer.MAX_VALUE);
-
 			cookie.setPath(path);
+			// when in secure request, browser does not send cookie over insecure request
+			cookie.setSecure(Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.webclient.enforceSecureCookies", "false")) ||
+				((WebRequestCycle)RequestCycle.get()).getWebRequest().getHttpServletRequest().isSecure());
 			// Add the cookie
 			((WebRequestCycle)RequestCycle.get()).getWebResponse().addCookie(cookie);
 		}
