@@ -222,7 +222,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			public String getObject()
 			{
 				IWebFormContainer container = findParent(IWebFormContainer.class);
-				if (container != null && container.getBorder() instanceof TitledBorder)
+				if (container != null && !(container instanceof WebAccordionPanel) && container.getBorder() instanceof TitledBorder)
 				{
 					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
 					return "top: " + offset + "px;";
