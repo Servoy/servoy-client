@@ -238,25 +238,26 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 				setBasicSettings(panel, bg, new Dimension(width, total), new Point(0, partHeight), printing);
 			}
 			partHeight = part.getHeight();
+			// revert css3 features
 			Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(app, part, form);
 			if (panel != null)
 			{
-				panel.setBgColor(part.getBackground());
+//				panel.setBgColor(part.getBackground());
 				if (pair != null && pair.getRight() != null && pair.getLeft() != null)
 				{
-					panel.setCssRule(pair.getRight());
+//					panel.setCssRule(pair.getRight());
 					Border border = pair.getLeft().getBorder(pair.getRight());
 					if (border != null)
 					{
 						panel.setBorder(border);
 					}
 				}
-				boolean partHasBgColor = (part.getBackground() != null) ||
-					(pair != null && pair.getRight() != null && pair.getRight().hasAttribute(CSS.Attribute.BACKGROUND_COLOR.toString()));
-				if (!form.getTransparent() && (formHasBgImage || (partHasBgColor && bg.getAlpha() < 255)))
-				{
-					panel.setPaintBackgroundOnTopOfFormImage(true);
-				}
+//				boolean partHasBgColor = (part.getBackground() != null) ||
+//					(pair != null && pair.getRight() != null && pair.getRight().hasAttribute(CSS.Attribute.BACKGROUND_COLOR.toString()));
+//				if (!form.getTransparent() && (formHasBgImage || (partHasBgColor && bg.getAlpha() < 255)))
+//				{
+//					panel.setPaintBackgroundOnTopOfFormImage(true);
+//				}
 			}
 		}
 

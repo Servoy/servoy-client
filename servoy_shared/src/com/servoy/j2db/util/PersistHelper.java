@@ -303,6 +303,40 @@ public class PersistHelper
 		return new Rectangle(x, y, w, h);
 	}
 
+	public static Color createColorWithTransparencySupport(String s)
+	{
+		Color color = createColor(s);
+		if (color == null)
+		{
+			if (s != null && s.startsWith(COLOR_RGBA_DEF))
+			{
+				String definition = s.substring(s.indexOf("(") + 1, s.lastIndexOf(")")); //$NON-NLS-1$//$NON-NLS-2$
+				StringTokenizer tokenizer = new StringTokenizer(definition, ","); //$NON-NLS-1$
+				if (tokenizer.countTokens() == 4)
+				{
+					try
+					{
+						int r = Utils.getAsInteger(tokenizer.nextToken(), true);
+						int g = Utils.getAsInteger(tokenizer.nextToken(), true);
+						int b = Utils.getAsInteger(tokenizer.nextToken(), true);
+						int a = (int)(Utils.getAsFloat(tokenizer.nextToken(), true) * 255);
+						return new Color(r, g, b, a);
+					}
+					catch (Exception ex)
+					{
+						Debug.warn("Cannot parse rgba color : " + s); //$NON-NLS-1$
+						return null;
+					}
+				}
+				else
+				{
+					Debug.warn("Cannot parse rgba color : " + s); //$NON-NLS-1$
+				}
+			}
+		}
+		return color;
+	}
+
 	public static Color createColor(String s)
 	{
 		Color retval = null;
@@ -323,32 +357,6 @@ public class PersistHelper
 				//ignore;
 			}
 		}
-		if (s != null && s.startsWith(COLOR_RGBA_DEF))
-		{
-			String definition = s.substring(s.indexOf("(") + 1, s.lastIndexOf(")")); //$NON-NLS-1$//$NON-NLS-2$
-			StringTokenizer tokenizer = new StringTokenizer(definition, ","); //$NON-NLS-1$
-			if (tokenizer.countTokens() == 4)
-			{
-				try
-				{
-					int r = Utils.getAsInteger(tokenizer.nextToken(), true);
-					int g = Utils.getAsInteger(tokenizer.nextToken(), true);
-					int b = Utils.getAsInteger(tokenizer.nextToken(), true);
-					int a = (int)(Utils.getAsFloat(tokenizer.nextToken(), true) * 255);
-					return new Color(r, g, b, a);
-				}
-				catch (Exception ex)
-				{
-					Debug.warn("Cannot parse rgba color : " + s); //$NON-NLS-1$
-					return null;
-				}
-			}
-			else
-			{
-				Debug.warn("Cannot parse rgba color : " + s); //$NON-NLS-1$
-			}
-		}
-
 		if (IStyleSheet.COLOR_TRANSPARENT.equals(s))
 		{
 			retval = COLOR_TRANSPARENT;

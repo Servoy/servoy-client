@@ -75,6 +75,7 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
@@ -157,7 +158,6 @@ import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupportFocusTransfer;
 import com.servoy.j2db.util.ITabPaneAlike;
-import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
@@ -247,7 +247,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		undoManager.setLimit(50);
 
 		// everything transparent, because of semitransparency support
-		setOpaque(false);
+		//setOpaque(false);
+		setOpaque(!formController.getForm().getTransparent());
 
 		ActionMap am = this.getActionMap();
 		am.put(ACTION_GO_OUT_TO_NEXT, new GoOutOfSwingFormAction(false));
@@ -641,6 +642,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		this.bgColor = bgColor;
 		if (bgColor != null)
 		{
+			JViewport viewport = getViewport();
+			if (viewport != null) viewport.setBackground(bgColor);
 			if (view instanceof ListView) ((ListView)view).setBackground(bgColor);
 		}
 	}
@@ -731,24 +734,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				dataRenderers[FormController.FORM_EDITOR] = (IDataRenderer)view;
 				if (formController.getBodyStyle() != null)
 				{
-					Color bodyBackground = formController.getBodyPartBackgroundColor();
-					if (bodyBackground == null)
-					{
-						bodyBackground = bgColor;
-					}
-					if (bodyBackground != null) innerPanel.setBackground(bodyBackground);
-					innerPanel.setOpaque(!formController.getForm().getTransparent());
-					innerPanel.setCssRule(formController.getBodyStyle());
-					innerPanel.setApplication(application);
-					innerPanel.setBgColor(formController.getBodyPartBackgroundColor());
-					if (!formController.getForm().getTransparent() && hasBackgroundImage())
-					{
-						innerPanel.setPaintBackgroundOnTopOfFormImage(true);
-					}
-					if (((TableView)view).getTableHeader() != null)
-					{
-						((TableView)view).getTableHeader().setOpaque(false);
-					}
 					Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getCSSPairStyleForForm(application, fp.getForm());
 					if (pairStyle != null && pairStyle.getLeft() != null)
 					{
@@ -774,19 +759,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				if (form_id == 0)
 				{
 					StyledEnablePanel slider = ((RecordView)view).getSliderComponent();
-					Color sliderBackground = formController.getBodyPartBackgroundColor();
-					if (sliderBackground == null)
-					{
-						sliderBackground = bgColor;
-					}
-					if (sliderBackground != null) slider.setBackground(sliderBackground);
-					slider.setOpaque(!formController.getForm().getTransparent());
-					slider.setCssRule(formController.getBodyStyle());
-					slider.setBgColor(formController.getBodyPartBackgroundColor());
-					if (!formController.getForm().getTransparent() && hasBackgroundImage())
-					{
-						slider.setPaintBackgroundOnTopOfFormImage(true);
-					}
+					if (bgColor != null) slider.setBackground(bgColor);
 					setWest(slider);
 				}
 		}
@@ -805,14 +778,30 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		}
 		OrientationApplier.setOrientationToAWTComponent(this, application.getLocale(), application.getSolution().getTextOrientation());
 		if ((bgColor != null) && (view instanceof ListView)) ((ListView)view).setBackground(bgColor);
+		// revert semi transparency support
+//		((JComponent)view).setOpaque(false);
+//		for (int i = FormController.FORM_RENDERER + 1; i < dataRenderers.length; i++)
+//		{
+//			if (dataRenderers[i] != null && !(dataRenderers[i] instanceof TableView))
+//			{
+//				dataRenderers[i].setOpaque(!formController.getForm().getTransparent());
+//			}
+//		}
+
 		// Apply the opacity to the newly added view (and slider if any),
 		// except if it's a table view, that is always transparent
-		((JComponent)view).setOpaque(false);
-		for (int i = FormController.FORM_RENDERER + 1; i < dataRenderers.length; i++)
+		if (!(view instanceof TableView))
 		{
-			if (dataRenderers[i] != null && !(dataRenderers[i] instanceof TableView))
+			setOpaque(isOpaque());
+		}
+		else
+		{
+			for (int i = FormController.FORM_RENDERER + 1; i < dataRenderers.length; i++)
 			{
-				dataRenderers[i].setOpaque(!formController.getForm().getTransparent());
+				if (dataRenderers[i] != null && !(dataRenderers[i] instanceof TableView))
+				{
+					dataRenderers[i].setOpaque(isOpaque());
+				}
 			}
 		}
 
@@ -1738,16 +1727,17 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	@Override
 	public void paint(Graphics g)
 	{
-		if (!formController.getForm().getTransparent() && bgColor != null)
-		{
-			Color tmp = g.getColor();
-			// paint background color first, form is transparent
-			g.setColor(bgColor);
-			g.fillRect(0, 0, getWidth(), getHeight());
-
-			g.setColor(tmp);
-		}
-		ImageLoader.paintImage(g, formController.getFormStyle(), formController.getApplication(), getSize());
+		// revert css3 features
+//		if (!formController.getForm().getTransparent() && bgColor != null)
+//		{
+//			Color tmp = g.getColor();
+//			// paint background color first, form is transparent
+//			g.setColor(bgColor);
+//			g.fillRect(0, 0, getWidth(), getHeight());
+//
+//			g.setColor(tmp);
+//		}
+//		ImageLoader.paintImage(g, formController.getFormStyle(), formController.getApplication(), getSize());
 		super.paint(g);
 	}
 
