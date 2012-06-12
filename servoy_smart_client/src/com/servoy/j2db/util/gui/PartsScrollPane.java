@@ -31,6 +31,7 @@ import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.CellEditorListener;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicBorders;
 
 import com.servoy.j2db.smart.dataui.StyledEnablePanel;
 import com.servoy.j2db.ui.IScrollPane;
@@ -55,7 +56,7 @@ public class PartsScrollPane extends EnablePanel implements javax.swing.plaf.UIR
 		innerPanel.setLayout(new BorderLayout());
 		add(innerPanel, BorderLayout.CENTER);
 		scroll = new PartsScroller();
-		setBorder(BorderFactory.createEmptyBorder());
+		setBorder(BasicBorders.getTextFieldBorder());
 		//    	setBorder(scroll.getBorder());//couses excpetion
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		innerPanel.add(scroll, BorderLayout.CENTER);
