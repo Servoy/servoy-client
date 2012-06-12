@@ -848,6 +848,7 @@ if (typeof(Servoy.TableView) == "undefined")
 		hasTopBuffer: new Array(),
 		hasBottomBuffer: new Array(),
 		keepLoadedRows : false,
+		topPhHeight: new Array(),
 
 		appendRows: function(rowContainerBodyId, rows, newRowsCount, rowsCountToRemove, scrollDiff, hasTopBuffer, hasBottomBuffer)
 		{	
@@ -873,7 +874,7 @@ if (typeof(Servoy.TableView) == "undefined")
 						topPhHeight += rowHeight;
 						row.remove();
 					}
-					
+					Servoy.TableView.topPhHeight[rowContainerBodyId] = topPhHeight;
 					$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + topPhHeight + "'></tr>");
 				}
 				
@@ -914,8 +915,8 @@ if (typeof(Servoy.TableView) == "undefined")
 					$('#' + rowContainerBodyId).prepend(rows);
 					if(topPhHeight > 0)
 					{
+						Servoy.TableView.topPhHeight[rowContainerBodyId] = topPhHeight;
 						$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + topPhHeight + "'></tr>");
-						
 						if(Servoy.TableView.currentScrollTop[rowContainerBodyId] < topPhHeight)
 						{
 							Servoy.TableView.currentScrollTop[rowContainerBodyId] = topPhHeight;
@@ -934,7 +935,9 @@ if (typeof(Servoy.TableView) == "undefined")
 		needToUpdateRowsBuffer: function(rowContainerBodyId)
 		{
 			if(Servoy.TableView.isAppendingRows || (!Servoy.TableView.hasTopBuffer[rowContainerBodyId] && !Servoy.TableView.hasBottomBuffer[rowContainerBodyId]))
+			{
 				return 0;
+			}
 
 			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
 			var scrollTop = rowContainerBodyEl.scrollTop;
@@ -966,6 +969,18 @@ if (typeof(Servoy.TableView) == "undefined")
 			var rowHeight = secondRow.height();
 
 			return Servoy.TableView.isAppendingRows ? scrollDiff / rowHeight : 0;
+		},
+		
+		scrollToTop: function(rowContainerBodyId)
+		{
+			if(Servoy.TableView.currentScrollTop[rowContainerBodyId] > 0)
+			{
+				if(Servoy.TableView.topPhHeight[rowContainerBodyId])
+				{
+					$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + Servoy.TableView.topPhHeight[rowContainerBodyId] + "'></tr>");
+				}
+				$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
+			}
 		},
 		
 		isInFirstTD: function(el)

@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.markup.html.list.ListItem;
@@ -186,6 +187,29 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 
 	public ListItem<T> getOrCreateListItem(int index)
 	{
+		// if there are missing list items in the top of the view, create them now
+		if (size() > 1 && index < ((ListItem<T>)get(0)).getIndex())
+		{
+			int firstIdx = ((ListItem<T>)get(0)).getIndex();
+
+			ArrayList<ListItem<T>> els = new ArrayList<ListItem<T>>();
+			for (int i = 0; i < size(); i++)
+				els.add((ListItem<T>)get(i));
+
+			removeAll();
+
+			ListItem<T> newItem;
+			for (int i = index; i < firstIdx; i++)
+			{
+				newItem = newItem(i);
+				add(newItem);
+				onBeginPopulateItem(newItem);
+				populateItem(newItem);
+			}
+			for (ListItem<T> l : els)
+				add(l);
+		}
+
 		ListItem<T> listItem = index < size() ? (ListItem<T>)get(index) : null;
 		if (listItem == null)
 		{
