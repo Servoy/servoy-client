@@ -74,7 +74,9 @@ public class RegExp
 	 * patt1.test(str);	
 	 * application.output(RegExp.input);
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Deprecated_Features
+	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_and_obsolete_features
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
 	public String js_getInput()
@@ -116,7 +118,9 @@ public class RegExp
 	 * patt1.test(str);	
 	 * application.output('Match found: ' + RegExp.lastMatch);
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Deprecated_Features
+	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_and_obsolete_features
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
 	public String js_getLastMatch()
@@ -138,7 +142,9 @@ public class RegExp
 	 * patt1.test(str);	
 	 * application.output('Last parenthesized substring is: ' + RegExp.lastParen);
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Deprecated_Features
+	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
 	public String js_getLastParen()
@@ -160,7 +166,9 @@ public class RegExp
 	 * patt1.test(str);	
 	 * application.output('Text before match: ' + RegExp.leftContext);
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Deprecated_Features
+	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
 	public String js_getLeftContext()
@@ -201,7 +209,9 @@ public class RegExp
 	 * patt1.test(str);	
 	 * application.output('Text after match: ' + RegExp.rightContext);
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Deprecated_Features
+	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
 	public String js_getRightContext()
@@ -244,6 +254,8 @@ public class RegExp
 	 * application.output(patt.test(str)==true);
 	 *
 	 * @param regexp
+	 * 
+	 * @deprecated use only the RegExp constructor (see also https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_and_obsolete_features)
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/source
 	 */

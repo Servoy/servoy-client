@@ -136,6 +136,8 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Exception code for INVALID_INPUT_FORMAT.
 	 * 
 	 * This code is not used.
+	 * 
+	 * @deprecated This code is not used
 	 */
 	@Deprecated
 	public static final int INVALID_INPUT_FORMAT = 309;

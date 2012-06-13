@@ -58,6 +58,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBackground()
+	 * 
+	 * @deprecated please refer to JSComponent.background
 	 */
 	@Override
 	@Deprecated
@@ -68,6 +70,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBorderType()
+	 * 
+	 * @deprecated please refer to JSComponent.borderType
 	 */
 	@Override
 	@Deprecated
@@ -78,6 +82,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getFontType()
+	 * 
+	 * @deprecated please refer to JSComponent.fontType
 	 */
 	@Override
 	@Deprecated
@@ -88,6 +94,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getForeground()
+	 * 
+	 * @deprecated please refer to JSComponent.foreground
 	 */
 	@Override
 	@Deprecated
@@ -99,6 +107,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getPrintSliding()
+	 * 
+	 * @deprecated please refer to JSComponent.printSliding
 	 */
 	@Override
 	@Deprecated
@@ -109,6 +119,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getStyleClass()
+	 * 
+	 * @deprecated please refer to JSComponent.styleClass
 	 */
 	@Override
 	@Deprecated
@@ -119,6 +131,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getTransparent()
+	 * 
+	 * @deprecated please refer to JSComponent.transparent
 	 */
 	@Override
 	@Deprecated

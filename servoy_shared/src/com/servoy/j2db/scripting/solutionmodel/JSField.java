@@ -363,6 +363,8 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getVerticalAlignment()
+	 * 
+	 * @deprecated please refer to JSLabel.verticalAlignment
 	 */
 	@Deprecated
 	public int js_getVerticalAlignment()
