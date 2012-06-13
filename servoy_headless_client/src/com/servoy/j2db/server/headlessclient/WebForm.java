@@ -1488,12 +1488,13 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	public MainPage getMainPage()
 	{
+		if (mainPage != null) return mainPage;
 		Page page = findPage();
 		if (page instanceof MainPage)
 		{
 			return (MainPage)page;
 		}
-		return mainPage;
+		return null;
 	}
 
 	private FormAnchorInfo formAnchorInfo;
