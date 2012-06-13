@@ -75,6 +75,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
@@ -2544,5 +2545,14 @@ public class Utils
 	public static <T> Iterable<T> iterate(Iterable<T> iterable)
 	{
 		return iterable == null ? Collections.<T> emptyList() : iterable;
+	}
+
+	/**
+	 * Returns true if the given client/application type is a Swing client and false if it is not.
+	 * @param applicationType the type to check
+	 */
+	public static boolean isSwingClient(int applicationType)
+	{
+		return applicationType == IApplication.CLIENT || applicationType == IApplication.OFFLINE || applicationType == IApplication.RUNTIME;
 	}
 }
