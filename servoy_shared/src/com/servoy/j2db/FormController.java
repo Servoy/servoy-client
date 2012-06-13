@@ -3943,7 +3943,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public void showNavigator(List<Runnable> invokeLaterRunnables)
 	{
-		if (fm.getCurrentMainShowingFormController() == this)//safety for tabpanels (those cannot have a custom controller)
+		if (fm != null && fm.getCurrentMainShowingFormController() == this)//safety for tabpanels (those cannot have a custom controller)
 		{
 			ISupportNavigator navigatorSupport = fm.getCurrentContainer();
 			if (navigatorSupport != null)

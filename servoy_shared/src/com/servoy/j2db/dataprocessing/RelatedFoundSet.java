@@ -831,6 +831,11 @@ public abstract class RelatedFoundSet extends FoundSet
 				boolean doCheck = true;
 
 				Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
+				if (relation == null)
+				{
+					// this may happen when the relation was removed using solution model
+					return;
+				}
 				//check the foreign key if they match, if so it will fall in this foundset
 				Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
 				if (ph == null || !ph.isSet())

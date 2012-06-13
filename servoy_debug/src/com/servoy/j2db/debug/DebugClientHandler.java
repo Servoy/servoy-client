@@ -40,6 +40,8 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IUserClient;
@@ -561,7 +563,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 											runnable.run();
 										}
 										runEvents();
-									};
+									}
 
 									@Override
 									public void invokeAndWait(Runnable r)
@@ -579,12 +581,20 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									public void invokeLater(Runnable r)
 									{
 										events.add(r);
+										final IServiceProvider client = this;
 										super.invokeLater(new Runnable()
 										{
-
 											public void run()
 											{
-												runEvents();
+												IServiceProvider prevServiceProvider = J2DBGlobals.setSingletonServiceProvider(client);
+												try
+												{
+													runEvents();
+												}
+												finally
+												{
+													J2DBGlobals.setSingletonServiceProvider(prevServiceProvider);
+												}
 											}
 										});
 									};

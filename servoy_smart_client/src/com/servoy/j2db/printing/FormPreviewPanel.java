@@ -182,7 +182,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 		//create the chain based on the sort,LAST node must be the body part (is virtal added if not present)
 		Part body = null;
 		FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(controllerBeingPreviewed.getName());
-		if (!fp.isShowingData())
+		if (fp != null && !fp.isShowingData())
 		{
 //			List lst = fp.getFormModel().getLastSearchColumns();
 			if (fp.wantEmptyFoundSet())
