@@ -17,24 +17,22 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.solutionmodel.ISMBean;
 
 /**
  * @author lvostinar
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSBean extends JSComponent<Bean> implements IJavaScriptType
+public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBean
 {
-
-	/**
-	 * @param parent
-	 * @param baseComponent
-	 * @param isNew
-	 */
-	public JSBean(IJSParent parent, Bean baseComponent, boolean isNew)
+	public JSBean(IJSParent< ? > parent, Bean baseComponent, boolean isNew)
 	{
 		super(parent, baseComponent, isNew);
 	}
@@ -46,105 +44,118 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType
 	 * var bean = form.getBean('mybean');
 	 * application.output(bean.className);
 	 */
-	public String js_getClassName()
+	@JSGetter
+	public String getClassName()
 	{
 		return getBaseComponent(false).getBeanClassName();
 	}
 
-	public void js_setClassName(String className)
+	@JSSetter
+	public void setClassName(String className)
 	{
 		getBaseComponent(true).setBeanClassName(className);
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBackground()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBackground()
 	 * 
 	 * @deprecated please refer to JSComponent.background
 	 */
 	@Override
 	@Deprecated
-	public String js_getBackground()
+	@JSGetter
+	public String getBackground()
 	{
-		return super.js_getBackground();
+		return super.getBackground();
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBorderType()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
 	 * 
 	 * @deprecated please refer to JSComponent.borderType
 	 */
 	@Override
 	@Deprecated
-	public String js_getBorderType()
+	@JSGetter
+	public String getBorderType()
 	{
-		return super.js_getBorderType();
+		return super.getBorderType();
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getFontType()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getFontType()
 	 * 
 	 * @deprecated please refer to JSComponent.fontType
 	 */
 	@Override
 	@Deprecated
-	public String js_getFontType()
+	@JSGetter
+	public String getFontType()
 	{
-		return super.js_getFontType();
+		return super.getFontType();
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getForeground()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getForeground()
 	 * 
 	 * @deprecated please refer to JSComponent.foreground
 	 */
 	@Override
 	@Deprecated
-	public String js_getForeground()
+	@JSGetter
+	public String getForeground()
 	{
-		// TODO Auto-generated method stub
-		return super.js_getForeground();
+		return super.getForeground();
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getPrintSliding()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getPrintSliding()
 	 * 
 	 * @deprecated please refer to JSComponent.printSliding
 	 */
 	@Override
 	@Deprecated
-	public int js_getPrintSliding()
+	@JSGetter
+	public int getPrintSliding()
 	{
-		return super.js_getPrintSliding();
+		return super.getPrintSliding();
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getStyleClass()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getStyleClass()
 	 * 
 	 * @deprecated please refer to JSComponent.styleClass
 	 */
 	@Override
 	@Deprecated
-	public String js_getStyleClass()
+	@JSGetter
+	public String getStyleClass()
 	{
-		return super.js_getStyleClass();
+		return super.getStyleClass();
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getTransparent()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getTransparent()
 	 * 
 	 * @deprecated please refer to JSComponent.transparent
 	 */
 	@Override
 	@Deprecated
-	public boolean js_getTransparent()
+	@JSGetter
+	public boolean getTransparent()
 	{
-		return super.js_getTransparent();
+		return super.getTransparent();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.solutionmodel.ISMBeanx#toString()
+	 */
 	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return "JSBean[name:" + js_getName() + ",classname:" + js_getClassName() + ']';
+		return "JSBean[name:" + getName() + ",classname:" + getClassName() + ']';
 	}
 }

@@ -17,6 +17,8 @@
 package com.servoy.j2db.scripting.solutionmodel;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -25,163 +27,14 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMField;
+import com.servoy.j2db.solutionmodel.ISMMethod;
+import com.servoy.j2db.solutionmodel.ISMValueList;
 import com.servoy.j2db.util.PersistHelper;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSField extends JSComponent<Field> implements IConstantsObject
+public class JSField extends JSComponent<Field> implements IConstantsObject, ISMField
 {
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to text field. The field will show regular text on a single line.
-	 * 
-	 * @sample
-	 * var tfield = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 460, 100, 20);
-	 */
-	public static final int TEXT_FIELD = Field.TEXT_FIELD;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to text area. The field will show text on multiple lines.
-	 * 
-	 * @sample
-	 * var tarea = form.newField('my_table_text', JSField.TEXT_AREA, 10, 400, 100, 50);
-	 */
-	public static final int TEXT_AREA = Field.TEXT_AREA;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to combobox. 
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var cmb = form.newField('my_table_options', JSField.COMBOBOX, 10, 100, 100, 20);
-	 * cmb.valuelist = vlist;
-	 */
-	public static final int COMBOBOX = Field.COMBOBOX;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to radio buttons. The field will show a radio button, or a list of them if 
-	 * the valuelist property is also set.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var radio = form.newField('my_table_options', JSField.RADIOS, 10, 280, 100, 50);
-	 * radio.valuelist = vlist;
-	 */
-	public static final int RADIOS = Field.RADIOS;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to checkbox. The field will show a checkbox, or a list of checkboxes if the valuelist
-	 * property is also set.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var chk = form.newField('my_table_options', JSField.CHECKS, 10, 40, 100, 50);
-	 * chk.valuelist = vlist;
-	 */
-	public static final int CHECKS = Field.CHECKS;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the 
-	 * field to calendar. The field will show a formatted date and will have a button which
-	 * pops up a calendar for date selection.
-	 *
-	 * @sample 
-	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
-	 */
-	public static final int CALENDAR = Field.CALENDAR;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * fiels to password. The field will allow the user to enter passwords, masking the typed
-	 * characters.
-	 * 
-	 * @sample
-	 * 	var pwd = form.newField('my_table_text', JSField.PASSWORD, 10, 250, 100, 20);
-	 */
-	public static final int PASSWORD = Field.PASSWORD;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the 
-	 * field to RTF area. The field will display formatted RTF content.
-	 * 
-	 * @sample
-	 * 	var rtf = form.newField('my_table_rtf', JSField.RTF_AREA, 10, 340, 100, 50);
-	 */
-	public static final int RTF_AREA = Field.RTF_AREA;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to HTML area. The field will display formatted HTML content.
-	 * 
-	 * @sample
-	 * var html = form.newField('my_table_html', JSField.HTML_AREA, 10, 130, 100, 50);
-	 */
-	public static final int HTML_AREA = Field.HTML_AREA;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to image. The field will display images.
-	 * 
-	 * @sample
-	 * var img = form.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 190, 100, 50);
-	 */
-	public static final int IMAGE_MEDIA = Field.IMAGE_MEDIA;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to type ahead. The field will show regular text, but will have type ahead 
-	 * capabilities.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var tahead = form.newField('my_table_text', JSField.TYPE_AHEAD, 10, 490, 100, 20);
-	 * tahead.valuelist = vlist;
-	 */
-	public static final int TYPE_AHEAD = Field.TYPE_AHEAD;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to list box. The field will show a selection list with single choice selection.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var list = form.newField('my_table_list', JSField.LIST_BOX, 10, 280, 100, 50);
-	 * list.valuelist = vlist;
-	 */
-	public static final int LIST_BOX = Field.LIST_BOX;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to list box. The field will show a selection list with multiple choice selection.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var list = form.newField('my_table_options', JSField.MULTISELECT_LISTBOX, 10, 280, 100, 50);
-	 * list.valuelist = vlist;
-	 */
-	public static final int MULTISELECT_LISTBOX = Field.MULTISELECT_LISTBOX;
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to spinner. The field will show a spinner.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var spinner = form.newField('my_spinner', JSField.SPINNER, 10, 460, 100, 20);
-	 * spinner.valuelist = vlist;
-	 */
-	public static final int SPINNER = Field.SPINNER;
-
 	private final IApplication application;
 
 	// support constants
@@ -190,9 +43,6 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 		this(null, null, null, false);
 	}
 
-	/**
-	 * @param field
-	 */
 	public JSField(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)
 	{
 		super(parent, field, isNew);
@@ -200,19 +50,33 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getDataProviderID()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
 	 */
-	public String js_getDataProviderID()
+	@JSGetter
+	public String getDataProviderID()
 	{
 		return getBaseComponent(false).getDataProviderID();
 	}
 
+	@JSSetter
+	public void setDataProviderID(String arg)
+	{
+		getBaseComponent(true).setDataProviderID(arg);
+	}
+
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getDataProviderID()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
 	 */
-	public boolean js_getDisplaysTags()
+	@JSGetter
+	public boolean getDisplaysTags()
 	{
 		return getBaseComponent(false).getDisplaysTags();
+	}
+
+	@JSSetter
+	public void setDisplaysTags(boolean arg)
+	{
+		getBaseComponent(true).setDisplaysTags(arg);
 	}
 
 	/**
@@ -225,9 +89,16 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * cal.dataProviderID = 'my_table_text';
 	 * cal.displayType = JSField.TEXT_FIELD;
 	 */
-	public int js_getDisplayType()
+	@JSGetter
+	public int getDisplayType()
 	{
 		return getBaseComponent(false).getDisplayType();
+	}
+
+	@JSSetter
+	public void setDisplayType(int arg)
+	{
+		getBaseComponent(true).setDisplayType(arg);
 	}
 
 	/**
@@ -237,9 +108,16 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.editable = false;
 	 */
-	public boolean js_getEditable()
+	@JSGetter
+	public boolean getEditable()
 	{
 		return getBaseComponent(false).getEditable();
+	}
+
+	@JSSetter
+	public void setEditable(boolean arg)
+	{
+		getBaseComponent(true).setEditable(arg);
 	}
 
 	/**
@@ -249,25 +127,46 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.format = '$#.00';
 	 */
-	public String js_getFormat()
+	@JSGetter
+	public String getFormat()
 	{
 		return getBaseComponent(false).getFormat();
 	}
 
+	@JSSetter
+	public void setFormat(String arg)
+	{
+		getBaseComponent(true).setFormat(arg);
+	}
+
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getHorizontalAlignment()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getHorizontalAlignment()
 	 */
-	public int js_getHorizontalAlignment()
+	@JSGetter
+	public int getHorizontalAlignment()
 	{
 		return getBaseComponent(false).getHorizontalAlignment();
 	}
 
+	@JSSetter
+	public void setHorizontalAlignment(int arg)
+	{
+		getBaseComponent(true).setHorizontalAlignment(arg);
+	}
+
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getMargin()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getMargin()
 	 */
-	public String js_getMargin()
+	@JSGetter
+	public String getMargin()
 	{
 		return PersistHelper.createInsetsString(getBaseComponent(false).getMargin());
+	}
+
+	@JSSetter
+	public void setMargin(String margin)
+	{
+		getBaseComponent(true).setMargin(PersistHelper.createInsets(margin));
 	}
 
 	/**
@@ -281,9 +180,16 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * var alwaysScrollbars = form.newField('my_table_text', JSField.TEXT_AREA, 230, 10, 100, 100);
 	 * alwaysScrollbars.scrollbars = SM_SCROLLBAR.HORIZONTAL_SCROLLBAR_ALWAYS | SM_SCROLLBAR.VERTICAL_SCROLLBAR_ALWAYS;
 	 */
-	public int js_getScrollbars()
+	@JSGetter
+	public int getScrollbars()
 	{
 		return getBaseComponent(false).getScrollbars();
+	}
+
+	@JSSetter
+	public void setScrollbars(int arg)
+	{
+		getBaseComponent(true).setScrollbars(arg);
 	}
 
 	/**
@@ -297,21 +203,35 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * var fieldSelect = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * fieldSelect.selectOnEnter = true;
 	 */
-	public boolean js_getSelectOnEnter()
+	@JSGetter
+	public boolean getSelectOnEnter()
 	{
 		return getBaseComponent(false).getSelectOnEnter();
 	}
 
+	@JSSetter
+	public void setSelectOnEnter(boolean arg)
+	{
+		getBaseComponent(true).setSelectOnEnter(arg);
+	}
+
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getTabSeq()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getTabSeq()
 	 */
-	public int js_getTabSeq()
+	@JSGetter
+	public int getTabSeq()
 	{
 		return getBaseComponent(false).getTabSeq();
 	}
 
+	@JSSetter
+	public void setTabSeq(int arg)
+	{
+		getBaseComponent(true).setTabSeq(arg);
+	}
+
 	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #getTitleText()}
+	 * @deprecated  As of release 4.1, replaced by getTitleText()
 	 */
 	@Deprecated
 	public String js_getText()
@@ -329,17 +249,31 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * form.view = JSForm.LOCKED_TABLE_VIEW;
 	 * forms['someForm'].controller.show()
 	 */
-	public String js_getTitleText()
+	@JSGetter
+	public String getTitleText()
 	{
 		return getBaseComponent(false).getText();
 	}
 
+	@JSSetter
+	public void setTitleText(String arg)
+	{
+		getBaseComponent(true).setText(arg);
+	}
+
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getToolTipText()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getToolTipText()
 	 */
-	public String js_getToolTipText()
+	@JSGetter
+	public String getToolTipText()
 	{
 		return getBaseComponent(false).getToolTipText();
+	}
+
+	@JSSetter
+	public void setToolTipText(String arg)
+	{
+		getBaseComponent(true).setToolTipText(arg);
 	}
 
 	/**
@@ -351,7 +285,8 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * var cmb = form.newField('my_table_options', JSField.COMBOBOX, 10, 100, 100, 20);
 	 * cmb.valuelist = vlist;
 	 */
-	public JSValueList js_getValuelist()
+	@JSGetter
+	public JSValueList getValuelist()
 	{
 		ValueList vl = application.getFlattenedSolution().getValueList(getBaseComponent(false).getValuelistID());
 		if (vl != null)
@@ -361,8 +296,21 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 		return null;
 	}
 
+	@JSSetter
+	public void setValuelist(ISMValueList valuelist)
+	{
+		if (valuelist == null)
+		{
+			getBaseComponent(true).setValuelistID(0);
+		}
+		else
+		{
+			getBaseComponent(true).setValuelistID(((JSValueList)valuelist).getValueList().getID());
+		}
+	}
+
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getVerticalAlignment()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getVerticalAlignment()
 	 * 
 	 * @deprecated please refer to JSLabel.verticalAlignment
 	 */
@@ -372,43 +320,8 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 		return getBaseComponent(false).getVerticalAlignment();
 	}
 
-	public void js_setDataProviderID(String arg)
-	{
-		getBaseComponent(true).setDataProviderID(arg);
-	}
-
-	public void js_setDisplaysTags(boolean arg)
-	{
-		getBaseComponent(true).setDisplaysTags(arg);
-	}
-
-	public void js_setDisplayType(int arg)
-	{
-		getBaseComponent(true).setDisplayType(arg);
-	}
-
-	public void js_setEditable(boolean arg)
-	{
-		getBaseComponent(true).setEditable(arg);
-	}
-
-	public void js_setFormat(String arg)
-	{
-		getBaseComponent(true).setFormat(arg);
-	}
-
-	public void js_setHorizontalAlignment(int arg)
-	{
-		getBaseComponent(true).setHorizontalAlignment(arg);
-	}
-
-	public void js_setMargin(String margin)
-	{
-		getBaseComponent(true).setMargin(PersistHelper.createInsets(margin));
-	}
-
 	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnAction(JSMethod)}.
+	 * @deprecated  As of release 4.1, replaced by setOnAction(JSMethod).
 	 */
 	@Deprecated
 	public void js_setOnActionMethod(Function function)
@@ -425,7 +338,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnDataChange(JSMethod)}.
+	 * @deprecated  As of release 4.1, replaced by setOnDataChange(JSMethod).
 	 */
 	@Deprecated
 	public void js_setOnDataChangeMethod(Function function)
@@ -442,7 +355,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnFocusGained(JSMethod)}.
+	 * @deprecated  As of release 4.1, replaced by setOnFocusGained(JSMethod).
 	 */
 	@Deprecated
 	public void js_setOnFocusGainedMethod(Function function)
@@ -459,7 +372,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	}
 
 	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnFocusLost(JSMethod)}.
+	 * @deprecated  As of release 4.1, replaced by setOnFocusLost(JSMethod).
 	 */
 	@Deprecated
 	public void js_setOnFocusLostMethod(Function function)
@@ -475,47 +388,10 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 		}
 	}
 
-	public void js_setScrollbars(int arg)
-	{
-		getBaseComponent(true).setScrollbars(arg);
-	}
-
-	public void js_setSelectOnEnter(boolean arg)
-	{
-		getBaseComponent(true).setSelectOnEnter(arg);
-	}
-
-	public void js_setTabSeq(int arg)
-	{
-		getBaseComponent(true).setTabSeq(arg);
-	}
-
 	@Deprecated
 	public void js_setText(String arg)
 	{
 		getBaseComponent(true).setText(arg);
-	}
-
-	public void js_setTitleText(String arg)
-	{
-		getBaseComponent(true).setText(arg);
-	}
-
-	public void js_setToolTipText(String arg)
-	{
-		getBaseComponent(true).setToolTipText(arg);
-	}
-
-	public void js_setValuelist(JSValueList valuelist)
-	{
-		if (valuelist == null)
-		{
-			getBaseComponent(true).setValuelistID(0);
-		}
-		else
-		{
-			getBaseComponent(true).setValuelistID(valuelist.getValueList().getID());
-		}
 	}
 
 	@Deprecated
@@ -524,23 +400,19 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 		getBaseComponent(true).setVerticalAlignment(arg);
 	}
 
-
-	public void js_setOnAction(JSMethod method)
-	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, method);
-	}
-
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getOnAction()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnAction()
 	 */
-	public JSMethod js_getOnAction()
+	@JSGetter
+	public JSMethod getOnAction()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
 	}
 
-	public void js_setOnDataChange(JSMethod method)
+	@JSSetter
+	public void setOnAction(ISMMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, (JSMethod)method);
 	}
 
 	/**
@@ -553,14 +425,16 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * field.onDataChange = onDataChangeMethod;
 	 * forms['someForm'].controller.show();
 	 */
-	public JSMethod js_getOnDataChange()
+	@JSGetter
+	public JSMethod getOnDataChange()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID);
 	}
 
-	public void js_setOnRender(JSMethod method)
+	@JSSetter
+	public void setOnDataChange(ISMMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, (JSMethod)method);
 	}
 
 	/**
@@ -569,28 +443,31 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * @sample
 	 * field.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
-	public JSMethod js_getOnRender()
+	@JSGetter
+	public JSMethod getOnRender()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
-
-	public void js_setOnRightClick(JSMethod method)
+	@JSSetter
+	public void setOnRender(ISMMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, (JSMethod)method);
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#js_getOnRightClick()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnRightClick()
 	 */
-	public JSMethod js_getOnRightClick()
+	@JSGetter
+	public JSMethod getOnRightClick()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID);
 	}
 
-	public void js_setOnFocusGained(JSMethod method)
+	@JSSetter
+	public void setOnRightClick(ISMMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID, method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, (JSMethod)method);
 	}
 
 	/**
@@ -605,26 +482,34 @@ public class JSField extends JSComponent<Field> implements IConstantsObject
 	 * field.onFocusLost = onFocusLostMethod;
 	 * forms['someForm'].controller.show()
 	 */
-	public JSMethod js_getOnFocusGained()
+	@JSGetter
+	public JSMethod getOnFocusGained()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID);
 	}
 
-	public void js_setOnFocusLost(JSMethod method)
+	@JSSetter
+	public void setOnFocusGained(ISMMethod method)
 	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID, method);
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID, (JSMethod)method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusLostMethodID()
 	 * 
-	 * @sampleas js_getOnFocusGained()
+	 * @sampleas getOnFocusGained()
 	 */
-	public JSMethod js_getOnFocusLost()
+	@JSGetter
+	public JSMethod getOnFocusLost()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID);
 	}
 
+	@JSSetter
+	public void setOnFocusLost(ISMMethod method)
+	{
+		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID, (JSMethod)method);
+	}
 
 	/**
 	 * @see com.servoy.j2db.scripting.solutionmodel.JSComponent#toString()

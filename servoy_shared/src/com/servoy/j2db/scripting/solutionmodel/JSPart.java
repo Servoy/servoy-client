@@ -16,122 +16,23 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMPart;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSPart extends JSBase<Part> implements IConstantsObject
+public class JSPart extends JSBase<Part> implements IConstantsObject, ISMPart
 {
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * This is the default part that is repeated for each record (being 
-	 * displayed and/or printed).
-	 *
-	 * @sample 
-	 * var body = form.newPart(JSPart.BODY, 320);
-	 */
-	public static final int BODY = Part.BODY;
-
-	/**
-	 * Constant use for specifying the type of form parts.
-	 * 
-	 * A footer is displayed at the bottom of each page when printed ad can
-	 * contain summaries of the current selection of records. In List view, the 
-	 * footer is displayed at the bottom of the list of records.
-	 * 
-	 * @sample
-	 * var footer = form.newPart(JSPart.FOOTER, 440); 
-	 */
-	public static final int FOOTER = Part.FOOTER;
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A header is displayed at the top of each page when printed and can contain
-	 * summaries of the current selection of records. In List view the header is
-	 * displayed above the list of records.
-	 * 
-	 * @sample
-	 * var header = form.newPart(JSPart.HEADER, 80);
-	 */
-	public static final int HEADER = Part.HEADER;
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Leading Grand Summary can be placed before the body part. It can contain
-	 * summary fields that will generate summaries for the entire foundset.
-	 * 
-	 * @sample
-	 * var leadingGrandSummary = form.newPart(JSPart.LEADING_GRAND_SUMMARY, 120);
-	 */
-	public static final int LEADING_GRAND_SUMMARY = Part.LEADING_GRAND_SUMMARY;
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Leading Subsummary can be placed before the body part. There can be multiple Leading Subsummaries
-	 * per form. Each Subsummary part has a set of Group By fields which are used to group data together.
-	 * Each Subsummary part can contain summary fields, which will be printed once for each group of data.
-	 *
-	 * @sample
-	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
-	 */
-	public static final int LEADING_SUBSUMMARY = Part.LEADING_SUBSUMMARY;
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * Appears once on the first page of a printed report. If a Footer is available, it is
-	 * replaced by the Title Footer on the first page.
-	 *
-	 * @sample 
-	 * var titleFooter = form.newPart(JSPart.TITLE_FOOTER, 500);
-	 */
-	public static final int TITLE_FOOTER = Part.TITLE_FOOTER;
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * Appears only once on the first page of a printed report or on top of the first screen
-	 * of a foundset. If a Header is available it is replace by the Title Header on the first
-	 * page.
-	 *
-	 * @sample
-	 * var titleHeader = form.newPart(JSPart.TITLE_HEADER, 40);
-	 */
-	public static final int TITLE_HEADER = Part.TITLE_HEADER;
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Trailing Grand Summary can be placed after the body part. It can contain
-	 * summary fields that will generate summaries for the entire foundset.
-	 *
-	 * @sample
-	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);
-	 */
-	public static final int TRAILING_GRAND_SUMMARY = Part.TRAILING_GRAND_SUMMARY;
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Trailing Subsummary can be placed before the body part. There can be multiple Trailing Subsummaries
-	 * per form. Each Subsummary part has a set of Group By fields which are used to group data together.
-	 * Each Subsummary part can contain summary fields, which will be printed once for each group of data.
-	 *
-	 * @sample
-	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
-	 */
-	public static final int TRAILING_SUBSUMMARY = Part.TRAILING_SUBSUMMARY;
-
 	public JSPart(JSForm form, Part part, boolean isNew)
 	{
 		super(form, part, isNew);
@@ -145,9 +46,16 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * body.allowBreakAcrossPageBounds = true;
 	 * body.discardRemainderAfterBreak = true;
 	 */
-	public boolean js_getAllowBreakAcrossPageBounds()
+	@JSGetter
+	public boolean getAllowBreakAcrossPageBounds()
 	{
 		return getBaseComponent(false).getAllowBreakAcrossPageBounds();
+	}
+
+	@JSSetter
+	public void setAllowBreakAcrossPageBounds(boolean b)
+	{
+		getBaseComponent(true).setAllowBreakAcrossPageBounds(b);
 	}
 
 	/**
@@ -157,19 +65,33 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.background = 'green';
 	 */
-	public String js_getBackground()
+	@JSGetter
+	public String getBackground()
 	{
 		return PersistHelper.createColorString(getBaseComponent(false).getBackground());
+	}
+
+	@JSSetter
+	public void setBackground(String arg)
+	{
+		getBaseComponent(true).setBackground(PersistHelper.createColor(arg));
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getDiscardRemainderAfterBreak()
 	 * 
-	 * @sampleas js_getAllowBreakAcrossPageBounds()
+	 * @sampleas getAllowBreakAcrossPageBounds()
 	 */
-	public boolean js_getDiscardRemainderAfterBreak()
+	@JSGetter
+	public boolean getDiscardRemainderAfterBreak()
 	{
 		return getBaseComponent(false).getDiscardRemainderAfterBreak();
+	}
+
+	@JSSetter
+	public void setDiscardRemainderAfterBreak(boolean b)
+	{
+		getBaseComponent(true).setDiscardRemainderAfterBreak(b);
 	}
 
 	/**
@@ -179,9 +101,16 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
 	 * leadingSubsummary.groupbyDataProviderIDs = 'my_table_text';
 	 */
-	public String js_getGroupbyDataProviderIDs()
+	@JSGetter
+	public String getGroupbyDataProviderIDs()
 	{
 		return getBaseComponent(false).getGroupbyDataProviderIDs();
+	}
+
+	@JSSetter
+	public void setGroupbyDataProviderIDs(String arg)
+	{
+		getBaseComponent(true).setGroupbyDataProviderIDs(arg);
 	}
 
 	/**
@@ -191,9 +120,16 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * var part = form.newPart(JSPart.HEADER, 100);
 	 * part.height = 200;
 	 */
-	public int js_getHeight()
+	@JSGetter
+	public int getHeight()
 	{
 		return getBaseComponent(false).getHeight();
+	}
+
+	@JSSetter
+	public void setHeight(int arg)
+	{
+		getBaseComponent(true).setHeight(arg);
 	}
 
 	/**
@@ -203,9 +139,16 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.pageBreakAfterOccurrence = 2;
 	 */
-	public int js_getPageBreakAfterOccurrence()
+	@JSGetter
+	public int getPageBreakAfterOccurrence()
 	{
 		return getBaseComponent(false).getPageBreakAfterOccurrence();
+	}
+
+	@JSSetter
+	public void setPageBreakAfterOccurrence(int i)
+	{
+		getBaseComponent(true).setPageBreakAfterOccurrence(i);
 	}
 
 	/**
@@ -216,32 +159,41 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * leadingSubsummary.groupbyDataProviderIDs = 'my_table_text';
 	 * leadingSubsummary.pageBreakBefore = true;
 	 */
-	public boolean js_getPageBreakBefore()
+	@JSGetter
+	public boolean getPageBreakBefore()
 	{
 		return getBaseComponent(false).getPageBreakBefore();
+	}
+
+	@JSSetter
+	public void setPageBreakBefore(boolean b)
+	{
+		getBaseComponent(true).setPageBreakBefore(b);
 	}
 
 	/**
 	 * The Y offset of the part on the form, this will include all the super forms parts if this form extends a form.
 	 *
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#js_getParts()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#getParts()
 	 * 
 	 * @return A number holding the Y offset of the form part.
 	 */
-	public int js_getPartYOffset()
+	@JSFunction
+	public int getPartYOffset()
 	{
 		Part part = getBaseComponent(false);
-		return ((JSForm)getJSParent()).js_getPartYOffset(part.getPartType(), part.getHeight());
+		return ((JSForm)getJSParent()).getPartYOffset(part.getPartType(), part.getHeight());
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getPartType()
 	 * 
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#js_getParts()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#getParts()
 	 * 
 	 * @return A number representing the type of the form part.
 	 */
-	public int js_getPartType()
+	@JSFunction
+	public int getPartType()
 	{
 		return getBaseComponent(false).getPartType();
 	}
@@ -254,9 +206,16 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * trailingSubsummary.groupbyDataProviderIDs = 'my_table_text';
 	 * trailingSubsummary.restartPageNumber = true;
 	 */
-	public boolean js_getRestartPageNumber()
+	@JSGetter
+	public boolean getRestartPageNumber()
 	{
 		return getBaseComponent(false).getRestartPageNumber();
+	}
+
+	@JSSetter
+	public void setRestartPageNumber(boolean b)
+	{
+		getBaseComponent(true).setRestartPageNumber(b);
 	}
 
 	/**
@@ -266,9 +225,16 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);
 	 * trailingGrandSummary.sinkWhenLast = true;
 	 */
-	public boolean js_getSinkWhenLast()
+	@JSGetter
+	public boolean getSinkWhenLast()
 	{
 		return getBaseComponent(false).getSinkWhenLast();
+	}
+
+	@JSSetter
+	public void setSinkWhenLast(boolean b)
+	{
+		getBaseComponent(true).setSinkWhenLast(b);
 	}
 
 	/**
@@ -278,62 +244,14 @@ public class JSPart extends JSBase<Part> implements IConstantsObject
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.styleClass = 'myBody';
 	 */
-	public String js_getStyleClass()
+	@JSGetter
+	public String getStyleClass()
 	{
 		return getBaseComponent(false).getStyleClass();
 	}
 
-	public void js_setAllowBreakAcrossPageBounds(boolean b)
-	{
-		getBaseComponent(true).setAllowBreakAcrossPageBounds(b);
-	}
-
-	public void js_setBackground(String arg)
-	{
-		getBaseComponent(true).setBackground(PersistHelper.createColor(arg));
-	}
-
-	public void js_setDiscardRemainderAfterBreak(boolean b)
-	{
-		getBaseComponent(true).setDiscardRemainderAfterBreak(b);
-	}
-
-	public void js_setGroupbyDataProviderIDs(String arg)
-	{
-		getBaseComponent(true).setGroupbyDataProviderIDs(arg);
-	}
-
-	public void js_setHeight(int arg)
-	{
-		getBaseComponent(true).setHeight(arg);
-	}
-
-	public void js_setPageBreakAfterOccurrence(int i)
-	{
-		getBaseComponent(true).setPageBreakAfterOccurrence(i);
-	}
-
-	public void js_setPageBreakBefore(boolean b)
-	{
-		getBaseComponent(true).setPageBreakBefore(b);
-	}
-
-//	public void js_setPartType(int arg)
-//	{
-//		part.setPartType(arg);
-//	}
-
-	public void js_setRestartPageNumber(boolean b)
-	{
-		getBaseComponent(true).setRestartPageNumber(b);
-	}
-
-	public void js_setSinkWhenLast(boolean b)
-	{
-		getBaseComponent(true).setSinkWhenLast(b);
-	}
-
-	public void js_setStyleClass(String styleClass)
+	@JSSetter
+	public void setStyleClass(String styleClass)
 	{
 		getBaseComponent(true).setStyleClass(styleClass);
 	}

@@ -35,6 +35,7 @@ import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.IDatabaseManager;
+import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.IUIBlocker;
@@ -184,6 +185,13 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @return IBeanManager
 	 */
 	public IBeanManager getBeanManager();
+
+	/**  
+	 * Get the solution model to inspect and modify the solution objects.
+	 * 
+	 * @return the solution model
+	 */
+	public ISolutionModel getSolutionModel();
 
 	/**
 	 * Get the import menu, used by plugins to add import menu items (actions).
@@ -370,12 +378,6 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 */
 	@Deprecated
 	public JFrame getMainApplicationFrame();
-
-//	/**
-//	 * Get the foundset manager (used to control the forms datasets).
-//	 * @return IFoundSetManager
-//	 */
-//	public IFoundSetManager getFoundSetManager();
 
 	/**
 	 * Get a message for the specified i18n key

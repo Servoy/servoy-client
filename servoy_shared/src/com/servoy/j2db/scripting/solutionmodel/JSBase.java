@@ -16,11 +16,15 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportExtendsID;
+import com.servoy.j2db.solutionmodel.ISMHasDesignTimeProperty;
+import com.servoy.j2db.solutionmodel.ISMHasUUID;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
@@ -28,20 +32,16 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
- * @param <baseComponent>
+ * 
+ * @param <T>
  * 
  */
-public class JSBase<T extends AbstractBase>
+public class JSBase<T extends AbstractBase> implements ISMHasUUID, ISMHasDesignTimeProperty
 {
 	private T baseComponent;
 	private final IJSParent< ? > parent;
 	private boolean isCopy;
 
-	/**
-	 * @param parent
-	 * @param isNew
-	 * 
-	 */
 	public JSBase(IJSParent< ? > parent, T baseComponent, boolean isNew)
 	{
 		this.parent = parent;
@@ -70,7 +70,8 @@ public class JSBase<T extends AbstractBase>
 	 * var fld = frm.getField('fld')
 	 * var prop = fld.getDesignTimeProperty('myprop')	
 	 */
-	public Object js_getDesignTimeProperty(String key)
+	@JSFunction
+	public Object getDesignTimeProperty(String key)
 	{
 		return Utils.parseJSExpression(getBaseComponent(false).getCustomDesignTimeProperty(key));
 	}
@@ -82,7 +83,8 @@ public class JSBase<T extends AbstractBase>
 	 * var fld = frm.getField('fld')
 	 * fld.putDesignTimeProperty('myprop', 'strawberry')	
 	 */
-	public Object js_putDesignTimeProperty(String key, Object value)
+	@JSFunction
+	public Object putDesignTimeProperty(String key, Object value)
 	{
 		return Utils.parseJSExpression(getBaseComponent(true).putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
 	}
@@ -94,9 +96,23 @@ public class JSBase<T extends AbstractBase>
 	 * var fld = frm.getField('fld')
 	 * fld.removeDesignTimeProperty('myprop')
 	 */
-	public Object js_removeDesignTimeProperty(String key)
+	@JSFunction
+	public Object removeDesignTimeProperty(String key)
 	{
-		return js_putDesignTimeProperty(key, null);
+		return putDesignTimeProperty(key, null);
+	}
+
+	/**
+	 * Returns the UUID of this component.
+	 * 
+	 * @sample
+	 * var button_uuid = solutionModel.getForm("my_form").getButton("my_button").getUUID();
+	 * application.output(button_uuid.toString());
+	 */
+	@JSFunction
+	public UUID getUUID()
+	{
+		return baseComponent.getUUID();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -164,17 +180,5 @@ public class JSBase<T extends AbstractBase>
 		}
 		else if (!baseComponent.getUUID().equals(other.baseComponent.getUUID())) return false;
 		return true;
-	}
-
-	/**
-	 * Returns the UUID of this component.
-	 * 
-	 * @sample
-	 * var button_uuid = solutionModel.getForm("my_form").getButton("my_button").getUUID();
-	 * application.output(button_uuid.toString());
-	 */
-	public UUID js_getUUID()
-	{
-		return baseComponent.getUUID();
 	}
 }

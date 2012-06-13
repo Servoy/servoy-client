@@ -20,6 +20,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -28,6 +32,8 @@ import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMMethod;
+import com.servoy.j2db.solutionmodel.ISMValueList;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
@@ -36,73 +42,12 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSValueList implements IConstantsObject
+public class JSValueList implements IConstantsObject, ISMValueList
 {
-	/**
-	 * Constant to set the valueListType of a JSValueList.
-	 * Sets the value list to use a custom list of values.
-	 * Also used in solutionModel.newValueList(...) to create new valuelists
-	 *
-	 * @sample 
-	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
-	 * vlist.valueListType = JSValueList.CUSTOM_VALUES; // Change the type to custom values.
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 */
-	public static final int CUSTOM_VALUES = ValueList.CUSTOM_VALUES;
-
-	/**
-	 * Constant to set the valueListType of a JSValueList.
-	 * Sets the value list to use values loaded from a database.
-	 * Also used in solutionModel.newValueList(...) to create new valuelists
-	 *
-	 * @sample 
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.valueListType = JSValueList.DATABASE_VALUES; // Change the type to database values.
-	 * vlist.dataSource = 'db:/example_data/parent_table';
-	 * vlist.setDisplayDataProviderIds('parent_table_text');
-	 * vlist.setReturnDataProviderIds('parent_table_text', 'parent_table_id');
-	 * vlist.separator = ' ## ';
-	 * vlist.sortOptions = 'parent_table_text desc';
-	 */
-	public static final int DATABASE_VALUES = ValueList.DATABASE_VALUES;
-
-	/**
-	 * @sameas CUSTOM_VALUES
-	 */
-//	public static final int GLOBAL_METHOD_VALUES = ValueList.GLOBAL_METHOD_VALUES;
-
-	/**
-	 * Constant to set/get the addEmptyValue property of a JSValueList.
-	 *
-	 * @sample 
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * vlist.addEmptyValue = JSValueList.EMPTY_VALUE_ALWAYS;
-	 * var cmb = form.newComboBox('my_table_text', 10, 10, 100, 20);
-	 * cmb.valuelist = vlist;
-	 */
-	public static final int EMPTY_VALUE_ALWAYS = ValueList.EMPTY_VALUE_ALWAYS;
-
-	/**
-	 * @clonedesc EMPTY_VALUE_ALWAYS
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * vlist.addEmptyValue = JSValueList.EMPTY_VALUE_NEVER;
-	 * var cmb = form.newComboBox('my_table_text', 10, 10, 100, 20);
-	 * cmb.valuelist = vlist;
-	 */
-	public static final int EMPTY_VALUE_NEVER = ValueList.EMPTY_VALUE_NEVER;
-
-
 	private ValueList valuelist;
 	private final IApplication application;
 	private boolean isCopy;
 
-	/**
-	 * 
-	 */
 	public JSValueList(ValueList valuelist, IApplication application, boolean isNew)
 	{
 		this.valuelist = valuelist;
@@ -122,9 +67,6 @@ public class JSValueList implements IConstantsObject
 		}
 	}
 
-	/**
-	 * @return
-	 */
 	ValueList getValueList()
 	{
 		return valuelist;
@@ -140,12 +82,20 @@ public class JSValueList implements IConstantsObject
 	 * var cmb = form.newComboBox('my_table_text', 10, 10, 100, 20);
 	 * cmb.valuelist = vlist;
 	 */
-	public int js_getAddEmptyValue()
+	@JSGetter
+	public int getAddEmptyValue()
 	{
 		return valuelist.getAddEmptyValue();
 	}
 
-	protected void setDisplayDataProviderIds(String[] ids)
+	@JSSetter
+	public void setAddEmptyValue(int arg)
+	{
+		checkModification();
+		valuelist.setAddEmptyValue(arg);
+	}
+
+	protected void setDisplayDataProviderIdsInternal(String[] ids)
 	{
 		checkModification();
 		if (ids != null && ids.length > 3) throw new IllegalArgumentException("max 3 ids allowed in the display dataproviders ids"); //$NON-NLS-1$
@@ -196,37 +146,40 @@ public class JSValueList implements IConstantsObject
 	}
 
 	/**
-	 * @clonedesc jsFunction_setDisplayDataProviderIds(String, String, String)
+	 * @clonedesc setDisplayDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
 	 *
 	 */
-	public void jsFunction_setDisplayDataProviderIds()
+	@JSFunction
+	public void setDisplayDataProviderIds()
 	{
-		setDisplayDataProviderIds(null);
+		setDisplayDataProviderIdsInternal(null);
 	}
 
 	/**
-	 * @clonedesc jsFunction_setDisplayDataProviderIds(String, String, String)
+	 * @clonedesc setDisplayDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 */
-	public void jsFunction_setDisplayDataProviderIds(String dataprovider1)
+	@JSFunction
+	public void setDisplayDataProviderIds(String dataprovider1)
 	{
-		setDisplayDataProviderIds(new String[] { dataprovider1 });
+		setDisplayDataProviderIdsInternal(new String[] { dataprovider1 });
 	}
 
 	/**
-	 * @clonedesc jsFunction_setDisplayDataProviderIds(String, String, String)
+	 * @clonedesc setDisplayDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 *
 	 * @param dataprovider2 The second display dataprovider.
 	 */
-	public void jsFunction_setDisplayDataProviderIds(String dataprovider1, String dataprovider2)
+	@JSFunction
+	public void setDisplayDataProviderIds(String dataprovider1, String dataprovider2)
 	{
-		setDisplayDataProviderIds(new String[] { dataprovider1, dataprovider2 });
+		setDisplayDataProviderIdsInternal(new String[] { dataprovider1, dataprovider2 });
 	}
 
 	/**
@@ -242,9 +195,10 @@ public class JSValueList implements IConstantsObject
 	 *
 	 * @param dataprovider3 The third display dataprovider.
 	 */
-	public void jsFunction_setDisplayDataProviderIds(String dataprovider1, String dataprovider2, String dataprovider3)
+	@JSFunction
+	public void setDisplayDataProviderIds(String dataprovider1, String dataprovider2, String dataprovider3)
 	{
-		setDisplayDataProviderIds(new String[] { dataprovider1, dataprovider2, dataprovider3 });
+		setDisplayDataProviderIdsInternal(new String[] { dataprovider1, dataprovider2, dataprovider3 });
 	}
 
 	private void clearUnusedDataProviders(int valueToKeep)
@@ -288,12 +242,13 @@ public class JSValueList implements IConstantsObject
 	 *
 	 * @return An array of Strings representing the names of the display dataproviders.
 	 */
-	public Object[] jsFunction_getDisplayDataProviderIds()
+	@JSFunction
+	public Object[] getDisplayDataProviderIds()
 	{
 		return getDataProviders(valuelist.getShowDataProviders());
 	}
 
-	protected void setReturnDataProviderIds(String[] ids)
+	protected void setReturnDataProviderIdsInternal(String[] ids)
 	{
 		checkModification();
 		if (ids != null && ids.length > 3) throw new IllegalArgumentException("max 3 ids allowed in the display dataproviders ids"); //$NON-NLS-1$
@@ -344,36 +299,39 @@ public class JSValueList implements IConstantsObject
 	}
 
 	/**
-	 * @clonedesc jsFunction_setReturnDataProviderIds(String, String, String)
+	 * @clonedesc setReturnDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
 	 */
-	public void jsFunction_setReturnDataProviderIds()
+	@JSFunction
+	public void setReturnDataProviderIds()
 	{
-		setReturnDataProviderIds(null);
+		setReturnDataProviderIdsInternal(null);
 	}
 
 	/**
-	 * @clonedesc jsFunction_setReturnDataProviderIds(String, String, String)
+	 * @clonedesc setReturnDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 */
-	public void jsFunction_setReturnDataProviderIds(String dataprovider1)
+	@JSFunction
+	public void setReturnDataProviderIds(String dataprovider1)
 	{
-		setReturnDataProviderIds(new String[] { dataprovider1 });
+		setReturnDataProviderIdsInternal(new String[] { dataprovider1 });
 	}
 
 	/**
-	 * @clonedesc jsFunction_setReturnDataProviderIds(String, String, String)
+	 * @clonedesc setReturnDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
 	 * @param dataprovider2 The second return dataprovider. 
 	 */
-	public void jsFunction_setReturnDataProviderIds(String dataprovider1, String dataprovider2)
+	@JSFunction
+	public void setReturnDataProviderIds(String dataprovider1, String dataprovider2)
 	{
-		setReturnDataProviderIds(new String[] { dataprovider1, dataprovider2 });
+		setReturnDataProviderIdsInternal(new String[] { dataprovider1, dataprovider2 });
 	}
 
 	/**
@@ -389,27 +347,25 @@ public class JSValueList implements IConstantsObject
 	 *
 	 * @param dataprovider3 The third return dataprovider.
 	 */
-	public void jsFunction_setReturnDataProviderIds(String dataprovider1, String dataprovider2, String dataprovider3)
+	@JSFunction
+	public void setReturnDataProviderIds(String dataprovider1, String dataprovider2, String dataprovider3)
 	{
-		setReturnDataProviderIds(new String[] { dataprovider1, dataprovider2, dataprovider3 });
+		setReturnDataProviderIdsInternal(new String[] { dataprovider1, dataprovider2, dataprovider3 });
 	}
 
 	/**
 	 * Returns an array of the dataproviders that will be used to define the valuelist value that is saved.
 	 *
-	 * @sampleas jsFunction_getDisplayDataProviderIds() 
+	 * @sampleas getDisplayDataProviderIds() 
 	 *
 	 * @return An array of Strings representing the names of the return dataprovider.
 	 */
-	public Object[] jsFunction_getReturnDataProviderIds()
+	@JSFunction
+	public Object[] getReturnDataProviderIds()
 	{
 		return getDataProviders(valuelist.getReturnDataProviders());
 	}
 
-	/**
-	 * @param selection
-	 * @return
-	 */
 	private String[] getDataProviders(int selection)
 	{
 		ArrayList<String> dataproviders = new ArrayList<String>();
@@ -442,19 +398,42 @@ public class JSValueList implements IConstantsObject
 	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
 	 * combo2.valuelist = vl2;
 	 */
-	public String js_getCustomValues()
+	@JSGetter
+	public String getCustomValues()
 	{
 		return valuelist.getCustomValues();
+	}
+
+	@JSSetter
+	public void setCustomValues(String arg)
+	{
+		checkModification();
+		valuelist.setCustomValues(arg);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getName()
 	 * 
-	 * @sampleas js_getUseTableFilter()
+	 * @sampleas getUseTableFilter()
 	 */
-	public String js_getName()
+	@JSGetter
+	public String getName()
 	{
 		return valuelist.getName();
+	}
+
+	@JSSetter
+	public void setName(String arg)
+	{
+		checkModification();
+		try
+		{
+			valuelist.updateName(new ScriptNameValidator(application.getFlattenedSolution()), arg);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error("Failed to update name of valuelist to '" + arg + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/**
@@ -470,9 +449,17 @@ public class JSValueList implements IConstantsObject
 	 * vlist.setDisplayDataProviderIds('child_table_text');
 	 * vlist.setReturnDataProviderIds('child_table_text');
 	 */
-	public String js_getRelationName()
+	@JSGetter
+	public String getRelationName()
 	{
 		return valuelist.getRelationName();
+	}
+
+	@JSSetter
+	public void setRelationName(String arg)
+	{
+		checkModification();
+		valuelist.setRelationName(arg);
 	}
 
 	@Deprecated
@@ -486,9 +473,17 @@ public class JSValueList implements IConstantsObject
 	 * 
 	 * @sampleas DATABASE_VALUES
 	 */
-	public String js_getSeparator()
+	@JSGetter
+	public String getSeparator()
 	{
 		return valuelist.getSeparator();
+	}
+
+	@JSSetter
+	public void setSeparator(String arg)
+	{
+		checkModification();
+		valuelist.setSeparator(arg);
 	}
 
 	/**
@@ -496,9 +491,17 @@ public class JSValueList implements IConstantsObject
 	 * 
 	 * @sampleas DATABASE_VALUES
 	 */
-	public String js_getServerName()
+	@JSGetter
+	public String getServerName()
 	{
 		return valuelist.getServerName();
+	}
+
+	@JSSetter
+	public void setServerName(String arg)
+	{
+		checkModification();
+		valuelist.setServerName(arg);
 	}
 
 	/**
@@ -506,9 +509,17 @@ public class JSValueList implements IConstantsObject
 	 * 
 	 * @sampleas DATABASE_VALUES
 	 */
-	public String js_getSortOptions()
+	@JSGetter
+	public String getSortOptions()
 	{
 		return valuelist.getSortOptions();
+	}
+
+	@JSSetter
+	public void setSortOptions(String arg)
+	{
+		checkModification();
+		valuelist.setSortOptions(arg);
 	}
 
 	/**
@@ -516,9 +527,17 @@ public class JSValueList implements IConstantsObject
 	 * 
 	 * @sampleas DATABASE_VALUES
 	 */
-	public String js_getTableName()
+	@JSGetter
+	public String getTableName()
 	{
 		return valuelist.getTableName();
+	}
+
+	@JSSetter
+	public void setTableName(String arg)
+	{
+		checkModification();
+		valuelist.setTableName(arg);
 	}
 
 	/**
@@ -530,9 +549,29 @@ public class JSValueList implements IConstantsObject
 	 * vlist.setDisplayDataProviderIds('parent_table_text');
 	 * vlist.setReturnDataProviderIds('parent_table_text');
 	 */
-	public String js_getDataSource()
+	@JSGetter
+	public String getDataSource()
 	{
 		return valuelist.getDataSource();
+	}
+
+	@JSSetter
+	public void setDataSource(String arg)
+	{
+		// check syntax, do not accept invalid URIs
+		if (arg != null)
+		{
+			try
+			{
+				new URI(arg);
+			}
+			catch (URISyntaxException e)
+			{
+				throw new RuntimeException("Invalid dataSourc1e URI: '" + arg + "' :" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		checkModification();
+		valuelist.setDataSource(arg);
 	}
 
 	/**
@@ -546,9 +585,17 @@ public class JSValueList implements IConstantsObject
 	 * vlist.useTableFilter = true;
 	 * vlist.name = 'two';
 	 */
-	public boolean js_getUseTableFilter()
+	@JSGetter
+	public boolean getUseTableFilter()
 	{
 		return valuelist.getUseTableFilter();
+	}
+
+	@JSSetter
+	public void setUseTableFilter(boolean arg)
+	{
+		checkModification();
+		valuelist.setUseTableFilter(arg);
 	}
 
 	/**
@@ -556,51 +603,17 @@ public class JSValueList implements IConstantsObject
 	 * 
 	 * @sampleas DATABASE_VALUES
 	 */
-	public int js_getValueListType()
+	@JSGetter
+	public int getValueListType()
 	{
 		return valuelist.getValueListType();
 	}
 
-	/**
-	 * Property if an empty value must be shown, set one of the JSValueList.EMPTY_VALUE_ALWAYS or JSValueList.EMPTY_VALUE_NEVER constants
-	 */
-	public void js_setAddEmptyValue(int arg)
+	@JSSetter
+	public void setValueListType(int arg)
 	{
 		checkModification();
-		valuelist.setAddEmptyValue(arg);
-	}
-
-	public void js_setCustomValues(String arg)
-	{
-		checkModification();
-		valuelist.setCustomValues(arg);
-	}
-
-	/**
-	 * Sets the global method for this valuelist, this method will then be called to get the values for this valuelist.
-	 * It should return a JSDataSet with 2 columns: display|real
-	 */
-	public void js_setGlobalMethod(JSMethod method)
-	{
-		checkModification();
-		if (method == null)
-		{
-			valuelist.setCustomValues(null);
-			valuelist.setValueListType(ValueList.CUSTOM_VALUES);
-		}
-		else
-		{
-			ScriptMethod scriptMethod = method.getScriptMethod();
-			if (scriptMethod.getParent() instanceof Solution)
-			{
-				valuelist.setCustomValues(scriptMethod.getUUID().toString());
-				valuelist.setValueListType(ValueList.GLOBAL_METHOD_VALUES);
-			}
-			else
-			{
-				throw new RuntimeException("Only global methods are supported for a valuelist"); //$NON-NLS-1$
-			}
-		}
+		valuelist.setValueListType(arg);
 	}
 
 	/**
@@ -636,7 +649,8 @@ public class JSValueList implements IConstantsObject
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
 	 * vlist.globalMethod = listProvider;
 	 */
-	public JSMethod js_getGlobalMethod()
+	@JSGetter
+	public JSMethod getGlobalMethod()
 	{
 		String values = valuelist.getCustomValues();
 		if (ScopesUtils.isVariableScope(values))
@@ -650,23 +664,28 @@ public class JSValueList implements IConstantsObject
 		return null;
 	}
 
-	public void js_setName(String arg)
+	@JSSetter
+	public void setGlobalMethod(ISMMethod method)
 	{
 		checkModification();
-		try
+		if (method == null)
 		{
-			valuelist.updateName(new ScriptNameValidator(application.getFlattenedSolution()), arg);
+			valuelist.setCustomValues(null);
+			valuelist.setValueListType(ValueList.CUSTOM_VALUES);
 		}
-		catch (RepositoryException e)
+		else
 		{
-			Debug.error("Failed to update name of valuelist to '" + arg + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+			ScriptMethod scriptMethod = ((JSMethod)method).getScriptMethod();
+			if (scriptMethod.getParent() instanceof Solution)
+			{
+				valuelist.setCustomValues(scriptMethod.getUUID().toString());
+				valuelist.setValueListType(ValueList.GLOBAL_METHOD_VALUES);
+			}
+			else
+			{
+				throw new RuntimeException("Only global methods are supported for a valuelist"); //$NON-NLS-1$
+			}
 		}
-	}
-
-	public void js_setRelationName(String arg)
-	{
-		checkModification();
-		valuelist.setRelationName(arg);
 	}
 
 	@Deprecated
@@ -676,59 +695,19 @@ public class JSValueList implements IConstantsObject
 		valuelist.setRelationNMName(arg);
 	}
 
-	public void js_setSeparator(String arg)
+	/**
+	 * Returns the UUID of the value list
+	 *
+	 * @sample 
+	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
+	 * application.output(vlist.getUUID().toString());
+	 */
+	@JSFunction
+	public UUID getUUID()
 	{
-		checkModification();
-		valuelist.setSeparator(arg);
+		return valuelist.getUUID();
 	}
 
-	public void js_setServerName(String arg)
-	{
-		checkModification();
-		valuelist.setServerName(arg);
-	}
-
-	public void js_setSortOptions(String arg)
-	{
-		checkModification();
-		valuelist.setSortOptions(arg);
-	}
-
-	public void js_setTableName(String arg)
-	{
-		checkModification();
-		valuelist.setTableName(arg);
-	}
-
-	public void js_setDataSource(String arg)
-	{
-		// check syntax, do not accept invalid URIs
-		if (arg != null)
-		{
-			try
-			{
-				new URI(arg);
-			}
-			catch (URISyntaxException e)
-			{
-				throw new RuntimeException("Invalid dataSourc1e URI: '" + arg + "' :" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
-		checkModification();
-		valuelist.setDataSource(arg);
-	}
-
-	public void js_setUseTableFilter(boolean arg)
-	{
-		checkModification();
-		valuelist.setUseTableFilter(arg);
-	}
-
-	public void js_setValueListType(int arg)
-	{
-		checkModification();
-		valuelist.setValueListType(arg);
-	}
 
 	/**
 	 * @see java.lang.Object#toString()
@@ -753,17 +732,5 @@ public class JSValueList implements IConstantsObject
 					valuelist.getRelationName();
 		}
 		return "JSValueList[name:" + valuelist.getName() + ',' + typeString + ']';
-	}
-
-	/**
-	 * Returns the UUID of the value list
-	 *
-	 * @sample 
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * application.output(vlist.getUUID().toString());
-	 */
-	public UUID js_getUUID()
-	{
-		return valuelist.getUUID();
 	}
 }

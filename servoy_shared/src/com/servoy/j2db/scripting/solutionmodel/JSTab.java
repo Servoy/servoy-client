@@ -19,6 +19,9 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.DummyValidator;
@@ -27,6 +30,9 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.solutionmodel.ISMForm;
+import com.servoy.j2db.solutionmodel.ISMMedia;
+import com.servoy.j2db.solutionmodel.ISMTab;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -35,15 +41,10 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSTab extends JSBase<Tab> implements IJavaScriptType
+public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 {
 	private final IApplication application;
 
-	/**
-	 * @param tabPanel
-	 * @param fs
-	 * @param createNewTab
-	 */
 	public JSTab(JSTabPanel tabPanel, Tab tab, IApplication application, boolean isNew)
 	{
 		super(tabPanel, tab, isNew);
@@ -65,7 +66,8 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.containsForm = anotherChildForm;
 	 */
-	public JSForm js_getContainsForm()
+	@JSGetter
+	public JSForm getContainsForm()
 	{
 		Form form = application.getFlattenedSolution().getForm(getBaseComponent(false).getContainsFormID());
 		if (form != null)
@@ -75,6 +77,20 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 		return null;
 	}
 
+	@JSSetter
+	public void setContainsForm(ISMForm form)
+	{
+		checkModification();
+		if (form == null)
+		{
+			getBaseComponent(true).setContainsFormID(0);
+		}
+		else
+		{
+			getBaseComponent(true).setContainsFormID(((JSForm)form).getSupportChild().getID());
+		}
+	}
+
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getForeground()
 	 * 
@@ -82,11 +98,18 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.foreground = '#FF0000';
 	 */
-	public String js_getForeground()
+	@JSGetter
+	public String getForeground()
 	{
 		return PersistHelper.createColorString(getBaseComponent(false).getForeground());
 	}
 
+	@JSSetter
+	public void setForeground(String arg)
+	{
+		checkModification();
+		getBaseComponent(true).setForeground(PersistHelper.createColor(arg));
+	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getImageMediaID()
@@ -97,7 +120,8 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.imageMedia = ballImage;
 	 */
-	public JSMedia js_getImageMedia()
+	@JSGetter
+	public JSMedia getImageMedia()
 	{
 		Media media = application.getFlattenedSolution().getMedia(getBaseComponent(false).getImageMediaID());
 		if (media != null)
@@ -105,6 +129,20 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 			return new JSMedia(media, application.getFlattenedSolution(), false);
 		}
 		return null;
+	}
+
+	@JSSetter
+	public void setImageMedia(ISMMedia media)
+	{
+		checkModification();
+		if (media == null)
+		{
+			getBaseComponent(true).setImageMediaID(0);
+		}
+		else
+		{
+			getBaseComponent(true).setImageMediaID(((JSMedia)media).getMedia().getID());
+		}
 	}
 
 	/**
@@ -120,9 +158,17 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var secondTab = tabs.newTab('secondTab', 'Another Child Form', anotherChildForm);
 	 * secondTab.x = 0;
 	 */
-	public int js_getX()
+	@JSGetter
+	public int getX()
 	{
 		return getBaseComponent(false).getLocation().x;
+	}
+
+	@JSSetter
+	public void setX(int x)
+	{
+		checkModification();
+		getBaseComponent(true).setLocation(new Point(x, getBaseComponent(true).getLocation().y));
 	}
 
 	/**
@@ -141,9 +187,17 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * secondTab.x = 0;
 	 * secondTab.y = 0;
 	 */
-	public int js_getY()
+	@JSGetter
+	public int getY()
 	{
 		return getBaseComponent(false).getLocation().y;
+	}
+
+	@JSSetter
+	public void setY(int y)
+	{
+		checkModification();
+		getBaseComponent(true).setLocation(new Point(getBaseComponent(true).getLocation().x, y));
 	}
 
 	/**
@@ -153,9 +207,25 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.name = 'firstTabRenamed';
 	 */
-	public String js_getName()
+	@JSGetter
+	public String getName()
 	{
 		return getBaseComponent(false).getName();
+	}
+
+	@JSSetter
+	public void setName(String arg)
+	{
+		checkModification();
+		try
+		{
+			getBaseComponent(true).updateName(DummyValidator.INSTANCE, arg);
+		}
+		catch (RepositoryException e)
+		{
+			// should never happen with dummy validator
+			Debug.log("could not set name on tab", e); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -165,9 +235,17 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm);
 	 * firstTab.relationName = 'parent_table_to_child_table';
 	 */
-	public String js_getRelationName()
+	@JSGetter
+	public String getRelationName()
 	{
 		return getBaseComponent(false).getRelationName();
+	}
+
+	@JSSetter
+	public void setRelationName(String arg)
+	{
+		checkModification();
+		getBaseComponent(true).setRelationName(Utils.toEnglishLocaleLowerCase(arg));
 	}
 
 	@Deprecated
@@ -189,9 +267,17 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.text = 'Better Title';
 	 */
-	public String js_getText()
+	@JSGetter
+	public String getText()
 	{
 		return getBaseComponent(false).getText();
+	}
+
+	@JSSetter
+	public void setText(String arg)
+	{
+		checkModification();
+		getBaseComponent(true).setText(arg);
 	}
 
 	/**
@@ -201,9 +287,17 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.toolTipText = 'Tooltip';
 	 */
-	public String js_getToolTipText()
+	@JSGetter
+	public String getToolTipText()
 	{
 		return getBaseComponent(false).getToolTipText();
+	}
+
+	@JSSetter
+	public void setToolTipText(String arg)
+	{
+		checkModification();
+		getBaseComponent(true).setToolTipText(arg);
 	}
 
 	@Deprecated
@@ -213,93 +307,18 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 		getBaseComponent(true).setBackground(PersistHelper.createColor(arg));
 	}
 
-	public void js_setContainsForm(JSForm form)
-	{
-		checkModification();
-		if (form == null)
-		{
-			getBaseComponent(true).setContainsFormID(0);
-		}
-		else
-		{
-			getBaseComponent(true).setContainsFormID(form.getSupportChild().getID());
-		}
-	}
-
-	public void js_setForeground(String arg)
-	{
-		checkModification();
-		getBaseComponent(true).setForeground(PersistHelper.createColor(arg));
-	}
-
-	public void js_setImageMedia(JSMedia media)
-	{
-		checkModification();
-		if (media == null)
-		{
-			getBaseComponent(true).setImageMediaID(0);
-		}
-		else
-		{
-			getBaseComponent(true).setImageMediaID(media.getMedia().getID());
-		}
-	}
-
-	public void js_setX(int x)
-	{
-		checkModification();
-		getBaseComponent(true).setLocation(new Point(x, getBaseComponent(true).getLocation().y));
-	}
-
-	public void js_setY(int y)
-	{
-		checkModification();
-		getBaseComponent(true).setLocation(new Point(getBaseComponent(true).getLocation().x, y));
-	}
-
-	public void js_setName(String arg)
-	{
-		checkModification();
-		try
-		{
-			getBaseComponent(true).updateName(DummyValidator.INSTANCE, arg);
-		}
-		catch (RepositoryException e)
-		{
-			// should never happen with dummy validator
-			Debug.log("could not set name on tab", e); //$NON-NLS-1$
-		}
-	}
-
-	public void js_setRelationName(String arg)
-	{
-		checkModification();
-		getBaseComponent(true).setRelationName(Utils.toEnglishLocaleLowerCase(arg));
-	}
-
+	@Deprecated
 	public void js_setWidth(int width)
 	{
 		checkModification();
 		getBaseComponent(true).setSize(new Dimension(width, getBaseComponent(true).getSize().height));
 	}
 
+	@Deprecated
 	public void js_setHeight(int height)
 	{
 		checkModification();
 		getBaseComponent(true).setSize(new Dimension(getBaseComponent(true).getSize().width, height));
-	}
-
-
-	public void js_setText(String arg)
-	{
-		checkModification();
-		getBaseComponent(true).setText(arg);
-	}
-
-	public void js_setToolTipText(String arg)
-	{
-		checkModification();
-		getBaseComponent(true).setToolTipText(arg);
 	}
 
 	/**
@@ -309,9 +328,9 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType
 	@Override
 	public String toString()
 	{
-		JSForm containsForm = js_getContainsForm();
+		JSForm containsForm = getContainsForm();
 		String containsFormString = "";
-		if (containsForm != null) containsFormString = ",form:" + containsForm.js_getName();
-		return "JSTab[name:" + getBaseComponent(false).getName() + containsFormString + ",relation:" + js_getRelationName() + ']';
+		if (containsForm != null) containsFormString = ",form:" + containsForm.getName();
+		return "JSTab[name:" + getBaseComponent(false).getName() + containsFormString + ",relation:" + getRelationName() + ']';
 	}
 }

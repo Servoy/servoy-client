@@ -28,6 +28,8 @@ import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -49,6 +51,10 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.solutionmodel.ISMComponent;
+import com.servoy.j2db.solutionmodel.ISMForm;
+import com.servoy.j2db.solutionmodel.ISMMethod;
+import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ImageLoader;
@@ -62,7 +68,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "SolutionModel", scriptingName = "solutionModel")
-public class JSSolutionModel
+public class JSSolutionModel implements ISolutionModel
 {
 	static
 	{
@@ -114,10 +120,11 @@ public class JSSolutionModel
 	 * 
 	 * @return a new JSForm object
 	 */
-	public JSForm js_newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height)
+	@JSFunction
+	public JSForm newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height)
 	{
 		String dataSource = DataSourceUtils.createDBTableDataSource(serverName, tableName);
-		return js_newForm(name, dataSource, styleName, show_in_menu, width, height);
+		return newForm(name, dataSource, styleName, show_in_menu, width, height);
 	}
 
 	/**
@@ -147,7 +154,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a new JSForm object
 	 */
-	public JSForm js_newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height)
+	@JSFunction
+	public JSForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
@@ -190,16 +198,17 @@ public class JSSolutionModel
 	 * @param superForm the super form that will extended from, see JSform.setExtendsForm();
 	 * @return a new JSForm object
 	 */
-	public JSForm js_newForm(String name, JSForm superForm)
+	@JSFunction
+	public JSForm newForm(String name, ISMForm superForm)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
 		{
-			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.js_getShowInMenu(),
-				superForm.getSupportChild().getSize());
+			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.getShowInMenu(),
+				((JSForm)superForm).getSupportChild().getSize());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			((FormManager)application.getFormManager()).addForm(form, false);
-			form.setExtendsID(superForm.getSupportChild().getID());
+			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
 			return new JSForm(application, form, true);
 		}
 		catch (RepositoryException e)
@@ -219,7 +228,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSStyle
 	 */
-	public JSStyle js_getStyle(String name)
+	@JSFunction
+	public JSStyle getStyle(String name)
 	{
 		Style style = application.getFlattenedSolution().getStyle(name);
 		if (style != null)
@@ -251,7 +261,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSStyle object
 	 */
-	public JSStyle js_newStyle(String name, String content)
+	@JSFunction
+	public JSStyle newStyle(String name, String content)
 	{
 
 		Style style = application.getFlattenedSolution().createStyle(name, null);
@@ -261,7 +272,7 @@ public class JSSolutionModel
 		}
 
 		JSStyle jsStyle = new JSStyle(application, style, true);
-		jsStyle.js_setText(content);
+		jsStyle.setText(content);
 		return jsStyle;
 	}
 
@@ -284,10 +295,11 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSForm
 	 */
-	public JSForm js_cloneForm(String newName, JSForm jsForm)
+	@JSFunction
+	public JSForm cloneForm(String newName, ISMForm jsForm)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		Form clone = fs.clonePersist(jsForm.getSupportChild(), newName, fs.getSolutionCopy());
+		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), newName, fs.getSolutionCopy());
 		((FormManager)application.getFormManager()).addForm(clone, false);
 		return new JSForm(application, clone, true);
 	}
@@ -307,9 +319,10 @@ public class JSSolutionModel
 	 *
 	 * @return the exact copy of the given component
 	 */
-	public <T extends BaseComponent> JSComponent< ? > js_cloneComponent(String newName, JSComponent<T> component)
+	@JSFunction
+	public <T extends BaseComponent> JSComponent< ? > cloneComponent(String newName, ISMComponent component)
 	{
-		return js_cloneComponent(newName, component, null);
+		return cloneComponent(newName, component, null);
 	}
 
 
@@ -334,22 +347,23 @@ public class JSSolutionModel
 	 * 
 	 * @return the exact copy of the given component
 	 */
-	public <T extends BaseComponent> JSComponent< ? > js_cloneComponent(String newName, JSComponent<T> component, JSForm newParentForm)
+	@JSFunction
+	public <T extends BaseComponent> JSComponent< ? > cloneComponent(String newName, ISMComponent component, ISMForm newParentForm)
 	{
-		if (component == null || !(component.getBaseComponent(false).getParent() instanceof Form))
+		if (component == null || !(((JSBase<T>)component).getBaseComponent(false).getParent() instanceof Form))
 		{
 			throw new RuntimeException("only components of a form can be cloned");
 		}
-		JSForm parent = newParentForm;
+		JSForm parent = (JSForm)newParentForm;
 		if (parent == null)
 		{
-			parent = (JSForm)component.getJSParent();
+			parent = (JSForm)((JSBase<T>)component).getJSParent();
 		}
 		parent.checkModification();
 		Form form = parent.getSupportChild();
 		FlattenedSolution fs = application.getFlattenedSolution();
-		fs.clonePersist(component.getBaseComponent(false), newName, form);
-		return parent.js_getComponent(newName);
+		fs.clonePersist(((JSBase<T>)component).getBaseComponent(false), newName, form);
+		return parent.getComponent(newName);
 	}
 
 	/**
@@ -370,7 +384,8 @@ public class JSSolutionModel
 	 * 
 	 * @return true is form has been removed, false if form could not be removed
 	 */
-	public boolean js_removeForm(String name)
+	@JSFunction
+	public boolean removeForm(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Form form = fs.getForm(name);
@@ -397,7 +412,8 @@ public class JSSolutionModel
 	 * 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeRelation(String name)
+	@JSFunction
+	public boolean removeRelation(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Relation rel = fs.getRelation(name);
@@ -415,7 +431,7 @@ public class JSSolutionModel
 	@Deprecated
 	public boolean js_removeGlobalMethod(String name)
 	{
-		return js_removeGlobalMethod(null, name);
+		return removeGlobalMethod(null, name);
 	}
 
 	/**
@@ -437,7 +453,8 @@ public class JSSolutionModel
 	 * @param name the name of the global method to be removed
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeGlobalMethod(String scopeName, String name)
+	@JSFunction
+	public boolean removeGlobalMethod(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		ScriptMethod sm = fs.getScriptMethod(scopeName, name);
@@ -456,7 +473,7 @@ public class JSSolutionModel
 	@Deprecated
 	public boolean js_removeGlobalVariable(String name)
 	{
-		return js_removeGlobalVariable(null, name);
+		return removeGlobalVariable(null, name);
 	}
 
 	/**
@@ -478,7 +495,8 @@ public class JSSolutionModel
 	 * @param name the name of the global variable to be removed 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeGlobalVariable(String scopeName, String name)
+	@JSFunction
+	public boolean removeGlobalVariable(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		ScriptVariable sv = fs.getScriptVariable(scopeName, name);
@@ -520,7 +538,8 @@ public class JSSolutionModel
 	 * 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeMedia(String name)
+	@JSFunction
+	public boolean removeMedia(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Media mediaItem = fs.getMedia(name);
@@ -545,7 +564,8 @@ public class JSSolutionModel
 	 * 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeStyle(String name)
+	@JSFunction
+	public boolean removeStyle(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Style style = fs.getStyle(name);
@@ -582,7 +602,8 @@ public class JSSolutionModel
 	 * 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeValueList(String name)
+	@JSFunction
+	public boolean removeValueList(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		ValueList valueList = fs.getValueList(name);
@@ -624,7 +645,7 @@ public class JSSolutionModel
 	@Deprecated
 	public boolean js_removeCalculation(String name, String datasource)
 	{
-		return js_getDataSourceNode(datasource).js_removeCalculation(name);
+		return getDataSourceNode(datasource).removeCalculation(name);
 	}
 
 	/**
@@ -644,7 +665,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSForm object
 	 */
-	public JSForm js_revertForm(String name)
+	@JSFunction
+	public JSForm revertForm(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Form form = fs.getForm(name);
@@ -671,7 +693,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSForm
 	 */
-	public JSForm js_getForm(String name)
+	@JSFunction
+	public JSForm getForm(String name)
 	{
 		if (name == null) return null;
 		Form form = ((FormManager)application.getFormManager()).getPossibleForm(name);
@@ -713,10 +736,11 @@ public class JSSolutionModel
 	 * 
 	 * @return an array of JSForm type elements
 	 */
-	public JSForm[] js_getForms(String datasource)
+	@JSFunction
+	public JSForm[] getForms(String datasource)
 	{
 		if (datasource == null) throw new IllegalArgumentException("SolutionModel.getForms() param datasource (server/table) is null");
-		return getForms(datasource);
+		return getFormsInternal(datasource);
 	}
 
 	/**
@@ -733,9 +757,10 @@ public class JSSolutionModel
 	 * 
 	 * @return an array of JSForm type elements
 	 */
-	public JSForm[] js_getForms(String server, String tablename)
+	@JSFunction
+	public JSForm[] getForms(String server, String tablename)
 	{
-		return js_getForms(DataSourceUtils.createDBTableDataSource(server, tablename));
+		return getForms(DataSourceUtils.createDBTableDataSource(server, tablename));
 	}
 
 	/**
@@ -748,16 +773,13 @@ public class JSSolutionModel
 	 *
 	 * @return an array of JSForm type elements
 	 */
-	public JSForm[] js_getForms()
+	@JSFunction
+	public JSForm[] getForms()
 	{
-		return getForms(null);
+		return getFormsInternal(null);
 	}
 
-	/**
-	 * @param datasource
-	 * @return
-	 */
-	private JSForm[] getForms(String datasource)
+	private JSForm[] getFormsInternal(String datasource)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 
@@ -785,7 +807,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSDataSourceNode
 	 */
-	public JSDataSourceNode js_getDataSourceNode(String dataSource)
+	@JSFunction
+	public JSDataSourceNode getDataSourceNode(String dataSource)
 	{
 		try
 		{
@@ -817,7 +840,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSMedia element
 	 */
-	public JSMedia js_getMedia(String name)
+	@JSFunction
+	public JSMedia getMedia(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Media media = fs.getMedia(name);
@@ -845,7 +869,8 @@ public class JSSolutionModel
 	 * @return a JSMedia object
 	 *  
 	 */
-	public JSMedia js_newMedia(String name, byte[] bytes)
+	@JSFunction
+	public JSMedia newMedia(String name, byte[] bytes)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
@@ -875,7 +900,8 @@ public class JSSolutionModel
 	 * 	@return a list with all the media objects.
 	 * 	
 	 */
-	public JSMedia[] js_getMediaList()
+	@JSFunction
+	public JSMedia[] getMediaList()
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 
@@ -900,7 +926,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSValueList object
 	 */
-	public JSValueList js_getValueList(String name)
+	@JSFunction
+	public JSValueList getValueList(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		ValueList valuelist = fs.getValueList(name);
@@ -923,7 +950,8 @@ public class JSSolutionModel
 	 * 
 	 * @return an array of JSValueList objects
 	 */
-	public JSValueList[] js_getValueLists()
+	@JSFunction
+	public JSValueList[] getValueLists()
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		ArrayList<JSValueList> valuelists = new ArrayList<JSValueList>();
@@ -957,7 +985,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSValueList object
 	 */
-	public JSValueList js_newValueList(String name, int type)
+	@JSFunction
+	public JSValueList newValueList(String name, int type)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
@@ -983,7 +1012,7 @@ public class JSSolutionModel
 	@Deprecated
 	public JSVariable js_newGlobalVariable(String name, int type)
 	{
-		return js_newGlobalVariable(null, name, type);
+		return newGlobalVariable(null, name, type);
 	}
 
 	/**
@@ -1003,7 +1032,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSVariable object
 	 */
-	public JSVariable js_newGlobalVariable(String scopeName, String name, int type)
+	@JSFunction
+	public JSVariable newGlobalVariable(String scopeName, String name, int type)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		try
@@ -1026,7 +1056,7 @@ public class JSSolutionModel
 	@Deprecated
 	public JSVariable js_getGlobalVariable(String name)
 	{
-		return js_getGlobalVariable(null, name);
+		return getGlobalVariable(null, name);
 	}
 
 	/**
@@ -1041,7 +1071,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSVariable 
 	 */
-	public JSVariable js_getGlobalVariable(String scopeName, String name)
+	@JSFunction
+	public JSVariable getGlobalVariable(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		ScriptVariable variable = fs.getScriptVariable(scopeName, name);
@@ -1062,7 +1093,8 @@ public class JSSolutionModel
 	 * 
 	 * @return an array of String scope names
 	 */
-	public String[] js_getScopeNames()
+	@JSFunction
+	public String[] getScopeNames()
 	{
 		Collection<String> scopeNames = application.getFlattenedSolution().getScopeNames();
 		return scopeNames.toArray(new String[scopeNames.size()]);
@@ -1079,19 +1111,21 @@ public class JSSolutionModel
 	 * @return an array of JSVariable type elements
 	 * 
 	 */
-	public JSVariable[] js_getGlobalVariables()
+	@JSFunction
+	public JSVariable[] getGlobalVariables()
 	{
-		return js_getGlobalVariables(null);
+		return getGlobalVariables(null);
 	}
 
 	/**
-	 * @clonedesc js_getGlobalVariables()
-	 * @sampleas js_getGlobalVariables()
+	 * @clonedesc getGlobalVariables()
+	 * @sampleas getGlobalVariables()
 	 * @param scopeName limit to global vars of specified scope name
 	 * 
 	 * @return an array of JSVariable type elements
 	 */
-	public JSVariable[] js_getGlobalVariables(String scopeName)
+	@JSFunction
+	public JSVariable[] getGlobalVariables(String scopeName)
 	{
 		List<JSVariable> variables = new ArrayList<JSVariable>();
 		Iterator<ScriptVariable> scriptVariables = application.getFlattenedSolution().getScriptVariables(scopeName, true);
@@ -1108,7 +1142,7 @@ public class JSSolutionModel
 	@Deprecated
 	public JSMethod js_newGlobalMethod(String code)
 	{
-		return js_newGlobalMethod(null, code);
+		return newGlobalMethod(null, code);
 	}
 
 	/**
@@ -1122,7 +1156,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSMethod object
 	 */
-	public JSMethod js_newGlobalMethod(String scopeName, String code)
+	@JSFunction
+	public JSMethod newGlobalMethod(String scopeName, String code)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		String name = JSMethod.parseName(code);
@@ -1148,7 +1183,7 @@ public class JSSolutionModel
 	@Deprecated
 	public JSMethod js_getGlobalMethod(String name)
 	{
-		return js_getGlobalMethod(null, name);
+		return getGlobalMethod(null, name);
 	}
 
 	/**
@@ -1163,7 +1198,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSMethod
 	 */
-	public JSMethod js_getGlobalMethod(String scopeName, String name)
+	@JSFunction
+	public JSMethod getGlobalMethod(String scopeName, String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		ScriptMethod sm = fs.getScriptMethod(scopeName, name);
@@ -1193,13 +1229,14 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSMethod
 	 */
-	public JSMethod js_wrapMethodWithArguments(JSMethod method, Object... args)
+	@JSFunction
+	public JSMethod wrapMethodWithArguments(ISMMethod method, Object... args)
 	{
 		if (method == null || args == null || args.length == 0)
 		{
-			return method;
+			return (JSMethod)method;
 		}
-		return new JSMethodWithArguments(method, args);
+		return new JSMethodWithArguments((JSMethod)method, args);
 	}
 
 	/**
@@ -1213,18 +1250,20 @@ public class JSSolutionModel
 	 * @return an array of JSMethod type elements
 	 * 
 	 */
-	public JSMethod[] js_getGlobalMethods()
+	@JSFunction
+	public JSMethod[] getGlobalMethods()
 	{
-		return js_getGlobalMethods(null);
+		return getGlobalMethods(null);
 	}
 
 	/**
-	 * @clonedesc js_getGlobalMethods()
-	 * @sampleas js_getGlobalMethods()
+	 * @clonedesc getGlobalMethods()
+	 * @sampleas getGlobalMethods()
 	 * @param scopeName limit to global methods of specified scope name
 	 * @return an array of JSMethod type elements
 	 */
-	public JSMethod[] js_getGlobalMethods(String scopeName)
+	@JSFunction
+	public JSMethod[] getGlobalMethods(String scopeName)
 	{
 		List<JSMethod> methods = new ArrayList<JSMethod>();
 		Iterator<ScriptMethod> scriptMethods = application.getFlattenedSolution().getScriptMethods(scopeName, true);
@@ -1262,7 +1301,7 @@ public class JSSolutionModel
 	public JSRelation js_newRelation(String name, String primaryServerName, String primaryTableName, String foreignServerName, String foreignTableName,
 		int joinType)
 	{
-		return js_newRelation(name, DataSourceUtils.createDBTableDataSource(primaryServerName, primaryTableName),
+		return newRelation(name, DataSourceUtils.createDBTableDataSource(primaryServerName, primaryTableName),
 			DataSourceUtils.createDBTableDataSource(foreignServerName, foreignTableName), joinType);
 	}
 
@@ -1293,11 +1332,11 @@ public class JSSolutionModel
 	{
 		if (primaryDataSourceOrServer.indexOf(':') == -1)
 		{
-			return js_newRelation(name, DataSourceUtils.createDBTableDataSource(primaryDataSourceOrServer, primaryTableNameOrForeignServer),
+			return newRelation(name, DataSourceUtils.createDBTableDataSource(primaryDataSourceOrServer, primaryTableNameOrForeignServer),
 				foreignDataSourceOrTable, joinType);
 		}
-		return js_newRelation(name, primaryDataSourceOrServer,
-			DataSourceUtils.createDBTableDataSource(primaryTableNameOrForeignServer, foreignDataSourceOrTable), joinType);
+		return newRelation(name, primaryDataSourceOrServer, DataSourceUtils.createDBTableDataSource(primaryTableNameOrForeignServer, foreignDataSourceOrTable),
+			joinType);
 	}
 
 
@@ -1318,7 +1357,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSRelation object
 	 */
-	public JSRelation js_newRelation(String name, String primaryDataSource, String foreignDataSource, int joinType)
+	@JSFunction
+	public JSRelation newRelation(String name, String primaryDataSource, String foreignDataSource, int joinType)
 	{
 		if (name == null || primaryDataSource == null || foreignDataSource == null)
 		{
@@ -1373,7 +1413,8 @@ public class JSSolutionModel
 	 * 
 	 * @return a JSRelation
 	 */
-	public JSRelation js_getRelation(String name)
+	@JSFunction
+	public JSRelation getRelation(String name)
 	{
 		if (name == null) return null;
 		FlattenedSolution fs = application.getFlattenedSolution();
@@ -1419,7 +1460,8 @@ public class JSSolutionModel
 	 * @return an array of all relations (all elements in the array are of type JSRelation)
 	 */
 
-	public JSRelation[] js_getRelations(String datasource)
+	@JSFunction
+	public JSRelation[] getRelations(String datasource)
 	{
 		String servername = null;
 		String tablename = null;
@@ -1430,18 +1472,19 @@ public class JSSolutionModel
 			tablename = names[1];
 		}
 
-		return js_getRelations(servername, tablename);
+		return getRelations(servername, tablename);
 	}
 
 	/**
-	 * @clonedesc js_getRelations(String)
-	 * @sampleas js_getRelations(String)
+	 * @clonedesc getRelations(String)
+	 * @sampleas getRelations(String)
 	 * @param servername the specified name of the server for the specified table
 	 * @param tablename the specified name of the table
 	 * 
 	 * @return an array of all relations (all elements in the array are of type JSRelation)
 	 */
-	public JSRelation[] js_getRelations(String servername, String tablename)
+	@JSFunction
+	public JSRelation[] getRelations(String servername, String tablename)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 
@@ -1479,13 +1522,12 @@ public class JSSolutionModel
 	 * 
 	 * @param datasource The datasource the calculations belong to.
 	 * 
-	 * @sampleas js_newCalculation(String, int, String)
 	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).getCalculations()
 	 */
 	@Deprecated
 	public JSCalculation[] js_getCalculations(String datasource)
 	{
-		return js_getDataSourceNode(datasource).js_getCalculations();
+		return getDataSourceNode(datasource).getCalculations();
 	}
 
 	/**
@@ -1494,13 +1536,12 @@ public class JSSolutionModel
 	 * @param name The name of the calculation
 	 * @param datasource The datasource the calculation belongs to.
 	 * 
-	 * @sampleas js_newCalculation(String, int, String)
 	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).getCalculation(name)
 	 */
 	@Deprecated
 	public JSCalculation js_getCalculation(String name, String datasource)
 	{
-		return js_getDataSourceNode(datasource).js_getCalculation(name);
+		return getDataSourceNode(datasource).getCalculation(name);
 	}
 
 
@@ -1511,7 +1552,6 @@ public class JSSolutionModel
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 * @param datasource The datasource this calculation belongs to. 
 	 * 
-	 * @sampleas js_newCalculation(String, int, String)
 	 * @deprecated replaced with solutionModel.getDataSourceNode(dataSource).newCalculation(code)
 	 */
 	@Deprecated
@@ -1544,7 +1584,7 @@ public class JSSolutionModel
 	@Deprecated
 	public JSCalculation js_newCalculation(String code, int type, String datasource)
 	{
-		return js_getDataSourceNode(datasource).js_newCalculation(code, type);
+		return getDataSourceNode(datasource).newCalculation(code, type);
 	}
 
 	/**
@@ -1563,14 +1603,15 @@ public class JSSolutionModel
 	 * @param bottommargin the specified bottom margin of the page to be printed.
 	 */
 
-	public String js_createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
+	@JSFunction
+	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
 	{
-		return js_createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, UNITS.PIXELS);
+		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, UNITS.PIXELS);
 	}
 
 	/**
-	 * @clonedesc js_createPageFormat(double, double, double, double, double, double)
-	 * @sampleas js_createPageFormat(double, double, double, double, double, double)
+	 * @clonedesc createPageFormat(double, double, double, double, double, double)
+	 * @sampleas createPageFormat(double, double, double, double, double, double)
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.
 	 * @param leftmargin the specified left margin of the page to be printed.
@@ -1579,14 +1620,15 @@ public class JSSolutionModel
 	 * @param bottommargin the specified bottom margin of the page to be printed.
 	 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 	 */
-	public String js_createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation)
+	@JSFunction
+	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation)
 	{
-		return js_createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, UNITS.PIXELS);
+		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, UNITS.PIXELS);
 	}
 
 	/**
-	 * @clonedesc js_createPageFormat(double, double, double, double, double, double)
-	 * @sampleas js_createPageFormat(double, double, double, double, double, double)
+	 * @clonedesc createPageFormat(double, double, double, double, double, double)
+	 * @sampleas createPageFormat(double, double, double, double, double, double)
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.
 	 * @param leftmargin the specified left margin of the page to be printed.
@@ -1596,8 +1638,9 @@ public class JSSolutionModel
 	 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 	 * @param units the specified units for the width and height of the page to be printed; the default is pixels
 	 */
-	public String js_createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
-		int orientation, int units)
+	@JSFunction
+	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation,
+		int units)
 	{
 		PageFormat pf = Utils.createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, units);
 		return PersistHelper.createPageFormatString(pf);
@@ -1616,7 +1659,8 @@ public class JSSolutionModel
 	 * @param size the font size
 	 * 
 	 */
-	public String js_createFont(String name, int style, int size)
+	@JSFunction
+	public String createFont(String name, int style, int size)
 	{
 		Font font = PersistHelper.createFont(name, style, size);
 		return PersistHelper.createFontString(font);
@@ -1635,7 +1679,8 @@ public class JSSolutionModel
 	 * @param left_width left width of empty border in pixels
 	 * 
 	 */
-	public String js_createEmptyBorder(int top_width, int right_width, int bottom_width, int left_width)
+	@JSFunction
+	public String createEmptyBorder(int top_width, int right_width, int bottom_width, int left_width)
 	{
 		Border border = BorderFactory.createEmptyBorder(top_width, left_width, bottom_width, right_width);
 		return ComponentFactoryHelper.createBorderString(border);
@@ -1653,7 +1698,8 @@ public class JSSolutionModel
 	 * @param shadow_color bevel border shadow color
 	 * 
 	 */
-	public String js_createEtchedBorder(int bevel_type, String highlight_color, String shadow_color)
+	@JSFunction
+	public String createEtchedBorder(int bevel_type, String highlight_color, String shadow_color)
 	{
 		Border border = null;
 		if (highlight_color != null && shadow_color != null)
@@ -1680,7 +1726,8 @@ public class JSSolutionModel
 	 * @param shadow_outer_color bevel border shadow outer color
 	 * @param shadow_inner_color bevel border shadow outer color
 	 */
-	public String js_createBevelBorder(int bevel_type, String highlight_outer_color, String highlight_inner_color, String shadow_outer_color,
+	@JSFunction
+	public String createBevelBorder(int bevel_type, String highlight_outer_color, String highlight_inner_color, String shadow_outer_color,
 		String shadow_inner_color)
 	{
 		Border border = null;
@@ -1708,7 +1755,8 @@ public class JSSolutionModel
 	 * @param color color of the line border
 	 * 
 	 */
-	public String js_createLineBorder(int thick, String color)
+	@JSFunction
+	public String createLineBorder(int thick, String color)
 	{
 		Border border = BorderFactory.createLineBorder(PersistHelper.createColor(color), thick);
 		return ComponentFactoryHelper.createBorderString(border);
@@ -1728,7 +1776,8 @@ public class JSSolutionModel
 	 * @param title_position bevel title text position
 	 * 
 	 */
-	public String js_createTitledBorder(String title_text, String font, String color, int title_justification, int title_position)
+	@JSFunction
+	public String createTitledBorder(String title_text, String font, String color, int title_justification, int title_position)
 	{
 		TitledBorder border = BorderFactory.createTitledBorder(title_text);
 		border.setTitleJustification(title_justification);
@@ -1752,7 +1801,8 @@ public class JSSolutionModel
 	 * @param color border color
 	 * 
 	 */
-	public String js_createMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
+	@JSFunction
+	public String createMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
 	{
 		Border border = BorderFactory.createMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(color));
 		return ComponentFactoryHelper.createBorderString(border);
@@ -1779,7 +1829,8 @@ public class JSSolutionModel
 	 * @param rounding_radius width of the arc to round the corners
 	 * @param dash_pattern the dash pattern of border stroke
 	 */
-	public String js_createSpecialMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
+	@JSFunction
+	public String createSpecialMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
 		String bottom_color, String left_color, float rounding_radius, float[] dash_pattern)
 	{
 		SpecialMatteBorder border = new SpecialMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(top_color),
@@ -1811,7 +1862,8 @@ public class JSSolutionModel
 	 * @param rounding_radius array with width/height of the arc to round the corners
 	 * @param border_style the border styles for the four margins(top/left/bottom/left)
 	 */
-	public String js_createRoundedBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
+	@JSFunction
+	public String createRoundedBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
 		String bottom_color, String left_color, float[] rounding_radius, String[] border_style)
 	{
 		RoundedBorder border = new RoundedBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(top_color),

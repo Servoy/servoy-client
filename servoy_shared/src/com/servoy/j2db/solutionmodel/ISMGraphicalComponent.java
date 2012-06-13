@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,36 +14,19 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting.solutionmodel;
 
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
+package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.persistence.ScriptMethod;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.solutionmodel.ISMGraphicalComponent;
-import com.servoy.j2db.solutionmodel.ISMMedia;
-import com.servoy.j2db.solutionmodel.ISMMethod;
-import com.servoy.j2db.util.PersistHelper;
 
 /**
- * @author jcompagner
+ * Solution model base interface for graphical components.
+ * 
+ * @author rgansevles
+ *
+ * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponent> implements ISMGraphicalComponent
+public interface ISMGraphicalComponent extends ISMComponent
 {
-	private final IApplication application;
-
-	public JSGraphicalComponent(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
-	{
-		super(parent, gc, isNew);
-		this.application = application;
-	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDataProviderID()
@@ -54,17 +37,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * // But it can be modified later if needed.
 	 * field.dataProviderID = 'parent_table_id';
 	 */
-	@JSGetter
-	public String getDataProviderID()
-	{
-		return getBaseComponent(false).getDataProviderID();
-	}
-
-	@JSSetter
-	public void setDataProviderID(String arg)
-	{
-		getBaseComponent(true).setDataProviderID(arg);
-	}
+	public String getDataProviderID();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDisplaysTags()
@@ -74,17 +47,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 *					10, 10, 600, 100);
 	 * label.displaysTags = true;
 	 */
-	@JSGetter
-	public boolean getDisplaysTags()
-	{
-		return getBaseComponent(false).getDisplaysTags();
-	}
-
-	@JSSetter
-	public void setDisplaysTags(boolean arg)
-	{
-		getBaseComponent(true).setDisplaysTags(arg);
-	}
+	public boolean getDisplaysTags();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
@@ -97,17 +60,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
 	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
 	 */
-	@JSGetter
-	public int getHorizontalAlignment()
-	{
-		return getBaseComponent(false).getHorizontalAlignment();
-	}
-
-	@JSSetter
-	public void setHorizontalAlignment(int arg)
-	{
-		getBaseComponent(true).setHorizontalAlignment(arg);
-	}
+	public int getHorizontalAlignment();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getImageMediaID()
@@ -118,39 +71,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var label = form.newLabel('', 10, 10, 100, 100);
 	 * label.imageMedia = ballImage;
 	 */
-	@JSGetter
-	public JSMedia getImageMedia()
-	{
-		Media media = application.getFlattenedSolution().getMedia(getBaseComponent(false).getImageMediaID());
-		if (media != null)
-		{
-			return new JSMedia(media, application.getFlattenedSolution(), false);
-		}
-		return null;
-	}
-
-	@JSSetter
-	public void setImageMedia(JSMedia media)
-	{
-		doSetImageMedia(media);
-	}
-
-	public void setImageMedia(ISMMedia media)
-	{
-		doSetImageMedia((JSMedia)media);
-	}
-
-	protected void doSetImageMedia(JSMedia media)
-	{
-		if (media == null)
-		{
-			getBaseComponent(true).setImageMediaID(0);
-		}
-		else
-		{
-			getBaseComponent(true).setImageMediaID(media.getMedia().getID());
-		}
-	}
+	public ISMMedia getImageMedia();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getLabelFor()
@@ -162,17 +83,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * labelOne.labelFor = 'fieldOne';
 	 * labelOne.mnemonic = 'O';
 	 */
-	@JSGetter
-	public String getLabelFor()
-	{
-		return getBaseComponent(false).getLabelFor();
-	}
-
-	@JSSetter
-	public void setLabelFor(String arg)
-	{
-		getBaseComponent(true).setLabelFor(arg);
-	}
+	public String getLabelFor();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMargin()
@@ -182,17 +93,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * label.background = 'yellow';
 	 * label.margin = '10,20,30,40';
 	 */
-	@JSGetter
-	public String getMargin()
-	{
-		return PersistHelper.createInsetsString(getBaseComponent(false).getMargin());
-	}
-
-	@JSSetter
-	public void setMargin(String margin)
-	{
-		getBaseComponent(true).setMargin(PersistHelper.createInsets(margin));
-	}
+	public String getMargin();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMediaOptions()
@@ -230,17 +131,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * bigLabelWithSmallImageCrop.background = 'yellow';
 	 * bigLabelWithSmallImageCrop.mediaOptions = SM_MEDIAOPTION.CROP; // This does not do any cropping actually if the label is larger than the image.
 	 */
-	@JSGetter
-	public int getMediaOptions()
-	{
-		return getBaseComponent(false).getMediaOptions();
-	}
-
-	@JSSetter
-	public void setMediaOptions(int i)
-	{
-		getBaseComponent(true).setMediaOptions(i);
-	}
+	public int getMediaOptions();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMnemonic()
@@ -255,17 +146,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * labelOne.labelFor = 'fieldOne';
 	 * labelOne.mnemonic = 'O'; // When ALT-O is pressed the focus will move to fieldOne.
 	 */
-	@JSGetter
-	public String getMnemonic()
-	{
-		return getBaseComponent(false).getMnemonic();
-	}
-
-	@JSSetter
-	public void setMnemonic(String arg)
-	{
-		getBaseComponent(true).setMnemonic(arg);
-	}
+	public String getMnemonic();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRolloverCursor()
@@ -274,17 +155,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var label = form.newLabel('Move the mouse over me', 10, 10, 200, 200);
 	 * label.rolloverCursor = SM_CURSOR.HAND_CURSOR;
 	 */
-	@JSGetter
-	public int getRolloverCursor()
-	{
-		return getBaseComponent(false).getRolloverCursor();
-	}
-
-	@JSSetter
-	public void setRolloverCursor(int i)
-	{
-		getBaseComponent(true).setRolloverCursor(i);
-	}
+	public int getRolloverCursor();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRolloverImageMediaID()
@@ -298,29 +169,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * label.imageMedia = mapImage;
 	 * label.rolloverImageMedia = ballImage;
 	 */
-	@JSGetter
-	public JSMedia getRolloverImageMedia()
-	{
-		Media media = application.getFlattenedSolution().getMedia(getBaseComponent(false).getRolloverImageMediaID());
-		if (media != null)
-		{
-			return new JSMedia(media, application.getFlattenedSolution(), false);
-		}
-		return null;
-	}
-
-	@JSSetter
-	public void setRolloverImageMedia(ISMMedia media)
-	{
-		if (media == null)
-		{
-			getBaseComponent(true).setRolloverImageMediaID(0);
-		}
-		else
-		{
-			getBaseComponent(true).setRolloverImageMediaID(((JSMedia)media).getMedia().getID());
-		}
-	}
+	public ISMMedia getRolloverImageMedia();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRotation()
@@ -332,17 +181,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var btn = form.newButton('And I am a button', 10, 220, 200, 20, m);
 	 * btn.rotation = 180;
 	 */
-	@JSGetter
-	public int getRotation()
-	{
-		return getBaseComponent(false).getRotation();
-	}
-
-	@JSSetter
-	public void setRotation(int i)
-	{
-		getBaseComponent(true).setRotation(i);
-	}
+	public int getRotation();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getShowClick()
@@ -361,17 +200,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * // Then the button will behave like a label does.
 	 * btn.showClick = false;
 	 */
-	@JSGetter
-	public boolean getShowClick()
-	{
-		return getBaseComponent(false).getShowClick();
-	}
-
-	@JSSetter
-	public void setShowClick(boolean arg)
-	{
-		getBaseComponent(true).setShowClick(arg);
-	}
+	public boolean getShowClick();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getShowFocus()
@@ -383,17 +212,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var btn = form.newButton('And I am a button', 10, 40, 200, 20, m);
 	 * btn.showFocus = false;
 	 */
-	@JSGetter
-	public boolean getShowFocus()
-	{
-		return getBaseComponent(false).getShowFocus();
-	}
-
-	@JSSetter
-	public void setShowFocus(boolean arg)
-	{
-		getBaseComponent(true).setShowFocus(arg);
-	}
+	public boolean getShowFocus();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getTabSeq()
@@ -410,17 +229,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
 	 * fieldThree.tabSeq = 1;
 	 */
-	@JSGetter
-	public int getTabSeq()
-	{
-		return getBaseComponent(false).getTabSeq();
-	}
-
-	@JSSetter
-	public void setTabSeq(int i)
-	{
-		getBaseComponent(true).setTabSeq(i);
-	}
+	public int getTabSeq();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getText()
@@ -431,17 +240,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * // But it can be changed later if needed.
 	 * label.text = 'Changed text';
 	 */
-	@JSGetter
-	public String getText()
-	{
-		return getBaseComponent(false).getText();
-	}
-
-	@JSSetter
-	public void setText(String arg)
-	{
-		getBaseComponent(true).setText(arg);
-	}
+	public String getText();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getToolTipText()
@@ -450,17 +249,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var label = form.newLabel('Stop the mouse over me!', 10, 10, 200, 20);
 	 * label.toolTipText = 'I\'m the tooltip. Do you see me?';
 	 */
-	@JSGetter
-	public String getToolTipText()
-	{
-		return getBaseComponent(false).getToolTipText();
-	}
-
-	@JSSetter
-	public void setToolTipText(String arg)
-	{
-		getBaseComponent(true).setToolTipText(arg);
-	}
+	public String getToolTipText();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getVerticalAlignment()
@@ -473,87 +262,45 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var bottomAlignedLabel = form.newLabel('BOTTOM', 520, 10, 50, 300);
 	 * bottomAlignedLabel.verticalAlignment = SM_ALIGNMENT.BOTTOM;
 	 */
-	@JSGetter
-	public int getVerticalAlignment()
-	{
-		return getBaseComponent(false).getVerticalAlignment();
-	}
+	public int getVerticalAlignment();
 
-	@JSSetter
-	public void setVerticalAlignment(int arg)
-	{
-		getBaseComponent(true).setVerticalAlignment(arg);
-	}
+	public void setDataProviderID(String arg);
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getFormat()
-	 * 
-	 * @sample
-	 * var label = form.newLabel('', 10, 10, 100, 100);
-	 * label.format = '$#.00';
-	 */
-	@JSGetter
-	public String getFormat()
-	{
-		return getBaseComponent(false).getFormat();
-	}
+	public void setFormat(String arg);
 
-	@JSSetter
-	public void setFormat(String arg)
-	{
-		getBaseComponent(true).setFormat(arg);
-	}
+	public void setDisplaysTags(boolean arg);
 
-	/**
-	 * @deprecated As of release 4.1, replaced by setOnAction(JSMethod).
-	 */
-	@Deprecated
-	public void js_setOnActionMethod(Function function)
-	{
-		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-		if (scriptMethod != null)
-		{
-			getBaseComponent(true).setOnActionMethodID(scriptMethod.getID());
-		}
-		else
-		{
-			getBaseComponent(true).setOnActionMethodID(0);
-		}
-	}
+	public void setHorizontalAlignment(int arg);
 
-	/**
-	 * @deprecated As of release 4.1, replaced by setOnDoubleClick(JSMethod). 
-	 */
-	@Deprecated
-	public void js_setOnDoubleClickMethod(Function function)
-	{
-		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-		if (scriptMethod != null)
-		{
-			getBaseComponent(true).setOnDoubleClickMethodID(scriptMethod.getID());
-		}
-		else
-		{
-			getBaseComponent(true).setOnDoubleClickMethodID(0);
-		}
-	}
+	public void setImageMedia(ISMMedia media);
 
-	/**
-	 * @deprecated As of release 4.1, replaced by setOnRightClick(JSMethod).
-	 */
-	@Deprecated
-	public void js_setOnRightClickMethod(Function function)
-	{
-		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-		if (scriptMethod != null)
-		{
-			getBaseComponent(true).setOnRightClickMethodID(scriptMethod.getID());
-		}
-		else
-		{
-			getBaseComponent(true).setOnRightClickMethodID(0);
-		}
-	}
+	public void setLabelFor(String arg);
+
+	public void setMargin(String margin);
+
+	public void setMediaOptions(int i);
+
+	public void setMnemonic(String arg);
+
+	public void setRolloverCursor(int i);
+
+	public void setRolloverImageMedia(ISMMedia media);
+
+	public void setRotation(int i);
+
+	public void setShowClick(boolean arg);
+
+	public void setShowFocus(boolean arg);
+
+	public void setTabSeq(int i);
+
+	public void setText(String arg);
+
+	public void setToolTipText(String arg);
+
+	public void setVerticalAlignment(int arg);
+
+	public void setOnAction(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnActionMethodID()
@@ -569,34 +316,18 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * btn.onDoubleClick = onDoubleClickMethod;
 	 * btn.onRightClick = onRightClickMethod;
 	 */
-	@JSGetter
-	public JSMethod getOnAction()
-	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
-	}
+	public ISMMethod getOnAction();
 
-	@JSSetter
-	public void setOnAction(ISMMethod method)
-	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, (JSMethod)method);
-	}
+	public void setOnDoubleClick(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnDoubleClickMethodID()
 	 * 
 	 * @sampleas getOnAction()
 	 */
-	@JSGetter
-	public JSMethod getOnDoubleClick()
-	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID);
-	}
+	public ISMMethod getOnDoubleClick();
 
-	@JSSetter
-	public void setOnDoubleClick(ISMMethod method)
-	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID, (JSMethod)method);
-	}
+	public void setOnRender(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRenderMethodID()
@@ -604,32 +335,24 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * @sample
 	 * label.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
-	@JSGetter
-	public JSMethod getOnRender()
-	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
-	}
+	public ISMMethod getOnRender();
 
-	@JSSetter
-	public void setOnRender(ISMMethod method)
-	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, (JSMethod)method);
-	}
+	public void setOnRightClick(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRightClickMethodID()
 	 * 
 	 * @sampleas getOnAction()
 	 */
-	@JSGetter
-	public JSMethod getOnRightClick()
-	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID);
-	}
+	public ISMMethod getOnRightClick();
 
-	@JSSetter
-	public void setOnRightClick(ISMMethod method)
-	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, (JSMethod)method);
-	}
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getFormat()
+	 * 
+	 * @sample
+	 * var label = form.newLabel('', 10, 10, 100, 100);
+	 * label.format = '$#.00';
+	 */
+	public String getFormat();
+
 }

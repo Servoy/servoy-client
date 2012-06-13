@@ -19,13 +19,11 @@ package com.servoy.j2db.scripting.solutionmodel;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.solutionmodel.ISMButton;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSButton extends JSGraphicalComponent
+public class JSButton extends JSGraphicalComponent implements ISMButton
 {
-	/**
-	 * @param gc
-	 */
 	public JSButton(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
 	{
 		super(parent, gc, application, isNew);

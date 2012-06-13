@@ -16,10 +16,15 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.UUID;
 
@@ -27,17 +32,12 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSMedia implements IJavaScriptType
+public class JSMedia implements IJavaScriptType, ISMMedia
 {
-
 	private Media media;
 	private boolean isCopy;
-
 	private final FlattenedSolution fs;
 
-	/**
-	 * @param media
-	 */
 	public JSMedia(Media media, FlattenedSolution fs, boolean isCopy)
 	{
 		this.media = media;
@@ -66,14 +66,16 @@ public class JSMedia implements IJavaScriptType
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Media#getMimeType()
 	 * 
-	 * @sampleas js_getBytes()
+	 * @sampleas getBytes()
 	 */
-	public String js_getMimeType()
+	@JSGetter
+	public String getMimeType()
 	{
 		return media.getMimeType();
 	}
 
-	public void js_setMimeType(String type)
+	@JSSetter
+	public void setMimeType(String type)
 	{
 		checkModification();
 		media.setMimeType(type);
@@ -82,11 +84,12 @@ public class JSMedia implements IJavaScriptType
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Media#getName()
 	 * 
-	 * @sampleas js_getBytes()
+	 * @sampleas getBytes()
 	 * 
 	 * @return A String holding the name of this Media object.
 	 */
-	public String js_getName()
+	@JSFunction
+	public String getName()
 	{
 		return media.getName();
 	}
@@ -105,12 +108,14 @@ public class JSMedia implements IJavaScriptType
 	 * application.output('image mime type: ' + ballImage.mimeType);
 	 * application.output('image size: ' + ballImage.bytes.length);
 	 */
-	public byte[] js_getBytes()
+	@JSGetter
+	public byte[] getBytes()
 	{
 		return media.getMediaData();
 	}
 
-	public void js_setBytes(byte[] bytes)
+	@JSSetter
+	public void setBytes(byte[] bytes)
 	{
 		checkModification();
 		media.setPermMediaData(bytes);
@@ -122,6 +127,19 @@ public class JSMedia implements IJavaScriptType
 	}
 
 	/**
+	 * Returns the UUID of this media
+	 * 
+	 * @sample
+	 * var ballImg = plugins.file.readFile('d:/ball.jpg');
+	 * application.output(ballImg.getUUID().toString());
+	 */
+	@JSFunction
+	public UUID getUUID()
+	{
+		return media.getUUID();
+	}
+
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@SuppressWarnings("nls")
@@ -129,17 +147,5 @@ public class JSMedia implements IJavaScriptType
 	public String toString()
 	{
 		return "JSMedia[name: " + media.getName() + ']';
-	}
-
-	/**
-	 * Returns the UUID of this media
-	 * 
-	 * @sample
-	 * var ballImg = plugins.file.readFile('d:/ball.jpg');
-	 * application.output(ballImg.getUUID().toString());
-	 */
-	public UUID js_getUUID()
-	{
-		return media.getUUID();
 	}
 }

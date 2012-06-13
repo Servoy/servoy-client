@@ -16,17 +16,21 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.solutionmodel.ISMRelationItem;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptType
+public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptType, ISMRelationItem
 {
 	static
 	{
@@ -40,10 +44,6 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 	}
 
 
-	/**
-	 * @param canModify
-	 * @param persist
-	 */
 	public JSRelationItem(RelationItem relationItem, JSRelation parent, boolean isNew)
 	{
 		super(parent, relationItem, isNew);
@@ -59,42 +59,32 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 	 * criteria.foreignColumnName = 'child_table_text';
 	 * criteria.operator = '<';
 	 */
-	public String js_getForeignColumnName()
+	@JSGetter
+	public String getForeignColumnName()
 	{
 		return getBaseComponent(false).getForeignColumnName();
+	}
+
+	@JSSetter
+	public void setForeignColumnName(String arg)
+	{
+		checkModification();
+		getBaseComponent(true).setForeignColumnName(arg);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getOperator()
 	 * 
-	 * @sampleas js_getForeignColumnName()
+	 * @sampleas getForeignColumnName()
 	 */
-	public String js_getOperator()
+	@JSGetter
+	public String getOperator()
 	{
 		return RelationItem.getOperatorAsString(getBaseComponent(false).getOperator());
 	}
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getPrimaryDataProviderID()
-	 * 
-	 * @sampleas js_getForeignColumnName()
-	 */
-	public String js_getPrimaryDataProviderID()
-	{
-		return getBaseComponent(false).getPrimaryDataProviderID();
-	}
-
-//	public String js_getPrimaryData()
-//	{
-//		String primaryData = getBaseComponent(false).getPrimaryDataProviderID();
-//		if (primaryData.startsWith("\"") && primaryData.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
-//		{
-//			return primaryData.substring(1, primaryData.length() - 1);
-//		}
-//		return primaryData;
-//	}
-
-	public void js_setOperator(String operator)
+	@JSSetter
+	public void setOperator(String operator)
 	{
 		checkModification();
 		int validOperator = RelationItem.getValidOperator(operator, RelationItem.RELATION_OPERATORS, null);
@@ -102,23 +92,23 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 		getBaseComponent(true).setOperator(validOperator);
 	}
 
-	public void js_setForeignColumnName(String arg)
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getPrimaryDataProviderID()
+	 * 
+	 * @sampleas getForeignColumnName()
+	 */
+	@JSGetter
+	public String getPrimaryDataProviderID()
 	{
-		checkModification();
-		getBaseComponent(true).setForeignColumnName(arg);
+		return getBaseComponent(false).getPrimaryDataProviderID();
 	}
 
-	public void js_setPrimaryDataProviderID(String arg)
+	@JSSetter
+	public void setPrimaryDataProviderID(String arg)
 	{
 		checkModification();
 		getBaseComponent(true).setPrimaryDataProviderID(arg);
 	}
-
-//	public void js_setPrimaryData(String arg)
-//	{
-//		checkModification();
-//		getBaseComponent(true).setPrimaryDataProviderID("\"" + arg + "\""); //$NON-NLS-1$//$NON-NLS-2$
-//	}
 
 	/**
 	 * @see java.lang.Object#toString()
@@ -126,6 +116,6 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 	@Override
 	public String toString()
 	{
-		return "JSRelationItem[" + getBaseComponent(false).getPrimaryDataProviderID() + js_getOperator() + getBaseComponent(false).getForeignColumnName() + ']'; //$NON-NLS-1$
+		return "JSRelationItem[" + getBaseComponent(false).getPrimaryDataProviderID() + getOperator() + getBaseComponent(false).getForeignColumnName() + ']'; //$NON-NLS-1$
 	}
 }

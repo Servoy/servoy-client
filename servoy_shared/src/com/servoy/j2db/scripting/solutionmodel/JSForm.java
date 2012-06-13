@@ -26,12 +26,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -39,7 +40,6 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormEncapsulation;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportChilds;
@@ -56,6 +56,9 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.solutionmodel.ISMForm;
+import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -65,172 +68,12 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSForm implements IJSScriptParent<Form>, IConstantsObject
+public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 {
 	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)
 	{
 		return fs.getScriptMethod((String)function.get("_scopename_", function), (String)function.get("_methodname_", function));
 	}
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int RECORD_VIEW = IForm.RECORD_VIEW;
-
-	/**
-	 * The constants to set or get the view property of a JSForm. 
-	 * They are as follows: JSForm.LIST_VIEW, JSForm.LOCKED_LIST_VIEW, JSForm.LOCKED_RECORD_VIEW, JSForm.LOCKED_TABLE_VIEW, JSForm.RECORD_VIEW.
-	 *
-	 * @sample 
-	 * var myListViewForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
-	 * myListViewForm.view = JSForm.LIST_VIEW;
-	 * 
-	 * var myLockedListViewForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);	
-	 * myLockedListViewForm.view = JSForm.LOCKED_LIST_VIEW;
-	 * 
-	 * var myLockedRecordViewForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedRecordViewForm.view = JSForm.LOCKED_RECORD_VIEW;
-	 * 
-	 * var myLockedTableViewForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedTableViewForm.view = JSForm.LOCKED_TABLE_VIEW;
-	 * 
-	 * var myRecordViewForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
-	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
-	 */
-	public static final int LIST_VIEW = IForm.LIST_VIEW;
-
-	//	public static final int TABLE_VIEW = FormController.TABLE_VIEW;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int LOCKED_TABLE_VIEW = FormController.LOCKED_TABLE_VIEW;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int LOCKED_LIST_VIEW = FormController.LOCKED_LIST_VIEW;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int LOCKED_RECORD_VIEW = IForm.LOCKED_RECORD_VIEW;
-
-
-	/**
-	 * The constants to set or get the encapsulation property of a JSForm. 
-	 * They are as follows: JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION, JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION, JSForm.HIDE_ELEMENTS_ENCAPSULATION
-	 *
-	 * @sample 
-	 * var myDefaultForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
-	 * myDefaultForm.encapsulation = JSForm.DEFAULT_ENCAPSULATION;
-	 * 
-	 * var myPrivateForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);
-	 * myPrivateForm.encapsulation = JSForm.PRIVATE_ENCAPSULATION;
-	 * 
-	 * var myModulePrivateForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
-	 * myModulePrivateForm.encapsulation = JSForm.MODULE_PRIVATE_ENCAPSULATION;
-	 * 
-	 * var myHideDataprovidersForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
-	 * myHideDataprovidersForm.encapsulation = JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION;
-	 * 
-	 * var myHideFoundsetForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
-	 * myHideFoundsetForm.encapsulation = JSForm.HIDE_FOUNDSET_ENCAPSULATION;
-	 * 
-	 * var myHideControllerForm = solutionModel.newForm('newForm6', myDatasource, myStyleName, false, 800, 600);
-	 * myHideControllerForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
-	 * 
-	 * var myHideElementsForm = solutionModel.newForm('newForm7', myDatasource, myStyleName, false, 800, 600);
-	 * myHideElementsForm.encapsulation = JSForm.HIDE_ELEMENTS_ENCAPSULATION;
-	 */
-	public static final int DEFAULT_ENCAPSULATION = FormEncapsulation.DEFAULT;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int PRIVATE_ENCAPSULATION = FormEncapsulation.PRIVATE;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int MODULE_PRIVATE_ENCAPSULATION = FormEncapsulation.MODULE_PRIVATE;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_DATAPROVIDERS_ENCAPSULATION = FormEncapsulation.HIDE_DATAPROVIDERS;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_FOUNDSET_ENCAPSULATION = FormEncapsulation.HIDE_FOUNDSET;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_CONTROLLER_ENCAPSULATION = FormEncapsulation.HIDE_CONTROLLER;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_ELEMENTS_ENCAPSULATION = FormEncapsulation.HIDE_ELEMENTS;
-
-
-	/**
-	 * @clonedesc com.servoy.j2db.Form#NAMED_FOUNDSET_EMPTY
-	 * 
-	 * @sample
-	 * // form with empty foundset
-	 * var frmEmpty = solutionModel.newForm('products_empty', 'example_data', 'products', null, true, 640, 480);
-	 * frmEmpty.newLabel("Empty FoundSet",10,10,200,20);
-	 * frmEmpty.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
-	 * frmEmpty.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
-	 * frmEmpty.namedFoundSet = JSForm.EMPTY_FOUNDSET;
-	 */
-	public static final String EMPTY_FOUNDSET = Form.NAMED_FOUNDSET_EMPTY;
-
-	/**
-	 * @clonedesc com.servoy.j2db.Form#NAMED_FOUNDSET_SEPARATE
-	 * 
-	 * @sample
-	 * // form with separate foundset
-	 * var frmSeparate = solutionModel.newForm('products_separate', 'example_data', 'products', null, true, 640, 480);
-	 * frmSeparate.newLabel("Separate FoundSet",10,10,200,20);
-	 * frmSeparate.newField('categoryid',JSField.TEXT_FIELD,10,40,200,20);
-	 * frmSeparate.newField('productname',JSField.TEXT_FIELD,10,70,200,20);
-	 * frmSeparate.namedFoundSet = JSForm.SEPARATE_FOUNDSET;
-	 * forms['products_separate'].controller.find();
-	 * forms['products_separate'].categoryid = '=2';
-	 * forms['products_separate'].controller.search();
-	 */
-	public static final String SEPARATE_FOUNDSET = Form.NAMED_FOUNDSET_SEPARATE;
-
-	/**
-	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_DEFAULT
-	 * 
-	 * @sample
-	 * var myForm = solutionModel.getForm('my_form_name');
-	 * myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
-	 */
-	public static final int SELECTION_MODE_DEFAULT = IForm.SELECTION_MODE_DEFAULT;
-
-	/**
-	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_SINGLE
-	 * 
-	 * @sample
-	 * var myForm = solutionModel.getForm('my_form_name');
-	 * myForm.selectionMode = JSForm.SELECTION_MODE_SINGLE;
-	 */
-	public static final int SELECTION_MODE_SINGLE = IForm.SELECTION_MODE_SINGLE;
-
-	/**
-	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_MULTI
-	 * 
-	 * @sample
-	 * var myForm = solutionModel.getForm('my_form_name');
-	 * myForm.selectionMode = JSForm.SELECTION_MODE_MULTI;
-	 */
-	public static final int SELECTION_MODE_MULTI = IForm.SELECTION_MODE_MULTI;
 
 	private Form form;
 	private final IApplication application;
@@ -287,7 +130,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
-	 * variable.defaultValue = "'This is a default value (with tripple quotes)!'";
+	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
 	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
@@ -298,7 +141,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSVariable object
 	 */
-	public JSVariable js_newVariable(String name, int type)
+	@JSFunction
+	public JSVariable newVariable(String name, int type)
 	{
 		checkModification();
 		try
@@ -318,7 +162,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSVariable js_newFormVariable(String name, int type)
 	{
-		return js_newVariable(name, type);
+		return newVariable(name, type);
 	}
 
 	/**
@@ -333,7 +177,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSVariable object
 	 */
-	public JSVariable js_getVariable(String name)
+	@JSFunction
+	public JSVariable getVariable(String name)
 	{
 		ScriptVariable variable = application.getFlattenedSolution().getFlattenedForm(form).getScriptVariable(name);
 		if (variable != null)
@@ -356,7 +201,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return an array of all variables on this form
 	 * 
 	 */
-	public JSVariable[] js_getVariables(boolean returnInheritedElements)
+	@JSFunction
+	public JSVariable[] getVariables(boolean returnInheritedElements)
 	{
 		List<JSVariable> variables = new ArrayList<JSVariable>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -380,9 +226,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return an array of all variables on this form
 	 * 
 	 */
-	public JSVariable[] js_getVariables()
+	@JSFunction
+	public JSVariable[] getVariables()
 	{
-		return js_getVariables(false);
+		return getVariables(false);
 	}
 
 	/**
@@ -391,7 +238,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSVariable js_getFormVariable(String name)
 	{
-		return js_getVariable(name);
+		return getVariable(name);
 	}
 
 	/**
@@ -400,7 +247,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSVariable[] js_getFormVariables(boolean returnInheritedElements)
 	{
-		return js_getVariables(returnInheritedElements);
+		return getVariables(returnInheritedElements);
 	}
 
 	/**
@@ -409,7 +256,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSVariable[] js_getFormVariables()
 	{
-		return js_getVariables();
+		return getVariables();
 	}
 
 	/**
@@ -425,7 +272,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSMethod object for this form
 	 */
-	public JSMethod js_newMethod(String code)
+	@JSFunction
+	public JSMethod newMethod(String code)
 	{
 		checkModification();
 		String name = JSMethod.parseName(code);
@@ -448,7 +296,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSMethod js_newFormMethod(String code)
 	{
-		return js_newMethod(code);
+		return newMethod(code);
 	}
 
 	/**
@@ -463,7 +311,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSMethod object (or null if the method with the specified name does not exist)
 	 */
-	public JSMethod js_getMethod(String name)
+	@JSFunction
+	public JSMethod getMethod(String name)
 	{
 		ScriptMethod sm = application.getFlattenedSolution().getFlattenedForm(form).getScriptMethod(name);
 		if (sm != null)
@@ -479,7 +328,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSMethod js_getFormMethod(String name)
 	{
-		return js_getMethod(name);
+		return getMethod(name);
 	}
 
 	/**
@@ -494,7 +343,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
 	 * @return all form methods for the form 
 	 */
-	public JSMethod[] js_getMethods(boolean returnInheritedElements)
+	@JSFunction
+	public JSMethod[] getMethods(boolean returnInheritedElements)
 	{
 		List<JSMethod> methods = new ArrayList<JSMethod>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -517,9 +367,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return all form methods for the form 
 	 */
-	public JSMethod[] js_getMethods()
+	@JSFunction
+	public JSMethod[] getMethods()
 	{
-		return js_getMethods(false);
+		return getMethods(false);
 	}
 
 	/**
@@ -528,7 +379,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSMethod[] js_getFormMethods(boolean returnInheritedElements)
 	{
-		return js_getMethods(returnInheritedElements);
+		return getMethods(returnInheritedElements);
 	}
 
 	/**
@@ -537,7 +388,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	@Deprecated
 	public JSMethod[] js_getFormMethods()
 	{
-		return js_getMethods();
+		return getMethods();
 	}
 
 	/**
@@ -546,7 +397,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
-	 * variable.defaultValue = "'This is a default value (with tripple quotes)!'";
+	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();  	
 	 *
@@ -564,7 +415,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object (of the specified display type) 
 	 */
-	public JSField js_newField(Object dataprovider, int type, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newField(Object dataprovider, int type, int x, int y, int width, int height)
 	{
 		checkModification();
 		try
@@ -614,9 +466,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSField object with the displayType of TEXT_FIELD
 	 */
-	public JSField js_newTextField(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newTextField(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.TEXT_FIELD, x, y, width, height);
+		return newField(dataprovider, Field.TEXT_FIELD, x, y, width, height);
 	}
 
 	/**
@@ -637,9 +490,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSField object with the displayType of TEXT_AREA
 	 */
-	public JSField js_newTextArea(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newTextArea(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.TEXT_AREA, x, y, width, height);
+		return newField(dataprovider, Field.TEXT_AREA, x, y, width, height);
 	}
 
 	/**
@@ -658,9 +512,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of COMBOBOX
 	 */
-	public JSField js_newComboBox(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newComboBox(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.COMBOBOX, x, y, width, height);
+		return newField(dataprovider, Field.COMBOBOX, x, y, width, height);
 	}
 
 	/**
@@ -679,9 +534,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of LIST_BOX
 	 */
-	public JSField js_newListBox(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newListBox(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.LIST_BOX, x, y, width, height);
+		return newField(dataprovider, Field.LIST_BOX, x, y, width, height);
 	}
 
 	/**
@@ -700,9 +556,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
 	 */
-	public JSField js_newMultiSelectListBox(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newMultiSelectListBox(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.MULTISELECT_LISTBOX, x, y, width, height);
+		return newField(dataprovider, Field.MULTISELECT_LISTBOX, x, y, width, height);
 	}
 
 	/**
@@ -721,9 +578,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of SPINNER
 	 */
-	public JSField js_newSpinner(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newSpinner(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.SPINNER, x, y, width, height);
+		return newField(dataprovider, Field.SPINNER, x, y, width, height);
 	}
 
 	/**
@@ -744,9 +602,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSField object with the displayType of RADIOS (radio buttons)
 	 */
-	public JSField js_newRadios(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newRadios(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.RADIOS, x, y, width, height);
+		return newField(dataprovider, Field.RADIOS, x, y, width, height);
 	}
 
 	/**
@@ -765,9 +624,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of CHECK (checkbox)
 	 */
-	public JSField js_newCheck(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newCheck(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.CHECKS, x, y, width, height);
+		return newField(dataprovider, Field.CHECKS, x, y, width, height);
 	}
 
 	/**
@@ -786,9 +646,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of CALENDAR
 	 */
-	public JSField js_newCalendar(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newCalendar(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.CALENDAR, x, y, width, height);
+		return newField(dataprovider, Field.CALENDAR, x, y, width, height);
 	}
 
 	/**
@@ -807,9 +668,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSField object with the displayType of RTF_AREA
 	 */
-	public JSField js_newRtfArea(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newRtfArea(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.RTF_AREA, x, y, width, height);
+		return newField(dataprovider, Field.RTF_AREA, x, y, width, height);
 	}
 
 	/**
@@ -818,7 +680,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var textProvider = form.newVariable('myVar',JSVariable.TEXT);
-	 * textProvider.defaultValue = "'This is a tripple quotted text!'";
+	 * textProvider.defaultValue = "'This is a triple quoted text!'";
 	 * var htmlArea = myListViewForm.newHtmlArea(textProvider,100,100,100,100);
 	 * forms['newForm1'].controller.show();
 	 * 
@@ -830,9 +692,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSField object on the form with the displayType of HTML_AREA 
 	 */
-	public JSField js_newHtmlArea(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newHtmlArea(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.HTML_AREA, x, y, width, height);
+		return newField(dataprovider, Field.HTML_AREA, x, y, width, height);
 	}
 
 	/**
@@ -852,9 +715,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of IMAGE_MEDIA
 	 */
-	public JSField js_newImageMedia(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newImageMedia(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.IMAGE_MEDIA, x, y, width, height);
+		return newField(dataprovider, Field.IMAGE_MEDIA, x, y, width, height);
 	}
 
 	/**
@@ -876,9 +740,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSField object with the displayType of TYPE_AHEAD
 	 */
-	public JSField js_newTypeAhead(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newTypeAhead(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.TYPE_AHEAD, x, y, width, height);
+		return newField(dataprovider, Field.TYPE_AHEAD, x, y, width, height);
 	}
 
 	/**
@@ -897,9 +762,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSField object on the form with the displayType of PASSWORD
 	 */
-	public JSField js_newPassword(Object dataprovider, int x, int y, int width, int height)
+	@JSFunction
+	public JSField newPassword(Object dataprovider, int x, int y, int width, int height)
 	{
-		return js_newField(dataprovider, Field.PASSWORD, x, y, width, height);
+		return newField(dataprovider, Field.PASSWORD, x, y, width, height);
 	}
 
 	/**
@@ -925,7 +791,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a new JSButton object
 	 */
-	public JSButton js_newButton(String txt, int x, int y, int width, int height, Object action)
+	@JSFunction
+	public JSButton newButton(String txt, int x, int y, int width, int height, Object action)
 	{
 		checkModification();
 		try
@@ -936,7 +803,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 			if (action instanceof JSMethod)
 			{
 				JSButton button = new JSButton(this, gc, application, true);
-				button.js_setOnAction((JSMethod)action);
+				button.setOnAction((JSMethod)action);
 				return button;
 			}
 			else
@@ -972,9 +839,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSLabel object
 	 */
-	public JSLabel js_newLabel(String txt, int x, int y, int width, int height)
+	@JSFunction
+	public JSLabel newLabel(String txt, int x, int y, int width, int height)
 	{
-		return js_newLabel(txt, x, y, width, height, null);
+		return newLabel(txt, x, y, width, height, null);
 	}
 
 	/**
@@ -999,7 +867,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSLabel object
 	 */
-	public JSLabel js_newLabel(String txt, int x, int y, int width, int height, Object action)
+	@JSFunction
+	public JSLabel newLabel(String txt, int x, int y, int width, int height, Object action)
 	{
 		checkModification();
 		try
@@ -1010,7 +879,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 			if (action instanceof JSMethod)
 			{
 				JSLabel label = new JSLabel(this, gc, application, true);
-				label.js_setOnAction((JSMethod)action);
+				label.setOnAction((JSMethod)action);
 				return label;
 			}
 			else
@@ -1030,10 +899,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		}
 	}
 
-	/**
-	 * @param action
-	 * @param gc
-	 */
 	protected static int getMethodId(Object action, GraphicalComponent gc, IApplication application)
 	{
 		int methodId = -1;
@@ -1079,7 +944,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSPortal object 
 	 */
-	public JSPortal js_newPortal(String name, Object relation, int x, int y, int width, int height)
+	@JSFunction
+	public JSPortal newPortal(String name, Object relation, int x, int y, int width, int height)
 	{
 		checkModification();
 		try
@@ -1097,7 +963,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 			}
 			else if (relation instanceof JSRelation)
 			{
-				relationName = ((JSRelation)relation).js_getName();
+				relationName = ((JSRelation)relation).getName();
 			}
 			portal.setRelationName(relationName);
 			return new JSPortal(this, portal, application, true);
@@ -1120,7 +986,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSPortal object
 	 */
-	public JSPortal js_getPortal(String name)
+	@JSFunction
+	public JSPortal getPortal(String name)
 	{
 		if (name == null) return null;
 		Iterator<Portal> portals = application.getFlattenedSolution().getFlattenedForm(form).getPortals();
@@ -1153,7 +1020,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return true if the JSPortal has successfully been removed; false otherwise
 	 */
-	public boolean js_removePortal(String name)
+	@JSFunction
+	public boolean removePortal(String name)
 	{
 		if (name == null) return false;
 		checkModification();
@@ -1189,7 +1057,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return an array of all JSPortal objects on this form
 	 *
 	 */
-	public JSPortal[] js_getPortals(boolean returnInheritedElements)
+	@JSFunction
+	public JSPortal[] getPortals(boolean returnInheritedElements)
 	{
 		List<JSPortal> portals = new ArrayList<JSPortal>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -1219,9 +1088,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return an array of all JSPortal objects on this form
 	 *
 	 */
-	public JSPortal[] js_getPortals()
+	@JSFunction
+	public JSPortal[] getPortals()
 	{
-		return js_getPortals(false);
+		return getPortals(false);
 	}
 
 	/**
@@ -1248,7 +1118,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSTabPanel object	
 	 */
-	public JSTabPanel js_newTabPanel(String name, int x, int y, int width, int height)
+	@JSFunction
+	public JSTabPanel newTabPanel(String name, int x, int y, int width, int height)
 	{
 		checkModification();
 		try
@@ -1278,7 +1149,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSTabPanel object
 	 */
-	public JSTabPanel js_getTabPanel(String name)
+	@JSFunction
+	public JSTabPanel getTabPanel(String name)
 	{
 		if (name == null) return null;
 		Iterator<TabPanel> tabPanels = application.getFlattenedSolution().getFlattenedForm(form).getTabPanels();
@@ -1316,7 +1188,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return true is the JSTabPanel has been successfully removed, false otherwise
 	 */
-	public boolean js_removeTabPanel(String name)
+	@JSFunction
+	public boolean removeTabPanel(String name)
 	{
 		if (name == null) return false;
 		checkModification();
@@ -1352,7 +1225,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return an array of all JSTabPanel objects on this form			
 	 *		
 	 */
-	public JSTabPanel[] js_getTabPanels(boolean returnInheritedElements)
+	@JSFunction
+	public JSTabPanel[] getTabPanels(boolean returnInheritedElements)
 	{
 		List<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -1382,12 +1256,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return an array of all JSTabPanel objects on this form			
 	 *		
 	 */
-	public JSTabPanel[] js_getTabPanels()
+	@JSFunction
+	public JSTabPanel[] getTabPanels()
 	{
-		return js_getTabPanels(false);
+		return getTabPanels(false);
 	}
 
-	private JSPart[] getParts(int partType)
+	private JSPart[] getPartsInternal(int partType)
 	{
 		ArrayList<JSPart> lst = new ArrayList<JSPart>();
 		Iterator<Part> parts = form.getParts();
@@ -1402,12 +1277,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		return lst.toArray(new JSPart[lst.size()]);
 	}
 
-	private JSPart getPart(int partType)
+	private JSPart getPartInternal(int partType)
 	{
-		return getPart(partType, -1);
+		return getPartInternal(partType, -1);
 	}
 
-	private JSPart getPart(int partType, int height)
+	private JSPart getPartInternal(int partType, int height)
 	{
 		Iterator<Part> parts = application.getFlattenedSolution().getFlattenedForm(form).getParts();
 		while (parts.hasNext())
@@ -1421,10 +1296,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		return null;
 	}
 
-	/**
-	 * @param partType
-	 * @param height
-	 */
 	private boolean testExtendFormForPart(int partType, int height)
 	{
 		Form superForm = application.getFlattenedSolution().getForm(form.getExtendsID());
@@ -1444,21 +1315,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		return false;
 	}
 
-	/**
-	 * @param height
-	 * @return
-	 */
 	private JSPart getOrCreatePart(int partType, int height)
 	{
 		checkModification();
 		JSPart part;
 		if (partType == Part.LEADING_SUBSUMMARY || partType == Part.TRAILING_SUBSUMMARY)
 		{
-			part = getPart(partType, height);
+			part = getPartInternal(partType, height);
 		}
 		else
 		{
-			part = getPart(partType);
+			part = getPartInternal(partType);
 		}
 		if (part == null)
 		{
@@ -1492,7 +1359,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		}
 		else
 		{
-			part.js_setHeight(height);
+			part.setHeight(height);
 		}
 		return part;
 	}
@@ -1517,7 +1384,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created form part.
 	 */
-	public JSPart js_newPart(int type, int height)
+	@JSFunction
+	public JSPart newPart(int type, int height)
 	{
 		return getOrCreatePart(type, height);
 	}
@@ -1531,11 +1399,11 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Title Header form part.
 	 */
-	public JSPart js_newTitleHeaderPart(int height)
+	@JSFunction
+	public JSPart newTitleHeaderPart(int height)
 	{
 		return getOrCreatePart(Part.TITLE_HEADER, height);
 	}
-
 
 	/**
 	 * Creates a new Header part on the form.
@@ -1545,7 +1413,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Header form part.
 	 */
-	public JSPart js_newHeaderPart(int height)
+	@JSFunction
+	public JSPart newHeaderPart(int height)
 	{
 		return getOrCreatePart(Part.HEADER, height);
 	}
@@ -1558,7 +1427,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Leading Grand Summary form part.
 	 */
-	public JSPart js_newLeadingGrandSummaryPart(int height)
+	@JSFunction
+	public JSPart newLeadingGrandSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.LEADING_GRAND_SUMMARY, height);
 	}
@@ -1571,7 +1441,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Leading Subsummary form part.
 	 */
-	public JSPart js_newLeadingSubSummaryPart(int height)
+	@JSFunction
+	public JSPart newLeadingSubSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.LEADING_SUBSUMMARY, height);
 	}
@@ -1585,7 +1456,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Trailing Subsummary form part.
 	 */
-	public JSPart js_newTrailingSubSummaryPart(int height)
+	@JSFunction
+	public JSPart newTrailingSubSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.TRAILING_SUBSUMMARY, height);
 	}
@@ -1598,7 +1470,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Trailing Grand Summary form part.
 	 */
-	public JSPart js_newTrailingGrandSummaryPart(int height)
+	@JSFunction
+	public JSPart newTrailingGrandSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.TRAILING_GRAND_SUMMARY, height);
 	}
@@ -1611,7 +1484,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Footer form part.
 	 */
-	public JSPart js_newFooterPart(int height)
+	@JSFunction
+	public JSPart newFooterPart(int height)
 	{
 		return getOrCreatePart(Part.FOOTER, height);
 	}
@@ -1625,7 +1499,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Title Footer form part.
 	 */
-	public JSPart js_newTitleFooterPart(int height)
+	@JSFunction
+	public JSPart newTitleFooterPart(int height)
 	{
 		return getOrCreatePart(Part.TITLE_FOOTER, height);
 	}
@@ -1643,7 +1518,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @param returnInheritedElements boolean true to also return the parts from parent form
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
-	public JSPart[] js_getParts(boolean returnInheritedElements)
+	@JSFunction
+	public JSPart[] getParts(boolean returnInheritedElements)
 	{
 		List<JSPart> lst = new ArrayList<JSPart>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -1667,9 +1543,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */
-	public JSPart[] js_getParts()
+	@JSFunction
+	public JSPart[] getParts()
 	{
-		return js_getParts(false);
+		return getParts(false);
 	}
 
 
@@ -1684,9 +1561,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *
 	 * @return A JSPart instance representing the retrieved form part.
 	 */
-	public JSPart js_getPart(int type)
+	@JSFunction
+	public JSPart getPart(int type)
 	{
-		return getPart(type);
+		return getPartInternal(type);
 	}
 
 	/**
@@ -1704,9 +1582,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance representing the retrieved form part.
 	 */
-	public JSPart js_getPart(int type, int height)
+	@JSFunction
+	public JSPart getPart(int type, int height)
 	{
-		return getPart(type, height);
+		return getPartInternal(type, height);
 	}
 
 	/**
@@ -1725,9 +1604,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *
 	 * @return A number holding the Y offset of the specified form part.
 	 */
-	public int js_getPartYOffset(int type)
+	@JSFunction
+	public int getPartYOffset(int type)
 	{
-		return js_getPartYOffset(type, -1);
+		return getPartYOffset(type, -1);
 	}
 
 	/**
@@ -1750,7 +1630,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *                        
 	 * @return A number holding the Y offset of the specified form part.
 	 */
-	public int js_getPartYOffset(int type, int height)
+	@JSFunction
+	public int getPartYOffset(int type, int height)
 	{
 		Form ff = application.getFlattenedSolution().getFlattenedForm(form);
 
@@ -1777,9 +1658,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *                        
 	 * @return True if the part is successfully removed, false otherwise.
 	 */
-	public boolean js_removePart(int type)
+	@JSFunction
+	public boolean removePart(int type)
 	{
-		return js_removePart(type, -1);
+		return removePart(type, -1);
 	}
 
 	/**
@@ -1796,7 +1678,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 *                        
 	 * @return True if the part is successfully removed, false otherwise.
 	 */
-	public boolean js_removePart(int type, int height)
+	@JSFunction
+	public boolean removePart(int type, int height)
 	{
 		checkModification();
 		Iterator<Part> parts = form.getParts();
@@ -1820,9 +1703,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the Body part of the form.
 	 */
-	public JSPart js_getBodyPart()
+	@JSFunction
+	public JSPart getBodyPart()
 	{
-		return getPart(Part.BODY);
+		return getPartInternal(Part.BODY);
 	}
 
 	/**
@@ -1833,9 +1717,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the Title Header part of the form.
 	 */
-	public JSPart js_getTitleHeaderPart()
+	@JSFunction
+	public JSPart getTitleHeaderPart()
 	{
-		return getPart(Part.TITLE_HEADER);
+		return getPartInternal(Part.TITLE_HEADER);
 	}
 
 	/**
@@ -1846,9 +1731,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the Header part of the form.
 	 */
-	public JSPart js_getHeaderPart()
+	@JSFunction
+	public JSPart getHeaderPart()
 	{
-		return getPart(Part.HEADER);
+		return getPartInternal(Part.HEADER);
 	}
 
 	/**
@@ -1859,18 +1745,19 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the Leading Grand Summary part of the form.
 	 */
-	public JSPart js_getLeadingGrandSummaryPart()
+	@JSFunction
+	public JSPart getLeadingGrandSummaryPart()
 	{
-		return getPart(Part.LEADING_GRAND_SUMMARY);
+		return getPartInternal(Part.LEADING_GRAND_SUMMARY);
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getLeadingSubSummaryParts()
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getLeadingSubSummaryParts()
 	 */
 	@Deprecated
 	public JSPart js_getLeadingSubSummaryPart()
 	{
-		return getPart(Part.LEADING_SUBSUMMARY);
+		return getPartInternal(Part.LEADING_SUBSUMMARY);
 	}
 
 	/**
@@ -1881,18 +1768,19 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return An array of JSPart instances corresponding to the Leading Subsummary parts of the form.
 	 */
-	public JSPart[] js_getLeadingSubSummaryParts()
+	@JSFunction
+	public JSPart[] getLeadingSubSummaryParts()
 	{
-		return getParts(Part.LEADING_SUBSUMMARY);
+		return getPartsInternal(Part.LEADING_SUBSUMMARY);
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getTrailingSubSummaryParts()
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getTrailingSubSummaryParts()
 	 */
 	@Deprecated
 	public JSPart js_getTrailingSubSummaryPart()
 	{
-		return getPart(Part.TRAILING_SUBSUMMARY);
+		return getPartInternal(Part.TRAILING_SUBSUMMARY);
 	}
 
 	/**
@@ -1903,9 +1791,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return An array of JSPart instances corresponding to the Trailing Subsummary parts of the form.
 	 */
-	public JSPart[] js_getTrailingSubSummaryParts()
+	@JSFunction
+	public JSPart[] getTrailingSubSummaryParts()
 	{
-		return getParts(Part.TRAILING_SUBSUMMARY);
+		return getPartsInternal(Part.TRAILING_SUBSUMMARY);
 	}
 
 	/**
@@ -1916,9 +1805,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the Trailing Grand Summary part of the form.
 	 */
-	public JSPart js_getTrailingGrandSummaryPart()
+	@JSFunction
+	public JSPart getTrailingGrandSummaryPart()
 	{
-		return getPart(Part.TRAILING_GRAND_SUMMARY);
+		return getPartInternal(Part.TRAILING_GRAND_SUMMARY);
 	}
 
 	/**
@@ -1929,9 +1819,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the Footer part of the form.
 	 */
-	public JSPart js_getFooterPart()
+	@JSFunction
+	public JSPart getFooterPart()
 	{
-		return getPart(Part.FOOTER);
+		return getPartInternal(Part.FOOTER);
 	}
 
 	/**
@@ -1942,9 +1833,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return A JSPart instance corresponding to the Title Footer part of the form.
 	 */
-	public JSPart js_getTitleFooterPart()
+	@JSFunction
+	public JSPart getTitleFooterPart()
 	{
-		return getPart(Part.TITLE_FOOTER);
+		return getPartInternal(Part.TITLE_FOOTER);
 	}
 
 	/**
@@ -1959,7 +1851,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSField object
 	 */
-	public JSField js_getField(String name)
+	@JSFunction
+	public JSField getField(String name)
 	{
 		if (name == null) return null;
 
@@ -1991,7 +1884,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return true is the JSField has been successfully removed; false otherwise
 	 */
-	public boolean js_removeField(String name)
+	@JSFunction
+	public boolean removeField(String name)
 	{
 		if (name == null) return false;
 		checkModification();
@@ -2025,7 +1919,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return all JSField objects of this form
 	 *
 	 */
-	public JSField[] js_getFields(boolean returnInheritedElements)
+	@JSFunction
+	public JSField[] getFields(boolean returnInheritedElements)
 	{
 		List<JSField> fields = new ArrayList<JSField>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -2053,9 +1948,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return all JSField objects of this form
 	 *
 	 */
-	public JSField[] js_getFields()
+	@JSFunction
+	public JSField[] getFields()
 	{
-		return js_getFields(false);
+		return getFields(false);
 	}
 
 	/**
@@ -2069,7 +1965,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSButton object 
 	 */
-	public JSButton js_getButton(String name)
+	@JSFunction
+	public JSButton getButton(String name)
 	{
 		if (name == null) return null;
 
@@ -2101,7 +1998,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return true if the JSButton has been removed; false otherwise
 	 */
-	public boolean js_removeButton(String name)
+	@JSFunction
+	public boolean removeButton(String name)
 	{
 		if (name == null) return false;
 		checkModification();
@@ -2135,7 +2033,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSButton[] js_getButtons(boolean returnInheritedElements)
+	@JSFunction
+	public JSButton[] getButtons(boolean returnInheritedElements)
 	{
 		List<JSButton> buttons = new ArrayList<JSButton>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -2167,9 +2066,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSButton[] js_getButtons()
+	@JSFunction
+	public JSButton[] getButtons()
 	{
-		return js_getButtons(false);
+		return getButtons(false);
 	}
 
 	/**
@@ -2189,7 +2089,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSBean object 
 	 */
-	public JSBean js_newBean(String name, String className, int x, int y, int width, int height)
+	@JSFunction
+	public JSBean newBean(String name, String className, int x, int y, int width, int height)
 	{
 		checkModification();
 		try
@@ -2216,7 +2117,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSBean object 
 	 */
-	public JSBean js_getBean(String name)
+	@JSFunction
+	public JSBean getBean(String name)
 	{
 		if (name == null) return null;
 
@@ -2250,7 +2152,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return true if the JSBean has been removed; false otherwise
 	 */
-	public boolean js_removeBean(String name)
+	@JSFunction
+	public boolean removeBean(String name)
 	{
 		if (name == null) return false;
 		checkModification();
@@ -2283,7 +2186,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSBean[] js_getBeans(boolean returnInheritedElements)
+	@JSFunction
+	public JSBean[] getBeans(boolean returnInheritedElements)
 	{
 		List<JSBean> beans = new ArrayList<JSBean>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -2309,9 +2213,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return the list of all JSbuttons on this forms
 	 *
 	 */
-	public JSBean[] js_getBeans()
+	@JSFunction
+	public JSBean[] getBeans()
 	{
-		return js_getBeans(false);
+		return getBeans(false);
 	}
 
 	/**
@@ -2326,19 +2231,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean or JSTabPanel)
 	 */
-	public JSComponent< ? > js_getComponent(String name)
+	@JSFunction
+	public JSComponent< ? > getComponent(String name)
 	{
-		JSComponent< ? > comp = js_getLabel(name);
+		JSComponent< ? > comp = getLabel(name);
 		if (comp != null) return comp;
-		comp = js_getButton(name);
+		comp = getButton(name);
 		if (comp != null) return comp;
-		comp = js_getField(name);
+		comp = getField(name);
 		if (comp != null) return comp;
-		comp = js_getPortal(name);
+		comp = getPortal(name);
 		if (comp != null) return comp;
-		comp = js_getTabPanel(name);
+		comp = getTabPanel(name);
 		if (comp != null) return comp;
-		comp = js_getBean(name);
+		comp = getBean(name);
 		if (comp != null) return comp;
 		return null;
 	}
@@ -2377,15 +2283,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return true if component has been successfully deleted; false otherwise
 	 */
-	public boolean js_removeComponent(String name)
+	@JSFunction
+	public boolean removeComponent(String name)
 	{
 		if (name == null) return false;
-		if (js_removeLabel(name)) return true;
-		if (js_removeButton(name)) return true;
-		if (js_removeField(name)) return true;
-		if (js_removePortal(name)) return true;
-		if (js_removeTabPanel(name)) return true;
-		if (js_removeBean(name)) return true;
+		if (removeLabel(name)) return true;
+		if (removeButton(name)) return true;
+		if (removeField(name)) return true;
+		if (removePortal(name)) return true;
+		if (removeTabPanel(name)) return true;
+		if (removeBean(name)) return true;
 		return false;
 	}
 
@@ -2401,15 +2308,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
 	 * @return an array of all the JSComponents on the form.
 	 */
-	public JSComponent< ? >[] js_getComponents(boolean returnInheritedElements)
+	@JSFunction
+	public JSComponent< ? >[] getComponents(boolean returnInheritedElements)
 	{
 		List<JSComponent< ? >> lst = new ArrayList<JSComponent< ? >>();
-		lst.addAll(Arrays.asList(js_getLabels(returnInheritedElements)));
-		lst.addAll(Arrays.asList(js_getButtons(returnInheritedElements)));
-		lst.addAll(Arrays.asList(js_getFields(returnInheritedElements)));
-		lst.addAll(Arrays.asList(js_getPortals(returnInheritedElements)));
-		lst.addAll(Arrays.asList(js_getBeans(returnInheritedElements)));
-		lst.addAll(Arrays.asList(js_getTabPanels(returnInheritedElements)));
+		lst.addAll(Arrays.asList(getLabels(returnInheritedElements)));
+		lst.addAll(Arrays.asList(getButtons(returnInheritedElements)));
+		lst.addAll(Arrays.asList(getFields(returnInheritedElements)));
+		lst.addAll(Arrays.asList(getPortals(returnInheritedElements)));
+		lst.addAll(Arrays.asList(getBeans(returnInheritedElements)));
+		lst.addAll(Arrays.asList(getTabPanels(returnInheritedElements)));
 		return lst.toArray(new JSComponent[lst.size()]);
 	}
 
@@ -2424,9 +2332,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return an array of all the JSComponents on the form.
 	 */
-	public JSComponent< ? >[] js_getComponents()
+	@JSFunction
+	public JSComponent< ? >[] getComponents()
 	{
-		return js_getComponents(false);
+		return getComponents(false);
 	}
 
 	/**
@@ -2441,7 +2350,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return a JSLabel object (or null if the label with the specified name does not exist)
 	 */
-	public JSLabel js_getLabel(String name)
+	@JSFunction
+	public JSLabel getLabel(String name)
 	{
 		if (name == null) return null;
 
@@ -2482,7 +2392,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 
 	 * @return true if the JSLabel with the given name has successfully been removed; false otherwise
 	 */
-	public boolean js_removeLabel(String name)
+	@JSFunction
+	public boolean removeLabel(String name)
 	{
 		if (name == null) return false;
 		checkModification();
@@ -2516,7 +2427,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return all JSLabels on this form
 	 *
 	 */
-	public JSLabel[] js_getLabels(boolean returnInheritedElements)
+	@JSFunction
+	public JSLabel[] getLabels(boolean returnInheritedElements)
 	{
 		List<JSLabel> labels = new ArrayList<JSLabel>();
 		Form form2use = returnInheritedElements ? application.getFlattenedSolution().getFlattenedForm(form) : form;
@@ -2548,17 +2460,26 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @return all JSLabels on this form
 	 *
 	 */
-	public JSLabel[] js_getLabels()
+	@JSFunction
+	public JSLabel[] getLabels()
 	{
-		return js_getLabels(false);
+		return getLabels(false);
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#js_getBorderType()
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
 	 */
-	public String js_getBorderType()
+	@JSGetter
+	public String getBorderType()
 	{
 		return form.getBorderType();
+	}
+
+	@JSSetter
+	public void setBorderType(String b)
+	{
+		checkModification();
+		form.setBorderType(b);
 	}
 
 	/**
@@ -2569,9 +2490,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * application.output(form.defaultPageFormat);
 	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS) 
 	 */
-	public String js_getDefaultPageFormat()
+	@JSGetter
+	public String getDefaultPageFormat()
 	{
 		return form.getDefaultPageFormat();
+	}
+
+	@JSSetter
+	public void setDefaultPageFormat(String string)
+	{
+		checkModification();
+		form.setDefaultPageFormat(string);
 	}
 
 	/**
@@ -2583,7 +2512,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * subForm.extendsForm = superForm;
 	 * 
 	 */
-	public JSForm js_getExtendsForm()
+	@JSGetter
+	public JSForm getExtendsForm()
 	{
 		int extendsFormID = form.getExtendsID();
 		if (extendsFormID > 0)
@@ -2597,6 +2527,41 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		return null;
 	}
 
+	@JSSetter
+	public void setExtendsForm(Object superForm)
+	{
+		checkModification();
+		Form f = null;
+		if (superForm instanceof JSForm)
+		{
+			f = ((JSForm)superForm).getSupportChild();
+		}
+		else if (superForm instanceof String)
+		{
+			f = application.getFlattenedSolution().getForm((String)superForm);
+		}
+
+		if (f == null)
+		{
+			if (superForm != null)
+			{
+				// this kind of argument is not supported or wrong
+				throw new RuntimeException("extendsForm must receive either null, a JSForm object or a valid form name");
+			}
+
+			form.setExtendsID(AbstractBase.DEFAULT_INT);
+		}
+		else
+		{
+//			if (!f.getTableName().equals(form.getTableName()) || !f.getServerName().equals(form.getServerName()))
+//			{
+//				throw new RuntimeException("Cant set an extends form with table: " + f.getTableName() + " on a form with table : " + form.getTableName());
+//			}
+			form.setExtendsID(f.getID());
+		}
+	}
+
+
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getInitialSort()
 	 * 
@@ -2605,9 +2570,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.initialSort = "column1 desc, column2 asc, column3 asc";
 	 * 
 	 */
-	public String js_getInitialSort()
+	@JSGetter
+	public String getInitialSort()
 	{
 		return form.getInitialSort();
+	}
+
+	@JSSetter
+	public void setInitialSort(String arg)
+	{
+		checkModification();
+		form.setInitialSort(arg);
 	}
 
 	/**
@@ -2619,7 +2592,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * application.output(formName);
 	 * 
 	 */
-	public String js_getName()
+	@JSReadonlyProperty
+	public String getName()
 	{
 		return form.getName();
 	}
@@ -2638,7 +2612,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * application.output(myListViewForm.navigator.name);
 	 * 
 	 */
-	public Object js_getNavigator()
+	@JSGetter
+	public Object getNavigator()
 	{
 		if (form.getNavigatorID() <= 0)
 		{
@@ -2652,6 +2627,40 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		return null;
 	}
 
+	@JSSetter
+	public void setNavigator(Object navigator)
+	{
+		checkModification();
+		int id = 0;
+		if (navigator instanceof JSForm)
+		{
+			id = ((JSForm)navigator).getSupportChild().getID();
+		}
+		else if (navigator instanceof String)
+		{
+			Form f = application.getFlattenedSolution().getForm((String)navigator);
+			if (f != null)
+			{
+				id = f.getID();
+			}
+			else
+			{
+				throw new RuntimeException("cannot find form with name '" + (String)navigator + "'");
+			}
+		}
+		else if (navigator instanceof Number)
+		{
+			id = ((Number)navigator).intValue();
+		}
+		else if (navigator != null)
+		{
+			throw new RuntimeException("cannot get navigator form from given object '" + navigator.toString() + "'");
+		}
+
+		form.setNavigatorID(id);
+	}
+
+
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getPaperPrintScale()
 	 * 
@@ -2661,9 +2670,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 	form.paperPrintScale = 100;
 	 * 
 	 */
-	public int js_getPaperPrintScale()
+	@JSGetter
+	public int getPaperPrintScale()
 	{
 		return form.getPaperPrintScale();
+	}
+
+	@JSSetter
+	public void setPaperPrintScale(int arg)
+	{
+		checkModification();
+		form.setPaperPrintScale(arg);
 	}
 
 	/**
@@ -2675,7 +2692,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.rowBGColorCalculation = "scopes.globals.calculationDataProvider";
 	 * 
 	 * @deprecated onRender event replaces rowBGColorCalculation functionality
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getOnRender()
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getOnRender()
 	 */
 	@Deprecated
 	public String js_getRowBGColorCalculation()
@@ -2691,9 +2708,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.scrollbars = SM_SCROLLBAR.VERTICAL_SCROLLBAR_NEVER; 
 	 * forms['newForm1'].controller.show();
 	 */
-	public int js_getScrollbars()
+	@JSGetter
+	public int getScrollbars()
 	{
 		return form.getScrollbars();
+	}
+
+	@JSSetter
+	public void setScrollbars(int i)
+	{
+		checkModification();
+		form.setScrollbars(i);
 	}
 
 	/**
@@ -2702,12 +2727,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample 
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
 	 * form.serverName = 'anotherServerName';
-	 * var theServerName = form.getServerName();
+	 * var theServerName = form.serverName;
 	 * application.output(theServerName);
 	 */
-	public String js_getServerName()
+	@JSGetter
+	public String getServerName()
 	{
 		return form.getServerName();
+	}
+
+	@JSSetter
+	public void setServerName(String arg)
+	{
+		checkModification();
+		form.setServerName(arg);
 	}
 
 	/**
@@ -2723,9 +2756,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * application.output(aForm.navigator.name);
 	 * 
 	 */
-	public boolean js_getShowInMenu()
+	@JSGetter
+	public boolean getShowInMenu()
 	{
 		return form.getShowInMenu();
+	}
+
+	@JSSetter
+	public void setShowInMenu(boolean arg)
+	{
+		checkModification();
+		form.setShowInMenu(arg);
+		FormManager formManager = (FormManager)application.getFormManager();
+		formManager.removeForm(form);
+		formManager.addForm(form, false);
 	}
 
 	/**
@@ -2738,9 +2782,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * else
 	 * 	application.output("The Cascading Style Sheet (CSS) class name applied to this form is " + aForm.styleClass); 
 	 */
-	public String js_getStyleClass()
+	@JSGetter
+	public String getStyleClass()
 	{
 		return form.getStyleClass();
+	}
+
+	@JSSetter
+	public void setStyleClass(String arg)
+	{
+		checkModification();
+		form.setStyleClass(arg);
 	}
 
 	/**
@@ -2754,9 +2806,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 	application.output("The name of the Servoy style that is being used on the form is " + aForm.styleName); 
 	 * 
 	 */
-	public String js_getStyleName()
+	@JSGetter
+	public String getStyleName()
 	{
 		return form.getStyleName();
+	}
+
+	@JSSetter
+	public void setStyleName(String arg)
+	{
+		checkModification();
+		form.setStyleName(arg);
 	}
 
 	/**
@@ -2772,9 +2832,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 	forms['newForm1'].controller.search()
 	 * }
 	 */
-	public String js_getTableName()
+	@JSGetter
+	public String getTableName()
 	{
 		return form.getTableName();
+	}
+
+	@JSSetter
+	public void setTableName(String arg)
+	{
+		checkModification();
+		form.setTableName(arg);
 	}
 
 	/**
@@ -2785,9 +2853,32 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * myForm.dataSource = 'db:/anotherServerName/anotherTableName'
 	 * 
 	 */
-	public String js_getDataSource()
+	@JSGetter
+	public String getDataSource()
 	{
 		return form.getDataSource();
+	}
+
+	@JSSetter
+	public void setDataSource(String arg)
+	{
+		// check syntax, do not accept invalid URIs
+		if (arg != null)
+		{
+			try
+			{
+				new URI(arg);
+			}
+			catch (URISyntaxException e)
+			{
+				throw new RuntimeException("Invalid dataSource URI: '" + arg + "' :" + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+			}
+		}
+		checkModification();
+		form.setDataSource(arg);
+		// clear the data provider lookups affected by this change
+		FlattenedSolution fs = application.getFlattenedSolution();
+		fs.flushDataProviderLookups(form);
 	}
 
 	/**
@@ -2805,10 +2896,19 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * 	application.output("My text text is already cool");
 	 * 
 	 */
-	public String js_getTitleText()
+	@JSGetter
+	public String getTitleText()
 	{
 		return form.getTitleText();
 	}
+
+	@JSSetter
+	public void setTitleText(String string)
+	{
+		checkModification();
+		form.setTitleText(string);
+	}
+
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTransparent()
@@ -2824,9 +2924,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var field = form.newField('columnTextDataProvider',JSField.TEXT_FIELD,100,100,100,50);
 	 * forms['myForm'].controller.show(); 
 	 */
-	public boolean js_getTransparent()
+	@JSGetter
+	public boolean getTransparent()
 	{
 		return form.getTransparent();
+	}
+
+	@JSSetter
+	public void setTransparent(boolean arg)
+	{
+		checkModification();
+		form.setTransparent(arg);
 	}
 
 	/**
@@ -2844,13 +2952,21 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var myForm = solutionModel.getForm('my_form_name');
 	 * if (myForm.selectionMode == JSForm.SELECTION_MODE_MULTI) myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
 	 */
-	public int js_getSelectionMode()
+	@JSGetter
+	public int getSelectionMode()
 	{
 		return form.getSelectionMode();
 	}
 
+	@JSSetter
+	public void setSelectionMode(int arg)
+	{
+		checkModification();
+		form.setSelectionMode(arg);
+	}
+
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#js_getNamedFoundSet()
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getNamedFoundSet()
 	 */
 	@Deprecated
 	public boolean js_getUseSeparateFoundSet()
@@ -2895,7 +3011,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var frmGlobalRel = solutionModel.newForm("categories_related", solutionModel.getForm("categories"));
 	 * frmGlobalRel.namedFoundSet = solutionModel.getRelation("g1_to_categories");
 	 */
-	public String js_getNamedFoundSet()
+	@JSGetter
+	public String getNamedFoundSet()
 	{
 		String namedFoundset = form.getNamedFoundSet();
 		if (namedFoundset != null && namedFoundset.startsWith(Form.NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX))
@@ -2905,792 +3022,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		return namedFoundset;
 	}
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
-	 *
-	 * @sample 
-	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * myForm.view = JSForm.RECORD_VIEW;
-	 * forms['newForm1'].controller.show();
-	 */
-	public int js_getView()
-	{
-		return form.getView();
-	}
-
-	/**
-	 * @deprecated  As of release 4.1, replaced by {@link JSPart#getHeight()}.
-	 */
-	@Deprecated
-	public int js_getHeight()
-	{
-		Iterator<Part> parts = form.getParts();
-		while (parts.hasNext())
-		{
-			Part next = parts.next();
-			if (next.getPartType() == Part.BODY)
-			{
-				return next.getHeight();
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
-	 * 
-	 * @sample
-	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * forms['newForm1'].controller.show();
-	 * myForm.width = 120;
-	 * forms['newForm1'].controller.recreateUI();
-	 */
-	public int js_getWidth()
-	{
-		return form.getWidth();
-	}
-
-	public void js_setBorderType(String b)
-	{
-		checkModification();
-		form.setBorderType(b);
-	}
-
-	public void js_setDefaultPageFormat(String string)
-	{
-		checkModification();
-		form.setDefaultPageFormat(string);
-	}
-
-//	public void js_setExtendsForm(JSForm superForm)
-//	{
-//		js_setExtendsForm((Object)superForm);
-//	}
-
-	public void js_setExtendsForm(Object superForm)
-	{
-		checkModification();
-		Form f = null;
-		if (superForm instanceof JSForm)
-		{
-			f = ((JSForm)superForm).getSupportChild();
-		}
-		else if (superForm instanceof String)
-		{
-			f = application.getFlattenedSolution().getForm((String)superForm);
-		}
-
-		if (f == null)
-		{
-			if (superForm != null)
-			{
-				// this kind of argument is not supported or wrong
-				throw new RuntimeException("extendsForm must receive either null, a JSForm object or a valid form name");
-			}
-
-			form.setExtendsID(AbstractBase.DEFAULT_INT);
-		}
-		else
-		{
-//			if (!f.getTableName().equals(form.getTableName()) || !f.getServerName().equals(form.getServerName()))
-//			{
-//				throw new RuntimeException("Cant set an extends form with table: " + f.getTableName() + " on a form with table : " + form.getTableName());
-//			}
-			form.setExtendsID(f.getID());
-		}
-	}
-
-	public void js_setInitialSort(String arg)
-	{
-		checkModification();
-		form.setInitialSort(arg);
-	}
-
-	public void js_setName(String arg)
-	{
-		throw new RuntimeException("name is a read only property of form " + form.getName() + ", can't change it to " + arg);
-	}
-
-	public void js_setNavigator(Object navigator)
-	{
-		checkModification();
-		int id = 0;
-		if (navigator instanceof JSForm)
-		{
-			id = ((JSForm)navigator).getSupportChild().getID();
-		}
-		else if (navigator instanceof String)
-		{
-			Form f = application.getFlattenedSolution().getForm((String)navigator);
-			if (f != null)
-			{
-				id = f.getID();
-			}
-			else
-			{
-				throw new RuntimeException("cannot find form with name '" + (String)navigator + "'");
-			}
-		}
-		else if (navigator instanceof Number)
-		{
-			id = ((Number)navigator).intValue();
-		}
-		else if (navigator != null)
-		{
-			throw new RuntimeException("cannot get navigator form from given object '" + navigator.toString() + "'");
-		}
-
-		form.setNavigatorID(id);
-	}
-
-	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnDeleteAllRecordsCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnDeleteAllRecordsCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnDeleteAllRecordsCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnDeleteAllRecordsCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnDeleteAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnDeleteRecordCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnDeleteRecordCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnDeleteRecordCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnDeleteRecordCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnDeleteRecordCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnDuplicateRecordCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnDuplicateRecordCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnDuplicateRecordCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnDuplicateRecordCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnDuplicateRecordCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnFindCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnFindCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnFindCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnFindCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnFindCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnHideCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnHideMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnHideMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnHideMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnHideMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated  As of release 4.1, replaced by {@link #setOnInvertRecordsCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnInvertRecordsCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnInvertRecordsCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnInvertRecordsCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnInvertRecordsCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnLoad(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnLoadMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnLoadMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnLoadMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnLoadMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnNewRecordCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnNewRecordCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnNewRecordCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnNewRecordCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnNewRecordCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnNextRecordCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnNextRecordCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnNextRecordCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnNextRecordCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnNextRecordCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnOmitRecordCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnOmitRecordCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnOmitRecordCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnOmitRecordCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnOmitRecordCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnPreviousRecordCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnPreviousRecordCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnPreviousRecordCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnPreviousRecordCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnPreviousRecordCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnPrintPreviewCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnPrintPreviewCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnPrintPreviewCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnPrintPreviewCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnPrintPreviewCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnRecordEditStart(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnRecordEditStartMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnRecordEditStartMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnRecordEditStartMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnRecordEditStartMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnRecordEditStop(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnRecordEditStopMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnRecordEditStopMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnRecordEditStopMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnRecordEditStopMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnRecordSelection(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnRecordSelectionMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnRecordSelectionMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnRecordSelectionMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnRecordSelectionMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnSearchCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnSearchCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnSearchCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnSearchCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnSearchCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnShowAllRecordsCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnShowAllRecordsCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnShowAllRecordsCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnShowAllRecordsCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnShowAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnShow(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnShowMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnShowMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnShowMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnShowMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnShowOmittedRecordsCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnShowOmittedRecordsCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnShowOmittedRecordsCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnShowOmittedRecordsCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnShowOmittedRecordsCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnSortCmd(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnSortCmdMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnSortCmdMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnSortCmdMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnSortCmdMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	/**
-	 * @deprecated As of release 4.1, replaced by {@link #setOnUnLoad(JSMethod)}.
-	 */
-	@Deprecated
-	public void js_setOnUnLoadMethod(Object functionOrInteger)
-	{
-		checkModification();
-		if (functionOrInteger instanceof Function)
-		{
-			Function function = (Function)functionOrInteger;
-			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-			if (scriptMethod != null)
-			{
-				form.setOnUnLoadMethodID(scriptMethod.getID());
-			}
-			else
-			{
-				form.setOnUnLoadMethodID(0);
-			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			form.setOnUnLoadMethodID(((Number)functionOrInteger).intValue());
-		}
-	}
-
-	public void js_setPaperPrintScale(int arg)
-	{
-		checkModification();
-		form.setPaperPrintScale(arg);
-	}
-
-	@Deprecated
-	public void js_setRowBGColorCalculation(String arg)
-	{
-		checkModification();
-		form.setRowBGColorCalculation(arg);
-	}
-
-	public void js_setScrollbars(int i)
-	{
-		checkModification();
-		form.setScrollbars(i);
-	}
-
-	public void js_setServerName(String arg)
-	{
-		checkModification();
-		form.setServerName(arg);
-	}
-
-	public void js_setShowInMenu(boolean arg)
-	{
-		checkModification();
-		form.setShowInMenu(arg);
-		FormManager formManager = (FormManager)application.getFormManager();
-		formManager.removeForm(form);
-		formManager.addForm(form, false);
-	}
-
-	public void js_setStyleClass(String arg)
-	{
-		checkModification();
-		form.setStyleClass(arg);
-	}
-
-	public void js_setStyleName(String arg)
-	{
-		checkModification();
-		form.setStyleName(arg);
-	}
-
-	public void js_setTableName(String arg)
-	{
-		checkModification();
-		form.setTableName(arg);
-	}
-
-	public void js_setDataSource(String arg)
-	{
-		// check syntax, do not accept invalid URIs
-		if (arg != null)
-		{
-			try
-			{
-				new URI(arg);
-			}
-			catch (URISyntaxException e)
-			{
-				throw new RuntimeException("Invalid dataSource URI: '" + arg + "' :" + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
-			}
-		}
-		checkModification();
-		form.setDataSource(arg);
-		// clear the data provider lookups affected by this change
-		FlattenedSolution fs = application.getFlattenedSolution();
-		fs.flushDataProviderLookups(form);
-	}
-
-	public void js_setTitleText(String string)
-	{
-		checkModification();
-		form.setTitleText(string);
-	}
-
-	public void js_setTransparent(boolean arg)
-	{
-		checkModification();
-		form.setTransparent(arg);
-	}
-
-	/**
-	 * @since 6.1
-	 */
-	public void js_setSelectionMode(int arg)
-	{
-		checkModification();
-		form.setSelectionMode(arg);
-	}
-
-	@Deprecated
-	public void js_setUseSeparateFoundSet(boolean b)
-	{
-		checkModification();
-		form.setUseSeparateFoundSet(b);
-	}
-
-	public void js_setNamedFoundSet(Object arg)
+	@JSSetter
+	public void setNamedFoundSet(Object arg)
 	{
 		if (arg == null || arg instanceof String)
 		{
@@ -3753,27 +3086,636 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		}
 	}
 
-	public void js_setView(int arg)
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
+	 *
+	 * @sample 
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.view = JSForm.RECORD_VIEW;
+	 * forms['newForm1'].controller.show();
+	 */
+	@JSGetter
+	public int getView()
+	{
+		return form.getView();
+	}
+
+	@JSSetter
+	public void setView(int arg)
 	{
 		checkModification();
 		form.setView(arg);
 	}
 
+	/**
+	 * @deprecated  As of release 4.1, replaced by {@link JSPart#getHeight()}.
+	 */
 	@Deprecated
-	public void js_setHeight(int height)
+	public int js_getHeight()
 	{
-		JSPart part = getPart(Part.BODY);
-		if (part != null)
+		Iterator<Part> parts = form.getParts();
+		while (parts.hasNext())
 		{
-			checkModification();
-			part.js_setHeight(height);
+			Part next = parts.next();
+			if (next.getPartType() == Part.BODY)
+			{
+				return next.getHeight();
+			}
 		}
+		return -1;
 	}
 
-	public void js_setWidth(int width)
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
+	 * 
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * forms['newForm1'].controller.show();
+	 * myForm.width = 120;
+	 * forms['newForm1'].controller.recreateUI();
+	 */
+	@JSGetter
+	public int getWidth()
+	{
+		return form.getWidth();
+	}
+
+	@JSSetter
+	public void setWidth(int width)
 	{
 		checkModification();
 		form.setWidth(width);
+	}
+
+	/**
+	 * @deprecated  As of release 4.1, replaced by setOnDeleteAllRecordsCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnDeleteAllRecordsCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnDeleteAllRecordsCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnDeleteAllRecordsCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnDeleteAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated  As of release 4.1, replaced by setOnDeleteRecordCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnDeleteRecordCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnDeleteRecordCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnDeleteRecordCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnDeleteRecordCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated  As of release 4.1, replaced by setOnDuplicateRecordCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnDuplicateRecordCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnDuplicateRecordCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnDuplicateRecordCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnDuplicateRecordCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated  As of release 4.1, replaced by setOnFindCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnFindCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnFindCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnFindCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnFindCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated  As of release 4.1, replaced by setOnHideCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnHideMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnHideMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnHideMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnHideMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated  As of release 4.1, replaced by setOnInvertRecordsCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnInvertRecordsCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnInvertRecordsCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnInvertRecordsCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnInvertRecordsCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnLoad(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnLoadMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnLoadMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnLoadMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnLoadMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnNewRecordCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnNewRecordCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnNewRecordCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnNewRecordCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnNewRecordCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnNextRecordCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnNextRecordCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnNextRecordCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnNextRecordCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnNextRecordCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnOmitRecordCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnOmitRecordCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnOmitRecordCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnOmitRecordCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnOmitRecordCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnPreviousRecordCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnPreviousRecordCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnPreviousRecordCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnPreviousRecordCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnPreviousRecordCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnPrintPreviewCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnPrintPreviewCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnPrintPreviewCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnPrintPreviewCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnPrintPreviewCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnRecordEditStart(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnRecordEditStartMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnRecordEditStartMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnRecordEditStartMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnRecordEditStartMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnRecordEditStop(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnRecordEditStopMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnRecordEditStopMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnRecordEditStopMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnRecordEditStopMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnRecordSelection(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnRecordSelectionMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnRecordSelectionMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnRecordSelectionMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnRecordSelectionMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnSearchCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnSearchCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnSearchCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnSearchCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnSearchCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnShowAllRecordsCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnShowAllRecordsCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnShowAllRecordsCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnShowAllRecordsCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnShowAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnShow(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnShowMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnShowMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnShowMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnShowMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnShowOmittedRecordsCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnShowOmittedRecordsCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnShowOmittedRecordsCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnShowOmittedRecordsCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnShowOmittedRecordsCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnSortCmd(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnSortCmdMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnSortCmdMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnSortCmdMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnSortCmdMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	/**
+	 * @deprecated As of release 4.1, replaced by setOnUnLoad(JSMethod).
+	 */
+	@Deprecated
+	public void js_setOnUnLoadMethod(Object functionOrInteger)
+	{
+		checkModification();
+		if (functionOrInteger instanceof Function)
+		{
+			Function function = (Function)functionOrInteger;
+			ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
+			if (scriptMethod != null)
+			{
+				form.setOnUnLoadMethodID(scriptMethod.getID());
+			}
+			else
+			{
+				form.setOnUnLoadMethodID(0);
+			}
+		}
+		else if (functionOrInteger instanceof Number)
+		{
+			form.setOnUnLoadMethodID(((Number)functionOrInteger).intValue());
+		}
+	}
+
+	@Deprecated
+	public void js_setRowBGColorCalculation(String arg)
+	{
+		checkModification();
+		form.setRowBGColorCalculation(arg);
+	}
+
+	@Deprecated
+	public void js_setUseSeparateFoundSet(boolean b)
+	{
+		checkModification();
+		form.setUseSeparateFoundSet(b);
+	}
+
+	@Deprecated
+	public void js_setHeight(int height)
+	{
+		JSPart part = getPartInternal(Part.BODY);
+		if (part != null)
+		{
+			checkModification();
+			part.setHeight(height);
+		}
 	}
 
 	private static Form getFormParent(AbstractBase baseComponent)
@@ -3889,7 +3831,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 		return null;
 	}
 
-	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, JSMethod method)
+	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, ISMMethod method)
 	{
 		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method)));
 		persist.putInstanceMethodArguments(methodProperty.getPropertyName(),
@@ -3899,18 +3841,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(TypedProperty<Integer> methodProperty, JSMethod method)
+	protected void setEventHandler(TypedProperty<Integer> methodProperty, ISMMethod method)
 	{
 		checkModification();
 		setEventHandler(application, form, methodProperty, method);
 	}
 
 
-	static int getMethodId(IApplication application, AbstractBase base, JSMethod method)
+	static int getMethodId(IApplication application, AbstractBase base, ISMMethod method)
 	{
 		if (method == null || method == DEFAULTS.COMMAND_DEFAULT) return 0;
 		if (method == DEFAULTS.COMMAND_NONE) return -1;
-		return getMethodId(application, base, method.getScriptMethod());
+		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 
 	static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
@@ -3950,21 +3892,35 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDeleteAllRecordsCmdMethodID()
 	 *
-	 * @sampleas js_getOnNewRecordCmd()
+	 * @sampleas getOnNewRecordCmd()
 	 */
-	public JSMethod js_getOnDeleteAllRecordsCmd()
+	@JSGetter
+	public JSMethod getOnDeleteAllRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnDeleteAllRecordsCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDeleteRecordCmdMethodID()
 	 * 
-	 * @sampleas js_getOnNewRecordCmd()
+	 * @sampleas getOnNewRecordCmd()
 	 */
-	public JSMethod js_getOnDeleteRecordCmd()
+	@JSGetter
+	public JSMethod getOnDeleteRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnDeleteRecordCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, method);
 	}
 
 	/**
@@ -3976,39 +3932,67 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onDragOver = form.newMethod('function onDragOver(event) { application.output("onDragOver intercepted from " + event.getSource()); }');
 	 * form.onDrop = form.newMethod('function onDrop(event) { application.output("onDrop intercepted from " + event.getSource()); }');
 	 */
-	public JSMethod js_getOnDrag()
+	@JSGetter
+	public JSMethod getOnDrag()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
+	}
+
+	@JSSetter
+	public void setOnDrag(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragEndMethodID()
 	 * 
-	 * @sampleas js_getOnDrag()
+	 * @sampleas getOnDrag()
 	 */
-	public JSMethod js_getOnDragEnd()
+	@JSGetter
+	public JSMethod getOnDragEnd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnDragEnd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragOverMethodID()
 	 * 
-	 * @sampleas js_getOnDrag()
+	 * @sampleas getOnDrag()
 	 */
-	public JSMethod js_getOnDragOver()
+	@JSGetter
+	public JSMethod getOnDragOver()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
+	}
+
+	@JSSetter
+	public void setOnDragOver(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDropMethodID()
 	 * 
-	 * @sampleas js_getOnDrag()
+	 * @sampleas getOnDrag()
 	 */
-	public JSMethod js_getOnDrop()
+	@JSGetter
+	public JSMethod getOnDrop()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
+	}
+
+	@JSSetter
+	public void setOnDrop(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, method);
 	}
 
 	/**
@@ -4018,29 +4002,50 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onElementFocusGained = form.newMethod('function onElementFocusGained(event) { application.output("onElementFocusGained intercepted from " + event.getSource()); }');
 	 * form.onElementFocusLost = form.newMethod('function onElementFocusLost(event) { application.output("onElementFocusLost intercepted from " + event.getSource()); }');
 	 */
-	public JSMethod js_getOnElementFocusGained()
+	@JSGetter
+	public JSMethod getOnElementFocusGained()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnElementFocusGained(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementFocusLostMethodID()
 	 * 
-	 * @sampleas js_getOnElementFocusGained()
+	 * @sampleas getOnElementFocusGained()
 	 */
-	public JSMethod js_getOnElementFocusLost()
+	@JSGetter
+	public JSMethod getOnElementFocusLost()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID);
+	}
+
+	@JSSetter
+	public void setOnElementFocusLost(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDuplicateRecordCmdMethodID()
 	 * 
-	 * @sampleas js_getOnNewRecordCmd()
+	 * @sampleas getOnNewRecordCmd()
 	 */
-	public JSMethod js_getOnDuplicateRecordCmd()
+	@JSGetter
+	public JSMethod getOnDuplicateRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnDuplicateRecordCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, method);
 	}
 
 	/**
@@ -4051,29 +4056,50 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onSearchCmd = form.newMethod('function onSearchCmd(event) { application.output("onSearchCmd intercepted on " + event.getFormName()); }');
 	 * form.onShowAllRecordsCmd = form.newMethod('function onShowAllRecordsCmd(event) { application.output("onShowAllRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnFindCmd()
+	@JSGetter
+	public JSMethod getOnFindCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnFindCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnHideMethodID()
 	 *
-	 * @sampleas js_getOnShow()
+	 * @sampleas getOnShow()
 	 */
-	public JSMethod js_getOnHide()
+	@JSGetter
+	public JSMethod getOnHide()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID);
+	}
+
+	@JSSetter
+	public void setOnHide(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnInvertRecordsCmdMethodID()
 	 * 
-	 * @sampleas js_getOnOmitRecordCmd()
+	 * @sampleas getOnOmitRecordCmd()
 	 */
-	public JSMethod js_getOnInvertRecordsCmd()
+	@JSGetter
+	public JSMethod getOnInvertRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnInvertRecordsCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, method);
 	}
 
 	/**
@@ -4083,9 +4109,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onLoad = form.newMethod('function onLoad(event) { application.output("onLoad intercepted on " + event.getFormName()); }');
 	 * form.onUnLoad = form.newMethod('function onUnLoad(event) { application.output("onUnLoad intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnLoad()
+	@JSGetter
+	public JSMethod getOnLoad()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID);
+	}
+
+	@JSSetter
+	public void setOnLoad(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, method);
 	}
 
 	/**
@@ -4097,19 +4130,33 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onDeleteRecordCmd = form.newMethod('function onDeleteRecordCmd(event) { application.output("onDeleteRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onDeleteAllRecordsCmd = form.newMethod('function onDeleteAllRecordsCmd(event) { application.output("onDeleteAllRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnNewRecordCmd()
+	@JSGetter
+	public JSMethod getOnNewRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnNewRecordCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnNextRecordCmdMethodID()
 	 * 
-	 * @sampleas js_getOnPreviousRecordCmd()
+	 * @sampleas getOnPreviousRecordCmd()
 	 */
-	public JSMethod js_getOnNextRecordCmd()
+	@JSGetter
+	public JSMethod getOnNextRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnNextRecordCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, method);
 	}
 
 	/**
@@ -4120,9 +4167,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onShowOmittedRecordsCmd = form.newMethod('function onShowOmittedRecordsCmd(event) { application.output("onShowOmittedRecordsCmd intercepted on " + event.getFormName()); }');
 	 * form.onInvertRecordsCmd = form.newMethod('function onInvertRecordsCmd(event) { application.output("onInvertRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnOmitRecordCmd()
+	@JSGetter
+	public JSMethod getOnOmitRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnOmitRecordCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, method);
 	}
 
 	/**
@@ -4132,9 +4186,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onPreviousRecordCmd = form.newMethod('function onPreviousRecordCmd(event) { application.output("onPreviousRecordCmd intercepted on " + event.getFormName()); }');
 	 * form.onNextRecordCmd = form.newMethod('function onNextRecordCmd(event) { application.output("onNextRecordCmd intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnPreviousRecordCmd()
+	@JSGetter
+	public JSMethod getOnPreviousRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnPreviousRecordCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, method);
 	}
 
 	/**
@@ -4143,9 +4204,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample
 	 * form.onPrintPreviewCmd = form.newMethod('function onPrintPreviewCmd(event) { application.output("onPrintPreviewCmd intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnPrintPreviewCmd()
+	@JSGetter
+	public JSMethod getOnPrintPreviewCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnPrintPreviewCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, method);
 	}
 
 	/**
@@ -4156,49 +4224,84 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onRecordEditStop = form.newMethod('function onRecordEditStop(record, event) { application.output("onRecordEditStop intercepted on " + event.getFormName() + ". record is: " + record); }');
 	 * form.onRecordSelection = form.newMethod('function onRecordSelection(event) { application.output("onRecordSelection intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnRecordEditStart()
+	@JSGetter
+	public JSMethod getOnRecordEditStart()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID);
+	}
+
+	@JSSetter
+	public void setOnRecordEditStart(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordEditStopMethodID()
 	 * 
-	 * @sampleas js_getOnRecordEditStart()
+	 * @sampleas getOnRecordEditStart()
 	 */
-	public JSMethod js_getOnRecordEditStop()
+	@JSGetter
+	public JSMethod getOnRecordEditStop()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID);
+	}
+
+	@JSSetter
+	public void setOnRecordEditStop(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordSelectionMethodID()
 	 * 
-	 * @sampleas js_getOnRecordEditStart()
+	 * @sampleas getOnRecordEditStart()
 	 */
-	public JSMethod js_getOnRecordSelection()
+	@JSGetter
+	public JSMethod getOnRecordSelection()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID);
+	}
+
+	@JSSetter
+	public void setOnRecordSelection(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnSearchCmdMethodID()
 	 * 
-	 * @sampleas js_getOnFindCmd()
+	 * @sampleas getOnFindCmd()
 	 */
-	public JSMethod js_getOnSearchCmd()
+	@JSGetter
+	public JSMethod getOnSearchCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnSearchCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowAllRecordsCmdMethodID()
 	 * 
-	 * @sampleas js_getOnFindCmd()
+	 * @sampleas getOnFindCmd()
 	 */
-	public JSMethod js_getOnShowAllRecordsCmd()
+	@JSGetter
+	public JSMethod getOnShowAllRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnShowAllRecordsCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, method);
 	}
 
 	/**
@@ -4208,19 +4311,33 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
 	 * form.onHide = form.newMethod('function onHide(event) { application.output("onHide blocked on " + event.getFormName()); return false; }');
 	 */
-	public JSMethod js_getOnShow()
+	@JSGetter
+	public JSMethod getOnShow()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID);
+	}
+
+	@JSSetter
+	public void setOnShow(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowOmittedRecordsCmdMethodID()
 	 * 
-	 * @sampleas js_getOnOmitRecordCmd()
+	 * @sampleas getOnOmitRecordCmd()
 	 */
-	public JSMethod js_getOnShowOmittedRecordsCmd()
+	@JSGetter
+	public JSMethod getOnShowOmittedRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnShowOmittedRecordsCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, method);
 	}
 
 	/**
@@ -4229,19 +4346,33 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample
 	 * form.onSortCmd = form.newMethod('function onSortCmd(dataProviderID, asc, event) { application.output("onSortCmd intercepted on " + event.getFormName() + ". data provider: " + dataProviderID + ". asc: " + asc); }');
 	 */
-	public JSMethod js_getOnSortCmd()
+	@JSGetter
+	public JSMethod getOnSortCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID);
+	}
+
+	@JSSetter
+	public void setOnSortCmd(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, method);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnUnLoadMethodID()
 	 * 
-	 * @sampleas js_getOnLoad()
+	 * @sampleas getOnLoad()
 	 */
-	public JSMethod js_getOnUnLoad()
+	@JSGetter
+	public JSMethod getOnUnLoad()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID);
+	}
+
+	@JSSetter
+	public void setOnUnLoad(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, method);
 	}
 
 	/**
@@ -4250,9 +4381,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
 	 */
-	public JSMethod js_getOnResize()
+	@JSGetter
+	public JSMethod getOnResize()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID);
+	}
+
+	@JSSetter
+	public void setOnResize(ISMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, method);
 	}
 
 	/**
@@ -4261,169 +4399,36 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * @sample
 	 * form.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
-	public JSMethod js_getOnRender()
+	@JSGetter
+	public JSMethod getOnRender()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
-	public void js_setOnDeleteAllRecordsCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, method);
-	}
-
-	public void js_setOnDeleteRecordCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, method);
-	}
-
-	public void js_setOnDrag(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, method);
-	}
-
-	public void js_setOnDragEnd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, method);
-	}
-
-	public void js_setOnDragOver(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, method);
-	}
-
-	public void js_setOnDrop(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, method);
-	}
-
-	public void js_setOnElementFocusGained(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, method);
-	}
-
-	public void js_setOnElementFocusLost(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID, method);
-	}
-
-	public void js_setOnDuplicateRecordCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, method);
-	}
-
-	public void js_setOnFindCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, method);
-	}
-
-	public void js_setOnHide(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, method);
-	}
-
-	public void js_setOnInvertRecordsCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, method);
-	}
-
-	public void js_setOnLoad(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, method);
-	}
-
-	public void js_setOnNewRecordCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, method);
-	}
-
-	public void js_setOnNextRecordCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, method);
-	}
-
-	public void js_setOnOmitRecordCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, method);
-	}
-
-	public void js_setOnPreviousRecordCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, method);
-	}
-
-	public void js_setOnPrintPreviewCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, method);
-	}
-
-	public void js_setOnRecordEditStart(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, method);
-	}
-
-	public void js_setOnRecordEditStop(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, method);
-	}
-
-	public void js_setOnRecordSelection(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, method);
-	}
-
-	public void js_setOnSearchCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID, method);
-	}
-
-	public void js_setOnShowAllRecordsCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, method);
-	}
-
-	public void js_setOnShow(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, method);
-	}
-
-	public void js_setOnShowOmittedRecordsCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, method);
-	}
-
-	public void js_setOnSortCmd(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, method);
-	}
-
-	public void js_setOnUnLoad(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, method);
-	}
-
-	public void js_setOnRender(JSMethod method)
+	@JSSetter
+	public void setOnRender(ISMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, method);
 	}
 
-	public void js_setOnResize(JSMethod method)
-	{
-		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, method);
-	}
-
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getEncapsulation()
+	 * Get or set the encapsulation level for the form.
+	 * 
+	 * Encapsulation is one of constants JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION,
+	 * JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION or JSForm.HIDE_ELEMENTS_ENCAPSULATION
 	 *
 	 * @sample 
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
 	 */
-	public int js_getEncapsulation()
+	@JSGetter
+	public int getEncapsulation()
 	{
 		return form.getEncapsulation();
 	}
 
-	public void js_setEncapsulation(int arg)
+	@JSSetter
+	public void setEncapsulation(int arg)
 	{
 		checkModification();
 		form.setEncapsulation(arg);
@@ -4435,7 +4440,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var frm = solutionModel.getForm('orders')
 	 * var prop = frm.getDesignTimeProperty('myprop')	
 	 */
-	public Object js_getDesignTimeProperty(String key)
+	@JSFunction
+	public Object getDesignTimeProperty(String key)
 	{
 		return Utils.parseJSExpression(form.getCustomDesignTimeProperty(key));
 	}
@@ -4446,7 +4452,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.putDesignTimeProperty('myprop', 'lemon')	
 	 */
-	public Object js_putDesignTimeProperty(String key, Object value)
+	@JSFunction
+	public Object putDesignTimeProperty(String key, Object value)
 	{
 		checkModification();
 		return Utils.parseJSExpression(form.putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
@@ -4458,23 +4465,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.removeDesignTimeProperty('myprop')
 	 */
-	public Object js_removeDesignTimeProperty(String key)
+	@JSFunction
+	public Object removeDesignTimeProperty(String key)
 	{
-		return js_putDesignTimeProperty(key, null);
-	}
-
-	/**
-	 * @return
-	 */
-	public IApplication getApplication()
-	{
-		return application;
-	}
-
-	@Override
-	public String toString()
-	{
-		return "JSForm[name:" + form.getName() + ",size:" + form.getSize() + ",datasource:" + form.getDataSource() + ",style:" + form.getStyleName() + "]";
+		return putDesignTimeProperty(key, null);
 	}
 
 	/**
@@ -4484,8 +4478,20 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject
 	 * var form_UUID = myForm.getUUID();
 	 * application.output(form_UUID.toString());
 	 */
-	public UUID js_getUUID()
+	@JSFunction
+	public UUID getUUID()
 	{
 		return form.getUUID();
+	}
+
+	public IApplication getApplication()
+	{
+		return application;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "JSForm[name:" + form.getName() + ",size:" + form.getSize() + ",datasource:" + form.getDataSource() + ",style:" + form.getStyleName() + "]";
 	}
 }

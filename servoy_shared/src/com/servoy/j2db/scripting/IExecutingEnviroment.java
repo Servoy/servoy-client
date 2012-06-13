@@ -23,6 +23,7 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 
 /**
  * Interface to script executor
@@ -94,6 +95,11 @@ public interface IExecutingEnviroment
 	public Object getSOMObject(String name);
 
 	/**
+	 * @return the solutionModifier
+	 */
+	public JSSolutionModel getSolutionModifier();
+
+	/**
 	 * Compile a javascript function definition source
 	 */
 	public Function compileFunction(IScriptProvider sp, Scriptable scope) throws Exception;
@@ -122,5 +128,6 @@ public interface IExecutingEnviroment
 	 * @return evaluation result
 	 */
 	public Object eval(Scriptable scope, String eval_string);
+
 
 }

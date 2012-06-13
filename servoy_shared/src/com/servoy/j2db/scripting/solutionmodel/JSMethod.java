@@ -24,6 +24,9 @@ import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.IRFactory;
 import org.mozilla.javascript.Parser;
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 import org.mozilla.javascript.ast.AstRoot;
 import org.mozilla.javascript.ast.FunctionNode;
 
@@ -34,6 +37,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
@@ -41,7 +45,7 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSMethod implements IJavaScriptType
+public class JSMethod implements IJavaScriptType, ISMMethod
 {
 	protected final IApplication application;
 	protected final IJSScriptParent< ? > parent;
@@ -113,51 +117,15 @@ public class JSMethod implements IJavaScriptType
 	 * method.showInMenu = false;
 	 * var button = form.newButton('Click me!', 10, 10, 100, 30, method);
 	 */
-	public String js_getCode()
+	@JSGetter
+	public String getCode()
 	{
 		if (sm == null) return null; // if a default constant
 		return sm.getDeclaration();
 	}
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getName()
-	 * 
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#js_getCode()
-	 * 
-	 * @return A String holding the name of this method.
-	 */
-	public String js_getName()
-	{
-		if (sm == null) return null; // if a default constant
-		return sm.getName();
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
-	 * 
-	 * @sample 
-	 * var methods = solutionModel.getGlobalMethods(); 
-	 * for (var x in methods) 
-	 * 	application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
-	 */
-	public String js_getScopeName()
-	{
-		if (sm == null) return null; // if a default constant
-		return sm.getScopeName();
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
-	 * 
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#js_getCode()
-	 */
-	public boolean js_getShowInMenu()
-	{
-		if (sm == null) return false; // if a default constant
-		return sm.getShowInMenu();
-	}
-
-	public void js_setCode(String content)
+	@JSSetter
+	public void setCode(String content)
 	{
 		if (sm == null) return; // if a default constant
 		checkModification();
@@ -189,6 +157,55 @@ public class JSMethod implements IJavaScriptType
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getName()
+	 * 
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
+	 * 
+	 * @return A String holding the name of this method.
+	 */
+	@JSFunction
+	public String getName()
+	{
+		if (sm == null) return null; // if a default constant
+		return sm.getName();
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
+	 * 
+	 * @sample 
+	 * var methods = solutionModel.getGlobalMethods(); 
+	 * for (var x in methods) 
+	 * 	application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
+	 */
+	@JSFunction
+	public String getScopeName()
+	{
+		if (sm == null) return null; // if a default constant
+		return sm.getScopeName();
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
+	 * 
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
+	 */
+	@JSGetter
+	public boolean getShowInMenu()
+	{
+		if (sm == null) return false; // if a default constant
+		return sm.getShowInMenu();
+	}
+
+	@JSSetter
+	public void setShowInMenu(boolean arg)
+	{
+		if (sm == null) return; // if a default constant
+		checkModification();
+		sm.setShowInMenu(arg);
+	}
+
+	/**
 	 * Gets the argument array for this method if that is set for the specific action this method is taken from.
 	 * Will return null by default. This is only for reading, you can't alter the arguments through this array, 
 	 * for that you need to create a new object through solutionModel.wrapMethodWithArguments(..) and assign it again.
@@ -207,16 +224,23 @@ public class JSMethod implements IJavaScriptType
 	 * 
 	 * @return Array of the arguments, null if not specified.
 	 */
-	public Object[] js_getArguments()
+	@JSFunction
+	public Object[] getArguments()
 	{
 		return null;
 	}
 
-	public void js_setShowInMenu(boolean arg)
+	/**
+	 * Returns the UUID of the method object
+	 * 
+	 * @sample
+	 * var method = form.newMethod('function original() { application.output("Original function."); }');
+	 * application.output(method.getUUID().toString());
+	 */
+	@JSFunction
+	public UUID getUUID()
 	{
-		if (sm == null) return; // if a default constant
-		checkModification();
-		sm.setShowInMenu(arg);
+		return sm.getUUID();
 	}
 
 	ScriptMethod getScriptMethod()
@@ -263,7 +287,6 @@ public class JSMethod implements IJavaScriptType
 		}
 	}
 
-
 	static class JSErrorReporter implements ErrorReporter
 	{
 
@@ -281,18 +304,6 @@ public class JSMethod implements IJavaScriptType
 		{
 			return new EvaluatorException(message);
 		}
-
 	}
 
-	/**
-	 * Returns the UUID of the method object
-	 * 
-	 * @sample
-	 * var method = form.newMethod('function original() { application.output("Original function."); }');
-	 * application.output(method.getUUID().toString());
-	 */
-	public UUID js_getUUID()
-	{
-		return sm.getUUID();
-	}
 }

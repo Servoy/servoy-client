@@ -405,6 +405,14 @@ public class ScriptEngine implements IScriptSupport
 		return solutionScope;
 	}
 
+	/**
+	 * @return the solutionModifier
+	 */
+	public JSSolutionModel getSolutionModifier()
+	{
+		return solutionModifier;
+	}
+
 	protected final Scriptable getExistingTableScrope(ITable table)
 	{
 		if (tableScopes != null)

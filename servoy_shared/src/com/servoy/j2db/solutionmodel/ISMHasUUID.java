@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,18 +14,25 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting.solutionmodel;
 
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.solutionmodel.ISMLabel;
+package com.servoy.j2db.solutionmodel;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSLabel extends JSGraphicalComponent implements ISMLabel
+import com.servoy.j2db.util.UUID;
+
+/**
+ * Solution model objects that have an UUID.
+ * 
+ * @author rgansevles
+ *
+ */
+public interface ISMHasUUID
 {
-	public JSLabel(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
-	{
-		super(parent, gc, application, isNew);
-	}
+	/**
+	 * Returns the UUID of this component.
+	 * 
+	 * @sample
+	 * var button_uuid = solutionModel.getForm("my_form").getButton("my_button").getUUID();
+	 * application.output(button_uuid.toString());
+	 */
+	public UUID getUUID();
 }

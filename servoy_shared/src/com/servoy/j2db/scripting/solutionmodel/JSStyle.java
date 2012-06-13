@@ -16,11 +16,16 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.solutionmodel.ISMStyle;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -28,17 +33,12 @@ import com.servoy.j2db.util.UUID;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSStyle implements IJavaScriptType
+public class JSStyle implements IJavaScriptType, ISMStyle
 {
-
 	private boolean copy;
 	private Style style;
 	private final IApplication application;
 
-	/**
-	 * @param style
-	 * @param b
-	 */
 	public JSStyle(IApplication application, Style style, boolean copy)
 	{
 		this.application = application;
@@ -57,7 +57,8 @@ public class JSStyle implements IJavaScriptType
 	 *
 	 * @return A String holding the name of the style.
 	 */
-	public String js_getName()
+	@JSFunction
+	public String getName()
 	{
 		return style.getName();
 	}
@@ -65,19 +66,16 @@ public class JSStyle implements IJavaScriptType
 	/**
 	 * The textual content of the style.
 	 * 
-	 * @sampleas js_getName()
+	 * @sampleas getName()
 	 */
-	public String js_getText()
+	@JSGetter
+	public String getText()
 	{
 		return style.getContent();
 	}
 
-	/**
-	 * Sets the css text of this style. Forms have to be recreated to show this change!
-	 *  
-	 * @param text
-	 */
-	public void js_setText(String text)
+	@JSSetter
+	public void setText(String text)
 	{
 		if (!copy)
 		{
@@ -90,13 +88,6 @@ public class JSStyle implements IJavaScriptType
 		ComponentFactory.flushStyle(application, style);
 	}
 
-	@SuppressWarnings("nls")
-	@Override
-	public String toString()
-	{
-		return "JSStyle[name:" + style.getName() + ']';
-	}
-
 	/**
 	 * Returns the UUID of the style object
 	 * 
@@ -104,8 +95,16 @@ public class JSStyle implements IJavaScriptType
 	 * var st = solutionModel.newStyle('myStyle','form { background-color: yellow; }');
 	 * application.output(st.getUUID().toString());
 	 */
-	public UUID js_getUUID()
+	@JSFunction
+	public UUID getUUID()
 	{
 		return style.getUUID();
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String toString()
+	{
+		return "JSStyle[name:" + style.getName() + ']';
 	}
 }

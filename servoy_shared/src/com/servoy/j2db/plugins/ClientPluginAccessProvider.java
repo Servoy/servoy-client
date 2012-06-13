@@ -56,6 +56,7 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.IStyleSheet;
@@ -163,6 +164,11 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	public IBeanManager getBeanManager()
 	{
 		return application.getBeanManager();
+	}
+
+	public ISolutionModel getSolutionModel()
+	{
+		return application.getScriptEngine().getSolutionModifier();
 	}
 
 	public String getApplicationName()

@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,52 +14,19 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting.solutionmodel;
 
-import java.awt.Dimension;
-import java.awt.Point;
+package com.servoy.j2db.solutionmodel;
 
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
-
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.BaseComponent;
-import com.servoy.j2db.persistence.ISupportName;
-import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
-import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.solutionmodel.ISMComponent;
-import com.servoy.j2db.util.IAnchorConstants;
-import com.servoy.j2db.util.PersistHelper;
 
 /**
- * @author jcompagner
+ * Solution model base component interface.
+ * 
+ * @author rgansevles
+ *
+ * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSComponent<T extends BaseComponent> extends JSBase<T> implements IJavaScriptType, ISMComponent
+public interface ISMComponent extends ISMHasUUID
 {
-
-	protected JSComponent(IJSParent< ? > parent, T baseComponent, boolean isNew)
-	{
-		super(parent, baseComponent, isNew);
-	}
-
-	/**
-	 * Set the event handler for the method key, JSMethod may contain arguments.
-	 */
-	protected void setEventHandler(IApplication application, TypedProperty<Integer> methodProperty, JSMethod method)
-	{
-		JSForm.setEventHandler(application, getBaseComponent(true), methodProperty, method);
-	}
-
-	/**
-	 * Get the event handler for the method key, JSMethod may contain arguments.
-	 */
-	protected JSMethod getEventHandler(IApplication application, TypedProperty<Integer> methodProperty)
-	{
-		return JSForm.getEventHandler(application, getBaseComponent(false), methodProperty, getJSParent());
-	}
-
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getBackground()
@@ -72,17 +39,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var redField = form.newField('parent_table_text',JSField.TEXT_FIELD,10,110,100,30);
 	 * redField.background = '#FF0000'; // Use RGB codes for colors.
 	 */
-	@JSGetter
-	public String getBackground()
-	{
-		return PersistHelper.createColorString(getBaseComponent(false).getBackground());
-	}
-
-	@JSSetter
-	public void setBackground(String arg)
-	{
-		getBaseComponent(true).setBackground(PersistHelper.createColor(arg));
-	}
+	public String getBackground();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getBorderType()
@@ -92,17 +49,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.borderType = solutionModel.createBorder(1,'#ff0000');;
 	 */
-	@JSGetter
-	public String getBorderType()
-	{
-		return getBaseComponent(false).getBorderType();
-	}
-
-	@JSSetter
-	public void setBorderType(String arg)
-	{
-		getBaseComponent(true).setBorderType(arg);
-	}
+	public String getBorderType();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getFontType()
@@ -111,17 +58,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var label = form.newLabel('Text here', 10, 50, 100, 20);
 	 * label.fontType = solutionModel.createFont('Times New Roman',1,14);
 	 */
-	@JSGetter
-	public String getFontType()
-	{
-		return getBaseComponent(false).getFontType();
-	}
-
-	@JSSetter
-	public void setFontType(String arg)
-	{
-		getBaseComponent(true).setFontType(arg);
-	}
+	public String getFontType();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getForeground()
@@ -134,17 +71,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var fieldWithYellowText = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 50, 100, 20);
 	 * fieldWithYellowText.foreground = '#FFFF00'; // Use RGB codes for colors.
 	 */
-	@JSGetter
-	public String getForeground()
-	{
-		return PersistHelper.createColorString(getBaseComponent(false).getForeground());
-	}
-
-	@JSSetter
-	public void setForeground(String arg)
-	{
-		getBaseComponent(true).setForeground(PersistHelper.createColor(arg));
-	}
+	public String getForeground();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintSliding()
@@ -156,17 +83,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * slidingLabel.background = 'gray';
 	 * forms['printForm'].controller.showPrintPreview();
 	 */
-	@JSGetter
-	public int getPrintSliding()
-	{
-		return getBaseComponent(false).getPrintSliding();
-	}
-
-	@JSSetter
-	public void setPrintSliding(int i)
-	{
-		getBaseComponent(true).setPrintSliding(i);
-	}
+	public int getPrintSliding();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getStyleClass()
@@ -178,17 +95,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * form.styleName = 'myStyle'; // First set the style on the form.
 	 * field.styleClass = 'fancy'; // Then set the style class on the field.
 	 */
-	@JSGetter
-	public String getStyleClass()
-	{
-		return getBaseComponent(false).getStyleClass();
-	}
-
-	@JSSetter
-	public void setStyleClass(String arg)
-	{
-		getBaseComponent(true).setStyleClass(arg);
-	}
+	public String getStyleClass();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getTransparent()
@@ -206,17 +113,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var transparentField = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 50, 100, 20);
 	 * transparentField.transparent = true;
 	 */
-	@JSGetter
-	public boolean getTransparent()
-	{
-		return getBaseComponent(false).getTransparent();
-	}
-
-	@JSSetter
-	public void setTransparent(boolean arg)
-	{
-		getBaseComponent(true).setTransparent(arg);
-	}
+	public boolean getTransparent();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getAnchors()
@@ -239,25 +136,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * stickToBottomRightCornerLabel.background = 'pink';
 	 * stickToBottomRightCornerLabel.anchors = SM_ANCHOR.SOUTH | SM_ANCHOR.EAST;
 	 */
-	@JSGetter
-	public int getAnchors()
-	{
-		int anchors = getBaseComponent(false).getAnchors();
-		if (anchors <= 0) return IAnchorConstants.DEFAULT;
-		return anchors;
-	}
-
-	@JSSetter
-	public void setAnchors(int arg)
-	{
-		int anchors = arg;
-		// if default is set just reset it really back to 0 so that default is always used.
-		if (arg == IAnchorConstants.DEFAULT)
-		{
-			anchors = 0;
-		}
-		getBaseComponent(true).setAnchors(anchors);
-	}
+	public int getAnchors();
 
 	/**
 	 * The Z index of this component. If two components overlap,
@@ -272,17 +151,9 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * fieldAbove.background = '#FF0000';
 	 * fieldAbove.formIndex = 20;
 	 */
-	@JSGetter
-	public int getFormIndex()
-	{
-		return getBaseComponent(false).getFormIndex();
-	}
+	public int getFormIndex();
 
-	@JSSetter
-	public void setFormIndex(int arg)
-	{
-		getBaseComponent(true).setFormIndex(arg);
-	}
+	public void setFormIndex(int arg);
 
 	/**
 	 * The x coordinate of the component on the form.
@@ -294,34 +165,14 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * field.y = 90;
 	 * application.output('changed location: ' + field.x + ', ' + field.y);
 	 */
-	@JSGetter
-	public int getX()
-	{
-		return getBaseComponent(false).getLocation().x;
-	}
-
-	@JSSetter
-	public void setX(int x)
-	{
-		getBaseComponent(true).setLocation(new Point(x, getBaseComponent(true).getLocation().y));
-	}
+	public int getX();
 
 	/**
 	 * The y coordinate of the component on the form.
 	 * 
 	 * @sampleas getX()
 	 */
-	@JSGetter
-	public int getY()
-	{
-		return getBaseComponent(false).getLocation().y;
-	}
-
-	@JSSetter
-	public void setY(int y)
-	{
-		getBaseComponent(true).setLocation(new Point(getBaseComponent(true).getLocation().x, y));
-	}
+	public int getY();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getName()
@@ -334,17 +185,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * // Now use the name to access the component.
 	 * forms['someForm'].elements['myLabel'].text = 'Updated text';
 	 */
-	@JSGetter
-	public String getName()
-	{
-		return getBaseComponent(false).getName();
-	}
-
-	@JSSetter
-	public void setName(String arg)
-	{
-		getBaseComponent(true).setName(arg);
-	}
+	public String getName();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintable()
@@ -356,17 +197,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * notPrintedField.printable = false; // This field won't show up in print preview and won't be printed.
 	 * forms['printForm'].controller.showPrintPreview()
 	 */
-	@JSGetter
-	public boolean getPrintable()
-	{
-		return getBaseComponent(false).getPrintable();
-	}
-
-	@JSSetter
-	public void setPrintable(boolean arg)
-	{
-		getBaseComponent(true).setPrintable(arg);
-	}
+	public boolean getPrintable();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getEnabled()
@@ -376,17 +207,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.enabled = false;
 	 */
-	@JSGetter
-	public boolean getEnabled()
-	{
-		return getBaseComponent(false).getEnabled();
-	}
-
-	@JSSetter
-	public void setEnabled(boolean arg)
-	{
-		getBaseComponent(true).setEnabled(arg);
-	}
+	public boolean getEnabled();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getVisible()
@@ -396,17 +217,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.visible = false;
 	 */
-	@JSGetter
-	public boolean getVisible()
-	{
-		return getBaseComponent(false).getVisible();
-	}
-
-	@JSSetter
-	public void setVisible(boolean arg)
-	{
-		getBaseComponent(true).setVisible(arg);
-	}
+	public boolean getVisible();
 
 	/**
 	 * The width in pixels of the component.
@@ -420,34 +231,14 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * application.output('modified width: ' + field.width);
 	 * application.output('modified height: ' + field.height);
 	 */
-	@JSGetter
-	public int getWidth()
-	{
-		return getBaseComponent(false).getSize().width;
-	}
-
-	@JSSetter
-	public void setWidth(int width)
-	{
-		getBaseComponent(true).setSize(new Dimension(width, getBaseComponent(true).getSize().height));
-	}
+	public int getWidth();
 
 	/**
 	 * The height in pixels of the component.
 	 * 
 	 * @sampleas getWidth()
 	 */
-	@JSGetter
-	public int getHeight()
-	{
-		return getBaseComponent(false).getSize().height;
-	}
-
-	@JSSetter
-	public void setHeight(int height)
-	{
-		getBaseComponent(true).setSize(new Dimension(getBaseComponent(true).getSize().width, height));
-	}
+	public int getHeight();
 
 	/**
 	 * A String representing a group ID for this component. If several
@@ -464,29 +255,40 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * field.groupID = 'someGroup';	
 	 * forms['someForm'].elements.someGroup.enabled = false;
 	 */
-	@JSGetter
-	public String getGroupID()
-	{
-		return getBaseComponent(false).getGroupID();
-	}
+	public String getGroupID();
 
-	@JSSetter
-	public void setGroupID(String arg)
-	{
-		getBaseComponent(true).setGroupID(arg);
-	}
+	public void setBackground(String arg);
 
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@SuppressWarnings("nls")
-	@Override
-	public String toString()
-	{
-		T comp = getBaseComponent(false);
-		Point loc = comp.getLocation();
-		Dimension dim = comp.getSize();
-		return getClass().getSimpleName() + "[name:" + comp.getName() + ",form:" + ((ISupportName)comp.getParent()).getName() + ",x:" + loc.x + ",y:" + loc.y +
-			",width:" + dim.width + ",height:" + dim.height + ']';
-	}
+	public void setBorderType(String arg);
+
+	public void setFontType(String arg);
+
+	public void setForeground(String arg);
+
+	public void setPrintSliding(int i);
+
+	public void setStyleClass(String arg);
+
+	public void setTransparent(boolean arg);
+
+	public void setAnchors(int arg);
+
+	public void setX(int x);
+
+	public void setY(int y);
+
+	public void setName(String arg);
+
+	public void setPrintable(boolean arg);
+
+	public void setEnabled(boolean arg);
+
+	public void setVisible(boolean arg);
+
+	public void setWidth(int width);
+
+	public void setHeight(int height);
+
+	public void setGroupID(String arg);
+
 }

@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,52 +14,19 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting.solutionmodel;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
+package com.servoy.j2db.solutionmodel;
 
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.annotations.JSFunction;
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
-
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.dataprocessing.RelatedFoundSet;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptMethod;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.persistence.Tab;
-import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.solutionmodel.ISMForm;
-import com.servoy.j2db.solutionmodel.ISMMethod;
-import com.servoy.j2db.solutionmodel.ISMTabPanel;
 
 /**
- * @author jcompagner
+ * Solution tab panel object.
+ * 
+ * @author rgansevles
+ *
+ * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPanel>, ISMTabPanel
+public interface ISMTabPanel extends ISMComponent
 {
-	private final IApplication application;
-
-	public JSTabPanel(JSForm parent, TabPanel tabPanel, IApplication application, boolean isNew)
-	{
-		super(parent, tabPanel, isNew);
-		this.application = application;
-	}
-
-	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.IJSParent#getSupportChild()
-	 */
-	public TabPanel getSupportChild()
-	{
-		return getBaseComponent(false);
-	}
 
 	/**
 	 * Adds a new tab with the text label and JSForm.
@@ -89,11 +56,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 *
 	 * @return A JSTab instance representing the newly created and added tab.
 	 */
-	@JSFunction
-	public JSTab newTab(String name, String text, ISMForm form)
-	{
-		return newTab(name, text, form, null);
-	}
+	public ISMTab newTab(String name, String text, ISMForm form);
 
 	/**
 	 * Adds a new tab with the text label and JSForm and JSRelation (can be null for unrelated).
@@ -126,38 +89,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 *                          
 	 * @return A JSTab instance representing the newly created and added tab.
 	 */
-	@JSFunction
-	public JSTab newTab(String name, String text, ISMForm form, Object relation)
-	{
-		String relationName = null;
-		if (relation instanceof RelatedFoundSet)
-		{
-			relationName = ((RelatedFoundSet)relation).getRelationName();
-		}
-		else if (relation instanceof String)
-		{
-			relationName = (String)relation;
-		}
-		else if (relation instanceof JSRelation)
-		{
-			relationName = ((JSRelation)relation).getName();
-		}
-		try
-		{
-			if (relationName != null && application.getFlattenedSolution().getRelationSequence(relationName) == null)
-			{
-				// invalid relation
-				return null;
-			}
-			Tab newTab = getBaseComponent(true).createNewTab(text, relationName, ((JSForm)form).getSupportChild());
-			newTab.setName(name);
-			return new JSTab(this, newTab, application, true);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+	public ISMTab newTab(String name, String text, ISMForm form, Object relation);
 
 	/**
 	 * Returns a JSTab instance representing the tab which has the specified name.
@@ -172,22 +104,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * 
 	 * @return A JSTab instance represented the requested tab.
 	 */
-	@JSFunction
-	public JSTab getTab(String name)
-	{
-		if (name == null) return null;
-		Iterator<IPersist> tabs = getBaseComponent(false).getTabs();
-		while (tabs.hasNext())
-		{
-			Tab tab = (Tab)tabs.next();
-			if (name.equals(tab.getName()))
-			{
-				return new JSTab(this, tab, application, false);
-			}
-		}
-		return null;
-	}
-
+	public ISMTab getTab(String name);
 
 	/**
 	 * Removes the tab with the specified name from the tab panel.
@@ -201,24 +118,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * tabPanel.removeTab('tab1');
 	 * 
 	 */
-	@JSFunction
-	public void removeTab(String name)
-	{
-		if (name == null) return;
-
-		TabPanel tp = getBaseComponent(true);
-		Iterator<IPersist> tabs = tp.getTabs();
-		while (tabs.hasNext())
-		{
-			Tab tab = (Tab)tabs.next();
-			if (name.equals(tab.getName()))
-			{
-				//removing the child tab from the tabpanel
-				tp.removeChild(tab);
-				break;
-			}
-		}
-	}
+	public void removeTab(String name);
 
 	/**
 	 * Returns an array of JSTab instances holding the tabs of the tab panel.
@@ -233,24 +133,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * 
 	 * @return An array of JSTab instances representing all tabs of this tabpanel.
 	 */
-	@JSFunction
-	public JSTab[] getTabs()
-	{
-		ArrayList<JSTab> labels = new ArrayList<JSTab>();
-		Iterator<IPersist> tabs = getBaseComponent(false).getTabs();
-		while (tabs.hasNext())
-		{
-			Tab tab = (Tab)tabs.next();
-			labels.add(new JSTab(this, tab, application, false));
-		}
-		return labels.toArray(new JSTab[labels.size()]);
-	}
-
-	@Deprecated
-	public boolean js_getCloseOnTabs()
-	{
-		return getBaseComponent(false).getCloseOnTabs();
-	}
+	public ISMTab[] getTabs();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getScrollTabs()
@@ -261,23 +144,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * tabPanel.scrollTabs = true;
 	 */
-	@JSGetter
-	public boolean getScrollTabs()
-	{
-		return getBaseComponent(false).getScrollTabs();
-	}
-
-	@JSSetter
-	public void setScrollTabs(boolean arg)
-	{
-		getBaseComponent(true).setScrollTabs(arg);
-	}
-
-	@Deprecated
-	public Color js_getSelectedTabColor()
-	{
-		return getBaseComponent(false).getSelectedTabColor();
-	}
+	public boolean getScrollTabs();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getTabOrientation()
@@ -292,70 +159,14 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * // where the first tab will be left component and the second tab will the right component. 
 	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;  
 	 */
-	@JSGetter
-	public int getTabOrientation()
-	{
-		return getBaseComponent(false).getTabOrientation();
-	}
-
-	@JSSetter
-	public void setTabOrientation(int arg)
-	{
-		getBaseComponent(true).setTabOrientation(arg);
-	}
+	public int getTabOrientation();
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getTabSeq()
 	 */
-	@JSGetter
-	public int getTabSeq()
-	{
-		return getBaseComponent(false).getTabSeq();
-	}
+	public int getTabSeq();
 
-	@JSSetter
-	public void setTabSeq(int arg)
-	{
-		getBaseComponent(true).setTabSeq(arg);
-	}
-
-	@Deprecated
-	public void js_setCloseOnTabs(boolean arg)
-	{
-		getBaseComponent(true).setCloseOnTabs(arg);
-	}
-
-	/**
-	 * @deprecated As of release 5.0, replaced by onChange property.
-	 */
-	@Deprecated
-	public void js_setOnTabChangeMethod(Function function)
-	{
-		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
-		if (scriptMethod != null)
-		{
-			getBaseComponent(true).setOnTabChangeMethodID(scriptMethod.getID());
-		}
-		else
-		{
-			getBaseComponent(true).setOnTabChangeMethodID(0);
-		}
-	}
-
-	@Deprecated
-	public void js_setOnTabChange(JSMethod method)
-	{
-		setOnChange(method);
-	}
-
-	/**
-	 * @deprecated As of release 5.0, replaced by onChange property.
-	 */
-	@Deprecated
-	public JSMethod js_getOnTabChange()
-	{
-		return getOnChange();
-	}
+	public void setOnChange(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getOnChangeMethodID()
@@ -367,31 +178,16 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * tabPanel.onChange = onChangeMethod;
 	 */
-	@JSGetter
-	public JSMethod getOnChange()
-	{
-		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID);
-	}
+	public ISMMethod getOnChange();
 
-	@JSSetter
-	public void setOnChange(ISMMethod method)
-	{
-		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID, (JSMethod)method);
-	}
-
-	@Deprecated
-	public void js_setSelectedTabColor(Color arg)
-	{
-		getBaseComponent(true).setSelectedTabColor(arg);
-	}
+	public void setScrollTabs(boolean arg);
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * sets the tab orientation, use one of the ALIGNMENT constants: SM_ALIGNMENT.TOP,BOTTOM,LEFT,RIGHT
+	 * or use SM_DEFAULTS.NONE to hide the tabs.
 	 */
-	@SuppressWarnings("nls")
-	@Override
-	public String toString()
-	{
-		return "JSTabPanel[name:" + getBaseComponent(false).getName() + ",tabs:" + Arrays.toString(getTabs()) + ']';
-	}
+	public void setTabOrientation(int arg);
+
+	public void setTabSeq(int arg);
+
 }

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -37,6 +39,7 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.TypeIterator;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.TableScope;
+import com.servoy.j2db.solutionmodel.ISMDataSourceNode;
 
 /**
  * Solution model holder for calculations and foundset methods.
@@ -45,15 +48,11 @@ import com.servoy.j2db.scripting.TableScope;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsObject
+public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsObject, ISMDataSourceNode
 {
 	private final IApplication application;
 	private final String dataSource;
 
-	/**
-	 * @param application
-	 * @param dataSource
-	 */
 	public JSDataSourceNode(IApplication application, String dataSource)
 	{
 		this.application = application;
@@ -92,6 +91,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 
 	 * @return the dataSource
 	 */
+	@JSFunction
 	public String getDataSource()
 	{
 		return dataSource;
@@ -113,24 +113,15 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	}
 
 	/**
-	 * Get the data source for this node.
-	 * 
-	 * @return the dataSource
-	 */
-	public String js_getDataSource()
-	{
-		return getDataSource();
-	}
-
-	/**
 	 * Get an existing calculation for the datasource node.
 	 * 
 	 * @param name The name of the calculation
 	 * 
-	 * @sampleas js_newCalculation(String, int)
+	 * @sampleas newCalculation(String, int)
 	 * 
 	 */
-	public JSCalculation js_getCalculation(String name)
+	@JSFunction
+	public JSCalculation getCalculation(String name)
 	{
 		ScriptCalculation scriptCalculation = application.getFlattenedSolution().getScriptCalculation(name, dataSource);
 		if (scriptCalculation != null)
@@ -143,9 +134,10 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	/**
 	 * Gets all the calculations for the datasource node.
 	 * 
-	 * @sampleas js_newCalculation(String, int)
+	 * @sampleas newCalculation(String, int)
 	 */
-	public JSCalculation[] js_getCalculations()
+	@JSFunction
+	public JSCalculation[] getCalculations()
 	{
 		List<JSCalculation> calculations = new ArrayList<JSCalculation>();
 		Iterator<ScriptCalculation> scriptCalculations = application.getFlattenedSolution().getScriptCalculations(dataSource, true);
@@ -162,12 +154,13 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 * 
-	 * @sampleas js_newCalculation(String, int)
+	 * @sampleas newCalculation(String, int)
 	 * 
 	 */
-	public JSCalculation js_newCalculation(String code)
+	@JSFunction
+	public JSCalculation newCalculation(String code)
 	{
-		return js_newCalculation(code, IColumnTypes.TEXT);
+		return newCalculation(code, IColumnTypes.TEXT);
 	}
 
 	/**
@@ -190,7 +183,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * }
 	 * 
 	 */
-	public JSCalculation js_newCalculation(String code, int type)
+	@JSFunction
+	public JSCalculation newCalculation(String code, int type)
 	{
 		try
 		{
@@ -241,7 +235,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeCalculation(String name)
+	@JSFunction
+	public boolean removeCalculation(String name)
 	{
 		try
 		{
@@ -283,7 +278,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 
 	 * @return a JSMethod object
 	 */
-	public JSMethod js_newMethod(String code)
+	@JSFunction
+	public JSMethod newMethod(String code)
 	{
 		try
 		{
@@ -309,10 +305,11 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 
 	 * @param name The name of the method
 	 * 
-	 * @sampleas js_newMethod(String)
+	 * @sampleas newMethod(String)
 	 * 
 	 */
-	public JSMethod js_getMethod(String name)
+	@JSFunction
+	public JSMethod getMethod(String name)
 	{
 		ScriptMethod method = application.getFlattenedSolution().getFoundsetMethod(name, dataSource);
 		if (method != null)
@@ -325,9 +322,10 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	/**
 	 * Gets all the foundset methods for the datasource node.
 	 * 
-	 * @sampleas js_newMethod(String)
+	 * @sampleas newMethod(String)
 	 */
-	public JSMethod[] js_getMethods()
+	@JSFunction
+	public JSMethod[] getMethods()
 	{
 		List<JSMethod> methods = new ArrayList<JSMethod>();
 		Iterator<ScriptMethod> fsMethods = application.getFlattenedSolution().getFoundsetMethods(dataSource, true);
@@ -362,7 +360,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 
 	 * @return true if the removal was successful, false otherwise
 	 */
-	public boolean js_removeMethod(String name)
+	@JSFunction
+	public boolean removeMethod(String name)
 	{
 		try
 		{

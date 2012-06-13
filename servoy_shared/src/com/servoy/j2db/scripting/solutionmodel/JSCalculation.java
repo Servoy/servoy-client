@@ -19,6 +19,10 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.util.Arrays;
 
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -28,13 +32,14 @@ import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.TableScope;
+import com.servoy.j2db.solutionmodel.ISMCalculation;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSCalculation implements IJavaScriptType
+public class JSCalculation implements IJavaScriptType, ISMCalculation
 {
 	private ScriptCalculation scriptCalculation;
 	private final IApplication application;
@@ -74,14 +79,21 @@ public class JSCalculation implements IJavaScriptType
 		}
 	}
 
-	public int js_getVariableType()
+	/**
+	 * Get or set the sql type of this variable.
+	 * 
+	 * Type should be one of JSVariable.DATETIME, JSVariable.TEXT, JSVariable.NUMBER , JSVariable.INTEGER or JSVariable.MEDIA.
+	 */
+	@JSGetter
+	public int getVariableType()
 	{
 		return scriptCalculation.getDataProviderType();
 	}
 
-	public void js_setVariableType(int type)
+	@JSSetter
+	public void setVariableType(int type)
 	{
-		if (js_isStored()) throw new RuntimeException("Can't alter variable type of the stored calculation " + scriptCalculation.getName());
+		if (isStored()) throw new RuntimeException("Can't alter variable type of the stored calculation " + scriptCalculation.getName());
 		checkModification();
 		scriptCalculation.setTypeAndCheck(type, application);
 
@@ -112,7 +124,8 @@ public class JSCalculation implements IJavaScriptType
 	 * 
 	 * @return the name of the stored calculation
 	 */
-	public String js_getName()
+	@JSFunction
+	public String getName()
 	{
 		return scriptCalculation.getName();
 	}
@@ -127,7 +140,8 @@ public class JSCalculation implements IJavaScriptType
 	 * 
 	 * @return true if the calculation is stored, false otherwise
 	 */
-	public boolean js_isStored()
+	@JSFunction
+	public boolean isStored()
 	{
 		try
 		{
@@ -140,12 +154,21 @@ public class JSCalculation implements IJavaScriptType
 		return false;
 	}
 
-	public String js_getCode()
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
+	 * 
+	 * @sample
+	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation");
+	 * calc.code = "function myCalculation() { return 123; }";
+	 */
+	@JSGetter
+	public String getCode()
 	{
 		return scriptCalculation.getDeclaration();
 	}
 
-	public void js_setCode(String code)
+	@JSSetter
+	public void setCode(String code)
 	{
 		checkModification();
 
@@ -194,7 +217,8 @@ public class JSCalculation implements IJavaScriptType
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER);
 	 * application.output(calc.getUUID().toString()); 
 	 */
-	public UUID js_getUUID()
+	@JSFunction
+	public UUID getUUID()
 	{
 		return scriptCalculation.getUUID();
 	}

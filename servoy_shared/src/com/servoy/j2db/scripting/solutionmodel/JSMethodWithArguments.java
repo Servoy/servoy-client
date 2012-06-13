@@ -20,6 +20,8 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.ScriptMethod;
 
@@ -49,14 +51,10 @@ public class JSMethodWithArguments extends JSMethod
 		this.arguments = args;
 	}
 
+	@Override
+	@JSFunction
 	public Object[] getArguments()
 	{
 		return arguments;
-	}
-
-	@Override
-	public Object[] js_getArguments()
-	{
-		return getArguments();
 	}
 }

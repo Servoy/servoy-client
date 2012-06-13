@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,18 +14,29 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.scripting.solutionmodel;
 
-import com.servoy.j2db.IApplication;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.solutionmodel.ISMLabel;
+package com.servoy.j2db.solutionmodel;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSLabel extends JSGraphicalComponent implements ISMLabel
+
+/**
+ * Solution model bean object.
+ * 
+ * @author rgansevles
+ *
+ * @since 6.1
+ */
+public interface ISMBean extends ISMComponent
 {
-	public JSLabel(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
-	{
-		super(parent, gc, application, isNew);
-	}
+
+	/**
+	 * The bean class name.
+	 * 
+	 * @sample
+	 * var bean = form.getBean('mybean');
+	 * application.output(bean.className);
+	 */
+	public String getClassName();
+
+	public void setClassName(String className);
+
 }
