@@ -290,6 +290,24 @@ public class ServoyStyleSheet implements IStyleSheet
 					}
 					return null;
 				}
+				if (CSSName.BORDER_TOP_LEFT_RADIUS.toString().equals(key.toString()) || CSSName.BORDER_TOP_RIGHT_RADIUS.toString().equals(key.toString()) ||
+					CSSName.BORDER_BOTTOM_RIGHT_RADIUS.toString().equals(key.toString()) || CSSName.BORDER_BOTTOM_LEFT_RADIUS.toString().equals(key.toString()))
+				{
+					String[] values = a.getValues(key.toString());
+					if (values != null && values.length > 0)
+					{
+						for (int i = values.length - 1; i >= 0; i--)
+						{
+							if (values[i] != null && !values[i].contains("%"))
+							{
+								// fallback mechanism
+								// % border radius length is not supported in SC
+								return values[i];
+							}
+						}
+					}
+					return null;
+				}
 				return a.getValue(key.toString());
 			}
 

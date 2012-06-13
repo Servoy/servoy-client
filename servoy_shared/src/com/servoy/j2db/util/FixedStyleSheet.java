@@ -333,12 +333,16 @@ public class FixedStyleSheet extends StyleSheet
 
 	private void parseCornerBorderRadius(AttributeSet a, float[] values, int index, String attributeName)
 	{
-		String value = a.getAttribute(attributeName).toString().trim();
-		StringTokenizer tokenizer = new StringTokenizer(value, " ");
-		if (tokenizer.countTokens() == 2)
+		String value = (String)a.getAttribute(attributeName);
+		if (value != null)
 		{
-			values[index] = getLength(tokenizer.nextElement());
-			values[index + 4] = getLength(tokenizer.nextElement());
+			value = value.trim();
+			StringTokenizer tokenizer = new StringTokenizer(value, " ");
+			if (tokenizer.countTokens() == 2)
+			{
+				values[index] = getLength(tokenizer.nextElement());
+				values[index + 4] = getLength(tokenizer.nextElement());
+			}
 		}
 	}
 
