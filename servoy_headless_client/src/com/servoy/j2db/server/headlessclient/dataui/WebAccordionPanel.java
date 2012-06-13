@@ -65,12 +65,12 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.scripting.solutionmodel.JSPart;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel.ServoyTabIcon;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -225,16 +225,33 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 				}
 				holder.getPanel().getWebForm().add(new StyleAppendingModifier(new Model<String>()
 				{
+					private int getAllPartsHeight()
+					{
+						int height = 0;
+						if (getCurrentForm().getController().getDataRenderers() != null)
+						{
+							IDataRenderer[] renderers = getCurrentForm().getController().getDataRenderers();
+							for (IDataRenderer renderer : renderers)
+							{
+								if (renderer != null)
+								{
+									height += renderer.getSize().height;
+								}
+							}
+						}
+						return height;
+					}
+
 					@Override
 					public String getObject()
 					{
 						if (getBorder() instanceof TitledBorder)
 						{
 							int fsize = 0;
-							int height = getCurrentForm().getPartHeight(JSPart.BODY);
+							int height = getAllPartsHeight();
 							TitledBorder td = (TitledBorder)getBorder();
 							if (td.getTitleFont() != null) fsize = td.getTitleFont().getSize();
-							if (fsize > 11) height = getCurrentForm().getPartHeight(JSPart.BODY) - (fsize - 11);
+							if (fsize > 11) height = getAllPartsHeight() - (fsize - 11);
 							return "height: " + height + "px;"; //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						return ""; //$NON-NLS-1$
