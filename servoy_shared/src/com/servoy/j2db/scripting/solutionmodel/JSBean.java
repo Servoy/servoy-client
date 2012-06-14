@@ -57,7 +57,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBackground()
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getBackground()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBackground()
 	 * 
 	 * @deprecated please refer to JSComponent.background
 	 */
@@ -70,7 +71,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
 	 * 
 	 * @deprecated please refer to JSComponent.borderType
 	 */
@@ -83,7 +85,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getFontType()
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getFontType()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getFontType()
 	 * 
 	 * @deprecated please refer to JSComponent.fontType
 	 */
@@ -96,7 +99,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getForeground()
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getForeground()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getForeground()
 	 * 
 	 * @deprecated please refer to JSComponent.foreground
 	 */
@@ -109,7 +113,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getPrintSliding()
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getPrintSliding()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getPrintSliding()
 	 * 
 	 * @deprecated please refer to JSComponent.printSliding
 	 */
@@ -122,7 +127,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getStyleClass()
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getStyleClass()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getStyleClass()
 	 * 
 	 * @deprecated please refer to JSComponent.styleClass
 	 */
@@ -135,7 +141,8 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getTransparent()
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSComponent#getTransparent()
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSComponent#getTransparent()
 	 * 
 	 * @deprecated please refer to JSComponent.transparent
 	 */
