@@ -267,6 +267,9 @@ public class SQLGenerator
 		//1 if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1) 
 		//1 sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
 
+		// retval may have set distinct and plainPKSelect flag based on previous sort columns, make sure to reset first
+		retval.setDistinct(false);
+		retval.setPlainPKSelect(false);
 		if (retval.getJoins() != null && retval.getColumns().size() == 1 && isDistinctAllowed(retval.getColumns(), retval.getSorts()))//if joined pks comes back multiple times
 		{
 			retval.setDistinct(true);
