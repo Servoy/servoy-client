@@ -313,7 +313,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getVerticalAlignment()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getVerticalAlignment()
 	 * 
-	 * @deprecated please refer to JSLabel.verticalAlignment
+	 * @deprecated not used (is ignored) on fields
 	 */
 	@Deprecated
 	public int js_getVerticalAlignment()
