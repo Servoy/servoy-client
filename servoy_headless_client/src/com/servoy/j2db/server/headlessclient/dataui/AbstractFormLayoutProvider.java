@@ -57,7 +57,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	private boolean addHeaders;
 	protected int defaultNavigatorShift;
-	private Border border;
+	private final Border border;
 	protected String orientation;
 	int viewType;
 	private final IServiceProvider sp;
@@ -105,13 +105,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		if (pairStyle != null)
 		{
 			style = pairStyle.getRight();
-			if (pairStyle.getLeft() != null)
-			{
-				if (border == null)
-				{
-					border = pairStyle.getLeft().getBorder(style);
-				}
-			}
 		}
 
 		orientation = OrientationApplier.getHTMLContainerOrientation(sp != null ? sp.getLocale() : Locale.getDefault(), solution.getTextOrientation());
@@ -178,8 +171,33 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			String type = ComponentFactoryHelper.createBorderString(border);
 			ComponentFactoryHelper.createBorderCSSProperties(type, formStyle);
 		}
+		else if (style != null)
+		{
+			copyBorderAttributes(style, formStyle);
+		}
 		hasImage = addBackgroundImageAttributeIfExists(style, formStyle);
 		fillFormLayoutCSS(formStyle);
+	}
+
+	private void copyBorderAttributes(IStyleRule source, TextualStyle destination)
+	{
+		if (source != null && destination != null)
+		{
+			for (String property : ServoyStyleSheet.BORDER_CSS)
+			{
+				if (source.hasAttribute(property))
+				{
+					destination.setProperty(property, source.getValues(property), true);
+				}
+			}
+			for (String property : ServoyStyleSheet.borderAttributesExtensions)
+			{
+				if (source.hasAttribute(property))
+				{
+					destination.setProperty(property, source.getValues(property), true);
+				}
+			}
+		}
 	}
 
 	private boolean addBackgroundImageAttributeIfExists(IStyleRule styleRule, TextualStyle textStyle)
@@ -299,11 +317,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		if (pairStyle != null && pairStyle.getLeft() != null && pairStyle.getRight() != null)
 		{
-			Border partBoder = pairStyle.getLeft().getBorder(pairStyle.getRight());
-			if (partBoder != null)
-			{
-				ComponentFactoryHelper.createBorderCSSProperties(ComponentFactoryHelper.createBorderString(partBoder), partStyle);
-			}
+			copyBorderAttributes(pairStyle.getRight(), partStyle);
 		}
 	}
 
