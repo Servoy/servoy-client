@@ -1042,7 +1042,7 @@ public class ImageLoader
 	{
 		if (cssDefinition != null)
 		{
-			return PersistHelper.createColor(cssDefinition);
+			return PersistHelper.createColorWithTransparencySupport(cssDefinition);
 		}
 		return null;
 	}

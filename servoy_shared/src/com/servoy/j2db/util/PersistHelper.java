@@ -54,7 +54,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
  */
 public class PersistHelper
 {
-	private static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
+	public static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
 	public static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
 
 

@@ -67,6 +67,7 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.DesignModeCallbacks;
@@ -142,7 +143,9 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.ISupplyFocusChildren;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
@@ -324,7 +327,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 						builder.append(";");
 						styleAddition = builder.toString();
 					}
-					if (controller.getForm().getTransparent() || (cbg != null && cbg.getAlpha() < 255))
+					IStyleRule formStyle = controller.getFormStyle();
+					boolean hasSemiTransparentBackground = false;
+					if (formStyle != null && formStyle.hasAttribute(CSSName.BACKGROUND_COLOR.toString()) &&
+						formStyle.getValue(CSSName.BACKGROUND_COLOR.toString()).contains(PersistHelper.COLOR_RGBA_DEF)) hasSemiTransparentBackground = true;
+					if (controller.getForm().getTransparent() || hasSemiTransparentBackground)
 					{
 						styleAddition += "background:transparent;"; //$NON-NLS-1$
 					}
