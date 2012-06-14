@@ -1100,6 +1100,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return checkLoadRecordsAllowed(false) && loadExternalPKList(dataset);
 	}
 
+	/** 
+	 * Method to handle old loadRecords calls with ignored argumentsaray.
+	 * @param dataset 
+	 * @param ignored 
+	 * 
+	 * @deprecated use loadRecords(JSDataSet)
+	 */
+	@Deprecated
+	public boolean js_loadRecords(IDataSet dataset, Object ignored) throws ServoyException
+	{
+		return js_loadRecords(dataset);
+	}
+
 	/**
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
@@ -1110,6 +1123,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean js_loadRecords(FoundSet foundset)
 	{
 		return checkLoadRecordsAllowed(false) && copyFrom(foundset);
+	}
+
+	/** 
+	 * Method to handle old loadRecords calls with ignored argumentsaray.
+	 * @param foundset 
+	 * @param ignored 
+	 * 
+	 * @deprecated use loadRecords(FoundSet)
+	 */
+	@Deprecated
+	public boolean js_loadRecords(FoundSet foundset, Object ignored)
+	{
+		return js_loadRecords(foundset);
 	}
 
 	/**
@@ -1149,6 +1175,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return loadRecordsBySinglePK(numberpk);
 	}
 
+	/** 
+	 * Method to handle old loadRecords calls with ignored argumentsaray.
+	 * @param numberpk 
+	 * @param ignored 
+	 * 
+	 * @deprecated use loadRecords(Number)
+	 */
+	@Deprecated
+	public boolean js_loadRecords(Number numberpk, Object ignored) throws ServoyException
+	{
+		return js_loadRecords(numberpk);
+	}
+
 	/**
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
@@ -1159,6 +1198,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean js_loadRecords(UUID uuidpk) throws ServoyException
 	{
 		return loadRecordsBySinglePK(uuidpk);
+	}
+
+	/** 
+	 * Method to handle old loadRecords calls with ignored argumentsaray.
+	 * @param uuidpk 
+	 * @param ignored 
+	 * 
+	 * @deprecated use loadRecords(UUID)
+	 */
+	@Deprecated
+	public boolean js_loadRecords(UUID uuidpk, Object ignored) throws ServoyException
+	{
+		return js_loadRecords(uuidpk);
 	}
 
 	protected boolean loadRecordsBySinglePK(Object pk) throws ServoyException
