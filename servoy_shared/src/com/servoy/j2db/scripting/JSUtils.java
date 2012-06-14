@@ -459,22 +459,22 @@ public class JSUtils
 	 * var count = utils.stringPatternCount('this is a test','is');
 	 *
 	 * @param text the text to process
-	 * @param search the string to search
+	 * @param toSearchFor the string to search for
 	 * @return the occurrenceCount that the search string is found in the text 
 	 */
-	public int js_stringPatternCount(String text, String search)
+	public int js_stringPatternCount(String text, String toSearchFor)
 	{
-		if (text != null && search != null && search.length() > 0)
+		if (text != null && toSearchFor != null && toSearchFor.length() > 0)
 		{
 			try
 			{
-				int length = search.length();
+				int length = toSearchFor.length();
 				int i = 0;
-				int index = text.indexOf(search);
+				int index = text.indexOf(toSearchFor);
 				while (index != -1)
 				{
 					i++;
-					index = text.indexOf(search, index + length);
+					index = text.indexOf(toSearchFor, index + length);
 				}
 				return i;
 			}
@@ -510,15 +510,15 @@ public class JSUtils
 	 * var pos = utils.stringPosition('This is a test','s',1,1)
 	 *
 	 * @param textString the text to process
-	 * @param search the string to search
+	 * @param toSearchFor the string to search
 	 * @param i_start the start index to search from 
 	 * @param i_occurrence the occurrence 
 	 * 
 	 * @return the position 
 	 */
-	public int js_stringPosition(String textString, String search, Number i_start, Number i_occurrence)
+	public int js_stringPosition(String textString, String toSearchFor, Number i_start, Number i_occurrence)
 	{
-		if (textString != null && search != null && i_start != null && i_occurrence != null)
+		if (textString != null && toSearchFor != null && i_start != null && i_occurrence != null)
 		{
 			try
 			{
@@ -530,14 +530,14 @@ public class JSUtils
 
 				String text = textString.toString();
 
-				int length = search.length();
+				int length = toSearchFor.length();
 				if (text.length() <= start) return -1;
 
 				if (occurrence < 0)
 				{
 					occurrence = occurrence * -1;
 					int i = 0;
-					int index = text.lastIndexOf(search, start);
+					int index = text.lastIndexOf(toSearchFor, start);
 					while (index != -1)
 					{
 						i++;
@@ -545,13 +545,13 @@ public class JSUtils
 						{
 							return index + 1;
 						}
-						index = text.lastIndexOf(search, index);
+						index = text.lastIndexOf(toSearchFor, index);
 					}
 				}
 				else
 				{
 					int i = 0;
-					int index = text.indexOf(search, start);
+					int index = text.indexOf(toSearchFor, start);
 					while (index != -1)
 					{
 						i++;
@@ -559,7 +559,7 @@ public class JSUtils
 						{
 							return index + 1;
 						}
-						index = text.indexOf(search, index + length);
+						index = text.indexOf(toSearchFor, index + length);
 					}
 				}
 			}
