@@ -303,7 +303,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	@Deprecated
 	public int getValuelistID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID).intValue();
+		return 0;
 	}
 
 	public Insets getMargin()
