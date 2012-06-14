@@ -139,17 +139,19 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	{
 		if (!Utils.equalObjects(this.bgcolor, bgcolor))
 		{
-			setChanged();
 			this.bgcolor = bgcolor;
-		}
-
-		if (bgcolor == null)
-		{
-			changedProperties.remove("background-color"); //$NON-NLS-1$
-		}
-		else
-		{
-			changedProperties.put("background-color", bgcolor); //$NON-NLS-1$
+			if (!"transparent".equals(changedProperties.getProperty("background-color"))) //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				setChanged();
+				if (bgcolor == null)
+				{
+					changedProperties.remove("background-color"); //$NON-NLS-1$
+				}
+				else
+				{
+					changedProperties.put("background-color", bgcolor); //$NON-NLS-1$
+				}
+			}
 		}
 	}
 
