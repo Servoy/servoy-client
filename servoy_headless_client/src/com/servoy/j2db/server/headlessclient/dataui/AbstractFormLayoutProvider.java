@@ -16,12 +16,12 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import java.awt.Color;
 import java.util.Iterator;
 import java.util.Locale;
 
 import javax.swing.border.Border;
 
+import org.apache.wicket.ResourceReference;
 import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.FormController;
@@ -58,7 +58,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 	private boolean addHeaders;
 	protected int defaultNavigatorShift;
 	private Border border;
-	private Color bgColor;
 	protected String orientation;
 	int viewType;
 	private final IServiceProvider sp;
@@ -112,11 +111,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 				{
 					border = pairStyle.getLeft().getBorder(style);
 				}
-				// if we have a background image don't apply color for parts
-				if (bgColor == null && !style.hasAttribute(CSSName.BACKGROUND_IMAGE.toString()))
-				{
-					bgColor = pairStyle.getLeft().getBackground(style);
-				}
 			}
 		}
 
@@ -138,10 +132,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		return addHeaders;
 	}
 
-	public Color getBackgroundColor()
-	{
-		return bgColor;
-	}
 
 	public void renderOpenFormHTML(StringBuffer html, TextualCSS css)
 	{
@@ -252,7 +242,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		fillPartStyle(wrapperStyle, part);
 
 		html.append("<div servoy:id='View' "); //$NON-NLS-1$
-		html.append(wrapperStyle.toString());
+		html.append(StripHTMLTagsConverter.convertMediaReferences(wrapperStyle.toString(), solution.getName(), new ResourceReference("media"), "").toString());
 		html.append(">\n"); //$NON-NLS-1$ 
 	}
 

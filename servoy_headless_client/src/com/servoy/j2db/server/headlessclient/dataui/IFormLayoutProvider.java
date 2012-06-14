@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import java.awt.Color;
-
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
@@ -47,8 +45,6 @@ public interface IFormLayoutProvider
 	int getViewType();
 
 	boolean needsHeaders();
-
-	Color getBackgroundColor();
 
 	/**
 	 * This method should provide CSS style for the "webform" level container. In general it will layout the form

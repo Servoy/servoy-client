@@ -381,7 +381,6 @@ public class TemplateGenerator
 			IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(sp, solution, f, formInstanceName);
 
 			int viewType = layoutProvider.getViewType();
-			Color bgColor = layoutProvider.getBackgroundColor();
 
 			layoutProvider.renderOpenFormHTML(html, css);
 
@@ -397,6 +396,8 @@ public class TemplateGenerator
 					startY = part.getHeight();
 					continue;//is never shown (=printing only)
 				}
+
+				Color bgColor = ComponentFactory.getPartBackground(sp, part, f);
 
 				if (part.getPartType() == Part.BODY &&
 					(viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
@@ -948,14 +949,7 @@ public class TemplateGenerator
 			// no filler when the tableview has no horizontal scrollbar.
 			if (!shouldFillAllHorizSpace)
 			{
-				columns.append("<td");
-				if (bgColor != null)
-				{
-					columns.append(" style=\"background-image: none; background-color: ");
-					columns.append(PersistHelper.createColorString(bgColor));
-					columns.append(";\"");
-				}
-				columns.append(">&nbsp;</td>\n"); // add filler (need to be a space else safari & ie7 will not display correctly) 
+				columns.append("<td>&nbsp;</td>\n"); // add filler (need to be a space else safari & ie7 will not display correctly) 
 			}
 
 			html.append("<tr servoy:id='rows' ");
