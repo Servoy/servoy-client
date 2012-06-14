@@ -165,15 +165,14 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		if (!Utils.equalObjects(changedProperties.get("color"), clr)) //$NON-NLS-1$
 		{
 			setChanged();
-		}
-
-		if (clr == null)
-		{
-			changedProperties.remove("color"); //$NON-NLS-1$
-		}
-		else
-		{
-			changedProperties.put("color", clr); //$NON-NLS-1$
+			if (clr == null)
+			{
+				changedProperties.remove("color"); //$NON-NLS-1$
+			}
+			else
+			{
+				changedProperties.put("color", clr); //$NON-NLS-1$
+			}
 		}
 	}
 
