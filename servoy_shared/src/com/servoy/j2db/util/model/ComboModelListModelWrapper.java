@@ -116,8 +116,10 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 	public Object getRealElementAt(int row)
 	{
-		if (hideFirstValue) return listModel.getRealElementAt(row + 1);
-		return listModel.getRealElementAt(row);
+		int idx = row;
+		if (hideFirstValue) idx++;
+		if (idx < listModel.getSize()) return listModel.getRealElementAt(idx);
+		return null;
 	}
 
 
@@ -417,7 +419,12 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			{
 				if (hideFirstValue)
 				{
-					fireIntervalAdded(this, e.getIndex0() - 1, e.getIndex1() - 1);
+					if (e.getIndex0() != 0 || e.getIndex1() != 0)
+					{
+						//avoid getting a -1 index value when index0 or index1 = 0
+						fireIntervalAdded(this, Math.max(0, e.getIndex0() - 1), Math.max(0, e.getIndex1() - 1));
+					}
+					//if both index0 and index1 are 0, no action needed
 				}
 				else
 				{
@@ -437,7 +444,12 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			{
 				if (hideFirstValue)
 				{
-					fireIntervalRemoved(this, e.getIndex0() - 1, e.getIndex1() - 1);
+					if (e.getIndex0() != 0 || e.getIndex1() != 0)
+					{
+						//avoid getting a -1 index value when index0 or index1 = 0
+						fireIntervalRemoved(this, Math.max(0, e.getIndex0() - 1), Math.max(0, e.getIndex1() - 1));
+					}
+					//if both index0 and index1 are 0, no action needed
 				}
 				else
 				{
@@ -469,7 +481,12 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 				}
 				if (hideFirstValue)
 				{
-					fireContentsChanged(this, e.getIndex0() - 1, e.getIndex1() - 1);
+					if (e.getIndex0() != 0 || e.getIndex1() != 0)
+					{
+						//avoid getting a -1 index value when index0 or index1 = 0
+						fireContentsChanged(this, Math.max(0, e.getIndex0() - 1), Math.max(0, e.getIndex1() - 1));
+					}
+					//if both index0 and index1 are 0, no action needed
 				}
 				else
 				{
