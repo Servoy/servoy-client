@@ -597,6 +597,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 									// so we will link this <td> to a wicket component
 									listItemChild = new CellContainer(comp.getId() + '_');
 									listItemChild.setOutputMarkupPlaceholderTag(true);
+
+									// because of a bug in chrome, that causing problem with align of cell to the header,
+									// that has a right border of 1 px
+									if (WebCellBasedView.this.addHeaders && labelsFor.size() == 0 && isScrollMode() && getHeaderBorder() == null &&
+										((WebClientInfo)getSession().getClientInfo()).getProperties().isBrowserChrome())
+									{
+										listItemChild.add(new StyleAppendingModifier(new Model<String>()
+										{
+											@Override
+											public String getObject()
+											{
+												return "padding-right: " + TemplateGenerator.NO_LABELFOR_DEFAULT_BORDER_WIDTH + "px"; //$NON-NLS-1$ //$NON-NLS-2$
+											}
+										}));
+									}
 									((MarkupContainer)listItemChild).add(comp);
 								}
 							}
@@ -1192,6 +1207,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
+
+		Object defaultScrollable = application.getClientProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE);
+		setScrollMode(Boolean.TRUE.equals(defaultScrollable));
+
 		setOutputMarkupPlaceholderTag(true);
 
 		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
@@ -1571,8 +1590,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Debug.error(ex);
 		}
 
-		Object defaultScrollable = application.getClientProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE);
-		setScrollMode(Boolean.TRUE.equals(defaultScrollable));
 		table.setPageabeMode(!isScrollMode());
 		if (isScrollMode())
 		{
@@ -4334,12 +4351,26 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public CharSequence postDecorateScript(CharSequence script)
 				{
-					return "clearTimeout(Servoy.TableView.appendRowsTimer); Servoy.TableView.appendRowsTimer = setTimeout(\"var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('" +
-						WebCellBasedView.this.tableContainerBody.getMarkupId() + "'); if (scrollDiff != 0) { " + script + "};\", 500);";
+					StringBuilder scriptBuilder = new StringBuilder();
+					if (WebCellBasedView.this.headers != null)
+					{
+						scriptBuilder.append("Servoy.TableView.scrollHeader('");
+						scriptBuilder.append(WebCellBasedView.this.headers.getMarkupId());
+						scriptBuilder.append("', '");
+						scriptBuilder.append(WebCellBasedView.this.tableContainerBody.getMarkupId());
+						scriptBuilder.append("');");
+					}
+
+					scriptBuilder.append("clearTimeout(Servoy.TableView.appendRowsTimer); Servoy.TableView.appendRowsTimer = setTimeout(\"var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('");
+					scriptBuilder.append(WebCellBasedView.this.tableContainerBody.getMarkupId());
+					scriptBuilder.append("'); if (scrollDiff != 0) { ");
+					scriptBuilder.append(script);
+					scriptBuilder.append("};\", 500);");
+
+					return scriptBuilder.toString();
 				}
 			};
 		}
-
 
 		private Collection<Component> getRowsComponents(Collection<ListItem< ? >> rows)
 		{

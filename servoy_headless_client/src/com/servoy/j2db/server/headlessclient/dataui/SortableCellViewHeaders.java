@@ -30,6 +30,7 @@ import org.apache.wicket.markup.WicketTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.resolver.IComponentResolver;
+import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
@@ -89,6 +90,17 @@ public class SortableCellViewHeaders extends WebMarkupContainer implements IProv
 		this.headerManager = headerManager;
 		group = new SortableCellViewHeaderGroup(form, listView, cellview);
 		if (initialSortMap != null) group.recordSort(initialSortMap);
+		if (view.isScrollMode())
+		{
+			add(new StyleAppendingModifier(new Model<String>()
+			{
+				@Override
+				public String getObject()
+				{
+					return "position: absolute; overflow: hidden; left: 0px; top: 0px;"; //$NON-NLS-1$
+				}
+			}));
+		}
 	}
 
 	@Override

@@ -982,7 +982,12 @@ if (typeof(Servoy.TableView) == "undefined")
 				$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
 			}
 		},
-		
+
+		scrollHeader: function(headerId, rowContainerBodyId)
+		{
+			$('#' + headerId).css('left', -$('#' + rowContainerBodyId).scrollLeft() + 'px');
+		},
+
 		isInFirstTD: function(el)
 		{
 			var targetTD = YAHOO.util.Dom.getAncestorBy (el , function(el)
