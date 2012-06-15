@@ -3069,7 +3069,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				boolean allFoundsetRecordsLoaded = (pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows());
 				if (allFoundsetRecordsLoaded)
 				{
-					deletePKs = currentPKs;
+					// clone because this will be used in a separate thread by performUpdates while it will be altered in this one (deletes all records at the end of the method)
+					deletePKs = currentPKs.clone();
 				}
 				else
 				{
