@@ -651,7 +651,7 @@ public class JSApplication implements IReturnedTypesProvider
 		if (dataset != null && dataset.getDataSet() != null && dataset.getDataSet().getColumnCount() > 0)
 		{
 			Object[] displayValues = new Object[dataset.getDataSet().getRowCount()];
-			boolean hasRealValues = (dataset.getDataSet().getColumnCount() == 2);
+			boolean hasRealValues = (dataset.getDataSet().getColumnCount() >= 2);
 			Object[] realValues = null;
 			if (hasRealValues)
 			{
