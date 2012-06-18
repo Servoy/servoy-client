@@ -991,8 +991,7 @@ public class JSUtils
 			{
 				return number.toString();
 			}
-			double val = number.doubleValue() + (1 / Math.pow(10, digits.intValue() + 2));
-			return Utils.formatNumber(application.getLocale(), val, digits.intValue());
+			return Utils.formatNumber(application.getLocale(), number.doubleValue(), digits.intValue());
 		}
 		return ""; //$NON-NLS-1$
 	}
