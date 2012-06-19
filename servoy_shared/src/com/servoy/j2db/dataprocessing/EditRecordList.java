@@ -435,7 +435,7 @@ public class EditRecordList
 							{
 								if (!((FoundSet)record.getParentFoundSet()).executeFoundsetTriggerBreakOnFalse(new Object[] { record },
 									record.existInDataSource() ? StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID
-										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID)) // throws ServoyException when trigger method throws exception
+										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true)) // throws ServoyException when trigger method throws exception
 								{
 									// just directly return if one returns false.
 									return ISaveConstants.VALIDATION_FAILED;
@@ -749,7 +749,7 @@ public class EditRecordList
 				{
 					((FoundSet)rowUpdateInfo.getRecord().getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfo.getRecord() },
 						rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION ? StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID
-							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID);
+							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, false);
 				}
 				catch (ServoyException e)
 				{

@@ -3802,7 +3802,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					try
 					{
 						// see EditRecordList.stopEditing
-						if (!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID))
+						if (!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, true))
 						{
 							// trigger returned false
 							Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
@@ -3821,7 +3821,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				Row data = state.getRawData();
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
-				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID);
+				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID, false);
 
 				GlobalTransaction gt = fsm.getGlobalTransaction();
 				if (gt != null)
@@ -3848,9 +3848,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @return
 	 * @throws ServoyException
 	 */
-	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property) throws ServoyException
+	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		return executeFoundsetTriggerInternal(args, property, true);
+		return executeFoundsetTriggerInternal(args, property, true, throwException);
 	}
 
 	/**
@@ -3861,12 +3861,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @return
 	 * @throws ServoyException
 	 */
-	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property) throws ServoyException
+	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		executeFoundsetTriggerInternal(args, property, false);
+		executeFoundsetTriggerInternal(args, property, false, throwException);
 	}
 
-	private boolean executeFoundsetTriggerInternal(Object[] args, TypedProperty<Integer> property, boolean breakOnFalse) throws ServoyException
+	private boolean executeFoundsetTriggerInternal(Object[] args, TypedProperty<Integer> property, boolean breakOnFalse, boolean throwException)
+		throws ServoyException
 	{
 		FlattenedSolution solutionRoot = fsm.getApplication().getFlattenedSolution();
 		Iterator<TableNode> tableNodes = solutionRoot.getTableNodes(getTable());
@@ -3905,7 +3906,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					try
 					{
 						if (Boolean.FALSE.equals(scriptEngine.executeFunction(((Function)function), scope, scope,
-							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getInstanceMethodArguments(property.getPropertyName()))), false, false)) &&
+							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getInstanceMethodArguments(property.getPropertyName()))), false, throwException)) &&
 							breakOnFalse)
 						{
 							// break on false return, do not execute remaining triggers.
@@ -4341,7 +4342,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID))
+			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, false))
 			{
 				Debug.trace("New record creation was denied by onCreateRecord method"); //$NON-NLS-1$
 				return null;
@@ -4358,7 +4359,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		sheet.processCopyValues(newRecord);
 		try
 		{
-			executeFoundsetTrigger(new Object[] { newRecord }, StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID);
+			executeFoundsetTrigger(new Object[] { newRecord }, StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, false);
 		}
 		catch (ServoyException e)
 		{
@@ -4423,7 +4424,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONFINDMETHODID))
+			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONFINDMETHODID, false))
 			{
 				Debug.trace("Find mode switch was denied by onFind method"); //$NON-NLS-1$
 				return;
@@ -4459,7 +4460,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID);
+			executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID, false);
 		}
 		catch (ServoyException e)
 		{
@@ -4492,7 +4493,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			try
 			{
 				if (!executeFoundsetTriggerBreakOnFalse(new Object[] { Boolean.valueOf(clearLastResult), Boolean.valueOf(reduceSearch) },
-					StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID))
+					StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID, true))
 				{
 					Debug.trace("Foundset search was denied by onSearchFoundset method"); //$NON-NLS-1$
 					return -1; // blocked
@@ -4561,7 +4562,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int nfound = findPKs.getRowCount();
 			try
 			{
-				executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID);
+				executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID, false);
 			}
 			catch (ServoyException e)
 			{
