@@ -2675,7 +2675,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				state = new IRecordInternal[] { new PrototypeState(null) };
 			}
 		}
-		if (dataRenderers[FORM_EDITOR] != null && isStateChanged(state))
+		if (dataRenderers[FORM_EDITOR] != null && !(records == null && formModel != null && formModel.getRawSize() > 0) && isStateChanged(state))
 		{
 			lastState = state;
 			executeOnRecordSelect = true;

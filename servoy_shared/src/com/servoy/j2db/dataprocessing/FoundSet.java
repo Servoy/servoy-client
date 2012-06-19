@@ -3538,7 +3538,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	// get the size without the danger of firing a query
-	protected final int getRawSize()
+	public final int getRawSize()
 	{
 		int retval = 0;
 		if (findMode)
