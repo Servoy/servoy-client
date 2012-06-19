@@ -65,6 +65,7 @@ public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> i
 			componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
 			: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
 		getChangesRecorder().setChanged();
+		fireOnRender();
 	}
 
 	public String getFormat()

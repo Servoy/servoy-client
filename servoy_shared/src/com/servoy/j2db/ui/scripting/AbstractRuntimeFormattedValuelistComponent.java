@@ -61,6 +61,7 @@ public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFiel
 			componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
 			: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
 		getChangesRecorder().setChanged();
+		fireOnRender();
 	}
 
 	public String getFormat()

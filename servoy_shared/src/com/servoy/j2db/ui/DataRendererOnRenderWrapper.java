@@ -18,6 +18,7 @@
 package com.servoy.j2db.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
@@ -53,6 +54,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 			((IStylePropertyChangesRecorder)((IProviderStylePropertyChanges)onRenderComponent).getStylePropertyChanges()).setBgcolor(clr);
 		}
 		onRenderComponent.setBackground(PersistHelper.createColor(clr));
+		fireOnRender();
 	}
 
 	public String getFgcolor()
@@ -133,6 +135,7 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 			((IStylePropertyChangesRecorder)((IProviderStylePropertyChanges)onRenderComponent).getStylePropertyChanges()).setBorder(spec);
 		}
 		onRenderComponent.setBorder(ComponentFactoryHelper.createBorder(spec));
+		fireOnRender();
 	}
 
 	public String getFont()
@@ -268,5 +271,14 @@ public class DataRendererOnRenderWrapper implements ISupportOnRenderCallback, IS
 	public String getToolTipText()
 	{
 		return null;
+	}
+
+	private void fireOnRender()
+	{
+		if (renderEventExecutor != null && !renderEventExecutor.isOnRenderExecuting())
+		{
+			renderEventExecutor.setRenderStateChanged();
+			renderEventExecutor.fireOnRender(getComponent() instanceof Component ? ((Component)getComponent()).hasFocus() : false);
+		}
 	}
 }

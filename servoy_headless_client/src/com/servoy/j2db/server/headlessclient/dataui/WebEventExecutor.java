@@ -83,6 +83,7 @@ import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -411,10 +412,14 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		WebClientSession.get().getWebClient().executeEvents(); // process model changes from web components
 
+		Component renderScriptProvider = comp;
+		ISupplyFocusChildren< ? > componentWithChildren = renderScriptProvider.findParent(ISupplyFocusChildren.class);
+		if (componentWithChildren != null) renderScriptProvider = (Component)componentWithChildren;
+
 		RenderEventExecutor renderEventExecutor = null;
-		if (comp instanceof IScriptableProvider)
+		if (renderScriptProvider instanceof IScriptableProvider)
 		{
-			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+			IScriptable s = ((IScriptableProvider)renderScriptProvider).getScriptObject();
 			if (s instanceof ISupportOnRenderCallback)
 			{
 				renderEventExecutor = ((ISupportOnRenderCallback)s).getRenderEventExecutor();

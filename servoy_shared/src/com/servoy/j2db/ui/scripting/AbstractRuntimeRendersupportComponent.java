@@ -29,6 +29,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.RenderableWrapper;
+import com.servoy.j2db.util.IDelegate;
 
 /**
   * Abstract scriptable component class for {@link IComponent} support onRrender events.
@@ -61,7 +62,14 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 		super.setComponent(component, persist);
 		if (component instanceof Component)
 		{
-			((Component)component).addFocusListener(new FocusListener()
+			Component focusComponent = (Component)component;
+			if (component instanceof IDelegate< ? >)
+			{
+				Object delegate = ((IDelegate< ? >)component).getDelegate();
+				if (delegate instanceof Component) focusComponent = (Component)delegate;
+			}
+
+			focusComponent.addFocusListener(new FocusListener()
 			{
 				public void focusLost(FocusEvent e)
 				{
@@ -72,7 +80,7 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 				public void focusGained(FocusEvent e)
 				{
 					getRenderEventExecutor().setRenderStateChanged();
-					getRenderEventExecutor().fireOnRender(false);
+					getRenderEventExecutor().fireOnRender(true);
 				}
 			});
 		}
@@ -93,4 +101,68 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 		getChangesRecorder().setChanged();
 	}
 
+	@Override
+	public void setBgcolor(String clr)
+	{
+		super.setBgcolor(clr);
+		fireOnRender();
+	}
+
+	@Override
+	public void setEnabled(final boolean b)
+	{
+		super.setEnabled(b);
+		fireOnRender();
+	}
+
+	@Override
+	public void setBorder(String spec)
+	{
+		super.setBorder(spec);
+		fireOnRender();
+	}
+
+	@Override
+	public void setFgcolor(String clr)
+	{
+		super.setFgcolor(clr);
+		fireOnRender();
+	}
+
+	@Override
+	public void setFont(String spec)
+	{
+		super.setFont(spec);
+		fireOnRender();
+	}
+
+	@Override
+	public void setToolTipText(String tooltip)
+	{
+		super.setToolTipText(tooltip);
+		fireOnRender();
+	}
+
+	@Override
+	public void setTransparent(boolean b)
+	{
+		super.setTransparent(b);
+		fireOnRender();
+	}
+
+	@Override
+	public void setVisible(boolean b)
+	{
+		super.setVisible(b);
+		fireOnRender();
+	}
+
+	protected void fireOnRender()
+	{
+		if (renderEventExecutor != null && !renderEventExecutor.isOnRenderExecuting())
+		{
+			renderEventExecutor.setRenderStateChanged();
+			renderEventExecutor.fireOnRender(getComponent() instanceof Component ? ((Component)getComponent()).hasFocus() : false);
+		}
+	}
 }

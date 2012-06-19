@@ -39,6 +39,7 @@ public class RenderEventExecutor
 	private int renderIndex;
 	private boolean renderIsSelected;
 	private boolean isRenderStateChanged;
+	private boolean isOnRenderExecuting;
 
 	public RenderEventExecutor(ISupportOnRenderCallback onRenderComponent)
 	{
@@ -80,10 +81,17 @@ public class RenderEventExecutor
 		return isRenderStateChanged;
 	}
 
+	public boolean isOnRenderExecuting()
+	{
+		return isOnRenderExecuting;
+	}
+
 	public void fireOnRender(boolean hasFocus)
 	{
 		if (isRenderStateChanged && renderScriptExecuter != null && renderCallback != null)
 		{
+			isOnRenderExecuting = true;
+
 			IScriptRenderMethods renderable = onRenderComponent.getRenderable();
 			if (renderable instanceof RenderableWrapper) ((RenderableWrapper)renderable).resetProperties();
 
@@ -97,6 +105,7 @@ public class RenderEventExecutor
 			renderScriptExecuter.executeFunction(renderCallback, Utils.arrayMerge(new Object[] { event }, renderCallbackArgs), false,
 				onRenderComponent.getComponent(), false, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
 			isRenderStateChanged = false;
+			isOnRenderExecuting = false;
 		}
 	}
 }
