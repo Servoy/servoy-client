@@ -35,6 +35,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
 import com.servoy.j2db.util.model.IEditListModel;
 
@@ -164,6 +165,11 @@ public class DataSpinner extends DataChoice
 	@Override
 	public void setValueObject(Object data)
 	{
+		if (Utils.equalObjects(getValueObject(), data) && list.getSelectedItem() != null)
+		{
+			// do nothing, data may be invalid value; same condition as for combo
+			return;
+		}
 		super.setValueObject(data);
 	}
 
