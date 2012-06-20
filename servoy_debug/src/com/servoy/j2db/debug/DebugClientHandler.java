@@ -41,6 +41,8 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
@@ -419,7 +421,38 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									Debug.log(e);
 								}
 
-								client[0] = new DebugJ2DBClient(setSingletonServiceProvider, DebugClientHandler.this);
+								if (setSingletonServiceProvider)
+								{
+									client[0] = new DebugJ2DBClient(setSingletonServiceProvider, DebugClientHandler.this);
+								}
+								else
+								{
+									client[0] = new DebugJ2DBClient(setSingletonServiceProvider, DebugClientHandler.this)
+									{
+
+										@Override
+										public void invokeLater(final Runnable r)
+										{
+											final IServiceProvider cl = this;
+											super.invokeLater(new Runnable()
+											{
+												public void run()
+												{
+													IServiceProvider prevServiceProvider = J2DBGlobals.setSingletonServiceProvider(cl);
+													try
+													{
+														r.run();
+													}
+													finally
+													{
+														J2DBGlobals.setSingletonServiceProvider(prevServiceProvider);
+													}
+												}
+											});
+										}
+									};
+
+								}
 								client[0].setCurrent(currentSolution);
 							}
 						}
