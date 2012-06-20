@@ -61,6 +61,7 @@ public class AnnotationManager
 			if (pair != null)
 			{
 				if (pair.getLeft().booleanValue()) return true;
+				continue;
 			}
 			else
 			{
