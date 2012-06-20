@@ -4421,7 +4421,25 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			}
 		}
 
-		Function f = function instanceof Function ? (Function)function : null;
+		Function f;
+		if (function instanceof Function /* else null or UniqueTag.NOT_FOUND */)
+		{
+			f = (Function)function;
+		}
+		else
+		{
+			if (cmd != null)
+			{
+				if (throwException)
+				{
+					throw new IllegalArgumentException("Could not find function '" + cmd + "' for form " + getName());
+				}
+				return null;
+			}
+			// sometimes executeFunction is called with cmd=null just to trigger field validation, see BaseEventExecutor.fireEventCommand()
+			f = null;
+		}
+
 		if (throwException)
 		{
 			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
