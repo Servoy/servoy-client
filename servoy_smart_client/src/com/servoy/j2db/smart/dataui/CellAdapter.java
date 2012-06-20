@@ -756,11 +756,31 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 					public void run()
 					{
+						// JOHAN TEST CODE FOR AYTON
+						int rw = row;
+						int col = column;
+						if (rw == 0 && col == 1)
+						{
+							Debug.error("before: " + possibleCalcDataprovider);
+						}
 						state.getValue(possibleCalcDataprovider);
+						if (rw == 0 && col == 1)
+						{
+							Debug.error("after: " + possibleCalcDataprovider);
+						}
+						// JOHAN TEST CODE FOR AYTON
 						application.invokeLater(new Runnable()
 						{
 							public void run()
 							{
+								// JOHAN TEST CODE FOR AYTON
+								int rw = row;
+								int col = column;
+								if (rw == 0 && col == 1)
+								{
+									Debug.error(possibleCalcDataprovider);
+								}
+								// JOHAN TEST CODE FOR AYTON
 								rowAndDataprovider.remove(key);
 								foundset.fireTableModelEvent(row, row, column, TableModelEvent.UPDATE);
 								Container parent = table.getParent();
