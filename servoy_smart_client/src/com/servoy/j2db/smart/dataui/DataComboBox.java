@@ -36,7 +36,9 @@ import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.Format;
@@ -137,6 +139,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	private final RuntimeDataCombobox scriptable;
 	private boolean showingPopup;
 	private static final int MAXIMUM_ROWS = 20;
+
+	private final KeyListener navigationKeyListener;
+	private boolean isNavigationKeyOn;
 
 	public DataComboBox(IApplication application, RuntimeDataCombobox scriptable, IValueList vl)
 	{
@@ -246,27 +251,46 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 				@Override
 				public void setSelectionInterval(int index0, int index1)
 				{
-					Object x = getListModelWrapper().get(index0);
 					int leftInd = index0;
 					int rightInd = index1;
-					if (x == IValueList.SEPARATOR)
+					if (isNavigationKeyOn)
 					{
-						int index = getMinSelectionIndex();
-						if (index < index0)
+						Object x = getListModelWrapper().get(index0);
+						if (x == IValueList.SEPARATOR)
 						{
-							leftInd++;
-							rightInd++;
-						}
-						else
-						{
-							leftInd--;
-							rightInd--;
+							int index = getMinSelectionIndex();
+							if (index < index0)
+							{
+								leftInd++;
+								rightInd++;
+							}
+							else
+							{
+								leftInd--;
+								rightInd--;
+							}
 						}
 					}
 					super.setSelectionInterval(leftInd, rightInd);
 				}
 			});
 		}
+
+		navigationKeyListener = new KeyAdapter()
+		{
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				isNavigationKeyOn = e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN;
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+				isNavigationKeyOn = false;
+			}
+		};
+		addKeyListener(navigationKeyListener);
 	}
 
 	public final RuntimeDataCombobox getScriptObject()
@@ -584,6 +608,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	public void destroy()
 	{
 		getListModelWrapper().deregister();
+		removeKeyListener(navigationKeyListener);
 	}
 
 	class DividerListCellRenderer implements ListCellRenderer
