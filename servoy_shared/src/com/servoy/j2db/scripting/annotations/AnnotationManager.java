@@ -51,6 +51,65 @@ public class AnnotationManager
 		return getCachedAnnotation(method, annotationClass).getLeft().booleanValue();
 	}
 
+	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation>[] annotationClasses)
+	{
+		for (Class< ? extends Annotation> annotationClass : annotationClasses)
+		{
+			Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
+			Pair<Boolean, Annotation> pair = annotationCache.get(key);
+			if (pair != null) return pair.getLeft().booleanValue();
+			Annotation annotation = method.getAnnotation(annotationClass);
+			if (annotation != null)
+			{
+				annotationCache.put(key, pair = new Pair<Boolean, Annotation>(Boolean.TRUE, annotation));
+				return pair.getLeft().booleanValue();
+			}
+		}
+
+		boolean found = false;
+
+		for (Class< ? > cls = method.getDeclaringClass(); (cls != Object.class && cls != null); cls = cls.getSuperclass())
+		{
+			// check if the method is part of an interface that has the annotation
+			Class< ? >[] interfaces = cls.getInterfaces();
+			for (Class< ? > interface1 : interfaces)
+			{
+				try
+				{
+					Method interfaceMethod = interface1.getMethod(method.getName(), method.getParameterTypes());
+					for (Class< ? extends Annotation> annotationClass : annotationClasses)
+					{
+						Annotation annotation = interfaceMethod.getAnnotation(annotationClass);
+						if (annotation != null)
+						{
+							Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
+							annotationCache.put(key, new Pair<Boolean, Annotation>(Boolean.TRUE, annotation));
+							found = true;
+						}
+					}
+				}
+				catch (SecurityException e)
+				{
+				}
+				catch (NoSuchMethodException e)
+				{
+				}
+			}
+		}
+
+		for (Class< ? extends Annotation> annotationClass : annotationClasses)
+		{
+			Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
+			Pair<Boolean, Annotation> pair = annotationCache.get(key);
+			if (pair == null)
+			{
+				annotationCache.put(key, new Pair<Boolean, Annotation>(Boolean.FALSE, null));
+			}
+		}
+
+		return found;
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T extends Annotation> T getAnnotation(Method method, Class<T> annotationClass)
 	{

@@ -95,11 +95,10 @@ public class InstanceJavaMembers extends JavaMembers
 
 	protected boolean isJsMethod(Method method)
 	{
-		return method.getName().startsWith("js_") || method.getName().startsWith("jsFunction_") ||
-			AnnotationManager.getInstance().isAnnotationPresent(method, JSReadonlyProperty.class) ||
-			AnnotationManager.getInstance().isAnnotationPresent(method, JSFunction.class) ||
-			AnnotationManager.getInstance().isAnnotationPresent(method, JSGetter.class) ||
-			AnnotationManager.getInstance().isAnnotationPresent(method, JSSetter.class);
+		return method.getName().startsWith("js_") ||
+			method.getName().startsWith("jsFunction_") ||
+			AnnotationManager.getInstance().isAnnotationPresent(method,
+				new Class[] { JSReadonlyProperty.class, JSFunction.class, JSGetter.class, JSSetter.class });
 	}
 
 	/**
