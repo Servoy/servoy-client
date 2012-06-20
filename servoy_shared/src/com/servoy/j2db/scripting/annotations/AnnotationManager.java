@@ -53,18 +53,27 @@ public class AnnotationManager
 
 	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation>[] annotationClasses)
 	{
+		boolean allTested = true;
 		for (Class< ? extends Annotation> annotationClass : annotationClasses)
 		{
 			Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
 			Pair<Boolean, Annotation> pair = annotationCache.get(key);
-			if (pair != null) return pair.getLeft().booleanValue();
+			if (pair != null)
+			{
+				if (pair.getLeft().booleanValue()) return true;
+			}
+			else
+			{
+				allTested = false;
+			}
 			Annotation annotation = method.getAnnotation(annotationClass);
 			if (annotation != null)
 			{
 				annotationCache.put(key, pair = new Pair<Boolean, Annotation>(Boolean.TRUE, annotation));
-				return pair.getLeft().booleanValue();
+				return true;
 			}
 		}
+		if (allTested) return false;
 
 		boolean found = false;
 
