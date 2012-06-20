@@ -41,7 +41,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
-import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
@@ -50,6 +49,7 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.headlessclient.EmptyRequest;
@@ -526,14 +526,20 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return false;
 	}
 
+	public void flushValueList(ValueList valueList)
+	{
+		if (debugJ2DBClient != null) ComponentFactory.flushValueList(debugJ2DBClient, valueList);
+		if (debugWebClient != null) ComponentFactory.flushValueList(debugWebClient, valueList);
+		if (debugHeadlessClient != null) ComponentFactory.flushValueList(debugHeadlessClient, valueList);
+	}
+
 	public void reloadAllStyles()
 	{
 		// styles were added/removed; refresh all styles
 		// TODO really refresh all styles (not just flush cache)
-		if (J2DBGlobals.getServiceProvider() != null)
-		{
-			ComponentFactory.flushCachedItems();
-		}
+		if (debugJ2DBClient != null) ComponentFactory.flushCachedItems(debugJ2DBClient);
+		if (debugWebClient != null) ComponentFactory.flushCachedItems(debugWebClient);
+		if (debugHeadlessClient != null) ComponentFactory.flushCachedItems(debugHeadlessClient);
 	}
 
 	CountDownLatch modelInitialised = new CountDownLatch(1);

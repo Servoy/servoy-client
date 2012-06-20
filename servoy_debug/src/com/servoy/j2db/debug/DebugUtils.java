@@ -168,7 +168,7 @@ public class DebugUtils
 			}
 			else if (persist instanceof ValueList)
 			{
-				ComponentFactory.flushValueList((ValueList)persist);
+				ComponentFactory.flushValueList(clientState, (ValueList)persist);
 				List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers();
 				for (FormController formController : cachedFormControllers)
 				{

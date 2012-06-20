@@ -102,7 +102,6 @@ import com.servoy.j2db.smart.SwingRuntimeWindow;
 import com.servoy.j2db.smart.SwingRuntimeWindowManager;
 import com.servoy.j2db.smart.cmd.CmdManager;
 import com.servoy.j2db.smart.dataui.FormLookupPanel;
-import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
@@ -532,7 +531,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			{
 				if (!getMainApplicationFrame().isVisible())
 				{
-					ComponentFactory.flushCachedItems(); // some stuff may have been cached while components are painted in form editor
+					ComponentFactory.flushCachedItems(DebugJ2DBClient.this); // some stuff may have been cached while components are painted in form editor
 					getMainApplicationFrame().setVisible(true);
 				}
 				else

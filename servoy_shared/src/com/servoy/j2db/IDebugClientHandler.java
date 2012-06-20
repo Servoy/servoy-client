@@ -28,6 +28,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 
@@ -77,4 +78,6 @@ public interface IDebugClientHandler
 	void refreshDebugClients(Collection<IPersist> changes);
 
 	boolean isClientStarted();
+
+	void flushValueList(ValueList valueList);
 }
