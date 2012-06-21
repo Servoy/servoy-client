@@ -20,6 +20,9 @@ package com.servoy.j2db.util;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.swing.JFileChooser;
@@ -213,7 +216,7 @@ public class FileChooserUtils
 		return getFileChooser(file, selectionMode, filter, null);
 	}
 
-	private static JFileChooser getFileChooser(File file, int selectionMode, final String[] filter, String title)
+	private static JFileChooser getFileChooser(File file, int selectionMode, String[] filter, String title)
 	{
 		JFileChooser fc = null;
 		if (file != null)
@@ -246,20 +249,32 @@ public class FileChooserUtils
 
 			if (filter != null && filter.length > 0)
 			{
-				fc.setAcceptAllFileFilterUsed(false);
+				List<String> filterList = new ArrayList<String>();
+				filterList.addAll(Arrays.asList(filter));
+				if (!filterList.contains("*"))//$NON-NLS-1$
+				{
+					fc.setAcceptAllFileFilterUsed(false);
+				}
+				else
+				{
+					fc.setAcceptAllFileFilterUsed(true);
+					filterList.remove("*"); //$NON-NLS-1$
+					filter = filterList.toArray(new String[] { });
+				}
+				final String[] finalFilter = filter;
 				fc.setFileFilter(new FileFilter()
 				{
 
 					@Override
 					public String getDescription()
 					{
-						return filter[0];
+						return finalFilter[0];
 					}
 
 					@Override
 					public boolean accept(File f)
 					{
-						for (String element : filter)
+						for (String element : finalFilter)
 						{
 							if (f.isDirectory() || f.getName().toLowerCase().endsWith(element))
 							{
