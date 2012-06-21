@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.scripting;
 
+import java.util.Map;
+
 import com.servoy.j2db.documentation.IParameter;
 
 public interface ITypedScriptObject extends IScriptObject
@@ -23,6 +25,8 @@ public interface ITypedScriptObject extends IScriptObject
 	IParameter[] getParameters(String methodName, Class< ? >[] argTypes);
 
 	public String getSignature(String methodName, Class< ? >[] argTypes);
+
+	public String getSignature(String methodName, Class< ? >[] argTypes, Map<String, String> typeTranslationMap);
 
 	public String getSample(String methodName, Class< ? >[] argTypes);
 
