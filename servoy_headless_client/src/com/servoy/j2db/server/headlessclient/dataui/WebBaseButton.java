@@ -1048,6 +1048,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		char mnemonic, String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, boolean isElementAnchored)
 	{
 		Insets padding = null;
+		Insets borderMargin = null;
 		boolean usePadding = false;
 		if (border == null)
 		{
@@ -1067,6 +1068,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			{
 				usePadding = true;
 				padding = ComponentFactoryHelper.getBorderInsetsForNoComponent(inside);
+			}
+			Border outside = ((CompoundBorder)border).getOutsideBorder();
+			if (outside != null)
+			{
+				borderMargin = ComponentFactoryHelper.getBorderInsetsForNoComponent(outside);
 			}
 		}
 		else if (!(border instanceof BevelBorder) && !(border instanceof EtchedBorder))
@@ -1125,6 +1131,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			int innerHeight = height;
 			if (padding != null) innerHeight -= padding.top + padding.bottom;
+			if (borderMargin != null) innerHeight -= borderMargin.top + borderMargin.bottom;
 			instrumentedBodyText.append("line-height: " + innerHeight + "px;");
 		}
 		if (isAnchored)
