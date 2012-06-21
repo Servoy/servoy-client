@@ -204,7 +204,7 @@ public class Record implements Scriptable, IRecordInternal
 								for (StackTraceElement stackTraceElement : stackTrace)
 								{
 									sb.append("\n");
-									sb.append(stackTrace.toString());
+									sb.append(stackTraceElement.toString());
 								}
 								Debug.error(sb.toString(), new RuntimeException("calc timeout"));
 							}
