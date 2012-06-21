@@ -290,8 +290,11 @@ public class TemplateGenerator
 				//selectors to components
 				for (String sid : ids)
 				{
-					if (sid.startsWith(id) && !webFormIDToMarkupIDMap.containsKey(sid)) webFormIDToMarkupIDMap.put(sid,
-						webFormIDToMarkupIDMap.get(id) + sid.substring(id.length()));
+					if (sid.startsWith(id) && !webFormIDToMarkupIDMap.containsKey(sid) && webFormIDToMarkupIDMap.containsKey(id))
+					{
+						webFormIDToMarkupIDMap.put(sid, webFormIDToMarkupIDMap.get(id) + sid.substring(id.length()));
+
+					}
 				}
 				return IVisitor.CONTINUE_TRAVERSAL;
 			}
