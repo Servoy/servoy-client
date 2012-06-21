@@ -939,12 +939,12 @@ if (typeof(Servoy.TableView) == "undefined")
 				return 0;
 			}
 
-			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
-			var scrollTop = rowContainerBodyEl.scrollTop;
+			var scrollTop = $('#' + rowContainerBodyId).scrollTop()
 			var scrollDiff = scrollTop - Servoy.TableView.currentScrollTop[rowContainerBodyId];
 			if(scrollDiff == 0 || (Servoy.TableView.keepLoadedRows && (scrollDiff < 0))) return 0;
 			Servoy.TableView.currentScrollTop[rowContainerBodyId] = scrollTop;
-			
+
+			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);			
 			var clientHeight = rowContainerBodyEl.clientHeight;
 			var scrollHeight = rowContainerBodyEl.scrollHeight;
 			var bufferedRows = scrollHeight - scrollTop - clientHeight;
