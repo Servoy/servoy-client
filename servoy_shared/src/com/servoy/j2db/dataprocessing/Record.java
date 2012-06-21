@@ -200,7 +200,8 @@ public class Record implements Scriptable, IRecordInternal
 							{
 								StackTraceElement[] stackTrace = previous.getStackTrace();
 								StringBuilder sb = new StringBuilder();
-								sb.append("Calc time out for thread: " + currentThread.getName() + " still waiting for: " + previous.getName() + ", stack:");
+								sb.append("Calc '" + dataProviderID + "' did time out for thread: " + currentThread.getName() + " still waiting for: " +
+									previous.getName() + ", stack:");
 								for (StackTraceElement stackTraceElement : stackTrace)
 								{
 									sb.append("\n");
