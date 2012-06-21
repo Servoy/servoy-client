@@ -199,6 +199,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		copy.setRuntimeProperty(CLONE_PROPERTY, persist);
 		copySolution.addChild(copy);
 		flush(persist);
+		if (persist instanceof Form)
+		{
+			refreshSuperForms(persist);
+		}
 		return copy;
 	}
 
@@ -292,6 +296,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			copySolution.removeChild(persist);
 			flush(persist);
+		}
+
+		if (persist instanceof Form)
+		{
+			refreshSuperForms(persist);
 		}
 
 		// if it has a clone persist property then it was cloned (and there is an original)
@@ -669,15 +678,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				s.getChangeHandler().addIPersistListener(this);
 			}
 		}
-		Iterator<Form> it = getForms(false);
-		while (it.hasNext())
-		{
-			Form form = it.next();
-			if (form.getExtendsID() > 0)
-			{
-				form.setExtendsForm(getForm(form.getExtendsID()));
-			}
-		}
+		refreshSuperForms(null);
 	}
 
 	private static Solution[] getDependencyGraphOrderedModules(Collection<Solution> modules, Solution solution)
@@ -2784,6 +2785,20 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		else
 		{
 			designFormName = form.getName();
+		}
+	}
+
+	private void refreshSuperForms(IPersist persist)
+	{
+		Iterator<Form> it = getForms(false);
+		while (it.hasNext())
+		{
+			Form childForm = it.next();
+			if ((persist != null && childForm.getID() == persist.getID()) ||
+				(childForm.getExtendsID() > 0 && (persist == null || childForm.getExtendsID() == persist.getID())))
+			{
+				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
+			}
 		}
 	}
 
