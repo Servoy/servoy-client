@@ -17,6 +17,7 @@
 package com.servoy.j2db.documentation;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.servoy.j2db.scripting.IScriptObject;
@@ -127,6 +128,16 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		if (fdoc != null)
 		{
 			return fdoc.getFullSignature(false, true);
+		}
+		return null;
+	}
+
+	public String getSignature(String methodName, Class< ? >[] argTypes, Map<String, String> typeTranslationMap)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			return fdoc.getFullSignature(false, true, typeTranslationMap);
 		}
 		return null;
 	}
