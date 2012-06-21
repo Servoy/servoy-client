@@ -297,9 +297,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	/**
 	 * Managers
 	 */
-	protected CmdManager cmdManager;
-	protected IBeanManager beanManager;
-	protected ILAFManager lafManager;
+	private CmdManager cmdManager;
+	private volatile IBeanManager beanManager;
+	private ILAFManager lafManager;
 	private RuntimeWindowManager jsWindowManager;
 
 	protected Icon empty;
@@ -1055,15 +1055,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 	}
 
-	@Override
-	protected boolean applicationServerInit() throws Exception
-	{
-		boolean b = super.applicationServerInit();
-		beanManager = createBeanManager();
-		return b;
-	}
-
-
 	protected ILAFManager createLAFManager()
 	{
 		return new LAFManager();
@@ -1732,6 +1723,10 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	public IBeanManager getBeanManager()
 	{
+		if (beanManager == null)
+		{
+			beanManager = createBeanManager();
+		}
 		return beanManager;
 	}
 
