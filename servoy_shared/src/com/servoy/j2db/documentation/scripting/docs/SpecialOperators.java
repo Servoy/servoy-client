@@ -41,7 +41,7 @@ public class SpecialOperators
 	 * application.output(typeof(application)); // object
 	 * application.output(typeof(somethingInexisting)); // undefined
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Operators/Special_Operators/typeof_Operator
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Operators/typeof
 	 */
 	@JSFunction
 	public void typeof()
