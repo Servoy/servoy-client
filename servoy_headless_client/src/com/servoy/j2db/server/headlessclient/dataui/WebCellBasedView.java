@@ -1601,7 +1601,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				public String getObject()
 				{
 					return scrollBarDefinitionToOverflowAttribute(scrollbars) +
-						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch;"; //$NON-NLS-1$
+						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; display: none;"; //$NON-NLS-1$
 				}
 			}));
 
@@ -3720,6 +3720,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			StringBuffer tbodyStyle = new StringBuffer("$('#").append(tableContainerBody.getMarkupId()).append("').css('top',").append(top).append(");");
 			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('padding-right',").append(scrollPadding).append(");");
+			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();");
 			container.getHeaderResponse().renderOnDomReadyJavascript(tbodyStyle.toString());
 		}
 	}
