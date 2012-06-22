@@ -255,7 +255,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getDay
 	 */
-	public Number js_getDay()
+	public Number jsFunction_getDay()
 	{
 		return null;
 	}
@@ -267,7 +267,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getFullYear
 	 */
-	public Number js_getFullYear()
+	public Number jsFunction_getFullYear()
 	{
 		return null;
 	}
@@ -279,7 +279,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getHours
 	 */
-	public Number js_getHours()
+	public Number jsFunction_getHours()
 	{
 		return null;
 	}
@@ -303,7 +303,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMinutes
 	 */
-	public Number js_getMinutes()
+	public Number jsFunction_getMinutes()
 	{
 		return null;
 	}
@@ -315,7 +315,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMonth
 	 */
-	public Number js_getMonth()
+	public Number jsFunction_getMonth()
 	{
 		return null;
 	}
@@ -327,7 +327,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getSeconds
 	 */
-	public Number js_getSeconds()
+	public Number jsFunction_getSeconds()
 	{
 		return null;
 	}
@@ -351,7 +351,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getTimezoneOffset
 	 */
-	public Number js_getTimezoneOffset()
+	public Number jsFunction_getTimezoneOffset()
 	{
 		return null;
 	}
@@ -375,7 +375,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCDay
 	 */
-	public Number js_getUTCDay()
+	public Number jsFunction_getUTCDay()
 	{
 		return null;
 	}
@@ -387,7 +387,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCFullYear
 	 */
-	public Number js_getUTCFullYear()
+	public Number jsFunction_getUTCFullYear()
 	{
 		return null;
 	}
@@ -399,7 +399,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCHours
 	 */
-	public Number js_getUTCHours()
+	public Number jsFunction_getUTCHours()
 	{
 		return null;
 	}
@@ -423,7 +423,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMinutes
 	 */
-	public Number js_getUTCMinutes()
+	public Number jsFunction_getUTCMinutes()
 	{
 		return null;
 	}
@@ -435,7 +435,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMonth
 	 */
-	public Number js_getUTCMonth()
+	public Number jsFunction_getUTCMonth()
 	{
 		return null;
 	}
@@ -447,7 +447,7 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCSeconds
 	 */
-	public Number js_getUTCSeconds()
+	public Number jsFunction_getUTCSeconds()
 	{
 		return null;
 	}
