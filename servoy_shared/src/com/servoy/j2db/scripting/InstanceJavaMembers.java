@@ -217,7 +217,15 @@ public class InstanceJavaMembers extends JavaMembers
 					if (mb.isMethod() && AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSReadonlyProperty.class))
 					{
 						// make bean property
-						copy.put(name, new BeanProperty(mb, null, null));
+						Object oldValue = copy.put(name, new BeanProperty(mb, null, null));
+						if (oldValue instanceof NativeJavaMethod)
+						{
+							// allow the method to be called directly as well
+							String functionName = ((NativeJavaMethod)oldValue).getFunctionName();
+							copy.put(functionName, oldValue);
+							// but do not show it
+							addMethodToDelete(functionName);
+						}
 					}
 				}
 			}
@@ -271,12 +279,28 @@ public class InstanceJavaMembers extends JavaMembers
 	@Override
 	protected void deleteGetAndSetMethods(boolean isStatic, List toRemove)
 	{
-		this.gettersAndSettersToHide = Collections.<String> unmodifiableList(toRemove);
+		if (gettersAndSettersToHide == null)
+		{
+			gettersAndSettersToHide = new ArrayList<String>(toRemove);
+		}
+		else
+		{
+			gettersAndSettersToHide.addAll(toRemove);
+		}
+	}
+
+	protected void addMethodToDelete(String name)
+	{
+		if (gettersAndSettersToHide == null)
+		{
+			gettersAndSettersToHide = new ArrayList<String>();
+		}
+		gettersAndSettersToHide.add(name);
 	}
 
 	public List<String> getGettersAndSettersToHide()
 	{
-		return gettersAndSettersToHide;
+		return Collections.<String> unmodifiableList(gettersAndSettersToHide);
 	}
 
 	static void registerClass(Scriptable scope, Class< ? > cls, InstanceJavaMembers ijm)
