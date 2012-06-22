@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.MemberBox;
@@ -141,7 +139,6 @@ public class Record implements Scriptable, IRecordInternal
 		return parent;
 	}
 
-	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<String, Thread>(4);
 
 	/**
 	 * called by data adapter for a new value
@@ -172,47 +169,7 @@ public class Record implements Scriptable, IRecordInternal
 			boolean mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
 			if (mustRecalc)
 			{
-				Thread currentThread = Thread.currentThread();
-				Thread previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
-				if (previous != null && previous != currentThread)
-				{
-					long time = System.currentTimeMillis();
-					try
-					{
-						previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
-						while (previous != null && previous != currentThread && System.currentTimeMillis() < (time + 5000))
-						{
-							synchronized (calculatingThreads)
-							{
-								calculatingThreads.wait(1000);
-							}
-							previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
-						}
-					}
-					catch (InterruptedException e)
-					{
-						//ignore
-					}
-					if (previous != null && previous != currentThread)
-					{
-						try
-						{
-							StackTraceElement[] stackTrace = previous.getStackTrace();
-							StringBuilder sb = new StringBuilder();
-							sb.append("Calc '" + dataProviderID + "' did time out for thread: " + currentThread.getName() + " still waiting for: " +
-								previous.getName() + ", stack:");
-							for (StackTraceElement stackTraceElement : stackTrace)
-							{
-								sb.append("\n");
-								sb.append(stackTraceElement.toString());
-							}
-							Debug.error(sb.toString(), new RuntimeException("calc timeout"));
-						}
-						catch (Exception e)
-						{
-						}
-					}
-				}
+				row.threadWillExecuteCalculation(dataProviderID);
 			}
 			mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
 			if ((containsCalc || row.containsDataprovider(dataProviderID)) && !mustRecalc)
@@ -241,11 +198,7 @@ public class Record implements Scriptable, IRecordInternal
 		}
 		finally
 		{
-			calculatingThreads.remove(dataProviderID, Thread.currentThread());
-			synchronized (calculatingThreads)
-			{
-				calculatingThreads.notifyAll();
-			}
+			row.threadCalculationComplete(dataProviderID);
 		}
 		if (parent.containsDataProvider(dataProviderID)) //as shared (global or aggregate)
 		{

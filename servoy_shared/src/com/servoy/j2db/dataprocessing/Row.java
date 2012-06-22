@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
@@ -61,6 +63,8 @@ public class Row
 	private final WeakHashMap<IRowChangeListener, Object> listeners;
 
 	private static Object dummy = new Object();
+
+	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<String, Thread>(4);
 
 	void register(IRowChangeListener r)
 	{
@@ -748,6 +752,69 @@ public class Row
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Synchronization for not calculating the same calculation on multiple threads simultaneously...<br>
+	 * After calling this method, YOU MUST call in a finally block {@link #threadCalculationComplete()} method.
+	 * @param dataProviderID the calculation.
+	 */
+	public void threadWillExecuteCalculation(String dataProviderID)
+	{
+		Thread currentThread = Thread.currentThread();
+		Thread previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
+		if (previous != null && previous != currentThread)
+		{
+			long time = System.currentTimeMillis();
+			try
+			{
+				previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
+				while (previous != null && previous != currentThread && System.currentTimeMillis() < (time + 5000))
+				{
+					synchronized (calculatingThreads)
+					{
+						calculatingThreads.wait(1000);
+					}
+					previous = calculatingThreads.putIfAbsent(dataProviderID, currentThread);
+				}
+			}
+			catch (InterruptedException e)
+			{
+				//ignore
+			}
+			if (previous != null && previous != currentThread)
+			{
+				try
+				{
+					StackTraceElement[] stackTrace = previous.getStackTrace();
+					StringBuilder sb = new StringBuilder();
+					sb.append("Calc '" + dataProviderID + "' did time out for thread: " + currentThread.getName() + " still waiting for: " +
+						previous.getName() + ", stack:");
+					for (StackTraceElement stackTraceElement : stackTrace)
+					{
+						sb.append("\n");
+						sb.append(stackTraceElement.toString());
+					}
+					Debug.error(sb.toString(), new RuntimeException("calc timeout"));
+				}
+				catch (Exception e)
+				{
+				}
+			}
+		}
+	}
+
+	/**
+	 * Tell the row that current thread has finished calculating this calculation.
+	 * @param dataProviderID the calculation.
+	 */
+	public void threadCalculationComplete(String dataProviderID)
+	{
+		calculatingThreads.remove(dataProviderID, Thread.currentThread());
+		synchronized (calculatingThreads)
+		{
+			calculatingThreads.notifyAll();
+		}
 	}
 
 }
