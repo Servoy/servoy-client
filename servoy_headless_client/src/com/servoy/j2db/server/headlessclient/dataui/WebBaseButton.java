@@ -1188,9 +1188,20 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		if (isOnlyImgDisplay)
 		{
-			String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
-			instrumentedBodyText = (new StringBuffer(
-				"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
+			// if only image AND not image from html text content
+			if (cssid == null)
+			{
+				String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "center";
+				String hAlign = (halign == ISupportTextSetup.LEFT) ? "left" : (halign == ISupportTextSetup.RIGHT) ? "right" : "center ";
+				String align = hAlign + " " + sValign;
+				instrumentedBodyText = (new StringBuffer("<div id=\"").append(imgID).append("\" style=\"width: 100%; height: 100%; background-image:url('").append(!isElementAnchored ? imgURL : "").append("'); background-position: ").append(align).append("; background-repeat: no-repeat;\"/>")); //$NON-NLS-1$ //$NON-NLS-2$				
+			}
+			else
+			{
+				String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
+				instrumentedBodyText = (new StringBuffer(
+					"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 		if (border instanceof TitledBorder)
 		{
