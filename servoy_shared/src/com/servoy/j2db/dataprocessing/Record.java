@@ -186,9 +186,6 @@ public class Record implements Scriptable, IRecordInternal
 				if (!(value instanceof Undefined))
 				{
 					value = Utils.mapToNullIfUnmanageble(value);
-
-					// Reset the mustRecalculate here so if it is an every time changing calculation it will not be calculated again and again
-					row.mustRecalculate(dataProviderID, false);
 					row.setValue(this, dataProviderID, value);
 				}
 

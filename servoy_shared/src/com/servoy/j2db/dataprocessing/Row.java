@@ -414,8 +414,13 @@ public class Row
 			wasUNINITIALIZED = true;
 		}
 
+		boolean isCalculation = containsCalculation(dataProviderID);
 		//if we receive NULL from the db for Empty strings in Servoy calcs, return value
-		if (o == null && "".equals(convertedValue) && containsCalculation(dataProviderID)) return convertedValue; //$NON-NLS-1$
+		if (o == null && "".equals(convertedValue) && isCalculation) //$NON-NLS-1$
+		{
+			mustRecalculate(dataProviderID, false);
+			return convertedValue;
+		}
 		if (!Utils.equalObjects(o, convertedValue))
 		{
 			boolean mustStop = !parent.getFoundsetManager().getEditRecordList().isEditing();
@@ -429,11 +434,17 @@ public class Row
 				createOldValuesIfNeeded();
 				columndata[columnIndex] = convertedValue;
 			}
-			else if (containsCalculation(dataProviderID))
+			else if (isCalculation)
 			{
 				unstoredCalcCache.put(dataProviderID, convertedValue);
 			}
 			lastException = null;
+
+			// Reset the mustRecalculate here, before setValue fires events, so if it is an every time changing calculation it will not be calculated again and again
+			if (isCalculation)
+			{
+				mustRecalculate(dataProviderID, false);
+			}
 
 			handleCalculationDependencies(sheet.getTable().getColumn(dataProviderID), dataProviderID);
 
@@ -453,6 +464,11 @@ public class Row
 				}
 			}
 			return o;
+		}
+		else if (isCalculation)
+		{
+			// Reset the mustRecalculate here, before setValue fires events, so if it is an every time changing calculation it will not be calculated again and again
+			mustRecalculate(dataProviderID, false);
 		}
 		return convertedValue;//is same so return
 	}
