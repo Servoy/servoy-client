@@ -222,9 +222,12 @@ public class InstanceJavaMembers extends JavaMembers
 						{
 							// allow the method to be called directly as well
 							String functionName = ((NativeJavaMethod)oldValue).getFunctionName();
-							copy.put(functionName, oldValue);
-							// but do not show it
-							addMethodToDelete(functionName);
+							if (!functionName.equals(name))
+							{
+								copy.put(functionName, oldValue);
+								// but do not show it
+								addMethodToDelete(functionName);
+							}
 						}
 					}
 				}
