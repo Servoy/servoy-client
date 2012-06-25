@@ -1105,7 +1105,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
 	 * 
 	 * @param dataset The dataset to load records from
-	 * @param ignored True for ignoring the argument array
+	 * @param ignored true for ignoring the argument array
 	 * 
 	 * @deprecated use loadRecords(JSDataSet)
 	 */
@@ -1132,7 +1132,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
 	 * 
 	 * @param foundset The foundset to load record from
-	 * @param ignored True for ignoring the argument array
+	 * @param ignored true for ignoring the argument array
 	 * 
 	 * @deprecated use loadRecords(FoundSet)
 	 */
