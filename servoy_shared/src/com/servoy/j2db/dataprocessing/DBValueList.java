@@ -39,6 +39,7 @@ import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Table based valuelist
@@ -289,15 +290,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							Object val = handleRowData(valueList, concatShowValues, showValues, r, application);
 							Object rval = handleRowData(valueList, concatReturnValues, returnValues, r, application);
-							if (singleColumn)
-							{
-								if (indexOf(val) == -1)
-								{
-									addElement(val);
-									realValues.add(rval);
-								}
-							}
-							else
+							int index = indexOf(val);
+							if (index == -1 || !Utils.equalObjects(getRealElementAt(index), rval))
 							{
 								addElement(val);
 								realValues.add(rval);
