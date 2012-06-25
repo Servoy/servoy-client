@@ -968,6 +968,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			{
 				//safety
 				currentForm = null;
+				replace(new Label("webform", new Model<String>("")));
 			}
 		}
 		return true;
