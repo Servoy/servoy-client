@@ -1316,13 +1316,13 @@ public class JSSolutionModel implements ISolutionModel
 	 *
 	 * @param name the specified name of the new relation
 	 *
-	 * @param primary_server_name|primary_datasource the specified name of the primary server
+	 * @param primaryDataSourceOrServer the specified name of the primary server
 	 *
-	 * @param primary_table_name|foreign_servername the specified name of the primary table
+	 * @param primaryTableNameOrForeignServer the specified name of the primary table
 	 *
-	 * @param foreign_table_name|foreing_datasource the specified name of the foreign server
+	 * @param foreignDataSourceOrTable the specified name of the foreign server
 	 *
-	 * @param join_type the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
+	 * @param joinType the type of join for the new relation; JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN
 	 * 
 	 * @return a JSRelation object
 	 */

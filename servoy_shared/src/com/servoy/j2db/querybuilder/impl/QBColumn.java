@@ -187,7 +187,9 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#like(String)
-	 * @param value
+	 * 
+	 * @param pattern the string value of the pattern
+	 * 
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('Serv%'))
 	 */
@@ -199,8 +201,10 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#like(String, char)
-	 * @param value string value
-	 * @param ecape escape char
+	 * 
+	 * @param pattern the string value of the pattern
+	 * @param escape the escape char
+	 * 
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('X_%', '_'))
 	 */

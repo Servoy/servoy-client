@@ -177,8 +177,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#substring(Object, int)
-	 * @param value 
-	 * @param pos 
+	 * @param arg column name
+	 * @param pos position
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$
@@ -194,9 +194,9 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#substring(Object, int, int)
-	 * @param value 
-	 * @param pos 
-	 * @param len 
+	 * @param arg column name
+	 * @param pos position
+	 * @param len length
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$

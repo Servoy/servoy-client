@@ -210,7 +210,7 @@ public class JSI18N
 	 * @sample
 	 * var timeZoneOffset = i18n.getTimeZoneOffset('America/Los_Angeles');
 	 *
-	 * @param timezone The time zone to get the offset for.
+	 * @param timeZoneId The time zone to get the offset for.
 	 * 
 	 * @return an int representing the time zone's offset from UTC.
 	 */
@@ -222,8 +222,8 @@ public class JSI18N
 	/**
 	 * @clonedesc js_getTimeZoneOffset(String)
 	 * @sampleas js_getTimeZoneOffset(String)
-	 * @param timezone The time zone to get the offset for.
-	 *
+	 * 
+	 * @param timeZoneId The time zone to get the offset for.
 	 * @param date The date in the time zone (default current date). Needed in case daylight saving time/GMT offset changes are used in the time zone.
 	 * 
 	 * @return an int representing the time zone's offset from UTC.

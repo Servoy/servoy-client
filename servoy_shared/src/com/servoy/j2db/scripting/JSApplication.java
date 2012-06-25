@@ -1297,7 +1297,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @sampleas js_closeSolution()
 	 * 
 	 * @param solutionToLoad Name of the solution to load 
-	 * @param method Name of the global method to call
+	 * @param methodName Name of the global method to call
 	 */
 	public void js_closeSolution(String solutionToLoad, String methodName)
 	{
@@ -1310,7 +1310,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @sampleas js_closeSolution()
 	 *  
 	 * @param solutionToLoad Name of the solution to load 
-	 * @param method Name of the global method to call
+	 * @param methodName Name of the global method to call
 	 * @param methodArgument Argument passed to the global method
 	 */
 	public void js_closeSolution(String solutionToLoad, String methodName, Object methodArgument)
@@ -1649,9 +1649,9 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String target, String webclientTargetOptions, int timeout)
+	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions, int timeout)
 	{
-		return application.showURL(url, target, webclientTargetOptions, timeout, true);
+		return application.showURL(url, webclientTarget, webclientTargetOptions, timeout, true);
 	}
 
 	/**

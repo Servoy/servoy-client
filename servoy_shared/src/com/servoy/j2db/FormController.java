@@ -305,7 +305,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(FoundSet)
 		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 * 
-		 * @param founset the foundset to load before showing the form.
+		 * @param foundset the foundset to load before showing the form.
 		 * @param window the window in which this form should be shown.
 		 */
 		public void js_showRecords(FoundSet foundset, Object window) throws ServoyException
@@ -425,6 +425,18 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			showRecords(UUIDpk, window, null);
 		}
 
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @param foundset the foundset to load before showing the form
+		 * @param dialogName the name of the dialog in which to show the form
+		 * @param modal true for modal dialog, false for non-modal
+		 * 
+		 * @throws ServoyException
+		 * 
+		 * @deprecated see showRecords(FoundSet, Object)
+		 */
 		@Deprecated
 		public void js_showRecords(Object foundset, Object dialogName, Object modal) throws ServoyException
 		{

@@ -1093,6 +1093,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
 	 * @param dataset pkdataset
+	 * 
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(IDataSet dataset) throws ServoyException
@@ -1102,8 +1103,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/** 
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
-	 * @param dataset 
-	 * @param ignored 
+	 * 
+	 * @param dataset The dataset to load records from
+	 * @param ignored True for ignoring the argument array
 	 * 
 	 * @deprecated use loadRecords(JSDataSet)
 	 */
@@ -1117,7 +1119,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @clonedesc js_loadRecords(QBSelect)
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
-	 * @param foundset
+	 * @param foundset The foundset to load records from
+	 * 
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(FoundSet foundset)
@@ -1127,8 +1130,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/** 
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
-	 * @param foundset 
-	 * @param ignored 
+	 * 
+	 * @param foundset The foundset to load record from
+	 * @param ignored True for ignoring the argument array
 	 * 
 	 * @deprecated use loadRecords(FoundSet)
 	 */
@@ -1144,6 +1148,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param queryString select statement
 	 * @param argumentsArray arguments to query
+	 * 
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(String queryString, Object[] argumentsArray) throws ServoyException
@@ -1156,6 +1161,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
 	 * @param queryString select statement
+	 * 
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(String queryString) throws ServoyException
@@ -1168,6 +1174,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sampleas js_loadRecords(QBSelect)
 	 *
 	 * @param numberpk single-column pk value
+	 * 
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(Number numberpk) throws ServoyException
@@ -1177,8 +1184,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/** 
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
-	 * @param numberpk 
-	 * @param ignored 
+	 * 
+	 * @param numberpk single-column pk value
+	 * @param ignored true to ignore arguments array
 	 * 
 	 * @deprecated use loadRecords(Number)
 	 */
@@ -1202,8 +1210,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/** 
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
-	 * @param uuidpk 
-	 * @param ignored 
+	 * @param uuidpk single-column pk value
+	 * @param ignored true to ignore argument array
 	 * 
 	 * @deprecated use loadRecords(UUID)
 	 */
@@ -1292,7 +1300,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //-cannot contain 'group by', 'having' or 'union'
 	 * //-all columns must be fully qualified like 'orders.order_id'
 	 *
-	 * @param querybuilder query builder
+	 * @param querybuilder the query builder
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(QBSelect querybuilder) throws ServoyException
@@ -1304,7 +1312,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Method to handle old foundset loadRecords calls.
 	 * Deprecated method to handle pre-6.1 calls to varargs function foundset.loadRecords([1]), this was called with vargs=[1] in stead of vargs=[[1]].
 	 * 
-	 * @param vargs
+	 * @param vargs the arguments
+	 * 
 	 * @deprecated use loadRecords with single typed argument
 	 */
 	@Deprecated
@@ -1366,7 +1375,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Lookups are defined in the dataprovider (columns) auto-enter setting and are normally performed over a relation upon record creation.
 	 *
 	 * @sample %%prefix%%foundset.relookup(1);
-	 * @param index record index (1-based) 
 	 */
 	public void js_relookup()
 	{
@@ -2332,7 +2340,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * var success = %%prefix%%foundset.deleteRecord(4);
 	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
 	 *
-	 * @param index index of record to delete.
+	 * @param index The index of the record to delete.
 	 * 
 	 * @return boolean true if record could be deleted.
 	 */
@@ -2349,7 +2357,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * var success = %%prefix%%foundset.deleteRecord(rec);
 	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
 	 *
-	 * @param record record to delete.
+	 * @param record The record to delete from the foundset.
 	 * 
 	 * @return boolean true if record could be deleted.
 	 */
@@ -2396,7 +2404,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 * 
-	 * @param index index of record to omit.
+	 * @param index The index of the record to omit.
 	 * 
 	 * @return boolean true if all records could be omitted.
 	 */
@@ -2558,7 +2566,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sampleas js_duplicateRecord(int, int, boolean)
 	 * 
-	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param onTop when true the new record is added as the topmost record.
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
@@ -2573,7 +2581,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sampleas js_duplicateRecord(int, int, boolean)
 	 * 
-	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
@@ -2616,8 +2624,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sampleas js_duplicateRecord(int, int, boolean)
 	 * 
-	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
-	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord() throws ServoyException
@@ -2630,7 +2636,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sampleas js_duplicateRecord(int, int, boolean)
 	 * 
-	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param onTop when true the new record is added as the topmost record.
 	 * @param changeSelection when true the selection is changed to the duplicated record.
 	 *  
@@ -2646,7 +2652,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sampleas js_duplicateRecord(int, int, boolean)
 	 * 
-	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param location the new record is added at specified index
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
@@ -2666,7 +2672,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //duplicates the record (record index 3), adds on top and selects the record
 	 * %%prefix%%foundset.duplicateRecord(3,true,true);
 	 * 
-	 * @param index index of record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
+	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param location the new record is added at specified index
 	 * @param changeSelection when true the selection is changed to the duplicated record.
 	 *  

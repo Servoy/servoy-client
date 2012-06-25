@@ -208,8 +208,8 @@ public class JSDatabaseManager
 	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
 	 * var success = databaseManager.addTableFilterParam('crm', 'companies', 'companyname', '#^||=', 'servoy')
 	 *
-	 * @param server_name The name of the database server connection for the specified table name.
-	 * @param table_name The name of the specified table. 
+	 * @param serverName The name of the database server connection for the specified table name.
+	 * @param tableName The name of the specified table. 
 	 * @param dataprovider A specified dataprovider column name.  
 	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
 	 * @param value The specified filter value. 
@@ -2280,14 +2280,7 @@ public class JSDatabaseManager
 	/**
 	 * Returns a foundset object for a specified datasource or server and tablename. 
 	 *
-	 * @sample
-	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
-	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
-	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
-	 * var ridx = fs.newRecord()
-	 * var record = fs.getRecord(ridx)
-	 * record.emp_name = 'John'
-	 * databaseManager.saveData()
+	 * @sampleas js_getFoundset(String)
 	 *
 	 * @param serverName The servername to get a JSFoundset for.
 	 * @param tableName The tablename for that server
@@ -2331,18 +2324,11 @@ public class JSDatabaseManager
 	/**
 	 * Returns a foundset object for a specified pk query. 
 	 *
-	 * @sample
-	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
-	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
-	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
-	 * var ridx = fs.newRecord()
-	 * var record = fs.getRecord(ridx)
-	 * record.emp_name = 'John'
-	 * databaseManager.saveData()
+	 * @sampleas js_getFoundset(String)
 	 *
-	 * @param dataSource The datasource to get a JSFoundset for.
+	 * @param query The query to get the JSFoundset for.
 	 * 
-	 * @return A new JSFoundset for that datasource.
+	 * @return A new JSFoundset for that query.
 	 */
 	public FoundSet js_getFoundSet(QBSelect query) throws ServoyException
 	{
@@ -2994,7 +2980,7 @@ public class JSDatabaseManager
 	 * }
 	 *
 	 * @param foundset The JSFoundset to test if it has changes.
-	 * @param foundset_index The record index in the foundset to test (not specified means has the foundset any changed records)
+	 * @param index The record index in the foundset to test (not specified means has the foundset any changed records)
 	 * 
 	 * @return true if there are changes in the JSFoundset or JSRecord.
 	 */
@@ -3325,8 +3311,8 @@ public class JSDatabaseManager
 	 * //	controller.saveData();
 	 * //} 
 	 *
-	 * @param src The source record or object to be copied.
-	 * @param dest_record The destination record to copy to.
+	 * @param source The source record or object to be copied.
+	 * @param destination The destination record to copy to.
 	 * 
 	 * @return true if no errors happened.
 	 */
