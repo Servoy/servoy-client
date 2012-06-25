@@ -28,77 +28,93 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 public class Statements
 {
 	/**
+	 * Break statement exits a loop.
+	 * 
 	 * @sample break
+	 * 
+	 * @simplifiedSignature
 	 */
 	public void js_flow_break()
 	{
 	}
 
 	/**
+	 * Constant declaration.
+	 * 
 	 * @sample const #;
+	 * 
+	 * @simplifiedSignature
 	 */
 	public void js_flow_const()
 	{
 	}
 
 	/**
+	 * Continue statement, jumps to next iteration of the loop.
+	 * 
 	 * @sample continue
+	 * @simplifiedSignature
 	 */
 	public void js_flow_continue()
 	{
 	}
 
 	/**
-	 * loop
+	 * do while loop
 	 *
 	 * @sample
 	 * do
 	 * {
 	 * }
 	 * while ( # )
+	 * 
+	 * @simplifiedSignature
 	 */
 	public void js_flow_do_while()
 	{
 	}
 
 	/**
-	 * loop
+	 * for loop
 	 *
 	 * @sample
 	 * for ( var i = 0 ; i < # ; i++ )
 	 * {
 	 * }
+	 * @simplifiedSignature
 	 */
 	public void js_flow_for()
 	{
 	}
 
 	/**
-	 * loop
+	 * foreach loop
 	 *
 	 * @sample
 	 * for ( var item in obj )
 	 * {
 	 * }
+	 * @simplifiedSignature
 	 */
 	public void js_flow_for_each_in()
 	{
 	}
 
 	/**
-	 * 
+	 * If statement
 	 *
 	 * @sample
 	 * if ( # )
 	 * {
 	 * }
+	 * @simplifiedSignature
 	 */
 	public void js_flow_if()
 	{
 	}
 
 	/**
-	 * 
+	 * If/Else statement.
 	 *
 	 * @sample
 	 * if ( # )
@@ -107,6 +123,7 @@ public class Statements
 	 * else
 	 * {
 	 * }
+	 * @simplifiedSignature
 	 */
 	public void js_flow_if_else()
 	{
@@ -129,13 +146,15 @@ public class Statements
 	 *		application.output("i=" + i + ", j=" + j);
 	 *	}
 	 * }
+	 * 
+	 * @simplifiedSignature
 	 */
 	public void js_flow_label()
 	{
 	}
 
 	/**
-	 * 
+	 * Switch statement.
 	 *
 	 * @sample
 	 * switch( # )
@@ -143,14 +162,15 @@ public class Statements
 	 * case:
 	 * default:
 	 * }
+	 * @simplifiedSignature
 	 */
 	public void js_flow_switch()
 	{
 	}
 
 	/**
+	 * try/catch statement
 	 * 
-	 *
 	 * @sample
 	 * try 
 	 * {
@@ -160,13 +180,14 @@ public class Statements
 	 * {
 	 * 	#
 	 * }
+	 * @simplifiedSignature
 	 */
 	public void js_flow_try_catch()
 	{
 	}
 
 	/**
-	 * 
+	 * try/catch/finally statement
 	 *
 	 * @sample
 	 * try 
@@ -180,26 +201,34 @@ public class Statements
 	 * {
 	 * 	#
 	 * }
+	 * 
+	 * @simplifiedSignature
 	 */
 	public void js_flow_try_catch_finally()
 	{
 	}
 
 	/**
+	 * Variable declaration
+	 * 
 	 * @sample var #;
+	 * 
+	 * @simplifiedSignature
 	 */
 	public void js_flow_var()
 	{
 	}
 
 	/**
-	 * loop
+	 * while loop
 	 *
 	 * @sample
 	 * while ( # )
 	 * {
 	 * 	#
 	 * }
+	 * 
+	 * @simplifiedSignature
 	 */
 	public void js_flow_while()
 	{

@@ -33,15 +33,16 @@ public class SpecialOperators
 	 * Returns the type of the given object, one of these get returned: number, string, boolean, object, function, undefined.
 	 *
 	 * @sample
-	 * application.output(typeof("abc")); // string
-	 * application.output(typeof(10)); // number
-	 * application.output(typeof(10.1)); // number
-	 * application.output(typeof(true)); // boolean
-	 * application.output(typeof(parseInt)); // function
-	 * application.output(typeof(application)); // object
-	 * application.output(typeof(somethingInexisting)); // undefined
+	 * application.output(typeof "abc"); // string
+	 * application.output(typeof 10); // number
+	 * application.output(typeof 10.1); // number
+	 * application.output(typeof true); // boolean
+	 * application.output(typeof parseInt); // function
+	 * application.output(typeof application); // object
+	 * application.output(typeof somethingInexisting); // undefined
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Operators/typeof
+	 * @simplifiedSignature
 	 */
 	@JSFunction
 	public void typeof()

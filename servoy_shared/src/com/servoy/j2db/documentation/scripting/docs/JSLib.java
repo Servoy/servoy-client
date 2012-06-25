@@ -32,7 +32,9 @@ public class JSLib
 	 * 
 	 * @sample Infinity
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Properties/Infinity
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Infinity
+	 * 
+	 * @staticCall
 	 */
 	public Number js_getsamecase_Infinity()
 	{
@@ -48,7 +50,9 @@ public class JSLib
 	 * 
 	 * @sample NaN
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Properties/NaN
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Nan
+	 * 
+	 * @staticCall
 	 */
 	public Number js_getsamecase_NaN()
 	{
@@ -64,7 +68,9 @@ public class JSLib
 	 * 
 	 * @sample undefined
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Properties/undefined
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/undefined
+	 * 
+	 * @staticCall
 	 */
 	public Object js_getUndefined()
 	{
@@ -82,6 +88,10 @@ public class JSLib
 	 * 
 	 * @sampleas js_encodeURI(String)
 	 * 
+	 * @param encodedURI
+	 * 
+	 * @staticCall
+	 * 
 	 */
 	public String js_decodeURI(String encodedURI)
 	{
@@ -93,9 +103,11 @@ public class JSLib
 	 * 
 	 * @param encodedURI
 	 * 
-	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Functions/decodeURIComponent
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/decodeURIComponent
 	 * 
 	 * @sampleas js_encodeURIComponent(String)
+	 * 
+	 * @staticCall
 	 * 
 	 */
 	public String js_decodeURIComponent(String encodedURI)
@@ -115,6 +127,10 @@ public class JSLib
 	 * application.output(encoded);//http://www.mysite.com/my%20code.asp?name=%5bcool%5d
 	 * application.output(decoded);//http://www.mysite.com/my code.asp?name=[cool]
 	 * 
+	 * @param URI
+	 * 
+	 * @staticCall
+	 * 
 	 */
 	public String js_encodeURI(String URI)
 	{
@@ -133,8 +149,12 @@ public class JSLib
 	 * application.output(encoded); //my%20code.asp%3fname%3d%5bcool%5d
 	 * application.output(decoded); //my code.asp?name=[cool]
 	 * 
+	 * @param URI
+	 * 
+	 * @staticCall
+	 * 
 	 */
-	public String js_encodeURIComponent(String str)
+	public String js_encodeURIComponent(String URI)
 	{
 		return null;
 	}
@@ -164,9 +184,13 @@ public class JSLib
 	 * eval("var x = 2 + 3;");
 	 * application.output(x); // prints: 5.0
 	 *
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions/eval
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/eval
+	 * 
+	 * @param expression
+	 * 
+	 * @staticCall
 	 */
-	public Object js_eval(String s)
+	public Object js_eval(String expression)
 	{
 		return null;
 	}
@@ -180,7 +204,11 @@ public class JSLib
 	 * application.output(isFinite(Infinity)); // prints: false
 	 * application.output(isFinite(isNaN)); // prints: false
 	 *
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Functions/isFinite
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/isFinite
+	 * 
+	 * @param n
+	 * 
+	 * @staticCall
 	 */
 	public Boolean js_isFinite(Number n)
 	{
@@ -192,9 +220,13 @@ public class JSLib
 	 *
 	 * @sample isNaN( value )
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Predefined_Functions/isNaN_Function
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/isNaN
+	 * 
+	 * @param value
+	 * 
+	 * @staticCall
 	 */
-	public void js_isNaN()
+	public void js_isNaN(Object value)
 	{
 	}
 
@@ -206,6 +238,10 @@ public class JSLib
 	 * application.output(isXMLName("bad name")); // because of the space, prints: false
 	 *
 	 * @link http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-357.pdf
+	 * 
+	 * @param name
+	 * 
+	 * @staticCall
 	 */
 	public Boolean js_isXMLName(String name)
 	{
@@ -217,9 +253,29 @@ public class JSLib
 	 *
 	 * @sample parseFloat('string')
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Predefined_Functions/parseInt_and_parseFloat_Functions
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/parseFloat
+	 * 
+	 * @param text
+	 * 
+	 * @staticCall
 	 */
-	public Number js_parseFloat()
+	public Number js_parseFloat(String text)
+	{
+		return null;
+	}
+
+	/**
+	 * Makes a integer from the starting numbers in a given string in the base specified.
+	 *
+	 * @sample parseInt('0774')
+	 * 
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/parseInt
+	 * 
+	 * @param text
+	 * 
+	 * @staticCall
+	 */
+	public Number js_parseInt(String text)
 	{
 		return null;
 	}
@@ -229,12 +285,18 @@ public class JSLib
 	 *
 	 * @sample parseInt('0774' , 8)
 	 * 
-	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Predefined_Functions/parseInt_and_parseFloat_Functions
+	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/parseInt
+	 * 
+	 * @param text
+	 * @param radix
+	 * 
+	 * @staticCall
 	 */
-	public Number js_parseInt()
+	public Number js_parseInt(String text, int radix)
 	{
 		return null;
 	}
+
 
 	/**
 	 * Returns the ASCII encoding of a string that was previously encoded with escape or another similar routine.
@@ -259,6 +321,10 @@ public class JSLib
 	 * 
 	 * @sample
 	 * application.output(uneval(isNaN)); // prints something like: function isNaN() { [native code for isNaN, arity=1] }
+	 * 
+	 * @param obj
+	 * 
+	 * @staticCall
 	 */
 	public String js_uneval(Object obj)
 	{
