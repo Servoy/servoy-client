@@ -2363,8 +2363,20 @@ if (typeof(Servoy.Rollover) == "undefined")
 		onMouseOver: function (elementId,imageUrl)
 		{
 			var el = document.getElementById(elementId);
-			imgUrl = el.src;
-			Servoy.Rollover.setImageSrc(el, imageUrl);
+			var newImageUrl;
+			
+			if(el.tagName.toLowerCase() == "div")
+			{
+				imgUrl = YAHOO.util.Dom.getStyle(el, "background-image");
+				newImageUrl = 'url(' + imageUrl + ")";
+			}
+			else
+			{
+				imgUrl = el.src;
+				newImageUrl = imageUrl;
+			}
+			
+			Servoy.Rollover.setImageSrc(el, newImageUrl);
 		},
 		
 		onMouseOut: function (elementId)
@@ -2375,9 +2387,19 @@ if (typeof(Servoy.Rollover) == "undefined")
 		
 		setImageSrc: function (el, imgURL)
 		{
+			var currentSrc;
+			var isDIV = el.tagName.toLowerCase() == "div";
+			if(isDIV)
+			{
+				currentSrc = YAHOO.util.Dom.getStyle(el, "background-image");
+			}
+			else
+			{
+				currentSrc = el.src;
+			}
+		
 			// get w= and h= from el
 			// we need to make sure width/height are from displayed element, see anchorlayout.js (there width/height is changed)
-			var currentSrc = el.src;
 			var w = "", h = "";
 			var i;
 			if((i = currentSrc.indexOf("w=")) != -1)
@@ -2391,8 +2413,15 @@ if (typeof(Servoy.Rollover) == "undefined")
 				while(i < currentSrc.length && currentSrc[i] != '&') h = h + currentSrc[i++];
 				imgURL = imgURL.replace(/h=[\d]+/, h);
 			}
-						
-			el.src = imgURL;
+			
+			if(isDIV)
+			{
+				 YAHOO.util.Dom.setStyle(el, "background-image", imgURL);
+			}
+			else
+			{
+				el.src = imgURL;
+			}			
 		}
 	}
 }
