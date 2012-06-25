@@ -866,7 +866,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	public void setForeground(Color c)
 	{
 //		if (enclosedComponent != null) enclosedComponent.setForeground(fg);
-//		super.setForeground(fg);
+		super.setForeground(c);
 
 		getViewport().setForeground(c);
 
