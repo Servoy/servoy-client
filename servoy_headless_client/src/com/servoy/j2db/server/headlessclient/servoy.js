@@ -863,7 +863,10 @@ if (typeof(Servoy.DD) == "undefined")
 			{
 				var dd;
 				if(bUseProxy)
+				{
 					dd = new YAHOO.util.DDProxy(array[i], null, {resizeFrame : bResizeProxyFrame, centerFrame : true});
+					dd.setDragElId("servoydndproxy");
+				}
 				else
 					dd = new YAHOO.util.DD(array[i]);
 

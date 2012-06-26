@@ -636,6 +636,9 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	{
 		DraggableBehavior dragBehavior = new DraggableBehavior()
 		{
+			private IComponent hoverComponent;
+			private boolean isHoverAcceptDrop;
+
 			@Override
 			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
@@ -662,6 +665,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				setCurrentDragOperation(dragOp);
 				setDragComponent(comp);
 				setDragData(event.getData(), event.getDataMimeType());
+				hoverComponent = null;
+				isHoverAcceptDrop = false;
 				return true;
 			}
 
@@ -671,6 +676,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
+					if (hoverComponent == comp && !isHoverAcceptDrop) return;
 					WebDataRenderer renderer = WebDataRenderer.this;
 					JSDNDEvent event = renderer.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
 					event.setData(getDragData());
@@ -706,7 +712,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragOver, comp, null);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
-					WebDataRenderer.this.onDragOver(event);
+					isHoverAcceptDrop = WebDataRenderer.this.onDragOver(event);
+					hoverComponent = comp;
 				}
 			}
 

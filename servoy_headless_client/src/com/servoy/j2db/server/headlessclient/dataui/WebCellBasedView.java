@@ -3117,6 +3117,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		DraggableBehavior compDragBehavior = new DraggableBehavior()
 		{
+			private IComponent hoverComponent;
+			private boolean isHoverAcceptDrop;
+
 			@Override
 			protected void onDragEnd(String id, int x, int y, AjaxRequestTarget ajaxRequestTarget)
 			{
@@ -3143,6 +3146,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				setDragData(event.getData(), event.getDataMimeType());
 				setDragComponent(comp);
 				setDropResult(false);
+				hoverComponent = null;
+				isHoverAcceptDrop = false;
 				return true;
 			}
 
@@ -3152,6 +3157,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (getCurrentDragOperation() != DRAGNDROP.NONE)
 				{
 					IComponent comp = getBindedComponentChild(targetid);
+					if (hoverComponent == comp && !isHoverAcceptDrop) return;
 					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDrop, comp, new Point(x, y));
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
@@ -3168,7 +3174,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					JSDNDEvent event = WebCellBasedView.this.createScriptEvent(EventType.onDragOver, comp, null);
 					event.setData(getDragData());
 					event.setDataMimeType(getDragDataMimeType());
-					WebCellBasedView.this.onDragOver(event);
+					isHoverAcceptDrop = WebCellBasedView.this.onDragOver(event);
+					hoverComponent = comp;
 				}
 			}
 
