@@ -216,7 +216,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 
 	public IFoundSetInternal getRelatedFoundSet(String name)
 	{
-		return getRelatedFoundSet(name, parent.getSQLSheet().getDefaultPKSort());//only used for related fields, sort is irrelevant
+		return getRelatedFoundSet(name, null);//only used for related fields, sort is irrelevant
 	}
 
 	private boolean isEditing = false;

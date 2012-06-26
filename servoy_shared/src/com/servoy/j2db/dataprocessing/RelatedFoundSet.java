@@ -126,7 +126,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	//can only used by findState
 	protected RelatedFoundSet(IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet) throws ServoyException
 	{
-		super(app, parent, relationName, sheet, null, sheet.getDefaultPKSort());
+		super(app, parent, relationName, sheet, null, null);
 		getPksAndRecords().setPksAndQuery(new BufferedDataSet(), 0, null);
 		initialized = true;
 	}

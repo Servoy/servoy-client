@@ -639,7 +639,8 @@ public class Record implements Scriptable, IRecordInternal
 	 */
 
 	/**
-	 * Get related foundset, relationName may be multiple-levels deep
+	 * Get related foundset, relationName may be multiple-levels deep.
+	 * When defaultSortColumns is null, the sort from the relation will be used
 	 */
 	public IFoundSetInternal getRelatedFoundSet(String relationName, List<SortColumn> defaultSortColumns)
 	{
@@ -680,19 +681,13 @@ public class Record implements Scriptable, IRecordInternal
 		}
 	}
 
-	public IFoundSetInternal getRelatedFoundSet(String name)
+	/**
+	 * Get related foundset, relationName may be multiple-levels deep
+	 */
+	public IFoundSetInternal getRelatedFoundSet(String relationName)
 	{
-		if (name != null)
-		{
-			Relation relation = ((FoundSetManager)parent.getFoundSetManager()).getApplication().getFlattenedSolution().getRelation(name);
-			if (relation == null || !relation.isValid())
-			{
-				return null;
-			}
-			SQLSheet relatedSheet = parent.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
-			return getRelatedFoundSet(name, relatedSheet == null ? null : relatedSheet.getDefaultPKSort());//only used for related fields, sort is irrelevant
-		}
-		else return null;
+		// foundsetManager will add sort from relation if configured, otherwise from the related sheet
+		return getRelatedFoundSet(relationName, null);
 	}
 
 	public boolean isRelatedFoundSetLoaded(String relationName, String restName)
