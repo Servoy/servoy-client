@@ -1471,6 +1471,22 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	 */
 	public FormController getController()
 	{
+		boolean destroyed = false;
+		if (currentForm != null && currentForm.isDestroyed())
+		{
+			// if the current form is destroyed, try to fix this by getting the same (new) form from the form manager
+			currentForm = (FormController)client.getFormManager().getForm(currentForm.getName());
+			destroyed = true;
+		}
+		if (navigator != null && navigator.isDestroyed())
+		{
+			navigator = (FormController)client.getFormManager().getForm(navigator.getName());
+			destroyed = true;
+		}
+		if (destroyed && currentForm != null)
+		{
+			add(currentForm.getFormUI(), currentForm.getName());
+		}
 		return currentForm;
 	}
 

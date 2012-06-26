@@ -2393,6 +2393,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 	}
 
+	/**
+	 * @return the destroyed
+	 */
+	public boolean isDestroyed()
+	{
+		return destroyed;
+	}
+
 	private void deleteRenderers()
 	{
 		for (int i = 0; i < dataRenderers.length; i++)
