@@ -275,7 +275,11 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 								width += paddingAndBorder.left + paddingAndBorder.right;
 							}
 						}
-						if (child instanceof IScriptableProvider) ((IScriptBaseMethods)((IScriptableProvider)child).getScriptObject()).js_setSize(width, height);
+						if (child instanceof IScriptableProvider)
+						{
+							((IScriptBaseMethods)((IScriptableProvider)child).getScriptObject()).js_setSize(width, height);
+							((IScriptBaseMethods)((IScriptableProvider)child).getScriptObject()).js_setLocation(x, y);
+						}
 						if (child instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 					}
 					callback.executeOnResize(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
