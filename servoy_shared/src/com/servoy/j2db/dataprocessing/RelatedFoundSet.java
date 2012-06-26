@@ -339,8 +339,8 @@ public abstract class RelatedFoundSet extends FoundSet
 				// else whereArgsIsEmpty
 			}
 
-			foundsets[i] = factory.createRelatedFoundSet(data, sqlSelects[i], app, parents[i], relation.getName(), sheet, defaultSortColumns,
-				aggregateSelects[i], aggregateData);
+			foundsets[i] = factory.createRelatedFoundSet(data, sqlSelects[i], app, parents[i], relation.getName(), sheet, sortColumns, aggregateSelects[i],
+				aggregateData);
 			if (aggregateData != null && foundsets[i] instanceof FoundSet)
 			{
 				((FoundSet)foundsets[i]).fillAggregates(aggregateSelects[i], aggregateData);
