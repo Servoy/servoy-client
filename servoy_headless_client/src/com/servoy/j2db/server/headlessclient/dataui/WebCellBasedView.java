@@ -783,6 +783,49 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			return null;
 		}
+
+		public ListItem<IRecordInternal> getOrCreateListItem(int index)
+		{
+			// if there are missing list items in the top of the view, create them now
+			if (size() > 1 && index < ((ListItem<IRecordInternal>)get(0)).getIndex())
+			{
+				int firstIdx = ((ListItem<IRecordInternal>)get(0)).getIndex();
+
+				ArrayList<ListItem<IRecordInternal>> els = new ArrayList<ListItem<IRecordInternal>>();
+				for (int i = 0; i < size(); i++)
+					els.add((ListItem<IRecordInternal>)get(i));
+
+				removeAll();
+
+				ListItem<IRecordInternal> newItem;
+				for (int i = index; i < firstIdx; i++)
+				{
+					newItem = newItem(i);
+					add(newItem);
+					onBeginPopulateItem(newItem);
+					populateItem(newItem);
+				}
+				for (ListItem<IRecordInternal> l : els)
+					add(l);
+			}
+
+			ListItem<IRecordInternal> listItem = index < size() ? (ListItem<IRecordInternal>)get(index) : null;
+			if (listItem == null)
+			{
+				// Create item for index
+				listItem = newItem(index);
+
+				// Add list item
+				add(listItem);
+
+				// Populate the list item
+				onBeginPopulateItem(listItem);
+				populateItem(listItem);
+			}
+			else setUpItem(listItem, false);
+
+			return listItem;
+		}
 	}
 
 	public class WebCellBasedViewListViewItem extends WebMarkupContainer implements IProviderStylePropertyChanges
@@ -3764,7 +3807,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (!hasOnRender && (bgColorScript != null || (getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0)) &&
 			(indexToUpdate = getIndexToUpdate()) != null)
 		{
-			int firstRow = table.getCurrentPage() * table.getRowsPerPage();
+			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
 			int lastRow = firstRow + table.getViewSize() - 1;
 			int[] newSelectedIndexes = getSelectedIndexes();
 
@@ -4410,7 +4453,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			return rowComponents;
 		}
 
-		private Collection<ListItem< ? >> getRows(ServoyListView<IRecordInternal> listView, int startIdx, int rowsCount)
+		private Collection<ListItem< ? >> getRows(WebCellBasedViewListView listView, int startIdx, int rowsCount)
 		{
 			ArrayList<ListItem< ? >> rows = new ArrayList<ListItem< ? >>();
 
