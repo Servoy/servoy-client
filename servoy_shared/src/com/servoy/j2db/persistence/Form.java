@@ -426,6 +426,8 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	/**
 	 * The selected parent (extend form) for the form. The default is set to -none-.
+	 * 
+	 * @deprecated replaced by the extends property
 	 */
 	@Deprecated
 	public int getExtendsFormID()
@@ -2137,6 +2139,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
 
+	/**
+	 * @param arg the level of encapsulation of the form
+	 */
 	public void setEncapsulation(int arg)
 	{
 		int newAccess = arg;
@@ -2151,6 +2156,15 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	}
 
+	/**
+	 * The encapsulation mode for the form (see JSForm constants for encapsulation mode constants).
+	 * 
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
+	 * 
+	 * @return the encapsulation mode/level for the form
+	 */
 	public int getEncapsulation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();

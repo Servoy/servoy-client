@@ -21,9 +21,9 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeGroup;
 
 /**
  * Script object for a group of scriptables, delegates a fixed list of properties to all the enclosed scriptables.
@@ -32,8 +32,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeComponent;
  * 
  * @since 5.0
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class RuntimeGroup implements HasRuntimeReadOnly, IRuntimeComponent
+public class RuntimeGroup implements IRuntimeGroup
 {
 	private static final Rectangle NO_BOUNDS = new Rectangle(0, 0, 0, 0);
 

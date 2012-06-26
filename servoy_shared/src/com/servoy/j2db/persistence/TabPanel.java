@@ -198,11 +198,17 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 
+	/**
+	 * @param arg the horizontal alignment
+	 */
 	public void setHorizontalAlignment(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT, arg);
 	}
 
+	/**
+	 * The horizontal alignment of the tabpanel.
+	 */
 	public int getHorizontalAlignment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT).intValue();

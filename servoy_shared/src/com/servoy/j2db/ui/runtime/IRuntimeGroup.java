@@ -15,22 +15,16 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.ui;
+package com.servoy.j2db.ui.runtime;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
 
 /**
- * Format property is optional so scripting Renderable will always have such a property but for some components (or the form itself) it will not do anything
- * 
- * @author jcompagner
- * @since 6.1
+ * @author acostache
+ *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable", publicName = "Renderable")
-public interface IScriptRenderMethodsWithFormat extends IScriptRenderMethods, HasRuntimeFormat
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeGroup", extendsComponent = "RuntimeComponent")
+public interface IRuntimeGroup extends HasRuntimeReadOnly, IRuntimeComponent
 {
-	/**
-	 * @see IScriptRenderMethods
-	 */
-	public final String JS_RENDERABLE = "Renderable";//$NON-NLS-1$
+
 }

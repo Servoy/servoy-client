@@ -462,6 +462,9 @@ public class JSValueList implements IConstantsObject, ISMValueList
 		valuelist.setRelationName(arg);
 	}
 
+	/**
+	 * @deprecated relationName supports multiple levels relations 
+	 */
 	@Deprecated
 	public String js_getRelationNMName()
 	{

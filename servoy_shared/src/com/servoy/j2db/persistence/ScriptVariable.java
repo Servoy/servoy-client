@@ -91,11 +91,19 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
+	/**
+	 * Property for setting and getting the jsdoc text (comment) of the script variable.
+	 * 
+	 * @return the value of the jsdoc text (comment) of the script variable
+	 */
 	public String getComment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
 	}
 
+	/**
+	 * @param arg the jsdoc text value for the script variable 
+	 */
 	public void setComment(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);

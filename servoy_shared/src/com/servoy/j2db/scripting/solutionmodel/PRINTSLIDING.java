@@ -41,13 +41,13 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	public final static int NO_SLIDING = ISupportPrintSliding.NO_SLIDING;
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.PRINTSLIDING#ALLOW_MOVE_X
+	 * @deprecated refer to PRINTSLIDING#ALLOW_MOVE_X
 	 */
 	@Deprecated
 	public final static int ALLOW_MOVE_PLUS_X = ISupportPrintSliding.ALLOW_MOVE_PLUS_X;
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.PRINTSLIDING#ALLOW_MOVE_X
+	 * @deprecated refer to PRINTSLIDING#ALLOW_MOVE_X
 	 */
 	@Deprecated
 	public final static int ALLOW_MOVE_MIN_X = ISupportPrintSliding.ALLOW_MOVE_MIN_X;
@@ -76,13 +76,13 @@ public class PRINTSLIDING implements IPrefixedConstantsObject
 	public final static int ALLOW_MOVE_X = ISupportPrintSliding.ALLOW_MOVE_MIN_X;
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.PRINTSLIDING#ALLOW_MOVE_Y
+	 * @deprecated refer to PRINTSLIDING#ALLOW_MOVE_Y
 	 */
 	@Deprecated
 	public final static int ALLOW_MOVE_PLUS_Y = ISupportPrintSliding.ALLOW_MOVE_PLUS_Y;
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.PRINTSLIDING#ALLOW_MOVE_Y
+	 * @deprecated refer to PRINTSLIDING#ALLOW_MOVE_Y
 	 */
 	@Deprecated
 	public final static int ALLOW_MOVE_MIN_Y = ISupportPrintSliding.ALLOW_MOVE_MIN_Y;

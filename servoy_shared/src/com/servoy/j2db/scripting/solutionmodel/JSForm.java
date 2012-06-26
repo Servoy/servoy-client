@@ -1752,7 +1752,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getLeadingSubSummaryParts()
+	 * @deprecated see getLeadingSubSummaryParts()
 	 */
 	@Deprecated
 	public JSPart js_getLeadingSubSummaryPart()
@@ -1775,7 +1775,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getTrailingSubSummaryParts()
+	 * @deprecated getTrailingSubSummaryParts()
 	 */
 	@Deprecated
 	public JSPart js_getTrailingSubSummaryPart()
@@ -2966,7 +2966,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSForm#getNamedFoundSet()
+	 * @deprecated see getNamedFoundSet()
 	 */
 	@Deprecated
 	public boolean js_getUseSeparateFoundSet()

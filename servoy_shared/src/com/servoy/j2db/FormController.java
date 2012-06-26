@@ -249,6 +249,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			formController.showForm(window, null);
 		}
 
+		/**
+		 * @param window the window in which this form should be shown
+		 * @param isModal true for a modal window, false otherwise
+		 * 
+		 * @throws ServoyException
+		 * 
+		 * @deprecated replaced by show(Object)
+		 */
 		@Deprecated
 		public void js_show(Object window, Object isModal) throws ServoyException
 		{

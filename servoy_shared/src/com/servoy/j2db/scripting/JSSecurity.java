@@ -1009,6 +1009,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		return false;
 	}
 
+	/**
+	 * @param serverName the server name
+	 * @param tableName the table name
+	 * 
+	 * @deprecated replaced by canDelete(String)
+	 */
 	@Deprecated
 	public boolean js_canDelete(Object serverName, Object tableName)
 	{
@@ -1047,6 +1053,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		return false;
 	}
 
+	/**
+	 * @param serverName the server name
+	 * @param tableName the parameter name
+	 * 
+	 * @deprecated replaced by canUpdate(String)
+	 */
 	@Deprecated
 	public boolean js_canUpdate(Object serverName, Object tableName)
 	{
@@ -1076,6 +1088,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		return false;
 	}
 
+	/**
+	 * @param serverName the server name
+	 * @param tableName the table name
+	 * 
+	 * @deprecated replaced by canInsert(String)
+	 */
 	@Deprecated
 	public boolean js_canInsert(Object serverName, Object tableName)
 	{
@@ -1105,6 +1123,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		return false;
 	}
 
+	/**
+	 * @param serverName the server name
+	 * @param tableName the table name
+	 * 
+	 * @deprecated replaced by canRead(String)
+	 */
 	@Deprecated
 	public boolean js_canRead(Object serverName, Object tableName)
 	{

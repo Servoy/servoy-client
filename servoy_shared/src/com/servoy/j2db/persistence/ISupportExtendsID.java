@@ -25,7 +25,15 @@ package com.servoy.j2db.persistence;
  */
 public interface ISupportExtendsID
 {
+	/**
+	 * The selected parent (extended element) for the element (form).
+	 * 
+	 * @return the parent
+	 */
 	int getExtendsID();
 
+	/**
+	 * @param arg the selected parent
+	 */
 	void setExtendsID(int arg);
 }

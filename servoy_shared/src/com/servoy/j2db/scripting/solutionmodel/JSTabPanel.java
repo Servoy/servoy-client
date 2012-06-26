@@ -246,6 +246,9 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 		return labels.toArray(new JSTab[labels.size()]);
 	}
 
+	/**
+	 * @deprecated not used
+	 */
 	@Deprecated
 	public boolean js_getCloseOnTabs()
 	{
@@ -273,6 +276,9 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 		getBaseComponent(true).setScrollTabs(arg);
 	}
 
+	/**
+	 * @deprecated not supported
+	 */
 	@Deprecated
 	public Color js_getSelectedTabColor()
 	{

@@ -51,6 +51,9 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 		this.application = application;
 	}
 
+	/**
+	 * @deprecated obsolete; not supported
+	 */
 	@Deprecated
 	public String js_getBackground()
 	{
@@ -248,12 +251,18 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 		getBaseComponent(true).setRelationName(Utils.toEnglishLocaleLowerCase(arg));
 	}
 
+	/**
+	 * @deprecated obsolete; not supported
+	 */
 	@Deprecated
 	public int js_getWidth()
 	{
 		return getBaseComponent(false).getSize().width;
 	}
 
+	/**
+	 * @deprecated obsolete; not supported
+	 */
 	@Deprecated
 	public int js_getHeight()
 	{

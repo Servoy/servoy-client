@@ -46,7 +46,7 @@ public class JSRenderEvent implements IJavaScriptType
 
 
 	/** 
-	 * @deprecated
+	 * @deprecated replaced by getRenderable()
 	 */
 	@Deprecated
 	public IScriptRenderMethods js_getElement()
