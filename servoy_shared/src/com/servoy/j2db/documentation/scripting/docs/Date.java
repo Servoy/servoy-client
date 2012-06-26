@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -121,7 +123,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/now
 	 */
-	public Date js_now()
+	@JSFunction
+	public Date now()
 	{
 		return null;
 	}
@@ -135,7 +138,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse
 	 */
-	public Date js_parse(String s)
+	@JSFunction
+	public Date parse(String s)
 	{
 		return null;
 	}
@@ -152,27 +156,29 @@ public class Date
 	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/UTC
 	 */
-	public Date js_UTC(Number year, Number month)
+	@JSFunction
+	public Date UTC(Number year, Number month)
 	{
 		return null;
 	}
 
 	/**
-	* @clonedesc js_UTC(Number, Number)
-	* @sampleas js_UTC(Number, Number)
+	* @clonedesc UTC(Number, Number)
+	* @sampleas UTC(Number, Number)
 	* 
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
 	* @param date A number between 1 and 31.   
 	*/
-	public Date js_UTC(Number year, Number month, Number date)
+	@JSFunction
+	public Date UTC(Number year, Number month, Number date)
 	{
 		return null;
 	}
 
 	/**
-	* @clonedesc js_UTC(Number, Number)
-	* @sampleas js_UTC(Number, Number)
+	* @clonedesc UTC(Number, Number)
+	* @sampleas UTC(Number, Number)
 	*
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
@@ -180,14 +186,15 @@ public class Date
 	* @param hrs A number between 0 and 23. 
 	*   
 	*/
-	public Date js_UTC(Number year, Number month, Number date, Number hrs)
+	@JSFunction
+	public Date UTC(Number year, Number month, Number date, Number hrs)
 	{
 		return null;
 	}
 
 	/**
-	* @clonedesc js_UTC(Number, Number)
-	* @sampleas js_UTC(Number, Number)
+	* @clonedesc UTC(Number, Number)
+	* @sampleas UTC(Number, Number)
 	* 
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
@@ -196,14 +203,15 @@ public class Date
 	* @param min A number between 0 and 59. 
 	*   
 	*/
-	public Date js_UTC(Number year, Number month, Number date, Number hrs, Number min)
+	@JSFunction
+	public Date UTC(Number year, Number month, Number date, Number hrs, Number min)
 	{
 		return null;
 	}
 
 	/**
-	* @clonedesc js_UTC(Number, Number)
-	* @sampleas js_UTC(Number, Number)
+	* @clonedesc UTC(Number, Number)
+	* @sampleas UTC(Number, Number)
 	* 
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
@@ -213,14 +221,15 @@ public class Date
 	* @param sec A number between 0 and 59. 
 	*   
 	*/
-	public Date js_UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec)
+	@JSFunction
+	public Date UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec)
 	{
 		return null;
 	}
 
 	/**
-	* @clonedesc js_UTC(Number, Number)
-	* @sampleas js_UTC(Number, Number)
+	* @clonedesc UTC(Number, Number)
+	* @sampleas UTC(Number, Number)
 	* 
 	* @param year A year after 1900.
 	* @param month A number between 0 and 11.
@@ -231,7 +240,8 @@ public class Date
 	* @param ms A number between 0 and 999. 
 	*   
 	*/
-	public Date js_UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec, Number ms)
+	@JSFunction
+	public Date UTC(Number year, Number month, Number date, Number hrs, Number min, Number sec, Number ms)
 	{
 		return null;
 	}
@@ -243,7 +253,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getDate
 	 */
-	public Number jsFunction_getDate()
+	@JSFunction
+	public Number getDate()
 	{
 		return null;
 	}
@@ -255,7 +266,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getDay
 	 */
-	public Number jsFunction_getDay()
+	@JSFunction
+	public Number getDay()
 	{
 		return null;
 	}
@@ -267,7 +279,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getFullYear
 	 */
-	public Number jsFunction_getFullYear()
+	@JSFunction
+	public Number getFullYear()
 	{
 		return null;
 	}
@@ -279,7 +292,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getHours
 	 */
-	public Number jsFunction_getHours()
+	@JSFunction
+	public Number getHours()
 	{
 		return null;
 	}
@@ -291,7 +305,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMilliseconds
 	 */
-	public Number jsFunction_getMilliseconds()
+	@JSFunction
+	public Number getMilliseconds()
 	{
 		return null;
 	}
@@ -303,7 +318,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMinutes
 	 */
-	public Number jsFunction_getMinutes()
+	@JSFunction
+	public Number getMinutes()
 	{
 		return null;
 	}
@@ -315,7 +331,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getMonth
 	 */
-	public Number jsFunction_getMonth()
+	@JSFunction
+	public Number getMonth()
 	{
 		return null;
 	}
@@ -327,7 +344,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getSeconds
 	 */
-	public Number jsFunction_getSeconds()
+	@JSFunction
+	public Number getSeconds()
 	{
 		return null;
 	}
@@ -339,7 +357,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getTime
 	 */
-	public Number jsFunction_getTime()
+	@JSFunction
+	public Number getTime()
 	{
 		return null;
 	}
@@ -351,7 +370,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getTimezoneOffset
 	 */
-	public Number jsFunction_getTimezoneOffset()
+	@JSFunction
+	public Number getTimezoneOffset()
 	{
 		return null;
 	}
@@ -363,7 +383,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCDate
 	 */
-	public Number jsFunction_getUTCDate()
+	@JSFunction
+	public Number getUTCDate()
 	{
 		return null;
 	}
@@ -375,7 +396,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCDay
 	 */
-	public Number jsFunction_getUTCDay()
+	@JSFunction
+	public Number getUTCDay()
 	{
 		return null;
 	}
@@ -387,7 +409,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCFullYear
 	 */
-	public Number jsFunction_getUTCFullYear()
+	@JSFunction
+	public Number getUTCFullYear()
 	{
 		return null;
 	}
@@ -399,7 +422,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCHours
 	 */
-	public Number jsFunction_getUTCHours()
+	@JSFunction
+	public Number getUTCHours()
 	{
 		return null;
 	}
@@ -411,7 +435,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMilliseconds
 	 */
-	public Number jsFunction_getUTCMilliseconds()
+	@JSFunction
+	public Number getUTCMilliseconds()
 	{
 		return null;
 	}
@@ -423,7 +448,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMinutes
 	 */
-	public Number jsFunction_getUTCMinutes()
+	@JSFunction
+	public Number getUTCMinutes()
 	{
 		return null;
 	}
@@ -435,7 +461,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCMonth
 	 */
-	public Number jsFunction_getUTCMonth()
+	@JSFunction
+	public Number getUTCMonth()
 	{
 		return null;
 	}
@@ -447,7 +474,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/getUTCSeconds
 	 */
-	public Number jsFunction_getUTCSeconds()
+	@JSFunction
+	public Number getUTCSeconds()
 	{
 		return null;
 	}
@@ -476,7 +504,8 @@ public class Date
 	 *  
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setDate
 	 */
-	public void jsFunction_setDate(Number dayValue)
+	@JSFunction
+	public void setDate(Number dayValue)
 	{
 	}
 
@@ -489,30 +518,33 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setFullYear
 	 */
-	public void js_setFullYear(Number yearValue)
+	@JSFunction
+	public void setFullYear(Number yearValue)
 	{
 	}
 
 	/**
-	* @clonedesc js_setFullYear(Number)
-	* @sampleas js_setFullYear(Number)
+	* @clonedesc setFullYear(Number)
+	* @sampleas setFullYear(Number)
 	* 
 	* @param yearValue 
 	* @param monthValue  
 	*/
-	public void js_setFullYear(Number yearValue, Number monthValue)
+	@JSFunction
+	public void setFullYear(Number yearValue, Number monthValue)
 	{
 	}
 
 	/**
-	* @clonedesc js_setFullYear(Number)
-	* @sampleas js_setFullYear(Number)
+	* @clonedesc setFullYear(Number)
+	* @sampleas setFullYear(Number)
 	* 
 	* @param yearValue 
 	* @param monthValue 
 	* @param dayValue 
 	*/
-	public void js_setFullYear(Number yearValue, Number monthValue, Number dayValue)
+	@JSFunction
+	public void setFullYear(Number yearValue, Number monthValue, Number dayValue)
 	{
 	}
 
@@ -525,38 +557,41 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setHours
 	 */
-	public void js_setHours(Number hoursValue)
+	@JSFunction
+	public void setHours(Number hoursValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setHours(Number)
-	 * @sampleas js_setHours(Number)
+	 * @clonedesc setHours(Number)
+	 * @sampleas setHours(Number)
 	 * 
 	 * @param hoursValue 
 	 * @param minutesValue
 	 * 
 	 */
-	public void js_setHours(Number hoursValue, Number minutesValue)
+	@JSFunction
+	public void setHours(Number hoursValue, Number minutesValue)
 	{
 	}
 
 	/**
 	 *
-	 * @clonedesc js_setHours(Number)
-	 * @sampleas js_setHours(Number)
+	 * @clonedesc setHours(Number)
+	 * @sampleas setHours(Number)
 	 * 
 	 * @param hoursValue 
 	 * @param minutesValue
 	 * @param secondsValue
 	 */
-	public void js_setHours(Number hoursValue, Number minutesValue, Number secondsValue)
+	@JSFunction
+	public void setHours(Number hoursValue, Number minutesValue, Number secondsValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setHours(Number)
-	 * @sampleas js_setHours(Number)
+	 * @clonedesc setHours(Number)
+	 * @sampleas setHours(Number)
 	 * 
 	 * @param hoursValue 
 	 * @param minutesValue 
@@ -564,7 +599,8 @@ public class Date
 	 * @param msValue
 	 * 
 	 */
-	public void js_setHours(Number hoursValue, Number minutesValue, Number secondsValue, Number msValue)
+	@JSFunction
+	public void setHours(Number hoursValue, Number minutesValue, Number secondsValue, Number msValue)
 	{
 	}
 
@@ -577,7 +613,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setMilliseconds
 	 */
-	public void jsFunction_setMilliseconds(Number millisecondsValue)
+	@JSFunction
+	public void setMilliseconds(Number millisecondsValue)
 	{
 	}
 
@@ -590,31 +627,34 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setMinutes
 	 */
-	public void js_setMinutes(Number minutesValue)
+	@JSFunction
+	public void setMinutes(Number minutesValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setMinutes(Number)
-	 * @sampleas js_setMinutes(Number)
+	 * @clonedesc setMinutes(Number)
+	 * @sampleas setMinutes(Number)
 	 * 
 	 * @param minutesValue 
 	 * @param secondsValue
 	 */
-	public void js_setMinutes(Number minutesValue, Number secondsValue)
+	@JSFunction
+	public void setMinutes(Number minutesValue, Number secondsValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setMinutes(Number)
-	 * @sampleas js_setMinutes(Number)
+	 * @clonedesc setMinutes(Number)
+	 * @sampleas setMinutes(Number)
 	 * 
 	 * @param minutesValue 
 	 * @param secondsValue
 	 * @param msValue
 	 * 
 	 */
-	public void js_setMinutes(Number minutesValue, Number secondsValue, Number msValue)
+	@JSFunction
+	public void setMinutes(Number minutesValue, Number secondsValue, Number msValue)
 	{
 	}
 
@@ -627,19 +667,21 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setMonth
 	 */
-	public void js_setMonth(Number monthValue)
+	@JSFunction
+	public void setMonth(Number monthValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setMonth(Number)
-	 * @sampleas js_setMonth(Number)
+	 * @clonedesc setMonth(Number)
+	 * @sampleas setMonth(Number)
 	 * 
 	 * @param monthValue 
 	 * @param dayValue 
 	 * 
 	 */
-	public void js_setMonth(Number monthValue, Number dayValue)
+	@JSFunction
+	public void setMonth(Number monthValue, Number dayValue)
 	{
 	}
 
@@ -652,19 +694,21 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setSeconds
 	 */
-	public void js_setSeconds(Number secondsValue)
+	@JSFunction
+	public void setSeconds(Number secondsValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setSeconds(Number)
-	 * @sampleas js_setSeconds(Number)
+	 * @clonedesc setSeconds(Number)
+	 * @sampleas setSeconds(Number)
 	 * 
 	 * @param secondsValue 
 	 * @param msValue
 	 * 
 	 */
-	public void js_setSeconds(Number secondsValue, Number msValue)
+	@JSFunction
+	public void setSeconds(Number secondsValue, Number msValue)
 	{
 	}
 
@@ -677,7 +721,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setTime
 	 */
-	public void jsFunction_setTime(Number timeValue)
+	@JSFunction
+	public void setTime(Number timeValue)
 	{
 	}
 
@@ -690,7 +735,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCDate
 	 */
-	public void jsFunction_setUTCDate(Number dayValue)
+	@JSFunction
+	public void setUTCDate(Number dayValue)
 	{
 	}
 
@@ -703,32 +749,35 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCFullYear
 	 */
-	public void js_setUTCFullYear(Number yearValue)
+	@JSFunction
+	public void setUTCFullYear(Number yearValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCFullYear(Number)
-	 * @sampleas js_setUTCFullYear(Number)
+	 * @clonedesc setUTCFullYear(Number)
+	 * @sampleas setUTCFullYear(Number)
 	 * 
 	 * @param yearValue 
 	 * @param monthValue
 	 * 
 	 */
-	public void js_setUTCFullYear(Number yearValue, Number monthValue)
+	@JSFunction
+	public void setUTCFullYear(Number yearValue, Number monthValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCFullYear(Number)
-	 * @sampleas js_setUTCFullYear(Number)
+	 * @clonedesc setUTCFullYear(Number)
+	 * @sampleas setUTCFullYear(Number)
 	 * 
 	 * @param yearValue 
 	 * @param monthValue
 	 * @param dayValue
 	 * 
 	 */
-	public void js_setUTCFullYear(Number yearValue, Number monthValue, Number dayValue)
+	@JSFunction
+	public void setUTCFullYear(Number yearValue, Number monthValue, Number dayValue)
 	{
 	}
 
@@ -741,38 +790,41 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCHours
 	 */
-	public void js_setUTCHours(Number hoursValue)
+	@JSFunction
+	public void setUTCHours(Number hoursValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCHours(Number)
-	 * @sampleas js_setUTCHours(Number)
+	 * @clonedesc setUTCHours(Number)
+	 * @sampleas setUTCHours(Number)
 	 * 
 	 * @param hoursValue 
 	 * @param minutesValue
 	 * 
 	 */
-	public void js_setUTCHours(Number hoursValue, Number minutesValue)
+	@JSFunction
+	public void setUTCHours(Number hoursValue, Number minutesValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCHours(Number)
-	 * @sampleas js_setUTCHours(Number)
+	 * @clonedesc setUTCHours(Number)
+	 * @sampleas setUTCHours(Number)
 	 * 
 	 * @param hoursValue 
 	 * @param minutesValue
 	 * @param secondsValue
 	 * 
 	 */
-	public void js_setUTCHours(Number hoursValue, Number minutesValue, Number secondsValue)
+	@JSFunction
+	public void setUTCHours(Number hoursValue, Number minutesValue, Number secondsValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCHours(Number)
-	 * @sampleas js_setUTCHours(Number)
+	 * @clonedesc setUTCHours(Number)
+	 * @sampleas setUTCHours(Number)
 	 * 
 	 * @param hoursValue 
 	 * @param minutesValue
@@ -780,7 +832,8 @@ public class Date
 	 * @param msValue
 	 * 
 	 */
-	public void js_setUTCHours(Number hoursValue, Number minutesValue, Number secondsValue, Number msValue)
+	@JSFunction
+	public void setUTCHours(Number hoursValue, Number minutesValue, Number secondsValue, Number msValue)
 	{
 	}
 
@@ -793,7 +846,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCMilliseconds
 	 */
-	public void jsFunction_setUTCMilliseconds(Number millisecondsValue)
+	@JSFunction
+	public void setUTCMilliseconds(Number millisecondsValue)
 	{
 	}
 
@@ -806,31 +860,34 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCMinutes
 	 */
-	public void js_setUTCMinutes(Number minutesValue)
+	@JSFunction
+	public void setUTCMinutes(Number minutesValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCMinutes(Number)
-	 * @sampleas js_setUTCMinutes(Number)
+	 * @clonedesc setUTCMinutes(Number)
+	 * @sampleas setUTCMinutes(Number)
 	 * 
 	 * @param minutesValue 
 	 * @param secondsValue
 	 */
-	public void js_setUTCMinutes(Number minutesValue, Number secondsValue)
+	@JSFunction
+	public void setUTCMinutes(Number minutesValue, Number secondsValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCMinutes(Number)
-	 * @sampleas js_setUTCMinutes(Number)
+	 * @clonedesc setUTCMinutes(Number)
+	 * @sampleas setUTCMinutes(Number)
 	 * 
 	 * @param minutesValue 
 	 * @param secondsValue
 	 * @param msValue
 	 * 
 	 */
-	public void js_setUTCMinutes(Number minutesValue, Number secondsValue, Number msValue)
+	@JSFunction
+	public void setUTCMinutes(Number minutesValue, Number secondsValue, Number msValue)
 	{
 	}
 
@@ -843,19 +900,21 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCMonth
 	 */
-	public void js_setUTCMonth(Number monthValue)
+	@JSFunction
+	public void setUTCMonth(Number monthValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCMonth(Number)
-	 * @sampleas js_setUTCMonth(Number)
+	 * @clonedesc setUTCMonth(Number)
+	 * @sampleas setUTCMonth(Number)
 	 * 
 	 * @param monthValue 
 	 * @param dayValue
 	 * 
 	 */
-	public void js_setUTCMonth(Number monthValue, Number dayValue)
+	@JSFunction
+	public void setUTCMonth(Number monthValue, Number dayValue)
 	{
 	}
 
@@ -868,19 +927,21 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/setUTCSeconds
 	 */
-	public void js_setUTCSeconds(Number secondsValue)
+	@JSFunction
+	public void setUTCSeconds(Number secondsValue)
 	{
 	}
 
 	/**
-	 * @clonedesc js_setUTCSeconds(Number)
-	 * @sampleas js_setUTCSeconds(Number)
+	 * @clonedesc setUTCSeconds(Number)
+	 * @sampleas setUTCSeconds(Number)
 	 * 
 	 * @param secondsValue 
 	 * @param msValue
 	 * 
 	 */
-	public void js_setUTCSeconds(Number secondsValue, Number msValue)
+	@JSFunction
+	public void setUTCSeconds(Number secondsValue, Number msValue)
 	{
 	}
 
@@ -907,7 +968,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toDateString
 	 */
-	public String js_toDateString()
+	@JSFunction
+	public String toDateString()
 	{
 		return null;
 	}
@@ -919,7 +981,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toLocaleDateString
 	 */
-	public String js_toLocaleDateString()
+	@JSFunction
+	public String toLocaleDateString()
 	{
 		return null;
 	}
@@ -931,7 +994,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toLocaleString
 	 */
-	public String js_toLocaleString()
+	@JSFunction
+	public String toLocaleString()
 	{
 		return null;
 	}
@@ -943,7 +1007,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toLocaleTimeString
 	 */
-	public String js_toLocaleTimeString()
+	@JSFunction
+	public String toLocaleTimeString()
 	{
 		return null;
 	}
@@ -955,7 +1020,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toTimeString
 	 */
-	public String js_toTimeString()
+	@JSFunction
+	public String toTimeString()
 	{
 		return null;
 	}
@@ -967,7 +1033,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/toUTCString
 	 */
-	public String js_toUTCString()
+	@JSFunction
+	public String toUTCString()
 	{
 		return null;
 	}
@@ -979,7 +1046,8 @@ public class Date
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Date/valueOf
 	 */
-	public Number js_valueOf()
+	@JSFunction
+	public Number valueOf()
 	{
 		return null;
 	}
