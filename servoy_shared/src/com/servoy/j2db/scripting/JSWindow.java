@@ -262,6 +262,8 @@ public class JSWindow implements IConstantsObject
 	 * Gets/Sets the undecorated property.
 	 * If set then this window will not have any decoration and can't be moved/resized or closed.
 	 *  
+	 * @sampleas js_getName()
+	 *  
 	 * @return if this window will be undecorated
 	 */
 	public boolean js_isUndecorated()
@@ -315,9 +317,10 @@ public class JSWindow implements IConstantsObject
 	 * var type = "TypeNumber: " + someWindow.getType() + "\n"
 	 * var height = "Height: " + someWindow.getHeight() + "\n"
 	 * var width = "Width: " + someWindow.getWidth() + "\n"
+	 * var undecorated = "Undecorated: " + someWindow.isUndecorated() + "\n"
 	 * var locationX = "Location-X-coordinate: " + someWindow.getX() + "\n"
 	 * var locationY = "Location-Y-coordinate: " + someWindow.getY() + "\n"
-	 * var info = name + parent + type + height + width + locationX + locationY + "\n"
+	 * var info = name + parent + type + height + width + locationX + locationY + undecorated + "\n"
 	 * var closeMsg = "Press 'Ok' to close this dialog."
 	 * 
 	 * var infoDialog = plugins.dialogs.showInfoDialog("Window Info", info + closeMsg, "Ok");

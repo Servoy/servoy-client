@@ -1845,9 +1845,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_getTable(Object)
+	 * @clonedesc js_getTable(IFoundSetInternal)
 	 * 
-	 * @sampleas js_getTable(Object) 
+	 * @sampleas js_getTable(IFoundSetInternal) 
 	 *  
 	 * @param record The record where the table can be get from.
 	 * 
@@ -1871,9 +1871,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_getTable(Object)
+	 * @clonedesc js_getTable(IFoundSetInternal)
 	 * 
-	 * @sampleas js_getTable(Object) 
+	 * @sampleas js_getTable(IFoundSetInternal) 
 	 *  
 	 * @param dataSource The datasource where the table can be get from.
 	 * 
@@ -1896,9 +1896,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_getTable(Object)
+	 * @clonedesc js_getTable(IFoundSetInternal)
 	 * 
-	 * @sampleas js_getTable(Object) 
+	 * @sampleas js_getTable(IFoundSetInternal) 
 	 *  
 	 * @param serverName Server name.
 	 * @param tableName Table name.

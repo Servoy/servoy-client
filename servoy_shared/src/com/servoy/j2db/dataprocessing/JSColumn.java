@@ -62,6 +62,8 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 
 	/**
 	 * Constant for column information indicating unset values.
+	 * 
+	 * @sampleas js_getSequenceType()
 	 */
 	public static final int NONE = 0;
 	/**
@@ -84,7 +86,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Constant used when setting or getting the flags of columns.
 	 * This flag identifies columns whose values are treated as UUID.
 	 * 
-	 * @sampleas js_hasFlag()
+	 * @sampleas js_hasFlag(int)
 	 */
 	public static final int UUID_COLUMN = Column.UUID_COLUMN;
 
@@ -92,7 +94,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * Constant used when setting or getting the flags of columns.
 	 * This flag identifies columns that are skipped in the sql.
 	 * 
-	 * @sampleas js_hasFlag()
+	 * @sampleas js_hasFlag(int)
 	 */
 	public static final int EXCLUDED_COLUMN = Column.EXCLUDED_COLUMN;
 

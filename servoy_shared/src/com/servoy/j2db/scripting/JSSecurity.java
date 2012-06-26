@@ -490,7 +490,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/**
 	 * Set a new userUID for the given userUID.
 	 *
-	 * @sampleas js_createUser(Object[])
+	 * @sampleas js_createGroup(String)
 	 *
 	 * @param a_userUID the userUID to set the new user UID for 
 	 * @param newUserUID the new user UID
@@ -550,7 +550,27 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/**
 	 * Creates a group, returns the groupname (or null when group couldn't be created).
 	 *
-	 * @sampleas js_createUser(Object[])
+	 * @sample
+	 * var deleteGroup = true;
+	 * //ceate a group
+	 * var groupName = security.creategroup('myGroup');
+	 * if (groupName)
+	 * {
+	 *	//create a user
+	 *	var uid = security.createUser('myusername', 'mypassword');
+	 *	if (uid) //test if user was created
+	 *	{
+	 *		//set a newUID for the user
+	 *		var isChanged = security.setUserUID(uid,'myUserUID')
+	 *		// add user to group
+	 *		security.addUserToGroup(uid, groupName);
+	 *		// if not delete group, do delete group
+	 *		if (deleteGroup) 
+	 *		{
+	 *			security.deleteGroup(groupName);
+	 *		}
+	 *	}
+	 *}
 	 *
 	 * @param groupName the group name to create
 	 * 
@@ -661,7 +681,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/**
 	 * Deletes an user. returns true if no error was reported.
 	 *
-	 * @sampleas js_createUser(String,String,Object)
+	 * @sampleas js_createUser(String, String, Object)
 	 *
 	 * @param userUID The UID of the user to be deleted.
 	 * 
@@ -687,7 +707,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/**
 	 * Deletes a group, returns true if no error was reported.
 	 *
-	 * @sampleas js_createUser(Object[])
+	 * @sampleas js_createGroup(String)
 	 *
 	 * @param groupName the name of the group to delete
 	 * @return true if deleted
@@ -825,7 +845,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * Get all the groups (returns a dataset).
 	 * first id column is deprecated!, use only the group name column.
 	 *
-	 * @sampleas js_createUser(Object[])
+	 * @sampleas js_createUser(String, String, Object)
 	 * @return dataset with all the groups
 	 */
 	public JSDataSet js_getGroups() throws ServoyException
@@ -885,7 +905,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	/**
 	 * Removes an user from a group.
 	 *
-	 * @sampleas js_createUser(Object[])
+	 * @sampleas js_createUser(String, String, Object)
 	 *
 	 * @param a_userUID the user UID to be removed
 	 * @param groupName the group to remove from

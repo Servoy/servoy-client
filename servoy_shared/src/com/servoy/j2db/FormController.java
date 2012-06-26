@@ -555,6 +555,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * @clonedesc js_loadRecords()
+		 * @sampleas js_loadRecords()
 		 * @param foundset to load
 		 * @return true if successful
 		 */
@@ -579,6 +580,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * @clonedesc js_loadRecords()
+		 * @sampleas js_loadRecords()
 		 * @param pkdataset to load
 		 * @return true if successful
 		 */
@@ -603,6 +605,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * @clonedesc js_loadRecords()
+		 * @sampleas js_loadRecords()
 		 * @param singlenNmber_pk to load
 		 * @return true if successful
 		 */
@@ -627,6 +630,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * @clonedesc js_loadRecords()
+		 * @sampleas js_loadRecords()
 		 * @param UUIDpk to load
 		 * @return true if successful
 		 */
@@ -651,6 +655,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * @clonedesc js_loadRecords()
+		 * @sampleas js_loadRecords()
 		 * @param queryString to load
 		 * @return true if successful
 		 */
@@ -662,6 +667,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * @clonedesc js_loadRecords()
+		 * @sampleas js_loadRecords()
 		 * @param queryString to load
 		 * @param queryArgumentsArray the arguments to replace the questions marks in the queryString
 		 * @return true if successful

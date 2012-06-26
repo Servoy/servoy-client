@@ -89,6 +89,9 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	/**
 	 * Get the data source for this node.
 	 * 
+	 * @sample
+	 * var nodeDataSource = solutionModel.getDataSourceNode("db:/example_data/customers").getDataSource();
+	 * 
 	 * @return the dataSource
 	 */
 	@JSFunction
