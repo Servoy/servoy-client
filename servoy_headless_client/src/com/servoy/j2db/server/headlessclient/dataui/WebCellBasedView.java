@@ -679,13 +679,23 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
+			// only set the cell container bgcolor if there is no onrender on the comp
 			if (compColor != null)
 			{
-				MarkupContainer cellContainer = comp.getParent();
-				String compColorStr = compColor.toString();
-				if (cellContainer instanceof CellContainer)
+				boolean compHasOnRender = false;
+				if (comp instanceof IScriptableProvider)
 				{
-					cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
+					IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+					compHasOnRender = s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback();
+				}
+				if (!compHasOnRender)
+				{
+					MarkupContainer cellContainer = comp.getParent();
+					String compColorStr = compColor.toString();
+					if (cellContainer instanceof CellContainer)
+					{
+						cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
+					}
 				}
 			}
 
