@@ -444,7 +444,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	public void setValidationEnabled(boolean b)
 	{
 		if (eventExecutor.getValidationEnabled() == b) return;
-		if (dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
+		if (dataProviderID != null && dataProviderID.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX)) return;
 
 		eventExecutor.setValidationEnabled(b);
 
