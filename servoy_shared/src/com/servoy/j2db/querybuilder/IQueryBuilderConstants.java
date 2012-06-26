@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder;
 
+
 /**
  * Script constants for Query Builder column types.
  * 
@@ -27,74 +28,93 @@ public interface IQueryBuilderConstants
 {
 	/**
 	 * Constant used for casting.
+	 * 
+	 * @sampleas com.servoy.j2db.querybuilder.impl.QBFunctions#cast(Object, String)
 	 */
 	public static final String TYPE_BIG_INTEGER = "big_integer";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_BINARY = "binary";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_BOOLEAN = "boolean";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_CHARACTER = "character";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_DATE = "date";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_DOUBLE = "double";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_INTEGER = "integer";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_SHORT = "short";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_BYTE = "byte";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_TIME = "time";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_TIMESTAMP = "timestamp";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_STRING = "string";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_TEXT = "text";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_IMAGE = "image";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_BIG_DECIMAL = "big_decimal";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_BLOB = "blob";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_CLOB = "clob";
+
 	/**
-	 * Constant used for casting.
+	 * @sameas TYPE_BIG_INTEGER
 	 */
 	public static final String TYPE_FLOAT = "float";
 
