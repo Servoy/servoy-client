@@ -2397,6 +2397,21 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				
 				YAHOO.util.Dom.setStyle(YAHOO.util.Dom.get(elemId), 'display', 'none');
 			}
+		},
+		
+		refreshSelected: function(elemId)
+		{
+			if (Servoy.ClientDesign.selectedResizeElement != null && Servoy.ClientDesign.selectedElementId == elemId)
+			{
+				var updatedEl = document.getElementById(Servoy.ClientDesign.selectedElementId);
+				Servoy.ClientDesign.selectedResizeElement.destroy();
+				Servoy.ClientDesign.selectedResizeElement = null;
+				
+				var oldEl = document.getElementById(Servoy.ClientDesign.selectedElementId);
+				oldEl.parentNode.replaceChild(updatedEl, oldEl);
+
+				Servoy.ClientDesign.reattach();
+			}
 		}
 	};
 }	
