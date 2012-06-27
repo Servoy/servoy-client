@@ -47,7 +47,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, String relation, int tabIndex);
 
 	/**
@@ -67,7 +66,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, IFoundSet relation,
 		int tabIndex);
 
@@ -86,7 +84,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, String relation);
 
 	/**
@@ -104,7 +101,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, IFoundSet relation);
 
 	/**
@@ -121,7 +117,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg);
 
 	/**
@@ -136,7 +131,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL);
 
 	/**
@@ -148,7 +142,6 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@JSFunction
 	public boolean addTab(String formName, String tabName);
 
 

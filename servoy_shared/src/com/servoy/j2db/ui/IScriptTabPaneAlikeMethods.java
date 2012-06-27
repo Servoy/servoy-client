@@ -27,11 +27,22 @@ package com.servoy.j2db.ui;
 public interface IScriptTabPaneAlikeMethods
 {
 	/**
-	 * @param vargs arguments array
+	 * Adds a relationless or related form as a tab in a specified tabpanel.
 	 * 
-	 * @deprecated replaced by addTab with typed arguments
+	 * @sample %%prefix%%%%elementName%%.addTab(forms.orders,'ordersTab','Orders',null,null,'#000000','#BBCCEE');
+	 *
+	 * @param form/formname the specified form/form name you wish to add as a tab
+	 * @param name optional the specified name for the tab or NULL (default is null)
+	 * @param tabText optional the specified text for the tab (default is null)
+	 * @param tooltip optional a specified tooltip for the tab (default is null)
+	 * @param iconURL optional a specified icon image or icon URL for the tab (default is null)
+	 * @param fg optional the HTML RGB Hexadecimal foreground color for the tab (default is null)
+	 * @param bg optional the HTML RGB Hexadecimal background color for the tab (default is null)
+	 * @param relatedfoundset/relationname optional the specified name of the related foundset (default is null)
+	 * @param index optional the specified index of a tab, default is -1, will add tab to the end
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
 	 */
-	@Deprecated
 	boolean js_addTab(Object[] vargs);
 
 	/**
