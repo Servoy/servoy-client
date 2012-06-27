@@ -63,5 +63,6 @@ public class ServeResources extends DynamicWebResource
 	{
 		super.setHeaders(response);
 		HTTPUtils.setNoCacheHeaders(response.getHttpServletResponse());
+		response.getHttpServletResponse().setHeader("Pragma", "public");//$NON-NLS-1$//$NON-NLS-2$
 	}
 }
