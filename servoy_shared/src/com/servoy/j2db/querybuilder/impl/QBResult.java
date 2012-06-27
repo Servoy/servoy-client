@@ -80,6 +80,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
 	 * @sample
 	 * query.result.add(query.columns.custname)
+	 * 
+	 * @param column column to add to result
 	 */
 	public QBResult js_add(QBColumn column) throws RepositoryException
 	{
@@ -90,6 +92,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
 	 * @sample
 	 * query.result.add(query.columns.label_text.max)
+	 * 
+	 * @param aggregate the aggregate to add to result
 	 */
 	public QBResult js_add(QBAggregate aggregate) throws RepositoryException
 	{
@@ -100,6 +104,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
 	 * @sample
 	 * query.result.add(query.columns.custname.upper())
+	 * 
+	 * @param func the function to add to the result
 	 */
 	public QBResult js_add(QBFunction func) throws RepositoryException
 	{

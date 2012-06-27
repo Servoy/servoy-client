@@ -191,6 +191,9 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
 	 * 	query.where.add(join.columns.quantity.le(10))
 	 * 	foundset.loadRecords(query)
+	 * 
+	 * @param dataSource data source
+	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType) throws RepositoryException
@@ -201,6 +204,9 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, String)
 	 * @sampleas add(String, int)
+	 * 
+	 * @param dataSourceOrRelation data source
+	 * @param alias the alias for joining table
 	 */
 	@JSFunction
 	public QBJoin add(String dataSourceOrRelation, String alias) throws RepositoryException
@@ -221,6 +227,8 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String)
 	 * @sampleas add(String, int)
+	 * 
+	 * @param dataSource data source
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource) throws RepositoryException
@@ -231,6 +239,11 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(String, int, String)
 	 * @sampleas add(String, int)
+	 * 
+	 * @param dataSource data source
+	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * @param alias the alias for joining table
+	 * 
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType, String alias) throws RepositoryException

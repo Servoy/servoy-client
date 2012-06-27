@@ -109,7 +109,7 @@ public class JSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSTable.class, //
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
 				QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 				QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBResult.class, //
 				QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class };

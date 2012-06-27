@@ -36,30 +36,119 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @sample %%prefix%%%%elementName%%.addTab(forms.orders,'ordersTab','Orders',null,null,'#000000','#BBCCEE');
 	 *
 	 * @param formName the specified form/form name you wish to add as a tab
-	 * @param name optional the specified name for the tab or NULL (default is null)
-	 * @param tabText optional the specified text for the tab (default is null)
-	 * @param tooltip optional a specified tooltip for the tab (default is null)
-	 * @param iconURL optional a specified icon image or icon URL for the tab (default is null)
-	 * @param fg optional the HTML RGB Hexadecimal foreground color for the tab (default is null)
-	 * @param bg optional the HTML RGB Hexadecimal background color for the tab (default is null)
-	 * @param relation optional the specified name of the related foundset (default is null)
-	 * @param tabIndex optional the specified index of a tab, default is -1, will add tab to the end
+	 * @param tabName the specified name for the tab or NULL (default is null)
+	 * @param tabText the specified text for the tab (default is null)
+	 * @param toolTip a specified tooltip for the tab (default is null)
+	 * @param iconURL a specified icon image or icon URL for the tab (default is null)
+	 * @param fg the HTML RGB Hexadecimal foreground color for the tab (default is null)
+	 * @param bg the HTML RGB Hexadecimal background color for the tab (default is null)
+	 * @param relation the specified name of the related foundset (default is null)
+	 * @param tabIndex the specified index of a tab, default is -1, will add tab to the end
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, String relation, int tabIndex);
 
+	/**
+	 * Adds a relationless or related form as a tab in a specified tabpanel.
+	 * 
+	 * @sample %%prefix%%%%elementName%%.addTab(forms.orders,'ordersTab','Orders',null,null,'#000000','#BBCCEE');
+	 *
+	 * @param formName the specified form/form name you wish to add as a tab
+	 * @param tabName the specified name for the tab or NULL (default is null)
+	 * @param tabText the specified text for the tab (default is null)
+	 * @param toolTip a specified tooltip for the tab (default is null)
+	 * @param iconURL a specified icon image or icon URL for the tab (default is null)
+	 * @param fg the HTML RGB Hexadecimal foreground color for the tab (default is null)
+	 * @param bg the HTML RGB Hexadecimal background color for the tab (default is null)
+	 * @param relation the specified name of the related foundset (default is null)
+	 * @param tabIndex the specified index of a tab, default is -1, will add tab to the end
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, IFoundSet relation,
 		int tabIndex);
 
+	/**
+	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
+	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * 
+	 * @param formName the specified form/form name you wish to add as a tab
+	 * @param tabName the specified name for the tab or NULL (default is null)
+	 * @param tabText the specified text for the tab (default is null)
+	 * @param toolTip a specified tooltip for the tab (default is null)
+	 * @param iconURL a specified icon image or icon URL for the tab (default is null)
+	 * @param fg the HTML RGB Hexadecimal foreground color for the tab (default is null)
+	 * @param bg the HTML RGB Hexadecimal background color for the tab (default is null)
+	 * @param relation the specified name of the related foundset (default is null)
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, String relation);
 
+	/**
+	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
+	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * 
+	 * @param formName the specified form/form name you wish to add as a tab
+	 * @param tabName the specified name for the tab or NULL (default is null)
+	 * @param tabText the specified text for the tab (default is null)
+	 * @param toolTip a specified tooltip for the tab (default is null)
+	 * @param iconURL a specified icon image or icon URL for the tab (default is null)
+	 * @param fg the HTML RGB Hexadecimal foreground color for the tab (default is null)
+	 * @param bg the HTML RGB Hexadecimal background color for the tab (default is null)
+	 * @param relation the specified name of the related foundset (default is null)
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, IFoundSet relation);
 
+	/**
+	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
+	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * 
+	 * @param formName the specified form/form name you wish to add as a tab
+	 * @param tabName the specified name for the tab or NULL (default is null)
+	 * @param tabText the specified text for the tab (default is null)
+	 * @param toolTip a specified tooltip for the tab (default is null)
+	 * @param iconURL a specified icon image or icon URL for the tab (default is null)
+	 * @param fg the HTML RGB Hexadecimal foreground color for the tab (default is null)
+	 * @param bg the HTML RGB Hexadecimal background color for the tab (default is null)
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg);
 
+	/**
+	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
+	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * 
+	 * @param formName the specified form/form name you wish to add as a tab
+	 * @param tabName the specified name for the tab or NULL (default is null)
+	 * @param tabText the specified text for the tab (default is null)
+	 * @param toolTip a specified tooltip for the tab (default is null)
+	 * @param iconURL a specified icon image or icon URL for the tab (default is null)
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	@JSFunction
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL);
 
+	/**
+	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
+	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * 
+	 * @param formName the specified form/form name you wish to add as a tab
+	 * @param tabName the specified name for the tab or NULL (default is null)
+	 * 
+	 * @return a boolean value indicating if tab was successfully added
+	 */
+	@JSFunction
 	public boolean addTab(String formName, String tabName);
 
 

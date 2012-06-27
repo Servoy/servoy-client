@@ -101,6 +101,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		this.query = querySelect;
 	}
 
+	@Override
 	public QuerySelect build() throws RepositoryException
 	{
 		return AbstractBaseQuery.deepClone(getQuery());
@@ -314,6 +315,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderLogicalCondition)
 	 * @sample
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
+	 * 
+	 * @param cond the logical condition to negate
 	 */
 	@JSFunction
 	public QBCondition not(IQueryBuilderLogicalCondition cond)
@@ -325,6 +328,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderCondition)
 	 * @sample
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
+	 * 
+	 * @param cond the condition to negate
 	 */
 	@JSFunction
 	public QBCondition not(IQueryBuilderCondition cond)
@@ -336,6 +341,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#exists(IQueryBuilder)
 	 * @sample
 	 * foundset.query.where.add(query.exists(query2))
+	 * 
 	 */
 	public QBCondition js_exists(QBSelect q) throws RepositoryException
 	{

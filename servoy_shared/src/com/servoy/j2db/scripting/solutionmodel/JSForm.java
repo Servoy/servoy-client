@@ -233,6 +233,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
+	 * @param name the specified name of the variable
+	 * 
 	 * @deprecated replaced by getVariable(String)
 	 */
 	@Deprecated
@@ -242,6 +244,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
+	 *  
 	 * @deprecated replaced by getVariables(boolean)
 	 */
 	@Deprecated
@@ -323,6 +327,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
+	 * @param name the specified name of the method
+	 * 
 	 * @deprecated replaced by getMethod(String)
 	 */
 	@Deprecated
@@ -374,6 +380,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
+	 * @param returnInheritedElements boolean true to also return the elements from the parent form 
+	 * 
 	 * @deprecated replaced by getMethods(boolean)
 	 */
 	@Deprecated

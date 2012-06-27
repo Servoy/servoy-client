@@ -151,6 +151,12 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		return addTab(formName, tabName, tabName, "", "", null, null, (String)null, -1);
 	}
 
+	/**
+	 * @param vargs arguments array
+	 * 
+	 * @deprecated replaced by addTab with typed arguments
+	 */
+	@Deprecated
 	public boolean js_addTab(Object[] vargs)
 	{
 		if (vargs.length < 1) return false;

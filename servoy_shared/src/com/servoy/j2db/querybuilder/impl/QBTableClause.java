@@ -121,6 +121,8 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#getColumn(String)
 	 * @sample
 	 * foundset.getQuery().getColumn('orderid')
+	 * 
+	 * @param name the name of column to get 
 	 */
 	@JSFunction
 	public QBColumn getColumn(String name) throws RepositoryException
@@ -144,6 +146,9 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#getColumn(String, String)
 	 * @sample
 	 * foundset.getQuery().getColumn('orderid', 'opk')
+	 * 
+	 * @param columnTableAlias the alias for the table
+	 * @param name the name of column to get 
 	 */
 	@JSFunction
 	public QBColumn getColumn(String columnTableAlias, String name) throws RepositoryException

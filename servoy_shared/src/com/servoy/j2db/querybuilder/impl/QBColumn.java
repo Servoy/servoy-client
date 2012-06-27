@@ -218,6 +218,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#not()
 	 * @sample
 	 * query.where.add(query.columns.flag.not.eq(1))
+	 * 
 	 */
 	@JSReadonlyProperty
 	public QBColumn not()

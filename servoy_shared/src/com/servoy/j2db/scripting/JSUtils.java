@@ -1021,6 +1021,9 @@ public class JSUtils
 	}
 
 	/**
+	 * @param number the number to format 
+	 * @param digitsOrFormat nr of digits or the format
+	 * 
 	 * @deprecated use numberFormat(Number, String) or numberFormat(Number, Number)
 	 */
 	@Deprecated
