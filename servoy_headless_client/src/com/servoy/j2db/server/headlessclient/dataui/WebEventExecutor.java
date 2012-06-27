@@ -764,17 +764,25 @@ public class WebEventExecutor extends BaseEventExecutor
 							{
 								target.addComponent(component);
 								generateDragAttach(component, target.getHeaderResponse());
+
+								WebForm parentForm = component.findParent(WebForm.class);
+								boolean isDesignMode = parentForm != null && parentForm.isDesignMode();
+
+
 								if (!component.isVisible())
 								{
 									((IProviderStylePropertyChanges)component).getStylePropertyChanges().setRendered();
-									WebForm parentForm = component.findParent(WebForm.class);
-									if (parentForm != null && parentForm.isDesignMode())
+									if (isDesignMode)
 									{
 										target.appendJavascript("Servoy.ClientDesign.hideSelected('" + component.getMarkupId() + "')");
 									}
 								}
 								else
 								{
+									if (isDesignMode)
+									{
+										target.appendJavascript("Servoy.ClientDesign.refreshSelected('" + component.getMarkupId() + "')");
+									}
 									// some components need to perform js layout tasks when their markup is replaced when using anchored layout
 									mainPage.getPageContributor().markComponentForAnchorLayoutIfNeeded(component);
 								}
