@@ -198,6 +198,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			newParent.addChild(clone);
 		}
+		// make sure that this persist is not seen as a copy a real persist/form
+		clone.setRuntimeProperty(CLONE_PROPERTY, null);
 		if (clone instanceof ISupportUpdateableName)
 		{
 			try
