@@ -424,7 +424,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		if (debugger != null)
 		{
 			List<Context> list = contexts.remove(application);
-			if (list.size() > 0)
+			if (list != null && list.size() > 0)
 			{
 				Context[] array;
 				synchronized (list)
