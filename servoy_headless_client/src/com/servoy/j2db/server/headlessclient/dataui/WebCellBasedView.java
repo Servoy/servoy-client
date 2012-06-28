@@ -331,9 +331,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public static class CellContainer extends WebMarkupContainer
 	{
-		public CellContainer(String id)
+		private final Component childComp;
+
+		public CellContainer(Component childComp)
 		{
-			super(id);
+			super(childComp.getId() + '_');
+			this.childComp = childComp;
 		}
 
 		public static Component getContentsForCell(Component child)
@@ -350,6 +353,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			return child;
 		}
 
+		@Override
+		protected void onBeforeRender()
+		{
+			if (childComp instanceof IComponent)
+			{
+				Color childCompBG = ((IComponent)childComp).getBackground();
+				super.onBeforeRender();
+				Color newChildBG = ((IComponent)childComp).getBackground();
+				if (!Utils.equalObjects(childCompBG, newChildBG))
+				{
+					String sNewChildBG = newChildBG != null ? PersistHelper.createColorString(newChildBG) : ""; //$NON-NLS-1$
+					add(new StyleAppendingModifier(new Model<String>("background-color: " + sNewChildBG))); //$NON-NLS-1$
+				}
+			}
+			else
+			{
+				super.onBeforeRender();
+			}
+		}
 	}
 
 	interface ItemAdd
@@ -595,7 +617,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 								{
 									// this column's cells can be made invisible (and <td> tag is the one that has to change)
 									// so we will link this <td> to a wicket component
-									listItemChild = new CellContainer(comp.getId() + '_');
+									listItemChild = new CellContainer(comp);
 									listItemChild.setOutputMarkupPlaceholderTag(true);
 
 									// because of a bug in chrome, that causing problem with align of cell to the header,
@@ -679,23 +701,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 
-			// only set the cell container bgcolor if there is no onrender on the comp
 			if (compColor != null)
 			{
-				boolean compHasOnRender = false;
-				if (comp instanceof IScriptableProvider)
+				MarkupContainer cellContainer = comp.getParent();
+				String compColorStr = compColor.toString();
+				if (cellContainer instanceof CellContainer)
 				{
-					IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-					compHasOnRender = s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback();
-				}
-				if (!compHasOnRender)
-				{
-					MarkupContainer cellContainer = comp.getParent();
-					String compColorStr = compColor.toString();
-					if (cellContainer instanceof CellContainer)
-					{
-						cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
-					}
+					cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
 				}
 			}
 
