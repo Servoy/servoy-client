@@ -54,7 +54,7 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 {
 	private JSONSerializer serializer;
 	private final Serializer defaultSerializer;
-	private final boolean handleArrays;
+	private final boolean handleListsAsArrays;
 	private final boolean handleByteArrays;
 
 	ThreadLocal<IDatabaseManager> currentDBMGR = new ThreadLocal<IDatabaseManager>();
@@ -72,7 +72,7 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays, boolean handleByteArrays)
 	{
 		this.defaultSerializer = defaultSerializer;
-		this.handleArrays = handleArrays;
+		this.handleListsAsArrays = handleArrays;
 		this.handleByteArrays = handleByteArrays;
 	}
 
@@ -199,7 +199,7 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 				serializer.registerSerializer(new DictionarySerializer());
 				serializer.registerSerializer(new MapSerializer());
 				serializer.registerSerializer(new SetSerializer());
-				if (!handleArrays)
+				if (!handleListsAsArrays)
 				{
 					serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
 				}
