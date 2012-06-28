@@ -2597,8 +2597,8 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				resize.dd.startDrag = function(x,y)	
 				{
 					var element = document.getElementById(this.id);
-					this.setYConstraint(element.offsetTop,element.offsetParent.offsetHeight-element.offsetTop-element.offsetHeight);
-					this.setXConstraint(element.offsetLeft,element.offsetParent.offsetWidth-element.offsetLeft-element.offsetWidth);
+					this.setYConstraint(element.offsetTop,element.offsetParent.scrollHeight-element.offsetTop-element.offsetHeight);
+					this.setXConstraint(element.offsetLeft,element.offsetParent.scrollWidth-element.offsetLeft-element.offsetWidth);
 					wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aStart&xc=' + element.style.left + '&yc=' + element.style.top + '&draggableID=' + this.id);
 					Servoy.DD.dragStarted();
 				};
