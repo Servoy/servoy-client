@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
@@ -407,7 +408,22 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public void setRuntimeDividerLocation(final double location)
 	{
-		if (location < 1) splitPane.setDividerLocation(location);
+		if (location < 1)
+		{
+			splitPane.setDividerLocation(location);
+			if (!isValid())
+			{
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						// if not valid, sizes may be incorrect; hopefully now we have correct values
+						// first call is for getter to work immediately
+						splitPane.setDividerLocation(location);
+					}
+				});
+			}
+		}
 		else splitPane.setDividerLocation((int)location);
 	}
 
