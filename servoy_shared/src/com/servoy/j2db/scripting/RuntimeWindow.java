@@ -24,6 +24,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.plugins.IRuntimeWindow;
+import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -232,6 +233,10 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 		else if (form instanceof String)
 		{
 			f = (String)form;
+		}
+		else if (form instanceof JSForm)
+		{
+			f = ((JSForm)form).getName();
 		}
 		if (f != null)
 		{
