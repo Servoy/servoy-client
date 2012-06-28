@@ -881,7 +881,7 @@ public class JSForm implements IJSParent, IConstantsObject
 			}
 			else if (action instanceof JSMethod)
 			{
-				methodId = getMethodId(application, gc, (JSMethod)action);
+				methodId = getMethodId(application, gc, (JSMethod)action, null);
 			}
 			else
 			{
@@ -3736,7 +3736,7 @@ public class JSForm implements IJSParent, IConstantsObject
 		try
 		{
 			Method setter = persist.getClass().getMethod("set" + Character.toUpperCase(methodKey.charAt(0)) + methodKey.substring(1), int.class); //$NON-NLS-1$
-			setter.invoke(persist, new Integer(getMethodId(application, persist, method)));
+			setter.invoke(persist, new Integer(getMethodId(application, persist, method, methodKey)));
 		}
 		catch (Exception e)
 		{
@@ -3757,11 +3757,10 @@ public class JSForm implements IJSParent, IConstantsObject
 	}
 
 
-	static int getMethodId(IApplication application, AbstractBase base, JSMethod method)
+	static int getMethodId(IApplication application, AbstractBase base, JSMethod method, String methodKey)
 	{
-		if (method == null) return 0;
-		if (method == DEFAULTS.COMMAND_DEFAULT) return 0;
-		if (method == DEFAULTS.COMMAND_NONE) return -1;
+		if (method == null && methodKey != null && BaseComponent.isCommandProperty(methodKey)) return -1;
+		if (method == null || method == DEFAULTS.COMMAND_DEFAULT) return 0;
 		return getMethodId(application, base, method.getScriptMethod());
 	}
 
