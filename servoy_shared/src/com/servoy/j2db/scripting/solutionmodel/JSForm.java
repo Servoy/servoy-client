@@ -922,7 +922,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			}
 			else if (action instanceof JSMethod)
 			{
-				methodId = getMethodId(application, gc, (JSMethod)action);
+				methodId = getMethodId(application, gc, (JSMethod)action, null);
 			}
 			else
 			{
@@ -3841,7 +3841,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 
 	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, ISMMethod method)
 	{
-		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method)));
+		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
 		persist.putInstanceMethodArguments(methodProperty.getPropertyName(),
 			method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
 	}
@@ -3856,10 +3856,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 
-	static int getMethodId(IApplication application, AbstractBase base, ISMMethod method)
+	static int getMethodId(IApplication application, AbstractBase base, ISMMethod method, TypedProperty<Integer> methodProperty)
 	{
+		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return -1;
 		if (method == null || method == DEFAULTS.COMMAND_DEFAULT) return 0;
-		if (method == DEFAULTS.COMMAND_NONE) return -1;
 		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 

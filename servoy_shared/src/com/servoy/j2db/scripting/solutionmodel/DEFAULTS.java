@@ -76,7 +76,7 @@ public class DEFAULTS implements IPrefixedConstantsObject
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.onFindCmd = SM_DEFAULTS.COMMAND_NONE; // This disables the find on the form.
 	 */
-	public static final JSMethod COMMAND_NONE = new JSMethod();
+	public static final JSMethod COMMAND_NONE = null;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
