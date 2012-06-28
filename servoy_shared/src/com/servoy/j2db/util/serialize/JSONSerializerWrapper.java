@@ -52,7 +52,7 @@ public class JSONSerializerWrapper
 {
 	private JSONSerializer serializer;
 	private final Serializer defaultSerializer;
-	private final boolean handleArrays;
+	private final boolean handleListsAsArrays;
 	private final boolean handleByteArrays;
 
 	public JSONSerializerWrapper(Serializer defaultSerializer)
@@ -68,7 +68,7 @@ public class JSONSerializerWrapper
 	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays, boolean handleByteArrays)
 	{
 		this.defaultSerializer = defaultSerializer;
-		this.handleArrays = handleArrays;
+		this.handleListsAsArrays = handleArrays;
 		this.handleByteArrays = handleByteArrays;
 	}
 
@@ -146,7 +146,7 @@ public class JSONSerializerWrapper
 				serializer.registerSerializer(new DictionarySerializer());
 				serializer.registerSerializer(new MapSerializer());
 				serializer.registerSerializer(new SetSerializer());
-				if (!handleArrays)
+				if (!handleListsAsArrays)
 				{
 					serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
 				}
