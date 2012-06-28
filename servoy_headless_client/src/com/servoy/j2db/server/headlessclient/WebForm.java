@@ -1726,10 +1726,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		if (callback != null)
 		{
 			String selection = designModeSelection.get(callback);
-			if (selection != null)
-			{
-				designModeBehavior.setSelectedComponent(selection);
-			}
+			designModeBehavior.setSelectedComponent(selection);
 		}
 		else
 		{
