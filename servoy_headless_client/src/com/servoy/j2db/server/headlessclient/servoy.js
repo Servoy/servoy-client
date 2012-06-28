@@ -2578,6 +2578,16 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 					animate: false
 				});
 
+				// adjust the wrapper width/heigh
+				var wrappingEl = elem;
+				var enclosedElements = wrappingEl.getElementsByTagName('input');
+				if(enclosedElements.length > 0 && enclosedElements[0].getAttribute("type") == "text") wrappingEl = enclosedElements[0];
+				enclosedElements = wrappingEl.getElementsByTagName('textarea');
+				if(enclosedElements.length > 0) wrappingEl = enclosedElements[0];
+				var wrapEl = resize.getWrapEl();
+				YAHOO.util.Dom.setStyle(wrapEl, 'width', wrappingEl.offsetWidth + "px");
+				YAHOO.util.Dom.setStyle(wrapEl, 'height', wrappingEl.offsetHeight + "px");
+
 				resize.dd.endDrag = function(args) 
 				{ 
 					Servoy.DD.dragStopped(); 
