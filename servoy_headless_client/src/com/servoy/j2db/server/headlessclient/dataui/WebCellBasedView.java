@@ -3541,7 +3541,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Object dragOverReturn = fc.executeFunction(Integer.toString(onDragOverID), new Object[] { event }, false, null, false, "onDragOverMethodID"); //$NON-NLS-1$
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
-		return false;
+		return true;
 	}
 
 	public boolean onDrop(JSDNDEvent event)

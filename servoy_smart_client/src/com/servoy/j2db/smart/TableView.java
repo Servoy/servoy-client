@@ -1823,7 +1823,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return false;
+		return true;
 	}
 
 	public boolean onDrop(JSDNDEvent event)
