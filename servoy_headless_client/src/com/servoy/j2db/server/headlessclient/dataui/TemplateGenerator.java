@@ -1242,8 +1242,34 @@ public class TemplateGenerator
 							appendValue(retval, pSelector, name,
 								"-webkit-gradient(linear, " + (val.contains("top") ? "center" : "left") + " top, " +
 									(val.contains("top") ? "center bottom" : "right top") + ", from(" + colors[0] + "), to(" + colors[1] + "))");
-							appendValue(retval, pSelector, "filter", "progid:DXImageTransform.Microsoft.gradient(startColorStr=" + colors[0] +
-								", EndColorStr=" + colors[1] + ")");
+							boolean hasRoundedRadius = false;
+							for (String attribute : ServoyStyleSheet.ROUNDED_RADIUS_ATTRIBUTES)
+							{
+								String value = getProperty(attribute);
+								if (value != null && !value.startsWith("0"))
+								{
+									hasRoundedRadius = true;
+									break;
+								}
+								List<String> roundedBorderValues = stackedValues.get(attribute);
+								if (roundedBorderValues != null)
+								{
+									for (String borderValue : roundedBorderValues)
+									{
+										if (borderValue != null && !borderValue.startsWith("0"))
+										{
+											hasRoundedRadius = true;
+											break;
+										}
+									}
+								}
+							}
+							if (!hasRoundedRadius)
+							{
+								// filter doesn't get along with rounded border; css should define fallback for this
+								appendValue(retval, pSelector, "filter", "progid:DXImageTransform.Microsoft.gradient(startColorStr=" + colors[0] +
+									", EndColorStr=" + colors[1] + ")");
+							}
 						}
 						for (String linearIdentifier : ServoyStyleSheet.LinearGradientsIdentifiers)
 						{
