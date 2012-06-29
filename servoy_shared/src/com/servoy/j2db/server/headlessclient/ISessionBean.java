@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.Locale;
@@ -75,7 +75,7 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 	/**
 	 * Execute a form or global method.
 	 * 
-	 * @param visibleFormName the name of the form (must be visible)
+	 * @param visibleFormName the name of the form (must be visible); if null, method will be searched in globals scope
 	 * @param methodName the name of the method to call
 	 * @param arguments to pass to the method
 	 * @return the value returned by the method
