@@ -734,7 +734,7 @@ public class DataRenderer extends EnablePanel implements ListCellRenderer, IData
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return false;
+		return true;
 	}
 
 	public boolean onDrop(JSDNDEvent event)
