@@ -104,10 +104,6 @@ public class ScriptEngine implements IScriptSupport
 				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader());
 				cx.setWrapFactory(new ServoyWrapFactory(application));
 			}
-			else
-			{
-				Debug.error("unexpected state", new RuntimeException("application not an IApplication: " + sp));
-			}
 		}
 
 		public void contextReleased(Context cx)
