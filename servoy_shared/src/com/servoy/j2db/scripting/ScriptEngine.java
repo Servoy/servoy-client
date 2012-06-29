@@ -192,6 +192,7 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("RuntimePortal", toplevelScope, new InstanceOfScope("RuntimePortal", IScriptPortalComponentMethods.class));
 			toplevelScope.put("RuntimeListBox", toplevelScope, new InstanceOfScope("RuntimeListBox", IRuntimeListBox.class));
 			toplevelScope.put("RuntimeAccordionPanel", toplevelScope, new InstanceOfScope("RuntimeAccordionPanel", IScriptAccordionPanelMethods.class));
+			toplevelScope.put("DataException", toplevelScope, new InstanceOfScope("DataException", DataException.class));
 
 			ScriptObjectRegistry.getJavaMembers(FormController.JSForm.class, toplevelScope);
 			toplevelScope.setPrototype(null);
