@@ -90,6 +90,21 @@ public class TabIndexHelper
 		}
 	}
 
+	public static int getTabIndex(Component component)
+	{
+		TabIndexAttributeModifier modifier = null;
+		for (Object obeh : component.getBehaviors())
+		{
+			IBehavior beh = (IBehavior)obeh;
+			if (beh instanceof TabIndexAttributeModifier)
+			{
+				modifier = (TabIndexAttributeModifier)beh;
+				break;
+			}
+		}
+		return modifier.getTabIndex();
+	}
+
 	private static boolean isTabIndexSupported(Component component)
 	{
 		return !(component instanceof WebRect);

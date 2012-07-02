@@ -1792,25 +1792,27 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 		if (isFormInWindow())
 		{
-			final ArrayList<String> componentz = new ArrayList<String>();
-			visitChildren(IComponent.class, new IVisitor<Component>()
+			List<Component> componentz = getTabSeqComponents();
+			int max = -1;
+			int min = 2;
+			String maxTabIndexElemId = null;
+			String minTabIndexElemId = null;
+			for (Component c : componentz)
 			{
-				public Object component(Component component)
+				int tabIndex = TabIndexHelper.getTabIndex(c);
+				if (tabIndex > max)
 				{
-					if (component instanceof org.apache.wicket.markup.html.form.FormComponent &&
-						!(component instanceof org.apache.wicket.markup.html.form.TextArea) && !componentz.contains(component))
-					{
-						componentz.add(component.getMarkupId());
-					}
-					return IVisitor.CONTINUE_TRAVERSAL;
+					max = tabIndex;
+					maxTabIndexElemId = c.getMarkupId();
 				}
-			});
-			String comps = ""; //$NON-NLS-1$
-			for (String c : componentz)
-			{
-				comps += ((!comps.equals("") ? "," : "") + "'" + c + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				if (tabIndex < min)
+				{
+					min = tabIndex;
+					minTabIndexElemId = c.getMarkupId();
+				}
 			}
-			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.TabCycleHandling.computeMinMaxTabIndex([" + comps + "]);"); //$NON-NLS-1$ //$NON-NLS-2$ 
+			container.getHeaderResponse().renderOnDomReadyJavascript(
+				"Servoy.TabCycleHandling.registerListeners('" + minTabIndexElemId + "','" + maxTabIndexElemId + "');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		}
 	}
 
