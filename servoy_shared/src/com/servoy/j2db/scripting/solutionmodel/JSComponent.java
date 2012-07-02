@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
@@ -29,14 +30,16 @@ import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.solutionmodel.ISMComponent;
+import com.servoy.j2db.solutionmodel.ISMHasDesignTimeProperty;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSComponent<T extends BaseComponent> extends JSBase<T> implements IJavaScriptType, ISMComponent
+public class JSComponent<T extends BaseComponent> extends JSBase<T> implements IJavaScriptType, ISMComponent, ISMHasDesignTimeProperty
 {
 
 	protected JSComponent(IJSParent< ? > parent, T baseComponent, boolean isNew)
@@ -474,6 +477,46 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	public void setGroupID(String arg)
 	{
 		getBaseComponent(true).setGroupID(arg);
+	}
+
+
+	/** Get a design-time property of an element.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * var prop = fld.getDesignTimeProperty('myprop')	
+	 */
+	@JSFunction
+	public Object getDesignTimeProperty(String key)
+	{
+		return Utils.parseJSExpression(getBaseComponent(false).getCustomDesignTimeProperty(key));
+	}
+
+	/** Set a design-time property of an element.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * fld.putDesignTimeProperty('myprop', 'strawberry')	
+	 */
+	@JSFunction
+	public Object putDesignTimeProperty(String key, Object value)
+	{
+		return Utils.parseJSExpression(getBaseComponent(true).putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
+	}
+
+	/** Clear a design-time property of an element.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * fld.removeDesignTimeProperty('myprop')
+	 */
+	@JSFunction
+	public Object removeDesignTimeProperty(String key)
+	{
+		return putDesignTimeProperty(key, null);
 	}
 
 	/**

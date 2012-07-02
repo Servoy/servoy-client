@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Part;
  *
  * @since 6.1
  */
-public interface ISMPart extends ISMHasUUID, ISMHasDesignTimeProperty
+public interface ISMPart extends ISMHasUUID
 {
 
 	/**

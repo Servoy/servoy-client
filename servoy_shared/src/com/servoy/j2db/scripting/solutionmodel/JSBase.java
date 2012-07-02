@@ -23,12 +23,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportExtendsID;
-import com.servoy.j2db.solutionmodel.ISMHasDesignTimeProperty;
 import com.servoy.j2db.solutionmodel.ISMHasUUID;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -36,7 +34,7 @@ import com.servoy.j2db.util.Utils;
  * @param <T>
  * 
  */
-public class JSBase<T extends AbstractBase> implements ISMHasUUID, ISMHasDesignTimeProperty
+public class JSBase<T extends AbstractBase> implements ISMHasUUID
 {
 	private T baseComponent;
 	private final IJSParent< ? > parent;
@@ -61,45 +59,6 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID, ISMHasDesignT
 	public IJSParent< ? > getJSParent()
 	{
 		return parent;
-	}
-
-	/** Get a design-time property of an element.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm('orders')
-	 * var fld = frm.getField('fld')
-	 * var prop = fld.getDesignTimeProperty('myprop')	
-	 */
-	@JSFunction
-	public Object getDesignTimeProperty(String key)
-	{
-		return Utils.parseJSExpression(getBaseComponent(false).getCustomDesignTimeProperty(key));
-	}
-
-	/** Set a design-time property of an element.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm('orders')
-	 * var fld = frm.getField('fld')
-	 * fld.putDesignTimeProperty('myprop', 'strawberry')	
-	 */
-	@JSFunction
-	public Object putDesignTimeProperty(String key, Object value)
-	{
-		return Utils.parseJSExpression(getBaseComponent(true).putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
-	}
-
-	/** Clear a design-time property of an element.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm('orders')
-	 * var fld = frm.getField('fld')
-	 * fld.removeDesignTimeProperty('myprop')
-	 */
-	@JSFunction
-	public Object removeDesignTimeProperty(String key)
-	{
-		return putDesignTimeProperty(key, null);
 	}
 
 	/**
