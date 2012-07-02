@@ -81,8 +81,11 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 
 	/**
 	 * Get or set the sql type of this variable.
-	 * 
 	 * Type should be one of JSVariable.DATETIME, JSVariable.TEXT, JSVariable.NUMBER , JSVariable.INTEGER or JSVariable.MEDIA.
+	 * 
+	 * @sample 
+	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation");
+	 * calc.variableType = JSVariable.DATETIME;
 	 */
 	@JSGetter
 	public int getVariableType()

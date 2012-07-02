@@ -2280,7 +2280,7 @@ public class JSDatabaseManager
 	/**
 	 * Returns a foundset object for a specified datasource or server and tablename. 
 	 *
-	 * @sampleas js_getFoundset(String)
+	 * @sampleas js_getFoundSet(String)
 	 *
 	 * @param serverName The servername to get a JSFoundset for.
 	 * @param tableName The tablename for that server
@@ -2324,7 +2324,7 @@ public class JSDatabaseManager
 	/**
 	 * Returns a foundset object for a specified pk query. 
 	 *
-	 * @sampleas js_getFoundset(String)
+	 * @sampleas js_getFoundSet(String)
 	 *
 	 * @param query The query to get the JSFoundset for.
 	 * 
