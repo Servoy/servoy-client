@@ -48,18 +48,49 @@ public class ScriptObjectRegistry
 	public static void registerScriptObjectForClass(Class< ? > clz, IScriptable scriptobject)
 	{
 		// If there is already an XMLScriptObjectAdapter registered for this class, then
-		// don't allow it to be overwritten
+		// don't allow it to be overwritten, but copy over the return types if needed
 		if (scriptObjectRegistry.containsKey(clz))
 		{
 			IScriptable existing = scriptObjectRegistry.get(clz);
-			if (existing instanceof XMLScriptObjectAdapter) return;
+			if (existing instanceof XMLScriptObjectAdapter)
+			{
+				if (scriptobject instanceof IReturnedTypesProvider)
+				{
+					mergeReturnTypes(existing, (IReturnedTypesProvider)scriptobject);
+				}
+				return;
+			}
 		}
 		scriptObjectRegistry.put(clz, scriptobject);
 	}
 
 	public static void registerReturnedTypesProviderForClass(Class< ? > clz, IReturnedTypesProvider rtProvider)
 	{
-		if (!scriptObjectRegistry.containsKey(clz)) scriptObjectRegistry.put(clz, new ReturnedTypesProviderToScriptObjectAdapter(rtProvider));
+		// If there is already an XMLScriptObjectAdapter registered for this class, then
+		// don't allow it to be overwritten, but copy over the return types if needed
+		if (scriptObjectRegistry.containsKey(clz))
+		{
+			IScriptable existing = scriptObjectRegistry.get(clz);
+			if (existing instanceof XMLScriptObjectAdapter)
+			{
+				mergeReturnTypes(existing, rtProvider);
+			}
+			return;
+		}
+		scriptObjectRegistry.put(clz, new ReturnedTypesProviderToScriptObjectAdapter(rtProvider));
+	}
+
+	/**
+	 * @param rtProvider
+	 * @param existing
+	 */
+	private static void mergeReturnTypes(IScriptable existing, IReturnedTypesProvider rtProvider)
+	{
+		Class< ? >[] allReturnedTypes = ((XMLScriptObjectAdapter)existing).getAllReturnedTypes();
+		if ((allReturnedTypes == null || allReturnedTypes.length == 0) && rtProvider.getAllReturnedTypes() != null)
+		{
+			((XMLScriptObjectAdapter)existing).setReturnTypes(rtProvider.getAllReturnedTypes());
+		}
 	}
 
 	public static IScriptObject getScriptObjectForClass(Class< ? > clz)
