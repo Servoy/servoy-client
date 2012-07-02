@@ -7,7 +7,7 @@
 	<property name="basearch" value="${arch}"/>
 	<property name="basenl" value="${nl}"/>
 	<property name="bundleId" value="servoy_smart_client"/>
-	<property name="bundleVersion" value="6.1.0.1417"/>
+	<property name="bundleVersion" value="6.1.0.1418"/>
 	<property name="p2.publishonerror" value="false"/>
 
 	<!-- Compiler settings. -->
@@ -42,7 +42,7 @@
 			<isset property="buildTempFolder"/>
 		</condition>
 		<property name="pluginTemp" value="${basedir}"/>
-		<condition property="build.result.folder" value="${pluginTemp}/servoy_smart_client_6.1.0.1417"		>
+		<condition property="build.result.folder" value="${pluginTemp}/servoy_smart_client_6.1.0.1418"		>
 			<isset property="buildTempFolder"/>
 		</condition>
 		<property name="build.result.folder" value="${basedir}"/>
@@ -72,7 +72,7 @@
 		<antcall target="gather.bin.parts">
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
-		<jar destfile="${plugin.destination}/servoy_smart_client_6.1.0.1417.jar" basedir="${temp.folder}/servoy_smart_client_6.1.0.1417" filesetmanifest="merge"/>
+		<jar destfile="${plugin.destination}/servoy_smart_client_6.1.0.1418.jar" basedir="${temp.folder}/servoy_smart_client_6.1.0.1418" filesetmanifest="merge"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
@@ -221,12 +221,12 @@
 	</target>
 
 	<target name="checkCompilationResults" if="compilation.error.occured">
-		<echo file="${compilation.problem.marker}" message="servoy_smart_client_6.1.0.1417${line.separator}compilation.error.occured=${compilation.error.occured}"/>
-		<eclipse.logCompileError bundle="servoy_smart_client_6.1.0.1417" log="${compilation.prereq.log}">
+		<echo file="${compilation.problem.marker}" message="servoy_smart_client_6.1.0.1418${line.separator}compilation.error.occured=${compilation.error.occured}"/>
+		<eclipse.logCompileError bundle="servoy_smart_client_6.1.0.1418" log="${compilation.prereq.log}">
 			<include name="C:/Users/Administrator/dev_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
-			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.1.0.1417/compilation.problem"/>
+			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_6.1.0.1418/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/servoy_shared/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_shared_6.1.0.1417/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_shared_6.1.0.1418/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
@@ -236,7 +236,7 @@
 	</target>
 
 	<target name="publish.bin.parts" depends="init" if="p2.publish.parts" unless="compilation.problem.marker.exists">
-		<mkdir dir="${build.result.folder}/servoy_smart_client_6.1.0.1417"/>
+		<mkdir dir="${build.result.folder}/servoy_smart_client_6.1.0.1418"/>
 		<copy todir="${build.result.folder}" failonerror="true" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="META-INF/MANIFEST.MF"/>
@@ -260,20 +260,20 @@
 	</target>
 
 	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_smart_client_6.1.0.1417"/>
-		<copy todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1417" failonerror="true" overwrite="false">
+		<mkdir dir="${destination.temp.folder}/servoy_smart_client_6.1.0.1418"/>
+		<copy todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1418" failonerror="true" overwrite="false">
 			<fileset dir="${build.result.folder}/@dot">
 				<include name="**"/>
 			</fileset>
 		</copy>
-		<copy todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1417" failonerror="true" overwrite="true">
+		<copy todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1418" failonerror="true" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="plugin.xml"/>
 				<include name="META-INF/"/>
 			</fileset>
 		</copy>
 		<antcall target="apitools.generation">
-			<param name="target.folder" value="${destination.temp.folder}/servoy_smart_client_6.1.0.1417"/>
+			<param name="target.folder" value="${destination.temp.folder}/servoy_smart_client_6.1.0.1418"/>
 			<param name="projectLocation" value="${basedir}"/>
 			<param name="binary.folders" value="${build.result.folder}/@dot"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
@@ -284,10 +284,10 @@
 	</target>
 
 	<target name="gather.sources" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_smart_client_6.1.0.1417"/>
-		<copy file="${build.result.folder}/src.zip" todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1417" failonerror="false" overwrite="false"/>
+		<mkdir dir="${destination.temp.folder}/servoy_smart_client_6.1.0.1418"/>
+		<copy file="${build.result.folder}/src.zip" todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1418" failonerror="false" overwrite="false"/>
 		<antcall target="copy.src.includes">
-			<param name="source.destination.folder" value="${destination.temp.folder}/servoy_smart_client_6.1.0.1417"/>
+			<param name="source.destination.folder" value="${destination.temp.folder}/servoy_smart_client_6.1.0.1418"/>
 		</antcall>
 	</target>
 
@@ -304,8 +304,8 @@
 	</target>
 
 	<target name="gather.logs" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_smart_client_6.1.0.1417"/>
-		<copy todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1417" failonerror="false" overwrite="false">
+		<mkdir dir="${destination.temp.folder}/servoy_smart_client_6.1.0.1418"/>
+		<copy todir="${destination.temp.folder}/servoy_smart_client_6.1.0.1418" failonerror="false" overwrite="false">
 			<fileset dir="${build.result.folder}">
 				<include name="@dot${logExtension}"/>
 			</fileset>
@@ -315,8 +315,8 @@
 	<target name="clean" depends="init" description="Clean the plug-in: servoy_smart_client of all the zips, jars and logs created.">
 		<delete dir="${build.result.folder}/@dot"/>
 		<delete file="${build.result.folder}/src.zip"/>
-		<delete file="${plugin.destination}/servoy_smart_client_6.1.0.1417.jar"/>
-		<delete file="${plugin.destination}/servoy_smart_client_6.1.0.1417.zip"/>
+		<delete file="${plugin.destination}/servoy_smart_client_6.1.0.1418.jar"/>
+		<delete file="${plugin.destination}/servoy_smart_client_6.1.0.1418.zip"/>
 		<delete dir="${temp.folder}"/>
 		<delete file="${compilation.problem.marker}" quiet="true"/>
 	</target>
@@ -342,7 +342,7 @@
 				<include name="**/*.bin${logExtension}"/>
 			</fileset>
 		</delete>
-		<zip destfile="${plugin.destination}/servoy_smart_client_6.1.0.1417.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<zip destfile="${plugin.destination}/servoy_smart_client_6.1.0.1418.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
