@@ -2475,3 +2475,60 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		}
 	};
 }
+
+if (typeof(Servoy.TabCycleHandling) == "undefined")
+{
+	Servoy.TabCycleHandling = 
+	{
+		maxTabIndex : -1,
+		maxTabElemIndex : null,
+		minTabIndex : 99999,
+		minTabElemIndex : null,
+	
+		computeMinMaxTabIndex: function (elemArray)
+		{
+			if (elemArray) 
+			{
+				var elem = null;
+				for (var i = 0; i < elemArray.length; i++) 
+				{
+					elem = document.getElementById(elemArray[i]);
+					if (elem.tabIndex > Servoy.TabCycleHandling.maxTabIndex) 
+					{
+						Servoy.TabCycleHandling.maxTabIndex = elem.tabIndex;
+						Servoy.TabCycleHandling.maxTabElemIndex = elemArray[i];
+					}
+					if (elem.tabIndex < Servoy.TabCycleHandling.minTabIndex) 
+					{
+						Servoy.TabCycleHandling.minTabIndex = elem.tabIndex; 
+						Servoy.TabCycleHandling.minTabElemIndex = elemArray[i];
+					}
+				}
+				elem = document.getElementById(Servoy.TabCycleHandling.maxTabElemIndex);
+				Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabForwardHandler);
+				elem = document.getElementById(Servoy.TabCycleHandling.minTabElemIndex);
+				Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
+			}
+		},
+		
+		tabForwardHandler: function (event)
+		{
+			if (event.shiftKey == false && event.keyCode == 9)
+			{	
+				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.minTabElemIndex +'\")',1);
+				return true;
+			}
+			return false;
+		},
+	
+		tabRewindHandler: function (event)
+		{
+			if (event.shiftKey && event.keyCode == 9)
+			{
+				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.maxTabElemIndex +'\")',1);
+				return true;
+			}
+			return false;
+		}
+	};
+}
