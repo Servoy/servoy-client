@@ -592,7 +592,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @param pkdataset to load
 		 * @return true if successful
 		 */
-		public boolean js_loadRecords(JSDataSet pkdataset)
+		public boolean js_loadRecords(IDataSet pkdataset)
 		{
 			checkDestroyed();
 			return formController.loadData(pkdataset, null);
@@ -606,7 +606,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @deprecated use loadRecords(JSDataSet)
 		 */
 		@Deprecated
-		public boolean js_loadRecords(JSDataSet pkdataset, Object ignored)
+		public boolean js_loadRecords(IDataSet pkdataset, Object ignored)
 		{
 			return js_loadRecords(pkdataset);
 		}
@@ -685,6 +685,55 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			checkDestroyed();
 			return formController.loadData(queryString, queryArgumentsArray);
 		}
+
+
+		/** 
+		 * Method to handle old loadRecords calls.
+		 * Deprecated method to handle pre-6.1 calls to varargs function controller.loadRecords([1]), this was called with vargs=[1] in stead of vargs=[[1]].
+		 * 
+		 * @param vargs the arguments
+		 * 
+		 * @deprecated use loadRecords with single typed argument
+		 */
+		@Deprecated
+		public boolean js_loadRecords(Object[] vargs)
+		{
+			if (vargs == null || vargs.length != 1)
+			{
+				throw new IllegalArgumentException("Cannot find function loadRecords for " + (vargs == null ? "no" : String.valueOf(vargs.length)) + " args");
+			}
+
+			Object data = vargs[0];
+
+			if (data instanceof Wrapper)
+			{
+				data = ((Wrapper)data).unwrap();
+			}
+
+			if (data instanceof IDataSet)
+			{
+				return js_loadRecords((IDataSet)data);
+			}
+			if (data instanceof FoundSet)
+			{
+				return js_loadRecords((FoundSet)data);
+			}
+			if (data instanceof String)
+			{
+				return js_loadRecords((String)data);
+			}
+			if (data instanceof Number)
+			{
+				return js_loadRecords((Number)data);
+			}
+			if (data instanceof UUID)
+			{
+				return js_loadRecords((UUID)data);
+			}
+
+			throw new IllegalArgumentException("Cannot find function loadRecords for argument " + (data == null ? "null" : data.getClass().getName()));
+		}
+
 
 		/**
 		 * Returns the current cached record count of the current foundset. 
