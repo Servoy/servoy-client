@@ -148,12 +148,14 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.PropertyCopy;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
@@ -3456,9 +3458,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (comp instanceof IScriptableProvider)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+
 			if (s instanceof IRuntimeComponent)
 			{
 				IRuntimeComponent sbm = (IRuntimeComponent)s;
+				if (s instanceof ISupportOnRenderCallback)
+				{
+					IScriptRenderMethods sr = ((ISupportOnRenderCallback)s).getRenderable();
+					if (sr instanceof RenderableWrapper) ((RenderableWrapper)sr).clearProperties();
+				}
+
 				if (bgColor != null)
 				{
 					sbm.setBgcolor(bgColor.toString());
