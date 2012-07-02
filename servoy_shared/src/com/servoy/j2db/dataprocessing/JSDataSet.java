@@ -258,7 +258,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
 	 * dataset.addRow(new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns
-	 * dataset.addRow(2, new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns after row 2
+	 * dataset.addRow(2, new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns at row 2
 	 *
 	 * @param array row data
 	 */
@@ -273,7 +273,7 @@ public class JSDataSet extends IdScriptableObject implements Wrapper, IDelegate<
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
 	 * dataset.addRow(new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns
-	 * dataset.addRow(2, new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns after row 2
+	 * dataset.addRow(2, new Array(1,2,3,4,5,6,7,7)); //adds a row with 8 columns at row 2
 	 *
 	 * @param index index to add row (1-based)
 	 * @param array row data
