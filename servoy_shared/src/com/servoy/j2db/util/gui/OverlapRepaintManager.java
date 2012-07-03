@@ -21,6 +21,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.RepaintManager;
@@ -39,6 +41,7 @@ public class OverlapRepaintManager extends RepaintManager
 {
 
 	private final RepaintManager delegate;
+	private final Set<JComponent> components = new HashSet<JComponent>();
 
 	/**
 	 * Creates a new OverlapRepaintManager that uses a default RepaintManager instance to handle unaltered operations.
@@ -66,12 +69,13 @@ public class OverlapRepaintManager extends RepaintManager
 	@Override
 	public void addDirtyRegion(final JComponent c, final int x, final int y, final int w, final int h)
 	{
+		components.add(c);
 		// must see if somewhere in the component hierarchy, on some level that uses AnchorLayout,
 		// this area paints over an overlapped component that should be on top of the current repainting one...
 		if (SwingUtilities.isEventDispatchThread())
 		{
 			delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
-			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
+//			searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
 		}
 		else
 		{
@@ -82,7 +86,7 @@ public class OverlapRepaintManager extends RepaintManager
 				public void run()
 				{
 					delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
-					searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
+//					searchOverlappingRegionsInHierarchy(c.getParent(), c, new Rectangle(x, y, w, h));
 				}
 			};
 
@@ -175,6 +179,17 @@ public class OverlapRepaintManager extends RepaintManager
 	@Override
 	public void paintDirtyRegions()
 	{
+		Set<JComponent> tmp;
+		synchronized (this)
+		{ // swap for thread safety
+			tmp = components;
+			components.clear();
+		}
+		for (JComponent component : tmp)
+		{
+			Rectangle dirtyRegion = delegate.getDirtyRegion(component);
+			searchOverlappingRegionsInHierarchy(component.getParent(), component, dirtyRegion);
+		}
 		delegate.paintDirtyRegions();
 	}
 
