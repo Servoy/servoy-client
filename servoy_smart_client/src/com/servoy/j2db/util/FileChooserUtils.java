@@ -261,29 +261,32 @@ public class FileChooserUtils
 					filterList.remove("*"); //$NON-NLS-1$
 					filter = filterList.toArray(new String[] { });
 				}
-				final String[] finalFilter = filter;
-				fc.setFileFilter(new FileFilter()
+				if (filter.length > 0)
 				{
-
-					@Override
-					public String getDescription()
+					final String[] finalFilter = filter;
+					fc.setFileFilter(new FileFilter()
 					{
-						return finalFilter[0];
-					}
 
-					@Override
-					public boolean accept(File f)
-					{
-						for (String element : finalFilter)
+						@Override
+						public String getDescription()
 						{
-							if (f.isDirectory() || f.getName().toLowerCase().endsWith(element))
-							{
-								return true;
-							}
+							return finalFilter[0];
 						}
-						return false;
-					}
-				});
+
+						@Override
+						public boolean accept(File f)
+						{
+							for (String element : finalFilter)
+							{
+								if (f.isDirectory() || f.getName().toLowerCase().endsWith(element))
+								{
+									return true;
+								}
+							}
+							return false;
+						}
+					});
+				}
 			}
 		}
 		return fc;
