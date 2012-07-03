@@ -128,7 +128,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private volatile ConcurrentMap<Object, Integer> securityAccess;
 
 	private volatile ConcurrentMap<Table, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
-	private volatile ConcurrentMap<String, IDataProvider> globalProviders = null; //global -> dp ,runtime var
+	private final ConcurrentMap<String, IDataProvider> globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16); //global -> dp ,runtime var
 
 	// concurrent caches.
 	private volatile Map<String, Relation> relationCacheByName = null;
@@ -1126,11 +1126,42 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		allObjectsSize = 256;
 	}
 
-	public synchronized IDataProvider getGlobalDataProvider(String id) throws RepositoryException
+	private static final IDataProvider NULL = new IDataProvider()
+	{
+		public boolean isEditable()
+		{
+			return false;
+		}
+
+		public int getLength()
+		{
+			return 0;
+		}
+
+		public int getFlags()
+		{
+			return 0;
+		}
+
+		public int getDataProviderType()
+		{
+			return 0;
+		}
+
+		public String getDataProviderID()
+		{
+			return null;
+		}
+
+		public ColumnWrapper getColumnWrapper()
+		{
+			return null;
+		}
+	};
+
+	public IDataProvider getGlobalDataProvider(String id) throws RepositoryException
 	{
 		if (id == null) return null;
-
-		if (globalProviders == null) globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16);
 
 		IDataProvider retval = globalProviders.get(id);
 		if (retval == null)
@@ -1140,8 +1171,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			{
 				globalProviders.put(id, retval);
 			}
+			else
+			{
+				globalProviders.put(id, NULL);
+			}
 		}
-		return retval;
+		return retval == NULL ? null : retval;
 	}
 
 	private IDataProvider getGlobalDataProviderEx(String id) throws RepositoryException
@@ -1294,7 +1329,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public synchronized void flushAllCachedData()
 	{
-		globalProviders = null;
+		globalProviders.clear();
 		allProvidersForTable = null;
 		relationCacheByName = null;
 		scopeCacheByName = null;
@@ -1557,7 +1592,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private synchronized void flushScriptVariables()
 	{
 		scopeCacheByName = null;
-		globalProviders = null;
+		globalProviders.clear();
 	}
 
 	/**
