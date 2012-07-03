@@ -745,7 +745,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return true;
+		return form.getOnDropMethodID() > 0;
 	}
 
 	public boolean onDrop(JSDNDEvent event)

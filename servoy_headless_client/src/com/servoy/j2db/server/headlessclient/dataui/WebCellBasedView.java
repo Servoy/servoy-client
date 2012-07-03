@@ -3555,10 +3555,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			Object dragOverReturn = fc.executeFunction(Integer.toString(onDragOverID), new Object[] { event }, false, null, false, "onDragOverMethodID"); //$NON-NLS-1$
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
-		return true;
+		return getOnDropMethodID() > 0;
 	}
 
-	public boolean onDrop(JSDNDEvent event)
+	private int getOnDropMethodID()
 	{
 		int onDropID = 0;
 		if (cellview instanceof Portal)
@@ -3570,7 +3570,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			onDropID = fc.getForm().getOnDropMethodID();
 		}
+		return onDropID;
+	}
 
+	public boolean onDrop(JSDNDEvent event)
+	{
+		int onDropID = getOnDropMethodID();
 		if (onDropID > 0)
 		{
 			Object dropHappened = fc.executeFunction(Integer.toString(onDropID), new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
