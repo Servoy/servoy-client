@@ -1778,10 +1778,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return true;
+		return getOnDropMethodID() > 0;
 	}
 
-	public boolean onDrop(JSDNDEvent event)
+	private int getOnDropMethodID()
 	{
 		int onDropID = 0;
 		if (cellview instanceof Portal)
@@ -1793,6 +1793,12 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		{
 			onDropID = fc.getForm().getOnDropMethodID();
 		}
+		return onDropID;
+	}
+
+	public boolean onDrop(JSDNDEvent event)
+	{
+		int onDropID = getOnDropMethodID();
 
 		if (onDropID > 0)
 		{

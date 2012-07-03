@@ -560,7 +560,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return true;
+		return form.getOnDropMethodID() > 0;
 	}
 
 	public boolean onDrop(JSDNDEvent event)
