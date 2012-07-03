@@ -1794,7 +1794,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		{
 			List<Component> componentz = getTabSeqComponents();
 			int max = -1;
-			int min = 2;
+			int min = Integer.MAX_VALUE;
 			String maxTabIndexElemId = null;
 			String minTabIndexElemId = null;
 			for (Component c : componentz)
@@ -1805,7 +1805,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					max = tabIndex;
 					maxTabIndexElemId = c.getMarkupId();
 				}
-				if (tabIndex < min)
+				if (tabIndex != -1 && tabIndex < min)
 				{
 					min = tabIndex;
 					minTabIndexElemId = c.getMarkupId();

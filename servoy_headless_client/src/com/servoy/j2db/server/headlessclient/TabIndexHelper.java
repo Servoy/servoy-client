@@ -102,7 +102,8 @@ public class TabIndexHelper
 				break;
 			}
 		}
-		return modifier.getTabIndex();
+		if (modifier != null) return modifier.getTabIndex();
+		else return -1;
 	}
 
 	private static boolean isTabIndexSupported(Component component)
