@@ -228,6 +228,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 		return renderable.getDataProviderID();
 	}
 
+	/**
+	 * IMPORTANT: This method should only be called while onRender is being fired. See SVY-2571.
+	 */
 	public void resetProperties()
 	{
 		Iterator<PROPERTY> propertiesIte = properties.keySet().iterator();
