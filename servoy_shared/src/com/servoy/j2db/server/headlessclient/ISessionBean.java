@@ -75,7 +75,7 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 	/**
 	 * Execute a form or global method.
 	 * 
-	 * @param visibleFormName the name of the form (must be visible); if null, method will be searched in globals scope
+	 * @param visibleFormName the name of the form (must be visible)
 	 * @param methodName the name of the method to call
 	 * @param arguments to pass to the method
 	 * @return the value returned by the method

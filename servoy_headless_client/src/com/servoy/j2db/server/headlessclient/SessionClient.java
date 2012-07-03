@@ -91,7 +91,6 @@ import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
@@ -608,10 +607,6 @@ public class SessionClient extends ClientState implements ISessionClient
 			if (formName == null)
 			{
 				formName = ((FormManager)getFormManager()).getCurrentForm().getName();
-				if (!ScopesUtils.isVariableScope(methodName))
-				{
-					methodName = ScopesUtils.getScopeString(ScriptVariable.GLOBAL_SCOPE, methodName);
-				}
 			}
 
 			if (formName != null)
