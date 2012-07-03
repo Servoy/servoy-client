@@ -910,7 +910,7 @@ public class WebEventExecutor extends BaseEventExecutor
 						{
 							StringBuilder sb = null;
 							if (hasDragEvent &&
-								(dataRendererChild instanceof WebBaseLabel || ((dataRendererChild instanceof IDisplay) && ((IDisplay)dataRendererChild).isReadOnly()))) sb = sbAttachDrag;
+								(dataRendererChild instanceof WebBaseLabel || dataRendererChild instanceof WebBaseSubmitLink || ((dataRendererChild instanceof IDisplay) && ((IDisplay)dataRendererChild).isReadOnly()))) sb = sbAttachDrag;
 							else if (hasDropEvent) sb = sbAttachDrop;
 
 							if (sb != null)
@@ -926,7 +926,8 @@ public class WebEventExecutor extends BaseEventExecutor
 				{
 					StringBuilder sb = null;
 
-					if (hasDragEvent && (component instanceof WebBaseLabel || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
+					if (hasDragEvent &&
+						(component instanceof WebBaseLabel || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
 					else if (hasDropEvent) sb = sbAttachDrop;
 
 					if (sb != null)
@@ -957,7 +958,8 @@ public class WebEventExecutor extends BaseEventExecutor
 							{
 								StringBuilder sb = null;
 
-								if (hasDragEvent && (comp instanceof WebBaseLabel || ((comp instanceof IDisplay) && ((IDisplay)comp).isReadOnly()))) sb = sbAttachDrag;
+								if (hasDragEvent &&
+									(comp instanceof WebBaseLabel || comp instanceof WebBaseSubmitLink || ((comp instanceof IDisplay) && ((IDisplay)comp).isReadOnly()))) sb = sbAttachDrag;
 								else if (hasDropEvent) sb = sbAttachDrop;
 
 								if (sb != null)
@@ -976,7 +978,8 @@ public class WebEventExecutor extends BaseEventExecutor
 				{
 					StringBuilder sb = null;
 
-					if (hasDragEvent && (component instanceof WebBaseLabel || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
+					if (hasDragEvent &&
+						(component instanceof WebBaseLabel || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
 					else if (hasDropEvent) sb = sbAttachDrop;
 
 					if (sb != null)
