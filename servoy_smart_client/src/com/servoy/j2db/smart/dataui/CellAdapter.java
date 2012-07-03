@@ -644,10 +644,24 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 			if (isRenderWithOnRender)
 			{
-				((RenderableWrapper)renderable).clearProperties();
-				renderer.setBackground(bgColor != null ? bgColor : componentBgColor);
-				renderer.setForeground(fgColor != null ? fgColor : componentFgColor);
-				renderer.setFont(font != null ? font : componentFont);
+				Color newBGColor = bgColor != null ? bgColor : componentBgColor;
+				if (newBGColor != null)
+				{
+					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY.BGCOLOR);
+					renderer.setBackground(newBGColor);
+				}
+				Color newFGColor = fgColor != null ? fgColor : componentFgColor;
+				if (newFGColor != null)
+				{
+					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY.FGCOLOR);
+					renderer.setForeground(newFGColor);
+				}
+				Font newFont = font != null ? font : componentFont;
+				if (newFont != null)
+				{
+					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY.FONT);
+					renderer.setFont(newFont);
+				}
 			}
 			else
 			{

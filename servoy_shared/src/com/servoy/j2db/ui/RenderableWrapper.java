@@ -32,7 +32,7 @@ import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
  */
 public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 {
-	private static enum PROPERTY
+	public static enum PROPERTY
 	{
 		BGCOLOR, BORDER, ENABLED, FGCOLOR, FONT, TOOLTIP, TRANSPARENT, VISIBLE, FORMAT
 	}
@@ -270,9 +270,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 		properties.clear();
 	}
 
-	public void clearProperties()
+	public void clearProperty(RenderableWrapper.PROPERTY property)
 	{
-		properties.clear();
+		properties.remove(property);
 	}
 
 	@Override

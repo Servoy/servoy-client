@@ -3462,24 +3462,28 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (s instanceof IRuntimeComponent)
 			{
 				IRuntimeComponent sbm = (IRuntimeComponent)s;
+				RenderableWrapper sbmRW = null;
 				if (s instanceof ISupportOnRenderCallback)
 				{
 					IScriptRenderMethods sr = ((ISupportOnRenderCallback)s).getRenderable();
-					if (sr instanceof RenderableWrapper) ((RenderableWrapper)sr).clearProperties();
+					if (sr instanceof RenderableWrapper) sbmRW = (RenderableWrapper)sr;
 				}
 
 				if (bgColor != null)
 				{
+					sbmRW.clearProperty(RenderableWrapper.PROPERTY.BGCOLOR);
 					sbm.setBgcolor(bgColor.toString());
 				}
 
 				if (fgColor != null)
 				{
+					sbmRW.clearProperty(RenderableWrapper.PROPERTY.FGCOLOR);
 					sbm.setFgcolor(fgColor.toString());
 				}
 
 				if (compFont != null)
 				{
+					sbmRW.clearProperty(RenderableWrapper.PROPERTY.FONT);
 					sbm.setFont(compFont.toString());
 				}
 
@@ -3502,6 +3506,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						newBorder = ComponentFactoryHelper.createBorderString(BorderFactory.createCompoundBorder(
 							ComponentFactoryHelper.createBorder(newBorder), marginBorder));
 					}
+					sbmRW.clearProperty(RenderableWrapper.PROPERTY.BORDER);
 					sbm.setBorder(newBorder);
 					// reset size so the web size will be recalculated based on the new border
 					sbm.setSize(sbm.getWidth(), sbm.getHeight());
