@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 /**
  * Runtime interface for components that are referred to by label-for elements.
  * 
@@ -40,5 +42,6 @@ public interface HasRuntimeLabelForReference
 	 * 
 	 * @return An array with element names.
 	 */
+	@JSFunction
 	String[] getLabelForElementNames();
 }
