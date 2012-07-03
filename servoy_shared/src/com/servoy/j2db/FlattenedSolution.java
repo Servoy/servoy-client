@@ -104,7 +104,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private Map<Object, Integer> securityAccess;
 
 	private Map<Table, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
-	private Map<String, IDataProvider> globalProviders = null; //global -> dp ,runtime var
+	private final Map<String, IDataProvider> globalProviders = new HashMap<String, IDataProvider>();; //global -> dp ,runtime var
 
 
 	private volatile Map<String, Relation> relationCacheByName = null;
@@ -857,15 +857,47 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		allObjectsSize = 256;
 	}
 
+	private static final IDataProvider NULL = new IDataProvider()
+	{
+		public boolean isEditable()
+		{
+			return false;
+		}
+
+		public int getLength()
+		{
+			return 0;
+		}
+
+		public int getFlags()
+		{
+			return 0;
+		}
+
+		public int getDataProviderType()
+		{
+			return 0;
+		}
+
+		public String getDataProviderID()
+		{
+			return null;
+		}
+
+		public ColumnWrapper getColumnWrapper()
+		{
+			return null;
+		}
+	};
+
 	public synchronized IDataProvider getGlobalDataProvider(String id) throws RepositoryException
 	{
 		if (id == null) return null;
 
-		if (globalProviders == null) globalProviders = new HashMap<String, IDataProvider>();
-
 		IDataProvider retval = globalProviders.get(id);
 		if (retval != null)
 		{
+			if (retval == NULL) return null;
 			return retval;
 		}
 
@@ -912,6 +944,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				globalProviders.put(((IDataProvider)p).getDataProviderID(), (IDataProvider)p);
 				retval = (IDataProvider)p;
 			}
+		}
+		if (retval == null)
+		{
+			globalProviders.put(id, NULL);
 		}
 		return retval;
 	}
@@ -1027,7 +1063,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public synchronized void flushAllCachedData()
 	{
-		globalProviders = null;
+		globalProviders.clear();
 		allProvidersForTable = null;
 		relationCacheByName = null;
 		scriptVariableCacheByName = null;
@@ -1273,7 +1309,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private synchronized void flushScriptVariables()
 	{
 		scriptVariableCacheByName = null;
-		globalProviders = null;
+		globalProviders.clear();
 	}
 
 	/**
