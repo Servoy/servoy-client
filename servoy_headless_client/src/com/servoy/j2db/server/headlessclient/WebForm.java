@@ -1869,6 +1869,31 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		cssRef.append(lastModifiedTime);
 		cssRef.append("t.css'/>\n");
 		headercontainer.getHeaderResponse().renderString(cssRef.toString());
+
+		if (isFormInWindow())
+		{
+			List<Component> componentz = getTabSeqComponents();
+			int max = -1;
+			int min = Integer.MAX_VALUE;
+			String maxTabIndexElemId = null;
+			String minTabIndexElemId = null;
+			for (Component c : componentz)
+			{
+				int tabIndex = TabIndexHelper.getTabIndex(c);
+				if (tabIndex > max)
+				{
+					max = tabIndex;
+					maxTabIndexElemId = c.getMarkupId();
+				}
+				if (tabIndex != -1 && tabIndex < min)
+				{
+					min = tabIndex;
+					minTabIndexElemId = c.getMarkupId();
+				}
+			}
+			headercontainer.getHeaderResponse().renderOnDomReadyJavascript(
+				"Servoy.TabCycleHandling.registerListeners('" + minTabIndexElemId + "','" + maxTabIndexElemId + "');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		}
 	}
 
 	public boolean isDesignMode()

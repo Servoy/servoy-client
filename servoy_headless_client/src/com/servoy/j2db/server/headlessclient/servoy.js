@@ -2752,3 +2752,43 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		}
 	};
 }
+
+if (typeof(Servoy.TabCycleHandling) == "undefined")
+{
+	Servoy.TabCycleHandling = 
+	{
+		maxTabIndexElemId : null,
+		minTabIndexElemId : null,
+	
+		registerListeners: function (elemIdMinTabIndex, elemIdMaxTabIndex)
+		{
+			Servoy.TabCycleHandling.minTabIndexElemId = elemIdMinTabIndex;
+			elem = document.getElementById(elemIdMinTabIndex);
+			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
+			
+			Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
+			var elem = document.getElementById(elemIdMaxTabIndex);
+			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabForwardHandler);
+		},
+		
+		tabForwardHandler: function (event)
+		{
+			if (event.shiftKey == false && event.keyCode == 9)
+			{	
+				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.minTabIndexElemId +'\")',1);
+				return true;
+			}
+			return false;
+		},
+	
+		tabRewindHandler: function (event)
+		{
+			if (event.shiftKey && event.keyCode == 9)
+			{
+				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.maxTabIndexElemId +'\")',1);
+				return true;
+			}
+			return false;
+		}
+	};
+}

@@ -58,4 +58,9 @@ public class TabIndexAttributeModifier extends AttributeModifier
 		((TabIndexModel)getReplaceModel()).setTabIndex(newTabIndex);
 	}
 
+	public int getTabIndex()
+	{
+		return ((TabIndexModel)getReplaceModel()).tabIndex;
+	}
+
 }
