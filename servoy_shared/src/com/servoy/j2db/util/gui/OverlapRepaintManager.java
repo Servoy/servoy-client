@@ -69,7 +69,10 @@ public class OverlapRepaintManager extends RepaintManager
 	@Override
 	public void addDirtyRegion(final JComponent c, final int x, final int y, final int w, final int h)
 	{
-		components.add(c);
+		synchronized (this)
+		{
+			components.add(c);
+		}
 		// must see if somewhere in the component hierarchy, on some level that uses AnchorLayout,
 		// this area paints over an overlapped component that should be on top of the current repainting one...
 		if (SwingUtilities.isEventDispatchThread())
