@@ -2167,5 +2167,13 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 			return draggedCol;
 		}
+	}
+
+	/*
+	 * @see com.servoy.j2db.dnd.IFormDataDragNDrop#getDragNDropController()
+	 */
+	public FormController getDragNDropController()
+	{
+		return fc;
 	};
 }

@@ -866,4 +866,12 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			}
 		}
 	}
+
+	/*
+	 * @see com.servoy.j2db.dnd.IFormDataDragNDrop#getDragNDropController()
+	 */
+	public FormController getDragNDropController()
+	{
+		return dragNdropController;
+	}
 }

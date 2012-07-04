@@ -36,4 +36,6 @@ public interface IFormDataDragNDrop extends ICompositeDragNDrop
 	public IRecordInternal getDragRecord(Point xy);
 
 	public boolean isGridView();
+
+	public FormController getDragNDropController();
 }

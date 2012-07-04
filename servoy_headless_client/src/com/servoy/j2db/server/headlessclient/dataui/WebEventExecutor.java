@@ -56,6 +56,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dnd.IFormDataDragNDrop;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
@@ -74,7 +75,6 @@ import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -894,6 +894,23 @@ public class WebEventExecutor extends BaseEventExecutor
 		return form.getController().getName();
 	}
 
+	@SuppressWarnings("nls")
+	private static void updateDragAttachOutput(Object component, StringBuilder sbAttachDrag, StringBuilder sbAttachDrop, boolean hasDragEvent,
+		boolean hasDropEvent)
+	{
+		StringBuilder sb = null;
+		if (hasDragEvent &&
+			(component instanceof WebBaseLabel || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
+		else if (hasDropEvent) sb = sbAttachDrop;
+
+		if (sb != null)
+		{
+			sb.append('\'');
+			sb.append(((Component)component).getMarkupId());
+			sb.append("',");
+		}
+	}
+
 	/**
 	 * @param component2
 	 * @param response
@@ -904,9 +921,9 @@ public class WebEventExecutor extends BaseEventExecutor
 		DraggableBehavior draggableBehavior = null;
 		Component behaviorComponent = component;
 
-		if ((behaviorComponent instanceof IComponent) && !(behaviorComponent instanceof IDataRenderer))
+		if ((behaviorComponent instanceof IComponent) && !(behaviorComponent instanceof IFormDataDragNDrop))
 		{
-			behaviorComponent = (Component)component.findParent(IDataRenderer.class);
+			behaviorComponent = (Component)component.findParent(IFormDataDragNDrop.class);
 		}
 		if (behaviorComponent != null)
 		{
@@ -933,25 +950,27 @@ public class WebEventExecutor extends BaseEventExecutor
 
 		String jsCode = null;
 
-		if (behaviorComponent instanceof IDataRenderer)
+		if (behaviorComponent instanceof IFormDataDragNDrop)
 		{
 			final StringBuilder sbAttachDrag = new StringBuilder(100);
 			sbAttachDrag.append("Servoy.DD.attachDrag([");
 			final StringBuilder sbAttachDrop = new StringBuilder(100);
 			sbAttachDrop.append("Servoy.DD.attachDrop([");
 
-			if (behaviorComponent instanceof WebDataRenderer)
+			final boolean hasDragEvent = ((IFormDataDragNDrop)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
+				((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
+			final boolean hasDropEvent = ((IFormDataDragNDrop)behaviorComponent).getDragNDropController().getForm().getOnDropMethodID() > 0;
+
+
+			if (component instanceof WebDataRenderer || component instanceof WebCellBasedView)
 			{
-				boolean hasDragEvent = ((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
-					((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
-				boolean hasDropEvent = ((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDropMethodID() > 0;
+				if (hasDragEvent) sbAttachDrag.append('\'').append(component.getMarkupId()).append("',");
+				if (hasDropEvent) sbAttachDrop.append('\'').append(component.getMarkupId()).append("',");
 
 				if (component instanceof WebDataRenderer)
 				{
-					if (hasDragEvent) sbAttachDrag.append('\'').append(component.getMarkupId()).append("',");
-					if (hasDropEvent) sbAttachDrop.append('\'').append(component.getMarkupId()).append("',");
-
 					Iterator< ? extends Component> dataRendererIte = ((WebDataRenderer)component).iterator();
+
 					Object dataRendererChild;
 					while (dataRendererIte.hasNext())
 					{
@@ -960,47 +979,12 @@ public class WebEventExecutor extends BaseEventExecutor
 						if (dataRendererChild instanceof WrapperContainer) dataRendererChild = ((WrapperContainer)dataRendererChild).getDelegate();
 						if (dataRendererChild instanceof IComponent && ((IComponent)dataRendererChild).isEnabled())
 						{
-							StringBuilder sb = null;
-							if (hasDragEvent &&
-								(dataRendererChild instanceof WebBaseLabel || dataRendererChild instanceof WebBaseSubmitLink || ((dataRendererChild instanceof IDisplay) && ((IDisplay)dataRendererChild).isReadOnly()))) sb = sbAttachDrag;
-							else if (hasDropEvent) sb = sbAttachDrop;
-
-							if (sb != null)
-							{
-								sb.append('\'');
-								sb.append(((Component)dataRendererChild).getMarkupId());
-								sb.append("',");
-							}
+							updateDragAttachOutput(dataRendererChild, sbAttachDrag, sbAttachDrop, hasDragEvent, hasDropEvent);
 						}
 					}
 				}
-				else if (component != null && component.isEnabled())
+				else if (component instanceof WebCellBasedView)
 				{
-					StringBuilder sb = null;
-
-					if (hasDragEvent &&
-						(component instanceof WebBaseLabel || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
-					else if (hasDropEvent) sb = sbAttachDrop;
-
-					if (sb != null)
-					{
-						sb.append('\'');
-						sb.append(component.getMarkupId());
-						sb.append("',");
-					}
-				}
-			}
-			else if (behaviorComponent instanceof WebCellBasedView)
-			{
-				final boolean hasDragEvent = ((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
-					((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
-				final boolean hasDropEvent = ((WebCellBasedView)behaviorComponent).getDragNDropController().getForm().getOnDropMethodID() > 0;
-
-				if (component instanceof WebCellBasedView)
-				{
-					if (hasDragEvent) sbAttachDrag.append('\'').append(component.getMarkupId()).append("',");
-					if (hasDropEvent) sbAttachDrop.append('\'').append(component.getMarkupId()).append("',");
-
 					ListView<IRecordInternal> table = ((WebCellBasedView)component).getTable();
 					table.visitChildren(new IVisitor<Component>()
 					{
@@ -1008,39 +992,16 @@ public class WebEventExecutor extends BaseEventExecutor
 						{
 							if (comp instanceof IComponent && comp.isEnabled())
 							{
-								StringBuilder sb = null;
-
-								if (hasDragEvent &&
-									(comp instanceof WebBaseLabel || comp instanceof WebBaseSubmitLink || ((comp instanceof IDisplay) && ((IDisplay)comp).isReadOnly()))) sb = sbAttachDrag;
-								else if (hasDropEvent) sb = sbAttachDrop;
-
-								if (sb != null)
-								{
-									sb.append('\'');
-									sb.append(comp.getMarkupId());
-									sb.append("',");
-								}
+								updateDragAttachOutput(comp, sbAttachDrag, sbAttachDrop, hasDragEvent, hasDropEvent);
 							}
 							return null;
 						}
-
 					});
 				}
-				else if (component != null && component.isEnabled())
-				{
-					StringBuilder sb = null;
-
-					if (hasDragEvent &&
-						(component instanceof WebBaseLabel || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
-					else if (hasDropEvent) sb = sbAttachDrop;
-
-					if (sb != null)
-					{
-						sb.append('\'');
-						sb.append(component.getMarkupId());
-						sb.append("',");
-					}
-				}
+			}
+			else if (component != null && component.isEnabled())
+			{
+				updateDragAttachOutput(component, sbAttachDrag, sbAttachDrop, hasDragEvent, hasDropEvent);
 			}
 
 			if (sbAttachDrag.length() > 25)
