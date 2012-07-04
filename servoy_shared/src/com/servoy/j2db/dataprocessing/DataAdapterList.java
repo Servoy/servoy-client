@@ -38,6 +38,7 @@ import com.servoy.j2db.dataui.IServoyAwareVisibilityBean;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
@@ -680,6 +681,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 				return false;
 			}
 			IDataProvider dp = dataProviderLookup.getDataProvider(dataProvider);
+			if (dp instanceof ColumnWrapper)
+			{
+				dp = ((ColumnWrapper)dp).getColumn();
+			}
 			if (dp instanceof AggregateVariable)
 			{
 				int aggType = ((AggregateVariable)dp).getType();
