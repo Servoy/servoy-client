@@ -407,7 +407,7 @@ public class ComponentFactory
 		IStyleSheet ss = parsedStylesMap.get(s);
 		if (ss == null)
 		{
-			ss = new ServoyStyleSheet(s.getCSSText());
+			ss = new ServoyStyleSheet(s.getCSSText(), s.getName());
 			parsedStylesMap.put(s, ss);
 		}
 		return ss;
