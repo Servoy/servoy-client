@@ -67,34 +67,11 @@ public class OverlapRepaintManager extends RepaintManager
 	@Override
 	public void addDirtyRegion(final JComponent c, final int x, final int y, final int w, final int h)
 	{
-		// must see if somewhere in the component hierarchy, on some level that uses AnchorLayout,
-		// this area paints over an overlapped component that should be on top of the current repainting one...
-		if (SwingUtilities.isEventDispatchThread())
+		synchronized (this)
 		{
-			synchronized (this)
-			{
-				components.add(c);
-			}
-			delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
+			components.add(c);
 		}
-		else
-		{
-			// the parent.getComponents(); call needs the AWT lock, and this is not legal
-			// deadlocks can occur when the AWT thread is waiting for this repaint to finish (for example when loading an image with another thread)
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					synchronized (this)
-					{
-						components.add(c);
-					}
-					delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
-				}
-			};
-
-			SwingUtilities.invokeLater(run);
-		}
+		delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
 	}
 
 	private void searchOverlappingRegionsInHierarchy(Container parent, JComponent c, Rectangle repaintedArea)
@@ -185,7 +162,7 @@ public class OverlapRepaintManager extends RepaintManager
 		Set<JComponent> tmp;
 		synchronized (this)
 		{ // swap for thread safety
-			tmp = components;
+			tmp = new HashSet<JComponent>(components);
 			components.clear();
 		}
 		for (JComponent component : tmp)
