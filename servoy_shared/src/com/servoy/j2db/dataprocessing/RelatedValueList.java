@@ -412,8 +412,9 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		for (int i = 1; i < relations.length; i++)
 		{
 			foreignTable = relations[i].getForeignTable();
-			QueryJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable, new QueryTable(foreignTable.getSQLName(),
-				foreignTable.getCatalog(), foreignTable.getSchema()), globalScopeProvider);
+			QueryJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable,
+				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()),
+				globalScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();
 		}

@@ -746,7 +746,8 @@ public class I18NPanel extends JPanel implements DocumentListener
 			}
 			Column pkColumn = list.get(0);
 
-			QueryTable messagesTable = new QueryTable(i18nTable.getSQLName(), i18nTable.getCatalog(), i18nTable.getSchema());
+			QueryTable messagesTable = new QueryTable(i18nTable.getSQLName(), i18nTable.getDataSource(), i18nTable.getCatalog(),
+				i18nTable.getSchema());
 			QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength());
 
 			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$

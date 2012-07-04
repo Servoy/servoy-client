@@ -207,32 +207,23 @@ public class JSDatabaseManager
 				value = ((Wrapper)value).unwrap();
 			}
 			IServer server = application.getSolution().getServer(serverName);
-			if (server != null)
+			if (server == null)
 			{
-				if (tableName == null)
+				Debug.log("Table filter not applied to unknown server '" + serverName + "'");
+				return false;
+			}
+			ITable table = null;
+			if (tableName != null)
+			{
+				table = server.getTable(tableName);
+				if (table == null)
 				{
-					boolean retval = false;
-					Iterator<String> it = server.getTableAndViewNames(false).iterator();
-					while (it.hasNext())
-					{
-						String tname = it.next();
-						Table t = (Table)server.getTable(tname);
-						if (t != null && t.getColumn(dataprovider) != null)
-						{
-							retval = (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, t, dataprovider, operator, value) || retval);
-						}
-					}
-					return retval;
-				}
-				else
-				{
-					ITable t = server.getTable(tableName);
-					if (t != null)
-					{
-						return ((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, (Table)t, dataprovider, operator, value);
-					}
+					Debug.log("Table filter not applied to unknown table '" + tableName + "' in server '" + serverName + "'");
+					return false;
 				}
 			}
+			// else table remains null: apply to all tables with that column
+			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataprovider, operator, value));
 		}
 		catch (Exception ex)
 		{
@@ -355,8 +346,8 @@ public class JSDatabaseManager
 					QueryJoin join = (QueryJoin)sql.getJoin(oldTable, relation.getName());
 					if (join == null)
 					{
-						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable, new QueryTable(ft.getSQLName(), ft.getCatalog(),
-							ft.getSchema()), fs_old);
+						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable, new QueryTable(ft.getSQLName(),
+							ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
 						sql.addJoin(join);
 					}
 
@@ -454,8 +445,9 @@ public class JSDatabaseManager
 					IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
 
 
-					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
-						: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
+					dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
+						dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
+						dp instanceof Column ? ((Column)dp).getScale() : 0);
 					if (getInOneQuery)
 					{
 						// only columns and data we can get from the foundset (calculations only when stored)
@@ -1693,7 +1685,8 @@ public class JSDatabaseManager
 								{
 									//update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
 
-									QueryTable qTable = new QueryTable(table.getName(), table.getCatalog(), table.getSchema());
+									QueryTable qTable = new QueryTable(table.getName(), table.getDataSource(), table.getCatalog(),
+										table.getSchema());
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
 									QueryColumn qc = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale());
@@ -1717,7 +1710,7 @@ public class JSDatabaseManager
 
 				IDataSet pks = new BufferedDataSet();
 				pks.addRow(new Object[] { sourceRecordPK });
-				QueryTable qTable = new QueryTable(mainTable.getName(), mainTable.getCatalog(), mainTable.getSchema());
+				QueryTable qTable = new QueryTable(mainTable.getName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
 				QueryDelete qDelete = new QueryDelete(qTable);
 				QueryColumn qc = new QueryColumn(qTable, pkc.getID(), pkc.getSQLName(), pkc.getType(), pkc.getLength(), pkc.getScale());
 				ISQLCondition condition = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);

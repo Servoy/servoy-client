@@ -1052,7 +1052,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 */
 	Blob getBlob(Row row, int columnIndex) throws Exception
 	{
-		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
+		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(),
+			sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
 
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);

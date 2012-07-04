@@ -131,7 +131,7 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 			creationSQLParts.setDistinct(true);
 
 			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
@@ -206,7 +206,7 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 			creationSQLParts.setDistinct(true);
 
 			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
@@ -540,7 +540,7 @@ public class LookupListModel extends AbstractListModel
 					foundSetManager.getTrackingInfo(), application.getClientID());
 			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY,trackingInfo);
+				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);

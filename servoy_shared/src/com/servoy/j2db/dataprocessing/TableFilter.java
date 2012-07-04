@@ -182,13 +182,13 @@ public class TableFilter implements Serializable
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer("TableFilter{" + (name == null ? "<anonymous>" : name) + "}("); //$NON-NLS-1$
-		sb.append(serverName).append(',');
-		sb.append(tableName).append(") [");
-		sb.append(dataprovider);
-		sb.append(RelationItem.getOperatorAsString(operator).toUpperCase());
-		sb.append(value).append(']');
-		return sb.toString();
+		return new StringBuilder("TableFilter{" + (name == null ? "<anonymous>" : name) + "}(")//
+		.append(serverName).append(',')//
+		.append(tableName == null ? "<ALL>" : tableName).append(") [")//
+		.append(dataprovider)//
+		.append(RelationItem.getOperatorAsString(operator).toUpperCase())//
+		.append(value).append(']')//
+		.toString();
 	}
 
 	///////// serialization ////////////////
@@ -196,7 +196,7 @@ public class TableFilter implements Serializable
 	public Object writeReplace()
 	{
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, serverName, tableName, tableSQLName, dataprovider, new Integer(operator), value });
+			new Object[] { name, serverName, tableName, tableSQLName, dataprovider, Integer.valueOf(operator), value });
 	}
 
 	public TableFilter(ReplacedObject s)

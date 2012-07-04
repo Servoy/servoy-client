@@ -1492,7 +1492,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			// set table alias or unalias table when no alias was used
 			QueryTable qTable = sqlSelect.getTable();
-			sqlSelect.relinkTable(sqlSelect.getTable(), new QueryTable(qTable.getName(), qTable.getCatalogName(), qTable.getSchemaName(), mainTableAlias));
+			sqlSelect.relinkTable(sqlSelect.getTable(),
+				new QueryTable(qTable.getName(), qTable.getDataSource(), qTable.getCatalogName(), qTable.getSchemaName(), mainTableAlias));
 
 			if (otherTables.length() > 0)
 			{
@@ -5160,6 +5161,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)
 	{
+		if (sheet.getTable() == null)
+		{
+			return false;
+		}
 		EditRecordList editRecordList = fsm.getEditRecordList();
 		if (editRecordList.stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
@@ -5167,7 +5172,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-		TableFilter filter = FoundSetManager.createTableFilter(filterName, sheet.getTable(), dataprovider, operator, value);
+		TableFilter filter = FoundSetManager.createTableFilter(filterName, sheet.getServerName(), sheet.getTable(), dataprovider, operator, value);
 		if (filter == null)
 		{
 			return false;

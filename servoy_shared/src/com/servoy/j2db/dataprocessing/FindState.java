@@ -659,7 +659,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 					if (existingJoin == null)
 					{
 						Table foreignTable = relation.getForeignTable();
-						foreignQTable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
+						foreignQTable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
+							foreignTable.getSchema());
 					}
 					else
 					{
