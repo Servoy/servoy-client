@@ -72,9 +72,9 @@ public class OverlapRepaintManager extends RepaintManager
 	{
 		// must see if somewhere in the component hierarchy, on some level that uses AnchorLayout,
 		// this area paints over an overlapped component that should be on top of the current repainting one...
+		int dX = x, dY = y, dW = w, dH = h;
 		if (SwingUtilities.isEventDispatchThread())
 		{
-			int dX = x, dY = y, dW = w, dH = h;
 			// if its marked as dirty because of a change in fireOnRender that was run from paint
 			// ignore this as the changes are already painted - if not ignored, we will have
 			// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
@@ -95,30 +95,12 @@ public class OverlapRepaintManager extends RepaintManager
 					}
 				}
 			}
-			synchronized (this)
-			{
-				components.add(c);
-			}
-			delegate.addDirtyRegion(c, dX, dY, dW, dH); // add the dirty region
 		}
-		else
+		synchronized (this)
 		{
-			// the parent.getComponents(); call needs the AWT lock, and this is not legal
-			// deadlocks can occur when the AWT thread is waiting for this repaint to finish (for example when loading an image with another thread)
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					synchronized (this)
-					{
-						components.add(c);
-					}
-					delegate.addDirtyRegion(c, x, y, w, h); // add the dirty region
-				}
-			};
-
-			SwingUtilities.invokeLater(run);
+			components.add(c);
 		}
+		delegate.addDirtyRegion(c, dX, dY, dW, dH); // add the dirty region
 	}
 
 	private ISupportOnRenderCallback getOnRenderParent(Component c)
@@ -216,7 +198,7 @@ public class OverlapRepaintManager extends RepaintManager
 		Set<JComponent> tmp;
 		synchronized (this)
 		{ // swap for thread safety
-			tmp = components;
+			tmp = new HashSet<JComponent>(components);
 			components.clear();
 		}
 		for (JComponent component : tmp)
