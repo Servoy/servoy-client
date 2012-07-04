@@ -910,16 +910,25 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			Relation[] relations = getRelationSequence(rel_name);
 			if (relations == null)
 			{
+				globalProviders.put(id, NULL);
 				return null;
 			}
 
 			Relation r = relations[relations.length - 1];
 			Column[] cols = r.getForeignColumns();
-			if (cols == null || cols.length == 0) return null;
+			if (cols == null || cols.length == 0)
+			{
+				globalProviders.put(id, NULL);
+				return null;
+			}
 
 			IDataProvider c = getDataProviderForTable(r.getForeignTable(), col);
 
-			if (c == null) return null;
+			if (c == null)
+			{
+				globalProviders.put(id, NULL);
+				return null;
+			}
 
 			if (r != null && c instanceof IColumn)
 			{
