@@ -413,6 +413,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			updateHeaders();
 
 			super.onBeforeRender();
+
+			//set focus on correct (cell) component now; cells should be created at this point
+			if (focusRequestingColIdentComponent != null)
+			{
+				setColumnThatRequestsFocus(focusRequestingColIdentComponent);
+
+				IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+				if (currentContainer instanceof MainPage)
+				{
+					Component c = ((MainPage)currentContainer).getAndResetToFocusComponent();
+					if (RequestCycle.get().getRequestTarget() instanceof AjaxRequestTarget)
+					{
+						AjaxRequestTarget target = ((AjaxRequestTarget)RequestCycle.get().getRequestTarget());
+						if (target != null && c != null)
+						{
+							target.focusComponent(c);
+						}
+					}
+				}
+			}
+
 			permitRemovedCellComponentsToBeCollected();
 		}
 
@@ -1783,6 +1804,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (columnHeader instanceof MarkupContainer) enableChildrenInContainer((MarkupContainer)columnHeader, isEnabled());
 	}
 
+	private Component focusRequestingColIdentComponent = null;
+
 	/**
 	 * Requests focus for the cell in the web cell view corresponding to the selected record and to the given column identifier component.
 	 * 
@@ -1790,6 +1813,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public void setColumnThatRequestsFocus(final Component columnIdentifierComponent)
 	{
+		focusRequestingColIdentComponent = columnIdentifierComponent;
+
 		if (currentData == null) return;
 		// this means that the given column of the cell view wants to be focused =>
 		// we must focus the cell component that is part of the currently selected record
