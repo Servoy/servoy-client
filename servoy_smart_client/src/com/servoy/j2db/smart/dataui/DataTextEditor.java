@@ -165,9 +165,18 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		enclosedComponent.addKeyListener(new KeyAdapter()
 		{
 			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && !Utils.equalObjects(previousValue, getValueObject()))
+				{
+					e.consume();
+				}
+			}
+
+			@Override
 			public void keyReleased(KeyEvent e)
 			{
-				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && previousValue != null)
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && previousValue != null && !Utils.equalObjects(previousValue, getValueObject()))
 				{
 					StringReader sr = new StringReader((String)previousValue);
 					try
@@ -178,6 +187,10 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 					catch (Exception ex)
 					{
 						Debug.error(ex);
+					}
+					finally
+					{
+						e.consume();
 					}
 				}
 			}

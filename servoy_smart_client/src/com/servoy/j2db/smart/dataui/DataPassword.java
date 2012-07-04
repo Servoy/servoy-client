@@ -80,16 +80,26 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		addKeyListener(new KeyAdapter()
 		{
 			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && !Utils.equalObjects(previousValue, getValueObject()))
+				{
+					e.consume();
+				}
+			}
+
+			@Override
 			public void keyReleased(KeyEvent e)
 			{
 				if (e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
 					eventExecutor.actionPerformed(e.getModifiers());
 				}
-				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && !Utils.equalObjects(previousValue, getValueObject()))
 				{
 					JPasswordField field = (JPasswordField)e.getSource();
 					field.setText((String)previousValue);
+					e.consume();
 				}
 			}
 		});

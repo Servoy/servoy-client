@@ -132,14 +132,28 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		enclosedComponent.addKeyListener(new KeyAdapter()
 		{
 			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+				{
+					JTextArea ta = (JTextArea)e.getSource();
+					if (ta.hasFocus() && ta.isEditable() && ta.isEnabled() && !Utils.equalObjects(previousValue, ta.getText()))
+					{
+						e.consume();
+					}
+				}
+			}
+
+			@Override
 			public void keyReleased(KeyEvent e)
 			{
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
 				{
 					JTextArea ta = (JTextArea)e.getSource();
-					if (ta.hasFocus() && ta.isEditable() && ta.isEnabled())
+					if (ta.hasFocus() && ta.isEditable() && ta.isEnabled() && !Utils.equalObjects(previousValue, ta.getText()))
 					{
 						ta.setText(previousValue);
+						e.consume();
 					}
 				}
 			}
