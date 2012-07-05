@@ -149,7 +149,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		html.append("<div servoy:id='servoywebform' id='"); //$NON-NLS-1$ 
 		html.append(buildFormID);
-		html.append("'>\n"); //$NON-NLS-1$ 		
+		html.append("' class='servoywebform'>\n"); //$NON-NLS-1$ 		
 
 		// following two divs are here only because a bug in IE7 made divs that were anchored on all sides break iframe behavior (so dialogs)
 		html.append("<div id='sfw_"); //$NON-NLS-1$

@@ -2587,6 +2587,14 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				var wrapEl = resize.getWrapEl();
 				YAHOO.util.Dom.setStyle(wrapEl, 'width', wrappingEl.offsetWidth + "px");
 				YAHOO.util.Dom.setStyle(wrapEl, 'height', wrappingEl.offsetHeight + "px");
+				
+				// set the focus on the form, so if any key event if fired, the target will
+				// be the parent form - this is needed for shortcuts to work correctly
+				var form = YAHOO.util.Dom.getAncestorBy ( wrapEl , function(el)
+				{
+					return el.className && el.className == 'servoywebform';
+				});
+				if(form) form.focus();
 
 				resize.dd.endDrag = function(args) 
 				{ 
