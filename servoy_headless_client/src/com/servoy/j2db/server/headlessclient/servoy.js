@@ -2766,6 +2766,10 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 			elem = document.getElementById(elemIdMinTabIndex);
 			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
 			
+			var dummyElem = document.createElement("div");
+			dummyElem.innerHTML='<a href="javascript: void(0)" stye="z-index: 1000000;"></a>';
+			document.body.appendChild(dummyElem);
+			
 			Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
 			var elem = document.getElementById(elemIdMaxTabIndex);
 			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabForwardHandler);
@@ -2775,7 +2779,9 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		{
 			if (event.shiftKey == false && event.keyCode == 9)
 			{	
-				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.minTabIndexElemId +'\")',1);
+				window.setTimeout(function() {
+					requestFocus(Servoy.TabCycleHandling.minTabIndexElemId);
+				},1);
 				return true;
 			}
 			return false;
@@ -2785,7 +2791,9 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		{
 			if (event.shiftKey && event.keyCode == 9)
 			{
-				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.maxTabIndexElemId +'\")',1);
+				window.setTimeout(function() {
+					requestFocus(Servoy.TabCycleHandling.maxTabIndexElemId);
+				},1);
 				return true;
 			}
 			return false;
