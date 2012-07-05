@@ -86,7 +86,8 @@ function focusIfUnchanged(focusId, value)
 		if (toFocus != null && toFocus.focus && (toFocus.checked == value || toFocus.value == value)) {
 			try {
 				toFocus.focus();
-			} catch (ignore) {}
+			} catch (ignore) {
+			}
 		}
 	}
 	focusingOnInvalidComponent = false;
@@ -121,7 +122,6 @@ var focusedElement = null;
 var ignoreFocusGained = null;
 function storeValueBeforeUpdate()
 {
-
 	focusedElement = Wicket.Focus.getFocusedElement();
 	if (typeof(focusedElement) != "undefined" && focusedElement != null
 	 && focusedElement.type != "button" && focusedElement.type != "submit")
@@ -2489,16 +2489,23 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 			elem = document.getElementById(elemIdMinTabIndex);
 			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
 			
+			var dummyElem = document.createElement("div");
+			dummyElem.innerHTML='<a href="javscript: void(0)" stye="z-index: 1000000;"></a>';
+			document.body.appendChild(dummyElem);
+			
 			Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
 			var elem = document.getElementById(elemIdMaxTabIndex);
 			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabForwardHandler);
+			
 		},
 		
 		tabForwardHandler: function (event)
 		{
 			if (event.shiftKey == false && event.keyCode == 9)
 			{	
-				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.minTabIndexElemId +'\")',1);
+				window.setTimeout(function() {
+					requestFocus(Servoy.TabCycleHandling.minTabIndexElemId);
+				},1);
 				return true;
 			}
 			return false;
@@ -2508,7 +2515,10 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		{
 			if (event.shiftKey && event.keyCode == 9)
 			{
-				setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.maxTabIndexElemId +'\")',1);
+				//setTimeout('requestFocus(\"'+ Servoy.TabCycleHandling.maxTabIndexElemId +'\")',1);
+				window.setTimeout(function() {
+					requestFocus(Servoy.TabCycleHandling.maxTabIndexElemId);
+				},1);
 				return true;
 			}
 			return false;
