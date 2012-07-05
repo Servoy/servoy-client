@@ -60,6 +60,7 @@ import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -934,6 +935,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 					CellAdapter cellAdapter = (CellAdapter)getColumnModel().getColumn(i);
 					if (cellAdapter != null && (cellAdapter.getRenderer() instanceof ILabel))
 					{
+						ToolTipManager.sharedInstance().unregisterComponent((JComponent)cellAdapter.getRenderer());
 						cellAdapter.getRenderer().dispatchEvent(
 							new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_EXITED, e.getWhen(), e.getModifiers(), e.getX(), e.getY(), 0, false));
 					}
@@ -958,6 +960,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 					CellAdapter cellAdapter = (CellAdapter)getColumnModel().getColumn(column);
 					if (cellAdapter != null && (cellAdapter.getRenderer() instanceof ILabel))
 					{
+						ToolTipManager.sharedInstance().unregisterComponent((JComponent)cellAdapter.getRenderer());
 						cellAdapter.getRenderer().dispatchEvent(
 							new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_EXITED, e.getWhen(), e.getModifiers(), e.getX(), e.getY(), 0, false));
 						TableView.this.repaint(getCellRect(row, column, false));
@@ -974,6 +977,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 						{
 							public void run()
 							{
+								ToolTipManager.sharedInstance().unregisterComponent((JComponent)cellAdapter.getRenderer());
 								cellAdapter.getRenderer().dispatchEvent(
 									new MouseEvent(cellAdapter.getRenderer(), MouseEvent.MOUSE_ENTERED, e.getWhen(), e.getModifiers(), e.getX(), e.getY(), 0,
 										false));
@@ -1313,6 +1317,31 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				}
 			}
 		}
+	}
+
+
+	int previousRow = -1;
+	int previousColumn = -1;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#getToolTipLocation(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public Point getToolTipLocation(MouseEvent event)
+	{
+		Point point = null;
+		int row = rowAtPoint(event.getPoint());
+		int column = columnAtPoint(event.getPoint());
+		if (row != -1 && column != -1 && (row != previousRow || column != previousColumn))
+		{
+			point = event.getPoint();
+			point.y = point.y + 20;
+		}
+		previousRow = row;
+		previousColumn = column;
+		return point;
 	}
 
 	/**
