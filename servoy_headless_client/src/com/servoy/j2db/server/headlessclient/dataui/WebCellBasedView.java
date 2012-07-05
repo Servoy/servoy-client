@@ -65,7 +65,6 @@ import org.apache.wicket.markup.MarkupElement;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.WicketTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
@@ -462,6 +461,23 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			updateHeaders();
 
 			super.onBeforeRender();
+
+			//set focus on correct (cell) component now; cells should be created at this point
+			if (focusRequestingColIdentComponent != null)
+			{
+				Component cell = getCellToFocus(focusRequestingColIdentComponent);
+
+				if (cell != null && RequestCycle.get().getRequestTarget() instanceof AjaxRequestTarget)
+				{
+					((AjaxRequestTarget)RequestCycle.get().getRequestTarget()).focusComponent(cell);
+				}
+				else
+				{
+					Debug.log("couldn't set focus to " + focusRequestingColIdentComponent); //$NON-NLS-1$
+				}
+				focusRequestingColIdentComponent = null;
+			}
+
 			permitRemovedCellComponentsToBeCollected();
 		}
 
@@ -2154,6 +2170,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (columnHeader instanceof MarkupContainer) enableChildrenInContainer((MarkupContainer)columnHeader, isEnabled());
 	}
 
+	private Component focusRequestingColIdentComponent = null;
+
 	/**
 	 * Requests focus for the cell in the web cell view corresponding to the selected record and to the given column identifier component.
 	 * 
@@ -2161,7 +2179,37 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public void setColumnThatRequestsFocus(final Component columnIdentifierComponent)
 	{
+		focusRequestingColIdentComponent = null;
+
 		if (currentData == null) return;
+
+		Component cell = getCellToFocus(columnIdentifierComponent);
+		if (cell != null)
+		{
+			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+			if (currentContainer instanceof MainPage)
+			{
+				((MainPage)currentContainer).componentToFocus(cell);
+			}
+			else
+			{
+				Debug.trace("focus couldnt be set on component " + cell); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			focusRequestingColIdentComponent = columnIdentifierComponent;
+		}
+	}
+
+	/**
+	 * @param columnIdentifierComponent
+	 * @return
+	 */
+	private Component getCellToFocus(final Component columnIdentifierComponent)
+	{
+		Component cell = null;
+
 		// this means that the given column of the cell view wants to be focused =>
 		// we must focus the cell component that is part of the currently selected record
 		int selectedIndex = currentData.getSelectedIndex();
@@ -2173,7 +2221,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (selectedIndex >= 0)
 		{
 			// we found a record to use - now we must locate the cell component inside this record
-			Component cell = null;
 			ListItem<IRecordInternal> li = (ListItem<IRecordInternal>)table.get(Integer.toString(selectedIndex));
 			if (li != null)
 			{
@@ -2189,30 +2236,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 				}
 			}
-			else
-			{
-				// the desired component is not created yet, however for requestFocus we only need the correct id
-				cell = new WebComponent(columnIdentifierComponent.getId());
-				cell.setOutputMarkupId(true);
-			}
 
-			if (cell != null)
-			{
-				IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
-				if (currentContainer instanceof MainPage)
-				{
-					((MainPage)currentContainer).componentToFocus(cell);
-				}
-				else
-				{
-					Debug.trace("focus couldnt be set on component " + cell); //$NON-NLS-1$
-				}
-			}
-			else
-			{
-				Debug.log("Cannot find the cell to focus for record index " + selectedIndex + "and column " + columnIdentifierComponent.getMarkupId()); //$NON-NLS-1$ //$NON-NLS-2$
-			}
 		}
+		return cell;
 	}
 
 	Map<String, IPersist> labelsFor = new HashMap<String, IPersist>();
