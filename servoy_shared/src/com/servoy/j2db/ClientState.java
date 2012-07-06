@@ -937,14 +937,25 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public void reportError(String msg, Object detail)
 	{
-		Debug.error(msg);
-		Debug.error(detail);
+		logError(msg, detail);
 	}
 
 	public void reportJSError(String msg, Object detail)
 	{
-		Debug.error(msg);
-		Debug.error(detail);
+		logError(msg, detail);
+	}
+
+	protected void logError(String msg, Object detail)
+	{
+		if (detail instanceof Throwable)
+		{
+			Debug.error(msg, (Throwable)detail);
+		}
+		else
+		{
+			Debug.error(msg);
+			if (detail != null) Debug.error(detail);
+		}
 	}
 
 	public void reportWarning(String s)

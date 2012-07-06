@@ -248,7 +248,8 @@ public class JSDatabaseManager
 			IServer server = application.getSolution().getServer(serverName);
 			if (server == null)
 			{
-				Debug.log("Table filter not applied to unknown server '" + serverName + "'");
+				application.reportJSError("Table filter not applied to unknown server '" + serverName + "', tableName = '" + tableName + "', dataprovider = '" +
+					dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'", null);
 				return false;
 			}
 			ITable table = null;
@@ -257,7 +258,9 @@ public class JSDatabaseManager
 				table = server.getTable(tableName);
 				if (table == null)
 				{
-					Debug.log("Table filter not applied to unknown table '" + tableName + "' in server '" + serverName + "'");
+					application.reportJSError("Table filter not applied to unknown table: serverName = '" + serverName + "', tableName = '" + tableName +
+						"', dataprovider = '" + dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'",
+						null);
 					return false;
 				}
 			}
