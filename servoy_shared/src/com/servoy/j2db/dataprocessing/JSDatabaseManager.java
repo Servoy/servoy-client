@@ -209,7 +209,7 @@ public class JSDatabaseManager
 			IServer server = application.getSolution().getServer(serverName);
 			if (server == null)
 			{
-				Debug.log("Table filter not applied to unknown server '" + serverName + "'");
+				application.reportJSError("Table filter not applied to unknown server '" + serverName + "', args = " + Arrays.toString(args), null);
 				return false;
 			}
 			ITable table = null;
@@ -218,7 +218,8 @@ public class JSDatabaseManager
 				table = server.getTable(tableName);
 				if (table == null)
 				{
-					Debug.log("Table filter not applied to unknown table '" + tableName + "' in server '" + serverName + "'");
+					application.reportJSError(
+						"Table filter not applied to unknown table '" + tableName + "' in server '" + serverName + "', args = " + Arrays.toString(args), null);
 					return false;
 				}
 			}
@@ -346,8 +347,8 @@ public class JSDatabaseManager
 					QueryJoin join = (QueryJoin)sql.getJoin(oldTable, relation.getName());
 					if (join == null)
 					{
-						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable, new QueryTable(ft.getSQLName(),
-							ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
+						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable,
+							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
 						sql.addJoin(join);
 					}
 
@@ -1685,8 +1686,7 @@ public class JSDatabaseManager
 								{
 									//update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
 
-									QueryTable qTable = new QueryTable(table.getName(), table.getDataSource(), table.getCatalog(),
-										table.getSchema());
+									QueryTable qTable = new QueryTable(table.getName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
 									QueryColumn qc = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale());

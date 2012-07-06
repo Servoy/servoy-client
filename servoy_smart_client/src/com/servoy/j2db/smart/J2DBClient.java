@@ -3092,14 +3092,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		getMainApplicationFrame().getContentPane().requestFocus();
 	}
 
-	@Override
-	public void reportJSError(String msg, Object detail)
-	{
-		// getScriptEngine().reportError(ApplicationException.JS_SCRIPT_ERROR);
-		System.err.println(msg);// shows in webstart console
-		// reportWarningInStatus(msg); by to many errors is annoing
-	}
-
 	public void reportInfo(String message)
 	{
 		reportInfo(frame, message, Messages.getString("servoy.general.info")); //$NON-NLS-1$

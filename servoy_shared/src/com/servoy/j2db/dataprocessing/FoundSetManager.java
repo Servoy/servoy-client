@@ -852,6 +852,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		TableFilter filter = createTableFilter(filterName, serverName, table, dataprovider, operator, value);
 		if (filter == null)
 		{
+			application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
+				"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'", null);
 			return false;
 		}
 
