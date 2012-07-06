@@ -25,7 +25,7 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMComponent extends ISMHasUUID
+public interface ISMComponent extends ISMHasUUID, ISMHasDesignTimeProperty
 {
 
 	/**
