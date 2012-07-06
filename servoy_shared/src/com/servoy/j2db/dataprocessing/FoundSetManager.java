@@ -156,7 +156,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					if (element != null)
 					{
 						element.flushAllCachedRows();
-						refreshFoundSetsFromDB(dataSource, false);
+						refreshFoundSetsFromDB(dataSource, null, false);
 						fireTableEvent(element.getSQLSheet().getTable());
 					}
 				}
@@ -205,12 +205,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public void refreshFoundSetsFromDB()
 	{
-		refreshFoundSetsFromDB(null, false);
+		refreshFoundSetsFromDB(null, null, false);
 	}
 
-	private boolean mustRefresh(FoundSet element, String dataSource)
+	/**
+	 * 
+	 * @param foundset
+	 * @param dataSource
+	 * @param columnName when not null, only return true if the table has the column
+	 */
+	private boolean mustRefresh(FoundSet foundset, String dataSource, String columnName)
 	{
-		if (dataSource == null) return true;
+		ITable fsTable = foundset.getTable();
+		if (columnName != null && fsTable instanceof Table && ((Table)fsTable).getColumn(columnName) == null)
+		{
+			// does not have specified column not
+			return false;
+		}
+
 		ITable dsTable = null;
 		try
 		{
@@ -220,10 +232,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			Debug.error(e);
 		}
-		ITable t = element.getTable();
-		if (t != null && dsTable != null)
+
+		if (fsTable != null && dsTable != null)
 		{
-			return (t.getServerName().equals(dsTable.getServerName()) && t.getName().equals(dsTable.getName()));
+			return (fsTable.getServerName().equals(dsTable.getServerName()) && fsTable.getName().equals(dsTable.getName()));
 		}
 		return true;
 	}
@@ -231,51 +243,30 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	/**
 	 * Used by rollback and flush table/all
 	 * @param dataSource the datasource the foundsets must be build on to refresh (null then all)
+	 * @param columnName when not null, only refresh foundsets on tables that have this column
 	 * @param skipStopEdit If true then stop edit will not be called
+	 * @return affected tables
 	 */
-	private void refreshFoundSetsFromDB(String dataSource, boolean skipStopEdit)
+	private Collection<ITable> refreshFoundSetsFromDB(String dataSource, String columnName, boolean skipStopEdit)
 	{
-		Object[] foundSetsArray = sharedDataSourceFoundSet.values().toArray();
-		for (Object element : foundSetsArray)
+		Set<ITable> affectedTables = new HashSet<ITable>();
+
+		List<FoundSet> fslist = new ArrayList<FoundSet>(sharedDataSourceFoundSet.size() + separateFoundSets.size() + foundSets.size());
+		fslist.addAll(sharedDataSourceFoundSet.values());
+		fslist.addAll(separateFoundSets.values());
+		fslist.addAll(foundSets);
+
+		for (FoundSet fs : fslist)
 		{
-			FoundSet fs = (FoundSet)element;
 			try
 			{
-				if (mustRefresh(fs, dataSource) && fs.isInitialized())
+				if (mustRefresh(fs, dataSource, columnName))
 				{
-					fs.refreshFromDB(false, skipStopEdit);
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-		foundSetsArray = separateFoundSets.values().toArray();
-		for (Object element : foundSetsArray)
-		{
-			FoundSet fs = (FoundSet)element;
-			try
-			{
-				if (mustRefresh(fs, dataSource) && fs.isInitialized())
-				{
-					fs.refreshFromDB(false, false);
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-		foundSetsArray = foundSets.toArray();
-		for (Object element : foundSetsArray)
-		{
-			FoundSet fs = (FoundSet)element;
-			try
-			{
-				if (mustRefresh(fs, dataSource) && fs.isInitialized())
-				{
-					fs.refreshFromDB(false, false);
+					if (fs.isInitialized())
+					{
+						fs.refreshFromDB(false, skipStopEdit);
+					}
+					affectedTables.add(fs.getTable());
 				}
 			}
 			catch (Exception e)
@@ -289,40 +280,41 @@ public class FoundSetManager implements IFoundSetManagerInternal
 //			cachedSubStates.clear();
 //		}
 //		else
+		for (ConcurrentMap<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
 		{
-			for (ConcurrentMap<String, SoftReference<RelatedFoundSet>> map : cachedSubStates.values())
+			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(EMPTY_ENTRY_ARRAY);
+			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
 			{
-				Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(EMPTY_ENTRY_ARRAY);
-				for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
+				SoftReference<RelatedFoundSet> sr = entry.getValue();
+				RelatedFoundSet element = sr.get();
+				if (element != null)
 				{
-					SoftReference<RelatedFoundSet> sr = entry.getValue();
-					RelatedFoundSet element = sr.get();
-					if (element != null)
+					try
 					{
-						try
+						if (mustRefresh(element, dataSource, columnName))
 						{
-							if (mustRefresh(element, dataSource))
-							{
-								//element.refreshFromDB(false);
-								// this call is somewhat different then a complete refresh from db.
-								// The selection isn't tried to keep on the same pk
-								// new records are really being flushed..
-								element.invalidateFoundset();
-							}
-						}
-						catch (Exception e)
-						{
-							Debug.error(e);
+							//element.refreshFromDB(false);
+							// this call is somewhat different then a complete refresh from db.
+							// The selection isn't tried to keep on the same pk
+							// new records are really being flushed..
+							element.invalidateFoundset();
+							affectedTables.add(element.getTable());
 						}
 					}
-					else
+					catch (Exception e)
 					{
-						map.remove(entry.getKey(), sr);
+						Debug.error(e);
 					}
 				}
+				else
+				{
+					map.remove(entry.getKey(), sr);
+				}
 			}
-			getEditRecordList().fireEvents();
 		}
+		getEditRecordList().fireEvents();
+
+		return affectedTables;
 	}
 
 	/*
@@ -946,13 +938,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		giveMeFoundSet(l);
 	}
 
-	public static TableFilter createTableFilter(String name, ITable table, String dataprovider, String operator, Object value)
+	public static TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, String operator, Object value)
 	{
-		if (table == null || dataprovider == null || operator == null) return null;
+		if (dataprovider == null || operator == null) return null;
 
 		dataprovider = dataprovider.trim();
 
-		if (((Table)table).getColumn(dataprovider) == null)
+		if (table != null && ((Table)table).getColumn(dataprovider) == null)
 		{
 			return null;
 		}
@@ -967,40 +959,40 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			value = ((Wrapper)value).unwrap();
 		}
 
-		return new TableFilter(name, table.getServerName(), table.getName(), table.getSQLName(), dataprovider, op, value);
+		return new TableFilter(name, serverName, table == null ? null : table.getName(), table == null ? null : table.getSQLName(), dataprovider, op, value);
 	}
 
-	public boolean addTableFilterParam(String filterName, Table t, String dataprovider, String operator, Object value)
+	public boolean addTableFilterParam(String filterName, String serverName, ITable table, String dataprovider, String operator, Object value)
 	{
-		TableFilter filter = createTableFilter(filterName, t, dataprovider, operator, value);
+		TableFilter filter = createTableFilter(filterName, serverName, table, dataprovider, operator, value);
 		if (filter == null)
 		{
 			return false;
 		}
 
-		List<TableFilter> params = tableFilterParams.get(t.getServerName());
+		List<TableFilter> params = tableFilterParams.get(serverName);
 		if (params == null)
 		{
-			tableFilterParams.put(t.getServerName(), params = new ArrayList<TableFilter>());
+			tableFilterParams.put(serverName, params = new ArrayList<TableFilter>());
 		}
 
-		if (!filter.isContainedIn(params)) // do not add the same filter, will add same AND-condition anyway 
+		if (!filter.isContainedIn(params)) // do not add the same filter, will add same AND-condition anyway
 		{
 			params.add(filter);
-
-			refreshFoundSetsFromDB(getDataSource(t), false);
-			fireTableEvent(t);
+			for (ITable affectedtable : refreshFoundSetsFromDB(getDataSource(table), filter.getDataprovider(), false))
+			{
+				fireTableEvent(affectedtable);
+			}
 		}
 		return true;
 	}
 
 	public boolean removeTableFilterParam(String serverName, String filterName)
 	{
-		boolean found = false;
 		List<TableFilter> params = tableFilterParams.get(serverName);
+		List<TableFilter> removedFilters = new ArrayList<TableFilter>();
 		if (params != null)
 		{
-			Set<ITable> tables = new HashSet<ITable>();
 			Iterator<TableFilter> iterator = params.iterator();
 			while (iterator.hasNext())
 			{
@@ -1008,37 +1000,33 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (filterName.equals(f.getName()))
 				{
 					iterator.remove();
-					try
-					{
-						IServer server = application.getSolution().getServer(f.getServerName());
-						if (server != null)
-						{
-							ITable table = server.getTable(f.getTableName());
-							if (table != null)
-							{
-								tables.add(table);
-							}
-						}
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
-					}
-					catch (RemoteException e)
-					{
-						Debug.error(e);
-					}
-					found = true;
+					removedFilters.add(f);
 				}
 			}
-			for (ITable table : tables)
+
+			Set<ITable> firedTables = new HashSet<ITable>();
+			for (TableFilter filter : removedFilters)
 			{
-				refreshFoundSetsFromDB(getDataSource(table), false);
-				fireTableEvent(table);
+				String dataSource;
+				if (filter.getTableName() == null)
+				{
+					dataSource = null;
+				}
+				else
+				{
+					dataSource = DataSourceUtils.createDBTableDataSource(filter.getServerName(), filter.getTableName());
+				}
+				for (ITable affectedtable : refreshFoundSetsFromDB(dataSource, filter.getDataprovider(), false))
+				{
+					if (firedTables.add(affectedtable))
+					{
+						fireTableEvent(affectedtable);
+					}
+				}
 			}
 		}
 
-		return found;
+		return removedFilters.size() > 0;
 	}
 
 	public Object[][] getTableFilterParams(String serverName, String filterName)
@@ -1071,7 +1059,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql)
 	{
-		List<TableFilter> serverFilters = tableFilterParams.get(serverName);
+		final List<TableFilter> serverFilters = tableFilterParams.get(serverName);
 		if (serverFilters == null)
 		{
 			return null;
@@ -1079,33 +1067,65 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		// get the sql table names in the query
 		final Set<String> tableSqlNames = new HashSet<String>();
+		// find the filters for the tables found in the query
+		final ArrayList<TableFilter>[] filters = new ArrayList[] { null };
 		sql.acceptVisitor(new IVisitor()
 		{
 			public Object visit(Object o)
 			{
-				if (o instanceof QueryTable)
+				if (o instanceof QueryTable && tableSqlNames.add(((QueryTable)o).getName()))
 				{
-					tableSqlNames.add(((QueryTable)o).getName());
+					QueryTable qTable = (QueryTable)o;
+					for (TableFilter filter : serverFilters)
+					{
+						TableFilter useFilter = null;
+						if (filter.getTableName() == null)
+						{
+							// filter is on all tables with specified dataProvider as column
+							try
+							{
+								if (qTable.getDataSource() != null)
+								{
+									Table table = (Table)getTable(qTable.getDataSource());
+									if (table == null)
+									{
+										// should never happen
+										throw new RuntimeException("Could not find table '" + qTable.getDataSource() + "' for table filters");
+									}
+									if (table.getColumn(filter.getDataprovider()) != null)
+									{
+										// use filter with table name filled in
+										useFilter = new TableFilter(filter.getName(), filter.getServerName(), table.getName(), table.getSQLName(),
+											filter.getDataprovider(), filter.getOperator(), filter.getValue());
+									}
+								}
+							}
+							catch (RepositoryException e)
+							{
+								// big trouble, this is security filtering, so bail out on error
+								throw new RuntimeException(e);
+							}
+						}
+						else if (filter.getTableSQLName().equals(qTable.getName()))
+						{
+							useFilter = filter;
+						}
+
+						if (useFilter != null)
+						{
+							if (filters[0] == null)
+							{
+								filters[0] = new ArrayList<TableFilter>();
+							}
+							filters[0].add(useFilter);
+						}
+					}
 				}
 				return o;
 			}
 		});
 
-		// find the filters for the tables found in the query
-		ArrayList<TableFilter> filters = null;
-		for (int i = 0; i < serverFilters.size(); i++)
-		{
-			TableFilter filter = serverFilters.get(i);
-			if (tableSqlNames.contains(filter.getTableSQLName()))
-			{
-				if (filters == null)
-				{
-					filters = new ArrayList<TableFilter>();
-				}
-				filters.add(filter);
-			}
-		}
-		return filters;
+		return filters[0];
 	}
 
 	public IFoundSetInternal getSeparateFoundSet(IFoundSetListener l, List<SortColumn> defaultSortColumns) throws ServoyException
@@ -1660,7 +1680,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				IDataServer ds = application.getDataServer();
 				String transaction_id = getTransactionID(table.getServerName());
 
-				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(Integer.valueOf(1), "n", true), null)); //$NON-NLS-1$
 
 				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
@@ -1714,7 +1734,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			getEditRecordList().ignoreSave(true);
 			for (String dataSource : dataSourcesToRefresh)
 			{
-				refreshFoundSetsFromDB(dataSource, true);
+				refreshFoundSetsFromDB(dataSource, null, true);
 			}
 		}
 		finally

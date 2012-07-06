@@ -413,7 +413,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		{
 			foreignTable = relations[i].getForeignTable();
 			ISQLTableJoin join = SQLGenerator.createJoin(application.getFlattenedSolution(), relations[i], lastTable, new QueryTable(foreignTable.getSQLName(),
-				foreignTable.getCatalog(), foreignTable.getSchema()), scopesScopeProvider);
+				foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()), scopesScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();
 		}
@@ -443,5 +443,4 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 		return new Pair<QuerySelect, QueryTable>(select, lastTable);
 	}
-
 }

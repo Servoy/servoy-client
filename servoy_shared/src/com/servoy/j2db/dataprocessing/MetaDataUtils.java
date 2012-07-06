@@ -220,7 +220,7 @@ public class MetaDataUtils
 
 	public static QuerySelect createTableMetadataQuery(Table table, LinkedHashMap<Column, QueryColumn> queryColumns)
 	{
-		QuerySelect query = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+		QuerySelect query = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		LinkedHashMap<Column, QueryColumn> qColumns = queryColumns == null ? new LinkedHashMap<Column, QueryColumn>() : queryColumns; // LinkedHashMap to keep order for column names
 		Iterator<Column> columns = table.getColumnsSortedByName();
 		while (columns.hasNext())
@@ -251,7 +251,7 @@ public class MetaDataUtils
 		// delete existing data
 		ApplicationServerSingleton.get().getDataServer().performUpdates(ApplicationServerSingleton.get().getClientId(),
 			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null, //
-				new QueryDelete(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()))) // delete entire table
+				new QueryDelete(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()))) // delete entire table
 			});
 		// insert the data
 		ApplicationServerSingleton.get().getDataServer().insertDataSet(ApplicationServerSingleton.get().getClientId(), dataSet, table.getDataSource(),

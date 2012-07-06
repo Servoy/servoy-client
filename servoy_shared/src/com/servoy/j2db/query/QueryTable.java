@@ -32,6 +32,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
 public final class QueryTable implements IQueryElement, Immutable, IWriteReplaceExtended
 {
 	private final String name;
+	private final String dataSource;
 	private final String alias;
 	private final boolean needsQuoting;
 	private transient String catalogName;
@@ -44,26 +45,27 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 	/**
 	 * @param name table name as used in sql, may be quoted
 	 */
-	public QueryTable(String name, String catalogName, String schemaName)
+	public QueryTable(String name, String dataSource, String catalogName, String schemaName)
 	{
-		this(name, catalogName, schemaName, true);
+		this(name, dataSource, catalogName, schemaName, true);
 	}
 
 	/**
 	 * @param name table name as used in sql, may be quoted
 	 */
-	public QueryTable(String name, String catalogName, String schemaName, boolean needsQuoting)
+	public QueryTable(String name, String dataSource, String catalogName, String schemaName, boolean needsQuoting)
 	{
-		this(name, catalogName, schemaName, null, needsQuoting);
+		this(name, dataSource, catalogName, schemaName, null, needsQuoting);
 	}
 
-	public QueryTable(String name, String catalogName, String schemaName, String alias)
+	public QueryTable(String name, String dataSource, String catalogName, String schemaName, String alias)
 	{
-		this(name, catalogName, schemaName, alias, true);
+		this(name, dataSource, catalogName, schemaName, alias, true);
 	}
 
-	public QueryTable(String name, String catalogName, String schemaName, String alias, boolean needsQuoting)
+	public QueryTable(String name, String dataSource, String catalogName, String schemaName, String alias, boolean needsQuoting)
 	{
+		this.dataSource = dataSource;
 		this.name = name;
 		this.catalogName = catalogName;
 		this.schemaName = schemaName;
@@ -79,7 +81,7 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 	private static String generateAlias(String name)
 	{
 		// Skip anything but letters and digits
-		StringBuffer aliasBuf = new StringBuffer();
+		StringBuilder aliasBuf = new StringBuilder();
 		char[] chars = name.toCharArray();
 		for (char element : chars)
 		{
@@ -104,6 +106,11 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 	public String getName()
 	{
 		return name;
+	}
+
+	public String getDataSource()
+	{
+		return dataSource;
 	}
 
 	public String getCatalogName()
@@ -145,16 +152,16 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 	{
 	}
 
-
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.alias == null) ? 0 : this.alias.hashCode());
-		result = prime * result + ((this.catalogName == null) ? 0 : this.catalogName.hashCode());
-		result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
-		result = prime * result + ((this.schemaName == null) ? 0 : this.schemaName.hashCode());
+		result = prime * result + ((alias == null) ? 0 : alias.hashCode());
+		result = prime * result + ((catalogName == null) ? 0 : catalogName.hashCode());
+		result = prime * result + ((dataSource == null) ? 0 : dataSource.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((schemaName == null) ? 0 : schemaName.hashCode());
 		return result;
 	}
 
@@ -164,34 +171,39 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		final QueryTable other = (QueryTable)obj;
-		if (this.alias == null)
+		QueryTable other = (QueryTable)obj;
+		if (alias == null)
 		{
 			if (other.alias != null) return false;
 		}
-		else if (!this.alias.equals(other.alias)) return false;
-		if (this.catalogName == null)
+		else if (!alias.equals(other.alias)) return false;
+		if (catalogName == null)
 		{
 			if (other.catalogName != null) return false;
 		}
-		else if (!this.catalogName.equals(other.catalogName)) return false;
-		if (this.name == null)
+		else if (!catalogName.equals(other.catalogName)) return false;
+		if (dataSource == null)
+		{
+			if (other.dataSource != null) return false;
+		}
+		else if (!dataSource.equals(other.dataSource)) return false;
+		if (name == null)
 		{
 			if (other.name != null) return false;
 		}
-		else if (!this.name.equals(other.name)) return false;
-		if (this.schemaName == null)
+		else if (!name.equals(other.name)) return false;
+		if (schemaName == null)
 		{
 			if (other.schemaName != null) return false;
 		}
-		else if (!this.schemaName.equals(other.schemaName)) return false;
+		else if (!schemaName.equals(other.schemaName)) return false;
 		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (catalogName != null)
 		{
 			sb.append(catalogName).append(':');
@@ -201,6 +213,7 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 			sb.append(schemaName).append(':');
 		}
 		sb.append(name);
+		if (dataSource != null) sb.append('<').append(dataSource).append('>');
 		if (alias != null)
 		{
 			sb.append('#').append(alias);
@@ -223,12 +236,13 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 		Object replaced;
 		if (full)
 		{
-			replaced = generatedAlias ? new Object[] { name, catalogName, schemaName, Boolean.valueOf(needsQuoting) }
-				: new Object[] { name, catalogName, schemaName, alias, Boolean.valueOf(needsQuoting) };
+			replaced = generatedAlias ? new Object[] { name, dataSource, Boolean.valueOf(needsQuoting), catalogName, schemaName }
+				: new Object[] { name, dataSource, Boolean.valueOf(needsQuoting), catalogName, schemaName, alias };
 		}
 		else
 		{
-			replaced = generatedAlias ? (needsQuoting ? (Object)name : new Object[] { name }) : new Object[] { name, alias, Boolean.valueOf(needsQuoting) };
+			replaced = generatedAlias ? new Object[] { name, dataSource, Boolean.valueOf(needsQuoting) }
+				: new Object[] { name, dataSource, Boolean.valueOf(needsQuoting), alias };
 		}
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), replaced);
 	}
@@ -240,60 +254,45 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 		catalogName = null;
 		schemaName = null;
 
-		Object o = s.getObject();
-		if (o instanceof Object[])
+		Object[] members = (Object[])s.getObject();
+		int i = 0;
+		name = (String)members[i++];
+		dataSource = (String)members[i++];
+		needsQuoting = ((Boolean)members[i++]).booleanValue();
+		if (members.length == 3)
 		{
-			Object[] members = (Object[])o;
-			int i = 0;
-			name = (String)members[i++];
-			if (members.length == 1)
-			{
-				// [name], needsQuoting = false
-				needsQuoting = false;
-				alias = generateAlias(name);
-				generatedAlias = true;
-			}
-			else if (members.length == 3)
-			{
-				// [name, alias, needsQuoting]
-				alias = (String)members[i++];
-				needsQuoting = ((Boolean)members[i++]).booleanValue();
-				generatedAlias = false;
-			}
-			else if (members.length == 4)
-			{
-				// [name, catalog, schema, needsQuoting]
-				catalogName = (String)members[i++];
-				schemaName = (String)members[i++];
-				isComplete = true;
-				needsQuoting = ((Boolean)members[i++]).booleanValue();
-				alias = generateAlias(name);
-				generatedAlias = true;
-			}
-			else if (members.length == 5)
-			{
-				// [name, catalog, schema, alias, needsQuoting]
-				catalogName = (String)members[i++];
-				schemaName = (String)members[i++];
-				isComplete = true;
-				alias = (String)members[i++];
-				needsQuoting = ((Boolean)members[i++]).booleanValue();
-				generatedAlias = false;
-			}
-			else
-			{
-				// [name, alias, needsQuoting]
-				alias = (String)members[i++];
-				needsQuoting = ((Boolean)members[i++]).booleanValue();
-				generatedAlias = false;
-			}
-		}
-		else
-		{ // name
-			name = (String)o;
-			needsQuoting = true;
+			// [name, dataSource, needsQuoting] 
 			alias = generateAlias(name);
 			generatedAlias = true;
+		}
+		else if (members.length == 4)
+		{
+			// [name, dataSource, needsQuoting, alias]
+			alias = (String)members[i++];
+			generatedAlias = false;
+		}
+		else if (members.length == 5)
+		{
+			// [name, dataSource, needsQuoting, catalog, schema]
+			catalogName = (String)members[i++];
+			schemaName = (String)members[i++];
+			isComplete = true;
+			alias = generateAlias(name);
+			generatedAlias = true;
+		}
+		else if (members.length == 6)
+		{
+			// [name, dataSource, needsQuoting, catalog, schema, alias]
+			catalogName = (String)members[i++];
+			schemaName = (String)members[i++];
+			isComplete = true;
+			alias = (String)members[i++];
+			generatedAlias = false;
+		}
+		else
+		{
+			// should never happen!
+			throw new IllegalStateException("unexpected serialized table object");
 		}
 	}
 

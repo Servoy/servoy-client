@@ -2525,8 +2525,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				}
 
 				// create internal value list relation
-				QueryTable callingQTable = new QueryTable(callingTable.getSQLName(), callingTable.getCatalog(), callingTable.getSchema());
-				QueryTable destQTable = new QueryTable(destTable.getSQLName(), destTable.getCatalog(), destTable.getSchema());
+				QueryTable callingQTable = new QueryTable(callingTable.getSQLName(), callingTable.getDataSource(), callingTable.getCatalog(),
+					callingTable.getSchema());
+				QueryTable destQTable = new QueryTable(destTable.getSQLName(), destTable.getDataSource(), destTable.getCatalog(), destTable.getSchema());
 
 				List<ISQLTableJoin> joins = new ArrayList<ISQLTableJoin>();
 				ISQLTableJoin lastJoin = null;
@@ -2561,7 +2562,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 							{
 								return null;
 							}
-							foreignQTable = new QueryTable(relForeignTable.getSQLName(), relForeignTable.getCatalog(), relForeignTable.getSchema());
+							foreignQTable = new QueryTable(relForeignTable.getSQLName(), relForeignTable.getDataSource(), relForeignTable.getCatalog(),
+								relForeignTable.getSchema());
 						}
 						lastJoin = SQLGenerator.createJoin(this, r, primaryQTable, foreignQTable, new IGlobalValueEntry()
 						{

@@ -153,7 +153,7 @@ public class SQLGenerator
 		}
 		else
 		{
-			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		}
 
 		//Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
@@ -322,7 +322,8 @@ public class SQLGenerator
 						if (join == null)
 						{
 							Table foreignTable = relation.getForeignTable();
-							foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
+							foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
+								foreignTable.getSchema());
 						}
 						else
 						{
@@ -1126,8 +1127,8 @@ public class SQLGenerator
 			return null;
 		}
 
-		QuerySelect existsSelect = new QuerySelect(new QueryTable(sqlSelect.getTable().getName(), sqlSelect.getTable().getCatalogName(),
-			sqlSelect.getTable().getSchemaName()));
+		QuerySelect existsSelect = new QuerySelect(new QueryTable(sqlSelect.getTable().getName(), sqlSelect.getTable().getDataSource(),
+			sqlSelect.getTable().getCatalogName(), sqlSelect.getTable().getSchemaName()));
 		existsSelect.addColumn(new QueryColumnValue(Integer.valueOf(1), null, true));
 
 		// innermain.pk = main.pk
@@ -1149,7 +1150,8 @@ public class SQLGenerator
 		for (IRelation relation : relations)
 		{
 			Table foreignTable = relation.getForeignTable();
-			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema());
+			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
+				foreignTable.getSchema());
 			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, provider));
 
 			prevTable = foreignQtable;
@@ -1252,7 +1254,7 @@ public class SQLGenerator
 
 		if (cache) cachedDataSourceSQLSheets.put(dataSource, retval);//never remove this line, due to recursive behaviour, register a state when immediately!
 
-		QueryTable queryTable = new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema());
+		QueryTable queryTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 
 		QuerySelect select = new QuerySelect(queryTable);
 		QueryDelete delete = new QueryDelete(queryTable);
@@ -1341,7 +1343,7 @@ public class SQLGenerator
 			}
 
 			//add primary keys if missing			
-			QueryTable foreignQTable = new QueryTable(ft.getSQLName(), ft.getCatalog(), ft.getSchema());
+			QueryTable foreignQTable = new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema());
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
 			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
@@ -1374,7 +1376,6 @@ public class SQLGenerator
 			Debug.error(e);
 		}
 	}
-
 
 	public static ISQLCondition createRelatedCondition(IServiceProvider app, Relation relation, QueryTable foreignTable) throws RepositoryException
 	{
@@ -1510,7 +1511,7 @@ public class SQLGenerator
 
 	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)
 	{
-		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
 
 		Iterator<Column> columns = table.getColumns().iterator();
@@ -1620,7 +1621,7 @@ public class SQLGenerator
 			column = (Column)aggregee;
 		}
 
-		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		select.addColumn(new QueryAggregate(aggregateType, (column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee,
 			"n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
 			: new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()), "maxval")); //$NON-NLS-1$ 
@@ -1657,7 +1658,7 @@ public class SQLGenerator
 			innerSelect.setColumns(innerColumns);
 
 			QueryTable innerTable = innerSelect.getTable();
-			QueryTable outerTable = new QueryTable(innerTable.getName(), innerTable.getCatalogName(), innerTable.getSchemaName());
+			QueryTable outerTable = new QueryTable(innerTable.getName(), innerTable.getDataSource(), innerTable.getCatalogName(), innerTable.getSchemaName());
 
 			aggregateSqlSelect = new QuerySelect(outerTable);
 			for (Column column : pkColumns)

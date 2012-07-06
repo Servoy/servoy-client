@@ -372,8 +372,8 @@ public class Messages
 			{
 				for (int i = columnValueFilter.length - 1; i >= 0; i--)
 				{
-					loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, language, loadingType, searchKey, searchText,
-						filterColumn, columnValueFilter[i]);
+					loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, language, loadingType, searchKey,
+						searchText, filterColumn, columnValueFilter[i]);
 				}
 			}
 		}
@@ -385,16 +385,16 @@ public class Messages
 		}
 	}
 
-	private static void loadMessagesFromDatabaseRepositorySinglefilter(IServer server, Table table, String clientId, IDataServer dataServer, Properties properties,
-		Locale language, int loadingType, String searchKey, String searchText, Column filterColumn, String singleColumnValueFilter) throws RemoteException,
-		ServoyException
+	private static void loadMessagesFromDatabaseRepositorySinglefilter(IServer server, Table table, String clientId, IDataServer dataServer,
+		Properties properties, Locale language, int loadingType, String searchKey, String searchText, Column filterColumn, String singleColumnValueFilter)
+		throws RemoteException, ServoyException
 	{
 
 		Debug.trace("Loading messages from DB: Server: " + server.getName() + " Table: " + table.getName() + " Language: " + language); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
 		if (loadingType == ALL_LOCALES || loadingType == DEFAULT_LOCALE)
 		{
-			QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema());
+			QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 			QuerySelect sql = new QuerySelect(messagesTable);
 			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
 			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
@@ -416,7 +416,7 @@ public class Messages
 
 			if (searchKey != null || searchText != null)
 			{
-				QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema());
+				QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 				QuerySelect subselect = new QuerySelect(subselectTable);
 				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
 				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
@@ -471,7 +471,7 @@ public class Messages
 		Object columnValueFilter, String searchKey, String searchText, Locale language, Properties properties, int loadingType) throws ServoyException,
 		RemoteException
 	{
-		QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema());
+		QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 		QuerySelect sql = new QuerySelect(messagesTable);
 		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
 		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
@@ -494,7 +494,7 @@ public class Messages
 
 		if (searchKey != null || searchText != null)
 		{
-			QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema());
+			QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 			QuerySelect subselect = new QuerySelect(subselectTable);
 			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
 			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
@@ -642,7 +642,7 @@ public class Messages
 					return false;
 				}
 
-				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema());
+				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, key));

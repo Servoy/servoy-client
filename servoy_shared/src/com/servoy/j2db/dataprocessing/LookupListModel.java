@@ -132,7 +132,7 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 			creationSQLParts.setDistinct(true);
 
 			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
@@ -207,7 +207,7 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 			creationSQLParts.setDistinct(true);
 
 			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();

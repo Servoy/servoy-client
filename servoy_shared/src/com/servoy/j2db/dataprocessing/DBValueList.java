@@ -359,7 +359,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		int returnValues = valueList.getReturnDataProviders();
 		int total = (showValues | returnValues);
 
-		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getCatalog(), table.getSchema()));
+		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 
 		ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
 		ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();

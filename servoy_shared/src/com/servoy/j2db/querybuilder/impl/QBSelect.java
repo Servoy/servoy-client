@@ -403,7 +403,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 			else
 			{
-				queryTable = new QueryTable(getTable().getSQLName(), getTable().getCatalog(), getTable().getSchema());
+				queryTable = new QueryTable(getTable().getSQLName(), getTable().getDataSource(), getTable().getCatalog(), getTable().getSchema());
 			}
 		}
 		return queryTable;
