@@ -18,7 +18,7 @@
 package com.servoy.j2db.ui.runtime;
 
 /**
- * Runtime property interface for se;ected index.
+ * Runtime property interface for selected index.
  * 
  * @author rgansevles
  *
