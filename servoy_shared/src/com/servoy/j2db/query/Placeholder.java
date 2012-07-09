@@ -69,6 +69,10 @@ public class Placeholder implements IQueryElement
 	public void acceptVisitor(IVisitor visitor)
 	{
 		key = AbstractBaseQuery.acceptVisitor(key, visitor);
+		if (set)
+		{
+			value = AbstractBaseQuery.acceptVisitor(value, visitor);
+		}
 	}
 
 	public boolean isSet()
@@ -130,6 +134,7 @@ public class Placeholder implements IQueryElement
 
 	public Object writeReplace()
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { key, value, Boolean.valueOf(set) });
 	}
 

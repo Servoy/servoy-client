@@ -69,6 +69,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		classMapping.put(QueryJoin.class, Short.valueOf((short)20));
 		classMapping.put(QuerySelect.class, Short.valueOf((short)21));
 		classMapping.put(QuerySort.class, Short.valueOf((short)22));
+		classMapping.put(QueryTable1.class, Short.valueOf((short)-1)); // Legacy QueryData without dataSource, needed to deserialize old xml
 		classMapping.put(QueryTable.class, Short.valueOf((short)23));
 		classMapping.put(QueryUpdate.class, Short.valueOf((short)24));
 		classMapping.put(SetCondition.class, Short.valueOf((short)25));
@@ -311,7 +312,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	public static <T> T deepClone(T o)
 	{
-		return acceptVisitor(o, new DeepCloneVisitor());
+		return acceptVisitor(o, DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	/**

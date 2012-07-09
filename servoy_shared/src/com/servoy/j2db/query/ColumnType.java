@@ -116,6 +116,7 @@ public class ColumnType implements Serializable, IWriteReplace
 
 	public Object writeReplace()
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new int[] { sqlType, length, scale });
 	}
 

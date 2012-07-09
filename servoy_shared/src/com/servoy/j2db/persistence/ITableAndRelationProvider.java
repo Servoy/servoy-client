@@ -39,4 +39,11 @@ public interface ITableAndRelationProvider
 	 * @return
 	 */
 	public IRelation getRelation(String relationName);
+
+	/**
+	 * Find the data source of the table with given sql name in same server as serverDataSource
+	 * @param serverDataSource
+	 * @param tableSQLName
+	 */
+	public String resolveDataSource(String serverDataSource, String tableSQLName);
 }

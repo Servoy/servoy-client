@@ -131,6 +131,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 
 	public Object writeReplace()
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { value, alias, Boolean.valueOf(fixedvalue) });
 	}
 

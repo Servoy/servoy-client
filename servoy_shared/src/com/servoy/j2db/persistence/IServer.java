@@ -36,6 +36,8 @@ public interface IServer extends Remote
 
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException;
 
+	public ITable getTableBySqlname(String tableSQLName) throws RepositoryException, RemoteException;
+
 	public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException;
 
 	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException;

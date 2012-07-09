@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.util.List;
@@ -113,9 +113,9 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		table = (QueryTable)AbstractBaseQuery.acceptVisitor(table, visitor);
-		condition = (AndCondition)AbstractBaseQuery.acceptVisitor(condition, visitor);
-		joins = (List)AbstractBaseQuery.acceptVisitor(joins, visitor);
+		table = AbstractBaseQuery.acceptVisitor(table, visitor);
+		condition = AbstractBaseQuery.acceptVisitor(condition, visitor);
+		joins = AbstractBaseQuery.acceptVisitor(joins, visitor);
 	}
 
 	@Override
@@ -174,8 +174,10 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 
 	///////// serialization ////////////////
 
+	@Override
 	public Object writeReplace()
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, condition, joins });
 	}
 

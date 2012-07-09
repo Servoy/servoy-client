@@ -32,8 +32,12 @@ import org.json.JSONObject;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.QueryTable1;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.util.visitor.IVisitor;
+import com.servoy.j2db.util.visitor.VisitOnceDelegateVisitor;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -161,7 +165,7 @@ public class QueryBuilderSerializer extends AbstractSerializer
 
 	public Object unmarshall(SerializerState state, Class clazz, Object o) throws UnmarshallException
 	{
-		QBFactory queryBuilderFactory = queryBuilderFactoryProvider.getQueryBuilderFactory();
+		final QBFactory queryBuilderFactory = queryBuilderFactoryProvider.getQueryBuilderFactory();
 		if (queryBuilderFactory == null)
 		{
 			throw new UnmarshallException("QueryBuilderSerializer needs query builder factory");
@@ -198,7 +202,23 @@ public class QueryBuilderSerializer extends AbstractSerializer
 		Object returnValue = null;
 		if (QBSelect.class.equals(clazz))
 		{
+			final String queryDataSource = dataSource;
 			QuerySelect query = (QuerySelect)getXstream().fromXML(xml);
+
+			// If the xml was from before adding dataSource to QueryTable, the query will contain QueryTable1 objects, these need to be replaced
+			// with QueryTable with resolved dataSource.
+			query.acceptVisitor(new VisitOnceDelegateVisitor(new IVisitor()
+			{
+				public Object visit(Object obj)
+				{
+					if (obj instanceof QueryTable1)
+					{
+						return ((QueryTable1)obj).addDataSource(queryBuilderFactory.resolveDataSource(queryDataSource, ((QueryTable1)obj).getName()));
+					}
+					return obj;
+				}
+			}));
+
 			returnValue = queryBuilderFactory.createSelect(dataSource, alias, query);
 		}
 		if (returnValue == null)
@@ -220,7 +240,23 @@ public class QueryBuilderSerializer extends AbstractSerializer
 			xStream.registerConverter(new ReplacedObjectConverter(xStream.getMapper(), AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN));
 			for (Class< ? extends IWriteReplace> cls : ReplacedObject.getDomainClasses(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN))
 			{
-				xStream.alias(cls.getSimpleName(), cls);
+				String className = cls.getSimpleName();
+				String registeredName;
+				if (QueryTable.class.getSimpleName().equals(className))
+				{
+					// QueryTable version 2, includes dataSource
+					registeredName = className + "2";
+				}
+				else if (QueryTable1.class.getSimpleName().equals(className))
+				{
+					// legacy QueryTable version 1, without dataSource
+					registeredName = QueryTable.class.getSimpleName();
+				}
+				else
+				{
+					registeredName = className;
+				}
+				xStream.alias(registeredName, cls);
 			}
 		}
 		return xStream;

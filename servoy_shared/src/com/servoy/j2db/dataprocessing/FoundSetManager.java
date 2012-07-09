@@ -933,6 +933,50 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return getApplication().getFlattenedSolution().getRelation(relationName);
 	}
 
+	/**
+	 * Find the data source of the table with given sql name in same server as serverDataSource
+	 */
+	public String resolveDataSource(String serverDataSource, String tableSQLName)
+	{
+		ITable serverTable = null;
+		try
+		{
+			serverTable = getTable(serverDataSource);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+		if (serverTable == null)
+		{
+			return null;
+		}
+
+		ITable table = null;
+		try
+		{
+			IServer server = application.getSolution().getServer(serverTable.getServerName());
+			if (server != null)
+			{
+				table = server.getTableBySqlname(tableSQLName);
+			}
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+		if (table == null)
+		{
+			return null;
+		}
+		return table.getDataSource();
+	}
+
 	public void addFoundSetListener(IFoundSetListener l) throws ServoyException
 	{
 		giveMeFoundSet(l);

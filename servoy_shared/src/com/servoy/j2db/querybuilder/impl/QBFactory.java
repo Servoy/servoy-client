@@ -100,4 +100,20 @@ public class QBFactory implements IQueryBuilderFactory
 		}
 		return jsFunctions;
 	}
+
+	/**
+	 * Resolve the datasource for the table with given sql name, look in server of serverDataSource.
+	 * 
+	 * @param serverDataSource
+	 * @param tableSQLName
+	 */
+	public String resolveDataSource(String serverDataSource, String tableSQLName)
+	{
+		String dataSource = tableProvider.resolveDataSource(serverDataSource, tableSQLName);
+		if (dataSource == null)
+		{
+			throw new RuntimeException("Could not resolve table sqlname = '" + tableSQLName + "' in server of datasource '" + serverDataSource + "'");
+		}
+		return dataSource;
+	}
 }

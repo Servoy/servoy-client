@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -97,7 +97,7 @@ public final class QueryAggregate implements IQuerySelectValue
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		aggregee = (IQuerySelectValue)AbstractBaseQuery.acceptVisitor(aggregee, visitor);
+		aggregee = AbstractBaseQuery.acceptVisitor(aggregee, visitor);
 	}
 
 	@Override
@@ -144,6 +144,7 @@ public final class QueryAggregate implements IQuerySelectValue
 
 	public Object writeReplace()
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { new Integer(type), aggregee, name });
 	}
 

@@ -29,7 +29,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public final class QueryTable implements IQueryElement, Immutable, IWriteReplaceExtended
+public class QueryTable implements IQueryElement, Immutable, IWriteReplaceExtended
 {
 	private final String name;
 	private final String dataSource;
@@ -65,8 +65,8 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 
 	public QueryTable(String name, String dataSource, String catalogName, String schemaName, String alias, boolean needsQuoting)
 	{
-		this.dataSource = dataSource;
 		this.name = name;
+		this.dataSource = dataSource;
 		this.catalogName = catalogName;
 		this.schemaName = schemaName;
 		this.generatedAlias = alias == null;
@@ -76,9 +76,33 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 	}
 
 	/**
+	 * QueryTable with all fields, only for internal use.
+	 * @param name
+	 * @param dataSource
+	 * @param alias
+	 * @param needsQuoting
+	 * @param catalogName
+	 * @param schemaName
+	 * @param generatedAlias
+	 * @param isComplete
+	 */
+	protected QueryTable(String name, String dataSource, String alias, boolean needsQuoting, String catalogName, String schemaName, boolean generatedAlias,
+		boolean isComplete)
+	{
+		this.name = name;
+		this.dataSource = dataSource;
+		this.alias = alias;
+		this.needsQuoting = needsQuoting;
+		this.catalogName = catalogName;
+		this.schemaName = schemaName;
+		this.generatedAlias = generatedAlias;
+		this.isComplete = isComplete;
+	}
+
+	/**
 	 * @param name
 	 */
-	private static String generateAlias(String name)
+	static String generateAlias(String name)
 	{
 		// Skip anything but letters and digits
 		StringBuilder aliasBuf = new StringBuilder();
@@ -230,6 +254,8 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 
 	public ReplacedObject writeReplace(boolean full)
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
+
 		// just need to serialize the name, the alias can be regenerated.
 		// Note: this only works if the query object was packed before serialization!
 		// catalogName and schemaName will be regenerated on the server
@@ -245,6 +271,19 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 				: new Object[] { name, dataSource, Boolean.valueOf(needsQuoting), alias };
 		}
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), replaced);
+	}
+
+	/*
+	 * Dummy call from legacy QueryTable1 deserialisation
+	 */
+	protected QueryTable()
+	{
+		name = null;
+		dataSource = null;
+		needsQuoting = false;
+		alias = null;
+		generatedAlias = false;
+		isComplete = false;
 	}
 
 	public QueryTable(ReplacedObject s)
@@ -295,7 +334,6 @@ public final class QueryTable implements IQueryElement, Immutable, IWriteReplace
 			throw new IllegalStateException("unexpected serialized table object");
 		}
 	}
-
 
 	/**
 	 * Update the fields that have not been set in serialization

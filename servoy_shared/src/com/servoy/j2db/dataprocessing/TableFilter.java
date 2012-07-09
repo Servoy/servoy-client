@@ -196,6 +196,7 @@ public class TableFilter implements Serializable, IWriteReplace
 
 	public Object writeReplace()
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
 			new Object[] { name, serverName, tableName, tableSQLName, dataprovider, Integer.valueOf(operator), value });
 	}

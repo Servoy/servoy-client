@@ -195,6 +195,7 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 
 	public ReplacedObject writeReplace(boolean full)
 	{
+		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		if (id == -1 || full)
 		{
 			// server id not known, must serialize complete info

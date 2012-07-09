@@ -95,6 +95,37 @@ public class ServerProxy implements IServer, Serializable
 		return table;
 	}
 
+	public ITable getTableBySqlname(String tableSQLName) throws RepositoryException, RemoteException
+	{
+		if (tableSQLName == null) return null;
+		for (ITable table : tables.values())
+		{
+			if (tableSQLName.equals(table.getSQLName()))
+			{
+				return table;
+			}
+		}
+
+		tables.putAll(getInitializedTables());
+		// try again
+		for (ITable table : tables.values())
+		{
+			if (tableSQLName.equals(table.getSQLName()))
+			{
+				return table;
+			}
+		}
+
+		// still not loaded, do remote call
+		ITable table = server.getTableBySqlname(tableSQLName);
+		if (table != null)
+		{
+			tables.put(Utils.toEnglishLocaleLowerCase(table.getName()), table);
+		}
+
+		return table;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
