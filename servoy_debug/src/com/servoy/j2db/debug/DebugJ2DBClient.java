@@ -1298,12 +1298,15 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public boolean putClientProperty(Object name, Object value)
 	{
+		trackClientUIPropertyChanges = true;
 		if (name != null && !changedProperties.containsKey(name))
 		{
 			changedProperties.put(name, getClientProperty(name));
 		}
 
-		return super.putClientProperty(name, value);
+		boolean putClientProperty = super.putClientProperty(name, value);
+		trackClientUIPropertyChanges = false;
+		return putClientProperty;
 	}
 
 	@Override
@@ -1321,6 +1324,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		changedProperties.clear();
 	}
 
+	private boolean trackClientUIPropertyChanges;
+
 	@Override
 	public IClientUIProperties getClientUIProperties()
 	{
@@ -1333,13 +1338,16 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 
 				public void put(Object key, Object value)
 				{
-					if (!UIManager.getDefaults().containsKey(key))
+					if (trackClientUIPropertyChanges)
 					{
-						newClientUIProperties.add(key);
-					}
-					else if (newClientUIProperties.indexOf(key) == -1 && !changedClientUIProperties.containsKey(key))
-					{
-						changedClientUIProperties.put(key, value);
+						if (!UIManager.getDefaults().containsKey(key))
+						{
+							newClientUIProperties.add(key);
+						}
+						else if (newClientUIProperties.indexOf(key) == -1 && !changedClientUIProperties.containsKey(key))
+						{
+							changedClientUIProperties.put(key, value);
+						}
 					}
 					UIManager.getDefaults().put(key, value);
 				}
