@@ -1351,8 +1351,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return js_loadRecords((UUID)data);
 		}
+		if (data == null)
+		{
+			// legacy v6 behaviour
+			loadAllRecords();
+			return true;
+		}
 
-		throw new IllegalArgumentException("Cannot find function loadRecords for argument " + (data == null ? "null" : data.getClass().getName()));
+		throw new IllegalArgumentException("Cannot find function loadRecords for argument " + data.getClass().getName());
 	}
 
 	/**

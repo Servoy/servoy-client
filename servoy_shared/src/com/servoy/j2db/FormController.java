@@ -710,13 +710,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				data = ((Wrapper)data).unwrap();
 			}
 
+			if (data instanceof FoundSet || data == null) // loadRecords(fs) when foundset does not exist
+			{
+				return js_loadRecords((FoundSet)data);
+			}
 			if (data instanceof IDataSet)
 			{
 				return js_loadRecords((IDataSet)data);
-			}
-			if (data instanceof FoundSet)
-			{
-				return js_loadRecords((FoundSet)data);
 			}
 			if (data instanceof String)
 			{
@@ -731,7 +731,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				return js_loadRecords((UUID)data);
 			}
 
-			throw new IllegalArgumentException("Cannot find function loadRecords for argument " + (data == null ? "null" : data.getClass().getName()));
+			throw new IllegalArgumentException("Cannot find function loadRecords for argument " + data.getClass().getName());
 		}
 
 
@@ -1937,7 +1937,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/** Get a design-time property of a form.
 		 *
 		 * @sample 
-		 * var prop = forms.orders.getDesignTimeProperty('myprop')	
+		 * var prop = forms.orders.controller.getDesignTimeProperty('myprop')	
 		 */
 		public Object js_getDesignTimeProperty(String key)
 		{
