@@ -393,4 +393,15 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param autoconvert
 	 */
 	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert);
+
+	/**
+	 * Invoked just before the solution is opened
+	 */
+	public void onSolutionOpen();
+
+	/**
+	 * Get the client UI properties
+	 * @return client UI properties
+	 */
+	public IClientUIProperties getClientUIProperties();
 }

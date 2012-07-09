@@ -65,6 +65,7 @@ import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IBeanManager;
+import com.servoy.j2db.IClientUIProperties;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
@@ -1731,5 +1732,39 @@ public class SessionClient extends ClientState implements ISessionClient
 	public boolean isFormElementsEditableInFindMode()
 	{
 		return isFormElementsEditableInFindMode;
+	}
+
+	public void onSolutionOpen()
+	{
+	}
+
+	protected IClientUIProperties clientUIProperties;
+
+	public IClientUIProperties getClientUIProperties()
+	{
+		if (clientUIProperties == null)
+		{
+			clientUIProperties = new IClientUIProperties()
+			{
+				private final Map<Object, Object> propertiesMap = new HashMap<Object, Object>();
+
+				public void put(Object key, Object value)
+				{
+					propertiesMap.put(key, value);
+				}
+
+				public Object get(Object key)
+				{
+					return propertiesMap.get(key);
+				}
+
+				public void clear()
+				{
+					propertiesMap.clear();
+				}
+			};
+		}
+
+		return clientUIProperties;
 	}
 }

@@ -114,7 +114,6 @@ import javax.swing.RepaintManager;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
-import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
@@ -137,6 +136,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
+import com.servoy.j2db.IClientUIProperties;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.IFormManagerInternal;
@@ -1521,7 +1521,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			{
 				if (!Utils.isAppleMacOS())
 				{
-					Font fnt = (Font)UIManager.getDefaults().get("MenuItem.font");
+					Font fnt = (Font)getClientUIProperties().get("MenuItem.font");
 					if (fnt != null)
 					{
 						dfltFont = fnt;
@@ -1625,9 +1625,21 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			LookAndFeel lnf = UIManager.getLookAndFeel();
 			return lnf == null ? null : lnf.getClass().getName();
 		}
+		else if (USE_SYSTEM_PRINT_DIALOG.equals(name))
+		{
+			return getSettings().get(USE_SYSTEM_PRINT_DIALOG);
+		}
+		else if (TOOLTIP_INITIAL_DELAY.equals(name))
+		{
+			return new Integer(ToolTipManager.sharedInstance().getInitialDelay());
+		}
+		else if (TOOLTIP_DISMISS_DELAY.equals(name))
+		{
+			return new Integer(ToolTipManager.sharedInstance().getDismissDelay());
+		}
 		else
 		{
-			UIDefaults uiDefaults = UIManager.getDefaults();
+			IClientUIProperties uiDefaults = getClientUIProperties();
 			if (Font.class.getName().equals(name))
 			{
 				Object f = uiDefaults.get("MenuItem.font"); //$NON-NLS-1$
@@ -1696,7 +1708,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				}
 			}
 
-			UIDefaults uiDefaults = UIManager.getDefaults();
+			IClientUIProperties uiDefaults = getClientUIProperties();
 			if (Font.class.getName().equals(name) && mustSetFont)
 			{
 				Font font = (Font)value;
@@ -4340,5 +4352,35 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	public boolean isFormElementsEditableInFindMode()
 	{
 		return isFormElementsEditableInFindMode;
+	}
+
+	public void onSolutionOpen()
+	{
+	}
+
+	protected IClientUIProperties clientUIProperties;
+
+	public IClientUIProperties getClientUIProperties()
+	{
+		if (clientUIProperties == null)
+		{
+			clientUIProperties = new IClientUIProperties()
+			{
+				public void put(Object key, Object value)
+				{
+					UIManager.getDefaults().put(key, value);
+				}
+
+				public Object get(Object key)
+				{
+					return UIManager.getDefaults().get(key);
+				}
+
+				public void clear()
+				{
+				}
+			};
+		}
+		return clientUIProperties;
 	}
 }

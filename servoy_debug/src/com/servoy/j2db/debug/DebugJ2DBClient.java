@@ -35,6 +35,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
@@ -63,6 +65,7 @@ import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IBrowserLauncher;
+import com.servoy.j2db.IClientUIProperties;
 import com.servoy.j2db.IDebugJ2DBClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
@@ -1288,5 +1291,83 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			shutDown(true);
 		}
+	}
+
+	private final HashMap<Object, Object> changedProperties = new HashMap<Object, Object>();
+
+	@Override
+	public boolean putClientProperty(Object name, Object value)
+	{
+		if (name != null && !changedProperties.containsKey(name))
+		{
+			changedProperties.put(name, getClientProperty(name));
+		}
+
+		return super.putClientProperty(name, value);
+	}
+
+	@Override
+	public void onSolutionOpen()
+	{
+		getClientUIProperties().clear();
+
+		Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
+		Map.Entry<Object, Object> changedEntry;
+		while (changedPropertiesIte.hasNext())
+		{
+			changedEntry = changedPropertiesIte.next();
+			super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+		}
+		changedProperties.clear();
+	}
+
+	@Override
+	public IClientUIProperties getClientUIProperties()
+	{
+		if (clientUIProperties == null)
+		{
+			clientUIProperties = new IClientUIProperties()
+			{
+				private final Map<Object, Object> changedClientUIProperties = new HashMap<Object, Object>();
+				private final List<Object> newClientUIProperties = new ArrayList<Object>();
+
+				public void put(Object key, Object value)
+				{
+					if (!UIManager.getDefaults().containsKey(key))
+					{
+						newClientUIProperties.add(key);
+					}
+					else if (newClientUIProperties.indexOf(key) == -1 && !changedClientUIProperties.containsKey(key))
+					{
+						changedClientUIProperties.put(key, value);
+					}
+					UIManager.getDefaults().put(key, value);
+				}
+
+				public Object get(Object key)
+				{
+					return UIManager.getDefaults().get(key);
+				}
+
+				public void clear()
+				{
+					for (Object object : newClientUIProperties)
+					{
+						UIManager.getDefaults().remove(object);
+					}
+					newClientUIProperties.clear();
+
+					Iterator<Map.Entry<Object, Object>> changedClientUIPropertiesIte = changedClientUIProperties.entrySet().iterator();
+					Map.Entry<Object, Object> e;
+					while (changedClientUIPropertiesIte.hasNext())
+					{
+						e = changedClientUIPropertiesIte.next();
+						UIManager.getDefaults().put(e.getKey(), e.getValue());
+					}
+					changedClientUIProperties.clear();
+				}
+			};
+		}
+		return clientUIProperties;
 	}
 }

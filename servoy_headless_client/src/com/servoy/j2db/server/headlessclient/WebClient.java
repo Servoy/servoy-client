@@ -82,7 +82,6 @@ import com.servoy.j2db.util.Utils;
 public class WebClient extends SessionClient implements IWebClientApplication
 {
 	private static final String COOKIE_BASE64_PREFIX = "B64p_";
-	private Map<Object, Object> uiProperties;
 
 	protected WebClient(HttpServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution) throws Exception
 	{
@@ -424,11 +423,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 		else
 		{
-			if (uiProperties == null)
-			{
-				uiProperties = new HashMap<Object, Object>();
-			}
-			uiProperties.put(name, val);
+			getClientUIProperties().put(name, val);
 		}
 		return true;
 	}
@@ -442,7 +437,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 		else
 		{
-			return (uiProperties == null) ? null : uiProperties.get(name);
+			return getClientUIProperties().get(name);
 		}
 	}
 

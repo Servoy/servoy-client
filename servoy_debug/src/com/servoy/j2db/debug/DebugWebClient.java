@@ -18,7 +18,10 @@ package com.servoy.j2db.debug;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -421,5 +424,33 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 			dataServer = new ProfileDataServer(dataServer);
 		}
 		return dataServer;
+	}
+
+	private final HashMap<Object, Object> changedProperties = new HashMap<Object, Object>();
+
+	@Override
+	public boolean putClientProperty(Object name, Object val)
+	{
+		if (name != null && !changedProperties.containsKey(name))
+		{
+			changedProperties.put(name, getClientProperty(name));
+		}
+
+		return super.putClientProperty(name, val);
+	}
+
+	@Override
+	public void onSolutionOpen()
+	{
+		getClientUIProperties().clear();
+
+		Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
+		Map.Entry<Object, Object> changedEntry;
+		while (changedPropertiesIte.hasNext())
+		{
+			changedEntry = changedPropertiesIte.next();
+			super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+		}
+		changedProperties.clear();
 	}
 }
