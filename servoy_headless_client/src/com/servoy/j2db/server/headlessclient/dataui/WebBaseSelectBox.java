@@ -148,8 +148,11 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	protected abstract FormComponent< ? > getSelector(String id);
 
+	private String text;
+
 	public void setText(String txt)
 	{
+		this.text = txt;
 		Component c = get("text_" + getId()); //$NON-NLS-1$
 		if (txt == null || txt.trim().length() == 0)
 		{
@@ -161,6 +164,11 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			c.setVisible(true);
 			c.setEscapeModelStrings(false);
 		}
+	}
+
+	public String getText()
+	{
+		return text;
 	}
 
 	/**
@@ -597,20 +605,14 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 		return opaque;
 	}
 
-	/*
-	 * titleText---------------------------------------------------
-	 */
-
-	private String titleText = null;
-
 	public void setTitleText(String title)
 	{
-		this.titleText = title;
+		setText(title);
 	}
 
 	public String getTitleText()
 	{
-		return Text.processTags(titleText, resolver);
+		return Text.processTags(getText(), resolver);
 	}
 
 	private String tooltip;
