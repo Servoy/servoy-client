@@ -398,10 +398,4 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * Invoked just before the solution is opened
 	 */
 	public void onSolutionOpen();
-
-	/**
-	 * Get the client UI properties
-	 * @return client UI properties
-	 */
-	public IClientUIProperties getClientUIProperties();
 }

@@ -19,6 +19,7 @@ package com.servoy.j2db.debug;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
@@ -53,7 +54,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
@@ -65,7 +66,6 @@ import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IBrowserLauncher;
-import com.servoy.j2db.IClientUIProperties;
 import com.servoy.j2db.IDebugJ2DBClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
@@ -111,6 +111,7 @@ import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.ThreadingRemoteInvocationHandler;
@@ -1293,12 +1294,12 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 	}
 
-	private final HashMap<Object, Object> changedProperties = new HashMap<Object, Object>();
+	private HashMap<Object, Object> changedProperties;
 
 	@Override
 	public boolean putClientProperty(Object name, Object value)
 	{
-		if (name != null && !changedProperties.containsKey(name))
+		if (name != null && changedProperties != null && !changedProperties.containsKey(name))
 		{
 			changedProperties.put(name, getClientProperty(name));
 		}
@@ -1309,58 +1310,29 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public void onSolutionOpen()
 	{
-		getClientUIProperties().clear();
-
-		clientUIProperties = new IClientUIProperties()
+		if (changedProperties == null)
 		{
-			private final Map<Object, Object> changedClientUIProperties = new HashMap<Object, Object>();
-			private final List<Object> newClientUIProperties = new ArrayList<Object>();
-
-			public void put(Object key, Object value)
-			{
-				if (!UIManager.getDefaults().containsKey(key))
-				{
-					newClientUIProperties.add(key);
-				}
-				else if (newClientUIProperties.indexOf(key) == -1 && !changedClientUIProperties.containsKey(key))
-				{
-					changedClientUIProperties.put(key, value);
-				}
-
-				UIManager.getDefaults().put(key, value);
-			}
-
-			public Object get(Object key)
-			{
-				return UIManager.getDefaults().get(key);
-			}
-
-			public void clear()
-			{
-				for (Object object : newClientUIProperties)
-				{
-					UIManager.getDefaults().remove(object);
-				}
-				newClientUIProperties.clear();
-
-				Iterator<Map.Entry<Object, Object>> changedClientUIPropertiesIte = changedClientUIProperties.entrySet().iterator();
-				Map.Entry<Object, Object> e;
-				while (changedClientUIPropertiesIte.hasNext())
-				{
-					e = changedClientUIPropertiesIte.next();
-					UIManager.getDefaults().put(e.getKey(), e.getValue());
-				}
-				changedClientUIProperties.clear();
-			}
-		};
-
-		Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
-		Map.Entry<Object, Object> changedEntry;
-		while (changedPropertiesIte.hasNext())
-		{
-			changedEntry = changedPropertiesIte.next();
-			super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+			changedProperties = new HashMap<Object, Object>();
 		}
-		changedProperties.clear();
+		else
+		{
+			if (changedProperties.containsKey(LookAndFeelInfo.class.getName()))
+			{
+				changedProperties.put(LookAndFeelInfo.class.getName(), getSettings().getProperty("selectedlnf")); //$NON-NLS-1$
+			}
+			if (changedProperties.containsKey(Font.class.getName()))
+			{
+				changedProperties.put(Font.class.getName(), PersistHelper.createFont(getSettings().getProperty("font"))); //$NON-NLS-1$
+			}
+
+			Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
+			Map.Entry<Object, Object> changedEntry;
+			while (changedPropertiesIte.hasNext())
+			{
+				changedEntry = changedPropertiesIte.next();
+				super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+			}
+			changedProperties.clear();
+		}
 	}
 }

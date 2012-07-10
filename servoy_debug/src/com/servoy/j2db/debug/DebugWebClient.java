@@ -426,12 +426,12 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		return dataServer;
 	}
 
-	private final HashMap<Object, Object> changedProperties = new HashMap<Object, Object>();
+	private HashMap<Object, Object> changedProperties;
 
 	@Override
 	public boolean putClientProperty(Object name, Object val)
 	{
-		if (name != null && !changedProperties.containsKey(name))
+		if (name != null && changedProperties != null && !changedProperties.containsKey(name))
 		{
 			changedProperties.put(name, getClientProperty(name));
 		}
@@ -442,15 +442,20 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void onSolutionOpen()
 	{
-		getClientUIProperties().clear();
-
-		Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
-		Map.Entry<Object, Object> changedEntry;
-		while (changedPropertiesIte.hasNext())
+		if (changedProperties == null)
 		{
-			changedEntry = changedPropertiesIte.next();
-			super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+			changedProperties = new HashMap<Object, Object>();
 		}
-		changedProperties.clear();
+		else
+		{
+			Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
+			Map.Entry<Object, Object> changedEntry;
+			while (changedPropertiesIte.hasNext())
+			{
+				changedEntry = changedPropertiesIte.next();
+				super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+			}
+			changedProperties.clear();
+		}
 	}
 }
