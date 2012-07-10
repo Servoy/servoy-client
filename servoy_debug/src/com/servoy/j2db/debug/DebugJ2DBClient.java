@@ -1298,21 +1298,61 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public boolean putClientProperty(Object name, Object value)
 	{
-		trackClientUIPropertyChanges = true;
 		if (name != null && !changedProperties.containsKey(name))
 		{
 			changedProperties.put(name, getClientProperty(name));
 		}
 
-		boolean putClientProperty = super.putClientProperty(name, value);
-		trackClientUIPropertyChanges = false;
-		return putClientProperty;
+		return super.putClientProperty(name, value);
 	}
 
 	@Override
 	public void onSolutionOpen()
 	{
 		getClientUIProperties().clear();
+
+		clientUIProperties = new IClientUIProperties()
+		{
+			private final Map<Object, Object> changedClientUIProperties = new HashMap<Object, Object>();
+			private final List<Object> newClientUIProperties = new ArrayList<Object>();
+
+			public void put(Object key, Object value)
+			{
+				if (!UIManager.getDefaults().containsKey(key))
+				{
+					newClientUIProperties.add(key);
+				}
+				else if (newClientUIProperties.indexOf(key) == -1 && !changedClientUIProperties.containsKey(key))
+				{
+					changedClientUIProperties.put(key, value);
+				}
+
+				UIManager.getDefaults().put(key, value);
+			}
+
+			public Object get(Object key)
+			{
+				return UIManager.getDefaults().get(key);
+			}
+
+			public void clear()
+			{
+				for (Object object : newClientUIProperties)
+				{
+					UIManager.getDefaults().remove(object);
+				}
+				newClientUIProperties.clear();
+
+				Iterator<Map.Entry<Object, Object>> changedClientUIPropertiesIte = changedClientUIProperties.entrySet().iterator();
+				Map.Entry<Object, Object> e;
+				while (changedClientUIPropertiesIte.hasNext())
+				{
+					e = changedClientUIPropertiesIte.next();
+					UIManager.getDefaults().put(e.getKey(), e.getValue());
+				}
+				changedClientUIProperties.clear();
+			}
+		};
 
 		Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
 		Map.Entry<Object, Object> changedEntry;
@@ -1322,60 +1362,5 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
 		}
 		changedProperties.clear();
-	}
-
-	private boolean trackClientUIPropertyChanges;
-
-	@Override
-	public IClientUIProperties getClientUIProperties()
-	{
-		if (clientUIProperties == null)
-		{
-			clientUIProperties = new IClientUIProperties()
-			{
-				private final Map<Object, Object> changedClientUIProperties = new HashMap<Object, Object>();
-				private final List<Object> newClientUIProperties = new ArrayList<Object>();
-
-				public void put(Object key, Object value)
-				{
-					if (trackClientUIPropertyChanges)
-					{
-						if (!UIManager.getDefaults().containsKey(key))
-						{
-							newClientUIProperties.add(key);
-						}
-						else if (newClientUIProperties.indexOf(key) == -1 && !changedClientUIProperties.containsKey(key))
-						{
-							changedClientUIProperties.put(key, value);
-						}
-					}
-					UIManager.getDefaults().put(key, value);
-				}
-
-				public Object get(Object key)
-				{
-					return UIManager.getDefaults().get(key);
-				}
-
-				public void clear()
-				{
-					for (Object object : newClientUIProperties)
-					{
-						UIManager.getDefaults().remove(object);
-					}
-					newClientUIProperties.clear();
-
-					Iterator<Map.Entry<Object, Object>> changedClientUIPropertiesIte = changedClientUIProperties.entrySet().iterator();
-					Map.Entry<Object, Object> e;
-					while (changedClientUIPropertiesIte.hasNext())
-					{
-						e = changedClientUIPropertiesIte.next();
-						UIManager.getDefaults().put(e.getKey(), e.getValue());
-					}
-					changedClientUIProperties.clear();
-				}
-			};
-		}
-		return clientUIProperties;
 	}
 }
