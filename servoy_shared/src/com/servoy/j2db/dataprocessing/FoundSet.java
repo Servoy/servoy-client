@@ -2510,6 +2510,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * it will return -1/0/1 if the first record is less/equal/greater
 	 * then the second record.
 	 * 
+	 * The function based sorting does not work with printing.
+	 * It is just a temporary in-memory sort.
+	 * 
 	 * @sample
 	 * %%prefix%%foundset.sort(mySortFunction);
 	 * 
