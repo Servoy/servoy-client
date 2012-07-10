@@ -1318,11 +1318,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			if (changedProperties.containsKey(LookAndFeelInfo.class.getName()))
 			{
-				changedProperties.put(LookAndFeelInfo.class.getName(), getSettings().getProperty("selectedlnf")); //$NON-NLS-1$
+				String selectedlnfSetting = getSettings().getProperty("selectedlnf"); //$NON-NLS-1$
+				if (selectedlnfSetting != null) changedProperties.put(LookAndFeelInfo.class.getName(), selectedlnfSetting);
 			}
 			if (changedProperties.containsKey(Font.class.getName()))
 			{
-				changedProperties.put(Font.class.getName(), PersistHelper.createFont(getSettings().getProperty("font"))); //$NON-NLS-1$
+				String font = getSettings().getProperty("font"); //$NON-NLS-1$
+				if (font != null) changedProperties.put(Font.class.getName(), PersistHelper.createFont(font));
 			}
 
 			Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
