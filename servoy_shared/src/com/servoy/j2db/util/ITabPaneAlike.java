@@ -70,7 +70,13 @@ public interface ITabPaneAlike extends IFocusCycleRoot<Component>, ISupportReadO
 
 	public String getTitleAt(int index);
 
+	public void setMnemonicAt(int index, int mnemonic);
+
+	public int getMnemonicAt(int index);
+
+
 	public String getNameAt(int index);
+
 
 	public String getFormNameAt(int index);
 

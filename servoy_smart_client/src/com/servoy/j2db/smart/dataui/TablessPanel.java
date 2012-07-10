@@ -293,6 +293,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 	}
 
 	private final SafeArrayList<String> titles = new SafeArrayList<String>(3);
+	private final SafeArrayList<Integer> mnemonics = new SafeArrayList<Integer>(3);
 
 	public String getTitleAt(int index)
 	{
@@ -302,6 +303,16 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 	public void setTitleAt(int index, String text)
 	{
 		titles.add(index, text);
+	}
+
+	public int getMnemonicAt(int index)
+	{
+		return mnemonics.get(index).intValue();
+	}
+
+	public void setMnemonicAt(int index, int mnemonic)
+	{
+		mnemonics.add(index, Integer.valueOf(mnemonic));
 	}
 
 	public void setTabLayoutPolicy(int scroll_tab_layout)

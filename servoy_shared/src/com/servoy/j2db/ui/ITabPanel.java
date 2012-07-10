@@ -64,6 +64,10 @@ public interface ITabPanel extends IComponent, IScriptableProvider, IDisplayRela
 
 	public String getTabTextAt(int i);
 
+	public void setMnemonicAt(int i, int mnemonic);
+
+	public int getMnemonicAt(int i);
+
 	public String getTabNameAt(int i);
 
 	public String getTabFormNameAt(int i);

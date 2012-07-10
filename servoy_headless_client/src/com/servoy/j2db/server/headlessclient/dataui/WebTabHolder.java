@@ -34,6 +34,7 @@ public class WebTabHolder
 	private final String tooltip;
 	private String text;
 	private String tagText;
+	public int mnemonic;
 	private boolean enabled;
 	private Color foreground = null;
 
@@ -81,6 +82,16 @@ public class WebTabHolder
 	void setText(String text)
 	{
 		this.text = text;
+	}
+
+	int getDisplayedMnemonic()
+	{
+		return mnemonic;
+	}
+
+	void setDisplayedMnemonic(int m)
+	{
+		this.mnemonic = m;
 	}
 
 	String getTagText()

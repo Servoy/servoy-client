@@ -192,4 +192,24 @@ public interface IScriptTabPaneAlikeMethods
 	 */
 	public boolean js_isTabEnabledAt(int i);
 
+	/**
+	 * Sets the mnemonic for a specified tab in a tabpanel.
+	 * 
+	 * @sample %%prefix%%%%elementName%%.setMnemonicAt(3,'a');
+	 *
+	 * @param index the number of the specified tab
+	 * @param text the text to be set for the specified tab
+	 */
+	public void js_setMnemonicAt(int i, String mnemonic);
+
+	/**
+	 * Returns the mnemonic for a specified tab of a tabpanel.
+	 * 
+	 * @sample var mnemonic = %%prefix%%%%elementName%%.getMnemonicAt(3);
+	 * 
+	 * @param i The number of the specified tab.
+	 * 
+	 * @return The mnemonic.
+	 */
+	public String js_getMnemonicAt(int i);
 }

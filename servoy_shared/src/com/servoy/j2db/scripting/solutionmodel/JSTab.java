@@ -342,4 +342,17 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 		if (containsForm != null) containsFormString = ",form:" + containsForm.getName();
 		return "JSTab[name:" + getBaseComponent(false).getName() + containsFormString + ",relation:" + getRelationName() + ']';
 	}
+
+	@JSGetter
+	public String getMnemonic()
+	{
+		return getBaseComponent(false).getMnemonic();
+	}
+
+	@JSSetter
+	public void setMnemonic(String arg)
+	{
+		checkModification();
+		getBaseComponent(true).setMnemonic(arg);
+	}
 }

@@ -521,6 +521,16 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return enclosingComponent.getTitleAt(i);
 	}
 
+	public void setMnemonicAt(int i, int m)
+	{
+		enclosingComponent.setMnemonicAt(i, Character.toUpperCase(m));
+	}
+
+	public int getMnemonicAt(int i)
+	{
+		return enclosingComponent.getMnemonicAt(i);
+	}
+
 	public String getTabNameAt(int i)
 	{
 		return enclosingComponent.getNameAt(i);

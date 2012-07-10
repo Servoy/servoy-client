@@ -2123,6 +2123,13 @@ public class ComponentFactory
 					Color bg = tab.getBackground();
 					if (fg != null) tabs.setTabForegroundAt(index, fg);
 					if (bg != null) tabs.setTabBackgroundAt(index, bg);
+
+					String mnemonic = application.getI18NMessageIfPrefixed(tab.getMnemonic());
+					if (mnemonic != null && mnemonic.length() > 0)
+					{
+						tabs.setMnemonicAt(index, mnemonic.charAt(0));
+					}
+
 					index++;
 				}
 			}

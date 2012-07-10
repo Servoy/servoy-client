@@ -40,6 +40,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -84,6 +85,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
@@ -244,10 +246,35 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 					if (item.getIteration() == 0) link.add(new AttributeModifier("firsttab", true, new Model<Boolean>(Boolean.TRUE))); //$NON-NLS-1$
 					link.setEnabled(holder.isEnabled() && WebTabPanel.this.isEnabled());
 
+					String text = holder.getText();
+					if (holder.getDisplayedMnemonic() > 0)
+					{
+						final String mnemonic = Character.toString((char)holder.getDisplayedMnemonic());
+						link.add(new AbstractBehavior()
+						{
+							@Override
+							public void onComponentTag(Component component, ComponentTag tag)
+							{
+								super.onComponentTag(component, tag);
+								tag.put("accesskey", mnemonic); //$NON-NLS-1$
+							}
+						});
+						if (text != null && text.contains(mnemonic) && !HtmlUtils.hasUsefulHtmlContent(text))
+						{
+							StringBuffer sbBodyText = new StringBuffer(text);
+							int mnemonicIdx = sbBodyText.indexOf(mnemonic);
+							if (mnemonicIdx != -1)
+							{
+								sbBodyText.insert(mnemonicIdx + 1, "</u>"); //$NON-NLS-1$
+								sbBodyText.insert(mnemonicIdx, "<u>"); //$NON-NLS-1$
+								text = sbBodyText.toString();
+							}
+						}
+					}
 					ServoyTabIcon tabIcon = new ServoyTabIcon("icon", holder, scriptable); //$NON-NLS-1$
 					link.add(tabIcon);
 
-					Label label = new Label("linktext", new Model<String>(holder.getText())); //$NON-NLS-1$
+					Label label = new Label("linktext", new Model<String>(text)); //$NON-NLS-1$
 					label.setEscapeModelStrings(false);
 					link.add(label);
 					item.add(link);
@@ -939,6 +966,18 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		WebTabHolder holder = allTabs.get(i);
 		return holder.getText();
+	}
+
+	public int getMnemonicAt(int i)
+	{
+		WebTabHolder holder = allTabs.get(i);
+		return holder.getDisplayedMnemonic();
+	}
+
+	public void setMnemonicAt(int i, int m)
+	{
+		WebTabHolder holder = allTabs.get(i);
+		holder.setDisplayedMnemonic(m);
 	}
 
 	public boolean isTabEnabledAt(int index)

@@ -347,6 +347,32 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		return null;
 	}
 
+	public void js_setMnemonicAt(int i, String mnemonic)
+	{
+		if (i >= 1 && i <= js_getMaxTabIndex())
+		{
+			mnemonic = application.getI18NMessageIfPrefixed(mnemonic);
+			if (mnemonic != null && mnemonic.length() > 0)
+			{
+				getComponent().setMnemonicAt(i - 1, mnemonic.charAt(0));
+				getChangesRecorder().setChanged();
+			}
+		}
+	}
+
+
+	public String js_getMnemonicAt(int i)
+	{
+		if (i >= 1 && i <= js_getMaxTabIndex())
+		{
+			int mnemonic = getComponent().getMnemonicAt(i - 1);
+			if (mnemonic == 0) return ""; //$NON-NLS-1$
+			return new Character((char)mnemonic).toString();
+		}
+		return null;
+	}
+
+
 	// 1-based
 	public String js_getTabNameAt(int i)
 	{

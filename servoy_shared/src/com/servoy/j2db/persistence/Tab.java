@@ -286,4 +286,17 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 
+
+	/**
+	 * Mnemonic used to switch to tab.
+	 */
+	public String getMnemonic()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MNEMONIC);
+	}
+
+	public void setMnemonic(String arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_MNEMONIC, arg);
+	}
 }

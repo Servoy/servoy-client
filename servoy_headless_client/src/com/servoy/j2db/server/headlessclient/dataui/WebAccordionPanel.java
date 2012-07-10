@@ -36,6 +36,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -81,6 +82,7 @@ import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -208,7 +210,33 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 				TabIndexHelper.setUpTabIndexAttributeModifier(link, tabSequenceIndex);
 				link.add(TooltipAttributeModifier.INSTANCE);
 
-				Label label = new Label("linktext", new Model<String>(holder.getText())); //$NON-NLS-1$
+				String text = holder.getText();
+				if (holder.getDisplayedMnemonic() > 0)
+				{
+					final String mnemonic = Character.toString((char)holder.getDisplayedMnemonic());
+					link.add(new AbstractBehavior()
+					{
+						@Override
+						public void onComponentTag(Component component, ComponentTag tag)
+						{
+							super.onComponentTag(component, tag);
+							tag.put("accesskey", mnemonic); //$NON-NLS-1$
+						}
+					});
+					if (text != null && text.contains(mnemonic) && !HtmlUtils.hasUsefulHtmlContent(text))
+					{
+						StringBuffer sbBodyText = new StringBuffer(text);
+						int mnemonicIdx = sbBodyText.indexOf(mnemonic);
+						if (mnemonicIdx != -1)
+						{
+							sbBodyText.insert(mnemonicIdx + 1, "</u>"); //$NON-NLS-1$
+							sbBodyText.insert(mnemonicIdx, "<u>"); //$NON-NLS-1$
+							text = sbBodyText.toString();
+						}
+					}
+				}
+
+				Label label = new Label("linktext", new Model<String>(text)); //$NON-NLS-1$
 				label.setEscapeModelStrings(false);
 				link.add(label);
 				ServoyTabIcon icon = new ServoyTabIcon("icon", holder, scriptable); //$NON-NLS-1$
@@ -878,6 +906,18 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		return holder.getText();
 	}
 
+	public void setMnemonicAt(int i, int mnemonic)
+	{
+		WebTabHolder holder = allTabs.get(i);
+		holder.setDisplayedMnemonic(mnemonic);
+	}
+
+	public int getMnemonicAt(int i)
+	{
+		WebTabHolder holder = allTabs.get(i);
+		return holder.getDisplayedMnemonic();
+	}
+
 	public boolean isTabEnabledAt(int index)
 	{
 		WebTabHolder holder = allTabs.get(index);
@@ -1277,4 +1317,5 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			getResponse().write(WebBaseButton.getTitledBorderCloseMarkup());
 		}
 	}
+
 }
