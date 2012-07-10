@@ -36,7 +36,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -214,15 +214,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 				if (holder.getDisplayedMnemonic() > 0)
 				{
 					final String mnemonic = Character.toString((char)holder.getDisplayedMnemonic());
-					link.add(new AbstractBehavior()
-					{
-						@Override
-						public void onComponentTag(Component component, ComponentTag tag)
-						{
-							super.onComponentTag(component, tag);
-							tag.put("accesskey", mnemonic); //$NON-NLS-1$
-						}
-					});
+					link.add(new SimpleAttributeModifier("accesskey", mnemonic)); //$NON-NLS-1$
 					if (text != null && text.contains(mnemonic) && !HtmlUtils.hasUsefulHtmlContent(text))
 					{
 						StringBuffer sbBodyText = new StringBuffer(text);
