@@ -92,7 +92,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 			jFLP.setOpaque(isOpaque());
 		}
 
-		if (selectedTab == -1)
+		if (count == 0)
 		{
 			setSelectedIndex(0);
 		}
@@ -195,8 +195,18 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 		if (i >= 0 && i < getComponentCount())
 		{
 			selectedTab = i;
-			forms.show(this, Integer.toString(i));
+			forms.show(this, i, new Object());
 			listner.stateChanged(new ChangeEvent(this));
+
+
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					getParent().repaint();
+				}
+			});
+
 		}
 	}
 
@@ -332,6 +342,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 		}
 		remove(index);
 		if (index < selectedTab) selectedTab--;
+		setSelectedIndex(selectedTab);
 		return true;
 	}
 

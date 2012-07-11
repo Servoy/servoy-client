@@ -536,7 +536,23 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 			parent.validate();
 		}
 	}
-	
+
+	/**
+	 * WARNING!!function to be used only by  class TablessPanel ,"friend" class
+	 * @param parent
+	 * @param newIndex
+	 * @param dummy_parameter_for_overloading
+	 */
+	public void show(Container parent, int newIndex, Object dummy_parameter_for_overloading)
+	{
+		if (!vector.isEmpty())
+		{
+			((Card)vector.get(currentCard)).comp.setVisible(false);
+			currentCard = newIndex;
+			parent.validate();
+		}
+	}
+
 	public Component getCurrentVisibleComponent()
 	{
 		return ((Card)vector.get(currentCard)).comp;
