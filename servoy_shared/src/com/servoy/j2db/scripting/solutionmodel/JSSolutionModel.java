@@ -1023,8 +1023,8 @@ public class JSSolutionModel implements ISolutionModel
 	 * @sample 
 	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', JSVariable.INTEGER); 
 	 * myGlobalVariable.defaultValue = 12;
-	 *	//myGlobalVariable.defaultValue = "{a:'First letter',b:'Second letter'}"
-	 *
+	 * //myGlobalVariable.defaultValue = "{a:'First letter',b:'Second letter'}" // an js object, type must be media.
+	 * //myGlobalVariable.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assign a String as default value.
 	 * @param scopeName the scope in which the variable is created
 	 * @param name the specified name for the global variable 
 	 *

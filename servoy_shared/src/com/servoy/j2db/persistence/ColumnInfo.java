@@ -420,7 +420,8 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	}
 
 	/**
-	 * The default format of the column.
+	 * The default format of the column. 
+	 * Currently only strings or numbers are supported.
 	 */
 	public String getDefaultFormat()
 	{

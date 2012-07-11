@@ -91,7 +91,7 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * dateVar.defaultValue = 'now';
 	 * application.output(scopes.globals.gDate); // Prints the current date and time.
 	 * var txtVar = solutionModel.newGlobalVariable('globals', 'gText', JSVariable.TEXT);
-	 * txtVar.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assing a String as default value.
+	 * txtVar.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assign a String as default value.
 	 * application.output(scopes.globals.gText); // Prints 'some text' (without quotes).
 	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
 	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';

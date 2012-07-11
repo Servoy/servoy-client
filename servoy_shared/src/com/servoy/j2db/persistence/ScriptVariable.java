@@ -185,7 +185,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 * For INTEGER variables it can be an integer constant, like 10 for example.
 	 * For NUMBER variables it can be a real constant, like 22.41. For DATETIME
 	 * variables it can be "now", or a JS expression like "new Date()". For TEXT 
-	 * variables it can be any string surrounded with quotes, like 'some text'.
+	 * variables it can be any string surrounded with quotes, like "'some text'".
 	 */
 	public String getDefaultValue()
 	{
