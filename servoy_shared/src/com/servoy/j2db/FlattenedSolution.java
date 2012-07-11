@@ -2494,6 +2494,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 		synchronized (this)
 		{
+			Column callingColumn = callingTable.getColumn(dataProviderID);
+			if (callingColumn == null)
+			{
+				return null;
+			}
 			Relation relation = getRelation(relationName);
 			if (relation == null)
 			{
@@ -2517,9 +2522,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					return null;
 				}
 
-				Column callingColumn = callingTable.getColumn(dataProviderID);
 				Column destColumn = destTable.getColumn(dp);
-				if (callingColumn == null || destColumn == null)
+				if (destColumn == null)
 				{
 					return null;
 				}
