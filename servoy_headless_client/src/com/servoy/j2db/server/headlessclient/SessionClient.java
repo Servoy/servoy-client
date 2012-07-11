@@ -604,7 +604,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		try
 		{
 			String formName = visibleFormName;
-			if (formName == null)
+			if (formName == null && ((FormManager)getFormManager()).getCurrentForm() != null)
 			{
 				formName = ((FormManager)getFormManager()).getCurrentForm().getName();
 			}
@@ -623,7 +623,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			}
 			else
 			{
-				throw new IllegalArgumentException("Form " + formName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IllegalArgumentException("No current visible form specified"); //$NON-NLS-1$
 			}
 		}
 		catch (IllegalStateException e1)
