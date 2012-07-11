@@ -144,7 +144,8 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 	{
 		Border border = ComponentFactoryHelper.createBorder(spec);
 		Border oldBorder = getComponent().getBorder();
-		if (getComponent() instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
+		if (getComponent() instanceof Component && !(border instanceof CompoundBorder) && oldBorder instanceof CompoundBorder &&
+			((CompoundBorder)oldBorder).getInsideBorder() != null)
 		{
 			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
 			getComponent().setBorder(
