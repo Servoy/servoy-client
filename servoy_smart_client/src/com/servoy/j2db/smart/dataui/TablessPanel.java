@@ -195,7 +195,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 		if (i >= 0 && i < getComponentCount())
 		{
 			selectedTab = i;
-			forms.show(this, i, new Object());
+			forms.show(this, i, false);
 			listner.stateChanged(new ChangeEvent(this));
 
 
@@ -341,8 +341,8 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 			if (!ok) return false;
 		}
 		remove(index);
-		if (index < selectedTab) selectedTab--;
-		setSelectedIndex(selectedTab);
+		if (index == selectedTab) setSelectedIndex(0);
+
 		return true;
 	}
 

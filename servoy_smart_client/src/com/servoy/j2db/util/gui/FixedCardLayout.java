@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.gui;
 
 
@@ -80,6 +80,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 	 * non negative Integer.
 	 * 
 	 * @see getHgap()
+	 * 
 	 * @see setHgap()
 	 */
 	int hgap;
@@ -89,6 +90,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 	 * non negative Integer.
 	 * 
 	 * @see getVgap()
+	 * 
 	 * @see setVgap()
 	 */
 	int vgap;
@@ -430,7 +432,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			checkLayout(parent);
-			show(parent, 0);
+			show(parent, 0, true);
 		}
 	}
 
@@ -445,7 +447,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			checkLayout(parent);
-			show(parent, (currentCard + 1) % vector.size());
+			show(parent, (currentCard + 1) % vector.size(), true);
 		}
 	}
 
@@ -461,7 +463,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		{
 			checkLayout(parent);
 			int newIndex = (currentCard + vector.size() - 1) % vector.size();
-			show(parent, newIndex);
+			show(parent, newIndex, true);
 		}
 	}
 
@@ -476,7 +478,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			checkLayout(parent);
-			show(parent, vector.size() - 1);
+			show(parent, vector.size() - 1, true);
 		}
 	}
 
@@ -502,7 +504,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 				Card card = (Card)vector.get(i);
 				if (card.name.equals(name))
 				{
-					show(parent, i);
+					show(parent, i, true);
 					break;
 				}
 			}
@@ -527,35 +529,14 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 //		}
 	}
 
-	void show(Container parent, int newIndex)
+	public void show(Container parent, int newIndex, boolean checkIndex)
 	{
-		if (!vector.isEmpty() && (currentCard != newIndex))
+		if (!vector.isEmpty() && (!checkIndex || (currentCard != newIndex)))
 		{
 			((Card)vector.get(currentCard)).comp.setVisible(false);
 			currentCard = newIndex;
 			parent.validate();
 		}
-	}
-
-	/**
-	 * WARNING!!function to be used only by  class TablessPanel ,"friend" class
-	 * @param parent
-	 * @param newIndex
-	 * @param dummy_parameter_for_overloading
-	 */
-	public void show(Container parent, int newIndex, Object dummy_parameter_for_overloading)
-	{
-		if (!vector.isEmpty())
-		{
-			((Card)vector.get(currentCard)).comp.setVisible(false);
-			currentCard = newIndex;
-			parent.validate();
-		}
-	}
-
-	public Component getCurrentVisibleComponent()
-	{
-		return ((Card)vector.get(currentCard)).comp;
 	}
 
 	/**
