@@ -31,8 +31,8 @@ import org.eclipse.dltk.rhino.dbgp.DBGPDebugger.ITerminationListener;
 import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ClientState;
@@ -305,7 +305,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			cx.setOptimizationLevel(-1);
 			return compileScriptProvider(sp, scope, cx, sourceName);
 		}
-		catch (EcmaError ee)
+		catch (RhinoException ee)
 		{
 			application.reportJSError("Compilation failed for method: " + sp.getDataProviderID() + ", " + ee.getMessage(), ee);
 			throw ee;
