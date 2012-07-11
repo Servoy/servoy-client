@@ -534,15 +534,11 @@ public class ComponentFactoryHelper
 						Color rightColor = PersistHelper.createColor(tk.nextToken());
 						Color bottomColor = PersistHelper.createColor(tk.nextToken());
 						Color leftColor = PersistHelper.createColor(tk.nextToken());
-						StringBuffer c = new StringBuffer();
-						c.append(PersistHelper.createColorString(topColor));
-						c.append(' ');
-						c.append(PersistHelper.createColorString(rightColor));
-						c.append(' ');
-						c.append(PersistHelper.createColorString(bottomColor));
-						c.append(' ');
-						c.append(PersistHelper.createColorString(leftColor));
-						style.setProperty("border-color", c.toString()); //$NON-NLS-1$
+
+						style.setProperty(CSSName.BORDER_TOP_COLOR.toString(), PersistHelper.createColorString(topColor));
+						style.setProperty(CSSName.BORDER_RIGHT_COLOR.toString(), PersistHelper.createColorString(rightColor));
+						style.setProperty(CSSName.BORDER_BOTTOM_COLOR.toString(), PersistHelper.createColorString(bottomColor));
+						style.setProperty(CSSName.BORDER_LEFT_COLOR.toString(), PersistHelper.createColorString(leftColor));
 
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (tk.hasMoreTokens())

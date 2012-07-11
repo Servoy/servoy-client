@@ -1287,6 +1287,13 @@ public class TemplateGenerator
 						{
 							appendValue(retval, pSelector, prefix + name, val);
 						}
+						if (getProperty(CSSName.BACKGROUND_COLOR.toString()) != null || stackedValues.get(CSSName.BACKGROUND_COLOR.toString()) != null)
+						{
+							// we also have background color, i guess we expect padding-box background-clip
+							appendValue(retval, pSelector, "-moz-background-clip", "padding");
+							appendValue(retval, pSelector, "-webkit-background-clip", "padding-box");
+							appendValue(retval, pSelector, "background-clip", "padding-box");
+						}
 					}
 					appendValue(retval, pSelector, name, val);
 				}
