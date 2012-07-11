@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -55,8 +56,8 @@ public final class ServoyWrapFactory extends WrapFactory
 	@Override
 	public Object wrap(Context cx, Scriptable scope, Object obj, Class staticType)
 	{
-		if (obj == null || obj == Undefined.instance || obj instanceof Scriptable || obj instanceof Date || obj instanceof String || obj instanceof Number ||
-			obj instanceof Boolean)
+		if (obj == null || obj == Undefined.instance || obj instanceof Scriptable || obj instanceof Date || obj instanceof String ||
+			obj instanceof CharSequenceBuffer || obj instanceof Number || obj instanceof Boolean)
 		{
 			return obj;
 		}
