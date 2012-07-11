@@ -110,6 +110,10 @@ public abstract class AbstractBase implements IPersist
 		setProperty(propertyName, element == null ? null : element.getDefaultClassValue());
 
 		propertiesMap.remove(propertyName);
+		if (bufferPropertiesMap != null)
+		{
+			bufferPropertiesMap.remove(propertyName); // the setProperty above might set (wrongly) default value in bufferPropertiesMap as well during import 
+		}
 	}
 
 	public boolean hasProperty(String propertyName)
