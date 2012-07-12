@@ -31,6 +31,8 @@ import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.protocol.http.servlet.AbortWithWebErrorCodeException;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
 
@@ -46,6 +48,7 @@ import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 public class SolutionLoader extends WebPage
@@ -107,8 +110,37 @@ public class SolutionLoader extends WebPage
 				if (sol.getLoginSolutionName() == null && sol.getLoginFormID() <= 0 && theReq.getMustAuthenticate() &&
 					!((WebClientSession)getSession()).isSignedIn())
 				{
-					//signin first
-					throw new RestartResponseAtInterceptPageException(SignIn.class);
+					String authType = pp.getString("sv_auth_type"); //$NON-NLS-1$
+					boolean authorized = false;
+					if ((authType != null && authType.equals("basic")) || //$NON-NLS-1$
+						(authType == null && Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.basic.authentication", "false")))) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						String authorizationHeader = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest().getHeader("Authorization"); //$NON-NLS-1$
+						if (authorizationHeader != null)
+						{
+							String authorization = authorizationHeader.substring(6);
+							// TODO: which encoding to use? see http://tools.ietf.org/id/draft-reschke-basicauth-enc-05.xml
+							authorization = new String(Utils.decodeBASE64(authorization));
+							int index = authorization.indexOf(':');
+							if (index > 0)
+							{
+								String username = authorization.substring(0, index);
+								String password = authorization.substring(index + 1);
+								authorized = ((WebClientSession)getSession()).authenticate(username, password);
+							}
+						}
+						if (!authorized)
+						{
+							((WebResponse)RequestCycle.get().getResponse()).getHttpServletResponse().setHeader("WWW-Authenticate", "Basic realm=\"config\""); //$NON-NLS-1$ //$NON-NLS-2$
+							throw new AbortWithWebErrorCodeException(401);
+						}
+					}
+
+					if (!authorized)
+					{
+						//signin first
+						throw new RestartResponseAtInterceptPageException(SignIn.class);
+					}
 				}
 				WebClientSession session;
 				HttpSession httpSession;
