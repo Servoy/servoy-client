@@ -1189,7 +1189,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (isOnlyImgDisplay)
 		{
 			// if only image AND not image from html text content
-			if (cssid == null)
+			if (cssid == null && imgURL != null)
 			{
 				String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "center";
 				String hAlign = (halign == ISupportTextSetup.LEFT) ? "left" : (halign == ISupportTextSetup.RIGHT) ? "right" : "center ";
