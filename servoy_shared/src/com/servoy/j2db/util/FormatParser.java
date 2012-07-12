@@ -187,7 +187,7 @@ public class FormatParser
 		private final boolean allLowerCase;
 		private final boolean numberValidator;
 		private final boolean raw;
-		private final boolean mask;
+		private boolean mask;
 
 		private final String editOrPlaceholder;
 		private final String displayFormat;
@@ -361,6 +361,11 @@ public class FormatParser
 		public boolean isMask()
 		{
 			return mask;
+		}
+
+		public void forceMask(boolean isMask)
+		{
+			mask = isMask;
 		}
 
 		/**
