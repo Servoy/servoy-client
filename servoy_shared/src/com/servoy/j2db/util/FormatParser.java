@@ -262,6 +262,11 @@ public class FormatParser
 		return mask;
 	}
 
+	public void forceMask(boolean isMask)
+	{
+		mask = isMask;
+	}
+
 	/**
 	 * @return the numberValidator
 	 */

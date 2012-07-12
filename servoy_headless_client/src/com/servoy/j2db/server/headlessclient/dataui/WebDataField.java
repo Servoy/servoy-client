@@ -783,14 +783,22 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false);");
 			}
-			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask()) //$NON-NLS-1$
+			else if (mappedType == IColumnTypes.DATETIME) //$NON-NLS-1$
 			{
-				String maskPattern = parsedFormat.getDateMask();
-				setType(Date.class);
-				String placeHolder = parsedFormat.getDisplayFormat();
-				if (parsedFormat.getPlaceHolderString() != null) placeHolder = parsedFormat.getPlaceHolderString();
-				else if (parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(parsedFormat.getPlaceHolderCharacter());
-				formatAttributeModifier = new MaskBehavior(maskPattern.toString(), placeHolder, this);
+				if (!parsedFormat.isMask() && parsedFormat.getEditFormat() == null)
+				{
+					// we don't have the override mode implemented, so just use mask here
+					parsedFormat.forceMask(true);
+				}
+				if (parsedFormat.isMask())
+				{
+					String maskPattern = parsedFormat.getDateMask();
+					setType(Date.class);
+					String placeHolder = parsedFormat.getDisplayFormat();
+					if (parsedFormat.getPlaceHolderString() != null) placeHolder = parsedFormat.getPlaceHolderString();
+					else if (parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(parsedFormat.getPlaceHolderCharacter());
+					formatAttributeModifier = new MaskBehavior(maskPattern.toString(), placeHolder, this);
+				}
 			}
 			else if (mappedType == IColumnTypes.TEXT && parsedFormat.isNumberValidator())
 			{
