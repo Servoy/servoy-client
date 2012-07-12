@@ -439,7 +439,7 @@ public class DivWindow extends ModalWindow
 		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
 			getJSId() +
 			"\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; if (typeof(win) != \"undefined\") { var winObj = win.openWindows[\"" +
-			getJSId() + "\"]; if (typeof(winObj) != \"undefined\") { winObj" + actualActionScript + "(\"" + parameters + "\"); } }";
+			getJSId() + "\"]; if (typeof(winObj) != \"undefined\") { winObj" + actualActionScript + "(" + parameters + "); } }";
 	}
 
 	@Override
