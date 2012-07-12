@@ -2230,6 +2230,14 @@ if (typeof(Servoy.Validation) == "undefined")
 					var caret = Servoy.Utils.doGetCaretPosition(this);
 					this.value = this.editValue;
 					Servoy.Utils.doSetCaretPosition(this,caret);
+					if (this.displayValue == '')
+					{
+						setTimeout(function(){
+							// we have null value and display format, select it so that it is erased when editing
+							// in some browsers doesn't work directly onfocus, execute with settimeout 
+							element.select();
+						 },0);
+					}
 				}
 			};
 			Servoy.Validation.displayEditFormOnBlur[elementId] = function(e)
