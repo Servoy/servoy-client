@@ -1023,14 +1023,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			RepaintManager current = RepaintManager.currentManager(frame);
 			if (!(current instanceof OverlapRepaintManager))
 			{
-				if (current != null)
+				if (current != null && current.getClass() != RepaintManager.class)
 				{
-					RepaintManager.setCurrentManager(new OverlapRepaintManager(current));
+					Debug.log("Overwriting a none default RepaintManager: " + current.getClass() + " with our overlay repaint manager");
 				}
-				else
-				{
-					RepaintManager.setCurrentManager(new OverlapRepaintManager());
-				}
+				RepaintManager.setCurrentManager(new OverlapRepaintManager());
 			}
 
 			// Add the windows listener

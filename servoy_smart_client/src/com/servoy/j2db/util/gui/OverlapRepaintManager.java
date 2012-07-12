@@ -18,8 +18,6 @@ package com.servoy.j2db.util.gui;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,8 +38,6 @@ import com.servoy.j2db.ui.RenderEventExecutor;
  */
 public class OverlapRepaintManager extends RepaintManager
 {
-
-	private final RepaintManager delegate;
 	private final Set<JComponent> components = new HashSet<JComponent>();
 
 	/**
@@ -49,22 +45,7 @@ public class OverlapRepaintManager extends RepaintManager
 	 */
 	public OverlapRepaintManager()
 	{
-		this(new RepaintManager());
-	}
-
-	/**
-	 * Creates a new OverlapRepaintManager that only alters the behavior of the given RepaintManager in order to support
-	 * overlapping, but keeps using it for unaltered repaint operations.
-	 * @param repaintManager the delegate repaint manager who's behavior will be altered.
-	 * @throws IllegalArgumentException if the given RepaintManager is null or an OverlapRepaintManager.
-	 */
-	public OverlapRepaintManager(RepaintManager repaintManager)
-	{
-		if (repaintManager == null || repaintManager instanceof OverlapRepaintManager)
-		{
-			throw new IllegalArgumentException("Delegate repaint manager cannot be null or of the same kind.");
-		}
-		delegate = repaintManager;
+		super();
 	}
 
 	@Override
@@ -100,7 +81,7 @@ public class OverlapRepaintManager extends RepaintManager
 		{
 			components.add(c);
 		}
-		delegate.addDirtyRegion(c, dX, dY, dW, dH); // add the dirty region
+		super.addDirtyRegion(c, dX, dY, dW, dH); // add the dirty region
 	}
 
 	private ISupportOnRenderCallback getOnRenderParent(Component c)
@@ -128,7 +109,7 @@ public class OverlapRepaintManager extends RepaintManager
 					intersection = child[i].getBounds().intersection(parentRepaintedArea);
 					if (!intersection.isEmpty())
 					{
-						delegate.addDirtyRegion((JComponent)parent, intersection.x, intersection.y, intersection.width, intersection.height);
+						super.addDirtyRegion((JComponent)parent, intersection.x, intersection.y, intersection.width, intersection.height);
 					}
 				}
 			}
@@ -136,60 +117,6 @@ public class OverlapRepaintManager extends RepaintManager
 			// see if parents overlap on some level
 			searchOverlappingRegionsInHierarchy(parent.getParent(), (JComponent)parent, parentRepaintedArea);
 		}
-	}
-
-	@Override
-	public Rectangle getDirtyRegion(JComponent component)
-	{
-		return delegate.getDirtyRegion(component);
-	}
-
-	@Override
-	public synchronized void addInvalidComponent(JComponent invalidComponent)
-	{
-		delegate.addInvalidComponent(invalidComponent);
-	}
-
-	@Override
-	public Dimension getDoubleBufferMaximumSize()
-	{
-		return delegate.getDoubleBufferMaximumSize();
-	}
-
-	@Override
-	public Image getOffscreenBuffer(Component c, int proposedWidth, int proposedHeight)
-	{
-		return delegate.getOffscreenBuffer(c, proposedWidth, proposedHeight);
-	}
-
-	@Override
-	public Image getVolatileOffscreenBuffer(Component c, int proposedWidth, int proposedHeight)
-	{
-		return delegate.getVolatileOffscreenBuffer(c, proposedWidth, proposedHeight);
-	}
-
-	@Override
-	public boolean isCompletelyDirty(JComponent component)
-	{
-		return delegate.isCompletelyDirty(component);
-	}
-
-	@Override
-	public boolean isDoubleBufferingEnabled()
-	{
-		return delegate.isDoubleBufferingEnabled();
-	}
-
-	@Override
-	public void markCompletelyClean(JComponent component)
-	{
-		delegate.markCompletelyClean(component);
-	}
-
-	@Override
-	public void markCompletelyDirty(JComponent component)
-	{
-		delegate.markCompletelyDirty(component);
 	}
 
 	@Override
@@ -203,34 +130,9 @@ public class OverlapRepaintManager extends RepaintManager
 		}
 		for (JComponent component : tmp)
 		{
-			Rectangle dirtyRegion = delegate.getDirtyRegion(component);
+			Rectangle dirtyRegion = super.getDirtyRegion(component);
 			searchOverlappingRegionsInHierarchy(component.getParent(), component, dirtyRegion);
 		}
-		delegate.paintDirtyRegions();
+		super.paintDirtyRegions();
 	}
-
-	@Override
-	public synchronized void removeInvalidComponent(JComponent component)
-	{
-		delegate.removeInvalidComponent(component);
-	}
-
-	@Override
-	public void setDoubleBufferingEnabled(boolean flag)
-	{
-		delegate.setDoubleBufferingEnabled(flag);
-	}
-
-	@Override
-	public void setDoubleBufferMaximumSize(Dimension d)
-	{
-		delegate.setDoubleBufferMaximumSize(d);
-	}
-
-	@Override
-	public void validateInvalidComponents()
-	{
-		delegate.validateInvalidComponents();
-	}
-
 }
