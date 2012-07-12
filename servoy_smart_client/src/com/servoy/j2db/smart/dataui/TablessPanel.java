@@ -341,7 +341,21 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 			if (!ok) return false;
 		}
 		remove(index);
-		if (index == selectedTab) setSelectedIndex(0);
+		if (index == selectedTab)
+		{
+			if (selectedTab > 0)
+			{
+				setSelectedIndex(--selectedTab);
+			}
+			else
+			{
+				setSelectedIndex(0);
+			}
+		}
+		else if (index < selectedTab)
+		{
+			selectedTab--;
+		}
 
 		return true;
 	}
