@@ -63,8 +63,11 @@ public class Settings extends SortedProperties
 	public static final String TRUSTED_REMOTE_PLUGINS = "servoy.application_server.trustedRemotePlugins";
 	public static final String START_AS_TEAMPROVIDER_SETTING = "servoy.application_server.startRepositoryAsTeamProvider";
 	public static final boolean START_AS_TEAMPROVIDER_DEFAULT = false;
+	@Deprecated
+	// do not persist global maintenance mode; when running clustered this could result in entering cluster-wide maintenance mode
+	// unwillingly when some app. servers were already started and working for a while and you start another app. server
 	public static final String START_GLOBAL_MAINTENANCE_MODE_SETTING = "servoy.application_server.global_maintenance_mode";
-	public static final String START_MAINTENANCE_MODE_SETTING = "servoy.application_server.maintenance_mode";
+	public static final String SERVER_MAINTENANCE_MODE_SETTING = "servoy.application_server.maintenance_mode";
 	public static final String ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING = "servoy.application_server.allowClientRepositoryAccess"; //$NON-NLS-1$
 	public static final boolean ALLOW_CLIENT_REPOSITORY_ACCESS_DEFAULT = false;
 
