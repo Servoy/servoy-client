@@ -345,7 +345,16 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 		{
 			if (selectedTab > 0)
 			{
-				setSelectedIndex(--selectedTab);
+				if (index == getComponentCount())
+				{
+					//index moves down if it is the last tab
+					setSelectedIndex(--selectedTab);
+				}
+				else
+				{
+					//index stays the same if is in the middle 
+					setSelectedIndex(selectedTab);
+				}
 			}
 			else
 			{
