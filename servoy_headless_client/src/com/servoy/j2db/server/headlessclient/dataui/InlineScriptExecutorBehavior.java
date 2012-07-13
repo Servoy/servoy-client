@@ -16,10 +16,12 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.util.crypt.ICrypt;
 
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.server.headlessclient.WebForm;
@@ -54,7 +56,16 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 	protected void respond(AjaxRequestTarget target)
 	{
 		Page page = component.getPage();
-		String scriptName = RequestCycle.get().getRequest().getParameter("scriptname");
+		String scriptName = RequestCycle.get().getRequest().getParameter("sn");
+		if (scriptName == null)
+		{
+			scriptName = RequestCycle.get().getRequest().getParameter("snenc");
+			if (scriptName != null)
+			{
+				ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+				scriptName = urlCrypt.decryptUrlSafe(scriptName);
+			}
+		}
 		WebForm wf = component.findParent(WebForm.class);
 		if (wf != null)
 		{
