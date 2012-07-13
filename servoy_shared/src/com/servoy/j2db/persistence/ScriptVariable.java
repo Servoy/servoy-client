@@ -120,7 +120,6 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 			// scope name is a bit strange, has 2 default values: null for non direct solution children (handled through ContentSpec) and "globals" for direct solution children...
 			// it needs to be interpreted as "globals" if not available for solution children (for importing solutions from older versions before scopes were introduced - otherwise a "null.js" gets created)
 			value = ScriptVariable.GLOBAL_SCOPE;
-			setScopeName(value); // strange to do a set inside a get, but without this, scopeName would not be persisted as "globals" after import; just remove it if it causes trouble
 		}
 		return value;
 	}

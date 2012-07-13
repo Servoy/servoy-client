@@ -99,11 +99,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public void internalAddChild(IPersist obj)
 	{
 		super.internalAddChild(obj);
-		if (obj instanceof ISupportScope && ((ISupportScope)obj).getScopeName() == null)
-		{
-			// globals from imports that have no scope name yet
-			((ISupportScope)obj).setScopeName(ScriptVariable.GLOBAL_SCOPE);
-		}
 	}
 
 	/*
