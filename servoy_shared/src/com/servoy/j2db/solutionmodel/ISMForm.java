@@ -51,24 +51,7 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public static final int LIST_VIEW = IForm.LIST_VIEW;
 
 	/**
-	 * The constants to set or get the view property of a JSForm. 
-	 * They are as follows: JSForm.LIST_VIEW, JSForm.LOCKED_LIST_VIEW, JSForm.LOCKED_RECORD_VIEW, JSForm.LOCKED_TABLE_VIEW, JSForm.RECORD_VIEW.
-	 *
-	 * @sample 
-	 * var myListViewForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
-	 * myListViewForm.view = JSForm.LIST_VIEW;
-	 * 
-	 * var myLockedListViewForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);	
-	 * myLockedListViewForm.view = JSForm.LOCKED_LIST_VIEW;
-	 * 
-	 * var myLockedRecordViewForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedRecordViewForm.view = JSForm.LOCKED_RECORD_VIEW;
-	 * 
-	 * var myLockedTableViewForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedTableViewForm.view = JSForm.LOCKED_TABLE_VIEW;
-	 * 
-	 * var myRecordViewForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
-	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
+	 * @sameas LIST_VIEW
 	 */
 	public static final int RECORD_VIEW = IForm.RECORD_VIEW;
 
@@ -85,24 +68,7 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public static final int LOCKED_LIST_VIEW = FormController.LOCKED_LIST_VIEW;
 
 	/**
-	 * The constants to set or get the view property of a JSForm. 
-	 * They are as follows: JSForm.LIST_VIEW, JSForm.LOCKED_LIST_VIEW, JSForm.LOCKED_RECORD_VIEW, JSForm.LOCKED_TABLE_VIEW, JSForm.RECORD_VIEW.
-	 *
-	 * @sample 
-	 * var myListViewForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
-	 * myListViewForm.view = JSForm.LIST_VIEW;
-	 * 
-	 * var myLockedListViewForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);	
-	 * myLockedListViewForm.view = JSForm.LOCKED_LIST_VIEW;
-	 * 
-	 * var myLockedRecordViewForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedRecordViewForm.view = JSForm.LOCKED_RECORD_VIEW;
-	 * 
-	 * var myLockedTableViewForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedTableViewForm.view = JSForm.LOCKED_TABLE_VIEW;
-	 * 
-	 * var myRecordViewForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
-	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
+	 * @sameas LIST_VIEW
 	 */
 	public static final int LOCKED_RECORD_VIEW = IForm.LOCKED_RECORD_VIEW;
 

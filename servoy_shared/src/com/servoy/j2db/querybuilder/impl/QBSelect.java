@@ -312,7 +312,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderLogicalCondition)
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderCondition)
 	 * @sample
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
 	 * 

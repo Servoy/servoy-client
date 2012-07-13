@@ -54,7 +54,9 @@ public interface IForm
 	 */
 	public static final int RECORD_VIEW = 0;
 
-
+	/**
+	 * Constant for locked record view.
+	 */
 	public static final int LOCKED_RECORD_VIEW = 5;
 
 	/**

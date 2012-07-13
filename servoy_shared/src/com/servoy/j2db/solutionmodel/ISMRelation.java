@@ -39,11 +39,7 @@ public interface ISMRelation extends ISMHasUUID
 	public static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
 
 	/**
-	 * Constant for set/get the joinType of a JSRelation. It is also used in solutionModel.newRelation(...).
-	 *
-	 * @sample 
-	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
-	 * relation.joinType = JSRelation.LEFT_OUTER_JOIN;
+	 * @sameas INNER_JOIN
 	 */
 	public static final int LEFT_OUTER_JOIN = ISQLJoin.LEFT_OUTER_JOIN;
 
