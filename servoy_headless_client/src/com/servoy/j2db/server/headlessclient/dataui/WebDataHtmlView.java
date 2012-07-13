@@ -169,6 +169,9 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 				case '\'' :
 					if (brace == 0) return counter;
 					break;
+				case '&' :
+					if (brace == 0) return counter;
+					break;
 				case ',' :
 					if (brace == 0) return counter;
 					break;
