@@ -523,6 +523,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return AbstractBase.selectByName(new TypeIterator<ScriptCalculation>(getAllObjects(), IRepository.SCRIPTCALCULATIONS), name);
 	}
 
+	public AggregateVariable getAggregateVariable(String name)
+	{
+		if (name == null) return null;
+		return AbstractBase.selectByName(new TypeIterator<AggregateVariable>(getAllObjects(), IRepository.AGGREGATEVARIABLES), name);
+	}
+
 	public ScriptMethod getFoundsetMethod(String name)
 	{
 		if (name == null) return null;
