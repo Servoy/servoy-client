@@ -91,17 +91,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.persistence.AbstractBase#internalAddChild(com.servoy.j2db.persistence.IPersist)
-	 */
-	@Override
-	public void internalAddChild(IPersist obj)
-	{
-		super.internalAddChild(obj);
-	}
-
-	/*
 	 * _____________________________________________________________ Methods for Form handling
 	 */
 
