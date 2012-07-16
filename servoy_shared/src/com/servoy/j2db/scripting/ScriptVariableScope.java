@@ -395,13 +395,10 @@ public class ScriptVariableScope extends LazyCompilationScope
 			value = evalValue(name, (String)value, "internal_anon", -1); //$NON-NLS-1$
 		}
 		Object oldVar = allVars.get(name);
-		if (!Utils.equalObjects(oldVar, value))
+		allVars.put(name, value);
+		if (variableType != null && !Utils.equalObjects(oldVar, value))
 		{
-			allVars.put(name, value);
-			if (variableType != null)
-			{
-				fireModificationEvent(name, value);
-			}
+			fireModificationEvent(name, value);
 		}
 		return oldVar;
 	}
