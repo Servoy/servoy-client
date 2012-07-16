@@ -76,9 +76,7 @@
 		<delete dir="${temp.folder}"/>
 	</target>
 
-	<target name="@dot.nestedJars">
-	</target>
-	<target name="@dot" depends="init,@dot.nestedJars" unless="@dot" description="Create jar: servoy_smart_client @dot.">
+	<target name="@dot" depends="init" unless="@dot" description="Create jar: servoy_smart_client @dot.">
 		<delete dir="${build.result.folder}/@dot"/>
 		<mkdir dir="${build.result.folder}/@dot"/>
 		<path id="@dot.classpath">
@@ -347,7 +345,7 @@
 	</target>
 
 	<target name="apitools.generation" if="generateAPIDescription">
-		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}" allownonapiproject="${allowNonApiProject}"		/>
+		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}"		/>
 	</target>
 
 </project>
