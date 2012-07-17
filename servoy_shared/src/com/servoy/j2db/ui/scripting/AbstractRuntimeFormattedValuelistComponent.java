@@ -60,7 +60,7 @@ public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFiel
 
 	public void setFormat(String formatString)
 	{
-		if (Utils.safeEquals(formatString, getFormat()))
+		if (!Utils.safeEquals(formatString, getFormat()))
 		{
 			setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
 				? null : componentFormat.parsedFormat.getUIConverterName(),
