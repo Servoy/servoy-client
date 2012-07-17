@@ -125,8 +125,11 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 	@Deprecated
 	public void setEditable(boolean b)
 	{
-		getComponent().setEditable(b);
-		getChangesRecorder().setChanged();
+		if (isEditable() != b)
+		{
+			getComponent().setEditable(b);
+			getChangesRecorder().setChanged();
+		}
 	}
 
 	public void selectAll()

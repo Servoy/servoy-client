@@ -26,6 +26,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeCalendar;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Scriptable calendar component.
@@ -54,18 +55,24 @@ public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> i
 
 	public void setEditable(boolean b)
 	{
-		getComponent().setEditable(b);
-		getChangesRecorder().setChanged();
+		if (isEditable() != b)
+		{
+			getComponent().setEditable(b);
+			getChangesRecorder().setChanged();
+		}
 	}
 
 	public void setFormat(String formatString)
 	{
-		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
-			? null : componentFormat.parsedFormat.getUIConverterName(),
-			componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
-			: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
-		getChangesRecorder().setChanged();
-		fireOnRender();
+		if (!Utils.safeEquals(formatString, getFormat()))
+		{
+			setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
+				? null : componentFormat.parsedFormat.getUIConverterName(),
+				componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
+				: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
+			getChangesRecorder().setChanged();
+			fireOnRender();
+		}
 	}
 
 	public String getFormat()

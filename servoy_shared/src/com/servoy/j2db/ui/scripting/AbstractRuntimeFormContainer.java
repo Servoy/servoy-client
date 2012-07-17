@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 
 import javax.swing.JComponent;
@@ -26,6 +29,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable component that can contain forms.
@@ -51,17 +55,21 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	}
 
 	@Override
-	public void setToolTipText(String txt)
+	public void setToolTipText(String tooltip)
 	{
-		if (enclosingComponent != null)
+		String old = getToolTipText();
+		if (!Utils.stringSafeEquals(old, tooltip))
 		{
-			enclosingComponent.setToolTipText(txt);
+			if (enclosingComponent != null)
+			{
+				enclosingComponent.setToolTipText(tooltip);
+			}
+			else
+			{
+				getComponent().setToolTipText(tooltip);
+			}
+			getChangesRecorder().setChanged();
 		}
-		else
-		{
-			getComponent().setToolTipText(txt);
-		}
-		getChangesRecorder().setChanged();
 	}
 
 	@Override
@@ -79,7 +87,11 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	{
 		if (enclosingComponent != null)
 		{
-			enclosingComponent.setFont(PersistHelper.createFont(spec));
+			Font font = PersistHelper.createFont(spec);
+			if (!Utils.safeEquals(enclosingComponent.getFont(), font))
+			{
+				enclosingComponent.setFont(font);
+			}
 		}
 		else
 		{
@@ -117,7 +129,11 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	{
 		if (enclosingComponent != null)
 		{
-			enclosingComponent.setBackground(PersistHelper.createColor(clr));
+			Color color = PersistHelper.createColor(clr);
+			if (!Utils.safeEquals(enclosingComponent.getBackground(), color))
+			{
+				enclosingComponent.setBackground(color);
+			}
 		}
 		else
 		{
@@ -140,7 +156,11 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	{
 		if (enclosingComponent != null)
 		{
-			enclosingComponent.setForeground(PersistHelper.createColor(clr));
+			Color color = PersistHelper.createColor(clr);
+			if (!Utils.safeEquals(enclosingComponent.getForeground(), color))
+			{
+				enclosingComponent.setForeground(color);
+			}
 		}
 		else
 		{
@@ -148,15 +168,21 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 		}
 	}
 
-	public void setSize(int x, int y)
+	public void setSize(int width, int height)
 	{
-		setComponentSize(x, y);
-		if (getComponent() instanceof JComponent)
+		Dimension old = new Dimension(getWidth(), getHeight());
+		Dimension newSize = new Dimension(width, height);
+		if (!old.equals(newSize))
 		{
-			((JComponent)getComponent()).repaint();
+			setComponentSize(newSize);
+
+			if (getComponent() instanceof JComponent)
+			{
+				((JComponent)getComponent()).repaint();
+			}
+			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0),
+				0, false, SwingConstants.TOP);
 		}
-		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0,
-			false, SwingConstants.TOP);
 	}
 
 	@Override
@@ -172,7 +198,7 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	@Override
 	public void setTransparent(boolean b)
 	{
-		if (enclosingComponent != null)
+		if (enclosingComponent != null && isTransparent() != b)
 		{
 			enclosingComponent.setOpaque(!b);
 			enclosingComponent.repaint();

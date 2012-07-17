@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -35,8 +36,8 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeField;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.StringComparator;
@@ -86,8 +87,11 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 
 	public void setTitleText(String titleText)
 	{
-		getComponent().setTitleText(titleText);
-		getChangesRecorder().setChanged();
+		if (!Utils.safeEquals(titleText, getTitleText()))
+		{
+			getComponent().setTitleText(titleText);
+			getChangesRecorder().setChanged();
+		}
 	}
 
 	public int getAbsoluteFormLocationY()
@@ -112,8 +116,11 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 
 	public void setReadOnly(boolean b)
 	{
-		getComponent().setReadOnly(b);
-		getChangesRecorder().setChanged();
+		if (isReadOnly() != b)
+		{
+			getComponent().setReadOnly(b);
+			getChangesRecorder().setChanged();
+		}
 	}
 
 	public boolean isReadOnly()
@@ -124,23 +131,26 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 	@Override
 	public void setVisible(boolean b)
 	{
-		super.setVisible(b);
-		if (getComponent().isViewable())
+		if (isVisible() != b)
 		{
-			List<ILabel> labels = getComponent().getLabelsFor();
-			if (labels != null)
+			super.setVisible(b);
+			if (getComponent().isViewable())
 			{
-				for (int i = 0; i < labels.size(); i++)
+				List<ILabel> labels = getComponent().getLabelsFor();
+				if (labels != null)
 				{
-					ILabel label = labels.get(i);
-					IScriptable scriptable = label.getScriptObject();
-					if (scriptable instanceof IRuntimeComponent)
+					for (int i = 0; i < labels.size(); i++)
 					{
-						((IRuntimeComponent)scriptable).setVisible(b);
-					}
-					else
-					{
-						label.setComponentVisible(b);
+						ILabel label = labels.get(i);
+						IScriptable scriptable = label.getScriptObject();
+						if (scriptable instanceof IRuntimeComponent)
+						{
+							((IRuntimeComponent)scriptable).setVisible(b);
+						}
+						else
+						{
+							label.setComponentVisible(b);
+						}
 					}
 				}
 			}
@@ -161,10 +171,16 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		}
 	}
 
-	public void setSize(int x, int y)
+	public void setSize(int width, int height)
 	{
-		setComponentSize(x, y);
-		getChangesRecorder().setSize(x, y, getComponent().getBorder(), getComponent().getMargin(), 0);
+		Dimension old = new Dimension(getWidth(), getHeight());
+		Dimension newSize = new Dimension(width, height);
+		if (!old.equals(newSize))
+		{
+			setComponentSize(newSize);
+
+			getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0);
+		}
 	}
 
 	/** Get the value for a choice on possibly multiple values.

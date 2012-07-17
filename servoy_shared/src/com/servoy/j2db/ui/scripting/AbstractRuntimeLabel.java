@@ -26,6 +26,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeBaseLabel;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable label.
@@ -48,14 +49,20 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 
 	public void setImageURL(String text_url)
 	{
-		getComponent().setImageURL(text_url);
-		getChangesRecorder().setChanged();
+		if (!Utils.safeEquals(text_url, getImageURL()))
+		{
+			getComponent().setImageURL(text_url);
+			getChangesRecorder().setChanged();
+		}
 	}
 
 	public void setRolloverImageURL(String imageUrl)
 	{
-		getComponent().setRolloverImageURL(imageUrl);
-		getChangesRecorder().setChanged();
+		if (!Utils.safeEquals(imageUrl, getRolloverImageURL()))
+		{
+			getComponent().setRolloverImageURL(imageUrl);
+			getChangesRecorder().setChanged();
+		}
 	}
 
 	public String getElementType()
@@ -119,11 +126,14 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 
 	public void setMnemonic(String m)
 	{
-		String mnemonic = application.getI18NMessageIfPrefixed(m);
-		if (mnemonic != null && mnemonic.length() > 0)
+		if (!Utils.safeEquals(m, getMnemonic()))
 		{
-			getComponent().setDisplayedMnemonic(mnemonic.charAt(0));
-			getChangesRecorder().setChanged();
+			String mnemonic = application.getI18NMessageIfPrefixed(m);
+			if (mnemonic != null && mnemonic.length() > 0)
+			{
+				getComponent().setDisplayedMnemonic(mnemonic.charAt(0));
+				getChangesRecorder().setChanged();
+			}
 		}
 	}
 
@@ -139,12 +149,15 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 
 	public void setFormat(String formatString)
 	{
-		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
-			? null : componentFormat.parsedFormat.getUIConverterName(),
-			componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
-			: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
-		getChangesRecorder().setChanged();
-		fireOnRender();
+		if (!Utils.safeEquals(formatString, getFormat()))
+		{
+			setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
+				? null : componentFormat.parsedFormat.getUIConverterName(),
+				componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
+				: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
+			getChangesRecorder().setChanged();
+			fireOnRender();
+		}
 	}
 
 	public String getFormat()

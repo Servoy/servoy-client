@@ -20,6 +20,8 @@ package com.servoy.j2db.ui.scripting;
 import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IPersist;
@@ -39,9 +41,25 @@ import com.servoy.j2db.util.IDelegate;
  * @since 6.1
  *
  */
+@SuppressWarnings("nls")
 public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent> extends AbstractRuntimeBaseComponent<C> implements IScriptRenderMethods,
 	ISupportOnRenderCallback
 {
+
+	private static final Set<String> propertiesToListenTo = new HashSet<String>();
+	static
+	{
+		propertiesToListenTo.add("bgcolor");
+		propertiesToListenTo.add("enabled");
+		propertiesToListenTo.add("border");
+		propertiesToListenTo.add("fgcolor");
+		propertiesToListenTo.add("font");
+		propertiesToListenTo.add("toolTipText");
+		propertiesToListenTo.add("transparant");
+		propertiesToListenTo.add("visible");
+	}
+
+
 	private final IScriptRenderMethods renderable;
 	private final RenderEventExecutor renderEventExecutor;
 
@@ -101,60 +119,18 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 		getChangesRecorder().setChanged();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent#propertyChanged(java.lang.String, java.lang.Object, java.lang.Object)
+	 */
 	@Override
-	public void setBgcolor(String clr)
+	protected void propertyChanged(String propertyName, Object newValue, Object oldValue)
 	{
-		super.setBgcolor(clr);
-		fireOnRender();
-	}
-
-	@Override
-	public void setEnabled(final boolean b)
-	{
-		super.setEnabled(b);
-		fireOnRender();
-	}
-
-	@Override
-	public void setBorder(String spec)
-	{
-		super.setBorder(spec);
-		fireOnRender();
-	}
-
-	@Override
-	public void setFgcolor(String clr)
-	{
-		super.setFgcolor(clr);
-		fireOnRender();
-	}
-
-	@Override
-	public void setFont(String spec)
-	{
-		super.setFont(spec);
-		fireOnRender();
-	}
-
-	@Override
-	public void setToolTipText(String tooltip)
-	{
-		super.setToolTipText(tooltip);
-		fireOnRender();
-	}
-
-	@Override
-	public void setTransparent(boolean b)
-	{
-		super.setTransparent(b);
-		fireOnRender();
-	}
-
-	@Override
-	public void setVisible(boolean b)
-	{
-		super.setVisible(b);
-		fireOnRender();
+		if (propertiesToListenTo.contains(propertyName))
+		{
+			fireOnRender();
+		}
 	}
 
 	protected void fireOnRender()

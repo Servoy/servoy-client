@@ -47,17 +47,22 @@ public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistCompon
 	}
 
 	@Override
-	public void setSize(int x, int y)
+	public void setSize(int width, int height)
 	{
-		if (getComponent() instanceof ISupportCachedLocationAndSize)
+		Dimension old = new Dimension(getWidth(), getHeight());
+		Dimension newSize = new Dimension(width, height);
+		if (!old.equals(newSize))
 		{
-			((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(x, y));
+			if (getComponent() instanceof ISupportCachedLocationAndSize)
+			{
+				((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(width, height));
+			}
+			getComponent().setSize(new Dimension(width, height));
+			if (getComponent() instanceof JComponent)
+			{
+				((JComponent)getComponent()).validate();
+			}
+			getChangesRecorder().setSize(width, height, null, null, 0);
 		}
-		getComponent().setSize(new Dimension(x, y));
-		if (getComponent() instanceof JComponent)
-		{
-			((JComponent)getComponent()).validate();
-		}
-		getChangesRecorder().setSize(x, y, null, null, 0);
 	}
 }

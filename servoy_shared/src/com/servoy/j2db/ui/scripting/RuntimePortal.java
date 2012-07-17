@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Rectangle;
 
@@ -139,8 +140,13 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 
 	public void setReadOnly(boolean b)
 	{
-		getComponent().setReadOnly(b);
-		getChangesRecorder().setChanged();
+		boolean old = isReadOnly();
+		if (old != b)
+		{
+			getComponent().setReadOnly(b);
+			getChangesRecorder().setChanged();
+			propertyChanged("readOnly", Boolean.valueOf(b), Boolean.valueOf(old));
+		}
 	}
 
 	public int getAbsoluteFormLocationY()
@@ -226,10 +232,15 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 		}
 	}
 
-	public void setSize(int x, int y)
+	public void setSize(int width, int height)
 	{
-		setComponentSize(x, y);
-		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
+		Dimension old = new Dimension(getWidth(), getHeight());
+		Dimension newSize = new Dimension(width, height);
+		if (!old.equals(newSize))
+		{
+			setComponentSize(newSize);
+			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
+		}
 	}
 
 	public boolean isReadOnly()

@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Dimension;
+
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 
@@ -25,6 +27,7 @@ import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeBaseButton;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable button.
@@ -43,9 +46,12 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 	@Override
 	public void setBorder(String spec)
 	{
-		super.setBorder(spec);
-		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), getComponent().getMargin(),
-			0, true, getComponent().getVerticalAlignment());
+		if (!Utils.safeEquals(getBorder(), spec))
+		{
+			super.setBorder(spec);
+			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(),
+				getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
+		}
 	}
 
 	@Override
@@ -64,8 +70,14 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 
 	public void setSize(int width, int height)
 	{
-		setComponentSize(width, height);
-		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
+		Dimension old = new Dimension(getWidth(), getHeight());
+		Dimension newSize = new Dimension(width, height);
+		if (!old.equals(newSize))
+		{
+			setComponentSize(newSize);
+
+			getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
+		}
 	}
 
 	public void requestFocus()

@@ -635,6 +635,18 @@ public class Utils
 	 */
 	public static boolean stringSafeEquals(String left, String right)
 	{
+		return safeEquals(left, right);
+	}
+
+	/**
+	 * Compares two objects no matter if they are null
+	 * 
+	 * @param left object
+	 * @param right object
+	 * @return true if they are the same
+	 */
+	public static boolean safeEquals(Object left, Object right)
+	{
 		if (left == null)
 		{
 			return right == null;

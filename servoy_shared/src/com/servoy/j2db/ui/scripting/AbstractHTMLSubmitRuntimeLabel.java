@@ -18,6 +18,7 @@
 package com.servoy.j2db.ui.scripting;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Insets;
 
 import javax.swing.BorderFactory;
@@ -31,6 +32,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.HasRuntimeLabelFor;
 import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable component which has label + html submit behavior.
@@ -48,46 +50,54 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 	/*
 	 * size---------------------------------------------------
 	 */
-	public void setSize(int x, int y)
+	public void setSize(int width, int height)
 	{
-		setComponentSize(x, y);
-		Border b = getComponent().getBorder();
-		Insets m = null;
-		// empty border gets handled as margin
-		if (b instanceof EmptyBorder)
+		Dimension old = new Dimension(getWidth(), getHeight());
+		Dimension newSize = new Dimension(width, height);
+		if (!old.equals(newSize))
 		{
-			m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
-			b = null;
+			setComponentSize(newSize);
+			Border b = getComponent().getBorder();
+			Insets m = null;
+			// empty border gets handled as margin
+			if (b instanceof EmptyBorder)
+			{
+				m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
+				b = null;
+			}
+			getChangesRecorder().setSize(width, height, b, m, getComponent().getFontSize(), false, getComponent().getVerticalAlignment());
 		}
-		getChangesRecorder().setSize(x, y, b, m, getComponent().getFontSize(), false, getComponent().getVerticalAlignment());
 	}
 
 	@Override
 	public void setBorder(String spec)
 	{
-		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = getComponent().getBorder();
-		if (getComponent() instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
+		if (!Utils.safeEquals(getBorder(), spec))
 		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
-			getComponent().setBorder(
-				BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+			Border border = ComponentFactoryHelper.createBorder(spec);
+			Border oldBorder = getComponent().getBorder();
+			if (getComponent() instanceof Component && oldBorder instanceof CompoundBorder && ((CompoundBorder)oldBorder).getInsideBorder() != null)
+			{
+				Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
+				getComponent().setBorder(
+					BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+			}
+			else
+			{
+				getComponent().setBorder(border);
+			}
+			getChangesRecorder().setBorder(spec);
+			Border b = border;
+			Insets m = null;
+			// empty border gets handled as margin
+			if (b instanceof EmptyBorder)
+			{
+				m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
+				b = null;
+			}
+			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, b, m, getComponent().getFontSize(), false,
+				getComponent().getVerticalAlignment());
 		}
-		else
-		{
-			getComponent().setBorder(border);
-		}
-		getChangesRecorder().setBorder(spec);
-		Border b = border;
-		Insets m = null;
-		// empty border gets handled as margin
-		if (b instanceof EmptyBorder)
-		{
-			m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
-			b = null;
-		}
-		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, b, m, getComponent().getFontSize(), false,
-			getComponent().getVerticalAlignment());
 	}
 
 	@Deprecated

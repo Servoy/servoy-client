@@ -26,6 +26,7 @@ import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.HasRuntimeEditable;
 import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
 import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable valuelist component.
@@ -50,18 +51,24 @@ public abstract class AbstractRuntimeFormattedValuelistComponent<C extends IFiel
 
 	public void setEditable(boolean b)
 	{
-		getComponent().setEditable(b);
-		getChangesRecorder().setChanged();
+		if (isEditable() != b)
+		{
+			getComponent().setEditable(b);
+			getChangesRecorder().setChanged();
+		}
 	}
 
 	public void setFormat(String formatString)
 	{
-		setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
-			? null : componentFormat.parsedFormat.getUIConverterName(),
-			componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
-			: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
-		getChangesRecorder().setChanged();
-		fireOnRender();
+		if (Utils.safeEquals(formatString, getFormat()))
+		{
+			setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
+				? null : componentFormat.parsedFormat.getUIConverterName(),
+				componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
+				: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
+			getChangesRecorder().setChanged();
+			fireOnRender();
+		}
 	}
 
 	public String getFormat()

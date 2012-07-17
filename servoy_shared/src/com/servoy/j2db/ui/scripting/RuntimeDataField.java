@@ -38,6 +38,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeTextField;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Scriptable plain text component.
@@ -142,19 +143,22 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 	@Override
 	public void setBorder(String spec)
 	{
-		Border border = ComponentFactoryHelper.createBorder(spec);
-		Border oldBorder = getComponent().getBorder();
-		if (getComponent() instanceof Component && !(border instanceof CompoundBorder) && oldBorder instanceof CompoundBorder &&
-			((CompoundBorder)oldBorder).getInsideBorder() != null)
+		if (!Utils.safeEquals(spec, getBorder()))
 		{
-			Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
-			getComponent().setBorder(
-				BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+			Border border = ComponentFactoryHelper.createBorder(spec);
+			Border oldBorder = getComponent().getBorder();
+			if (getComponent() instanceof Component && !(border instanceof CompoundBorder) && oldBorder instanceof CompoundBorder &&
+				((CompoundBorder)oldBorder).getInsideBorder() != null)
+			{
+				Insets insets = ((CompoundBorder)oldBorder).getInsideBorder().getBorderInsets((Component)getComponent());
+				getComponent().setBorder(
+					BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right)));
+			}
+			else
+			{
+				getComponent().setBorder(border);
+			}
+			getChangesRecorder().setBorder(spec);
 		}
-		else
-		{
-			getComponent().setBorder(border);
-		}
-		getChangesRecorder().setBorder(spec);
 	}
 }

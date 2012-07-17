@@ -51,6 +51,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  * @since 6.0
  */
+@SuppressWarnings("nls")
 public abstract class AbstractRuntimeBaseComponent<C extends IComponent> implements IScriptable, IRuntimeComponent, Wrapper
 {
 	private C component;
@@ -103,6 +104,16 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		return jsChangeRecorder;
 	}
 
+
+	/**
+	 * @param propertyName
+	 * @param newValue
+	 * @param oldValue
+	 */
+	protected void propertyChanged(String propertyName, Object newValue, Object oldValue)
+	{
+	}
+
 	public String getBgcolor()
 	{
 		return PersistHelper.createColorString(getComponent().getBackground());
@@ -110,8 +121,13 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setBgcolor(String clr)
 	{
-		getComponent().setBackground(PersistHelper.createColor(clr));
-		if (getComponent().isOpaque()) getChangesRecorder().setBgcolor(clr);
+		String old = getBgcolor();
+		if (!Utils.stringSafeEquals(old, clr))
+		{
+			getComponent().setBackground(PersistHelper.createColor(clr));
+			if (getComponent().isOpaque()) getChangesRecorder().setBgcolor(clr);
+			propertyChanged("bgcolor", clr, old);
+		}
 	}
 
 	public String getFgcolor()
@@ -121,14 +137,24 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setFgcolor(String clr)
 	{
-		getComponent().setForeground(PersistHelper.createColor(clr));
-		getChangesRecorder().setFgcolor(clr);
+		String old = getFgcolor();
+		if (!Utils.stringSafeEquals(old, clr))
+		{
+			getComponent().setForeground(PersistHelper.createColor(clr));
+			getChangesRecorder().setFgcolor(clr);
+			propertyChanged("fgcolor", clr, old);
+		}
 	}
 
 	public void setFont(String spec)
 	{
-		getComponent().setFont(PersistHelper.createFont(spec));
-		getChangesRecorder().setFont(spec);
+		String old = getFont();
+		if (!Utils.stringSafeEquals(old, spec))
+		{
+			getComponent().setFont(PersistHelper.createFont(spec));
+			getChangesRecorder().setFont(spec);
+			propertyChanged("font", spec, old);
+		}
 	}
 
 	public String getFont()
@@ -171,10 +197,12 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setVisible(boolean b)
 	{
-		if (!(getComponent() instanceof ISupportSecuritySettings) || ((ISupportSecuritySettings)getComponent()).isViewable())
+		boolean old = isVisible();
+		if (b != old && (!(getComponent() instanceof ISupportSecuritySettings) || ((ISupportSecuritySettings)getComponent()).isViewable()))
 		{
 			getComponent().setComponentVisible(b);
 			getChangesRecorder().setVisible(b);
+			propertyChanged("visible", Boolean.valueOf(b), Boolean.valueOf(old));
 		}
 	}
 
@@ -185,17 +213,27 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setTransparent(boolean b)
 	{
-		getComponent().setOpaque(!b);
-		getChangesRecorder().setTransparent(b);
-		if (getComponent() instanceof JComponent)
+		boolean old = isTransparent();
+		if (b != old)
 		{
-			((JComponent)getComponent()).repaint();
+			getComponent().setOpaque(!b);
+			getChangesRecorder().setTransparent(b);
+			if (getComponent() instanceof JComponent)
+			{
+				((JComponent)getComponent()).repaint();
+			}
+			propertyChanged("transparant", Boolean.valueOf(b), Boolean.valueOf(old));
 		}
 	}
 
 	public void setEnabled(final boolean b)
 	{
-		getComponent().setComponentEnabled(b);
+		boolean old = isEnabled();
+		if (b != old)
+		{
+			getComponent().setComponentEnabled(b);
+			propertyChanged("enabled", Boolean.valueOf(b), Boolean.valueOf(old));
+		}
 	}
 
 	public boolean isEnabled()
@@ -208,32 +246,40 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setLocation(int x, int y)
 	{
-		getComponent().setLocation(new Point(x, y));
-		getChangesRecorder().setLocation(x, y);
-		if (getComponent() instanceof ISupportCachedLocationAndSize)
+		Point newValue = new Point(x, y);
+		Point oldValue = new Point(getLocationX(), getLocationY());
+		if (!newValue.equals(oldValue))
 		{
-			((ISupportCachedLocationAndSize)getComponent()).setCachedLocation(new Point(x, y));
+			getComponent().setLocation(newValue);
+			getChangesRecorder().setLocation(x, y);
+			if (getComponent() instanceof ISupportCachedLocationAndSize)
+			{
+				((ISupportCachedLocationAndSize)getComponent()).setCachedLocation(new Point(x, y));
+			}
+			if (getComponent() instanceof JComponent)
+			{
+				((JComponent)getComponent()).validate();
+			}
+			locationSet = true;
+			propertyChanged("location", newValue, oldValue);
 		}
-		if (getComponent() instanceof JComponent)
-		{
-			((JComponent)getComponent()).validate();
-		}
-		locationSet = true;
 	}
 
-	protected void setComponentSize(int x, int y)
+	protected final void setComponentSize(Dimension size)
 	{
+		Dimension oldSize = getComponent().getSize();
 		// sets the component, changes recorder is not called here
 		if (getComponent() instanceof ISupportCachedLocationAndSize)
 		{
-			((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(x, y));
+			((ISupportCachedLocationAndSize)getComponent()).setCachedSize(size);
 		}
-		getComponent().setSize(new Dimension(x, y));
+		getComponent().setSize(size);
 		if (getComponent() instanceof JComponent)
 		{
 			((JComponent)getComponent()).validate();
 		}
 		sizeSet = true;
+		propertyChanged("size", size, oldSize);
 	}
 
 	public String getName()
@@ -302,8 +348,13 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setBorder(String spec)
 	{
-		getComponent().setBorder(ComponentFactoryHelper.createBorder(spec));
-		getChangesRecorder().setBorder(spec);
+		String old = getBorder();
+		if (!Utils.stringSafeEquals(old, spec))
+		{
+			getComponent().setBorder(ComponentFactoryHelper.createBorder(spec));
+			getChangesRecorder().setBorder(spec);
+			propertyChanged("border", spec, old);
+		}
 	}
 
 	public String getToolTipText()
@@ -313,8 +364,13 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setToolTipText(String tooltip)
 	{
-		getComponent().setToolTipText(tooltip);
-		getChangesRecorder().setChanged();
+		String old = getToolTipText();
+		if (!Utils.stringSafeEquals(old, tooltip))
+		{
+			getComponent().setToolTipText(tooltip);
+			getChangesRecorder().setChanged();
+			propertyChanged("toolTipText", tooltip, old);
+		}
 	}
 
 	public String getValueString()

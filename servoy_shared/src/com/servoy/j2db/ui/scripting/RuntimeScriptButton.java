@@ -21,6 +21,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeButton;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Scriptable button.
@@ -45,15 +46,18 @@ public class RuntimeScriptButton extends AbstractRuntimeButton<IButton> implemen
 
 	public void setText(String txt)
 	{
-		text = txt;
-		if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
+		if (!Utils.safeEquals(txt, getText()))
 		{
-			getComponent().setText(application.getI18NMessage(txt));
+			text = txt;
+			if (txt != null && txt.startsWith("i18n:")) //$NON-NLS-1$
+			{
+				getComponent().setText(application.getI18NMessage(txt));
+			}
+			else
+			{
+				getComponent().setText(txt);
+			}
+			getChangesRecorder().setChanged();
 		}
-		else
-		{
-			getComponent().setText(txt);
-		}
-		getChangesRecorder().setChanged();
 	}
 }
