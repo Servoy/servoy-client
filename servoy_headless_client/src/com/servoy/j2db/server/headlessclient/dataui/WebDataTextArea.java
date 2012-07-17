@@ -109,7 +109,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 				}
 			}));
 
-		add(new ServoyAjaxEventBehavior("onblur", "GetTextCmd")
+		add(new ServoyAjaxEventBehavior("onselect", "GetTextCmd")
 		{
 			@Override
 			protected void onEvent(AjaxRequestTarget target)
