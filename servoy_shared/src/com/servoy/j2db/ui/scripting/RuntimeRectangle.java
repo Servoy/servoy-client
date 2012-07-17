@@ -53,9 +53,9 @@ public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implem
 	{
 		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
+		setComponentSize(newSize);
 		if (!old.equals(newSize))
 		{
-			setComponentSize(newSize);
 			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 		}
 	}

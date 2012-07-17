@@ -172,10 +172,9 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 	{
 		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
+		setComponentSize(newSize);
 		if (!old.equals(newSize))
 		{
-			setComponentSize(newSize);
-
 			if (getComponent() instanceof JComponent)
 			{
 				((JComponent)getComponent()).repaint();

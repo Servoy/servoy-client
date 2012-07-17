@@ -72,10 +72,9 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 	{
 		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
+		setComponentSize(newSize);
 		if (!old.equals(newSize))
 		{
-			setComponentSize(newSize);
-
 			getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
 		}
 	}

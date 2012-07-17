@@ -252,17 +252,17 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		{
 			getComponent().setLocation(newValue);
 			getChangesRecorder().setLocation(x, y);
-			if (getComponent() instanceof ISupportCachedLocationAndSize)
-			{
-				((ISupportCachedLocationAndSize)getComponent()).setCachedLocation(new Point(x, y));
-			}
 			if (getComponent() instanceof JComponent)
 			{
 				((JComponent)getComponent()).validate();
 			}
-			locationSet = true;
 			propertyChanged("location", newValue, oldValue);
 		}
+		if (getComponent() instanceof ISupportCachedLocationAndSize)
+		{
+			((ISupportCachedLocationAndSize)getComponent()).setCachedLocation(new Point(x, y));
+		}
+		locationSet = true;
 	}
 
 	protected final void setComponentSize(Dimension size)

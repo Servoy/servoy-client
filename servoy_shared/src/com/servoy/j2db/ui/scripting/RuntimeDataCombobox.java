@@ -19,12 +19,9 @@ package com.servoy.j2db.ui.scripting;
 
 import java.awt.Dimension;
 
-import javax.swing.JComponent;
-
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
-import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.runtime.IRuntimeCombobox;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
@@ -51,17 +48,9 @@ public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistCompon
 	{
 		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
+		setComponentSize(newSize);
 		if (!old.equals(newSize))
 		{
-			if (getComponent() instanceof ISupportCachedLocationAndSize)
-			{
-				((ISupportCachedLocationAndSize)getComponent()).setCachedSize(new Dimension(width, height));
-			}
-			getComponent().setSize(new Dimension(width, height));
-			if (getComponent() instanceof JComponent)
-			{
-				((JComponent)getComponent()).validate();
-			}
 			getChangesRecorder().setSize(width, height, null, null, 0);
 		}
 	}

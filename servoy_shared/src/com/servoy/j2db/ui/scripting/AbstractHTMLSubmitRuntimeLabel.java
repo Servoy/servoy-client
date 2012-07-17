@@ -54,9 +54,9 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 	{
 		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
+		setComponentSize(newSize);
 		if (!old.equals(newSize))
 		{
-			setComponentSize(newSize);
 			Border b = getComponent().getBorder();
 			Insets m = null;
 			// empty border gets handled as margin

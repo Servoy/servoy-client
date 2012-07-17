@@ -175,10 +175,9 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 	{
 		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
+		setComponentSize(newSize);
 		if (!old.equals(newSize))
 		{
-			setComponentSize(newSize);
-
 			getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0);
 		}
 	}
