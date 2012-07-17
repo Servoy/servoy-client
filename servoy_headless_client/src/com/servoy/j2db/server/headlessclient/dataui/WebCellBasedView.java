@@ -241,6 +241,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private boolean isLeftToRightOrientation;
 	private Dimension formBodySize;
 
+	private boolean isListViewMode;
+
 	/**
 	 * @author jcompagner
 	 *
@@ -583,7 +585,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			Object color = null, fgColor = null, styleFont = null, styleBorder = null;
 
-			if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+			if (!isListViewMode())
 			{
 				color = WebCellBasedView.this.getListItemBgColor(listItem, selected);
 				if (color instanceof Undefined) color = null;
@@ -614,7 +616,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					public void add(IPersist element, final Component comp)
 					{
 						Component listItemChild = comp;
-						if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+						if (!isListViewMode())
 						{
 							Component component = elementToColumnIdentifierComponent.values().iterator().next();
 							if (component instanceof IComponent && comp instanceof IScriptableProvider)
@@ -659,7 +661,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						else
 						{
 							// if anchoring add wrapper to the listItemChild
-							if (useAnchors &&
+							if (!(cellview instanceof Portal) &&
+								useAnchors &&
 								(((element instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)element)) || (element instanceof Bean) || ((element instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)element))))
 							{
 								listItemChild = WebAnchoringHelper.getWrapperComponent(comp, (IFormElement)element, listStartY, formBodySize,
@@ -902,7 +905,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Object color = view.getStyleAttributeForListItem(WebCellBasedViewListViewItem.this.listItem, isSelectedEl,
 						ISupportRowStyling.ATTRIBUTE.BGCOLOR);
 
-					return color != null ? "margin-left: 3px;background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+					if (cellview instanceof Portal)
+					{
+						return color != null ? "background-color: " + color : ""; //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					else
+					{
+						return color != null
+							? "margin-left: 3px;background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+					}
 				}
 			}));
 		}
@@ -1055,7 +1066,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			if (listContainer == null)
 			{
-				if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
+				if (isListViewMode())
 				{
 					listContainer = new WebCellBasedViewListViewItem(this);
 
@@ -1285,6 +1296,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.formDesignHeight = form.getSize().height;
 		this.sizeHint = sizeHint;
 		this.viewType = viewType;
+		this.isListViewMode = viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW;
 
 		this.bodyWidthHint = form.getWidth();
 
@@ -1412,6 +1424,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (cellview instanceof Portal)
 		{
 			Portal p = (Portal)cellview;
+			isListViewMode = p.getMultiLine();
+
 			setRowBGColorScript(p.getRowBGColorCalculation(), p.getInstanceMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 			sortable = p.getSortable();
 			initialSortString = p.getInitialSort();
@@ -1507,28 +1521,61 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		maxHeight = 0;
 		try
 		{
-			Iterator<IPersist> components = cellview.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-			while (components.hasNext())
+			if (isListViewMode() && !(cellview instanceof Portal))
 			{
-				IPersist element = components.next();
-				if (element instanceof Field || element instanceof GraphicalComponent)
+				Iterator<Part> pIte = form.getParts();
+				while (pIte.hasNext())
 				{
-					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+					Part p = pIte.next();
+					if (p.getPartType() == Part.BODY)
 					{
-						labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
-						continue;
-					}
-					Point l = ((IFormElement)element).getLocation();
-					if (l == null)
-					{
-						continue;// unknown where to add
-					}
-					if (l.y >= startY && l.y < endY)
-					{
-						int height = ((IFormElement)element).getSize().height;
-						if (height > maxHeight) maxHeight = height;
+						maxHeight = p.getHeight();
+						break;
 					}
 				}
+			}
+			else
+			{
+				int minElY = 0;
+				boolean isMinElYSet = false;
+				int height;
+				Iterator<IPersist> components = cellview.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				while (components.hasNext())
+				{
+					IPersist element = components.next();
+					if (element instanceof Field || element instanceof GraphicalComponent)
+					{
+						if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
+						{
+							labelsFor.put(((GraphicalComponent)element).getLabelFor(), element);
+							continue;
+						}
+						Point l = ((IFormElement)element).getLocation();
+						if (l == null)
+						{
+							continue;// unknown where to add
+						}
+						if (l.y >= startY && l.y < endY)
+						{
+
+							if (isListViewMode())
+							{
+								height = l.y + ((IFormElement)element).getSize().height;
+								if (!isMinElYSet || minElY > l.y)
+								{
+									minElY = l.y;
+									isMinElYSet = true;
+								}
+							}
+							else
+							{
+								height = ((IFormElement)element).getSize().height;
+							}
+							if (height > maxHeight) maxHeight = height;
+						}
+					}
+				}
+				maxHeight = maxHeight - minElY;
 			}
 			if (maxHeight == 0) maxHeight = 20;
 		}
@@ -2253,7 +2300,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			IPersist element = elements.get(i);
 			if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
 			{
-				if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+				if (!isListViewMode())
 				{
 					if (element instanceof GraphicalComponent && ((GraphicalComponent)element).getLabelFor() != null)
 					{
@@ -2282,7 +2329,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					initializeComponent((Component)c, view, element);
 					output.add(element, (Component)c);
 
-					if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+					if (!isListViewMode())
 					{
 						// reset location.x as defined in this order, elements are ordered by location.x which is modified in drag-n-drop
 						Point loc = c.getLocation();
@@ -3645,6 +3692,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return true;
 	}
 
+	public boolean isListViewMode()
+	{
+		return isListViewMode;
+	}
+
 	public IRecordInternal getDragRecord(Point xy)
 	{
 		// don't need this, ignore
@@ -3891,7 +3943,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 						Object selectedColor = null, selectedFgColor = null, selectedFont = null, selectedBorder = null;
 						selectedColor = getListItemBgColor(selectedListItem, isSelected);
-						if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+						if (!isListViewMode())
 						{
 							selectedFgColor = getListItemFgColor(selectedListItem, isSelected);
 							selectedFont = getListItemFont(selectedListItem, isSelected);
@@ -3948,7 +4000,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						append(bstyle).append("', '"). //$NON-NLS-1$
 						append(bwidth).append("', '"). //$NON-NLS-1$
 						append(bcolor).append("', "). //$NON-NLS-1$
-						append((viewType == IForm.LIST_VIEW) || (viewType == FormController.LOCKED_LIST_VIEW)).append(");\n"); //$NON-NLS-1$
+						append(isListViewMode()).append(");\n"); //$NON-NLS-1$
 					}
 				}
 			}
@@ -3978,7 +4030,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
 						String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
-						if (viewType != IForm.LIST_VIEW && viewType != FormController.LOCKED_LIST_VIEW)
+						if (!isListViewMode())
 						{
 							Object color = WebCellBasedView.this.getListItemBgColor(selectedListItem, isSelected);
 							sColor = (color == null || color instanceof Undefined) ? null : color.toString();

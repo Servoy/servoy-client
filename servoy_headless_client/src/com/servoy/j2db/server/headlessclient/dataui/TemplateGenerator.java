@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.rmi.RemoteException;
@@ -538,6 +539,9 @@ public class TemplateGenerator
 				}
 			}
 
+			// true for list view type and multi-line portals
+			boolean listViewMode = viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW;
+
 			if (obj instanceof Form)
 			{
 				html.append("<span servoy:id='info'></span>\n<table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");
@@ -546,6 +550,8 @@ public class TemplateGenerator
 			//is portal
 			{
 				Portal p = (Portal)obj;
+				listViewMode = p.getMultiLine();
+
 				sortable = p.getSortable();
 				TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, p));
 				BorderAndPadding ins = applyBaseComponentProperties(p, form, styleObj, null, null, sp);
@@ -556,14 +562,41 @@ public class TemplateGenerator
 				html.append(getCSSClassParameter("portal"));//$NON-NLS-1$ 
 				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
-			if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
+
+			int yOffset = 0;
+			if (listViewMode)
 			{
-				css.addCSSBoundsHandler(new YOffsetCSSBoundsHandler(-startY));
+				if (obj instanceof Portal)
+				{
+					Iterator<IPersist> it = obj.getAllObjects();
+					boolean isYOffsetSet = false;
+					while (it.hasNext())
+					{
+						IPersist element = it.next();
+						if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
+						{
+							Point l = ((IFormElement)element).getLocation();
+
+							if (l == null) continue;//unknown where to add
+
+							if (l.y >= startY && l.y < endY)
+							{
+								if (!isYOffsetSet || yOffset > l.y)
+								{
+									yOffset = l.y;
+									isYOffsetSet = true;
+								}
+							}
+						}
+					}
+				}
+				css.addCSSBoundsHandler(new YOffsetCSSBoundsHandler(-startY - yOffset));
 			}
 			else
 			{
 				css.addCSSBoundsHandler(NoLocationCSSBoundsHandler.INSTANCE);
 			}
+
 			html.append("<tr><td height='99%'><table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");
 			if (addHeaders)
 			{
@@ -841,21 +874,50 @@ public class TemplateGenerator
 
 			StringBuffer columns = new StringBuffer();
 			int firstComponentHeight = -1;
-			if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
+			if (listViewMode)
 			{
-				Iterator<Part> partIte = form.getParts();
-				while (partIte.hasNext())
+				if (!(obj instanceof Portal))
 				{
-					Part p = partIte.next();
-					if (p.getPartType() == Part.BODY)
+					Iterator<Part> partIte = form.getParts();
+					while (partIte.hasNext())
 					{
-						firstComponentHeight = p.getHeight() - startY;
-						break;
+						Part p = partIte.next();
+						if (p.getPartType() == Part.BODY)
+						{
+							firstComponentHeight = p.getHeight() - startY;
+							break;
+						}
 					}
 				}
-				columns.append("<td><div servoy:id='listViewItem' class=\"listViewItem\" style=\"position: absolute; height: ").append(firstComponentHeight).append(
-					"px;");
-				if (enableAnchoring)
+
+				StringBuffer sbElements = new StringBuffer();
+				Iterator< ? > it = obj instanceof Portal ? obj.getAllObjects() : form.getFormElementsSortedByFormIndex();
+				while (it.hasNext())
+				{
+					Object element = it.next();
+					if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
+					{
+						Point l = ((IFormElement)element).getLocation();
+
+						if (l == null) continue;//unknown where to add
+
+						if (l.y >= startY && l.y < endY)
+						{
+							if (obj instanceof Portal)
+							{
+								Dimension d = ((IFormElement)element).getSize();
+								if (l.y + d.height > firstComponentHeight) firstComponentHeight = l.y + d.height;
+							}
+
+							createTableViewComponentHTMLAndStyles((IFormElement)element, form, sbElements, css, bgColor, startY, endY, enableAnchoring, sp);
+							sbElements.append('\n');
+						}
+					}
+				}
+
+				columns.append("<td><div servoy:id='listViewItem' class=\"listViewItem\" style=\"position: absolute; height: ").append(
+					firstComponentHeight - yOffset).append("px;");
+				if (enableAnchoring || obj instanceof Portal)
 				{
 					columns.append(" left: 0px; right: 0px;");
 				}
@@ -864,25 +926,7 @@ public class TemplateGenerator
 					columns.append(" width: ").append(form.getWidth()).append("px;");
 				}
 				columns.append("\">");
-
-				Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
-				while (it.hasNext())
-				{
-					IFormElement element = it.next();
-					if (element instanceof Field || element instanceof GraphicalComponent || element instanceof Bean)
-					{
-						Point l = element.getLocation();
-
-						if (l == null) continue;//unknown where to add
-
-						if (l.y >= startY && l.y < endY)
-						{
-							createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, enableAnchoring, sp);
-							columns.append('\n');
-						}
-					}
-				}
-
+				columns.append(sbElements);
 				columns.append("</div></td>\n");
 			}
 			else
@@ -947,7 +991,6 @@ public class TemplateGenerator
 				}
 			}
 
-
 			// add filler, needed for column resize.
 			// no filler when the tableview has no horizontal scrollbar.
 			if (!shouldFillAllHorizSpace)
@@ -957,7 +1000,7 @@ public class TemplateGenerator
 
 			html.append("<tr servoy:id='rows' ");
 			html.append("height='");
-			html.append(firstComponentHeight);
+			html.append(firstComponentHeight - yOffset);
 			html.append("' ");
 			if ((obj instanceof ISupportRowBGColorScript) &&
 				(((ISupportRowBGColorScript)obj).getRowBGColorScript() == null || ((ISupportRowBGColorScript)obj).getRowBGColorScript().trim().length() == 0))
