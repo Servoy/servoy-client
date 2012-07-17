@@ -235,6 +235,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private boolean isScrollMode;
 	private ScrollBehavior scrollBehavior;
 	private int maxRowsPerPage;
+	private boolean isKeepLoadedRowsInScrollMode;
 
 	private int viewType;
 
@@ -1303,8 +1304,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 
-		Object defaultScrollable = application.getClientProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE);
-		setScrollMode(Boolean.TRUE.equals(defaultScrollable));
+		setScrollMode(Boolean.TRUE.equals(application.getClientProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE)));
+		isKeepLoadedRowsInScrollMode = Boolean.TRUE.equals(application.getClientProperty(IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS));
 
 		setOutputMarkupPlaceholderTag(true);
 
@@ -4416,6 +4417,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = 0;"); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else
 			{
@@ -4444,7 +4446,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (viewStartIdx + viewSize < tableSize)
 				{
 					newRowsCount = Math.min(2 * maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
-					if (viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
+					if (!isKeepLoadedRowsInScrollMode && viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
 
 					table.setStartIndex(viewStartIdx + rowsToRemove);
 					table.setViewSize(viewSize + newRowsCount - rowsToRemove);

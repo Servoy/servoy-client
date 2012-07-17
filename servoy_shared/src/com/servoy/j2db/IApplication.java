@@ -95,6 +95,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * When Boolean.TRUE, table views in web client are by default scrollables
 	 */
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = "webClientTableViewScrollable"; //$NON-NLS-1$
+	/**
+	 * When Boolean.TRUE, scrollable table views in web client will keep not visible but loaded rows in the view 
+	 */
+	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = "webClientTableViewScrollableKeepLoadedRows"; //$NON-NLS-1$	
 
 
 	public static final String APP_WINDOW_NAME = "Application_frame";

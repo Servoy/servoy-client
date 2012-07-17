@@ -192,6 +192,20 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 
+	/**
+	 * Property than can be set using application.putClientProperty().
+	 * 
+	 * If set to true, scrollable table views in web client will keep the already loaded rows in the view
+	 * If set to false, scrollable table views in web client will unload not visible rows in the view
+	 * 
+	 * The value can be true/false
+	 * DEFAULT: false 
+	 * 
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS, true)
+	 */
+	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
+
 
 	public String getPrefix()
 	{
