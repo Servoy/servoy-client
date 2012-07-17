@@ -392,7 +392,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 			@Override
 			protected void sendRedirect(String url) throws IOException
 			{
-				if (reqUrl != null)
+				if (reqUrl != null && url.indexOf("://") == -1) //$NON-NLS-1$
 				{
 					String absUrl = RequestUtils.toAbsolutePath(reqUrl, url);
 					getHttpServletResponse().sendRedirect(absUrl);
