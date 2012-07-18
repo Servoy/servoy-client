@@ -88,6 +88,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	{
 		super(id);
 		this.application = application;
+		this.scriptable = scriptable;
 
 		RuntimeDataField fieldScriptable = new RuntimeDataField(new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
 			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
@@ -97,8 +98,6 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		field.setIgnoreOnRender(true);
 
 		add(field);
-
-		this.scriptable = scriptable;
 
 		// because the composite field will probably add one or more html tags tag besides the field component
 		// each time that component is rendered, we must make sure that we render the whole container;
@@ -306,7 +305,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	@Override
 	public String toString()
 	{
-		return scriptable.toString();
+		return scriptable != null ? scriptable.toString() : super.toString();
 	}
 
 	public void requestFocusToComponent()
