@@ -2664,6 +2664,7 @@ public class Utils
 		typesTranslator.put(Scriptable.class.getSimpleName(), getPrefixedType("Object", typePrefix));//$NON-NLS-1$ 
 		typesTranslator.put(Scriptable.class.getCanonicalName(), getPrefixedType("Object", typePrefix));//$NON-NLS-1$ 
 		typesTranslator.put(Object.class.getCanonicalName(), getPrefixedType("Object", typePrefix));//$NON-NLS-1$ 
+		typesTranslator.put(PrinterJob.class.getCanonicalName(), "PrinterJob");
 
 		if (typePrefix != null)
 		{
@@ -2680,7 +2681,6 @@ public class Utils
 			typesTranslator.put(ISMForm.class.getCanonicalName(), com.servoy.j2db.scripting.solutionmodel.JSForm.class.getCanonicalName());
 			typesTranslator.put(ISMComponent.class.getCanonicalName(), JSComponent.class.getCanonicalName());
 			typesTranslator.put(IForm.class.getCanonicalName(), com.servoy.j2db.FormController.JSForm.class.getName());
-			typesTranslator.put(PrinterJob.class.getCanonicalName(), PrinterJob.class.getCanonicalName());
 			typesTranslator.put(IQueryBuilderCondition.class.getCanonicalName(), QBCondition.class.getCanonicalName());
 			typesTranslator.put(IQueryBuilderLogicalCondition.class.getCanonicalName(), QBLogicalCondition.class.getCanonicalName());
 			typesTranslator.put(FormScope.class.getCanonicalName(), com.servoy.j2db.FormController.JSForm.class.getName());
