@@ -180,7 +180,15 @@ public class ScriptVariableScope extends LazyCompilationScope
 			{
 				previousType = nameType.put(name, new Integer(Types.OTHER));
 			}
-			else if (!(retValue instanceof String))
+			else if (retValue instanceof Number)
+			{
+				Integer prevType = nameType.get(name);
+				if (prevType == null || !(prevType.intValue() == IColumnTypes.NUMBER || prevType.intValue() == IColumnTypes.INTEGER))
+				{
+					previousType = nameType.put(name, new Integer(IColumnTypes.NUMBER));
+				}
+			}
+			else if (!(retValue instanceof String) && !(retValue == null && nameType.get(name) != null))
 			{
 				// this is not an instanceof a String and a Date so make it a 
 				previousType = nameType.put(name, new Integer(IColumnTypes.MEDIA));
