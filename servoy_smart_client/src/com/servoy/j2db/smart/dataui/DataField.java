@@ -1240,8 +1240,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.completeFormat = format;
 		this.displayFormat = format;
 		this.editFormat = format;
-		if (format != null && format.length() != 0)
+		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
+		if (format != null && format.length() != 0 && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
+			// if list has real values don't apply format, that would break typeahead
+			// if is empty custom probably setValuelistItems will be called
 			int index = format.indexOf("|"); //$NON-NLS-1$
 
 			if (index != -1)
