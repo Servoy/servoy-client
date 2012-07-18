@@ -1374,7 +1374,7 @@ public class ComponentFactory
 			case Field.TYPE_AHEAD :
 				if (field.getValuelistID() > 0)
 				{
-					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.dpType, fieldFormat.parsedFormat,
+					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.uiType, fieldFormat.parsedFormat,
 						jsChangeRecorder);
 					if (fl == null) return null;
 					scriptable = (AbstractRuntimeField< ? extends IFieldComponent>)fl.getScriptObject();
@@ -1417,7 +1417,7 @@ public class ComponentFactory
 			default ://Field.TEXT_FIELD 
 				if (field.getValuelistID() > 0)
 				{
-					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.dpType, fieldFormat.parsedFormat,
+					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.uiType, fieldFormat.parsedFormat,
 						jsChangeRecorder);
 					if (fl == null) return null;
 					scriptable = (AbstractRuntimeField< ? extends IFieldComponent>)fl.getScriptObject();
