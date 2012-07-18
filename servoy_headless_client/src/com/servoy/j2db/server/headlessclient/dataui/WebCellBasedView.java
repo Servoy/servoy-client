@@ -1029,7 +1029,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						if (!ignoreStyles) WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
 						boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
-						if ((updateComponentRenderState(c, isSelected)) && target != null)
+						if (((updateComponentRenderState(c, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null || compBorder != null))) &&
+							target != null)
 						{
 							target.addComponent(innerComponent);
 							WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
@@ -3910,9 +3911,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			while (compIte.hasNext())
 			{
 				comp = compIte.next();
-				if (comp instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)comp).getRenderEventExecutor().hasRenderCallback())
+				if (comp instanceof IScriptableProvider)
 				{
-					return true;
+					IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+					if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
+					{
+						return true;
+					}
 				}
 			}
 		}
