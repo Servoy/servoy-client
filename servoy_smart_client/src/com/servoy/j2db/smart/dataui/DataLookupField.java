@@ -952,6 +952,19 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			{
 				return super.getListCellRendererComponent(lst, null, index, isSelected, cellHasFocus);
 			}
+
+			AbstractFormatter formatter = getFormatter();
+			if (formatter != null)
+			{
+				try
+				{
+					value = formatter.valueToString(value);
+				}
+				catch (ParseException e)
+				{
+					// ignore
+				}
+			}
 			if (value instanceof String && ((String)value).trim().length() == 0)
 			{
 				setText("A"); //$NON-NLS-1$

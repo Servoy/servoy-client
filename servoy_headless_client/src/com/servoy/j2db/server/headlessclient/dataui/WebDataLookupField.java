@@ -37,6 +37,7 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
+import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
@@ -192,7 +193,19 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		{
 			protected String getTextValue(Object object)
 			{
-				String str = (object == null ? "" : object.toString()); //$NON-NLS-1$
+				String str = ""; //$NON-NLS-1$
+				if (object != null)
+				{
+					IConverter con = getConverter(object.getClass());
+					if (con != null)
+					{
+						str = con.convertToString(object, getLocale());
+					}
+					else
+					{
+						str = object.toString();
+					}
+				}
 				if (str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
 				return str;
 			}
@@ -200,9 +213,9 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			protected void renderChoice(Object object, Response response, String criteria)
 			{
 				if (IValueList.SEPARATOR_DESIGN_VALUE.equals(object)) return;
-				String renderedObject = (object == null) ? "" : object.toString();//$NON-NLS-1$
+				String renderedObject = getTextValue(object);
 				if (!HtmlUtils.hasHtmlTag(renderedObject)) renderedObject = HtmlUtils.escapeMarkup(renderedObject, true, false).toString();
-				response.write(getTextValue(object));
+				response.write(renderedObject);
 			}
 
 			/*
