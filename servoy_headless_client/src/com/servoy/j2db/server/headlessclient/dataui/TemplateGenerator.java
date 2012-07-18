@@ -1122,6 +1122,10 @@ public class TemplateGenerator
 			{
 				String name = it.next();
 				String val = getProperty(name);
+				if (name.equals(CSS.Attribute.FONT_FAMILY.toString()))
+				{
+					val = HtmlUtils.getValidFontFamilyValue(val);
+				}
 				if (pSelector != null) retval.append('\t');
 				retval.append(name);
 				retval.append(": ");
