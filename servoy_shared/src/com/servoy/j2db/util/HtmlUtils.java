@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.util;
 
+import java.util.StringTokenizer;
+
 
 public class HtmlUtils
 {
@@ -303,5 +305,36 @@ public class HtmlUtils
 
 			return buffer;
 		}
+	}
+
+	public static String getValidFontFamilyValue(String cssValue)
+	{
+		StringBuffer sb = new StringBuffer();
+		StringTokenizer tk = new StringTokenizer(cssValue, ","); //$NON-NLS-1$
+		while (tk.hasMoreTokens())
+		{
+			String fontFamily = tk.nextToken();
+			if (sb.toString().length() != 0)
+			{
+				sb.append(", "); //$NON-NLS-1$
+			}
+			fontFamily = fontFamily.trim();
+			if (!fontFamily.startsWith("'") && !fontFamily.startsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				for (int i = 0; i < fontFamily.length(); i++)
+				{
+					boolean validCharacter = (fontFamily.charAt(i) >= 'a' && fontFamily.charAt(i) <= 'z') ||
+						(fontFamily.charAt(i) >= 'A' && fontFamily.charAt(i) <= 'Z') || (fontFamily.charAt(i) >= '0' && fontFamily.charAt(i) <= '9') ||
+						fontFamily.charAt(i) == '_' || fontFamily.charAt(i) == '-';
+					if (!validCharacter)
+					{
+						fontFamily = "'" + fontFamily + "'"; //$NON-NLS-1$//$NON-NLS-2$
+						break;
+					}
+				}
+			}
+			sb.append(fontFamily);
+		}
+		return sb.toString();
 	}
 }

@@ -439,6 +439,11 @@ public class PersistHelper
 			Font guess = guessFont(name);
 			if (guess == null)
 			{
+				// maybe is family name
+				guess = createFontByFamily(name, style, size);
+			}
+			if (guess == null)
+			{
 				//fallback to LAFDefault font normally used on label, and we derive to right size and type
 				guess = UIManager.getDefaults().getFont("Label.font"); //$NON-NLS-1$
 			}
@@ -495,6 +500,22 @@ public class PersistHelper
 
 		}
 		return retval;
+	}
+
+	public static Font createFontByFamily(String family, int style, int size)
+	{
+		StringTokenizer tk = new StringTokenizer(family.toString(), ","); //$NON-NLS-1$
+		String familyName = tk.nextToken().trim();
+		if (familyName.startsWith("'") || familyName.startsWith("\"")) familyName = familyName.substring(1);
+		if (familyName.endsWith("'") || familyName.endsWith("\"")) familyName = familyName.substring(0, familyName.length() - 1);
+		for (Font font : allFonts.values())
+		{
+			if (font.getFamily().equalsIgnoreCase(familyName))
+			{
+				return font.deriveFont(style, size);
+			}
+		}
+		return null;
 	}
 
 	public static Font createFont(String s)
@@ -700,8 +721,11 @@ public class PersistHelper
 		sb.append(f.getStyle());
 		sb.append(","); //$NON-NLS-1$
 		sb.append(f.getSize());
-//		sb.append(",");
-//		sb.append(f.getFamily());
+		if (!Utils.equalObjects(f.getName(), f.getFamily()))
+		{
+			sb.append(","); //$NON-NLS-1$
+			sb.append(f.getFamily());
+		}
 		return sb.toString();
 	}
 
@@ -732,10 +756,13 @@ public class PersistHelper
 		StringTokenizer tk = new StringTokenizer(fontType, ","); //$NON-NLS-1$
 		if (tk.countTokens() >= 3)
 		{
-			String name = tk.nextToken();
+			String family = tk.nextToken();
 			int istyle = Utils.getAsInteger(tk.nextToken());
 			int isize = Utils.getAsInteger(tk.nextToken());
-			Pair<String, String> fam = new Pair<String, String>("font-family", name + ", Verdana, Arial"); //$NON-NLS-1$ //$NON-NLS-2$ 
+			if (tk.hasMoreTokens()) family = tk.nextToken();
+			family = HtmlUtils.getValidFontFamilyValue(family);
+
+			Pair<String, String> fam = new Pair<String, String>("font-family", family + ", Verdana, Arial"); //$NON-NLS-1$ //$NON-NLS-2$ 
 			Pair<String, String> size = new Pair<String, String>("font-size", isize + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 			Pair<String, String> italic = null;
 			Pair<String, String> bold = null;

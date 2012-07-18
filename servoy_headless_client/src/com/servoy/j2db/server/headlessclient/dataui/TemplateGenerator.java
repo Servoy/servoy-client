@@ -1338,6 +1338,10 @@ public class TemplateGenerator
 							appendValue(retval, pSelector, "background-clip", "padding-box");
 						}
 					}
+					if (name.equals(CSSName.FONT_FAMILY.toString()))
+					{
+						val = HtmlUtils.getValidFontFamilyValue(val);
+					}
 					appendValue(retval, pSelector, name, val);
 				}
 			}
