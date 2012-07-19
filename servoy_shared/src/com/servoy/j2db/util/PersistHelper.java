@@ -504,6 +504,7 @@ public class PersistHelper
 
 	public static Font createFontByFamily(String family, int style, int size)
 	{
+		initFonts();
 		StringTokenizer tk = new StringTokenizer(family.toString(), ","); //$NON-NLS-1$
 		String familyName = tk.nextToken().trim();
 		if (familyName.startsWith("'") || familyName.startsWith("\"")) familyName = familyName.substring(1);
