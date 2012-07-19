@@ -328,7 +328,7 @@ public class HtmlUtils
 						fontFamily.charAt(i) == '_' || fontFamily.charAt(i) == '-';
 					if (!validCharacter)
 					{
-						fontFamily = "'" + fontFamily + "'"; //$NON-NLS-1$//$NON-NLS-2$
+						fontFamily = "\"" + fontFamily + "\""; //$NON-NLS-1$//$NON-NLS-2$
 						break;
 					}
 				}
