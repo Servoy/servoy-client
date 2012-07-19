@@ -22,7 +22,10 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.runtime.IRuntimeBaseLabel;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.FormatParser;
@@ -156,6 +159,13 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 				componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
 				: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
 			getChangesRecorder().setChanged();
+
+			RenderEventExecutor renderEventExecutor = getRenderEventExecutor();
+			IScriptRenderMethods renderable = getRenderable();
+			if (renderEventExecutor != null && !renderEventExecutor.isOnRenderExecuting() && renderable instanceof RenderableWrapper)
+			{
+				((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FORMAT);
+			}
 			fireOnRender();
 		}
 	}

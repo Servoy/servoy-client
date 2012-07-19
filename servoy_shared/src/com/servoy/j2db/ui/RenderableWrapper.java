@@ -28,17 +28,22 @@ import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
  * Wrapper used for keeping original property values for renderable components
  * 
  * @author gboros
- *
  */
+@SuppressWarnings("nls")
 public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 {
-	public static enum PROPERTY
-	{
-		BGCOLOR, BORDER, ENABLED, FGCOLOR, FONT, TOOLTIP, TRANSPARENT, VISIBLE, FORMAT
-	}
+	public static final String PROPERTY_BGCOLOR = "bgcolor";
+	public static final String PROPERTY_BORDER = "border";
+	public static final String PROPERTY_ENABLED = "enabled";
+	public static final String PROPERTY_FGCOLOR = "fgcolor";
+	public static final String PROPERTY_FONT = "font";
+	public static final String PROPERTY_TOOLTIP = "toolTipText";
+	public static final String PROPERTY_TRANSPARENT = "transparant";
+	public static final String PROPERTY_VISIBLE = "visible";
+	public static final String PROPERTY_FORMAT = "format";
 
 	private final IScriptRenderMethods renderable;
-	private final HashMap<PROPERTY, Object> properties = new HashMap<PROPERTY, Object>();
+	private final HashMap<String, Object> properties = new HashMap<String, Object>();
 
 	public RenderableWrapper(IScriptRenderMethods renderable)
 	{
@@ -58,9 +63,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 	{
 		if (renderable instanceof HasRuntimeFormat)
 		{
-			if (!properties.containsKey(PROPERTY.FORMAT))
+			if (!properties.containsKey(PROPERTY_FORMAT))
 			{
-				properties.put(PROPERTY.FORMAT, ((HasRuntimeFormat)renderable).getFormat());
+				properties.put(PROPERTY_FORMAT, ((HasRuntimeFormat)renderable).getFormat());
 			}
 			((HasRuntimeFormat)renderable).setFormat(format);
 		}
@@ -73,9 +78,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setBgcolor(String clr)
 	{
-		if (!properties.containsKey(PROPERTY.BGCOLOR))
+		if (!properties.containsKey(PROPERTY_BGCOLOR))
 		{
-			properties.put(PROPERTY.BGCOLOR, renderable.getBgcolor());
+			properties.put(PROPERTY_BGCOLOR, renderable.getBgcolor());
 		}
 		renderable.setBgcolor(clr);
 	}
@@ -87,9 +92,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setFgcolor(String clr)
 	{
-		if (!properties.containsKey(PROPERTY.FGCOLOR))
+		if (!properties.containsKey(PROPERTY_FGCOLOR))
 		{
-			properties.put(PROPERTY.FGCOLOR, renderable.getFgcolor());
+			properties.put(PROPERTY_FGCOLOR, renderable.getFgcolor());
 		}
 		renderable.setFgcolor(clr);
 	}
@@ -101,9 +106,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setVisible(boolean b)
 	{
-		if (!properties.containsKey(PROPERTY.VISIBLE))
+		if (!properties.containsKey(PROPERTY_VISIBLE))
 		{
-			properties.put(PROPERTY.VISIBLE, Boolean.valueOf(renderable.isVisible()));
+			properties.put(PROPERTY_VISIBLE, Boolean.valueOf(renderable.isVisible()));
 		}
 		renderable.setVisible(b);
 	}
@@ -115,9 +120,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setEnabled(boolean b)
 	{
-		if (!properties.containsKey(PROPERTY.ENABLED))
+		if (!properties.containsKey(PROPERTY_ENABLED))
 		{
-			properties.put(PROPERTY.ENABLED, Boolean.valueOf(renderable.isEnabled()));
+			properties.put(PROPERTY_ENABLED, Boolean.valueOf(renderable.isEnabled()));
 		}
 		renderable.setEnabled(b);
 	}
@@ -174,9 +179,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setBorder(String spec)
 	{
-		if (!properties.containsKey(PROPERTY.BORDER))
+		if (!properties.containsKey(PROPERTY_BORDER))
 		{
-			properties.put(PROPERTY.BORDER, renderable.getBorder());
+			properties.put(PROPERTY_BORDER, renderable.getBorder());
 		}
 		renderable.setBorder(spec);
 	}
@@ -188,9 +193,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setToolTipText(String tooltip)
 	{
-		if (!properties.containsKey(PROPERTY.TOOLTIP))
+		if (!properties.containsKey(PROPERTY_TOOLTIP))
 		{
-			properties.put(PROPERTY.TOOLTIP, renderable.getToolTipText());
+			properties.put(PROPERTY_TOOLTIP, renderable.getToolTipText());
 		}
 		renderable.setToolTipText(tooltip);
 	}
@@ -202,9 +207,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setFont(String spec)
 	{
-		if (!properties.containsKey(PROPERTY.FONT))
+		if (!properties.containsKey(PROPERTY_FONT))
 		{
-			properties.put(PROPERTY.FONT, renderable.getFont());
+			properties.put(PROPERTY_FONT, renderable.getFont());
 		}
 		renderable.setFont(spec);
 	}
@@ -216,9 +221,9 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 
 	public void setTransparent(boolean b)
 	{
-		if (!properties.containsKey(PROPERTY.TRANSPARENT))
+		if (!properties.containsKey(PROPERTY_TRANSPARENT))
 		{
-			properties.put(PROPERTY.TRANSPARENT, Boolean.valueOf(renderable.isTransparent()));
+			properties.put(PROPERTY_TRANSPARENT, Boolean.valueOf(renderable.isTransparent()));
 		}
 		renderable.setTransparent(b);
 	}
@@ -233,47 +238,56 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 	 */
 	void resetProperties()
 	{
-		Iterator<PROPERTY> propertiesIte = properties.keySet().iterator();
+		Iterator<String> propertiesIte = properties.keySet().iterator();
+		String property;
 		while (propertiesIte.hasNext())
 		{
-			switch (propertiesIte.next())
+			property = propertiesIte.next();
+
+			if (PROPERTY_BGCOLOR.equals(property))
 			{
-				case BGCOLOR :
-					renderable.setBgcolor((String)properties.get(PROPERTY.BGCOLOR));
-					break;
-				case BORDER :
-					renderable.setBorder((String)properties.get(PROPERTY.BORDER));
-					break;
-				case ENABLED :
-					renderable.setEnabled(((Boolean)properties.get(PROPERTY.ENABLED)).booleanValue());
-					break;
-				case FGCOLOR :
-					renderable.setFgcolor((String)properties.get(PROPERTY.FGCOLOR));
-					break;
-				case FONT :
-					renderable.setFont((String)properties.get(PROPERTY.FONT));
-					break;
-				case TOOLTIP :
-					renderable.setToolTipText((String)properties.get(PROPERTY.TOOLTIP));
-					break;
-				case TRANSPARENT :
-					renderable.setTransparent(((Boolean)properties.get(PROPERTY.TRANSPARENT)).booleanValue());
-					break;
-				case VISIBLE :
-					renderable.setVisible(((Boolean)properties.get(PROPERTY.VISIBLE)).booleanValue());
-					break;
-				case FORMAT :
-					if (renderable instanceof HasRuntimeFormat)
-					{
-						((HasRuntimeFormat)renderable).setFormat((String)properties.get(PROPERTY.FORMAT));
-					}
-					break;
+				renderable.setBgcolor((String)properties.get(PROPERTY_BGCOLOR));
+			}
+			else if (PROPERTY_BORDER.equals(property))
+			{
+				renderable.setBorder((String)properties.get(PROPERTY_BORDER));
+			}
+			else if (PROPERTY_ENABLED.equals(property))
+			{
+				renderable.setEnabled(((Boolean)properties.get(PROPERTY_ENABLED)).booleanValue());
+			}
+			else if (PROPERTY_FGCOLOR.equals(property))
+			{
+				renderable.setFgcolor((String)properties.get(PROPERTY_FGCOLOR));
+			}
+			else if (PROPERTY_FONT.equals(property))
+			{
+				renderable.setFont((String)properties.get(PROPERTY_FONT));
+			}
+			else if (PROPERTY_TOOLTIP.equals(property))
+			{
+				renderable.setToolTipText((String)properties.get(PROPERTY_TOOLTIP));
+			}
+			else if (PROPERTY_TRANSPARENT.equals(property))
+			{
+				renderable.setTransparent(((Boolean)properties.get(PROPERTY_TRANSPARENT)).booleanValue());
+			}
+			else if (PROPERTY_VISIBLE.equals(property))
+			{
+				renderable.setVisible(((Boolean)properties.get(PROPERTY_VISIBLE)).booleanValue());
+			}
+			else if (PROPERTY_FORMAT.equals(property))
+			{
+				if (renderable instanceof HasRuntimeFormat)
+				{
+					((HasRuntimeFormat)renderable).setFormat((String)properties.get(PROPERTY_FORMAT));
+				}
 			}
 		}
 		properties.clear();
 	}
 
-	public void clearProperty(RenderableWrapper.PROPERTY property)
+	public void clearProperty(String property)
 	{
 		properties.remove(property);
 	}

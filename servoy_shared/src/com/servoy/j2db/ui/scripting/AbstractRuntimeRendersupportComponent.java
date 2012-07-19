@@ -49,18 +49,18 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 	private static final Set<String> propertiesToListenTo = new HashSet<String>();
 	static
 	{
-		propertiesToListenTo.add("bgcolor");
-		propertiesToListenTo.add("enabled");
-		propertiesToListenTo.add("border");
-		propertiesToListenTo.add("fgcolor");
-		propertiesToListenTo.add("font");
-		propertiesToListenTo.add("toolTipText");
-		propertiesToListenTo.add("transparant");
-		propertiesToListenTo.add("visible");
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_BGCOLOR);
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_ENABLED);
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_BORDER);
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_FGCOLOR);
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_FONT);
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_TOOLTIP);
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_TRANSPARENT);
+		propertiesToListenTo.add(RenderableWrapper.PROPERTY_VISIBLE);
 	}
 
 
-	private final IScriptRenderMethods renderable;
+	private final RenderableWrapper renderable;
 	private final RenderEventExecutor renderEventExecutor;
 
 	/**
@@ -129,6 +129,7 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 	{
 		if (propertiesToListenTo.contains(propertyName))
 		{
+			if (!renderEventExecutor.isOnRenderExecuting()) renderable.clearProperty(propertyName);
 			fireOnRender();
 		}
 	}
