@@ -67,7 +67,7 @@ public final class ClientInfo implements Serializable
 	private String jsCredentials;
 
 
-	// update tc-config.xml if you modify this! (@TerracottaTransient annotation is just decorative)
+	// update tc-config.xml and obfuscation list if you modify this! (@TerracottaTransient annotation is just decorative)
 	@TerracottaTransient
 	private TimeZone timeZone;
 
