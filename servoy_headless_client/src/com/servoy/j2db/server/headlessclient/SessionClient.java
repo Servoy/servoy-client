@@ -747,6 +747,11 @@ public class SessionClient extends ClientState implements ISessionClient
 
 			if (visibleFormName != null)
 			{
+				// just overwrite the above assignment again if the datacontext is really also the form, so it wont be used later on.
+				if (Utils.stringSafeEquals(visibleFormName, dataContext))
+				{
+					dataContext = null;
+				}
 				FormController fp = ((FormManager)getFormManager()).leaseFormPanel(visibleFormName);
 				if (!fp.isShowingData())
 				{
@@ -770,7 +775,7 @@ public class SessionClient extends ClientState implements ISessionClient
 						if (dataContext != null)
 						{
 							IFoundSetInternal rfs = r.getRelatedFoundSet(dataContext, null);
-							// rfs can be null because dataContext can just be a anything see above (a form name)
+							// rfs can be null because dataContext can just be a anything see above
 							if (rfs != null)
 							{
 								r = rfs.getRecord(rfs.getSelectedIndex());
