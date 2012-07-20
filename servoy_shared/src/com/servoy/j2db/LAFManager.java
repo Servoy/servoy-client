@@ -32,6 +32,7 @@ import javax.swing.plaf.metal.MetalTheme;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
 import com.servoy.j2db.util.JarManager;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Manages lafs for the application.
@@ -136,7 +137,7 @@ public class LAFManager extends JarManager implements ILAFManager
 
 	public List<LookAndFeelInfo> getLAFInfos(IApplication _app)//client loading
 	{
-		if (_app.getApplicationType() == IApplication.CLIENT && !isLafsLoadedFromProps)
+		if (Utils.isSwingClient(_app.getApplicationType()) && !isLafsLoadedFromProps)
 		{
 			Iterator<LookAndFeelInfo> it = lafInfos.iterator();
 			HashSet<String> hsNames = new HashSet<String>();
@@ -173,7 +174,7 @@ public class LAFManager extends JarManager implements ILAFManager
 
 	public Map<String, String> getLoadedThemes(IApplication _app)//client loading
 	{
-		if (_app.getApplicationType() == IApplication.CLIENT && !isThemesLoadedFromProps)
+		if (Utils.isSwingClient(_app.getApplicationType()) && !isThemesLoadedFromProps)
 		{
 			int count = 0;
 			String sCount = _app.getSettings().getProperty("com.servoy.j2db.LAFManager.ThemeCount"); //$NON-NLS-1$

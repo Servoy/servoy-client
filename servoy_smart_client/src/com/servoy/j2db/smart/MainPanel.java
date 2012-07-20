@@ -34,16 +34,17 @@ import javax.swing.SwingConstants;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISupportNavigator;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.smart.dataui.ServoyFocusTraversalPolicy;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.FixedCardLayout;
 
 public class MainPanel extends JPanel implements ISupportNavigator, IMainContainer, IFocusCycleRoot<Component>
@@ -156,7 +157,7 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 			{
 				String branding = application.getSettings().getProperty("servoy.branding", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 				String loadingImage = application.getSettings().getProperty("servoy.branding.loadingimage"); //$NON-NLS-1$
-				if (branding.equals("true") && loadingImage != null && application.getApplicationType() == IApplication.CLIENT) //$NON-NLS-1$
+				if (branding.equals("true") && loadingImage != null && Utils.isSwingClient(application.getApplicationType())) //$NON-NLS-1$
 				{
 					if (loadingImage.equals("")) //$NON-NLS-1$
 					{

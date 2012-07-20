@@ -874,7 +874,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 		String branding = getSettings().getProperty("servoy.branding", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 		String windowicon = getSettings().getProperty("servoy.branding.windowicon"); //$NON-NLS-1$
-		if (branding.equals("true") && windowicon != null && getApplicationType() == IApplication.CLIENT) //$NON-NLS-1$
+		if (branding.equals("true") && windowicon != null && Utils.isSwingClient(getApplicationType())) //$NON-NLS-1$
 		{
 			URL webstartUrl = WebStart.getWebStartURL();
 			try

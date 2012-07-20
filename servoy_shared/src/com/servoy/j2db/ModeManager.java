@@ -18,6 +18,7 @@ package com.servoy.j2db;
 
 
 import com.servoy.j2db.dataprocessing.SQLGenerator;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Mode manager, like browse,find and print preview
@@ -45,7 +46,7 @@ public class ModeManager implements IModeManager
 		switch (mode)
 		{
 			case FIND_MODE :
-				if (application.getApplicationType() == IApplication.CLIENT || application.getApplicationType() == IApplication.RUNTIME) //makes no sense to show rich client status text in web
+				if (Utils.isSwingClient(application.getApplicationType())) //makes no sense to show rich client status text in web
 				{
 					application.setStatusText(application.getI18NMessage("servoy.modeManager.status.findText"), SQLGenerator.getFindToolTip(application)); //$NON-NLS-1$
 				}

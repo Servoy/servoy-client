@@ -825,7 +825,7 @@ public class ComponentFactory
 		c.setComponentEnabled(bc.getEnabled());
 		c.setComponentVisible(bc.getVisible());
 
-		if (application.getApplicationType() == IApplication.CLIENT)
+		if (Utils.isSwingClient(application.getApplicationType()))
 		{
 			//special code for smart client LAFs, like BizLaf 
 			String delegateStyleClassNamePropertyKey = application.getSettings().getProperty("servoy.smartclient.componentStyleClassDelegatePropertyKey");
