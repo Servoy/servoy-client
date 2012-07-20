@@ -1195,9 +1195,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "center";
 				String hAlign = (halign == ISupportTextSetup.LEFT) ? "left" : (halign == ISupportTextSetup.RIGHT) ? "right" : "center ";
 				String align = hAlign + " " + sValign;
-				String position = isButton ? "position: absolute; top: 0; left:0;" : "";
-				instrumentedBodyText = new StringBuffer("<div id=\"").append(imgID).append("\" style=\"width: 100%; height: 100%; ").append(position).append(
-					" background-repeat: no-repeat; background-position: ").append(align).append(";");
+				instrumentedBodyText = new StringBuffer("<div id=\"").append(imgID).append(
+					"\" style=\"width: 100%; height: 100%; position: absolute; top: 0; left:0; background-repeat: no-repeat; background-position: ").append(
+					align).append(";");
 
 				if (!isElementAnchored)
 				{
