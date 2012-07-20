@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting;
 import java.sql.Types;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.mozilla.javascript.Context;
@@ -48,6 +49,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -369,27 +371,48 @@ public class ScriptVariableScope extends LazyCompilationScope
 			}
 		}
 
-		if (value != null && variableType != null && type != IColumnTypes.MEDIA)
+		if (value != null && variableType != null)
 		{
-			Object tmp = value;
-			while (tmp instanceof Wrapper)
+			if (type == IColumnTypes.MEDIA)
 			{
-				tmp = ((Wrapper)tmp).unwrap();
-				if (tmp == value)
+				Iterator<ScriptVariable> scriptVariablesIte = getScriptLookup().getScriptVariables(false);
+				ScriptVariable sv;
+				while (scriptVariablesIte.hasNext())
 				{
-					break;
+					sv = scriptVariablesIte.next();
+					if (name.equals(sv.getName()))
+					{
+						String jsType = sv.getSerializableRuntimeProperty(IScriptProvider.TYPE);
+						if (UUID.class.getSimpleName().equals(jsType))
+						{
+							value = Utils.getAsUUID(value, false);
+							break;
+						}
+					}
 				}
 			}
-			value = tmp;
+			else
+			{
+				Object tmp = value;
+				while (tmp instanceof Wrapper)
+				{
+					tmp = ((Wrapper)tmp).unwrap();
+					if (tmp == value)
+					{
+						break;
+					}
+				}
+				value = tmp;
 
-			try
-			{
-				value = Column.getAsRightType(variableType.intValue(), Column.NORMAL_COLUMN, value, null, Integer.MAX_VALUE, null, true); // dont convert with timezone here, its not ui but from scripting 
-			}
-			catch (Exception e)
-			{
-				throw new IllegalArgumentException(Messages.getString(
-					"servoy.conversion.error.global", new Object[] { name, Column.getDisplayTypeString(variableType.intValue()), value })); //$NON-NLS-1$
+				try
+				{
+					value = Column.getAsRightType(variableType.intValue(), Column.NORMAL_COLUMN, value, null, Integer.MAX_VALUE, null, true); // dont convert with timezone here, its not ui but from scripting 
+				}
+				catch (Exception e)
+				{
+					throw new IllegalArgumentException(Messages.getString(
+						"servoy.conversion.error.global", new Object[] { name, Column.getDisplayTypeString(variableType.intValue()), value })); //$NON-NLS-1$
+				}
 			}
 		}
 
