@@ -373,37 +373,39 @@ public class ScriptVariableScope extends LazyCompilationScope
 
 		if (value != null && variableType != null)
 		{
+			Object unwrapped = value;
+			while (unwrapped instanceof Wrapper)
+			{
+				unwrapped = ((Wrapper)unwrapped).unwrap();
+				if (unwrapped == value)
+				{
+					break;
+				}
+			}
+
 			if (type == IColumnTypes.MEDIA)
 			{
-				Iterator<ScriptVariable> scriptVariablesIte = getScriptLookup().getScriptVariables(false);
-				ScriptVariable sv;
-				while (scriptVariablesIte.hasNext())
+				if (!(unwrapped instanceof UUID))
 				{
-					sv = scriptVariablesIte.next();
-					if (name.equals(sv.getName()))
+					Iterator<ScriptVariable> scriptVariablesIte = getScriptLookup().getScriptVariables(false);
+					ScriptVariable sv;
+					while (scriptVariablesIte.hasNext())
 					{
-						String jsType = sv.getSerializableRuntimeProperty(IScriptProvider.TYPE);
-						if (UUID.class.getSimpleName().equals(jsType))
+						sv = scriptVariablesIte.next();
+						if (name.equals(sv.getName()))
 						{
-							value = Utils.getAsUUID(value, false);
-							break;
+							if (UUID.class.getSimpleName().equals(getDeclaredType(sv)))
+							{
+								value = Utils.getAsUUID(value, false);
+								break;
+							}
 						}
 					}
 				}
 			}
 			else
 			{
-				Object tmp = value;
-				while (tmp instanceof Wrapper)
-				{
-					tmp = ((Wrapper)tmp).unwrap();
-					if (tmp == value)
-					{
-						break;
-					}
-				}
-				value = tmp;
-
+				value = unwrapped;
 				try
 				{
 					value = Column.getAsRightType(variableType.intValue(), Column.NORMAL_COLUMN, value, null, Integer.MAX_VALUE, null, true); // dont convert with timezone here, its not ui but from scripting 
@@ -432,6 +434,25 @@ public class ScriptVariableScope extends LazyCompilationScope
 			fireModificationEvent(name, value);
 		}
 		return oldVar;
+	}
+
+	private String getDeclaredType(ScriptVariable sv)
+	{
+		String comment = sv.getComment();
+		int typeIdx;
+		if (comment != null && (typeIdx = comment.indexOf("@type")) != -1) //$NON-NLS-1$
+		{
+			int s = comment.indexOf('{', typeIdx + 5);
+			if (s != -1)
+			{
+				int e = comment.indexOf('}', s + 1);
+				if (e != -1)
+				{
+					return comment.substring(s + 1, e).trim();
+				}
+			}
+		}
+		return null;
 	}
 
 /*
