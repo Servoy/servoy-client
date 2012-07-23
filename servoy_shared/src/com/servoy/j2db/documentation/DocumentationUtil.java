@@ -27,6 +27,9 @@ import java.lang.reflect.Array;
  */
 public class DocumentationUtil
 {
+
+	private static JavaToDocumentedJSTypeTranslator javaToJSTypeTranslator;
+
 	private static Class< ? > loadClassEx(ClassLoader loader, String type) throws ClassNotFoundException
 	{
 		Class< ? > c;
@@ -93,6 +96,25 @@ public class DocumentationUtil
 				return loadClassEx(loader, type);
 			}
 		}
+	}
+
+	/**
+	 * Gives a translator object capable of translating Java classes either to another java class that is ServoyDocumented or scriptable, or directly to
+	 * a javascript type name.
+	 */
+	public static JavaToDocumentedJSTypeTranslator getJavaToJSTypeTranslator()
+	{
+		if (javaToJSTypeTranslator == null)
+		{
+			synchronized (DocumentationUtil.class)
+			{
+				if (javaToJSTypeTranslator == null)
+				{
+					javaToJSTypeTranslator = new JavaToDocumentedJSTypeTranslator();
+				}
+			}
+		}
+		return javaToJSTypeTranslator;
 	}
 
 }

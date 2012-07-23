@@ -17,7 +17,6 @@
 package com.servoy.j2db.documentation;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.servoy.j2db.scripting.IScriptObject;
@@ -106,7 +105,6 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 			for (IParameterDocumentation argDoc : fdoc.getArguments().values())
 			{
 				String name = argDoc.getName();
-				String type = argDoc.getType() != null ? argDoc.getType().getSimpleName() : "Object";
 				String description = argDoc.getDescription();
 				boolean optional = argDoc.isOptional();
 				boolean varargs = false;
@@ -115,7 +113,7 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 //					varargs = argTypes[i].isArray() && !argTypes[i].getComponentType().isPrimitive();
 					varargs = fdoc.isVarargs();
 				}
-				params[i++] = new ScriptParameter(name, type, argDoc.getType(), description, optional, varargs);
+				params[i++] = new ScriptParameter(name, null, argDoc.getType(), description, optional, varargs);
 			}
 			return params;
 		}
@@ -132,12 +130,12 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		return null;
 	}
 
-	public String getSignature(String methodName, Class< ? >[] argTypes, Map<String, String> typeTranslationMap)
+	public String getJSTranslatedSignature(String methodName, Class< ? >[] argTypes)
 	{
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
 		if (fdoc != null)
 		{
-			return fdoc.getFullSignature(false, true, typeTranslationMap);
+			return fdoc.getFullJSTranslatedSignature(false, true);
 		}
 		return null;
 	}
@@ -243,6 +241,13 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
 		if (fdoc != null) return fdoc.isDeprecated();
 		if (original != null) return original.isDeprecated(methodName);
+		return false;
+	}
+
+	public boolean isSpecial(String propertyName)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(propertyName, (Class< ? >[])null);
+		if (fdoc != null) return fdoc.isSpecial();
 		return false;
 	}
 

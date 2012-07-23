@@ -19,25 +19,49 @@ package com.servoy.j2db.documentation;
 public class ScriptParameter implements IParameter
 {
 	private final String name;
+
+	// java-script type name; see getter comments
 	private final String type;
 	private final Class< ? > realType;
 	private final String description;
 	private final boolean optional;
 	private final boolean vararg;
 
-	public ScriptParameter(String name, String type, Class< ? > realType, boolean optional, boolean vararg)
+	/**
+	 * @param typePrefix TODO this should be removed when the prefix mechanism will be implemented to be generally available.
+	 */
+	public ScriptParameter(String name, String typePrefix, Class< ? > realType, boolean optional, boolean vararg)
 	{
-		this(name, type, realType, null, optional, vararg);
+		this(name, typePrefix, realType, null, optional, vararg);
 	}
 
-	public ScriptParameter(String name, String type, Class< ? > realType, String description, boolean optional, boolean vararg)
+	/**
+	 * @param typePrefix TODO this should be removed when the prefix mechanism will be implemented to be generally available.
+	 */
+	public ScriptParameter(String name, String typePrefix, Class< ? > realType, String description, boolean optional, boolean vararg)
 	{
 		this.name = name;
-		this.type = type;
 		this.realType = realType;
 		this.description = description;
 		this.optional = optional;
 		this.vararg = vararg;
+
+		String translatedType = DocumentationUtil.getJavaToJSTypeTranslator().translateJavaClassToJSTypeName(realType);
+		if (translatedType != null)
+		{
+			if (typePrefix != null)
+			{
+				type = typePrefix + translatedType;
+			}
+			else
+			{
+				type = translatedType;
+			}
+		}
+		else
+		{
+			type = null;
+		}
 	}
 
 	public String getName()

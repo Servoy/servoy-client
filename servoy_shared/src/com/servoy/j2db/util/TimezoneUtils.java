@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.sql.Time;
@@ -25,7 +25,7 @@ import java.util.TimeZone;
 
 /**
  * This class contains utility methods for handling time zones. WC and SC need different conversions at SQLEngine level.
- * @see SQLEngine#showStringDatesTheSameOnAllClients.
+ * @see ClientManager#showStringDatesTheSameOnAllClients.
  */
 public class TimezoneUtils
 {

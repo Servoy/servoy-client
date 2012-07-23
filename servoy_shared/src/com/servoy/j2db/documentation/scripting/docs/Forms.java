@@ -17,6 +17,8 @@
 package com.servoy.j2db.documentation.scripting.docs;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Helper class for easier documentation of our JavaScript API for forms.
@@ -39,14 +41,13 @@ public class Forms
 	 * }
 	 * 
 	 * @special
+	 * @deprecated use solutionModel.getForms().
 	 */
-	public Array js_getAllnames()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allnames()
 	{
 		return null;
-	}
-
-	public void js_setAllnames(Array allnames)
-	{
 	}
 
 	/**
@@ -67,14 +68,12 @@ public class Forms
 	/**
 	 * Get a form by name.
 	 * 
-	 * @sampleas js_getAllnames()
+	 * @sampleas allnames()
 	 */
-	public String js_getIndex_name()
+	@JSReadonlyProperty
+	public FormScope array__indexedby_name()
 	{
 		return null;
 	}
 
-	public void js_setIndex_name(String indexName)
-	{
-	}
 }

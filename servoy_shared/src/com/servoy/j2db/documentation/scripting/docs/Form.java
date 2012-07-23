@@ -19,6 +19,8 @@ package com.servoy.j2db.documentation.scripting.docs;
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Helper class for easier documentation of our JavaScript API for forms.
@@ -53,14 +55,13 @@ public class Form
 	 * 	application.output(methodNames[i]);
 	 * 
 	 * @special
+	 * @deprecated use solutionModel - JSForm.getMethods(Boolean) or JSForm.getMethods().
 	 */
-	public Array js_getAllmethods()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allmethods()
 	{
 		return null;
-	}
-
-	public void js_setAllmethods(Array allmethods)
-	{
 	}
 
 	/**
@@ -73,18 +74,17 @@ public class Form
 	 * 	application.output(names[i]);
 	 * 
 	 * @special
+	 * @deprecated use elements.allnames.
 	 */
-	public Array js_getAllnames()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allnames()
 	{
 		return null;
 	}
 
-	public void js_setAllnames(Array allnames)
-	{
-	}
-
 	/**
-	 * Get all dataproviders of the form.
+	 * Get all dataproviders of the form's foundset.
 	 * 
 	 * @sample
 	 * var dataprovidersNames = %%prefix%%alldataproviders;
@@ -93,14 +93,13 @@ public class Form
 	 * 	application.output(dataprovidersNames[i]);
 	 * 
 	 * @special
+	 * @deprecated use foundset.alldataproviders instead.
 	 */
-	public Array js_getAlldataproviders()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array alldataproviders()
 	{
 		return null;
-	}
-
-	public void js_setAlldataproviders(Array alldataproviders)
-	{
 	}
 
 	/**
@@ -113,14 +112,13 @@ public class Form
 	 * 	application.output(varNames[i]);
 	 * 
 	 * @special 
+	 * @deprecated use solutionModel - JSForm.getVariables(Boolean) or JSForm.getVariables().
 	 */
-	public Array js_getAllvariables()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allvariables()
 	{
 		return null;
-	}
-
-	public void js_setAllvariables(Array allvariables)
-	{
 	}
 
 	/**
@@ -133,14 +131,13 @@ public class Form
 	 * 	application.output(relationsNames[i]);
 	 * 
 	 * @special
+	 * @deprecated use solutionModel.getRelations(dataSource) where dataSource is provided by solution model's JSForm.dataSource or controller.getDataSource().
 	 */
-	public Array js_getAllrelations()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allrelations()
 	{
 		return null;
-	}
-
-	public void js_setAllrelations(Array allrelations)
-	{
 	}
 
 	/**
@@ -152,13 +149,10 @@ public class Form
 	 * for (var i=0; i<elems.length; i++)
 	 * 	application.output(elems[i].getName());
 	 */
-	public FormElements js_getElements()
+	@JSReadonlyProperty
+	public FormElements elements()
 	{
 		return null;
-	}
-
-	public void js_setElements(FormElements elements)
-	{
 	}
 
 	/**
@@ -167,13 +161,10 @@ public class Form
 	 * @sample
 	 * %%prefix%%controller.enabled = !%%prefix%%controller.enabled;
 	 */
-	public JSForm js_getController()
+	@JSReadonlyProperty
+	public JSForm controller()
 	{
 		return null;
-	}
-
-	public void js_setController(JSForm controller)
-	{
 	}
 
 	/**
@@ -182,12 +173,10 @@ public class Form
 	 * @sample
 	 * %%prefix%%_super.some_method();
 	 */
-	public JSForm js_get_super()
+	@JSReadonlyProperty
+	public FormScope _super()
 	{
 		return null;
 	}
 
-	public void js_set_super(JSForm superform)
-	{
-	}
 }

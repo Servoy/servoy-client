@@ -1887,7 +1887,7 @@ public class JSApplication implements IReturnedTypesProvider
 		try
 		{
 			// because of the fact that in non-SC dates format is applied on server timezone, if clients are set to display dates according
-			// to their timezone info, non-SC dates are shifted by the time zone difference when used in JS; see SQLEngine.getConversionTimezone()...
+			// to their timezone info, non-SC dates are shifted by the time zone difference when used in JS; see ClientManager.getConversionTimezone()...
 			// so simle new Date() in this case would really be wrong (unfortunately this problem also manifests when using simple new Date() as JS object...)
 			return Utils.isSwingClient(application.getApplicationType()) ? new Date() : js_getServerTimeStamp();
 		}

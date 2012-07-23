@@ -16,16 +16,11 @@
  */
 package com.servoy.j2db.util;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
-import java.awt.print.PrinterJob;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -65,11 +60,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -78,38 +71,13 @@ import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
 
 import org.apache.commons.codec.binary.Base64;
-import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IEventDelegator;
-import com.servoy.j2db.IForm;
-import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IDataSet;
-import com.servoy.j2db.dataprocessing.IFoundSet;
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.dataprocessing.IRecord;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
-import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
-import com.servoy.j2db.querybuilder.impl.QBCondition;
-import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
-import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.JSMap;
-import com.servoy.j2db.scripting.solutionmodel.JSComponent;
-import com.servoy.j2db.scripting.solutionmodel.JSMethod;
-import com.servoy.j2db.solutionmodel.ISMComponent;
-import com.servoy.j2db.solutionmodel.ISMForm;
-import com.servoy.j2db.solutionmodel.ISMMethod;
-import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.IScriptRenderMethods;
-import com.servoy.j2db.ui.IScriptRenderMethodsWithFormat;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 import de.rtner.security.auth.spi.PBKDF2Engine;
@@ -2598,116 +2566,6 @@ public class Utils
 	public static boolean isSwingClient(int applicationType)
 	{
 		return applicationType == IApplication.CLIENT || applicationType == IApplication.OFFLINE || applicationType == IApplication.RUNTIME;
-	}
-
-	public static Map<String, String> getDocumentationTypesTranslator(final String typePrefix)
-	{
-		HashMap<String, String> typesTranslator = new HashMap<String, String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String get(Object name)
-			{
-				String o = super.get(name);
-				if (o == null && typePrefix == null)
-				{
-					String str = (String)name;
-					int i = str.lastIndexOf("."); //$NON-NLS-1$
-					if (i >= 0)
-					{
-						str = str.substring(i + 1);
-					}
-					i = str.lastIndexOf("["); //$NON-NLS-1$
-					if (i >= 0)
-					{
-						o = super.get(str.substring(0, i));
-						if (o != null) o += str.substring(i);
-					}
-					else o = super.get(str);
-					if (o == null) o = str;
-				}
-				return o;
-			}
-		};
-		typesTranslator.put(java.lang.Boolean.class.getCanonicalName(), getPrefixedType("Boolean", typePrefix));//$NON-NLS-1$ 
-		typesTranslator.put(Boolean.TYPE.getSimpleName(), getPrefixedType("Boolean", typePrefix));//$NON-NLS-1$ 
-		typesTranslator.put(java.lang.Double.class.getCanonicalName(), getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put("Double", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put("double", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put(java.lang.Float.class.getCanonicalName(), getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put("Float", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put("float", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put(java.lang.Long.class.getCanonicalName(), getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put("Long", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put("long", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put(java.lang.Integer.class.getCanonicalName(), getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put("Integer", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put("int", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put(java.lang.Byte.class.getCanonicalName(), getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put("byte", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put(java.lang.Short.class.getCanonicalName(), getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put("short", getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ //$NON-NLS-2$
-		typesTranslator.put(java.lang.Number.class.getCanonicalName(), getPrefixedType("Number", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(java.lang.Object.class.getCanonicalName(), getPrefixedType("Object", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(java.util.Date.class.getCanonicalName(), getPrefixedType("Date", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(java.sql.Date.class.getCanonicalName(), getPrefixedType("Date", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(java.lang.Character.class.getCanonicalName(), getPrefixedType("String", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(Character.TYPE.getSimpleName(), getPrefixedType("String", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(Dimension.class.getCanonicalName(), getPrefixedType("String", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(Insets.class.getCanonicalName(), getPrefixedType("String", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(Point.class.getCanonicalName(), getPrefixedType("String", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(Color.class.getCanonicalName(), getPrefixedType("String", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(java.lang.String.class.getCanonicalName(), getPrefixedType("String", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put(NativeArray.class.getCanonicalName(), getPrefixedType("Array", typePrefix)); //$NON-NLS-1$ 
-		typesTranslator.put("org.mozilla.javascript.NativeArray", getPrefixedType("Array", typePrefix)); //$NON-NLS-1$//$NON-NLS-2$
-		typesTranslator.put(Scriptable.class.getSimpleName(), getPrefixedType("Object", typePrefix));//$NON-NLS-1$ 
-		typesTranslator.put(Scriptable.class.getCanonicalName(), getPrefixedType("Object", typePrefix));//$NON-NLS-1$ 
-		typesTranslator.put(Object.class.getCanonicalName(), getPrefixedType("Object", typePrefix));//$NON-NLS-1$ 
-		typesTranslator.put(PrinterJob.class.getCanonicalName(), "PrinterJob");
-
-		if (typePrefix != null)
-		{
-			// keep prefixed types
-			typesTranslator.put(Exception.class.getCanonicalName(), ServoyException.class.getCanonicalName());
-			typesTranslator.put(IFoundSetInternal.class.getCanonicalName(), FoundSet.class.getCanonicalName());
-			typesTranslator.put(IFoundSet.class.getCanonicalName(), FoundSet.class.getCanonicalName());
-			typesTranslator.put(FoundSet.class.getCanonicalName(), FoundSet.class.getCanonicalName());
-			typesTranslator.put(IDataSet.class.getCanonicalName(), JSDataSet.class.getCanonicalName());
-			typesTranslator.put(IRecordInternal.class.getCanonicalName(), Record.class.getCanonicalName());
-			typesTranslator.put(IRecord.class.getCanonicalName(), Record.class.getCanonicalName());
-			typesTranslator.put(IComponent.class.getCanonicalName(), IRuntimeComponent.class.getCanonicalName());
-			typesTranslator.put(ISMMethod.class.getCanonicalName(), JSMethod.class.getCanonicalName());
-			typesTranslator.put(ISMForm.class.getCanonicalName(), com.servoy.j2db.scripting.solutionmodel.JSForm.class.getCanonicalName());
-			typesTranslator.put(ISMComponent.class.getCanonicalName(), JSComponent.class.getCanonicalName());
-			typesTranslator.put(IForm.class.getCanonicalName(), com.servoy.j2db.FormController.JSForm.class.getName());
-			typesTranslator.put(IQueryBuilderCondition.class.getCanonicalName(), QBCondition.class.getCanonicalName());
-			typesTranslator.put(IQueryBuilderLogicalCondition.class.getCanonicalName(), QBLogicalCondition.class.getCanonicalName());
-			typesTranslator.put(FormScope.class.getCanonicalName(), com.servoy.j2db.FormController.JSForm.class.getName());
-			typesTranslator.put(org.mozilla.javascript.Function.class.getCanonicalName(), com.servoy.j2db.documentation.scripting.docs.Function.class.getName());
-			typesTranslator.put("com.servoy.extensions.plugins.window.menu.AbstractMenuItem", "com.servoy.extensions.plugins.window.menu.MenuItem");
-		}
-		else
-		{
-			typesTranslator.put(JSMap.class.getSimpleName(), getPrefixedType("Object", typePrefix));//$NON-NLS-1$ 
-			typesTranslator.put(ISMMethod.class.getSimpleName(), JSMethod.class.getSimpleName());
-			typesTranslator.put(ISMForm.class.getSimpleName(), com.servoy.j2db.scripting.solutionmodel.JSForm.class.getSimpleName());
-			typesTranslator.put(ISMComponent.class.getSimpleName(), JSComponent.class.getSimpleName());
-			typesTranslator.put("JSWindowImpl$JSWindow", "JSWindow"); //$NON-NLS-1$ //$NON-NLS-2$
-			typesTranslator.put(IScriptRenderMethodsWithFormat.class.getSimpleName(), IScriptRenderMethodsWithFormat.JS_RENDERABLE);
-			typesTranslator.put(IScriptRenderMethods.class.getSimpleName(), IScriptRenderMethodsWithFormat.JS_RENDERABLE);
-			typesTranslator.put(IComponent.class.getSimpleName(), "RuntimeComponent"); //$NON-NLS-1$ 
-			typesTranslator.put(IDataSet.class.getSimpleName(), "JSDataSet"); //$NON-NLS-1$ 
-			typesTranslator.put(Record.class.getSimpleName(), Record.JS_RECORD);
-			typesTranslator.put(IRecordInternal.class.getSimpleName(), Record.JS_RECORD);
-			typesTranslator.put(IRecord.class.getSimpleName(), Record.JS_RECORD);
-			typesTranslator.put(IFoundSetInternal.class.getSimpleName(), FoundSet.JS_FOUNDSET);
-			typesTranslator.put(FoundSet.class.getSimpleName(), FoundSet.JS_FOUNDSET);
-			typesTranslator.put(FormScope.class.getSimpleName(), "RuntimeForm"); //$NON-NLS-1$
-			typesTranslator.put(IForm.class.getSimpleName(), "RuntimeForm"); //$NON-NLS-1$
-			typesTranslator.put("NativeArray", "Array"); //$NON-NLS-1$//$NON-NLS-2$
-		}
-		return typesTranslator;
 	}
 
 	private static String getPrefixedType(String type, String prefix)

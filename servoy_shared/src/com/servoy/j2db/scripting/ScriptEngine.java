@@ -73,6 +73,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeCalendar;
 import com.servoy.j2db.ui.runtime.IRuntimeCheck;
 import com.servoy.j2db.ui.runtime.IRuntimeChecks;
 import com.servoy.j2db.ui.runtime.IRuntimeCombobox;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeDataButton;
 import com.servoy.j2db.ui.runtime.IRuntimeHtmlArea;
 import com.servoy.j2db.ui.runtime.IRuntimeImageMedia;
@@ -171,6 +172,7 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put("Form", toplevelScope, new InstanceOfScope("Form", FormScope.class));
 
 			toplevelScope.put("RuntimeForm", toplevelScope, new InstanceOfScope("RuntimeForm", FormScope.class));
+			toplevelScope.put("RuntimeComponent", toplevelScope, new InstanceOfScope("RuntimeComponent", IRuntimeComponent.class));
 			toplevelScope.put("RuntimeButton", toplevelScope, new InstanceOfScope("RuntimeButton", IRuntimeButton.class));
 			toplevelScope.put("RuntimeDataButton", toplevelScope, new InstanceOfScope("RuntimeDataButton", IRuntimeDataButton.class));
 			toplevelScope.put("RuntimeLabel", toplevelScope, new InstanceOfScope("RuntimeLabel", IScriptScriptLabelMethods.class));

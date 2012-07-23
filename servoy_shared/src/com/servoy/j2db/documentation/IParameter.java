@@ -20,6 +20,12 @@ public interface IParameter
 {
 	String getName();
 
+	/**
+	 * Get the java-script type name. It is constructed based on a tranlation to documented java class combined with on ServoyDocumented
+	 * annotation public name or simple class name.<br>
+	 * For example int => type = Number, IRuntimeComponent.class realType => RuntimeComponent, Foundset.class => JSFoundset, JSDataSet.class => JSDataSet,
+	 * boolean[] => Boolean[] and so on.
+	 */
 	String getType();
 
 	Class< ? > getRealType();

@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.scripting;
 
-import java.util.Map;
-
 import com.servoy.j2db.documentation.IParameter;
 
 public interface ITypedScriptObject extends IScriptObject
@@ -26,13 +24,15 @@ public interface ITypedScriptObject extends IScriptObject
 
 	public String getSignature(String methodName, Class< ? >[] argTypes);
 
-	public String getSignature(String methodName, Class< ? >[] argTypes, Map<String, String> typeTranslationMap);
+	public String getJSTranslatedSignature(String methodName, Class< ? >[] argTypes);
 
 	public String getSample(String methodName, Class< ? >[] argTypes);
 
 	public String getToolTip(String methodName, Class< ? >[] argTypes);
 
 	public boolean isDeprecated(String methodName, Class< ? >[] argTypes);
+
+	public boolean isSpecial(String propertyName);
 
 	public String getDeprecatedText(String methodName, Class< ? >[] argTypes);
 

@@ -17,6 +17,8 @@
 package com.servoy.j2db.documentation.scripting.docs;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
  * Helper class for easier documentation of our JavaScript API for forms.
@@ -72,13 +74,10 @@ public class FormElements
 	 * 
 	 * @sampleas js_getAllnames()
 	 */
-	public String js_getIndex_name()
+	@JSReadonlyProperty
+	public IRuntimeComponent array__indexedby_name()
 	{
 		return null;
-	}
-
-	public void js_setIndex_name(String indexName)
-	{
 	}
 
 	/**
@@ -86,12 +85,10 @@ public class FormElements
 	 * 
 	 * @sampleas js_getLength()
 	 */
-	public Number js_getIndex_index()
+	@JSReadonlyProperty
+	public IRuntimeComponent array__indexedby_index()
 	{
 		return null;
 	}
 
-	public void js_setIndex_index(Number indexIndex)
-	{
-	}
 }

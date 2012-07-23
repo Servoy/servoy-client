@@ -254,8 +254,9 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		Object object = super.get(name, start);
 		if ((object == null || object == Scriptable.NOT_FOUND) && ("foundset".equals(name) || "elements".equals(name)))
 		{
-			Debug.error(Thread.currentThread().getName() + ": For form " + _fp + " the foundset was asked for but that was not set. " +
-					(this == _fp.getFormScope()), new RuntimeException());
+			Debug.error(
+				Thread.currentThread().getName() + ": For form " + _fp + " the foundset was asked for but that was not set. " + (this == _fp.getFormScope()),
+				new RuntimeException());
 			if (name.equals("foundset")) return _fp.getFormModel();
 		}
 		return object;
@@ -267,7 +268,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) | "allvariables".equals(name)) return true; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		if ("allnames".equals(name) || "alldataproviders".equals(name) || "allrelations".equals(name) || "allmethods".equals(name) || "allvariables".equals(name)) return true; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
 		return super.has(name, start);
 	}

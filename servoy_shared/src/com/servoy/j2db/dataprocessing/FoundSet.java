@@ -96,6 +96,7 @@ import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -5234,6 +5235,54 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		return false;
 	}
+	
+	/**
+	 * Get all dataproviders of the foundset.
+	 * 
+	 * @sample
+	 * var dataprovidersNames = %%prefix%%alldataproviders;
+	 * application.output("This foundset has " + dataprovidersNames.length + " data providers.")
+	 * for (var i=0; i<dataprovidersNames.length; i++)
+	 * 	application.output(dataprovidersNames[i]);
+	 * 
+	 * @special
+	 */
+	@JSReadonlyProperty
+	public NativeJavaArray alldataproviders()
+	{
+		List<String> al = new ArrayList<String>();
+		Table table = (Table)getTable();
+		if (table != null)
+		{
+			try
+			{
+				Iterator<Column> columnsIt = table.getColumnsSortedByName();
+				while (columnsIt.hasNext())
+				{
+					Column c = columnsIt.next();
+					al.add(c.getDataProviderID());
+				}
+				Iterator<AggregateVariable> aggIt = fsm.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
+				while (aggIt.hasNext())
+				{
+					AggregateVariable av = aggIt.next();
+					al.add(av.getDataProviderID());
+				}
+				Iterator<ScriptCalculation> scriptIt = fsm.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
+				while (scriptIt.hasNext())
+				{
+					ScriptCalculation sc = scriptIt.next();
+					if (al.contains(sc.getDataProviderID())) al.remove(sc.getDataProviderID());
+					al.add(sc.getDataProviderID());
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+			}
+		}
+		return new NativeJavaArray(this, al.toArray(new String[al.size()]));
+	}
 
 	public Object get(String name, Scriptable start)
 	{
@@ -5244,38 +5293,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if ("alldataproviders".equals(name)) //$NON-NLS-1$
 		{
-			List<String> al = new ArrayList<String>();
-			Table table = (Table)getTable();
-			if (table != null)
-			{
-				try
-				{
-					Iterator<Column> columnsIt = table.getColumnsSortedByName();
-					while (columnsIt.hasNext())
-					{
-						Column c = columnsIt.next();
-						al.add(c.getDataProviderID());
-					}
-					Iterator<AggregateVariable> aggIt = fsm.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
-					while (aggIt.hasNext())
-					{
-						AggregateVariable av = aggIt.next();
-						al.add(av.getDataProviderID());
-					}
-					Iterator<ScriptCalculation> scriptIt = fsm.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
-					while (scriptIt.hasNext())
-					{
-						ScriptCalculation sc = scriptIt.next();
-						if (al.contains(sc.getDataProviderID())) al.remove(sc.getDataProviderID());
-						al.add(sc.getDataProviderID());
-					}
-				}
-				catch (Exception ex)
-				{
-					Debug.error(ex);
-				}
-			}
-			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
+			return alldataproviders();
 		}
 
 		Object mobj = jsFunctions.get(name);

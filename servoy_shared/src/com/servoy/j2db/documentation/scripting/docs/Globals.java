@@ -18,6 +18,7 @@ package com.servoy.j2db.documentation.scripting.docs;
 
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Helper class for easier documentation of our JavaScript API for globals.
@@ -28,7 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 public class Globals
 {
 	/**
-	 * Get all global script names of the current solution.
+	 * Get all script names of this global scope.
 	 * 
 	 * @sample
 	 * var allMethodNames = scopes.globals.allmethods;
@@ -37,18 +38,17 @@ public class Globals
 	 * 	application.output(allMethodNames[i]);
 	 *  
 	 * @special
+	 * @deprecated use solutionModel.getGlobalMethods("scopeName") instead.
 	 */
-	public Array js_getAllmethods()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allmethods()
 	{
 		return null;
 	}
 
-	public void js_setAllmethods(Array allmethods)
-	{
-	}
-
 	/**
-	 * Get all global variable names of the current solution.
+	 * Get all variable names of this global scope.
 	 * 
 	 * @sample
 	 * var allVarNames = scopes.globals.allvariables;
@@ -57,14 +57,13 @@ public class Globals
 	 * 	application.output(allVarNames[i]);
 	 * 
 	 * @special
+	 * @deprecated use solutionModel.getGlobalVariables("scopeName") instead.
 	 */
-	public Array js_getAllvariables()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allvariables()
 	{
 		return null;
-	}
-
-	public void js_setAllvariables(Array allvariables)
-	{
 	}
 
 	/**
@@ -77,14 +76,13 @@ public class Globals
 	 * 	application.output(allRelationNames[i]);
 	 * 
 	 * @special
+	 * @deprecated use solutionModel.getRelations(null) instead.
 	 */
-	public Array js_getAllrelations()
+	@Deprecated
+	@JSReadonlyProperty
+	public Array allrelations()
 	{
 		return null;
-	}
-
-	public void js_setAllrelations(Array allrelations)
-	{
 	}
 
 	/**

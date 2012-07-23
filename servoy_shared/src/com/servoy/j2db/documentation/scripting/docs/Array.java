@@ -34,12 +34,12 @@ public class Array
 	 *
 	 * @sample array[0]
 	 */
-	public Number js_getIndex_index()
+	public Object js_getArray__indexedby_index()
 	{
 		return null;
 	}
 
-	public void js_setIndex_index(Number indexIndex)
+	public void js_setArray__indexedby_index(Object indexIndex)
 	{
 	}
 

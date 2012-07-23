@@ -18,7 +18,6 @@
 package com.servoy.j2db.documentation;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.dom4j.Element;
 
@@ -67,7 +66,7 @@ public interface IFunctionDocumentation
 
 	public String getFullSignature(boolean withNames, boolean withTypes);
 
-	public String getFullSignature(boolean withNames, boolean withTypes, Map<String, String> typeTranslationMap);
+	public String getFullJSTranslatedSignature(boolean withNames, boolean withTypes);
 
 	public String getSignature(String prefix);
 
