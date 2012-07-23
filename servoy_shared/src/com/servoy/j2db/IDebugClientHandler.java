@@ -42,7 +42,7 @@ import com.servoy.j2db.server.shared.IUserManager;
 public interface IDebugClientHandler
 {
 
-	ISessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects) throws Exception;
+	ISessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects, String preferedSolution) throws Exception;
 
 	ISessionClient createDebugAuthenticator(String authenticatorName, String method, Object[] objects) throws Exception;
 

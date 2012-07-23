@@ -18,7 +18,9 @@ package com.servoy.j2db.debug;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -658,15 +660,25 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return debugWebClient;
 	}
 
-	public synchronized SessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects)
-		throws Exception
+	public synchronized SessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects,
+		String preferedSolution) throws Exception
 	{
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
 		{
 			debugHeadlessClient.shutDown(true);
 		}
-		debugHeadlessClient = new DebugHeadlessClient(req, userName, password, method, objects, (currentSolution == null) ? null
-			: currentSolution.getSolutionMetaData(), designerCallback)
+		SolutionMetaData solutionMetaData = (currentSolution == null) ? null : currentSolution.getSolutionMetaData();
+		if (preferedSolution != null && solutionMetaData != null && !preferedSolution.equals(solutionMetaData.getName()))
+		{
+			Map<String, Solution> modules = new HashMap<String, Solution>();
+			currentSolution.getReferencedModulesRecursive(modules);
+			if (modules.containsKey(preferedSolution))
+			{
+				solutionMetaData = (SolutionMetaData)ApplicationServerSingleton.get().getLocalRepository().getRootObjectMetaData(preferedSolution,
+					IRepository.SOLUTIONS);
+			}
+		}
+		debugHeadlessClient = new DebugHeadlessClient(req, userName, password, method, objects, solutionMetaData, designerCallback)
 		{
 			@Override
 			public void shutDown(boolean force)

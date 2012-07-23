@@ -65,7 +65,7 @@ public class HeadlessClientFactoryInternal
 					// When last entry in solutionOpenMethodArgs in "nodebug" a non-debugging client is created.
 					if (as.isDeveloperStartup() && !nodebug)
 					{
-						sc[0] = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, openArgs);
+						sc[0] = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, openArgs, solutionname);
 					}
 					else
 					{
