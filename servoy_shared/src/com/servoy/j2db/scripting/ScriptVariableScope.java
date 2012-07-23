@@ -387,17 +387,25 @@ public class ScriptVariableScope extends LazyCompilationScope
 			{
 				if (!(unwrapped instanceof UUID))
 				{
-					Iterator<ScriptVariable> scriptVariablesIte = getScriptLookup().getScriptVariables(false);
-					ScriptVariable sv;
-					while (scriptVariablesIte.hasNext())
+					Object previousValue = get(name);
+					if (previousValue instanceof UUID)
 					{
-						sv = scriptVariablesIte.next();
-						if (name.equals(sv.getName()))
+						value = Utils.getAsUUID(unwrapped, false);
+					}
+					else if (previousValue == null)
+					{
+						Iterator<ScriptVariable> scriptVariablesIte = getScriptLookup().getScriptVariables(false);
+						ScriptVariable sv;
+						while (scriptVariablesIte.hasNext())
 						{
-							if (UUID.class.getSimpleName().equals(getDeclaredType(sv)))
+							sv = scriptVariablesIte.next();
+							if (name.equals(sv.getName()))
 							{
-								value = Utils.getAsUUID(value, false);
-								break;
+								if (UUID.class.getSimpleName().equals(getDeclaredType(sv)))
+								{
+									value = Utils.getAsUUID(unwrapped, false);
+									break;
+								}
 							}
 						}
 					}
