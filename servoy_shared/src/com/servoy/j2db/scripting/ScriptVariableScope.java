@@ -400,8 +400,8 @@ public class ScriptVariableScope extends LazyCompilationScope
 								if (UUID.class.getSimpleName().equals(getDeclaredType(sv)))
 								{
 									value = Utils.getAsUUID(unwrapped, false);
-									break;
 								}
+								break;
 							}
 						}
 					}
