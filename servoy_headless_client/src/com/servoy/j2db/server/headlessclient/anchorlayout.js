@@ -18,9 +18,16 @@ function layoutOneElement(elementInfo)
 		var imgEl = document.getElementById(element.id + "_img");
 		if (imgEl)
 		{
+			//get the width/height of div when window resize
+			//not before or later
+			$(window).resize(function(){
+				$(imgEl).width(imgEl.clientWidth);				
+				$(imgEl).height(imgEl.clientHeight);
+		    });
+			
 			var imageURL = elementInfo[9];
-			imageURL = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
-			imageURL = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);
+			imageURL = imageURL.replace(/w=[\d]+/, "w=" + $(imgEl).width());
+			imageURL = imageURL.replace(/h=[\d]+/, "h=" + $(imgEl).height());		
 			
 			if(imgEl.tagName.toLowerCase() == "div")
 			{
