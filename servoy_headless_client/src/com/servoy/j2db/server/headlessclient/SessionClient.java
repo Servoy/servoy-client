@@ -742,6 +742,9 @@ public class SessionClient extends ClientState implements ISessionClient
 				}
 				if (!token.equals("foundset")) //$NON-NLS-1$
 				{
+					// todo why is this always also assigned to the datacontext?
+					// shouldnt the above if be: if (token.equals("foundset") && st.hasMoreTokes()) dataContext == st.nextToken(); 
+					// because now this data context will just be set to a form name if the contextName is just a form. (which in many cases it is defined like that)
 					dataContext = token;
 				}
 			}
@@ -754,6 +757,11 @@ public class SessionClient extends ClientState implements ISessionClient
 
 			if (visibleFormName != null)
 			{
+				// just overwrite the above assignment again if the datacontext is really also the form, so it wont be used later on.
+				if (Utils.stringSafeEquals(visibleFormName, dataContext))
+				{
+					dataContext = null;
+				}
 				FormController fp = ((FormManager)getFormManager()).leaseFormPanel(visibleFormName);
 				if (!fp.isShowingData())
 				{
@@ -777,7 +785,11 @@ public class SessionClient extends ClientState implements ISessionClient
 						if (dataContext != null)
 						{
 							IFoundSetInternal rfs = r.getRelatedFoundSet(dataContext);
-							r = rfs.getRecord(rfs.getSelectedIndex());
+							// rfs can be null because dataContext can just be a anything see above
+							if (rfs != null)
+							{
+								r = rfs.getRecord(rfs.getSelectedIndex());
+							}
 						}
 						return new Pair<IRecordInternal, FormScope>(r, fp.getFormScope());
 					}
