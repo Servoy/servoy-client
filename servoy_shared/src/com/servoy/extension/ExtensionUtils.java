@@ -40,7 +40,8 @@ import com.servoy.j2db.util.Utils;
 public class ExtensionUtils
 {
 
-	public final static String EXPFILES_FOLDER = "application_server/.extensions"; //$NON-NLS-1$
+	public final static String EXPFILES_FOLDER_IN_APP_SERVER = ".extensions"; //$NON-NLS-1$
+	public final static String EXPFILES_FOLDER = "application_server/" + EXPFILES_FOLDER_IN_APP_SERVER; //$NON-NLS-1$
 
 	/**
 	 * Valid id's are simple or qualified java names.

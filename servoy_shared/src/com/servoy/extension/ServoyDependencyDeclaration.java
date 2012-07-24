@@ -43,6 +43,11 @@ public class ServoyDependencyDeclaration
 		this.maxVersion = maxVersion;
 	}
 
+	public boolean isCompatibleVersion()
+	{
+		return VersionStringUtils.belongsToInterval(VersionStringUtils.getCurrentServoyVersion(), minVersion, maxVersion);
+	}
+
 	@Override
 	public String toString()
 	{
