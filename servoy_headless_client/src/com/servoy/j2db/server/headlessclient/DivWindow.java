@@ -225,13 +225,6 @@ public class DivWindow extends ModalWindow
 		add(JavascriptPackageResource.getHeaderContribution(JAVA_SCRIPT));
 	}
 
-	@Override
-	protected boolean makeContentVisible()
-	{
-		// do not change the "shown" flag is the window is rendered from a non-ajax request (that might result in the dialog being shown but the flag shown == false => it will not longer be closed when needed)
-		return isShown();
-	}
-
 	/**
 	 * Returns the jsId used to find the DivWindow in browser java-script.
 	 * @return the jsId used to find the DivWindow in browser java-script.

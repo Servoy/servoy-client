@@ -206,7 +206,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		for (var w in Wicket.DivWindow.openWindows) {
 			allWindows.push(Wicket.DivWindow.openWindows[w]);
 		}
-		this.closeInternal(false, allWindows); // would normally be (force, allWindows) but we want settings.onClose to be triggered even for page unload, and div windows can always close anyway
+		this.closeInternal(force, allWindows);
 	},
 
 	closeInternal: function(force, allWindows) {
