@@ -473,7 +473,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't change password of user  " + a_userUID + ", only admin users can create/change security stuff", e);
 			return false;
 		}
 	}
@@ -586,7 +586,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't create group: " + groupName + ", only admin users can create/change security stuff", e);
 		}
 		return null;
 	}
@@ -673,7 +673,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't create user: " + username + ", only admin users can create/change security stuff", e);
 		}
 		return null;
 	}
@@ -699,7 +699,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't delete user: " + userUID + ", only admin users can create/change security stuff", e);
 		}
 		return false;
 	}
@@ -731,7 +731,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't delete group: " + groupName + ", only admin users can create/change security stuff", e);
 		}
 		return false;
 	}
@@ -762,7 +762,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't change username of " + a_userUID + ", only admin users can create/change security stuff", e);
 		}
 		return false;
 	}
@@ -795,7 +795,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't change groupname of " + oldGroupName + ", only admin users can create/change security stuff", e);
 		}
 		return false;
 	}
@@ -897,7 +897,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't add user " + a_userUID + " to group: " + groupName + ", only admin users can create/change security stuff", e);
 		}
 		return false;
 	}
@@ -933,7 +933,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			application.reportJSError("Can't remove user  " + a_userUID + " from group " + groupName + ", only admin users can create/change security stuff", e);
 		}
 		return false;
 	}
