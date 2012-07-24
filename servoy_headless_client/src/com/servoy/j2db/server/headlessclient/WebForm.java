@@ -826,15 +826,15 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeReadOnly)
 			{
 				HasRuntimeReadOnly scriptable = (HasRuntimeReadOnly)((IScriptableProvider)component).getScriptObject();
-				if (!scriptable.isReadOnly() && readonlyFlag)
+				if (!markedList.contains(component))
 				{
 					scriptable.setReadOnly(readonlyFlag);
-					if (!markedList.contains(component))
-					{
-						markedList.add(component);
-					}
 				}
-				else if (!readonlyFlag && markedList.contains(component))
+				if (!scriptable.isReadOnly() && readonlyFlag && !markedList.contains(component))
+				{
+					markedList.add(component);
+				}
+				if (!readonlyFlag && markedList.contains(component))
 				{
 					scriptable.setReadOnly(readonlyFlag);
 				}
@@ -848,14 +848,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	 */
 	public void setReadOnly(boolean b)
 	{
-		if (readonly != b)
+		if (readonly != b) readonly = b;
+		visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(markedComponents, readonly));
+		if (!readonly)
 		{
-			readonly = b;
-			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(markedComponents, readonly));
-			if (!readonly)
-			{
-				markedComponents.clear();
-			}
+			markedComponents.clear();
 		}
 	}
 
