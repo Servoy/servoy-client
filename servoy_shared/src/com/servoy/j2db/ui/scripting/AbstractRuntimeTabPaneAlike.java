@@ -50,18 +50,15 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 
 	public void setReadOnly(boolean b)
 	{
-		if (isReadOnly() != b)
+		if (enclosingComponent instanceof ISupportReadOnly)
 		{
-			if (enclosingComponent instanceof ISupportReadOnly)
-			{
-				((ISupportReadOnly)enclosingComponent).setReadOnly(b);
-			}
-			else
-			{
-				getComponent().setReadOnly(b);
-			}
-			getChangesRecorder().setChanged();
+			((ISupportReadOnly)enclosingComponent).setReadOnly(b);
 		}
+		else
+		{
+			getComponent().setReadOnly(b);
+		}
+		getChangesRecorder().setChanged();
 	}
 
 	public boolean isReadOnly()
