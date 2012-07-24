@@ -294,11 +294,11 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 
 	public E getElementAt(int index)
 	{
-		// make this in synch with getRealElementAt
 		int idx = index;
 		if (hideFirstValue) idx++;
 
-		return (E)listModel.getElementAt(idx);
+		if (idx < listModel.getSize()) return (E)listModel.getElementAt(idx);
+		return null;
 	}
 
 	public boolean isCellEditable(int rowIndex)
