@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  * @author jcompagner
  */
-@ServoyDocumented(publicName = "PrinterJob")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "PrinterJob")
 public class PrinterJob
 {
 

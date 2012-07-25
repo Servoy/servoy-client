@@ -151,7 +151,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 		// this might look strange, it's here to avoid PrinterJob types to be changed to Object, because they are not Scriptable or ServoyDocumented
 		// but we still want them to appear in JS with their original name
-		javaClassToDocumentedJavaClass.put(PrinterJob.class, PrinterJob.class);
+		javaClassToDocumentedJavaClass.put(PrinterJob.class, com.servoy.j2db.documentation.scripting.docs.PrinterJob.class);
 
 		// (plugin) workarounds - ideally this map should tend to become empty in the future instead of growing 
 		javaClassToDocumentedJavaClassWorkarounds.put(
