@@ -227,11 +227,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	private List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private boolean transferFocusBackwards = false;
-	private boolean readonly;
 
 	private IView view;
 
-	private final List<Component> componentsWithEditableStateChanged = new ArrayList<Component>();
 	private final List<Component> componentsWithEnabledStateChanged = new ArrayList<Component>();
 
 	private Color bgColor;
@@ -255,7 +253,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		am.put(ACTION_GO_OUT_TO_PREV, new GoOutOfSwingFormAction(true));
 
 		addFocusListener(new AutoTransferFocusListener(this, this));
-		readonly = false;
 
 		registerFindKeystrokes(this);
 		containerTimer = new Timer(300, new AbstractAction()
@@ -537,22 +534,10 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	@Override
 	public void setReadOnly(boolean b)
 	{
-		if (readonly != b) readonly = b;
 		for (int i = 0; i < getComponentCount(); i++)
 		{
-			if (!componentsWithEditableStateChanged.contains(getComponent(i)))
-			{
-				setReadOnly(getComponent(i), b);
-			}
+			setReadOnly(getComponent(i), b);
 		}
-		if (!readonly && componentsWithEditableStateChanged.size() != 0)
-		{
-			for (Component component : componentsWithEditableStateChanged)
-			{
-				setReadOnly(component, b);
-			}
-		}
-		componentsWithEditableStateChanged.clear();
 	}
 
 	private boolean componentIsReadOnly(Component comp)
@@ -581,7 +566,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				if (componentIsReadOnly(comp) == false)
 				{
 					((ListView)comp).setEditable(false);
-					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
@@ -597,7 +581,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				if (componentIsReadOnly(comp) == false)
 				{
 					((TableView)comp).setEditable(false);
-					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
@@ -612,7 +595,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				if (componentIsReadOnly(comp) == false)
 				{
 					((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
-					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
 				}
 			}
 			else

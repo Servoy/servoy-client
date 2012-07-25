@@ -741,12 +741,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
 			}
 
-			// if this table view is marked as read-only by the formController, mark also
-			// its children as read-only by the formController, else when the table view
-			// will change read-only state, the children will be ignored
-			List<Component> readOnlyComponents = ((WebForm)fc.getFormUI()).getReadOnlyComponents();
-			if (readOnlyComponents.indexOf(WebCellBasedView.this) != -1 && readOnlyComponents.indexOf(comp) == -1) readOnlyComponents.add(comp);
-
 			if (!isEnabled() && comp instanceof IComponent)
 			{
 				((IComponent)comp).setComponentEnabled(false);
