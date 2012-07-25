@@ -103,7 +103,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	private String text_url;
 	private String rolloverUrl;
 	private final WebEventExecutor eventExecutor;
-	private ServoyAjaxEventBehavior rolloverBehavior;
+	private AttributeModifier rolloverBehavior;
 
 	protected IFieldComponent labelForComponent;
 	private final AbstractRuntimeBaseComponent< ? extends ILabel> scriptable;

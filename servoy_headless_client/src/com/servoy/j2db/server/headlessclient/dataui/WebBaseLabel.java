@@ -106,7 +106,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	protected final IApplication application;
 	private String text_url;
 	private String rolloverUrl;
-	private ServoyAjaxEventBehavior rolloverBehavior;
+	private AttributeModifier rolloverBehavior;
 
 	protected IFieldComponent labelForComponent;
 	private final WebEventExecutor eventExecutor;

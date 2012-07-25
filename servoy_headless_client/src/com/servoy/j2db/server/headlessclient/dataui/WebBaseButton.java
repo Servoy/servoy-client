@@ -34,7 +34,6 @@ import org.apache.wicket.IResourceListener;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -96,7 +95,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected IApplication application;
 	private String text_url;
 	private String rolloverUrl;
-	private ServoyAjaxEventBehavior rolloverBehavior;
+	private AttributeModifier rolloverBehavior;
 	private char mnemonic;
 	private final WebEventExecutor eventExecutor;
 	private final AbstractRuntimeButton<IButton> scriptable;
@@ -951,15 +950,18 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		return imgURL;
 	}
 
-	protected static ServoyAjaxEventBehavior getImageDisplayRolloverBehavior(final IImageDisplay imageDisplay)
+	protected static AttributeModifier getImageDisplayRolloverBehavior(final IImageDisplay imageDisplay)
 	{
 		if (imageDisplay instanceof Component)
 		{
 			final Component imageDisplayComponent = (Component)imageDisplay;
-			return new ServoyAjaxEventBehavior("onmouseover") //$NON-NLS-1$ 
+
+			return new AttributeModifier("onmouseover", true, new Model<String>()
 			{
+				private static final long serialVersionUID = 1L;
+
 				@Override
-				protected CharSequence generateCallbackScript(CharSequence partialCall)
+				public String getObject()
 				{
 					String solutionName = J2DBGlobals.getServiceProvider().getSolution().getName();
 					String url = "";
@@ -994,37 +996,41 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 						else url = imageDisplay.getRolloverUrl();
 					}
 
-					return "Servoy.Rollover.onMouseOver('" + imageDisplayComponent.getMarkupId() + "_img','" + url + "')"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$  
+					return "Servoy.Rollover.onMouseOver('" + imageDisplayComponent.getMarkupId() + "_img','" + url + "')"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
 				}
-
+			})
+			{
 				@Override
-				protected void onEvent(AjaxRequestTarget target)
+				protected String newValue(final String currentValue, final String replacementValue)
 				{
-					// not used, client side implementation
+					return replacementValue + ";" + currentValue;
 				}
 			};
 		}
-
 		return null;
 	}
 
-	protected static ServoyAjaxEventBehavior getImageDisplayRolloutBehavior(IImageDisplay imageDisplay)
+	protected static AttributeModifier getImageDisplayRolloutBehavior(IImageDisplay imageDisplay)
 	{
 		if (imageDisplay instanceof Component)
 		{
 			final Component imageDisplayComponent = (Component)imageDisplay;
-			return new ServoyAjaxEventBehavior("onmouseout") //$NON-NLS-1$ 
+
+			return new AttributeModifier("onmouseout", true, new Model<String>()
 			{
-				@Override
-				protected CharSequence generateCallbackScript(CharSequence partialCall)
-				{
-					return "Servoy.Rollover.onMouseOut('" + imageDisplayComponent.getMarkupId() + "_img')"; //$NON-NLS-1$  //$NON-NLS-2$ 
-				}
+				private static final long serialVersionUID = 1L;
 
 				@Override
-				protected void onEvent(AjaxRequestTarget target)
+				public String getObject()
 				{
-					// not used, client side implementation
+					return "Servoy.Rollover.onMouseOut('" + imageDisplayComponent.getMarkupId() + "_img')"; //$NON-NLS-1$  //$NON-NLS-2$
+				}
+			})
+			{
+				@Override
+				protected String newValue(final String currentValue, final String replacementValue)
+				{
+					return currentValue + ";" + replacementValue;
 				}
 			};
 		}
