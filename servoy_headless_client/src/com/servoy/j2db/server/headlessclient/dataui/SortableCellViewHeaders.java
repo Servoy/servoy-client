@@ -97,7 +97,7 @@ public class SortableCellViewHeaders extends WebMarkupContainer implements IProv
 				@Override
 				public String getObject()
 				{
-					return "position: absolute; overflow: hidden; left: 0px; top: 0px;"; //$NON-NLS-1$
+					return "position: absolute; overflow: hidden; left: 0px; top: 0px; border-spacing: 0px;"; //$NON-NLS-1$
 				}
 			}));
 		}

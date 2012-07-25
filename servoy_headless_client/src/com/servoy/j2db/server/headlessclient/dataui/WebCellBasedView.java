@@ -640,21 +640,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 									// so we will link this <td> to a wicket component
 									listItemChild = new CellContainer(comp);
 									listItemChild.setOutputMarkupPlaceholderTag(true);
-
-									// because of a bug in chrome, that causing problem with align of cell to the header,
-									// that has a right border of 1 px
-									if (WebCellBasedView.this.addHeaders && labelsFor.size() == 0 && isScrollMode() && getHeaderBorder() == null &&
-										((WebClientInfo)getSession().getClientInfo()).getProperties().isBrowserChrome())
-									{
-										listItemChild.add(new StyleAppendingModifier(new Model<String>()
-										{
-											@Override
-											public String getObject()
-											{
-												return "padding-right: " + TemplateGenerator.NO_LABELFOR_DEFAULT_BORDER_WIDTH + "px"; //$NON-NLS-1$ //$NON-NLS-2$
-											}
-										}));
-									}
 									((MarkupContainer)listItemChild).add(comp);
 								}
 							}
