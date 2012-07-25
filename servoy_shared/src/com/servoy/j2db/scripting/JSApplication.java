@@ -574,7 +574,9 @@ public class JSApplication implements IReturnedTypesProvider
 
 	/**
 	 * Fill a custom type valuelist with values from array(s) or dataset.
-	 *
+	 * 
+	 * NOTE: if you modify values for checkbox/radio field, note that having one value in valuelist is a special case, so switching between one value and 0/multiple values after form is created may have side effects
+	 * 
 	 * @sample
 	 * //set display values (return values will be same as display values)
 	 * application.setValueListItems('my_en_types',new Array('Item 1', 'Item 2', 'Item 3'));

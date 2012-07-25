@@ -42,7 +42,8 @@ public interface HasRuntimeValuelist
 	 * <br>This does not effect the value list with same name list on other elements or value lists at application level.
 	 * 
 	 * <br>Should receive a dataset parameter, first column is for display values, second column (optional) is for real values.
-	 *
+	 * 
+	 * NOTE: if you modify values for checkbox/radio field, note that having one value in valuelist is a special case, so switching between one value and 0/multiple values after form is created may have side effects
 	 * @sample
 	 * var dataset = databaseManager.createEmptyDataSet(0,new Array('display_values','optional_real_values'));
 	 * dataset.addRow(['aa',1]);
