@@ -413,6 +413,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 	public void setValueObject(Object value)
 	{
 		// add this code in order for js_getSelectedItems to work
+		List<Integer> selectedRows = new ArrayList<Integer>();
 		if (value instanceof String)
 		{
 			String delim = (eventExecutor.getValidationEnabled() ? "\n" : "%\n"); //$NON-NLS-1$//$NON-NLS-2$
@@ -420,13 +421,24 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 			while (tk.hasMoreTokens())
 			{
 				int row = list.realValueIndexOf(tk.nextToken());
-				if (row >= 0) list.setElementAt(Boolean.TRUE, row);
+				if (row >= 0) selectedRows.add(Integer.valueOf(row));
 			}
 		}
 		else
 		{
 			int row = list.realValueIndexOf(value);
-			if (row >= 0) list.setElementAt(Boolean.TRUE, row);
+			if (row >= 0) selectedRows.add(Integer.valueOf(row));
+		}
+		for (int i = 0; i < list.size(); i++)
+		{
+			if (selectedRows.contains(Integer.valueOf(i)))
+			{
+				list.setElementAt(Boolean.TRUE, i);
+			}
+			else
+			{
+				list.setElementAt(Boolean.FALSE, i);
+			}
 		}
 		((ChangesRecorder)getStylePropertyChanges()).testChanged(this, value);
 		if (getStylePropertyChanges().isChanged())
