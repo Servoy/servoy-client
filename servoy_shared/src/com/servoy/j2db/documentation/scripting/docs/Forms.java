@@ -68,7 +68,14 @@ public class Forms
 	/**
 	 * Get a form by name.
 	 * 
-	 * @sampleas allnames()
+	 * @sample 
+	 * var allForms = solutionModel.getForms();
+	 * application.output("There are " + allForms.length + " forms.");
+	 * for (var i=0; i<allForms.length; i++) 
+	 * {
+	 * 	var f = forms[allForms[i].name];
+	 * 	application.output("Form " + allForms[i].name + " has selected index " + f.controller.getSelectedIndex());
+	 * }
 	 */
 	@JSReadonlyProperty
 	public FormScope array__indexedby_name()

@@ -36,8 +36,17 @@ public @interface ServoyDocumented
 
 	String category() default PLUGINS;
 
+	/**
+	 * This is the name that appears in wiki documentation - in the left-hand-side tree. If scriptingName is not
+	 * defined then publicName is used instead even for scriptingName.
+	 */
 	String publicName() default "";
 
+	/**
+	 * Scripting name is the "JS type". It is what will be listed in wiki pages/solex/jseditor tooltips
+	 * as a parameter type or as a return type. If scriptingName is null, the "JS type" is what publicName defines.<BR>
+	 * If neither publicName or scriptingName are defined, then the "JS type" will be the class simple name.
+	 */
 	String scriptingName() default "";
 
 	String extendsComponent() default "";

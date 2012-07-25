@@ -61,7 +61,7 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * A translator class capable of translating Java classes (used in javascript as return/parameter types) either to another java class that is
- * ServoyDocumented or scriptable (in case the given class isn't already), or directly to a javascript type name (public name for ServoyDocumented annotation).
+ * ServoyDocumented or scriptable (in case the given class isn't already), or directly to a javascript type name (scripting name for ServoyDocumented annotation).
  * @author acostescu
  */
 public class JavaToDocumentedJSTypeTranslator
@@ -190,7 +190,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 	/**
 	 * Translate a java class that can be used in JS code into a JS Type name. It first tries to translate the class into a java-script documented
-	 * class (@ServoyDocumented) if needed, then it tries to get the public name defined in the annotation. If this fails, it will just return the
+	 * class (@ServoyDocumented) if needed, then it tries to get the scripting name defined in the annotation. If this fails, it will just return the
 	 * simple class name of the original or translated class. <BR>
 	 * The method is able to handle arrays.
 	 * @param javaClass the class to be translated.
@@ -222,11 +222,12 @@ public class JavaToDocumentedJSTypeTranslator
 			else
 			{
 				// this is the usual case;
-				// we have a class; use it's public name when it's a @ServoyDocumented class or it's simple class name otherwise
+				// we have a class; use it's scripting name when it's a @ServoyDocumented class or it's simple class name otherwise
 				if (translatedClassAndName.getLeft().isAnnotationPresent(ServoyDocumented.class))
 				{
 					ServoyDocumented annotation = translatedClassAndName.getLeft().getAnnotation(ServoyDocumented.class);
-					jsType = annotation.publicName();
+					jsType = annotation.scriptingName();
+					if (jsType == null || jsType.trim().length() == 0) jsType = annotation.publicName();
 					if (jsType == null || jsType.trim().length() == 0) jsType = translatedClassAndName.getLeft().getSimpleName();
 				}
 				else
