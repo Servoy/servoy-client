@@ -286,4 +286,38 @@ public class JSMethod implements IJavaScriptType
 	{
 		return sm.getUUID();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((sm == null) ? 0 : sm.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		JSMethod other = (JSMethod)obj;
+		if (sm == null)
+		{
+			if (other.sm != null) return false;
+		}
+		else if (!sm.getUUID().equals(other.sm.getUUID())) return false;
+		return true;
+	}
 }
