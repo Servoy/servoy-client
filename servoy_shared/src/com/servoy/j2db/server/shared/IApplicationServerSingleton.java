@@ -24,7 +24,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.servlet.http.HttpServlet;
 
-import com.servoy.extension.IFileBasedExtensionProvider;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IBeanManagerInternal;
 import com.servoy.j2db.IDebugClientHandler;
@@ -145,5 +144,5 @@ public interface IApplicationServerSingleton
 
 	IServerAccess getServerAccess();
 
-	public IFileBasedExtensionProvider getExtensionProvider();
+	public boolean hadIncompatibleExtensionsWhenStarted();
 }
