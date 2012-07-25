@@ -736,4 +736,38 @@ public class JSValueList implements IConstantsObject, ISMValueList
 		}
 		return "JSValueList[name:" + valuelist.getName() + ',' + typeString + ']';
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((valuelist == null) ? 0 : valuelist.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		JSValueList other = (JSValueList)obj;
+		if (valuelist == null)
+		{
+			if (other.valuelist != null) return false;
+		}
+		else if (!valuelist.getUUID().equals(other.valuelist.getUUID())) return false;
+		return true;
+	}
 }

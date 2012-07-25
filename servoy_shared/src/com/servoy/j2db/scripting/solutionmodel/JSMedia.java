@@ -148,4 +148,39 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	{
 		return "JSMedia[name: " + media.getName() + ']';
 	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((media == null) ? 0 : media.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		JSMedia other = (JSMedia)obj;
+		if (media == null)
+		{
+			if (other.media != null) return false;
+		}
+		else if (!media.getUUID().equals(other.media.getUUID())) return false;
+		return true;
+	}
 }
