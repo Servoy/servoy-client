@@ -85,6 +85,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.ElementScope;
@@ -206,6 +208,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/**
 		 * Shows the form (makes the form visible)
 		 * This function does not affect the form foundset in any way.
+		 * 
 		 * @sample
 		 * // show the form in the current window/dialog
 		 * %%prefix%%controller.show();
@@ -215,6 +218,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * // show the form in an existing window/dialog
 		 * var w = application.getWindow("mydialog"); // use null name for main app. window
 		 * %%prefix%%controller.show(w);
+		 * // or %%prefix%%controller.show("mydialog");
 		 * //show the form in the main window
 		 * //%%prefix%%controller.show(null);
 		 * 
@@ -234,16 +238,32 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		// @param modal optional boolean indicating modality for dialogs; default value is false
 		public void js_show() throws ServoyException
 		{
-			js_show(null);
+			js_show((JSWindow)null);
 		}
 
 		/**
 		 * @clonedesc js_show()
 		 * @sampleas js_show()
-		 * @param window the window in which this form should be shown
+		 * 
+		 * @param window the window in which this form should be shown, specified by the name of an existing window
+		 * 
 		 * @throws ServoyException
 		 */
-		public void js_show(Object window) throws ServoyException
+		public void js_show(String windowName) throws ServoyException
+		{
+			checkDestroyed();
+			formController.showForm(windowName, null);
+		}
+
+		/**
+		 * @clonedesc js_show()
+		 * @sampleas js_show()
+		 * 
+		 * @param window the window in which this form should be shown, given as a window object
+		 * 
+		 * @throws ServoyException
+		 */
+		public void js_show(JSWindow window) throws ServoyException
 		{
 			checkDestroyed();
 			formController.showForm(window, null);
@@ -289,6 +309,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * // load foundset & show the form in an existing window/dialog
 		 * var w = application.getWindow("mydialog"); // use null name for main app. window
 		 * %%prefix%%controller.showRecords(foundset, w);
+		 * //%%prefix%%controller.showRecords(foundset, "mydialog");
 		 * 
 		 * @param foundset the foundset to load before showing the form.
 		 */
@@ -314,9 +335,26 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 * 
 		 * @param foundset the foundset to load before showing the form.
-		 * @param window the window in which this form should be shown.
+		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
-		public void js_showRecords(FoundSet foundset, Object window) throws ServoyException
+		public void js_showRecords(FoundSet foundset, String window) throws ServoyException
+		{
+			showRecords(foundset, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(FoundSet)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * 
+		 * @param foundset the foundset to load before showing the form.
+		 * @param window the window in which this form should be shown, given as a window object.
+		 */
+		public void js_showRecords(FoundSet foundset, JSWindow window) throws ServoyException
 		{
 			showRecords(foundset, window, null);
 		}
@@ -342,11 +380,78 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 *  
 		 * @param pkdataset the pkdataset to load before showing the form.
-		 * @param window the window in which this form should be shown.
+		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
-		public void js_showRecords(JSDataSet pkdataset, Object window) throws ServoyException
+		public void js_showRecords(JSDataSet pkdataset, String window) throws ServoyException
 		{
 			showRecords(pkdataset, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(JSDataSet)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param pkdataset the pkdataset to load before showing the form.
+		 * @param window the window in which this form should be shown, given as a window object.
+		 */
+		public void js_showRecords(JSDataSet pkdataset, JSWindow window) throws ServoyException
+		{
+			showRecords(pkdataset, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param query the query to load before showing the form.
+		 */
+		public void js_showRecords(QBSelect query) throws ServoyException
+		{
+			showRecords(query, null, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param query the query to load before showing the form.
+		 * @param window the window in which this form should be shown, specified by the name of an existing window.
+		 */
+		public void js_showRecords(QBSelect query, String window) throws ServoyException
+		{
+			showRecords(query, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param query the query to load before showing the form.
+		 * @param window the window in which this form should be shown, given as a window object.
+		 */
+		public void js_showRecords(QBSelect query, JSWindow window) throws ServoyException
+		{
+			showRecords(query, window, null);
 		}
 
 		/**
@@ -370,9 +475,26 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 *  
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
-		 * @param window the window in which this form should be shown.
+		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
-		public void js_showRecords(Number singleNumber_pk, Object window) throws ServoyException
+		public void js_showRecords(Number singleNumber_pk, String window) throws ServoyException
+		{
+			showRecords(singleNumber_pk, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Number)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
+		 * @param window the window in which this form should be shown, given as a window object
+		 */
+		public void js_showRecords(Number singleNumber_pk, JSWindow window) throws ServoyException
 		{
 			showRecords(singleNumber_pk, window, null);
 		}
@@ -392,17 +514,82 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @clonedesc js_showRecords(FoundSet)
 		 * @sampleas js_showRecords(FoundSet)
 		 * 
+		 * @param query the query to load before showing the form.
+		 * @param argumentsArray the array of arguments for the query
+		 */
+		public void js_showRecords(String query, Object[] argumentsArray) throws ServoyException
+		{
+			showRecords(query, argumentsArray, null, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
-		 * @param window the window in which this form should be shown.
+		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
-		public void js_showRecords(String query, Object window) throws ServoyException
+		public void js_showRecords(String query, String window) throws ServoyException
 		{
 			showRecords(query, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param query the query to load before showing the form.
+		 * @param argumentsArray the array of arguments for the query
+		 * @param window the window in which this form should be shown, specified by the name of an existing window.
+		 */
+		public void js_showRecords(String query, Object[] argumentsArray, String window) throws ServoyException
+		{
+			showRecords(query, argumentsArray, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param query the query to load before showing the form.
+		 * @param window the window in which this form should be shown, given as a window object
+		 */
+		public void js_showRecords(String query, JSWindow window) throws ServoyException
+		{
+			showRecords(query, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 *  
+		 * @param query the query to load before showing the form.
+		 * @param argumentsArray the array of arguments for the query
+		 * @param window the window in which this form should be shown, given as a window object
+		 */
+		public void js_showRecords(String query, Object[] argumentsArray, JSWindow window) throws ServoyException
+		{
+			showRecords(query, argumentsArray, window, null);
 		}
 
 		/**
@@ -426,9 +613,26 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object) 
 		 * 
 		 * @param UUIDpk the UUIDpk to load before showing the form.
-		 * @param window the window in which this form should be shown.
+		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
-		public void js_showRecords(UUID UUIDpk, Object window) throws ServoyException
+		public void js_showRecords(UUID UUIDpk, String window) throws ServoyException
+		{
+			showRecords(UUIDpk, window, null);
+		}
+
+		/**
+		 * @clonedesc js_showRecords(FoundSet)
+		 * @sampleas js_showRecords(FoundSet)
+		 * 
+		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(UUID)
+		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object) 
+		 * 
+		 * @param UUIDpk the UUIDpk to load before showing the form.
+		 * @param window the window in which this form should be shown, given as a window object.
+		 */
+		public void js_showRecords(UUID UUIDpk, JSWindow window) throws ServoyException
 		{
 			showRecords(UUIDpk, window, null);
 		}
@@ -443,7 +647,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @throws ServoyException
 		 * 
-		 * @deprecated see showRecords(FoundSet, Object)
+		 * @deprecated see showRecords(FoundSet, String) or showRecords(FoundSet, JSWindow)  
 		 */
 		@Deprecated
 		public void js_showRecords(Object foundset, Object dialogName, Object modal) throws ServoyException
@@ -453,8 +657,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		private void showRecords(Object data, Object window, Object[] windowArgs) throws ServoyException
 		{
+			showRecords(data, null, window, windowArgs);
+		}
+
+		private void showRecords(Object data, Object[] dataArgs, Object window, Object[] windowArgs) throws ServoyException
+		{
 			checkDestroyed();
-			formController.show(data, window, windowArgs);
+			formController.show(data, dataArgs, window, windowArgs);
 		}
 
 		/**
@@ -1440,13 +1649,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/**
 		 * @clonedesc js_newRecord()
 		 * @sampleas js_newRecord()
-		 * @param location boolean true adds the new record as the topmost record
+		 * @param insertOnTop boolean true adds the new record as the topmost record
 		 * @return true if successful
 		 */
-		public boolean js_newRecord(boolean location) throws ServoyException
+		public boolean js_newRecord(boolean insertOnTop) throws ServoyException
 		{
 			checkDestroyed();
-			return formController.newRecordImpl(location ? 0 : Integer.MAX_VALUE);
+			return formController.newRecordImpl(insertOnTop ? 0 : Integer.MAX_VALUE);
 		}
 
 		/**
@@ -1817,11 +2026,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //Set page format to a custom size of 100x200 pixels with 10 pixel margins on all sides in portrait mode
 		 * %%prefix%%controller.setPageFormat(100, 200, 10, 10, 10, 10);
 		 * 
+		 * //Set page format to a custom size of 100x200 pixels with 10 pixel margins on all sides in landscape mode
+		 * %%prefix%%controller.setPageFormat(100, 200, 10, 10, 10, 10, SM_ORIENTATION.LANDSCAPE);
+		 * 
 		 * //Set page format to a custom size of 100x200 mm in landscape mode
-		 * %%prefix%%controller.setPageFormat(100, 200, 0, 0, 0, 0, 0, 0);
+		 * %%prefix%%controller.setPageFormat(100, 200, 0, 0, 0, 0, SM_ORIENTATION.LANDSCAPE, SM_UNITS.MM);
 		 * 
 		 * //Set page format to a custom size of 100x200 inch in portrait mode
-		 * %%prefix%%controller.setPageFormat(100, 200, 0, 0, 0, 0, 1, 1);
+		 * %%prefix%%controller.setPageFormat(100, 200, 0, 0, 0, 0, SM_ORIENTATION.PORTRAIT, SM_UNITS.INCH);
 		 *
 		 * @param width the specified width of the page to be printed.
 		 * @param height the specified height of the page to be printed.
@@ -2582,7 +2794,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				throw new RuntimeException(application.getI18NMessage("servoy.formPanel.error.settingFoundset") + ex.getMessage(), ex); //$NON-NLS-1$
 			}
 		}
-		else if (data instanceof String)
+		else if (data instanceof String || data instanceof IQueryBuilder)
 		{
 			try
 			{
@@ -2594,7 +2806,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				{
 					((FoundSetManager)application.getFoundSetManager()).giveMeFoundSet(this);
 				}
-				returnValue = formModel.loadByQuery((String)data, args);
+
+				if (data instanceof String) returnValue = formModel.loadByQuery((String)data, args);
+				else returnValue = formModel.loadByQuery((IQueryBuilder)data);
+
 				if (returnValue)
 				{
 					returnValue = setModel(formModel);
@@ -2615,7 +2830,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public boolean show(Object data, Object window, Object[] windowArgs) throws ServoyException
 	{
-		boolean b = loadData(data, null); //notify visible will show the data and set selected record
+		return show(data, null, window, windowArgs);
+	}
+
+	public boolean show(Object data, Object[] dataArgs, Object window, Object[] windowArgs) throws ServoyException
+	{
+		boolean b = loadData(data, dataArgs); //notify visible will show the data and set selected record
 		if (!b) return false;
 		if (window != null)
 		{

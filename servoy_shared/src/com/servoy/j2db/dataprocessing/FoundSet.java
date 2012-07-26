@@ -714,7 +714,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * if (count == 0)
 	 * {
 	 * 	plugins.dialogs.showWarningDialog('Alert', 'No records found','OK');
-	 * 	controller.loadRecords(dupFoundset);
+	 * 	%%prefix%%foundset.loadRecords(dupFoundset);
 	 * }
 	 * 
 	 * @return foundset duplicate.
@@ -5235,7 +5235,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get all dataproviders of the foundset.
 	 * 

@@ -221,6 +221,43 @@ public class JSDatabaseManager
 		return js_addTableFilterParam(serverName, tableName, dataprovider, operator, value, null);
 	}
 
+
+	/**
+	 * @clonedesc js_addTableFilterParam(String,String,String,String,Object)
+	 * 
+	 * @sampleas js_addTableFilterParam(String,String,String,String,Object)
+	 * 
+	 * @param datasource The datasource
+	 * @param dataprovider A specified dataprovider column name.  
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
+	 * @param value The specified filter value. 
+	 * 
+	 * @return true if the tablefilter could be applied.
+	 */
+	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value) throws ServoyException
+	{
+		return js_addTableFilterParam(datasource, dataprovider, operator, value, null);
+	}
+
+	/**
+	 * @clonedesc js_addTableFilterParam(String,String,String,String,Object)
+	 * 
+	 * @sampleas js_addTableFilterParam(String,String,String,String,Object)
+	 * 
+	 * @param datasource The datasource 
+	 * @param dataprovider A specified dataprovider column name.  
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
+	 * @param value The specified filter value. 
+	 * @param filterName The specified name of the database table filter. 
+	 * 
+	 * @return true if the tablefilter could be applied.
+	 */
+	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value, String filterName) throws ServoyException
+	{
+		String[] ds = DataSourceUtils.getDBServernameTablename(datasource);
+		return js_addTableFilterParam(ds[0], ds[1], dataprovider, operator, value, filterName);
+	}
+
 	/**
 	 * @clonedesc js_addTableFilterParam(String,String,String,String,Object)
 	 * 
@@ -360,7 +397,26 @@ public class JSDatabaseManager
 	 * 
 	 * @return The converted JSFoundset. 
 	 */
-	public FoundSet js_convertFoundSet(Object foundset, Object related) throws ServoyException
+	public FoundSet js_convertFoundSet(FoundSet foundset, RelatedFoundSet related) throws ServoyException
+	{
+		return convertFoundSet(foundset, related);
+	}
+
+	/**
+	 * @clondesc js_convertFoundSet(FoundSet, RelatedFoundSet)
+	 * @sampleas js_convertFoundSet(FoundSet, RelatedFoundSet)
+	 *
+	 * @param foundset The JSFoundset to convert.
+	 * @param related the name of a one-to-many relation
+	 * 
+	 * @return The converted JSFoundset. 
+	 */
+	public FoundSet js_convertFoundSet(FoundSet foundset, String related) throws ServoyException
+	{
+		return convertFoundSet(foundset, related);
+	}
+
+	public FoundSet convertFoundSet(Object foundset, Object related) throws ServoyException
 	{
 		checkAuthorized();
 		if (foundset instanceof FoundSet && ((FoundSet)foundset).getTable() != null)
@@ -439,7 +495,8 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * Converts the argument to a JSDataSet, possible use in controller.loadRecords(dataset)
+	 * Converts the argument to a JSDataSet, possible use in controller.loadRecords(dataset).
+	 * The optional array of dataprovider names is used (only) to add the specified dataprovider names as columns to the dataset.
 	 *
 	 * @sample
 	 * // converts a foundset pks to a dataset
@@ -928,7 +985,7 @@ public class JSDatabaseManager
 	}
 
 	/**  
-	 * Performs a query on the specified server, saves the the result in a datasource.
+	 * Performs a query and saves the result in a datasource.
 	 * Will throw an exception if anything went wrong when executing the query.
 	 * Column types in the datasource are inferred from the query result.
 	 * 
@@ -2864,7 +2921,10 @@ public class JSDatabaseManager
 	 * @sampleas js_revertEditedRecords()
 	 * 
 	 * @param record A JSRecord to rollback.
+	 * 
+	 * @deprecated see JSRecord#revertChanges()
 	 */
+	@Deprecated
 	public void js_revertEditedRecords(IRecordInternal record) throws ServoyException
 	{
 		checkAuthorized();
@@ -3037,7 +3097,10 @@ public class JSDatabaseManager
 	 * @param record The JSRecord to test if it has changes.
 	 * 
 	 * @return true if there are changes in the JSFoundset or JSRecord.
+	 * 
+	 * @deprecated use JSRecord#hasChangedData() instead
 	 */
+	@Deprecated
 	public boolean js_hasRecordChanges(IRecordInternal record)
 	{
 		if (record != null && record.getRawData() != null)
@@ -3136,7 +3199,10 @@ public class JSDatabaseManager
 	 * @param record The JSRecord to test.
 	 * 
 	 * @return true if the JSFoundset has new records or JSRecord is a new record.
+	 * 
+	 * @deprecated use JSRecord#isNew() instead
 	 */
+	@Deprecated
 	public boolean js_hasNewRecords(IRecordInternal record)
 	{
 		if (record != null && record.getRawData() != null)
@@ -3163,7 +3229,7 @@ public class JSDatabaseManager
 	 * 	databaseManager.copyMatchingColumns(srcRecord,destRecord,true)
 	 * }
 	 * //saves any outstanding changes to the dest foundset
-	 * controller.saveData();
+	 * databaseManager.saveData();
 	 *
 	 * @param src The source record or object to be copied.
 	 * @param dest_record The destination record to copy to.
@@ -3277,7 +3343,9 @@ public class JSDatabaseManager
 
 	/**
 	 * Copies all matching non empty columns (if overwrite boolean is given all columns except pk/ident, if array then all columns except pk and array names).
-	 * returns true if no error did happen.
+	 * The matching requires the properties and getter functions of the source to match those of the destination; for the getter functions, 
+	 * the 'get' will be removed and the remaining name will be converted to lowercase before attempting to match.
+	 * Returns true if no error occurred.
 	 * 
 	 * NOTE: This function could be used to store a copy of records in an archive table. Use the getRecord() function to get the record as an object. 
 	 *
@@ -3290,7 +3358,7 @@ public class JSDatabaseManager
 	 * 	databaseManager.copyMatchingFields(srcRecord,destRecord,true)
 	 * }
 	 * //saves any outstanding changes to the dest foundset
-	 * controller.saveData();
+	 * databaseManager.saveData();
 	 * 
 	 * //copying from a MailMessage JavaScript object
 	 * //var _msg = plugins.mail.receiveMail(login, password, true, 0, null, properties);
@@ -3300,7 +3368,7 @@ public class JSDatabaseManager
 	 * //	var srcObject = _msg[0];
 	 * //	var destRecord = foundset.getSelectedRecord();
 	 * //	databaseManager.copyMatchingFields(srcObject, destRecord, true);
-	 * //	controller.saveData();
+	 * //	databaseManager.saveData();
 	 * //} 
 	 *
 	 * @param source The source record or object to be copied.

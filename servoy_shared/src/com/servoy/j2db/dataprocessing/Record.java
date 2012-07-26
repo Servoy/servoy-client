@@ -896,6 +896,19 @@ public class Record implements Scriptable, IRecordInternal
 	}
 
 	/**
+	 * Returns true if the current record is a new record or false otherwise.
+	 * 
+	 * @sample
+	 * var isNew = foundset.getSelectedRecord().isNew(); 
+	 * 
+	 * @return true if the current record is a new record, false otherwise; 
+	 */
+	public boolean js_isNew()
+	{
+		return getRawData() != null && !existInDataSource();
+	}
+
+	/**
 	 * Returns an array with the primary key values of the record.
 	 *
 	 * @sample 
@@ -1036,6 +1049,19 @@ public class Record implements Scriptable, IRecordInternal
 				new String[] { "col_name", "old_value", "new_value" }, rows)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		return null;
+	}
+
+	/**
+	 * Returns true if the current record has outstanding/changed data.
+	 * 
+	 * @sample
+	 * var hasChanged = record.hasChangedData();
+	 * 
+	 * @return true if the current record has outstanding/changed data.
+	 */
+	public boolean js_hasChangedData()
+	{
+		return getRawData() != null && getRawData().isChanged();
 	}
 
 	/**
