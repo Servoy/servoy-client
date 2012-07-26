@@ -1219,6 +1219,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 					{
 						asa.logout(getClientInfo().getClientId());
 					}
+					getClientInfo().clearUserInfo();
 					// else not logged in
 				}
 				catch (Exception e)
