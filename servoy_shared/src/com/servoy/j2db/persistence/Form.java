@@ -184,7 +184,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	{
 		Dimension size = checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
 		setSize(size);
-		return size;
+		return new Dimension(size);
 	}
 
 	/**
