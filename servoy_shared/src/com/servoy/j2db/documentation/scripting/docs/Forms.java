@@ -41,11 +41,12 @@ public class Forms
 	 * }
 	 * 
 	 * @special
-	 * @deprecated use solutionModel.getForms().
+	 * @deprecated use solutionModel.getForms() instead.
+	 * (an exact replacement, if you need it would be 'solutionModel.getForms().map(function (jsForm) { return jsForm.name }').
 	 */
 	@Deprecated
 	@JSReadonlyProperty
-	public Array allnames()
+	public String[] allnames()
 	{
 		return null;
 	}

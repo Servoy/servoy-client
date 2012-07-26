@@ -55,11 +55,12 @@ public class Form
 	 * 	application.output(methodNames[i]);
 	 * 
 	 * @special
-	 * @deprecated use solutionModel - JSForm.getMethods(Boolean) or JSForm.getMethods().
+	 * @deprecated use solutionModel - JSForm.getMethods(Boolean) or JSForm.getMethods() instead.
+	 * (an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getMethods().map(function (jsMethod) { return jsMethod.getName() }').
 	 */
 	@Deprecated
 	@JSReadonlyProperty
-	public Array allmethods()
+	public String[] allmethods()
 	{
 		return null;
 	}
@@ -74,11 +75,11 @@ public class Form
 	 * 	application.output(names[i]);
 	 * 
 	 * @special
-	 * @deprecated use elements.allnames.
+	 * @deprecated use elements.allnames instead.
 	 */
 	@Deprecated
 	@JSReadonlyProperty
-	public Array allnames()
+	public String[] allnames()
 	{
 		return null;
 	}
@@ -97,7 +98,7 @@ public class Form
 	 */
 	@Deprecated
 	@JSReadonlyProperty
-	public Array alldataproviders()
+	public String[] alldataproviders()
 	{
 		return null;
 	}
@@ -112,11 +113,12 @@ public class Form
 	 * 	application.output(varNames[i]);
 	 * 
 	 * @special 
-	 * @deprecated use solutionModel - JSForm.getVariables(Boolean) or JSForm.getVariables().
+	 * @deprecated use solutionModel - JSForm.getVariables(Boolean) or JSForm.getVariables() instead.
+	 * (an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getVariables().map(function (jsVariable) { return jsVariable.name }').
 	 */
 	@Deprecated
 	@JSReadonlyProperty
-	public Array allvariables()
+	public String[] allvariables()
 	{
 		return null;
 	}
@@ -131,11 +133,12 @@ public class Form
 	 * 	application.output(relationsNames[i]);
 	 * 
 	 * @special
-	 * @deprecated use solutionModel.getRelations(dataSource) where dataSource is provided by solution model's JSForm.dataSource or controller.getDataSource().
+	 * @deprecated use solutionModel.getRelations(dataSource) instead, where dataSource is provided by solution model's JSForm.dataSource or controller.getDataSource().
+	 * (an exact replacement, if you need it would be 'solutionModel.getRelations(controller.getDataSource()).map(function (jsRelation) { return jsRelation.name }').
 	 */
 	@Deprecated
 	@JSReadonlyProperty
-	public Array allrelations()
+	public String[] allrelations()
 	{
 		return null;
 	}

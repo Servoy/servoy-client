@@ -5248,7 +5248,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @special
 	 */
 	@JSReadonlyProperty
-	public NativeJavaArray alldataproviders()
+	public String[] alldataproviders()
 	{
 		List<String> al = new ArrayList<String>();
 		Table table = (Table)getTable();
@@ -5281,7 +5281,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				Debug.error(ex);
 			}
 		}
-		return new NativeJavaArray(this, al.toArray(new String[al.size()]));
+		return al.toArray(new String[al.size()]);
 	}
 
 	public Object get(String name, Scriptable start)
@@ -5293,7 +5293,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if ("alldataproviders".equals(name)) //$NON-NLS-1$
 		{
-			return alldataproviders();
+			return new NativeJavaArray(this, alldataproviders());
 		}
 
 		Object mobj = jsFunctions.get(name);

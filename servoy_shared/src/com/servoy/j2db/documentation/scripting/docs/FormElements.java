@@ -41,13 +41,10 @@ public class FormElements
 	 * 
 	 * @special
 	 */
-	public Array js_getAllnames()
+	@JSReadonlyProperty
+	public String[] allnames()
 	{
 		return null;
-	}
-
-	public void js_setAllnames(Array allnames)
-	{
 	}
 
 	/**
@@ -60,19 +57,16 @@ public class FormElements
 	 * 	application.output(elem.getName() + ": " + elem.getDataProviderID());
 	 * }
 	 */
-	public Number js_getLength()
+	@JSReadonlyProperty
+	public Number length()
 	{
 		return null;
-	}
-
-	public void js_setLength(Number length)
-	{
 	}
 
 	/**
 	 * Get an element of the form by its name.
 	 * 
-	 * @sampleas js_getAllnames()
+	 * @sampleas allnames()
 	 */
 	@JSReadonlyProperty
 	public IRuntimeComponent array__indexedby_name()
@@ -83,7 +77,7 @@ public class FormElements
 	/**
 	 * Get an element of the form by its index.
 	 * 
-	 * @sampleas js_getLength()
+	 * @sampleas length()
 	 */
 	@JSReadonlyProperty
 	public IRuntimeComponent array__indexedby_index()
