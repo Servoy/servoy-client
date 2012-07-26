@@ -249,10 +249,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @throws ServoyException
 		 */
-		public void js_show(String windowName) throws ServoyException
+		public void js_show(String window) throws ServoyException
 		{
 			checkDestroyed();
-			formController.showForm(windowName, null);
+			formController.showForm(window, null);
 		}
 
 		/**

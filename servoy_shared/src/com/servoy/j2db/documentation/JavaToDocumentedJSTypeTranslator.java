@@ -39,6 +39,7 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.Record;
+import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.querybuilder.impl.QBCondition;
@@ -127,6 +128,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(IFoundSetInternal.class, FoundSet.class);
 		javaClassToDocumentedJavaClass.put(IFoundSet.class, FoundSet.class);
+		javaClassToDocumentedJavaClass.put(RelatedFoundSet.class, FoundSet.class);
 
 		javaClassToDocumentedJavaClass.put(IDataSet.class, JSDataSet.class);
 
