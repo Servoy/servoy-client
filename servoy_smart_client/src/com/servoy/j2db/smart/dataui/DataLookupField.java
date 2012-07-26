@@ -900,7 +900,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		public void insertUpdate(DocumentEvent e)
 		{
 			if (focusGainedOrValidationChange || skipPropertyChange) return;
-			if (dlm != null && !dlm.hasMoreRows() && getText().length() != 1 && (e.getOffset() + e.getLength()) == e.getDocument().getLength())
+			if (dlm != null && !dlm.hasMoreRows() && getText().length() != 1 && (e.getOffset() + e.getLength()) == e.getDocument().getLength() &&
+				!getText().contains("%"))
 			{
 				if (editProvider == null || !editProvider.isAdjusting())
 				{
