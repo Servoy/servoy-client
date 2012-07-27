@@ -43,6 +43,7 @@ import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.link.ILinkListener;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
@@ -294,6 +295,16 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		super.onRender(markupStream);
 		scriptable.getChangesRecorder().setRendered();
+	}
+
+	@Override
+	public void renderHead(HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		if (WebBaseButton.getImageDisplayURL(this) != null)
+		{
+			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
+		}
 	}
 
 	/**
@@ -902,8 +913,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			designMode = true;
 		}
 
+		String cssId = null;
+		if (WebBaseButton.getImageDisplayURL(this) != null)
+		{
+			cssId = getMarkupId() + "_lb";
+		}
+
 		replaceComponentTagBody(markupStream, openTag,
-			instrumentBodyText(bodyText, halign, valign, false, border, margin, null, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
+			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
 				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor, false, false));
 	}
 
