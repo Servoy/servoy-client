@@ -47,7 +47,6 @@ import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.link.ILinkListener;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -169,7 +168,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (hasHtml())
+		if (hasHtmlOrImage())
 		{
 			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
 		}
@@ -991,9 +990,9 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	@SuppressWarnings("nls")
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		boolean hasHtml = hasHtml();
+		boolean hasHtmlOrImage = hasHtmlOrImage();
 
-		String cssid = hasHtml ? getMarkupId() + "_lb" : null;
+		String cssid = hasHtmlOrImage ? getMarkupId() + "_lb" : null;
 		boolean designMode = false;
 		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
 		if (formui != null && formui.isDesignMode())
@@ -1002,16 +1001,16 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		}
 		boolean isAnchored = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) && anchors > 0 && anchors != IAnchorConstants.DEFAULT;
 
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, border, null, cssid,
-			(char)getDisplayedMnemonic(),
-			getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false, isAnchored)); //$NON-NLS-1$
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid,
+			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false,
+			isAnchored)); //$NON-NLS-1$
 	}
 
-	protected boolean hasHtml()
+	protected boolean hasHtmlOrImage()
 	{
 		if (!HtmlUtils.startsWithHtml(getDefaultModelObject()))
 		{
-			return !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+			return WebBaseButton.getImageDisplayURL(this) != null;
 		}
 		return true;
 	}

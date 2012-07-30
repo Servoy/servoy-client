@@ -41,7 +41,6 @@ import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -163,7 +162,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (hasHtml())
+		if (hasHtmlOrImage())
 		{
 			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
 		}
@@ -894,7 +893,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
 	{
-		boolean hasHtml = hasHtml();
+		boolean hasHtmlOrImage = hasHtmlOrImage();
 
 		String cssid = getCSSId();
 
@@ -906,9 +905,9 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		}
 		boolean isAnchored = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) && anchors > 0 && anchors != IAnchorConstants.DEFAULT; //$NON-NLS-1$
 
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtml, border, margin, cssid,
-			(char)getDisplayedMnemonic(),
-			getMarkupId() + "_img", WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored(), isAnchored)); //$NON-NLS-1$
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, margin, cssid,
+			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored(),
+			isAnchored));
 	}
 
 	protected boolean isAnchored()
@@ -918,14 +917,14 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 
 	protected String getCSSId()
 	{
-		return hasHtml() ? getMarkupId() + "_lb" : null;
+		return hasHtmlOrImage() ? getMarkupId() + "_lb" : null;
 	}
 
-	protected boolean hasHtml()
+	protected boolean hasHtmlOrImage()
 	{
 		if (!HtmlUtils.startsWithHtml(getDefaultModelObject()))
 		{
-			return !Strings.isEmpty(getDefaultModelObjectAsString()) && WebBaseButton.getImageDisplayURL(this) != null;
+			return WebBaseButton.getImageDisplayURL(this) != null;
 		}
 		return true;
 	}

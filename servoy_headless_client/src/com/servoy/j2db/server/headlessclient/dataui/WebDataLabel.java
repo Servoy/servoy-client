@@ -209,9 +209,9 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel#hasHtml()
 	 */
 	@Override
-	protected boolean hasHtml()
+	protected boolean hasHtmlOrImage()
 	{
-		return hasHTML || super.hasHtml();
+		return hasHTML || super.hasHtmlOrImage();
 	}
 
 	/*

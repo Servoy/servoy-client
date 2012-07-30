@@ -219,7 +219,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	 * here we force the two attributes to be added.
 	 */
 	@Override
-	protected boolean hasHtml()
+	protected boolean hasHtmlOrImage()
 	{
 		return true;
 	}

@@ -23,15 +23,7 @@ function layoutOneElement(elementInfo)
 				var imageURL = elementInfo[9];
 				imageURL = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
 				imageURL = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);		
-				
-				if(imgEl.tagName.toLowerCase() == "div")
-				{
-					YAHOO.util.Dom.setStyle(imgEl, "background-image", "url('" + imageURL + "')");
-				}
-				else
-				{
-					imgEl.src = imageURL;
-				}
+				imgEl.src = imageURL;
 			},0);
 		}
 	}

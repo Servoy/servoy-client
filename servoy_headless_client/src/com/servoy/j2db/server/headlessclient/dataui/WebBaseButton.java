@@ -916,12 +916,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		String cssId = null;
 		if (WebBaseButton.getImageDisplayURL(this) != null)
 		{
-			cssId = getMarkupId() + "_lb";
+			cssId = getMarkupId() + "_lb"; //$NON-NLS-1$
 		}
 
-		replaceComponentTagBody(markupStream, openTag,
-			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId() + "_img", //$NON-NLS-1$
-				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor, false, false));
+		replaceComponentTagBody(
+			markupStream,
+			openTag,
+			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
+				size == null ? 0 : size.height, true, designMode ? null : cursor, false, false));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1061,8 +1063,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 	@SuppressWarnings("nls")
-	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean isHtml, Border border, Insets margin, String cssid,
-		char mnemonic, String imgID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, boolean isElementAnchored)
+	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
+		String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored,
+		boolean isElementAnchored)
 	{
 		Insets padding = null;
 		Insets borderMargin = null;
@@ -1138,14 +1141,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-
-		boolean isOnlyImgDisplay = (Strings.isEmpty(bodyText) && imgURL != null) || isHTMLWithOnlyImg(bodyText);
-
 		// Full height.
-		if (!isHtml) instrumentedBodyText.append(" overflow: hidden;");
-		if (isHtml && valign != ISupportTextSetup.CENTER && cssid == null) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
-		else if ((cssid != null && !isHTMLWithOnlyImg(bodyText)) || (!isOnlyImgDisplay && valign != ISupportTextSetup.CENTER)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
-		else if (!isButton && !isHtml && imgURL == null)
+		if (!hasHtmlOrImage) instrumentedBodyText.append(" overflow: hidden;");
+		if (hasHtmlOrImage && valign != ISupportTextSetup.CENTER && cssid == null) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
+		else if ((cssid != null) || (valign != ISupportTextSetup.CENTER)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+		else if (!isButton && !hasHtmlOrImage && imgURL == null)
 		{
 			int innerHeight = height;
 			if (padding != null) innerHeight -= padding.top + padding.bottom;
@@ -1168,7 +1168,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (!Strings.isEmpty(bodyText))
 		{
 			CharSequence bodyTextValue = bodyText;
-			if (mnemonic > 0 && !isHtml)
+			if (mnemonic > 0 && !hasHtmlOrImage)
 			{
 				StringBuffer sbBodyText = new StringBuffer(bodyTextValue);
 				int mnemonicIdx = sbBodyText.indexOf(Character.toString(mnemonic));
@@ -1187,8 +1187,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				{
 					src = imgURL;
 				}
-				StringBuffer sb = new StringBuffer("<img id=\"").append(imgID).append("\" src=\"").append(src).append(
-					"\" style=\"vertical-align: middle;\"/>&nbsp;").append(bodyTextValue);
+				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ")\"" : "";
+				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(src).append(
+					"\" style=\"vertical-align: middle;\"").append(onLoadCall).append("/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
 
@@ -1197,39 +1198,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		else if (imgURL != null)
 		{
 			instrumentedBodyText.append("<img id=\"");
-			instrumentedBodyText.append(imgID);
+			instrumentedBodyText.append(elementID).append("_img");
 			instrumentedBodyText.append("\" src=\"");
 			instrumentedBodyText.append(!isElementAnchored ? imgURL : "");
-			instrumentedBodyText.append("\" align=\"middle\"/>");
+			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ")\"" : "";
+			instrumentedBodyText.append("\" align=\"middle\"").append(onLoadCall).append("/>");
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 
-		if (isOnlyImgDisplay)
-		{
-			// if only image AND not image from html text content
-			if (cssid == null && imgURL != null)
-			{
-				String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "center";
-				String hAlign = (halign == ISupportTextSetup.LEFT) ? "left" : (halign == ISupportTextSetup.RIGHT) ? "right" : "center ";
-				String align = hAlign + " " + sValign;
-				instrumentedBodyText = new StringBuffer("<div id=\"").append(imgID).append(
-					"\" style=\"width: 100%; height: 100%; position: absolute; top: 0; left:0; background-repeat: no-repeat; background-position: ").append(
-					align).append(";");
-
-				if (!isElementAnchored)
-				{
-					instrumentedBodyText.append("background-image:url('").append(imgURL).append("');");
-				}
-
-				instrumentedBodyText.append(" \">&nbsp;</div>");
-			}
-			else
-			{
-				String sValign = (valign == ISupportTextSetup.TOP) ? "top" : (valign == ISupportTextSetup.BOTTOM) ? "bottom" : "middle";
-				instrumentedBodyText = (new StringBuffer(
-					"<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" height=\"100%\"><tr><td style=\"vertical-align:").append(sValign).append(";\">").append(instrumentedBodyText).append("</td></tr></table>")); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
 		if (border instanceof TitledBorder)
 		{
 			instrumentedBodyText = new StringBuffer(getTitledBorderOpenMarkup((TitledBorder)border) + instrumentedBodyText.toString() +
@@ -1293,17 +1269,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public static String getTitledBorderCloseMarkup()
 	{
 		return "</fieldset>"; //$NON-NLS-1$
-	}
-
-	public static boolean isHTMLWithOnlyImg(CharSequence bodyText)
-	{
-		if (bodyText != null)
-		{
-			String sBodyText = bodyText.toString().trim().toLowerCase();
-			return sBodyText.startsWith("<img") && (sBodyText.indexOf('>') == sBodyText.length() - 1); //$NON-NLS-1$
-		}
-
-		return false;
 	}
 
 	public Object getLabelFor()
