@@ -2247,7 +2247,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		for (int i = 0; i < lastState.length; i++)
 		{
-			if (!lastState[i].equals(state[i])) return true;
+			if (!Utils.safeEquals(lastState[i], state[i])) return true;
 		}
 		return false;
 	}
