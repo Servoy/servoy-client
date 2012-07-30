@@ -20,6 +20,8 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.util.Arrays;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.ScriptMethod;
 
@@ -52,5 +54,37 @@ public class JSMethodWithArguments extends JSMethod
 	public Object[] js_getArguments()
 	{
 		return getArguments();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((sm == null) ? 0 : sm.hashCode());
+		result = prime * result + Arrays.hashCode(arguments);
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		JSMethodWithArguments other = (JSMethodWithArguments)obj;
+		if (!sm.getUUID().equals(other.sm.getUUID())) return false;
+		else if (!Arrays.equals(arguments, other.arguments)) return false;
+		return true;
 	}
 }
