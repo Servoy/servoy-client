@@ -745,7 +745,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			var elChildren = el.childNodes;
 			var elChildrenLen = elChildren.length;
 	
-			if (!(el.tagName.toLowerCase() == "td" && elChildrenLen == 1 && !elChildren[0].tagName))
+			if (!(el.tagName && el.tagName.toLowerCase() == "td" && elChildrenLen == 1 && !elChildren[0].tagName))
 			{
 				// ignore the tableview filler (last column) 
 				if(el.attributes['id'] && (!isListView || (el.attributes['class'] && (el.attributes['class'] == 'listViewItem'))))
@@ -757,7 +757,7 @@ if (typeof(Servoy.TableView) == "undefined")
 					el.style.fontSize = fontSize;
 					el.style.fontFamily = fontFamily;
 					
-					if(el.tagName.toLowerCase() != "td")
+					if(el.tagName && el.tagName.toLowerCase() != "td")
 					{
 						var bStyleTop = '';
 						var bStyleBottom = '';
@@ -992,14 +992,14 @@ if (typeof(Servoy.TableView) == "undefined")
 		{
 			var targetTD = YAHOO.util.Dom.getAncestorBy (el , function(el)
 			{
-				return el.tagName.toLowerCase() == "td";
+				return el.tagName && el.tagName.toLowerCase() == "td";
 			});				
 		
 			if(targetTD)
 			{
 				var nextTD = YAHOO.util.Dom.getPreviousSiblingBy(targetTD, function(el)
 				{
-					return el.tagName.toLowerCase() == "td";
+					return el.tagName && el.tagName.toLowerCase() == "td";
 				});
 				
 				if(!nextTD) return true;
@@ -1012,14 +1012,14 @@ if (typeof(Servoy.TableView) == "undefined")
 		{
 			var targetTD = YAHOO.util.Dom.getAncestorBy (el , function(el)
 			{
-				return el.tagName.toLowerCase() == "td";
+				return el.tagName && el.tagName.toLowerCase() == "td";
 			});				
 		
 			if(targetTD)
 			{
 				var nextTD = YAHOO.util.Dom.getNextSiblingBy(targetTD, function(el)
 				{
-					return el.tagName.toLowerCase() == "td" && el.id;
+					return el.tagName && el.tagName.toLowerCase() == "td" && el.id;
 				});
 				
 				if(!nextTD) return true;
@@ -1552,7 +1552,7 @@ function showtip(event,message,initialDelay, dismissDelay)
 	if(targ.nodeType == 3) // defeat Safari bug
 		targ = targ.parentNode;
 
-	if(targ.tagName.toLowerCase() == "option")	// stop tooltip if over option element
+	if(targ.tagName && targ.tagName.toLowerCase() == "option")	// stop tooltip if over option element
 	{
 		hidetip();
 		return;
@@ -2386,23 +2386,26 @@ if (typeof(Servoy.Rollover) == "undefined")
 		
 		setImageSrc: function (el, imgURL)
 		{
-			// get w= and h= from el
-			// we need to make sure width/height are from displayed element, see anchorlayout.js (there width/height is changed)
-			var currentSrc = el.src;
-			var w = "", h = "";
-			var i;
-			if((i = currentSrc.indexOf("w=")) != -1)
+			if(imgURL)
 			{
-				while(i < currentSrc.length && currentSrc[i] != '&') w = w + currentSrc[i++];
-				imgURL = imgURL.replace(/w=[\d]+/, w);
+				// get w= and h= from el
+				// we need to make sure width/height are from displayed element, see anchorlayout.js (there width/height is changed)
+				var currentSrc = el.src;
+				var w = "", h = "";
+				var i;
+				if((i = currentSrc.indexOf("w=")) != -1)
+				{
+					while(i < currentSrc.length && currentSrc[i] != '&') w = w + currentSrc[i++];
+					imgURL = imgURL.replace(/w=[\d]+/, w);
+				}
+				
+				if((i = currentSrc.indexOf("h=")) != -1)
+				{
+					while(i < currentSrc.length && currentSrc[i] != '&') h = h + currentSrc[i++];
+					imgURL = imgURL.replace(/h=[\d]+/, h);
+				}
 			}
-			
-			if((i = currentSrc.indexOf("h=")) != -1)
-			{
-				while(i < currentSrc.length && currentSrc[i] != '&') h = h + currentSrc[i++];
-				imgURL = imgURL.replace(/h=[\d]+/, h);
-			}
-			
+
 			el.src = imgURL;
 		}
 	}
