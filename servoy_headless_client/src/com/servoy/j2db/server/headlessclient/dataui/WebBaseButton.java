@@ -1235,6 +1235,15 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText = new StringBuffer(getTitledBorderOpenMarkup((TitledBorder)border) + instrumentedBodyText.toString() +
 				getTitledBorderCloseMarkup());
 		}
+		if (border instanceof CompoundBorder)
+		{
+			Border outside = ((CompoundBorder)border).getOutsideBorder();
+			if (outside != null && outside instanceof TitledBorder)
+			{
+				instrumentedBodyText = new StringBuffer(getTitledBorderOpenMarkup((TitledBorder)outside) + instrumentedBodyText.toString() +
+					getTitledBorderCloseMarkup());
+			}
+		}
 		return instrumentedBodyText.toString();
 	}
 
