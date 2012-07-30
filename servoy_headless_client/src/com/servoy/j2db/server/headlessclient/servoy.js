@@ -745,7 +745,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			var elChildren = el.childNodes;
 			var elChildrenLen = elChildren.length;
 	
-			if (!(el.tagName && el.tagName.toLowerCase() == "td" && elChildrenLen == 1 && !elChildren[0].tagName))
+			if (el.tagName && !(el.tagName.toLowerCase() == "td" && elChildrenLen == 1 && !elChildren[0].tagName))
 			{
 				// ignore the tableview filler (last column) 
 				if(el.attributes['id'] && (!isListView || (el.attributes['class'] && (el.attributes['class'] == 'listViewItem'))))
