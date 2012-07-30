@@ -52,6 +52,10 @@ public class ExtendableURLClassLoader extends URLClassLoader
 		{
 			// we are not running inside a Terracotta cluster; np, nothing to register
 		}
+		catch (ClassCastException e)
+		{
+			// we are not running inside a Terracotta cluster; np, nothing to register
+		}
 	}
 
 	private String getCurrentClassLoaderName()
