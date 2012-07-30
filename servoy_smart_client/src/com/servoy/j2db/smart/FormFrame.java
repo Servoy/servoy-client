@@ -116,6 +116,7 @@ public class FormFrame extends JFrame implements FormWindow
 
 	public void cancel()
 	{
+		mainContainer.getController().stopUIEditing(true);
 		application.getRuntimeWindowManager().closeFormInWindow(mainContainer.getContainerName(), true);
 	}
 

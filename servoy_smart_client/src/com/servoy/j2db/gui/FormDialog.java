@@ -122,6 +122,7 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 	@Override
 	public void cancel()
 	{
+		mainContainer.getController().stopUIEditing(true);
 		application.getRuntimeWindowManager().closeFormInWindow(mainContainer.getContainerName(), closeAll);
 	}
 
