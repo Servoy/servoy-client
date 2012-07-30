@@ -590,17 +590,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		}
 		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly)
 		{
-			if (b == true)
-			{
-				if (componentIsReadOnly(comp) == false)
-				{
-					((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
-				}
-			}
-			else
-			{
-				((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(false);
-			}
+			((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(b);
 		}
 		else if (comp instanceof Container)
 		{
