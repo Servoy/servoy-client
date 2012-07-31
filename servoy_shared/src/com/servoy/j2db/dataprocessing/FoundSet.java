@@ -2815,11 +2815,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * When the founset is in multiSelect mode (see property multiSelect), a selection can consist of more than one index.
 	 *
 	 * @sample
+	 * // modify selection to the first selected item and the following row only
 	 * var current = %%prefix%%foundset.getSelectedIndexes();
-	 * var newSelection = new Array();
-	 * newSelection[0] = current[0]; // first current selection
-	 * newSelection[1] = current[0] + 1; // and the next row
-	 * %%prefix%%foundset.setSelectedIndexes(newSelection);
+	 * if (current.length > 1)
+	 * {
+	 * 	var newSelection = new Array();
+	 * 	newSelection[0] = current[0]; // first current selection
+	 * 	newSelection[1] = current[0] + 1; // and the next row
+	 * 	%%prefix%%foundset.setSelectedIndexes(newSelection);
+	 * }
 	 * @return Array current indexes (1-based)
 	 */
 	public int[] js_getSelectedIndexes()
