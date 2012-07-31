@@ -384,6 +384,8 @@ public class JSDatabaseManager
 
 	/**
 	 * Creates a foundset that combines all the records of the specified one-to-many relation seen from the given parent/primary foundset.
+	 * The created foundset will not contain records that have not been saved in the database, because the records in the foundset will be the 
+	 * result of a select query to the database. 
 	 *
 	 * @sample
 	 * // Convert in the order form a orders foundset into a orderdetails foundset, 
@@ -391,7 +393,7 @@ public class JSDatabaseManager
 	 * var convertedFoundSet = databaseManager.convertFoundSet(foundset,order_to_orderdetails);
 	 * // or var convertedFoundSet = databaseManager.convertFoundSet(foundset,"order_to_orderdetails");
 	 * forms.orderdetails.controller.showRecords(convertedFoundSet);
-	 *
+	 * 
 	 * @param foundset The JSFoundset to convert.
 	 * @param related can be a one-to-many relation object or the name of a one-to-many relation
 	 * 
@@ -403,7 +405,7 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clondesc js_convertFoundSet(FoundSet, RelatedFoundSet)
+	 * @clonedesc js_convertFoundSet(FoundSet, RelatedFoundSet)
 	 * @sampleas js_convertFoundSet(FoundSet, RelatedFoundSet)
 	 *
 	 * @param foundset The JSFoundset to convert.
