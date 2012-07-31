@@ -256,6 +256,7 @@ public class LookupValueList implements IValueList
 			}
 			else clear();
 		}
+		if (secondLookup != null) secondLookup.fill(ps);
 	}
 
 	public void setDoNotQuery(boolean b)

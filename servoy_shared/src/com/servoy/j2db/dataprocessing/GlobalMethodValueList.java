@@ -193,6 +193,7 @@ public class GlobalMethodValueList extends CustomValueList
 	@Override
 	public void fill(IRecordInternal parentState)
 	{
+		super.fill(parentState);
 		fill(parentState, null, null);
 	}
 
