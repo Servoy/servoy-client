@@ -233,6 +233,14 @@ public class LookupListModel extends AbstractListModel
 		this.lookup = list;
 	}
 
+	/**
+	 * @return the lookup
+	 */
+	public IValueList getValueList()
+	{
+		return lookup;
+	}
+
 	private ArrayList<IQuerySort> getSortColumnsForQuery(QuerySelect query)
 	{
 		ArrayList<IQuerySort> sortColumnsForQuery = null;
