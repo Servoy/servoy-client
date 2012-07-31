@@ -515,6 +515,17 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				break;
 			}
 		}
+		// if not found, and it must be an exact match, try the fallback valuelist.
+		if (!startsWidth && result == null && dlm.getValueList().getFallbackValueList() != null)
+		{
+			IValueList fallbackValueList = dlm.getValueList().getFallbackValueList();
+			int index = fallbackValueList.indexOf(trimmed);
+			if (index >= 0)
+			{
+				return trimmed;
+			}
+
+		}
 		return result;
 	}
 
