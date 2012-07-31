@@ -92,7 +92,8 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public boolean isEventDispatchThread()
 	{
-		if (dispatchThreads.size() == 0 || SwingUtilities.isEventDispatchThread())
+		// this has to be in synch with invokelater
+		if (dispatchThreads.size() == 0 || SwingUtilities.isEventDispatchThread() || isShutDown())
 		{
 			return super.isEventDispatchThread();
 		}
