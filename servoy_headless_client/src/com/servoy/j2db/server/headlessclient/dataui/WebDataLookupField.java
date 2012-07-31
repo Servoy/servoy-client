@@ -288,7 +288,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					fgColor = getWebColor(getForeground().getRGB());
 				}
 				Insets _padding = getPadding();
-				if (getPadding() != null) padding = "padding:" + _padding.top + "px " + _padding.right + "px " + _padding.bottom + "px " + _padding.left + "px";
+				if (getPadding() != null) padding = _padding.top + "px " + _padding.right + "px " + _padding.bottom + "px " + _padding.left + "px";
 				Insets _margin = getMargin();
 				if (_margin != null) margin = "margin:" + _margin.top + "px " + _margin.right + "px " + _margin.bottom + "px " + _margin.left + "px ";
 
