@@ -2302,7 +2302,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample
 	 * var current = %%prefix%%foundset.getSelectedIndexes();
 	 * var newSelection = new Array();
-	 * newSelection[0] = current[0];
+	 * newSelection[0] = current[0]; // first current selection
+	 * newSelection[1] = current[0] + 1; // and the next row
 	 * %%prefix%%foundset.setSelectedIndexes(newSelection);
 	 * @return Array current indexes (1-based)
 	 */
