@@ -445,7 +445,6 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	{
 		if (accessible || !b)
 		{
-			editState = b;
 			enabled = b;
 			super.setEnabled(enabled && !readonly);
 			if (labels != null)
@@ -510,7 +509,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 				readonly = b;
 				super.setEnabled(!readonly && enabled);
 			}
-			editState = true;
+			editState = !readonly && enabled;
 		}
 		else
 		{

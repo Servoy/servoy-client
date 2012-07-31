@@ -718,7 +718,6 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	{
 		if (accessible || !b)
 		{
-			editState = b;
 			super.setEnabled(b);
 			getStylePropertyChanges().setChanged();
 			if (labels != null)

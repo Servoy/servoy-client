@@ -466,7 +466,6 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 	{
 		if (accessible || !b)
 		{
-			editState = b;
 			enabled = b;
 			super.setEnabled(enabled && !readonly);
 			if (labels != null)
@@ -531,7 +530,7 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 				readonly = b;
 				super.setEnabled(!readonly && enabled);
 			}
-			editState = true;
+			editState = !readonly && enabled;
 		}
 		else
 		{
