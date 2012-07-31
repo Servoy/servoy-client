@@ -190,6 +190,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private final HashMap<IPersist, Integer> elementTabIndexes = new HashMap<IPersist, Integer>();
 	private final LinkedHashMap<Component, IPersist> cellToElement = new LinkedHashMap<Component, IPersist>(); // each cell component -> IPersist (on the form)
 	private final Map<IPersist, Component> elementToColumnHeader = new HashMap<IPersist, Component>(); // links each column identifier component
+	private final Map<IRuntimeComponent, Map<String, String>> runtimeComponentStyleAttributes = new HashMap<IRuntimeComponent, Map<String, String>>();
 	// to a column header component (if such a component exists)
 
 	private String relationName;
@@ -655,7 +656,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 									isLeftToRightOrientation);
 							}
 						}
-
+						if (comp instanceof IScriptableProvider)
+						{
+							IScriptable s = ((IScriptableProvider)comp).getScriptObject();
+							if (s instanceof IRuntimeComponent)
+							{
+								runtimeComponentStyleAttributes.put((IRuntimeComponent)s, new HashMap<String, String>());
+							}
+						}
 						cellToElement.put(comp, element);
 						listItemContainer.add(listItemChild);
 						setUpComponent(comp, rec, compColor, compFgColor, compFont, compBorder, visibleRowIndex);
@@ -672,12 +680,38 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					// re-initialize :) it - apply js_ user changes applied on the column identifier component
 					// and other initializations...
 					initializeComponent(child, listCellview, cellToElement.get(child));
+
+					//we keep track of the current runtime component style attributes for later use when row Selection occurs 
+					//if new row selection -> put the old runtime style on the previously selected row
+					updateRuntimeComponentStyleAttributes(child);
 					setUpComponent(child, rec, color, fgColor, styleFont, styleBorder, visibleRowIndex);
 				}
 			}
 
 			//listItem.add(new SimpleAttributeModifier("onfocus", "Wicket.Log.info('ONFOCUS')"));
 			enableChildrenInContainer(this, isEnabled());
+		}
+
+		private void updateRuntimeComponentStyleAttributes(Component child)
+		{
+			if (child instanceof IScriptableProvider)
+			{
+				IScriptable s = ((IScriptableProvider)child).getScriptObject();
+				if (s instanceof IRuntimeComponent)
+				{
+					IRuntimeComponent rtComp = (IRuntimeComponent)s;
+					Map<String, String> rtCompStyle = runtimeComponentStyleAttributes.get(rtComp);
+					if (rtCompStyle == null)
+					{
+						rtCompStyle = new HashMap<String, String>();
+						runtimeComponentStyleAttributes.put(rtComp, rtCompStyle);
+					}
+					rtCompStyle.put(RenderableWrapper.PROPERTY_BGCOLOR, rtComp.getBgcolor());
+					rtCompStyle.put(RenderableWrapper.PROPERTY_FGCOLOR, rtComp.getFgcolor());
+					rtCompStyle.put(RenderableWrapper.PROPERTY_FONT, rtComp.getFont());
+					rtCompStyle.put(RenderableWrapper.PROPERTY_BORDER, rtComp.getBorder());
+				}
+			}
 		}
 
 		private void setUpComponent(Component comp, IRecordInternal record, Object compColor, Object fgColor, Object compFont, Object compBorder,
@@ -710,12 +744,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (compColor != null)
 			{
-				MarkupContainer cellContainer = comp.getParent();
-				String compColorStr = compColor.toString();
-				if (cellContainer instanceof CellContainer)
-				{
-					cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
-				}
+				setParentBGcolor(comp, compColor);
 			}
 
 			WebCellBasedView.this.applyStyleOnComponent(comp, compColor, fgColor, compFont, compBorder);
@@ -787,6 +816,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 			}
 		}
+
 
 		@Override
 		protected IModel<IRecordInternal> getListItemModel(final IModel< ? extends List<IRecordInternal>> listViewModel, final int index)
@@ -3528,11 +3558,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
 					sbm.setBgcolor(bgColor.toString());
 				}
+				else
+				{
+					sbm.setBgcolor(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_BGCOLOR));
+					setParentBGcolor(comp, "");
+
+				}
 
 				if (fgColor != null)
 				{
 					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
 					sbm.setFgcolor(fgColor.toString());
+				}
+				else
+				{
+					sbm.setFgcolor(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_FGCOLOR));
 				}
 
 				if (compFont != null)
@@ -3540,6 +3580,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FONT);
 					sbm.setFont(compFont.toString());
 				}
+				else
+				{
+					sbm.setFont(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_FONT));
+				}
+
 
 				if (compBorder != null)
 				{
@@ -3565,7 +3610,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					// reset size so the web size will be recalculated based on the new border
 					sbm.setSize(sbm.getWidth(), sbm.getHeight());
 				}
+				else
+				{
+					sbm.setBorder(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_BORDER));
+				}
 			}
+		}
+	}
+
+	static void setParentBGcolor(Component comp, Object compColor)
+	{
+		MarkupContainer cellContainer = comp.getParent();
+		String compColorStr = compColor.toString();
+		if (cellContainer instanceof CellContainer)
+		{
+			cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
 		}
 	}
 
