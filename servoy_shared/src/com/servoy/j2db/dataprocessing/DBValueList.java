@@ -175,6 +175,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	@Override
 	public void fill(IRecordInternal parentState)
 	{
+		super.fill(parentState);
 		if (!isLoaded && !(parentState instanceof PrototypeState) && parentState != null && valueList.getDatabaseValuesType() == ValueList.TABLE_VALUES)
 		{
 			fill();

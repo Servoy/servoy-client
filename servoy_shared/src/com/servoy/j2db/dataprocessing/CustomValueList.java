@@ -551,7 +551,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	public void fill(IRecordInternal parentState)
 	{
-		//not needed here
+		if (fallbackValueList != null) fallbackValueList.fill(parentState);
 	}
 
 	public static Object[] processRow(Object[] row, int showValues, int returnValues)
