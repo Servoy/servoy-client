@@ -2850,13 +2850,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @param indexes An array with indexes to set.
 	 */
-	public void jsFunction_setSelectedIndexes(Number[] indexes)
+	public void jsFunction_setSelectedIndexes(Object[] indexes)
 	{
 		if (indexes == null || indexes.length == 0) return;
 		ArrayList<Integer> selectedIndexes = new ArrayList<Integer>();
 
 		Integer i;
-		for (Number index : indexes)
+		for (Object index : indexes)
 		{
 			i = Integer.valueOf(Utils.getAsInteger(index));
 			if (selectedIndexes.indexOf(i) == -1) selectedIndexes.add(i);
