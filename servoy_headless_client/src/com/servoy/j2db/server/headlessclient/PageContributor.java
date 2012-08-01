@@ -240,15 +240,16 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			StringBuffer stringBuffer = new StringBuffer();
 			stringBuffer.append("Servoy.TabCycleHandling.setNewTabIndexes(["); //$NON-NLS-1$
-			for (int i = 0; i < tabIndexChanges.size(); i++)
+			for (String componentID : tabIndexChanges.keySet())
 			{
-				if (i > 0) stringBuffer.append(",");//$NON-NLS-1$
 				stringBuffer.append("['");//$NON-NLS-1$
-				stringBuffer.append(tabIndexChanges.keySet().toArray()[i]);
+				stringBuffer.append(componentID);
 				stringBuffer.append("',");//$NON-NLS-1$
-				stringBuffer.append(tabIndexChanges.values().toArray()[i]);
+				stringBuffer.append(tabIndexChanges.get(componentID));
 				stringBuffer.append("]");//$NON-NLS-1$
+				stringBuffer.append(",");//$NON-NLS-1$
 			}
+			stringBuffer.deleteCharAt(stringBuffer.length() - 1);
 			stringBuffer.append("]);"); //$NON-NLS-1$
 			response.renderOnLoadJavascript(stringBuffer.toString());
 			tabIndexChanges.clear();

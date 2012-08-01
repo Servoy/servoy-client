@@ -78,7 +78,7 @@ public class TabIndexHelper
 		}
 		else if (newTabIndex != ISupportWebTabSeq.DEFAULT)
 		{
-			if (newTabIndex != getTabIndex(component))
+			if (newTabIndex != modifier.getTabIndex())
 			{
 				modifier.setTabIndex(newTabIndex);
 				if (!(component instanceof IProviderStylePropertyChanges) || !((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())

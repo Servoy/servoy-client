@@ -383,6 +383,12 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		return localTabIndex;
 	}
 
+	/**
+	 * This method is the real tabIndex calculator for all forms in containers. When a container form is made visible, tabIndexes must be recalculated.
+	 * Having the tab sequence tree, the tab sequence order is the preorder traversal of the tree. All elements after modified container in tab sequence order will be recalculated.
+	 * A small gap for each container is used, so that chances that tabIndex should be changed when visible tab is different are smaller.
+	 * Browsers cannot deal with really big numbers of tabIndex (maximum is around 32k). WebCellBasedView is also a special case, some bigger gap is used for that (it will fill tabIndexes itself).
+	 */
 	public void reapplyTabSequence(IFormUIInternal containerImpl, int delta)
 	{
 		WebForm wf = (WebForm)containerImpl;
