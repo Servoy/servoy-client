@@ -2325,7 +2325,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			selected = new Number[selectedIndexes.length];
 			for (int i = 0; i < selectedIndexes.length; i++)
 			{
-				selected[i] = new Integer(selectedIndexes[i] + 1);
+				selected[i] = Integer.valueOf(selectedIndexes[i] + 1);
 			}
 		}
 		return selected;
