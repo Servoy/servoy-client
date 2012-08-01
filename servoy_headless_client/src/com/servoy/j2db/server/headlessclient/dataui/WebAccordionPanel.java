@@ -485,7 +485,12 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	public IFormUI[] getChildForms()
 	{
-		return new IFormUI[] { getCurrentForm() };
+		WebForm form = getCurrentForm();
+		if (form != null && form.getParent() == null)
+		{
+			form = null;
+		}
+		return form != null ? new IFormUI[] { form } : null;
 	}
 
 	/**
@@ -1254,6 +1259,11 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabSequenceIndex = tabIndex;
+	}
+
+	public int getTabSequenceIndex()
+	{
+		return tabSequenceIndex;
 	}
 
 	public int getTabIndex(WebForm current)

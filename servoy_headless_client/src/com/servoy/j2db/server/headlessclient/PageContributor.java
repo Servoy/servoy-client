@@ -46,6 +46,7 @@ import org.apache.wicket.protocol.http.WebRequest;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
+import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
@@ -85,6 +86,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	private long lastTableUpdate = -1;
 	private final List<Component> tablesToRender = new ArrayList<Component>();
 	private SortedSet<FormAnchorInfo> formAnchorInfos;
+	private final Map<String, Integer> tabIndexChanges = new HashMap<String, Integer>();
 	private boolean anchorInfoChanged = false;
 	private StringBuffer componentsThatNeedAnchorRelayout;
 	private boolean isResizing = false;
@@ -234,6 +236,24 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 		if (componentsThatNeedAnchorRelayout != null) componentsThatNeedAnchorRelayout.setLength(0);
 
+		if (tabIndexChanges.size() > 0)
+		{
+			StringBuffer stringBuffer = new StringBuffer();
+			stringBuffer.append("Servoy.TabCycleHandling.setNewTabIndexes(["); //$NON-NLS-1$
+			for (int i = 0; i < tabIndexChanges.size(); i++)
+			{
+				if (i > 0) stringBuffer.append(",");//$NON-NLS-1$
+				stringBuffer.append("['");//$NON-NLS-1$
+				stringBuffer.append(tabIndexChanges.keySet().toArray()[i]);
+				stringBuffer.append("',");//$NON-NLS-1$
+				stringBuffer.append(tabIndexChanges.values().toArray()[i]);
+				stringBuffer.append("]");//$NON-NLS-1$
+			}
+			stringBuffer.append("]);"); //$NON-NLS-1$
+			response.renderOnLoadJavascript(stringBuffer.toString());
+			tabIndexChanges.clear();
+		}
+
 		// Enable this for Firebug debugging under IE/Safari/etc.
 		//response.renderJavascriptReference("http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"); //$NON-NLS-1$
 	}
@@ -318,6 +338,18 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		getStylePropertyChanges().setChanged();
 		if (!tablesToRender.contains(comp)) tablesToRender.add(comp);
 		lastTableUpdate = System.currentTimeMillis();
+	}
+
+	public void addTabIndexChange(String componentID, int tabIndex)
+	{
+		if (tabIndex != ISupportWebTabSeq.DEFAULT)
+		{
+			tabIndexChanges.put(componentID, Integer.valueOf(tabIndex));
+		}
+		else
+		{
+			tabIndexChanges.remove(componentID);
+		}
 	}
 
 	public void addBehavior(String name, IBehavior behavior)

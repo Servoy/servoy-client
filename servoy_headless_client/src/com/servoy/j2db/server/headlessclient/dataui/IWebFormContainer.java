@@ -36,4 +36,6 @@ public interface IWebFormContainer extends IDisplayRelatedData, ISupportWebTabSe
 	boolean isCurrentForm(IFormUI formUI);
 
 	IFormUI[] getChildForms();
+
+	int getTabSequenceIndex();
 }

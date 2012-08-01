@@ -70,23 +70,56 @@ public class TabIndexHelper
 				break;
 			}
 		}
+		boolean componentChanged = true;
+		boolean changeForClientSide = false;
 		if (modifier == null)
 		{
 			if (newTabIndex != ISupportWebTabSeq.DEFAULT && isTabIndexSupported(component)) component.add(new TabIndexAttributeModifier(newTabIndex));
 		}
 		else if (newTabIndex != ISupportWebTabSeq.DEFAULT)
 		{
-			modifier.setTabIndex(newTabIndex);
+			if (newTabIndex != getTabIndex(component))
+			{
+				modifier.setTabIndex(newTabIndex);
+				if (!(component instanceof IProviderStylePropertyChanges) || !((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
+				{
+					// if is already changed leave it to server side
+					changeForClientSide = true;
+				}
+			}
+			else
+			{
+				componentChanged = false;
+			}
 		}
 		else
 		{
 			component.remove(modifier);
 		}
 
-		if (component instanceof IProviderStylePropertyChanges)
+		if (componentChanged)
 		{
-			IProviderStylePropertyChanges changeable = (IProviderStylePropertyChanges)component;
-			changeable.getStylePropertyChanges().setChanged();
+			MainPage page = component.findParent(MainPage.class);
+			if (changeForClientSide)
+			{
+				if (page != null)
+				{
+					page.getPageContributor().addTabIndexChange(component.getMarkupId(), newTabIndex);
+				}
+				else
+				{
+					changeForClientSide = false;
+				}
+			}
+			if (!changeForClientSide && component instanceof IProviderStylePropertyChanges)
+			{
+				IProviderStylePropertyChanges changeable = (IProviderStylePropertyChanges)component;
+				changeable.getStylePropertyChanges().setChanged();
+				if (page != null)
+				{
+					page.getPageContributor().addTabIndexChange(component.getMarkupId(), ISupportWebTabSeq.DEFAULT);
+				}
+			}
 		}
 	}
 

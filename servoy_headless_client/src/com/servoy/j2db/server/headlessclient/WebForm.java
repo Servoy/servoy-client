@@ -119,6 +119,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 import com.servoy.j2db.server.headlessclient.dataui.WebImageBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebRecordView;
@@ -157,14 +158,6 @@ import com.servoy.j2db.util.gui.RoundedBorder;
 public class WebForm extends Panel implements IFormUIInternal<Component>, IMarkupCacheKeyProvider, IProviderStylePropertyChanges, ISupportSimulateBounds
 {
 	private static final long serialVersionUID = 1L;
-	/**
-	 * Tab sequence index space allowed for containers.
-	 */
-	public static final int SEQUENCE_RANGE_CONTAINER = 2000;
-	/**
-	 * Tab sequence index space allowed for web cell based views.
-	 */
-	public static final int SEQUENCE_RANGE_TABLE = 1000;
 
 	private final String variation;
 	private final FormController formController;
@@ -526,14 +519,14 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				if (comp instanceof IWebFormContainer)
 				{
 					((IWebFormContainer)comp).setTabSequenceIndex(tabIndex);
-					tabIndex += SEQUENCE_RANGE_CONTAINER;
+					tabIndex = WebDataRendererFactory.getContainerGapIndex(tabIndex + WebDataRendererFactory.CONTAINER_RESERVATION_GAP, tabIndex);
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else if (comp instanceof WebCellBasedView)
 				{
 					WebCellBasedView tableView = (WebCellBasedView)comp;
 					tableView.setTabSequenceIndex(tabIndex);
-					tabIndex += SEQUENCE_RANGE_TABLE;
+					tabIndex += WebDataRendererFactory.MAXIMUM_TAB_INDEXES_ON_TABLEVIEW;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else

@@ -721,13 +721,21 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		if (webTabs[0] != null)
 		{
 			leftForm = webTabs[0].getPanel().getWebForm();
+			if (leftForm != null && ((Component)leftForm).getParent() == null)
+			{
+				leftForm = null;
+			}
 		}
 		IFormUI rightForm = null;
 		if (webTabs[1] != null)
 		{
 			rightForm = webTabs[1].getPanel().getWebForm();
+			if (rightForm != null && ((Component)rightForm).getParent() == null)
+			{
+				rightForm = null;
+			}
 		}
-		return new IFormUI[] { leftForm, rightForm };
+		return leftForm != null || rightForm != null ? new IFormUI[] { leftForm, rightForm } : null;
 	}
 
 	public IFormLookupPanel createFormLookupPanel(String tabname, String relationName, String formName)
@@ -894,6 +902,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabSequenceIndex = tabIndex;
+	}
+
+	public int getTabSequenceIndex()
+	{
+		return tabSequenceIndex;
 	}
 
 	public void setFormLastTabIndex(WebForm form, int lastTabIndex)

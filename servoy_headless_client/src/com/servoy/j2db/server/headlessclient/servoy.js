@@ -2787,6 +2787,21 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 				return true;
 			}
 			return false;
+		},
+		
+		setNewTabIndexes: function (indexesMap)
+		{
+			for (var i=0; i < indexesMap.length; i++)
+			{
+				var newIndex = indexesMap[i];
+				var element = document.getElementById(newIndex[0]);
+				if (element)
+				{
+					element.tabIndex = newIndex[1];
+				}
+			}
 		}
+		
+		
 	};
 }

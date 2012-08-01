@@ -40,4 +40,6 @@ public interface IPageContributorInternal extends IPageContributor, IProviderSty
 	public abstract void setResizing(boolean b);
 
 	void markComponentForAnchorLayoutIfNeeded(Component component);
+
+	void addTabIndexChange(String componentID, int tabIndex);
 }

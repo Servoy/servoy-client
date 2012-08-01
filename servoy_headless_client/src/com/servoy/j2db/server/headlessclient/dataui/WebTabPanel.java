@@ -511,7 +511,12 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public IFormUI[] getChildForms()
 	{
-		return new IFormUI[] { getCurrentForm() };
+		WebForm form = getCurrentForm();
+		if (form != null && form.getParent() == null)
+		{
+			form = null;
+		}
+		return form != null ? new IFormUI[] { form } : null;
 	}
 
 	/**
@@ -1327,6 +1332,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabSequenceIndex = tabIndex;
+	}
+
+	public int getTabSequenceIndex()
+	{
+		return tabSequenceIndex;
 	}
 
 	/**

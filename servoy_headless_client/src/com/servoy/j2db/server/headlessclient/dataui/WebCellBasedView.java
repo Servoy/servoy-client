@@ -1818,7 +1818,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public void setTabSequenceIndex(int tabIndex)
 	{
 		this.tabIndex = tabIndex;
-		((ISupportWebTabSeq)pagingNavigator).setTabSequenceIndex(tabIndex + WebForm.SEQUENCE_RANGE_TABLE - 1);
+		((ISupportWebTabSeq)pagingNavigator).setTabSequenceIndex(tabIndex + WebDataRendererFactory.MAXIMUM_TAB_INDEXES_ON_TABLEVIEW - 1);
 	}
 
 	private final ArrayList<String> orderedHeaderIds = new ArrayList<String>();

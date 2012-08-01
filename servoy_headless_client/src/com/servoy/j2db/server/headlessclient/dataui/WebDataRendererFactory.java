@@ -72,6 +72,9 @@ import com.servoy.j2db.util.Utils;
 public class WebDataRendererFactory implements IDataRendererFactory<Component>
 {
 
+	public static final int CONTAINER_RESERVATION_GAP = 50;
+	public static final int MAXIMUM_TAB_INDEXES_ON_TABLEVIEW = 500;
+
 	/**
 	 * 
 	 */
@@ -346,6 +349,10 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				if (form != null) localTabIndex = goDownForm((WebForm)form, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
 			}
 		}
+		if (goodTabIndex >= 0)
+		{
+			localTabIndex = getContainerGapIndex(localTabIndex, goodTabIndex);
+		}
 		return localTabIndex;
 	}
 
@@ -365,7 +372,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 			{
 				WebCellBasedView tableView = (WebCellBasedView)oo;
 				tableView.setTabSequenceIndex(goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
-				localTabIndex += WebForm.SEQUENCE_RANGE_TABLE;
+				localTabIndex += MAXIMUM_TAB_INDEXES_ON_TABLEVIEW;
 				TabIndexHelper.setUpTabIndexAttributeModifier(oo, ISupportWebTabSeq.SKIP);
 			}
 			else
@@ -381,7 +388,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		WebForm wf = (WebForm)containerImpl;
 
 		WebForm currentForm = wf;
-		MarkupContainer currentTabPanel = null;
+		IWebFormContainer currentTabPanel = null;
 		boolean ready = false;
 		int counter = delta + 1;
 		do
@@ -396,6 +403,10 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 					Component c = iter.next();
 					if (c.equals(currentTabPanel))
 					{
+						if (delta >= 0)
+						{
+							counter = getContainerGapIndex(counter, currentTabPanel.getTabSequenceIndex());
+						}
 						break;
 					}
 				}
@@ -413,13 +424,18 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				{
 					WebCellBasedView tableView = (WebCellBasedView)comp;
 					tableView.setTabSequenceIndex(delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
-					counter += WebForm.SEQUENCE_RANGE_TABLE;
+					counter += MAXIMUM_TAB_INDEXES_ON_TABLEVIEW;
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else
 				{
 					TabIndexHelper.setUpTabIndexAttributeModifier(comp, delta >= 0 ? counter++ : ISupportWebTabSeq.SKIP);
 				}
+			}
+
+			if (delta >= 0)
+			{
+				counter = getContainerGapIndex(counter, delta);
 			}
 
 			MarkupContainer parent = currentForm.getParent();
@@ -432,8 +448,8 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 					((WebSplitPane)parent).setFormLastTabIndex(currentForm, counter - 1);
 				}
 
-				currentTabPanel = parent;
-				MarkupContainer tabParent = currentTabPanel.getParent();
+				currentTabPanel = (IWebFormContainer)parent;
+				MarkupContainer tabParent = ((Component)currentTabPanel).getParent();
 				while ((tabParent != null) && !(tabParent instanceof WebForm))
 					tabParent = tabParent.getParent();
 				if (tabParent != null)
@@ -451,5 +467,10 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 			}
 		}
 		while (!ready);
+	}
+
+	public static int getContainerGapIndex(int realIndex, int offsetIndex)
+	{
+		return Math.max(offsetIndex + CONTAINER_RESERVATION_GAP, realIndex);
 	}
 }
