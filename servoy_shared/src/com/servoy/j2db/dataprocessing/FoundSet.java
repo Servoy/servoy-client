@@ -2294,7 +2294,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private IRecordInternal getRecord(int row, int sizeHint)
 	{
-		if (getSize() == 0 || row < 0 || row >= getSize()) return null;
+		if (getSize() == 0 || row < 0) return null;
 
 		PksAndRecordsHolder pksAndRecordsCopy;
 		IDataSet pks;
@@ -2322,7 +2322,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		// if state is still null (invalid pk?) then return prototype state 
 		// so that in scripting and in ui everything does format (and global relations are able display)
-		if (state == null)
+		if (state == null && row < getSize())
 		{
 			state = getPrototypeState();
 		}
