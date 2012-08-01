@@ -1774,9 +1774,10 @@ function getPreferredTableSize(startElementId)
 	if(el)
 	{
 		iReturnValue[0] = el.clientWidth;
-		iReturnValue[1] = el.clientHeight;
+		iReturnValue[1] = el.clientHeight;	
+		return iReturnValue;
 	}
-	return iReturnValue;
+	return el;
 }
 var validationFailedId = null;
 function setValidationFailed(id)

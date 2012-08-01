@@ -91,7 +91,7 @@ function layoutEntirePageWorker()
 		for(var i in beansPreferredSize)
 		{
 			var newPreferredSize = getPreferredTableSize(i); // we can reuse from tables, it's the same thing
-			if(newPreferredSize[0] != 0 && newPreferredSize[1] != 0 && 
+			if(newPreferredSize && newPreferredSize[0] != 0 && newPreferredSize[1] != 0 && 
 			   (newPreferredSize[1] != beansPreferredSize[i]['height'] || 
 			    newPreferredSize[0] != beansPreferredSize[i]['width']))
 			{
@@ -182,8 +182,8 @@ function updateTablesPreferredSize()
 	for(var i in tablesPreferredHeight)
 	{
 		var newPreferredSize = getPreferredTableSize(i);
-		if(newPreferredSize[1] != tablesPreferredHeight[i]['height'] || 
-		    newPreferredSize[0] != tablesPreferredHeight[i]['width'])
+		if(newPreferredSize && (newPreferredSize[1] != tablesPreferredHeight[i]['height'] || 
+		    newPreferredSize[0] != tablesPreferredHeight[i]['width']))
 		{
 			tablesPreferredHeight[i]['height'] = newPreferredSize[1];
 			tablesPreferredHeight[i]['width'] = newPreferredSize[0];

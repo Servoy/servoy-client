@@ -290,7 +290,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				sb.append("var preferredSize = getPreferredTableSize('").append(cellViewId); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append("');\n"); //$NON-NLS-1$ 
-				sb.append("if(preferredSize[1] != ").append(bodyHeightHint).append(") wicketAjaxGet('").append(getCallbackUrl()).append( //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append("if(preferredSize && preferredSize[1] != ").append(bodyHeightHint).append(") wicketAjaxGet('").append(getCallbackUrl()).append( //$NON-NLS-1$ //$NON-NLS-2$
 					"&bodyWidth=' + preferredSize[0] + '&bodyHeight=' + preferredSize[1]);\n"); //$NON-NLS-1$ 
 			}
 			response.renderOnLoadJavascript(sb.toString());
