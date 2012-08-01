@@ -110,9 +110,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Method[] methods = FoundSet.class.getMethods();
 			for (Method m : methods)
 			{
+				String name = null;
 				if (m.getName().startsWith("js_")) //$NON-NLS-1$
 				{
-					String name = m.getName().substring(3);
+					name = m.getName().substring(3);
+				}
+				else if (m.getName().startsWith("jsFunction_")) //$NON-NLS-1$
+				{
+					name = m.getName().substring(11);
+				}
+				if (name != null)
+				{
 					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
 					if (nativeJavaMethod == null)
 					{
@@ -2307,35 +2315,36 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.setSelectedIndexes(newSelection);
 	 * @return Array current indexes (1-based)
 	 */
-	public int[] js_getSelectedIndexes()
+	public Number[] jsFunction_getSelectedIndexes()
 	{
 		checkSelection();
+		Number[] selected = null;
 		int[] selectedIndexes = getSelectedIndexes();
 		if (selectedIndexes != null && selectedIndexes.length > 0)
 		{
+			selected = new Number[selectedIndexes.length];
 			for (int i = 0; i < selectedIndexes.length; i++)
 			{
-				selectedIndexes[i] += 1;
+				selected[i] = new Integer(selectedIndexes[i] + 1);
 			}
 		}
-
-		return selectedIndexes;
+		return selected;
 	}
 
 	/**
 	 * Set the selected records indexes.
 	 *
-	 * @sampleas js_getSelectedIndexes()
+	 * @sampleas jsFunction_getSelectedIndexes()
 	 * 
 	 * @param indexes An array with indexes to set.
 	 */
-	public void js_setSelectedIndexes(Object[] indexes)
+	public void jsFunction_setSelectedIndexes(Number[] indexes)
 	{
 		if (indexes == null || indexes.length == 0) return;
 		ArrayList<Integer> selectedIndexes = new ArrayList<Integer>();
 
 		Integer i;
-		for (Object index : indexes)
+		for (Number index : indexes)
 		{
 			i = new Integer(Utils.getAsInteger(index));
 			if (selectedIndexes.indexOf(i) == -1) selectedIndexes.add(i);
@@ -5108,7 +5117,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		fs.setSelectedIndex(getSelectedIndex());
+		fs.setMultiSelect(isMultiSelect());
+		if (isMultiSelect())
+		{
+			int[] selectedIndexes = getSelectedIndexes();
+			if (selectedIndexes != null && selectedIndexes.length > 0) fs.setSelectedIndexes(selectedIndexes);
+			else fs.setSelectedIndex(getSelectedIndex());
+		}
+		else fs.setSelectedIndex(getSelectedIndex());
 
 		return fs;
 	}
@@ -5151,7 +5167,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		lastSortColumns = ((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), fs.getSort());
 		fireDifference(oldNumberOfRows, getSize());
 
-		setSelectedIndex(fs.getSelectedIndex());
+		setMultiSelect(fs.isMultiSelect());
+		if (fs.isMultiSelect())
+		{
+			int[] selectedIndexes = fs.getSelectedIndexes();
+			if (selectedIndexes != null && selectedIndexes.length > 0) setSelectedIndexes(selectedIndexes);
+			else setSelectedIndex(fs.getSelectedIndex());
+		}
+		else setSelectedIndex(fs.getSelectedIndex());
+
 		return true;
 	}
 
