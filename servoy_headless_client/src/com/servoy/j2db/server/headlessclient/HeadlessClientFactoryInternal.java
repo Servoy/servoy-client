@@ -21,6 +21,8 @@ import java.rmi.RemoteException;
 import javax.servlet.ServletRequest;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.LocalActiveSolutionHandler;
@@ -29,6 +31,8 @@ import com.servoy.j2db.persistence.IDeveloperRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Utils;
@@ -104,6 +108,7 @@ public class HeadlessClientFactoryInternal
 
 	public static ISessionClient createImportHookClient(final Solution importHookModule, final IXMLImportUserChannel channel) throws Exception
 	{
+		final String[] loadException = new String[1];
 		// assuming no login and no method args for import hooks
 		SessionClient sc = new SessionClient(null, null, null, null, null, importHookModule.getName())
 		{
@@ -120,6 +125,32 @@ public class HeadlessClientFactoryInternal
 					}
 				};
 			}
+
+			@Override
+			protected IExecutingEnviroment createScriptEngine()
+			{
+				return new ScriptEngine(this)
+				{
+					@Override
+					public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException)
+						throws Exception
+					{
+						// always throw exception
+						return super.executeFunction(f, scope, thisObject, args, focusEvent, true);
+					}
+				};
+			}
+
+			@Override
+			public void reportError(String msg, Object detail)
+			{
+				super.reportError(msg, detail);
+				loadException[0] = msg;
+				if (detail instanceof Exception)
+				{
+					loadException[0] += " " + ((Exception)detail).getMessage();
+				}
+			}
 		};
 		sc.setUseLoginSolution(false);
 		String userName = channel.getImporterUsername();
@@ -131,6 +162,10 @@ public class HeadlessClientFactoryInternal
 		}
 		sc.setOutputChannel(channel);
 		sc.loadSolution(importHookModule.getName());
+		if (loadException[0] != null)
+		{
+			throw new RepositoryException(loadException[0]);
+		}
 		return sc;
 	}
 }
