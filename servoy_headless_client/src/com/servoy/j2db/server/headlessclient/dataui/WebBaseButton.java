@@ -61,6 +61,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -72,6 +73,7 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -84,7 +86,7 @@ import com.servoy.j2db.util.Utils;
  * 
  */
 public abstract class WebBaseButton extends Button implements IButton, IResourceListener, IProviderStylePropertyChanges, ILinkListener, IAjaxIndicatorAware,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider, IAnchoredComponent
 {
 	private int mediaOptions;
 //	private int rotation;
@@ -109,6 +111,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	private char mnemonic;
 	protected final WebEventExecutor eventExecutor;
 	private final AbstractRuntimeButton<IButton> scriptable;
+	private int anchors = 0;
 
 	public WebBaseButton(IApplication application, AbstractRuntimeButton<IButton> scriptable, String id)
 	{
@@ -919,11 +922,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			cssId = getMarkupId() + "_lb"; //$NON-NLS-1$
 		}
 
+		boolean isAnchored = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) && anchors > 0 && anchors != IAnchorConstants.DEFAULT; //$NON-NLS-1$
 		replaceComponentTagBody(
 			markupStream,
 			openTag,
 			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size == null ? 0 : size.height, true, designMode ? null : cursor, false, false));
+				size == null ? 0 : size.height, true, designMode ? null : cursor, false, isAnchored));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1379,5 +1383,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	public void setAnchors(int arg)
+	{
+		this.anchors = arg;
 	}
 }

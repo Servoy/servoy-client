@@ -13,7 +13,7 @@ function layoutOneElement(elementInfo)
 		updateTablesPreferredSize();
 	}	
 
-	else if (/Label/.test(elementHint))
+	else if (/Label/.test(elementHint) || /Button/.test(elementHint))
 	{
 		var imgEl = document.getElementById(element.id + "_img");
 		if (imgEl)
