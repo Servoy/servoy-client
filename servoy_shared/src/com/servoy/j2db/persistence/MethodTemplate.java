@@ -343,7 +343,8 @@ public class MethodTemplate implements IMethodTemplate
 					sb.append("return _super.").append(name);
 					if (getArguments() == null || getArguments().length == 0)
 					{
-						sb.append(".apply(this, arguments); // try to pass the arguments as a normal method call: _super." + name + "(arg1,arg2)");
+						sb.append(".apply(this, arguments); \n/** When the number of arguments that ought to be send into the _super call are known,\n the _super call can also be made like this: _super." +
+							name + "(arg1,arg2)*/");
 					}
 					else
 					{
