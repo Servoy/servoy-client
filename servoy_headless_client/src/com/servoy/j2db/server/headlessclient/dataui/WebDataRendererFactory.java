@@ -377,10 +377,25 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 			}
 			else
 			{
-				TabIndexHelper.setUpTabIndexAttributeModifier(oo, goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
+				if (goodTabIndex >= 0)
+				{
+					localTabIndex = setMaxTabIndex(oo, localTabIndex);
+				}
+				else
+				{
+					TabIndexHelper.setUpTabIndexAttributeModifier(oo, ISupportWebTabSeq.SKIP);
+				}
 			}
 		}
 		return localTabIndex;
+	}
+
+	private int setMaxTabIndex(Component comp, int newTabindex)
+	{
+		int oldTabIndex = TabIndexHelper.getTabIndex(comp);
+		int maxIndex = Math.max(newTabindex, oldTabIndex);
+		TabIndexHelper.setUpTabIndexAttributeModifier(comp, maxIndex);
+		return ++maxIndex;
 	}
 
 	/**
@@ -435,7 +450,14 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				}
 				else
 				{
-					TabIndexHelper.setUpTabIndexAttributeModifier(comp, delta >= 0 ? counter++ : ISupportWebTabSeq.SKIP);
+					if (delta >= 0)
+					{
+						counter = setMaxTabIndex(comp, counter);
+					}
+					else
+					{
+						TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
+					}
 				}
 			}
 
