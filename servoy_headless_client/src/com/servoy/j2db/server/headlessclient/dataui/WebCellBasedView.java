@@ -656,14 +656,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 									isLeftToRightOrientation);
 							}
 						}
-						if (comp instanceof IScriptableProvider)
-						{
-							IScriptable s = ((IScriptableProvider)comp).getScriptObject();
-							if (s instanceof IRuntimeComponent)
-							{
-								runtimeComponentStyleAttributes.put((IRuntimeComponent)s, new HashMap<String, String>());
-							}
-						}
+						updateRuntimeComponentStyleAttributes(comp);
 						cellToElement.put(comp, element);
 						listItemContainer.add(listItemChild);
 						setUpComponent(comp, rec, compColor, compFgColor, compFont, compBorder, visibleRowIndex);
