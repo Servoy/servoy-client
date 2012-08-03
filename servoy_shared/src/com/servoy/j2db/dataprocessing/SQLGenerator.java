@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.lang.reflect.Array;
 import java.rmi.RemoteException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -705,7 +706,12 @@ public class SQLGenerator
 					//filter on the || (=or)
 					for (String element : raw.toString().split("\\|\\|")) //$NON-NLS-1$
 					{
-						String data = element.trim();
+						String data = element;
+						if (!(c instanceof Column) || ((Column)c).getType() != Types.CHAR)
+						{
+							// if char, it fills up with spaces, so don't trim
+							data = data.trim();
+						}
 						if (data.length() == 0) //filter out the zero length strings
 						{
 							continue;
