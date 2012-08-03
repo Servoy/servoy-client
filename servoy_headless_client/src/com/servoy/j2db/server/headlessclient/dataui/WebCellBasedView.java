@@ -2868,7 +2868,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (currentData != null && !e.getValueIsAdjusting())
 		{
 			boolean isTableChanged = false;
-			if (!isSelectionByCellAction())
+
+			//in case selection changed outside of an action on the component, and it's a list view with left-bar selection mark (so, no selection color),
+			// we need to re-render the view
+			if (!isSelectionByCellAction() && isListViewMode() && getStyleAttributeValue(getRowSelectedStyle(), ISupportRowStyling.ATTRIBUTE.BGCOLOR) == null)
 			{
 				isTableChanged = true;
 			}

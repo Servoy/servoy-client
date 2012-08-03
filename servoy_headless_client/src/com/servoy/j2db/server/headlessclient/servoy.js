@@ -748,7 +748,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			if (el.tagName && !(el.tagName.toLowerCase() == "td" && elChildrenLen == 1 && !elChildren[0].tagName))
 			{
 				// ignore the tableview filler (last column) 
-				if(el.attributes['id'] && (!isListView || (el.attributes['class'] && (el.attributes['class'] == 'listViewItem'))))
+				if(el.attributes['id'] && (!isListView || (el.attributes['class'] && (el.attributes['class'].value == 'listViewItem'))))
 				{
 					el.style.backgroundColor = bgcolor;
 					el.style.color = fgcolor;
