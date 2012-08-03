@@ -1069,8 +1069,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc js_loadRecords(QBSelect)
-	 * @sampleas js_loadRecords(QBSelect)
+	 * Reloads all last (related) records again, if, for example, after search in tabpanel.
+	 * When in find mode, this will reload the records from before the find() call.
+	 * 
+	 * @sample
+	 *  //to reload all last (related) records again, if for example when searched in tabpanel
+	 *  %%prefix%%foundset.loadRecords();
 	 *
 	 * @return true if successful
 	 */
@@ -1089,8 +1093,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc js_loadRecords(QBSelect)
-	 * @sampleas js_loadRecords(QBSelect)
+	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(IDataSet)
+	 * 
+	 * @sample
+	 * // loads a primary key dataset, will remove related sort!
+	 * //var dataset = databaseManager.getDataSetByQuery(...);
+	 * // dataset must match the table primary key columns (alphabetically ordered)
+	 * %%prefix%%foundset.loadRecords(dataset);
 	 *
 	 * @param dataset pkdataset
 	 * 
@@ -1116,8 +1125,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc js_loadRecords(QBSelect)
-	 * @sampleas js_loadRecords(QBSelect)
+	 * Copies foundset data from another foundset.
+	 * 
+	 * @sample
+	 * //Copies foundset data from another foundset
+	 * %%prefix%%foundset.loadRecords(fs);
 	 *
 	 * @param foundset The foundset to load records from
 	 * 
@@ -1143,9 +1155,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc js_loadRecords(QBSelect)
-	 * @sampleas js_loadRecords(QBSelect)
-	 *
+	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+	 * @sample
+	 * //loads records in to the foundset based on a query (also known as 'Form by query')
+	 * %%prefix%%foundset.loadRecords(sqlstring,parameters);
+	 * 
 	 * @param queryString select statement
 	 * @param argumentsArray arguments to query
 	 * 
@@ -1157,9 +1171,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc js_loadRecords(QBSelect)
-	 * @sampleas js_loadRecords(QBSelect)
-	 *
+	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+	 * @sample
+	 * //loads records in to the foundset based on a query (also known as 'Form by query')
+	 * %%prefix%%foundset.loadRecords(sqlstring);
+	 * 
 	 * @param queryString select statement
 	 * 
 	 * @return true if successful
@@ -1170,8 +1186,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc js_loadRecords(QBSelect)
-	 * @sampleas js_loadRecords(QBSelect)
+	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(Number)
+	 * @sample
+	 * //Loads a single record by primary key, will remove related sort!
+	 * %%prefix%%foundset.loadRecords(123);
 	 *
 	 * @param numberpk single-column pk value
 	 * 
@@ -1197,8 +1215,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc js_loadRecords(QBSelect)
-	 * @sampleas js_loadRecords(QBSelect)
+	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(UUID)
+	 * @sample
+	 * //Loads a single record by primary key, will remove related sort!
+	 * %%prefix%%foundset.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
 	 *
 	 * @param uuidpk single-column pk value
 	 * @return true if successful
@@ -1238,68 +1258,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Load records with primary key (dataset/number/uuid) or query.
-	 *
-	 * Load records can be used in 5 different ways
-	 * 1) to copy foundset data from another foundset
-	 * foundset.loadRecords(fs);
-
-	 * 2) to load a primary key dataset, will remove related sort!
-	 * var dataset = databaseManager.getDataSetByQuery(...);
-	 * foundset.loadRecords(dataset);
-	 * 
-	 * 3) to load a single record by primary key, will remove related sort! (pk should be a number or UUID)
-	 * foundset.loadRecords(123);
-	 * foundset.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
-	 * 
-	 * 4) Use without arguments to reload all last related records again, if for example when searched in tabpanel.
-	 * when in find mode, this will reload the records from before the find() call.
-	 * 
-	 * foundset.loadRecords();
-	 * 
-	 * 5) to load records in to the form based on a query (also known as 'Form by query')
-	 * foundset.loadRecords(sqlstring,parameters);
-	 * limitations/requirements for sqlstring are:
-	 * -must start with 'select'
-	 * -the selected columns must be the (Servoy Form) table primary key columns (alphabetically ordered like 'select a_id, b_id,c_id ...')
-	 * -can contain '?' which are replaced with values from the array supplied to parameters argument
-	 * if the sqlstring contains an 'order by' clause, the records will be sorted accordingly and additional constraints apply:
-	 * -must contain 'from' keyword
-	 * -the 'from' must be a comma separated list of table names
-	 * -must at least select from the table used in Servoy Form
-	 * -cannot contain 'group by', 'having' or 'union'
-	 * -all columns must be fully qualified like 'orders.order_id'
+	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
 	 * 
 	 * @sample
-	 * //Load records can be used in 5 different ways
-	 * //1) to copy foundset data from another foundset
-	 * //%%prefix%%foundset.loadRecords(fs);
-
-	 * //2) to load a primary key dataset, will remove related sort!
-	 * //var dataset = databaseManager.getDataSetByQuery(...);
-	 * // dataset must match the table primary key columns (alphabetically ordered)
-	 * //%%prefix%%foundset.loadRecords(dataset);
+	 * %%prefix%%foundset.loadRecords(qbselect);
 	 * 
-	 * //3) to load a single record by primary key, will remove related sort! (pk should be a number or UUID)
-	 * //%%prefix%%foundset.loadRecords(123);
-	 * //%%prefix%%foundset.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
-	 * 
-	 * //4) to reload all last related records again, if for example when searched in tabpanel
-	 * //%%prefix%%foundset.loadRecords();
-	 * 
-	 * //5) to load records in to the form based on a query (also known as 'Form by query')
-	 * //%%prefix%%foundset.loadRecords(sqlstring,parameters);
-	 * //limitations/requirements for sqlstring are:
-	 * //-must start with 'select'
-	 * //-the selected columns must be the (Servoy Form) table primary key columns (alphabetically ordered like 'select a_id, b_id,c_id ...')
-	 * //-can contain '?' which are replaced with values from the array supplied to parameters argument
-	 * //if the sqlstring contains an 'order by' clause, the records will be sorted accordingly and additional constraints apply:
-	 * //-must contain 'from' keyword
-	 * //-the 'from' must be a comma separated list of table names
-	 * //-must at least select from the table used in Servoy Form
-	 * //-cannot contain 'group by', 'having' or 'union'
-	 * //-all columns must be fully qualified like 'orders.order_id'
-	 *
 	 * @param querybuilder the query builder
 	 * @return true if successful
 	 */

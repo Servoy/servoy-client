@@ -698,68 +698,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * Load records via a (related) foundset, primary key (dataset/number/uuid) or query into the form.
-		 * 
-		 * Load records can be used in 5 different ways
-		 * 1) to load a (related)foundset into the form.
-		 * the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset 
-		 * controller.loadRecords(order_to_orderdetails);
-		 * 
-		 * 2) to load a primary key dataset, will remove related sort!
-		 * var dataset = databaseManager.getDataSetByQuery(...);
-		 * controller.loadRecords(dataset);
-		 * 
-		 * 3) to load a single record by primary key, will remove related sort! (pk should be a number or UUID)
-		 * controller.loadRecords(123);
-		 * or
-		 * controller.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
-		 * 
-		 * 4) to reload all last related records again, if for example after a search in related tabpanel
-		 * controller.loadRecords();
-		 * 
-		 * 5) to load records in to the form based on a query (also known as 'Form by query')
-		 * controller.loadRecords(sqlstring,parameters);
-		 * limitations/requirements for sqlstring are:
-		 * -must start with 'select'
-		 * -the selected columns must be the (Servoy Form) table primary key columns (alphabetically ordered like 'select a_id, b_id,c_id ...')
-		 * -can contain '?' which are replaced with values from the array supplied to parameters argument
-		 *  if the sqlstring contains an 'order by' clause, the records will be sorted accordingly and additional constraints apply:
-		 * -must contain 'from' keyword
-		 * -the 'from' must be a comma separated list of table names
-		 * -must at least select from the table used in Servoy Form
-		 * -cannot contain 'group by', 'having' or 'union'
-		 * -all columns must be fully qualified like 'orders.order_id'
+		 * Loads all accessible records from the datasource into the form foundset. Typical usage is loading records after search in related tabpanel. 
+		 * The difference to loadAllRecords() is that related foundset will load related records.
 		 * 
 		 * @sample
-		 * //Load records can be used in 5 different ways
-		 * //1) to load a (related)foundset into the form.
-		 * //the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset 
-		 * //%%prefix%%controller.loadRecords(order_to_orderdetails);
-		 * 
-		 * //2) to load a primary key dataset, will remove related sort!
-		 * //var dataset = databaseManager.getDataSetByQuery(...);
-		 * // dataset must match the table primary key columns (alphabetically ordered)
-		 * //%%prefix%%controller.loadRecords(dataset);
-		 * 
-		 * //3) to load a single record by primary key, will remove related sort! (pk should be a number or UUID)
-		 * //%%prefix%%controller.loadRecords(123);
-		 * //%%prefix%%controller.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
-		 * 
-		 * //4) to reload all last related records again, if for example after a search in related tabpanel
-		 * //%%prefix%%controller.loadRecords();
-		 * 
-		 * //5) to load records in to the form based on a query (also known as 'Form by query')
-		 * //%%prefix%%controller.loadRecords(sqlstring,parameters);
-		 * //limitations/requirements for sqlstring are:
-		 * //-must start with 'select'
-		 * //-the selected columns must be the (Servoy Form) table primary key columns (alphabetically ordered like 'select a_id, b_id,c_id ...')
-		 * //-can contain '?' which are replaced with values from the array supplied to parameters argument
-		 * // if the sqlstring contains an 'order by' clause, the records will be sorted accordingly and additional constraints apply:
-		 * //-must contain 'from' keyword
-		 * //-the 'from' must be a comma separated list of table names
-		 * //-must at least select from the table used in Servoy Form
-		 * //-cannot contain 'group by', 'having' or 'union'
-		 * //-all columns must be fully qualified like 'orders.order_id'
+		 * //to reload all last (related) records again, if for example after a search in related tabpanel
+		 * %%prefix%%controller.loadRecords();
 		 * 
 		 * @return true if successful
 		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadRecords()
@@ -771,8 +715,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_loadRecords()
-		 * @sampleas js_loadRecords()
+		 * Loads a (related) foundset into the form.
+		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
+		 * 
+		 * @sample
+		 * //to load a (related)foundset into the form.
+		 * //the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset 
+		 * %%prefix%%controller.loadRecords(order_to_orderdetails);
+		 * 
 		 * @param foundset to load
 		 * @return true if successful
 		 */
@@ -796,8 +746,14 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_loadRecords()
-		 * @sampleas js_loadRecords()
+		 * Loads a primary key dataset, will remove related sort.
+		 * 
+		 * @sample
+		 * //to load a primary key dataset, will remove related sort
+		 * //var dataset = databaseManager.getDataSetByQuery(...);
+		 * // dataset must match the table primary key columns (alphabetically ordered)
+		 * %%prefix%%controller.loadRecords(dataset);
+		 * 
 		 * @param pkdataset to load
 		 * @return true if successful
 		 */
@@ -821,8 +777,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_loadRecords()
-		 * @sampleas js_loadRecords()
+		 * Loads a single record by primary key, will remove related sort.
+		 * 
+		 * @sample
+		 * %%prefix%%controller.loadRecords(123);
+		 * 
 		 * @param singlenNmber_pk to load
 		 * @return true if successful
 		 */
@@ -846,8 +805,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_loadRecords()
-		 * @sampleas js_loadRecords()
+		 * @clonedesc js_loadRecords(Number)
+		 * 
+		 * @sample
+		 * %%prefix%%controller.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
+		 * 
 		 * @param UUIDpk to load
 		 * @return true if successful
 		 */
@@ -871,8 +833,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_loadRecords()
-		 * @sampleas js_loadRecords()
+		 * Loads records into form foundset based on a query (also known as 'Form by query'). The query must be a valid sql select.
+		 * 
+		 * @sample
+		 * %%prefix%%controller.loadRecords(sqlstring);
+		 * 
 		 * @param queryString to load
 		 * @return true if successful
 		 */
@@ -883,8 +848,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_loadRecords()
-		 * @sampleas js_loadRecords()
+		 * @clonedesc js_loadRecords(String)
+		 * 
+		 * @sample
+		 * %%prefix%%controller.loadRecords(sqlstring,parameters);
+		 * 
 		 * @param queryString to load
 		 * @param queryArgumentsArray the arguments to replace the questions marks in the queryString
 		 * @return true if successful
