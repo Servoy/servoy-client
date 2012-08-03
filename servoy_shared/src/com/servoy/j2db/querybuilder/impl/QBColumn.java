@@ -133,7 +133,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#in(IQueryBuilderPart)
 	 * @param query subquery
 	 * @sample
-	 * query.where.add(query.columns.flag.in(query2))
+	 * query.where.add(query.columns.flag.isin(query2))
 	 */
 	public QBCondition js_isin(QBPart query) throws RepositoryException
 	{
@@ -149,7 +149,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#in(Object[])
 	 * @param values array of values
 	 * @sample
-	 * query.where.add(query.columns.flag.in([1, 5, 99]))
+	 * query.where.add(query.columns.flag.isin([1, 5, 99]))
 	 */
 	public QBCondition js_isin(Object[] values)
 	{
