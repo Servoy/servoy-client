@@ -1656,26 +1656,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	{
 	}
 
-	public Dimension getFormSize()
-	{
-		Dimension size = null;
-		if (formController.getViewComponent() instanceof Component)
-		{
-			size = ((Component)formController.getViewComponent()).getSize();
-		}
-		else size = getSize();
-		return size;
-	}
-
 	public int getFormWidth()
 	{
-		Dimension size = null;
-		if (formController.getViewComponent() instanceof Component)
-		{
-			size = ((Component)formController.getViewComponent()).getSize();
-		}
-		else size = getSize();
-		return size.width;
+		return getSize().width;
 	}
 
 	public int getPartHeight(int partType)
