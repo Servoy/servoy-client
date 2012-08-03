@@ -101,6 +101,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IGlobalValueEntry getScopesScopeProvider();
 
+	public GlobalTransaction getGlobalTransaction();
+
 	/**
 	 * add tracking info used for logging  
 	 */

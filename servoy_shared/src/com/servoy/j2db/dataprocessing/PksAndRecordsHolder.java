@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
 
@@ -35,24 +36,33 @@ public class PksAndRecordsHolder
 	private QuerySelect querySelect; // the query the pks were based on
 
 	private final int chunkSize;
+	private final FoundSet foundSet;
+	private boolean hasDynamicPlaceholder;
 
-	private PksAndRecordsHolder(SafeArrayList<IRecordInternal> cachedRecords, IDataSet pks, AtomicInteger dbIndexLastPk, QuerySelect querySelect, int chunkSize)
+	private PksAndRecordsHolder(FoundSet foundSet, SafeArrayList<IRecordInternal> cachedRecords, IDataSet pks, AtomicInteger dbIndexLastPk,
+		QuerySelect querySelect, int chunkSize)
 	{
-		this(chunkSize);
+		this(foundSet, chunkSize);
 		this.cachedRecords = cachedRecords;
 		this.pks = pks == null || pks instanceof PKDataSet ? (PKDataSet)pks : new PKDataSet(pks);
+		if (this.pks != null)
+		{
+			this.pks.setPksAndRecordsHolder(this);
+		}
 		this.dbIndexLastPk = dbIndexLastPk;
 		this.querySelect = querySelect;
+		this.hasDynamicPlaceholder = checkForDynamicPlaceholder(querySelect);
 	}
 
-	public PksAndRecordsHolder(int chunkSize)
+	public PksAndRecordsHolder(FoundSet foundSet, int chunkSize)
 	{
+		this.foundSet = foundSet;
 		this.chunkSize = chunkSize;
 	}
 
 	public synchronized PksAndRecordsHolder shallowCopy()
 	{
-		return new PksAndRecordsHolder(cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize);
+		return new PksAndRecordsHolder(foundSet, cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize);
 	}
 
 	public synchronized SafeArrayList<IRecordInternal> setPks(IDataSet bufferedDataSet, int dbIndexLastPk)
@@ -74,6 +84,8 @@ public class PksAndRecordsHolder
 		pks = bufferedDataSet == null || bufferedDataSet instanceof PKDataSet ? (PKDataSet)bufferedDataSet : new PKDataSet(bufferedDataSet);
 		this.dbIndexLastPk = new AtomicInteger(dbIndexLastPk);
 		this.querySelect = querySelect;
+		this.hasDynamicPlaceholder = checkForDynamicPlaceholder(querySelect);
+
 		if (reuse)
 		{
 			cachedRecords = reUseStatesBasedOnNewPrimaryKeys();
@@ -81,6 +93,11 @@ public class PksAndRecordsHolder
 		else
 		{
 			cachedRecords = new SafeArrayList<IRecordInternal>((pks != null ? pks.getRowCount() : 0) + 5);//(re)new
+		}
+		if (this.pks != null)
+		{
+			// this must be at the end, it will visit querySelect
+			this.pks.setPksAndRecordsHolder(this);
 		}
 		return cachedRecords;
 	}
@@ -98,7 +115,15 @@ public class PksAndRecordsHolder
 	public synchronized PKDataSet getPksClone()
 	{
 		if (pks == null) return null;
-		return pks.clone();
+		PKDataSet clone = pks.clone();
+		clone.setPksAndRecordsHolder(null); // does not belong to this holder anymore
+		return clone;
+	}
+
+
+	public FoundSet getFoundSet()
+	{
+		return foundSet;
 	}
 
 	public int getDbIndexLastPk()
@@ -154,6 +179,17 @@ public class PksAndRecordsHolder
 			}
 		}
 		return retval;
+	}
+
+	private static boolean checkForDynamicPlaceholder(QuerySelect querySelect)
+	{
+		return querySelect != null &&
+			querySelect.getPlaceholder(new TablePlaceholderKey(querySelect.getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS)) != null;
+	}
+
+	public boolean hasDynamicPlaceholder()
+	{
+		return hasDynamicPlaceholder;
 	}
 
 	/**

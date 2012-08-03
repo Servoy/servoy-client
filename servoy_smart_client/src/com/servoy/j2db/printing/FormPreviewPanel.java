@@ -45,15 +45,11 @@ import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.AndCondition;
-import com.servoy.j2db.query.BooleanCondition;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.smart.dataui.DataRendererFactory;
@@ -331,7 +327,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 				}
 				if (body == null)
 				{
-					root = new PartNode(this, null, null, renderParent, null);//a vitual body (when no body is placed in the parts)
+					root = new PartNode(this, null, null, renderParent, null);//a virtual body (when no body is placed in the parts)
 				}
 				else
 				//if (body != null)
@@ -357,22 +353,9 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 
 				FoundSet fs = (FoundSet)((FoundSetManager)application.getFoundSetManager()).getNewFoundSet(table, null, sortColumns);
 
-				// in case the foundset is based on an empty query (foundset.clear() or databaseManager.setStartWithEmptyFoundsets())
-				// then loadAllRecords, otherwise we would have no records to print; print single record would not have empty query
-				AndCondition searchCondition = sqlString.getCondition(SQLGenerator.CONDITION_SEARCH);
-				ISQLCondition emptyCondition = null;
-				if (searchCondition != null && searchCondition.getConditions() != null && searchCondition.getConditions().size() == 1)
-				{
-					emptyCondition = searchCondition.getConditions().get(0);
-				}
-				if (BooleanCondition.FALSE_CONDITION.equals(emptyCondition))
-				{
-					sqlString = ((FoundSet)formData).getCreationSqlSelect();
-				}
-
 				fs.browseAll(sqlString);
 				long t3 = System.currentTimeMillis();
-				List childRetval = root.process(this, fs, table, sqlString);
+				List<DataRendererDefinition> childRetval = root.process(this, fs, table, sqlString);
 				long t4 = System.currentTimeMillis();
 				if (Debug.tracing())
 				{
@@ -382,7 +365,7 @@ public class FormPreviewPanel extends JPanel implements IPrintInfo
 				{
 					for (int i = 0; i < childRetval.size(); i++)
 					{
-						plist.addPanel((DataRendererDefinition)childRetval.get(i));
+						plist.addPanel(childRetval.get(i));
 					}
 				}
 			}

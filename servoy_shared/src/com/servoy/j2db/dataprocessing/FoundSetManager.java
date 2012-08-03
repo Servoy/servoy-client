@@ -1824,7 +1824,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * 
 	 * @return GlobalTransaction
 	 */
-	GlobalTransaction getGlobalTransaction()
+	public GlobalTransaction getGlobalTransaction()
 	{
 		return globalTransaction;
 	}

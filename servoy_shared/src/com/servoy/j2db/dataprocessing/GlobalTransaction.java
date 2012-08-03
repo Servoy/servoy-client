@@ -18,15 +18,17 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.servoy.j2db.persistence.ITransactable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.util.Debug;
 
@@ -36,17 +38,16 @@ import com.servoy.j2db.util.Debug;
  */
 public class GlobalTransaction
 {
-
-
 	enum crud
 	{
 		Created, Updated, Deleted
-	};
+	}
 
 	private WeakHashMap<IRecordInternal, crud> records;//all rows to prevent they are gc'ed
 	private Map<String, String> serverTransactions;//serverName->transactionID
 	private final IDataServer dataServer;
 	private final String clientID;
+	private final List<ITransactable> transactionEndListeners = new ArrayList<ITransactable>();
 
 	GlobalTransaction(IDataServer ds, String cid)
 	{
@@ -71,10 +72,10 @@ public class GlobalTransaction
 				Debug.error(e);
 			}
 		}
-
+		Collection<String> collection;
 		if (queryForNewData && !records.isEmpty())
 		{
-			Set<String> set = new HashSet<String>();
+			collection = new HashSet<String>();
 			try
 			{
 				for (Entry<IRecordInternal, crud> entry : records.entrySet())
@@ -113,7 +114,7 @@ public class GlobalTransaction
 						case Deleted :
 							break;
 					}
-					set.add(record.getParentFoundSet().getDataSource());
+					collection.add(record.getParentFoundSet().getDataSource());
 				}
 
 				records = null;
@@ -122,9 +123,42 @@ public class GlobalTransaction
 			{
 				Debug.error(e); //TODO: add to application
 			}
-			return set;
 		}
-		return Collections.<String> emptyList();
+		else
+		{
+			collection = Collections.<String> emptyList();
+		}
+
+		fireTransactionEnded(false);
+
+		return collection;
+	}
+
+	private void fireTransactionEnded(boolean committed)
+	{
+		ITransactable[] listeners = null;
+		synchronized (transactionEndListeners)
+		{
+			if (transactionEndListeners.size() > 0)
+			{
+				listeners = transactionEndListeners.toArray(new ITransactable[transactionEndListeners.size()]);
+				transactionEndListeners.clear();
+			}
+		}
+		if (listeners != null)
+		{
+			for (ITransactable listener : listeners)
+			{
+				if (committed)
+				{
+					listener.processPostCommit();
+				}
+				else
+				{
+					listener.processPostRollBack();
+				}
+			}
+		}
 	}
 
 	Collection<String> commit(boolean revertSavedRecords)
@@ -134,6 +168,7 @@ public class GlobalTransaction
 		try
 		{
 			dataServer.endTransactions(clientID, tids, true);
+			fireTransactionEnded(true);
 			records = null;
 		}
 		catch (Exception e)
@@ -181,6 +216,25 @@ public class GlobalTransaction
 		catch (RemoteException e)
 		{
 			throw new RepositoryException(e);
+		}
+	}
+
+	public void addTransactionEndListener(ITransactable l)
+	{
+		synchronized (transactionEndListeners)
+		{
+			if (!transactionEndListeners.contains(l))
+			{
+				transactionEndListeners.add(l);
+			}
+		}
+	}
+
+	public void removeTransactionEndListener(ITransactable l)
+	{
+		synchronized (transactionEndListeners)
+		{
+			transactionEndListeners.remove(l);
 		}
 	}
 }

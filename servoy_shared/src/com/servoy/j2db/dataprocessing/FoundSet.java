@@ -69,7 +69,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
-import com.servoy.j2db.query.BooleanCondition;
 import com.servoy.j2db.query.CustomCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
@@ -218,7 +217,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
 		}
-		pksAndRecords = new PksAndRecordsHolder(fsm.chunkSize);
+		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize);
 		relationName = relation_name;
 		this.sheet = sheet;
 
@@ -1980,16 +1979,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 
 		QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
-		if (set.getRowCount() > 0)
-		{
-			// only generate the sql select when there is really data.
-			// else it is just clear()
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, fsm.getSQLGenerator().createPKConditionFromDataset(sheet, sqlSelect.getTable(), set));
-		}
-		else
-		{
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, BooleanCondition.FALSE_CONDITION);
-		}
+
+		// Set a dynamic pk condition, when pks are added, these are added to the condition automatically.
+		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable()));
+
 		sqlSelect.clearJoins();
 		sqlSelect.clearSorts();
 		sqlSelect.setDistinct(false); // not needed when you have no joins and may conflict with order by
@@ -5731,7 +5724,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected Object clone() throws CloneNotSupportedException
 	{
 		FoundSet obj = (FoundSet)super.clone();
-		obj.pksAndRecords = new PksAndRecordsHolder(fsm.chunkSize);
+		obj.pksAndRecords = new PksAndRecordsHolder(obj, fsm.chunkSize);
 		synchronized (pksAndRecords)
 		{
 			obj.pksAndRecords.setPksAndQuery(new BufferedDataSet(pksAndRecords.getPks()), pksAndRecords.getDbIndexLastPk(),
@@ -6032,7 +6025,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		omittedPKs = null;
 		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
-		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, BooleanCondition.FALSE_CONDITION);
+		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable()));
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
 

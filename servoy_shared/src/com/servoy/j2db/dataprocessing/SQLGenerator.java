@@ -95,6 +95,7 @@ public class SQLGenerator
 	public static final String PLACEHOLDER_PRIMARY_KEY = "PK"; //$NON-NLS-1$
 	public static final String PLACEHOLDER_RELATION_KEY = "RK"; //$NON-NLS-1$
 	public static final String PLACEHOLDER_INSERT_KEY = "INSERT"; //$NON-NLS-1$
+	public static final String PLACEHOLDER_FOUNDSET_PKS = "FOUNDSET_PKS"; //$NON-NLS-1$
 
 	public static final String SERVOY_CONDITION_PREFIX = "SV:"; //$NON-NLS-1$
 	public static final String CONDITION_FILTER = SERVOY_CONDITION_PREFIX + 'F';
@@ -505,6 +506,28 @@ public class SQLGenerator
 		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType());
 	}
 
+	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
+	{
+		Object[][] pkValues = new Object[pkColumns.size()][];
+
+		for (int k = 0; k < pkColumns.size(); k++)
+		{
+			pkValues[k] = new Object[pks.getRowCount()];
+		}
+
+		for (int r = 0; r < pks.getRowCount(); r++)
+		{
+			Object[] row = pks.getRow(r);
+			for (int k = 0; k < row.length; k++)
+			{
+				Column c = pkColumns.get(k);
+				pkValues[k][r] = c.getAsRightType(row[k]);
+			}
+
+		}
+		return pkValues;
+	}
+
 	static SetCondition createSetConditionFromPKs(int operator, QueryColumn[] pkQuerycolumns, List<Column> pkColumns, IDataSet pks)
 	{
 		if (pkQuerycolumns.length != pkColumns.size())
@@ -521,24 +544,8 @@ public class SQLGenerator
 			return null;
 		}
 
-		Object[][] pkValues = new Object[pks.getColumnCount()][];
-
-		for (int k = 0; k < pks.getColumnCount(); k++)
-		{
-			pkValues[k] = new Object[pks.getRowCount()];
-		}
-
-		for (int r = 0; r < pks.getRowCount(); r++)
-		{
-			Object[] row = pks.getRow(r);
-			for (int k = 0; k < row.length; k++)
-			{
-				Column c = pkColumns.get(k);
-				pkValues[k][r] = c.getAsRightType(row[k]);
-			}
-
-		}
-		return new SetCondition(operator, pkQuerycolumns, pkValues, (operator & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR);
+		return new SetCondition(operator, pkQuerycolumns, createPKValuesArray(pkColumns, pks),
+			(operator & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR);
 	}
 
 
@@ -1183,23 +1190,24 @@ public class SQLGenerator
 		return Column.getAsRightType(c.getDataProviderType(), c.getFlags(), cal.getTime(), c.getLength(), false);
 	}
 
-	ISQLCondition createPKConditionFromDataset(SQLSheet sheet, QueryTable queryTable, IDataSet pkSet)
+	static SetCondition createDynamicPKSetConditionForFoundset(FoundSet foundSet, QueryTable queryTable)
 	{
-		Table table = sheet.getTable();
+		Table table = (Table)foundSet.getTable();
 
-		List<Column> pkcolumns = new ArrayList<Column>();
-		List<QueryColumn> pkQueryColumns = new ArrayList<QueryColumn>();
-		//getPrimaryKeys from table
-		Iterator<Column> pks = table.getRowIdentColumns().iterator();
-		while (pks.hasNext())
+		List<Column> rowIdentColumns = table.getRowIdentColumns();
+		QueryColumn[] pkQueryColumns = new QueryColumn[rowIdentColumns.size()];
+
+		// getPrimaryKeys from table
+		for (int i = 0; i < rowIdentColumns.size(); i++)
 		{
-			Column column = pks.next();
-			pkcolumns.add(column);
-			pkQueryColumns.add(new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+			Column column = rowIdentColumns.get(i);
+			pkQueryColumns[i] = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength());
 		}
-		return createSetConditionFromPKs(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkcolumns, pkSet);
-	}
 
+		// Dynamic PK condition, the special placeholder will be updated when the foundset pk set changes
+		return new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, new Placeholder(new TablePlaceholderKey(queryTable,
+			SQLGenerator.PLACEHOLDER_FOUNDSET_PKS)), true);
+	}
 
 	private void createAggregates(SQLSheet sheet, QueryTable queryTable) throws RepositoryException
 	{
