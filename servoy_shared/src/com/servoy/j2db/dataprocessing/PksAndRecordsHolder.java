@@ -85,7 +85,7 @@ public class PksAndRecordsHolder
 		this.dbIndexLastPk = new AtomicInteger(dbIndexLastPk);
 		this.querySelect = querySelect;
 		this.hasDynamicPlaceholder = checkForDynamicPlaceholder(querySelect);
-		this.pks.setPksAndRecordsHolder(this);
+		if (this.pks != null) this.pks.setPksAndRecordsHolder(this);
 
 		if (reuse)
 		{
