@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.TimeZone;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -84,6 +85,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.SwingHelper;
+import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SnapShot;
@@ -1879,6 +1881,8 @@ public class JSApplication implements IReturnedTypesProvider
 
 	/**
 	 * Returns a date object initialized in client with current date and time.
+	 * This should be used instead of new Date() for webclients when the clients are in different times zones then the server.
+	 * Then this call will really return a time that is the locals webclients time.
 	 *
 	 * @sample var clienttime = application.getTimeStamp();
 	 * 
@@ -1891,7 +1895,14 @@ public class JSApplication implements IReturnedTypesProvider
 			// because of the fact that in non-SC dates format is applied on server timezone, if clients are set to display dates according
 			// to their timezone info, non-SC dates are shifted by the time zone difference when used in JS; see ClientManager.getConversionTimezone()...
 			// so simle new Date() in this case would really be wrong (unfortunately this problem also manifests when using simple new Date() as JS object...)
-			return Utils.isSwingClient(application.getApplicationType()) ? new Date() : js_getServerTimeStamp();
+			if (Utils.isSwingClient(application.getApplicationType()))
+			{
+				return new Date();
+			}
+			else
+			{
+				return new Date(TimezoneUtils.convertToTimezone(System.currentTimeMillis(), application.getTimeZone(), TimeZone.getDefault()));
+			}
 		}
 		catch (Exception e)
 		{
