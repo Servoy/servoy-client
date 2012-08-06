@@ -85,6 +85,7 @@ public class PksAndRecordsHolder
 		this.dbIndexLastPk = new AtomicInteger(dbIndexLastPk);
 		this.querySelect = querySelect;
 		this.hasDynamicPlaceholder = checkForDynamicPlaceholder(querySelect);
+		this.pks.setPksAndRecordsHolder(this);
 
 		if (reuse)
 		{
@@ -93,11 +94,6 @@ public class PksAndRecordsHolder
 		else
 		{
 			cachedRecords = new SafeArrayList<IRecordInternal>((pks != null ? pks.getRowCount() : 0) + 5);//(re)new
-		}
-		if (this.pks != null)
-		{
-			// this must be at the end, it will visit querySelect
-			this.pks.setPksAndRecordsHolder(this);
 		}
 		return cachedRecords;
 	}
@@ -231,8 +227,8 @@ public class PksAndRecordsHolder
 					{
 						// flip pk(i) and pk(dsindex)
 						Object[] tmppk = pks.getRow(dsIndex);
-						pks.setRow(dsIndex, pk);
-						pks.setRow(i - 1, tmppk);
+						pks.setRow(dsIndex, pk, false);
+						pks.setRow(i - 1, tmppk, false);
 						IRecordInternal tmprec = cachedRecords.get(dsIndex);
 						cachedRecords.set(dsIndex, cachedRecords.get(i - 1));
 						cachedRecords.set(i - 1, tmprec);

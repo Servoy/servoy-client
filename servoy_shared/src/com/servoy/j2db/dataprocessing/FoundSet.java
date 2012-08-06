@@ -1944,7 +1944,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
 
 		// Set a dynamic pk condition, when pks are added, these are added to the condition automatically.
-		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable()));
+		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), set));
 
 		sqlSelect.clearJoins();
 		sqlSelect.clearSorts();
@@ -2075,7 +2075,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						Object[] newpk = newpks.getRow(i);
 						if (!pks.hasPKCache() /* only check for duplicates if foundset could not be connected */|| !pks.containsPk(newpk))
 						{
-							pks.setRow(addIndex++, newpk);
+							pks.setRow(addIndex++, newpk, false);
 							dbIndexLastPk = startRow + 1 + i; // keep index in db of last added pk to correct maxresult in next chunk
 						}
 					}
@@ -5988,9 +5988,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		omittedPKs = null;
 		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
-		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable()));
+		BufferedDataSet emptyPks = new BufferedDataSet();
+		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), emptyPks));
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
-		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
+		pksAndRecords.setPksAndQuery(emptyPks, 0, sqlSelect);
 
 		if (rowManager != null) rowManager.clearAndCheckCache();
 //		if (rowManager.getRowCount() > 5000) 

@@ -1190,7 +1190,7 @@ public class SQLGenerator
 		return Column.getAsRightType(c.getDataProviderType(), c.getFlags(), cal.getTime(), c.getLength(), false);
 	}
 
-	static SetCondition createDynamicPKSetConditionForFoundset(FoundSet foundSet, QueryTable queryTable)
+	static SetCondition createDynamicPKSetConditionForFoundset(FoundSet foundSet, QueryTable queryTable, IDataSet pks)
 	{
 		Table table = (Table)foundSet.getTable();
 
@@ -1205,8 +1205,9 @@ public class SQLGenerator
 		}
 
 		// Dynamic PK condition, the special placeholder will be updated when the foundset pk set changes
-		return new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, new Placeholder(new TablePlaceholderKey(queryTable,
-			SQLGenerator.PLACEHOLDER_FOUNDSET_PKS)), true);
+		Placeholder placeHolder = new Placeholder(new TablePlaceholderKey(queryTable, SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
+		placeHolder.setValue(SQLGenerator.createPKValuesArray(foundSet.getSQLSheet().getTable().getRowIdentColumns(), pks));
+		return new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
 	}
 
 	private void createAggregates(SQLSheet sheet, QueryTable queryTable) throws RepositoryException

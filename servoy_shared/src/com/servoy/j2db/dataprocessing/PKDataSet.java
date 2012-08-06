@@ -109,7 +109,6 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 	public void setPksAndRecordsHolder(PksAndRecordsHolder pksAndRecordsHolder)
 	{
 		this.pksAndRecordsHolder = pksAndRecordsHolder;
-		pksUpdated();
 	}
 
 	@Override
@@ -260,7 +259,12 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 
 	public void setRow(int index, Object[] pk)
 	{
-		pksToBeUpdated();
+		setRow(index, pk, true);
+	}
+
+	public void setRow(int index, Object[] pk, boolean updateDynamicPKCondition)
+	{
+		if (updateDynamicPKCondition) pksToBeUpdated();
 		if (sortedPKs != null)
 		{
 			Object[] orgPk = pks.getRow(index);
@@ -274,7 +278,7 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 			}
 		}
 		pks.setRow(index, pk);
-		pksUpdated();
+		if (updateDynamicPKCondition) pksUpdated();
 	}
 
 	public void sort(int column, boolean ascending)
