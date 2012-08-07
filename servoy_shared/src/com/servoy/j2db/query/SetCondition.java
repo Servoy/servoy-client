@@ -103,7 +103,7 @@ public class SetCondition implements ISQLCondition
 			throw new IllegalArgumentException("Empty key set in set condition"); //$NON-NLS-1$
 		}
 
-		if (vals instanceof Placeholder || vals instanceof ISQLSelect)
+		if (vals instanceof Placeholder || vals instanceof ISQLSelect || vals instanceof IDynamicValue)
 		{
 			// placeholder or sub-query: ok
 			return vals;

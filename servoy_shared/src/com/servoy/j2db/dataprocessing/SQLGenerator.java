@@ -528,6 +528,33 @@ public class SQLGenerator
 		return pkValues;
 	}
 
+	/**
+	 * inverse from createPKValuesArray
+	 * @param pkColumns
+	 * @param pks
+	 * @return
+	 */
+	static BufferedDataSet createPKValuesDataSet(List<Column> pkColumns, Object[][] pkValues)
+	{
+		List<Object[]> rows = new ArrayList<Object[]>();
+
+
+		if (pkValues != null && pkValues.length > 0 && pkValues[0] != null)
+		{
+			for (int r = 0; r < pkValues[0].length; r++)
+			{
+				Object[] pk = new Object[pkColumns.size()];
+				for (int k = 0; k < pkColumns.size(); k++)
+				{
+					pk[k] = pkValues[k][r];
+				}
+				rows.add(pk);
+			}
+		}
+
+		return new BufferedDataSet(null, rows);
+	}
+
 	static SetCondition createSetConditionFromPKs(int operator, QueryColumn[] pkQuerycolumns, List<Column> pkColumns, IDataSet pks)
 	{
 		if (pkQuerycolumns.length != pkColumns.size())
@@ -1206,7 +1233,7 @@ public class SQLGenerator
 
 		// Dynamic PK condition, the special placeholder will be updated when the foundset pk set changes
 		Placeholder placeHolder = new Placeholder(new TablePlaceholderKey(queryTable, SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
-		placeHolder.setValue(SQLGenerator.createPKValuesArray(foundSet.getSQLSheet().getTable().getRowIdentColumns(), pks));
+		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.clone()));
 		return new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
 	}
 

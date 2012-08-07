@@ -20,9 +20,11 @@ import java.util.Comparator;
 
 import com.servoy.j2db.persistence.ITransactable;
 import com.servoy.j2db.query.AbstractBaseQuery.PlaceHolderSetter;
+import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Data set optimized for PKs.
@@ -131,18 +133,22 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 			sortedPKs.add(pk);
 		}
 		pks.addRow(index, pk);
-		pksUpdated();
+
+		// pk is added, update the dynamic pk values holder.
+		if (pksAndRecordsHolder != null && pksAndRecordsHolder.hasDynamicPlaceholder() && pksAndRecordsHolder.getFoundSet() != null &&
+			!pksAndRecordsHolder.getFoundSet().isInFindMode())
+		{
+			DynamicPkValuesArray dynArray = getDynamicPkValuesArray();
+			if (dynArray != null)
+			{
+				dynArray.getPKs().addRow(pk); // index does not matter
+			}
+		}
 	}
 
 	public void addRow(Object[] pk)
 	{
-		pksToBeUpdated();
-		if (sortedPKs != null)
-		{
-			sortedPKs.add(pk);
-		}
-		pks.addRow(pk);
-		pksUpdated();
+		addRow(pks.getRowCount(), pk);
 	}
 
 	public void clearHadMoreRows()
@@ -199,62 +205,79 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 			if (globalTransaction != null)
 			{
 				// add a listener for rollback to restore pks on rollback so that query returns deleted records
-				final IDataSet pksBeforeTransaction = pks.clone();
-				globalTransaction.addTransactionEndListener(transactionListener = new ITransactable()
+				DynamicPkValuesArray dynArray = getDynamicPkValuesArray();
+				if (dynArray != null)
 				{
-					public void processPostRollBack()
+					final DynamicPkValuesArray pksBeforeTransaction = dynArray.clone();
+
+					globalTransaction.addTransactionEndListener(transactionListener = new ITransactable()
 					{
-						// restore old pks from before transaction, so that pks deleted in the transaction are still found
-						if (pksAndRecordsHolder.hasDynamicPlaceholder())
+						public void processPostRollBack()
 						{
-							// query still has the pk set condition, set the condition back to the pk set from before the transaction
-							pksAndRecordsHolder.getQuerySelectForReading().acceptVisitor(
-								new PlaceHolderSetter(new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(),
-									SQLGenerator.PLACEHOLDER_FOUNDSET_PKS), SQLGenerator.createPKValuesArray(
-									pksAndRecordsHolder.getFoundSet().getSQLSheet().getTable().getRowIdentColumns(), pksBeforeTransaction)));
-
-							// Note: it is also possible to restore the pks, but that may affect selection since the size of the foundset is based on pk.size
-//								pksAndRecordsHolder.setPksAndQuery(pksBeforeTransaction, pksAndRecordsHolder.getDbIndexLastPk(),
-//									pksAndRecordsHolder.getQuerySelectForReading());
+							// restore old pks from before transaction, so that pks deleted in the transaction are still found
+							if (pksAndRecordsHolder.hasDynamicPlaceholder())
+							{
+								// query still has the pk set condition, set the condition back to the pk set from before the transaction
+								pksAndRecordsHolder.getQuerySelectForReading().acceptVisitor(
+									new PlaceHolderSetter(new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(),
+										SQLGenerator.PLACEHOLDER_FOUNDSET_PKS), pksBeforeTransaction));
+							}
+							transactionListener = null;
 						}
-						transactionListener = null;
-					}
 
-					public void processPostCommit()
-					{
-						transactionListener = null;
-					}
-				});
+						public void processPostCommit()
+						{
+							transactionListener = null;
+						}
+					});
+				}
 			}
 		}
 	}
 
-	private void pksUpdated()
+	private DynamicPkValuesArray getDynamicPkValuesArray()
 	{
-		// PKs have been updated, foundset pk placeholder may need to be updated
 		if (pksAndRecordsHolder != null && pksAndRecordsHolder.hasDynamicPlaceholder() && pksAndRecordsHolder.getFoundSet() != null &&
 			!pksAndRecordsHolder.getFoundSet().isInFindMode())
 		{
-			pksAndRecordsHolder.getQuerySelectForReading().acceptVisitor(
-				new PlaceHolderSetter(
-					new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS),
-					SQLGenerator.createPKValuesArray(pksAndRecordsHolder.getFoundSet().getSQLSheet().getTable().getRowIdentColumns(), pks)));
+			Placeholder placeholder = pksAndRecordsHolder.getQuerySelectForReading().getPlaceholder(
+				new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
+			Object value = placeholder.getValue();
+			if (value instanceof DynamicPkValuesArray)
+			{
+				return (DynamicPkValuesArray)value;
+			}
 		}
+		return null;
 	}
 
 	public void removeRow(int index)
 	{
 		pksToBeUpdated();
-		if (sortedPKs != null)
+		Object[] pk = pks.getRow(index);
+		if (pk != null && sortedPKs != null)
 		{
-			Object[] pk = pks.getRow(index);
-			if (pk != null)
-			{
-				sortedPKs.remove(pk);
-			}
+			sortedPKs.remove(pk);
 		}
 		pks.removeRow(index);
-		pksUpdated();
+
+		// pk is removed, update the dynamic pk values holder.
+		if (pk != null && pksAndRecordsHolder != null && pksAndRecordsHolder.hasDynamicPlaceholder() && pksAndRecordsHolder.getFoundSet() != null &&
+			!pksAndRecordsHolder.getFoundSet().isInFindMode())
+		{
+			DynamicPkValuesArray dynArray = getDynamicPkValuesArray();
+			if (dynArray != null)
+			{
+				IDataSet ds = dynArray.getPKs();
+				for (int i = ds.getRowCount() - 1; i >= 0; i--)
+				{
+					if (Utils.equalObjects(pk, ds.getRow(i)))
+					{
+						ds.removeRow(i);
+					}
+				}
+			}
+		}
 	}
 
 	public void setRow(int index, Object[] pk)
@@ -277,8 +300,31 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 				sortedPKs.add(pk);
 			}
 		}
+		Object[] oldpk = pks.getRow(index);
 		pks.setRow(index, pk);
-		if (updateDynamicPKCondition) pksUpdated();
+
+		// // pk is updated, update the dynamic pk values holder if needed.
+		if (updateDynamicPKCondition && pk != null && pksAndRecordsHolder != null && pksAndRecordsHolder.hasDynamicPlaceholder() &&
+			pksAndRecordsHolder.getFoundSet() != null && !pksAndRecordsHolder.getFoundSet().isInFindMode())
+		{
+			DynamicPkValuesArray dynArray = getDynamicPkValuesArray();
+			if (dynArray != null)
+			{
+				if (oldpk != null)
+				{
+					// updated pk, remove old one
+					IDataSet ds = dynArray.getPKs();
+					for (int i = ds.getRowCount() - 1; i >= 0; i--)
+					{
+						if (Utils.equalObjects(oldpk, ds.getRow(i)))
+						{
+							ds.removeRow(i);
+						}
+					}
+				}
+				dynArray.getPKs().addRow(pk); // index does not matter
+			}
+		}
 	}
 
 	public void sort(int column, boolean ascending)

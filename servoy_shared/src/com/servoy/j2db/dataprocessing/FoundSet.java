@@ -1584,6 +1584,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
+		Placeholder dynamicPKplaceholder = sqlSelect.getPlaceholder(new TablePlaceholderKey(sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
+		if (dynamicPKplaceholder != null && dynamicPKplaceholder.isSet() && dynamicPKplaceholder.getValue() instanceof Object[])
+		{
+			// loading from saved query, dynamic pk was replaced by array in serialization, make dynamic again
+			dynamicPKplaceholder.setValue(new DynamicPkValuesArray(getSQLSheet().getTable().getRowIdentColumns(), SQLGenerator.createPKValuesDataSet(
+				getSQLSheet().getTable().getRowIdentColumns(), (Object[][])dynamicPKplaceholder.getValue())));
+		}
+
 		return loadByQuery(sqlSelect);
 	}
 

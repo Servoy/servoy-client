@@ -135,7 +135,24 @@ public class Placeholder implements IQueryElement
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { key, value, Boolean.valueOf(set) });
+		Object serializedValue;
+		if (set)
+		{
+			if (value instanceof IDynamicValue)
+			{
+				serializedValue = ((IDynamicValue)value).getValue();
+			}
+			else
+			{
+				serializedValue = value;
+			}
+		}
+		else
+		{
+			serializedValue = null;
+		}
+
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { key, serializedValue, Boolean.valueOf(set) });
 	}
 
 	public Placeholder(ReplacedObject s)
