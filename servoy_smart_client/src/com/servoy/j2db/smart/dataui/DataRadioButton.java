@@ -509,7 +509,6 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 				readonly = b;
 				super.setEnabled(!readonly && enabled);
 			}
-			editState = !readonly && enabled;
 		}
 		else
 		{

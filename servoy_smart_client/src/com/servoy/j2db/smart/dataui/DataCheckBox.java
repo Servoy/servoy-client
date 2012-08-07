@@ -530,7 +530,6 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 				readonly = b;
 				super.setEnabled(!readonly && enabled);
 			}
-			editState = !readonly && enabled;
 		}
 		else
 		{
