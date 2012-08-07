@@ -49,6 +49,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.IBehavior;
@@ -1817,20 +1818,36 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public void renderHead(HtmlHeaderContainer headercontainer)
 	{
 		super.renderHead(headercontainer);
-		StringBuffer cssRef = new StringBuffer();
-		cssRef.append("\n<link rel='stylesheet' type='text/css' href='");
-		cssRef.append(UrlUtils.rewriteToContextRelative("servoy-webclient/formcss/", RequestCycle.get().getRequest()));
-		cssRef.append(formController.getForm().getSolution().getName());
-		cssRef.append('/');
-		cssRef.append(formController.getName());
-		cssRef.append("_t");
+		Response response = headercontainer.getHeaderResponse().getResponse();
+		response.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
+		response.write(UrlUtils.rewriteToContextRelative("servoy-webclient/formcss/", RequestCycle.get().getRequest()));
+		response.write(formController.getForm().getSolution().getName());
+		response.write("/");
+		response.write(formController.getName());
+		response.write("_t");
+		long prevLMT = lastModifiedTime;
 		if (lastModifiedTime == 0 || isUIRecreated())
 		{
 			lastModifiedTime = System.currentTimeMillis();
 		}
-		cssRef.append(lastModifiedTime);
-		cssRef.append("t.css'/>\n");
-		headercontainer.getHeaderResponse().renderString(cssRef.toString());
+		response.write(Long.toString(lastModifiedTime));
+		response.write("t.css");
+		response.write("\" id=\"formcss_");
+		response.write(formController.getName());
+		response.write(Long.toString(lastModifiedTime));
+		response.write("\"");
+		getResponse().println(" />");
+
+		if (isUIRecreated())
+		{
+			StringBuffer cssRef = new StringBuffer();
+			cssRef.append("Servoy.Utils.removeFormCssLink('formcss_");
+			cssRef.append(formController.getName());
+			cssRef.append(prevLMT);
+			cssRef.append("');");
+			headercontainer.getHeaderResponse().renderJavascript(cssRef, null);
+		}
+
 
 		if (isFormInWindow())
 		{

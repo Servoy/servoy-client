@@ -2149,6 +2149,17 @@ if (typeof(Servoy.Utils) == "undefined")
 	  	{
 	  		el.select();
 	  	}
+	  },
+	  
+	  removeFormCssLink: function(id) 
+	  {
+		  var cssLink = document.getElementById(id);
+		  if (cssLink) {
+			  setTimeout(function(){
+				  var headID = document.getElementsByTagName("head")[0];
+				  headID.removeChild(cssLink);
+			  },200);
+		  }
 	  }
 	}
 }

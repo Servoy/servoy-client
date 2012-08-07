@@ -45,7 +45,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.protocol.http.ClientProperties;
-import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.servoy.j2db.FormController;
@@ -703,43 +702,6 @@ public class WebEventExecutor extends BaseEventExecutor
 					}
 				});
 
-				final List<String> recreatedIDs = new ArrayList<String>();
-				page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
-				{
-					/**
-					 * @see org.apache.wicket.Component.IVisitor#component(org.apache.wicket.Component)
-					 */
-					public Object component(WebForm component)
-					{
-						if (component.isVisibleInHierarchy() && component.isUIRecreated())
-						{
-							recreatedIDs.add(component.getMarkupId());
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
-				if (recreatedIDs.size() > 0)
-				{
-					page.ignoreVersionMerge();
-					StringBuffer argument = new StringBuffer();
-					argument.append("\"");
-					argument.append(RequestUtils.toAbsolutePath(RequestCycle.get().urlFor(page).toString()));
-					argument.append("\"");
-					argument.append(",");
-					for (String id : recreatedIDs)
-					{
-						argument.append("\"");
-						argument.append(id);
-						argument.append("\"");
-						if (recreatedIDs.indexOf(id) != recreatedIDs.size() - 1)
-						{
-							argument.append(",");
-						}
-					}
-					target.appendJavascript("Servoy.Utils.redirectKeepingScrolls(" + argument + ");");
-					return;
-				}
 
 				mainPage.addWebAnchoringInfoIfNeeded(true);
 
