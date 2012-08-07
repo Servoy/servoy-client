@@ -37,6 +37,10 @@ public interface IScriptProvider extends IScriptElement
 	{
 	};
 
+	public static final RuntimeProperty<String> METHOD_RETURN_TYPE = new RuntimeProperty<String>()
+	{
+	};
+
 	public static final RuntimeProperty<String> COMMENT = new RuntimeProperty<String>()
 	{
 	};
