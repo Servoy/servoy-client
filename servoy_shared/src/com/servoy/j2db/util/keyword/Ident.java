@@ -113,7 +113,6 @@ public class Ident
 	"plugins", //  
 	"forms", //  
 	"foundset", //  
-	"model", //  
 	"utils", //  
 	"security", // 
 	"solutionModel", // 
@@ -182,7 +181,7 @@ public class Ident
 		{
 			switch (chars[i])
 			{
-				// not allowed in windows
+			// not allowed in windows
 				case '/' :
 				case '\\' :
 				case '?' :
