@@ -163,7 +163,7 @@ public class JSDatabaseManager
 	 * 
 	 * @return true if the lock could be acquired.
 	 */
-	public boolean js_acquireLock(IFoundSetInternal foundset, int recordIndex) throws ServoyException
+	public boolean js_acquireLock(IFoundSetInternal foundset, Number recordIndex) throws ServoyException
 	{
 		return js_acquireLock(foundset, recordIndex, null);
 	}
@@ -179,10 +179,11 @@ public class JSDatabaseManager
 	 * 
 	 * @return true if the lock could be acquired.
 	 */
-	public boolean js_acquireLock(IFoundSetInternal foundset, int recordIndex, String lockName) throws ServoyException
+	public boolean js_acquireLock(IFoundSetInternal foundset, Number recordIndex, String lockName) throws ServoyException
 	{
+		int _recordIndex = Utils.getAsInteger(recordIndex);
 		checkAuthorized();
-		return ((FoundSetManager)application.getFoundSetManager()).acquireLock(foundset, recordIndex - 1, lockName);
+		return ((FoundSetManager)application.getFoundSetManager()).acquireLock(foundset, _recordIndex - 1, lockName);
 	}
 
 	/**
@@ -1015,8 +1016,9 @@ public class JSDatabaseManager
 	 * 
 	 * @return datasource containing the results of the query or null if the parameters are wrong. 
 	 */
-	public String js_createDataSourceByQuery(String name, QBSelect query, int max_returned_rows) throws ServoyException
+	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows) throws ServoyException
 	{
+		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		checkAuthorized();
 
 		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
@@ -1032,7 +1034,7 @@ public class JSDatabaseManager
 
 		try
 		{
-			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, max_returned_rows);
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, _max_returned_rows);
 		}
 		catch (ServoyException e)
 		{
@@ -1076,8 +1078,9 @@ public class JSDatabaseManager
 	 * 
 	 * @return The JSDataSet containing the results of the query.
 	 */
-	public JSDataSet js_getDataSetByQuery(String server_name, String sql_query, Object[] arguments, int max_returned_rows) throws ServoyException
+	public JSDataSet js_getDataSetByQuery(String server_name, String sql_query, Object[] arguments, Number max_returned_rows) throws ServoyException
 	{
+		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
 
@@ -1093,7 +1096,7 @@ public class JSDatabaseManager
 		try
 		{
 			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name, new QueryCustomSelect(
-				sql_query, arguments), max_returned_rows));
+				sql_query, arguments), _max_returned_rows));
 		}
 		catch (ServoyException e)
 		{
@@ -1142,8 +1145,9 @@ public class JSDatabaseManager
 	 * 
 	 * @return The JSDataSet containing the results of the query.
 	 */
-	public JSDataSet js_getDataSetByQuery(QBSelect query, int max_returned_rows) throws ServoyException
+	public JSDataSet js_getDataSetByQuery(QBSelect query, Number max_returned_rows) throws ServoyException
 	{
+		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		checkAuthorized();
 
 		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
@@ -1159,7 +1163,7 @@ public class JSDatabaseManager
 
 		try
 		{
-			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(serverName, select, max_returned_rows));
+			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(serverName, select, _max_returned_rows));
 		}
 		catch (ServoyException e)
 		{
@@ -3038,14 +3042,14 @@ public class JSDatabaseManager
 	 * 
 	 * @return true if there are changes in the JSFoundset or JSRecord.
 	 */
-	public boolean js_hasRecordChanges(IFoundSetInternal foundset, int index)
+	public boolean js_hasRecordChanges(IFoundSetInternal foundset, Number index)
 	{
 		if (foundset == null) return false;
-
+		int _index = Utils.getAsInteger(index);
 		IRecordInternal rec = null;
-		if (index > 0)
+		if (_index > 0)
 		{
-			rec = foundset.getRecord(index - 1);
+			rec = foundset.getRecord(_index - 1);
 		}
 		else
 		{
@@ -3134,14 +3138,14 @@ public class JSDatabaseManager
 	 * 
 	 * @return true if the JSFoundset has new records or JSRecord is a new record.
 	 */
-	public boolean js_hasNewRecords(IFoundSetInternal foundset, int index)
+	public boolean js_hasNewRecords(IFoundSetInternal foundset, Number index)
 	{
 		if (foundset == null) return false;
-
+		int _index = Utils.getAsInteger(index);
 		IRecordInternal rec = null;
-		if (index > 0)
+		if (_index > 0)
 		{
-			rec = foundset.getRecord(index - 1);
+			rec = foundset.getRecord(_index - 1);
 		}
 		else
 		{
@@ -3394,9 +3398,10 @@ public class JSDatabaseManager
 	 
 	 * @return true if no errors happened.
 	 */
-	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, boolean overwrite) throws ServoyException
+	public boolean js_copyMatchingFields(Object source, IRecordInternal destination, Boolean overwrite) throws ServoyException
 	{
-		return copyMatchingFields(source, destination, overwrite, null);
+		boolean _overwrite = Utils.getAsBoolean(overwrite);
+		return copyMatchingFields(source, destination, _overwrite, null);
 	}
 
 	/**

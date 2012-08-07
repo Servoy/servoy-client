@@ -850,7 +850,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
 	 */
-	public int js_search(boolean clearLastResults) throws ServoyException
+	public int js_search(Boolean clearLastResults) throws ServoyException
 	{
 		return js_search(clearLastResults, true);
 	}
@@ -871,11 +871,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
 	 */
-	public int js_search(boolean clearLastResults, boolean reduceSearch) throws ServoyException
+	public int js_search(Boolean clearLastResults, Boolean reduceSearch) throws ServoyException
 	{
+		boolean _clearLastResults = getBooleanAsbool(clearLastResults, true);
+		boolean _reduceSearch = getBooleanAsbool(reduceSearch, true);
+
 		if (isInFindMode())
 		{
-			int nfound = performFind(clearLastResults, reduceSearch, true, false, null);
+			int nfound = performFind(_clearLastResults, _reduceSearch, true, false, null);
 			return nfound < 0 ? /* blocked */0 : nfound;
 		}
 		return 0;
@@ -1331,11 +1334,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample %%prefix%%foundset.relookup(1);
 	 * @param index record index (1-based) 
 	 */
-	public void js_relookup(int index)
+	public void js_relookup(Number index)
 	{
-		if (isInitialized() && index > 0 && index <= getSize())
+		int _index;
+		if (index == null)
 		{
-			processCopyValues(index - 1);
+			_index = getSelectedIndex();
+		}
+		else
+		{
+			_index = index.intValue();
+		}
+		if (isInitialized() && _index > 0 && _index <= getSize())
+		{
+			processCopyValues(_index - 1);
 		}
 	}
 
@@ -2308,10 +2320,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return boolean true if record could be deleted.
 	 */
-	public boolean js_deleteRecord(int index) throws ServoyException
+	public boolean js_deleteRecord(Number index) throws ServoyException
 	{
+		int _index;//= getNumberAsInt(index, 1);
 		checkInitialized();
-		return deleteRecord(new int[] { index - 1 });
+		if (index == null)
+		{
+			deleteRecord(getSelectedIndex());
+			return true;
+		}
+		else
+		{
+			_index = index.intValue();
+			return deleteRecord(new int[] { _index - 1 });
+		}
 	}
 
 	/**
@@ -2372,9 +2394,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return boolean true if all records could be omitted.
 	 */
-	public boolean js_omitRecord(int index) throws ServoyException
+	public boolean js_omitRecord(Number index) throws ServoyException
 	{
-		return isInitialized() && omitState(new int[] { index - 1 });
+		int _index;
+		if (index == null)
+		{
+			return isInitialized() && omitState(getSelectedIndexes());
+		}
+		else
+		{
+			_index = index.intValue();
+			return isInitialized() && omitState(new int[] { _index - 1 });
+		}
 	}
 
 	/**
@@ -2457,7 +2488,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public void js_sort(String sortString, boolean defer) throws ServoyException
 	{
-		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), defer);
+		boolean _defer = getBooleanAsbool(defer, false);
+		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), _defer);
 	}
 
 	/**
@@ -2538,7 +2570,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(int index, boolean onTop) throws ServoyException
+	public int js_duplicateRecord(Number index, Boolean onTop) throws ServoyException
 	{
 		return js_duplicateRecord(index, onTop, true);
 	}
@@ -2552,7 +2584,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(int index) throws ServoyException
+	public int js_duplicateRecord(Number index) throws ServoyException
 	{
 		return js_duplicateRecord(index, true, true);
 	}
@@ -2566,7 +2598,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(boolean onTop) throws ServoyException
+	public int js_duplicateRecord(Boolean onTop) throws ServoyException
 	{
 		return js_duplicateRecord(getSelectedIndex() + 1, onTop, true);
 	}
@@ -2581,7 +2613,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(boolean onTop, boolean changeSelection) throws ServoyException
+	public int js_duplicateRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
 	{
 		return js_duplicateRecord(getSelectedIndex() + 1, onTop, changeSelection);
 	}
@@ -2609,9 +2641,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(int index, boolean onTop, boolean changeSelection) throws ServoyException
+	public int js_duplicateRecord(Number index, Boolean onTop, Boolean changeSelection) throws ServoyException
 	{
-		return duplicateRecord(index - 1, onTop ? 0 : Integer.MAX_VALUE, changeSelection) + 1;
+		int _index = getNumberAsInt(index, getSelectedIndex());
+		boolean _onTop = getBooleanAsbool(onTop, true);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		return duplicateRecord(_index - 1, _onTop ? 0 : Integer.MAX_VALUE, _changeSelection) + 1;
 	}
 
 	/**
@@ -2624,7 +2659,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(int index, int location) throws ServoyException
+	public int js_duplicateRecord(Number index, Number location) throws ServoyException
 	{
 		return js_duplicateRecord(index, location, true);
 	}
@@ -2645,9 +2680,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *  
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
-	public int js_duplicateRecord(int index, int location, boolean changeSelection) throws ServoyException
+	public int js_duplicateRecord(Number index, Number location, Boolean changeSelection) throws ServoyException
 	{
-		return duplicateRecord(index - 1, location - 1, changeSelection) + 1;
+		int _index = getNumberAsInt(index, getSelectedIndex());
+		int _location = getNumberAsInt(location, 1);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		return duplicateRecord(_index - 1, _location - 1, _changeSelection) + 1;
 	}
 
 	/**
@@ -2659,7 +2697,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return int index of new record.
 	 */
-	public int js_newRecord(int index) throws ServoyException
+	public int js_newRecord(Number index) throws ServoyException
 	{
 		return js_newRecord(index, true);
 	}
@@ -2674,11 +2712,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return int index of new record.
 	 */
-	public int js_newRecord(int index, boolean changeSelection) throws ServoyException
+	public int js_newRecord(Number index, Boolean changeSelection) throws ServoyException
 	{
-		if (index > 0)
+		int _index = getNumberAsInt(index, 1);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		if (_index > 0)
 		{
-			return newRecord(null, index - 1, changeSelection) + 1;//javascript index is plus one
+			return newRecord(null, _index - 1, _changeSelection) + 1;//javascript index is plus one
 		}
 		return -1;
 	}
@@ -2692,7 +2732,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return int index of new record.
 	 */
-	public int js_newRecord(boolean onTop) throws ServoyException
+	public int js_newRecord(Boolean onTop) throws ServoyException
 	{
 		return js_newRecord(onTop, true);
 	}
@@ -2707,9 +2747,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return int index of new record.
 	 */
-	public int js_newRecord(boolean onTop, boolean changeSelection) throws ServoyException
+	public int js_newRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
 	{
-		return newRecord(null, onTop ? 0 : Integer.MAX_VALUE, changeSelection) + 1;//javascript index is plus one
+		boolean _onTop = getBooleanAsbool(onTop, true);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		return newRecord(null, _onTop ? 0 : Integer.MAX_VALUE, _changeSelection) + 1;//javascript index is plus one
 	}
 
 	/**
@@ -6145,5 +6187,27 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery,
 			fsm.getTableFilterParams(sheet.getServerName(), theQuery), distinctInMemory, startRow, rowsToRetrive, type);
+	}
+
+	/**
+	 * helper function to get int value of java.lang.Numeber object or default value in case of null
+	 * @param numberObject
+	 * @param defaultValue 
+	 * @return 
+	 */
+	private int getNumberAsInt(Number numberObject, int defaultValue)
+	{
+		return numberObject == null ? defaultValue : numberObject.intValue();
+	}
+
+	/**
+	 * helper function to get boolean value of java.lang.Boolean object or default value in case of null
+	 * @param booleanObject
+	 * @param defaultValue 
+	 * @return 
+	 */
+	private boolean getBooleanAsbool(Boolean booleanObject, boolean defaultValue)
+	{
+		return booleanObject == null ? defaultValue : booleanObject.booleanValue();
 	}
 }

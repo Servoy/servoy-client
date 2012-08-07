@@ -609,7 +609,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param displayValues Display values array
 	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
 	 */
-	public void js_setValueListItems(String name, Object[] displayValues, boolean autoconvert)
+	public void js_setValueListItems(String name, Object[] displayValues, Boolean autoconvert)
 	{
 		js_setValueListItems(name, displayValues, null, autoconvert);
 	}
@@ -650,7 +650,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param dataset Dataset with display/real values
 	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
 	 */
-	public void js_setValueListItems(String name, JSDataSet dataset, boolean autoconvert)
+	public void js_setValueListItems(String name, JSDataSet dataset, Boolean autoconvert)
 	{
 		if (dataset != null && dataset.getDataSet() != null && dataset.getDataSet().getColumnCount() > 0)
 		{
@@ -681,9 +681,10 @@ public class JSApplication implements IReturnedTypesProvider
 	 * @param realValues Real values array
 	 * @param autoconvert Boolean (true) if display values and return values should be converted to numbers
 	 */
-	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
+	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues, Boolean autoconvert)
 	{
-		application.setValueListItems(name, displayValues, realValues, autoconvert);
+		boolean _autoconvert = Utils.getAsBoolean(autoconvert);
+		application.setValueListItems(name, displayValues, realValues, _autoconvert);
 	}
 
 	/**
@@ -1636,7 +1637,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String webclientTarget, int timeout)
+	public boolean js_showURL(String url, String webclientTarget, Number timeout)
 	{
 		return js_showURL(url, webclientTarget, null, timeout);
 	}
@@ -1653,9 +1654,10 @@ public class JSApplication implements IReturnedTypesProvider
 	 * 
 	 * @return Boolean (true) if URL was shown
 	 */
-	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions, int timeout)
+	public boolean js_showURL(String url, String webclientTarget, String webclientTargetOptions, Number timeout)
 	{
-		return application.showURL(url, webclientTarget, webclientTargetOptions, timeout, true);
+		int _timeout = Utils.getAsInteger(timeout);
+		return application.showURL(url, webclientTarget, webclientTargetOptions, _timeout, true);
 	}
 
 	/**

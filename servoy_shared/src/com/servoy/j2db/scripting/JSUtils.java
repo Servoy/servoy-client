@@ -1195,7 +1195,7 @@ public class JSUtils
 	 * @param escapeSpaces boolean indicating to escape spaces
 	 * @return the escaped text
 	 */
-	public String js_stringEscapeMarkup(String textString, boolean escapeSpaces)
+	public String js_stringEscapeMarkup(String textString, Boolean escapeSpaces)
 	{
 		return js_stringEscapeMarkup(textString, escapeSpaces, false);
 	}
@@ -1209,9 +1209,11 @@ public class JSUtils
 	 * @param convertToHtmlUnicodeEscapes boolean indicating to use unicode escapes
 	 * @return the escaped text
 	 */
-	public String js_stringEscapeMarkup(String textString, boolean escapeSpaces, boolean convertToHtmlUnicodeEscapes)
+	public String js_stringEscapeMarkup(String textString, Boolean escapeSpaces, Boolean convertToHtmlUnicodeEscapes)
 	{
-		CharSequence retval = HtmlUtils.escapeMarkup(textString, escapeSpaces, convertToHtmlUnicodeEscapes);
+		boolean _escapeSpaces = Utils.getAsBoolean(escapeSpaces);
+		boolean _convertToHtmlUnicodeEscapes = Utils.getAsBoolean(convertToHtmlUnicodeEscapes);
+		CharSequence retval = HtmlUtils.escapeMarkup(textString, _escapeSpaces, _convertToHtmlUnicodeEscapes);
 		return (retval != null ? retval.toString() : null);
 	}
 

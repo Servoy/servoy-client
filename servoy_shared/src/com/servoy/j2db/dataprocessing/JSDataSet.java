@@ -334,9 +334,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * @return true if succeeded, else false.
 	 */
-	public boolean js_addColumn(String name, int index)
+	public boolean js_addColumn(String name, Number index)
 	{
-		return js_addColumn(name, Integer.valueOf(index), 0);
+		return js_addColumn(name, index, 0);
 	}
 
 	/**
@@ -367,14 +367,15 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * @return true if succeeded, else false.
 	 */
-	public boolean js_addColumn(String name, Integer index, int type)
+	public boolean js_addColumn(String name, Number index, Number type)
 	{
 		if (set == null) return false;
 
+		int _type = Utils.getAsInteger(type);
 		// use Integer in stead of int to allow old vararg calls addColumn(name,null, type)
 		int columnIndex = (index == null ? 0 : index.intValue()) - 1;
 
-		boolean result = set.addColumn(columnIndex, name, type);
+		boolean result = set.addColumn(columnIndex, name, _type);
 		if (result)
 		{
 			makeColumnMap();
@@ -650,7 +651,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @return String html.
 	 */
-	public String js_getAsHTML(boolean escape_values)
+	public String js_getAsHTML(Boolean escape_values)
 	{
 		return js_getAsHTML(escape_values, false, false, false, true);
 	}
@@ -666,7 +667,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @return String html.
 	 */
-	public String js_getAsHTML(boolean escape_values, boolean escape_spaces)
+	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces)
 	{
 		return js_getAsHTML(escape_values, escape_spaces, false, false, true);
 	}
@@ -684,7 +685,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @return String html.
 	 */
-	public String js_getAsHTML(boolean escape_values, boolean escape_spaces, boolean multi_line_markup)
+	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces, Boolean multi_line_markup)
 	{
 		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, false, true);
 	}
@@ -704,7 +705,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @return String html.
 	 */
-	public String js_getAsHTML(boolean escape_values, boolean escape_spaces, boolean multi_line_markup, boolean pretty_indent)
+	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces, Boolean multi_line_markup, Boolean pretty_indent)
 	{
 		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, pretty_indent, true);
 	}
@@ -745,8 +746,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * @return String html.
 	 */
-	public String js_getAsHTML(boolean escape_values, boolean escape_spaces, boolean multi_line_markup, boolean pretty_indent, boolean add_column_names)
+	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces, Boolean multi_line_markup, Boolean pretty_indent, Boolean add_column_names)
 	{
+		boolean _escape_values = Utils.getAsBoolean(escape_values);
+		boolean _escape_spaces = Utils.getAsBoolean(escape_spaces);
+		boolean _multi_line_markup = Utils.getAsBoolean(multi_line_markup);
+		boolean _pretty_indent = Utils.getAsBoolean(pretty_indent);
+		boolean _add_column_names = (add_column_names == null ? true : add_column_names.booleanValue());
+
 		StringBuilder out = new StringBuilder();
 		if (set != null)
 		{
@@ -763,9 +770,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			out.append(getHTMLProperties(-2, -2));
 			out.append('>');
 			String[] columnNames = set.getColumnNames();
-			if (columnNames != null && add_column_names)
+			if (columnNames != null && _add_column_names)
 			{
-				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
+				if (_pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("<TR"); //$NON-NLS-1$
 				if (!Utils.stringIsEmpty(getHTMLProperties(-1, -1)))
 				{
@@ -775,7 +782,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				out.append('>');
 				for (int x = 0; x < numberOfColumns; x++)
 				{
-					if (pretty_indent) out.append("\n\t\t"); //$NON-NLS-1$
+					if (_pretty_indent) out.append("\n\t\t"); //$NON-NLS-1$
 					out.append("<TD"); //$NON-NLS-1$
 					if (!Utils.stringIsEmpty(getHTMLProperties(-1, x)))
 					{
@@ -784,10 +791,10 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					}
 					out.append('>');
 					out.append("<B>"); //$NON-NLS-1$
-					if (escape_values)
+					if (_escape_values)
 					{
-						String val = HtmlUtils.escapeMarkup(columnNames[x], escape_spaces).toString();
-						if (multi_line_markup)
+						String val = HtmlUtils.escapeMarkup(columnNames[x], _escape_spaces).toString();
+						if (_multi_line_markup)
 						{
 							out.append(Utils.toMultilineMarkup(val).toString());
 						}
@@ -802,13 +809,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					}
 					out.append("</B></TD>"); //$NON-NLS-1$
 				}
-				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
+				if (_pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("</TR>"); //$NON-NLS-1$
 			}
 			for (int j = 0; j < set.getRowCount(); j++)
 			{
 				Object[] row = set.getRow(j);
-				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
+				if (_pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("<TR"); //$NON-NLS-1$
 				if (!Utils.stringIsEmpty(getHTMLProperties(-1, -1)) || !Utils.stringIsEmpty(getHTMLProperties(j, -1)))
 				{
@@ -820,7 +827,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 				for (int x = 0; x < numberOfColumns; x++)
 				{
-					if (pretty_indent) out.append("\n\t\t"); //$NON-NLS-1$
+					if (_pretty_indent) out.append("\n\t\t"); //$NON-NLS-1$
 					out.append("<TD"); //$NON-NLS-1$
 					if (!Utils.stringIsEmpty(getHTMLProperties(-1, x)) || !Utils.stringIsEmpty(getHTMLProperties(j, x)))
 					{
@@ -830,10 +837,10 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					out.append(getHTMLProperties(j, x));//specific cell
 					out.append('>');
 
-					if (escape_values)
+					if (_escape_values)
 					{
-						String val = HtmlUtils.escapeMarkup("" + row[x], escape_spaces).toString(); //$NON-NLS-1$
-						if (multi_line_markup)
+						String val = HtmlUtils.escapeMarkup("" + row[x], _escape_spaces).toString(); //$NON-NLS-1$
+						if (_multi_line_markup)
 						{
 							out.append(Utils.toMultilineMarkup(val).toString());
 						}
@@ -848,10 +855,10 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					}
 					out.append("</TD>"); //$NON-NLS-1$
 				}
-				if (pretty_indent) out.append("\n\t"); //$NON-NLS-1$
+				if (_pretty_indent) out.append("\n\t"); //$NON-NLS-1$
 				out.append("</TR>"); //$NON-NLS-1$
 			}
-			if (pretty_indent) out.append('\n');
+			if (_pretty_indent) out.append('\n');
 			out.append("</TABLE>"); //$NON-NLS-1$
 		}
 		return out.toString();
@@ -1144,11 +1151,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * @param sort_direction boolean ascending (true) or descending (false)
 	 */
-	public void js_sort(int col, boolean sort_direction)
+	public void js_sort(Number col, Boolean sort_direction)
 	{
-		if (set != null && col > 0 && col <= set.getColumnCount())
+		int _col = Utils.getAsInteger(col);
+		boolean _sort_direction = Utils.getAsBoolean(sort_direction);
+
+		if (set != null && _col > 0 && _col <= set.getColumnCount())
 		{
-			set.sort(col - 1, sort_direction);
+			set.sort(_col - 1, _sort_direction);
 		}
 	}
 

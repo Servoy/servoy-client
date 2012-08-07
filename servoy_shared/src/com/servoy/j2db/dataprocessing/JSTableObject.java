@@ -24,6 +24,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A javascript wrapper around a {@link ITable} object.
@@ -47,7 +48,7 @@ public class JSTableObject extends JSTable
 	 * @param length 
 	 * @param allowNull 
 	 */
-	public JSColumnObject js_createNewColumn(String columnName, int type, int length, boolean allowNull)
+	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull)
 	{
 		return js_createNewColumn(columnName, type, length, allowNull, false);
 	}
@@ -60,7 +61,7 @@ public class JSTableObject extends JSTable
 	 * @param type 
 	 * @param length 
 	 */
-	public JSColumnObject js_createNewColumn(String columnName, int type, int length)
+	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length)
 	{
 		return js_createNewColumn(columnName, type, length, true, false);
 	}
@@ -101,11 +102,15 @@ public class JSTableObject extends JSTable
 	 * @param allowNull 
 	 * @param pkColumn 
 	 */
-	public JSColumnObject js_createNewColumn(String columnName, int type, int length, boolean allowNull, boolean pkColumn)
+	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull, Boolean pkColumn)
 	{
+		int _type = Utils.getAsInteger(type);
+		int _length = Utils.getAsInteger(length);
+		boolean _allowNull = Utils.getAsBoolean(allowNull);
+		boolean _pkColumn = Utils.getAsBoolean(pkColumn);
 		try
 		{
-			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, type, length, allowNull, pkColumn);
+			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, _type, _length, _allowNull, _pkColumn);
 			return new JSColumnObject(c, getServer());
 		}
 		catch (RepositoryException e)
