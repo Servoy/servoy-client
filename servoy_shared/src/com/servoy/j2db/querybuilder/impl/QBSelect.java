@@ -184,9 +184,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			{
 				getQuery().setHaving(null, c = AndCondition.and(c, new AndCondition()));
 			}
-			where = new QBLogicalCondition(this, this, (AndOrCondition)c);
+			having = new QBLogicalCondition(this, this, (AndOrCondition)c);
 		}
-		return where;
+		return having;
 	}
 
 	/**
