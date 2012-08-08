@@ -833,7 +833,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_search() throws ServoyException
 	{
-		return js_search(true, true);
+		return js_search(Boolean.TRUE, Boolean.TRUE);
 	}
 
 	/**
@@ -852,7 +852,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_search(Boolean clearLastResults) throws ServoyException
 	{
-		return js_search(clearLastResults, true);
+		return js_search(clearLastResults, Boolean.TRUE);
 	}
 
 	/**
@@ -1287,7 +1287,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (vargs == null || vargs.length != 1)
 		{
-			throw new IllegalArgumentException("Cannot find function loadRecords for " + (vargs == null ? "no" : String.valueOf(vargs.length)) + " args");
+			throw new IllegalArgumentException("Cannot find function loadRecords for " + (vargs == null ? "no" : String.valueOf(vargs.length)) + " args"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		}
 
 		Object data = vargs[0];
@@ -1324,7 +1324,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return true;
 		}
 
-		throw new IllegalArgumentException("Cannot find function loadRecords for argument " + data.getClass().getName());
+		throw new IllegalArgumentException("Cannot find function loadRecords for argument " + data.getClass().getName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -1336,15 +1336,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public void js_relookup(Number index)
 	{
-		int _index;
-		if (index == null)
-		{
-			_index = getSelectedIndex();
-		}
-		else
-		{
-			_index = index.intValue();
-		}
+		if (index == null) return;
+		int _index = index.intValue();
 		if (isInitialized() && _index > 0 && _index <= getSize())
 		{
 			processCopyValues(_index - 1);
@@ -2330,18 +2323,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_deleteRecord(Number index) throws ServoyException
 	{
-		int _index;//= getNumberAsInt(index, 1);
+		if (index == null) return false;
 		checkInitialized();
-		if (index == null)
-		{
-			deleteRecord(getSelectedIndex());
-			return true;
-		}
-		else
-		{
-			_index = index.intValue();
-			return deleteRecord(new int[] { _index - 1 });
-		}
+		return deleteRecord(new int[] { index.intValue() - 1 });
 	}
 
 	/**
@@ -2482,7 +2466,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public void js_sort(String sortString) throws ServoyException
 	{
-		js_sort(sortString, false);
+		js_sort(sortString, Boolean.FALSE);
 	}
 
 	/**
@@ -2494,10 +2478,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param sortString the specified columns (and sort order)
 	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
 	 */
-	public void js_sort(String sortString, boolean defer) throws ServoyException
+	public void js_sort(String sortString, Boolean defer) throws ServoyException
 	{
-		boolean _defer = getBooleanAsbool(defer, false);
-		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), _defer);
+		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), getBooleanAsbool(defer, false));
 	}
 
 	/**
@@ -2580,7 +2563,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_duplicateRecord(Number index, Boolean onTop) throws ServoyException
 	{
-		return js_duplicateRecord(index, onTop, true);
+		return js_duplicateRecord(index, onTop, Boolean.TRUE);
 	}
 
 	/**
@@ -2594,7 +2577,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_duplicateRecord(Number index) throws ServoyException
 	{
-		return js_duplicateRecord(index, true, true);
+		return js_duplicateRecord(index, Boolean.TRUE, Boolean.TRUE);
 	}
 
 	/**
@@ -2608,7 +2591,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_duplicateRecord(Boolean onTop) throws ServoyException
 	{
-		return js_duplicateRecord(getSelectedIndex() + 1, onTop, true);
+		return js_duplicateRecord(Integer.valueOf(getSelectedIndex() + 1), onTop, Boolean.TRUE);
 	}
 
 	/**
@@ -2623,7 +2606,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_duplicateRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
 	{
-		return js_duplicateRecord(getSelectedIndex() + 1, onTop, changeSelection);
+		return js_duplicateRecord(Integer.valueOf(getSelectedIndex() + 1), onTop, changeSelection);
 	}
 
 	/**
@@ -2635,7 +2618,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_duplicateRecord() throws ServoyException
 	{
-		return js_duplicateRecord(getSelectedIndex() + 1, true, true);
+		return js_duplicateRecord(Integer.valueOf(getSelectedIndex() + 1), Boolean.TRUE, Boolean.TRUE);
 	}
 
 	/**
@@ -2669,7 +2652,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_duplicateRecord(Number index, Number location) throws ServoyException
 	{
-		return js_duplicateRecord(index, location, true);
+		return js_duplicateRecord(index, location, Boolean.TRUE);
 	}
 
 	/**
@@ -2707,7 +2690,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_newRecord(Number index) throws ServoyException
 	{
-		return js_newRecord(index, true);
+		return js_newRecord(index, Boolean.TRUE);
 	}
 
 	/**
@@ -2742,7 +2725,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_newRecord(Boolean onTop) throws ServoyException
 	{
-		return js_newRecord(onTop, true);
+		return js_newRecord(onTop, Boolean.TRUE);
 	}
 
 	/**
@@ -2782,7 +2765,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public int js_newRecord() throws ServoyException
 	{
-		return js_newRecord(1, true);
+		return js_newRecord(Integer.valueOf(1), Boolean.TRUE);
 	}
 
 	/**
@@ -4292,7 +4275,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int indexToAdd = (idx < 0) ? 0 : (idx > size) ? size : idx;
 		if (indexToAdd == size && hadMoreRows())
 		{
-			Debug.trace("Cannot add new record to end of foundset because foundset is not fully loaded yet, adding at begin of foundset");
+			Debug.trace("Cannot add new record to end of foundset because foundset is not fully loaded yet, adding at begin of foundset"); //$NON-NLS-1$
 			indexToAdd = 0;
 		}
 
@@ -5380,7 +5363,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			buf.append('[');
 			for (int i = 0; i < selection.length; i++)
 			{
-				if (i > 0) buf.append(", ");
+				if (i > 0) buf.append(", "); //$NON-NLS-1$
 				buf.append(selection[i] + 1);
 			}
 			buf.append(']');

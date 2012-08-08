@@ -336,7 +336,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public boolean js_addColumn(String name, Number index)
 	{
-		return js_addColumn(name, index, 0);
+		return js_addColumn(name, index, Integer.valueOf(0));
 	}
 
 	/**
@@ -352,7 +352,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public boolean js_addColumn(String name)
 	{
-		return js_addColumn(name, null, 0);
+		return js_addColumn(name, null, Integer.valueOf(0));
 	}
 
 	/**
@@ -639,7 +639,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public String js_getAsHTML()
 	{
-		return js_getAsHTML(false, false, false, false, true);
+		return js_getAsHTML(Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE);
 	}
 
 	/**
@@ -653,7 +653,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public String js_getAsHTML(Boolean escape_values)
 	{
-		return js_getAsHTML(escape_values, false, false, false, true);
+		return js_getAsHTML(escape_values, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE);
 	}
 
 	/**
@@ -669,7 +669,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces)
 	{
-		return js_getAsHTML(escape_values, escape_spaces, false, false, true);
+		return js_getAsHTML(escape_values, escape_spaces, Boolean.FALSE, Boolean.FALSE, Boolean.TRUE);
 	}
 
 	/**
@@ -687,7 +687,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces, Boolean multi_line_markup)
 	{
-		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, false, true);
+		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, Boolean.FALSE, Boolean.TRUE);
 	}
 
 	/**
@@ -707,7 +707,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public String js_getAsHTML(Boolean escape_values, Boolean escape_spaces, Boolean multi_line_markup, Boolean pretty_indent)
 	{
-		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, pretty_indent, true);
+		return js_getAsHTML(escape_values, escape_spaces, multi_line_markup, pretty_indent, Boolean.TRUE);
 	}
 
 

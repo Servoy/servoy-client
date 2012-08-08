@@ -597,7 +597,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_setValueListItems(String name, Object[] displayValues)
 	{
-		js_setValueListItems(name, displayValues, null, false);
+		js_setValueListItems(name, displayValues, null, Boolean.FALSE);
 	}
 
 	/**
@@ -625,7 +625,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues)
 	{
-		js_setValueListItems(name, displayValues, realValues, false);
+		js_setValueListItems(name, displayValues, realValues, Boolean.FALSE);
 	}
 
 	/**
@@ -638,7 +638,7 @@ public class JSApplication implements IReturnedTypesProvider
 	 */
 	public void js_setValueListItems(String name, JSDataSet dataset)
 	{
-		js_setValueListItems(name, dataset, false);
+		js_setValueListItems(name, dataset, Boolean.FALSE);
 	}
 
 	/**

@@ -1184,7 +1184,7 @@ public class JSUtils
 	 */
 	public String js_stringEscapeMarkup(String textString)
 	{
-		return js_stringEscapeMarkup(textString, false, false);
+		return js_stringEscapeMarkup(textString, Boolean.FALSE, Boolean.FALSE);
 	}
 
 	/**
@@ -1197,7 +1197,7 @@ public class JSUtils
 	 */
 	public String js_stringEscapeMarkup(String textString, Boolean escapeSpaces)
 	{
-		return js_stringEscapeMarkup(textString, escapeSpaces, false);
+		return js_stringEscapeMarkup(textString, escapeSpaces, Boolean.FALSE);
 	}
 
 	/**
