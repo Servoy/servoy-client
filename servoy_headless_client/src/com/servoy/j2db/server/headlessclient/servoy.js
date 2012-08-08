@@ -1766,19 +1766,14 @@ function showurl(url, timeout, onRootFrame, useIFrame, pageExpiredRedirect)
 
 function getPreferredTableSize(startElementId)
 {
-	var iReturnValue = new Array();
-	iReturnValue[0] = 0;
-	iReturnValue[1] = 0;
-
 	var el = document.getElementById(startElementId);
 	if(el)
 	{
-		iReturnValue[0] = el.clientWidth;
-		iReturnValue[1] = el.clientHeight;	
-		return iReturnValue;
+		return [el.clientWidth,el.clientHeight];
 	}
-	return el;
+	return null;
 }
+
 var validationFailedId = null;
 function setValidationFailed(id)
 {
