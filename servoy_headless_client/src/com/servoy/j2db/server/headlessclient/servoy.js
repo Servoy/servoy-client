@@ -2114,21 +2114,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		}
 		return '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(elem)[0]) + '&my=' + ((e.pageY ? e.pageY : e.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(elem)[1]);
 	  },
-	  
-	  redirectKeepingScrolls: function()
-	  {
-	  	var url = arguments[0];
-		for (var i=1;i<arguments.length;i++)
-		{
-			var element = document.getElementById(arguments[i]);
-			if (element && (element.scrollLeft > 0 || element.scrollTop > 0))
-			{
-				url += '&scroll_'+arguments[i]+'='+element.scrollLeft+'_'+element.scrollTop
-			}
-		}
-		window.location = url;
-	  },
-	  
+
 	  isChrome : navigator.userAgent.toLowerCase().indexOf('chrome') > -1,
 	  
 	  isFirefox : navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
