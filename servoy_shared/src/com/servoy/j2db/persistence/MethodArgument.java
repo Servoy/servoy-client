@@ -33,12 +33,19 @@ public class MethodArgument implements IMethodArgument
 	private final String name;
 	private final String description;
 	private final ArgumentType type;
+	private final boolean isOptional;
 
 	public MethodArgument(String name, ArgumentType type, String description)
+	{
+		this(name, type, description, false);
+	}
+
+	public MethodArgument(String name, ArgumentType type, String description, boolean isOptional)
 	{
 		this.name = name;
 		this.type = type;
 		this.description = description;
+		this.isOptional = isOptional;
 	}
 
 	public MethodArgument(IMethodArgument arg)
@@ -59,6 +66,11 @@ public class MethodArgument implements IMethodArgument
 	public String getDescription()
 	{
 		return description;
+	}
+
+	public boolean isOptional()
+	{
+		return isOptional;
 	}
 
 	@Override
