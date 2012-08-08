@@ -958,7 +958,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	 * @param errorDetail
 	 */
 	@SuppressWarnings("nls")
-	private void errorToDebugger(String message, Object errorDetail)
+	protected void errorToDebugger(String message, Object errorDetail)
 	{
 		Object detail = errorDetail;
 		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
@@ -1007,6 +1007,26 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				debugger.outputStdErr(msg.toString() + '\n');
 			}
 		}
+	}
+	
+	protected void infoToDebugger(String message)
+	{
+		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
+		if (engine != null)
+		{
+			DBGPDebugger debugger = engine.getDebugger();
+			if (debugger != null)
+			{
+				debugger.outputStdOut(message + '\n');
+			}
+		}
+	}
+	
+	@Override
+	public void reportInfo(Component parentComponent, String message, String title)
+	{
+		infoToDebugger(message);
+		super.reportInfo(parentComponent, message, title);
 	}
 
 	/**

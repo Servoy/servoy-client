@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.debug;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -571,13 +572,13 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 									public void invokeAndWait(Runnable r)
 									{
 										super.invokeAndWait(r);
-									};
+									}
 
 									@Override
 									public void invokeLater(Runnable r, boolean immediate)
 									{
 										invokeLater(r);
-									};
+									}
 
 									@Override
 									public void invokeLater(Runnable r)
@@ -599,7 +600,23 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 												}
 											}
 										});
-									};
+									}
+
+									// do not show info/error dialogs in test client
+									@Override
+									public void reportError(Component parentComponent, String message, Object detail)
+									{
+										errorToDebugger(message, detail);
+										logError(message, detail);
+									}
+
+									@Override
+									public void reportInfo(Component parentComponent, String message, String title)
+									{
+										infoToDebugger(message);
+										Debug.trace(message);
+									}
+
 								};
 								client[0].setCurrent(currentSolution);
 							}
