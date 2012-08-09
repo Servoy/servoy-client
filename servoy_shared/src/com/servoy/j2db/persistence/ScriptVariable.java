@@ -38,7 +38,7 @@ import com.servoy.j2db.util.Utils;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Variable")
 public class ScriptVariable extends AbstractBase implements IVariable, IDataProvider, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
-	IPersistCloneable, ICloneable, ISupportScope
+	IPersistCloneable, ICloneable, ISupportScope, ISupportDeprecatedAnnotation
 {
 	private String prefixedName = null;
 
@@ -371,6 +371,11 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	public boolean isPrivate()
 	{
 		return getComment() != null && getComment().indexOf("@private") != -1;
+	}
+
+	public boolean isDeprecated()
+	{
+		return getComment() != null && getComment().indexOf("@deprecated") != -1;
 	}
 
 	public int getLineNumberOffset()

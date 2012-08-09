@@ -28,10 +28,12 @@ import com.servoy.j2db.util.UUID;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Method")
 @SuppressWarnings("nls")
-public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable
+public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable, ISupportDeprecatedAnnotation
 {
 	private transient Boolean isPrivate;
 	private transient Boolean isProtected;
+	private transient Boolean isConstructor;
+	private transient Boolean isDeprecated;
 
 	/**
 	 * Constructor I
@@ -70,6 +72,8 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		super.setDeclaration(declaration);
 		isPrivate = null;
 		isProtected = null;
+		isConstructor = null;
+		isDeprecated = null;
 	}
 
 	/**
@@ -114,6 +118,46 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 			isProtected = prot;
 		}
 		return prot.booleanValue();
+	}
+
+	public boolean isConstructor()
+	{
+		Boolean constructor = isConstructor;
+		if (constructor == null)
+		{
+			String declaration = getDeclaration();
+			if (declaration == null)
+			{
+				constructor = Boolean.FALSE;
+			}
+			else
+			{
+				int index = declaration.indexOf("*/");
+				constructor = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@constructor", index) != -1);
+			}
+			isConstructor = constructor;
+		}
+		return constructor.booleanValue();
+	}
+
+	public boolean isDeprecated()
+	{
+		Boolean deprecated = isDeprecated;
+		if (deprecated == null)
+		{
+			String declaration = getDeclaration();
+			if (declaration == null)
+			{
+				deprecated = Boolean.FALSE;
+			}
+			else
+			{
+				int index = declaration.indexOf("*/");
+				deprecated = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@deprecated", index) != -1);
+			}
+			isDeprecated = deprecated;
+		}
+		return deprecated.booleanValue();
 	}
 
 	@Override
