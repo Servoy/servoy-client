@@ -90,7 +90,7 @@ function layoutEntirePageWorker()
 		
 		for(var i in beansPreferredSize)
 		{
-			var newPreferredSize = getPreferredTableSize(i); // we can reuse from tables, it's the same thing
+			var newPreferredSize = getPreferredComponentSize(i); 
 			if(newPreferredSize && newPreferredSize[0] != 0 && newPreferredSize[1] != 0 && 
 			   (newPreferredSize[1] != beansPreferredSize[i]['height'] || 
 			    newPreferredSize[0] != beansPreferredSize[i]['width']))
