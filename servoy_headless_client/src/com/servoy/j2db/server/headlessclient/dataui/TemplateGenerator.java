@@ -870,7 +870,7 @@ public class TemplateGenerator
 
 				html.append("</tr></thead>\n");
 			}
-			html.append("<tbody servoy:id='rowsContainerBody'>\n");
+			html.append("<tbody servoy:id='rowsContainerBody' class='rowsContainerBody'>\n");
 
 			StringBuffer columns = new StringBuffer();
 			int firstComponentHeight = -1;
@@ -977,13 +977,10 @@ public class TemplateGenerator
 							TextualStyle classBasedStyle = createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, false, sp);
 							if (element instanceof Field)
 							{
-								int w = ((IFormElement)element).getSize().width;
-								w = w - (2 + 2 + 2); //minus left + rigth padding + empty space from css for th
 								int type = ((Field)element).getDisplayType();
 								if (type == Field.PASSWORD || type == Field.TEXT_FIELD || type == Field.TYPE_AHEAD || type == Field.TEXT_AREA)
 								{
 									classBasedStyle.setProperty("float", "left");
-									classBasedStyle.setProperty(CSS.Attribute.WIDTH.toString(), w + "px");
 								}
 							}
 							columns.append("</div>\n");
