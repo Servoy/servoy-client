@@ -373,6 +373,11 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		return getComment() != null && getComment().indexOf("@private") != -1;
 	}
 
+	public boolean isPublic()
+	{
+		return getComment() != null && getComment().indexOf("@public") != -1;
+	}
+
 	public boolean isDeprecated()
 	{
 		return getComment() != null && getComment().indexOf("@deprecated") != -1;
