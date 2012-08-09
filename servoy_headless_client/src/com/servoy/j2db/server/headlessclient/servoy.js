@@ -1767,19 +1767,14 @@ function showurl(url, timeout, onRootFrame, useIFrame, pageExpiredRedirect)
 function getPreferredTableSize(startElementId)
 {
 	var el = document.getElementById(startElementId);
-	var tBodys = document.getElementsByTagName("tbody");
-	var classBody = 'rowsContainerBody'
-	for (i in tBodys)
-    {		
-        if((" " + tBodys[i].className + " ").indexOf(" " + classBody + " ") > -1)
-        {
-        	if(el && tBodys[i])
-	    	{
-	    		return [tBodys[i].clientWidth, el.clientHeight];
-	    	}
-        }
-    }
-	return null;
+	if (el) {
+		var tBody =  YAHOO.util.Dom.getElementsByClassName('rowsContainerBody', 'tbody', el);
+		if(tBody != null && tBody[0])
+		{
+			return [tBody[0].clientWidth, el.clientHeight];
+		}
+	}
+    return null;
 }
 
 function getPreferredComponentSize(startElementId)
