@@ -1767,6 +1767,24 @@ function showurl(url, timeout, onRootFrame, useIFrame, pageExpiredRedirect)
 function getPreferredTableSize(startElementId)
 {
 	var el = document.getElementById(startElementId);
+	var tBodys = document.getElementsByTagName("tbody");
+	var classBody = 'rowsContainerBody'
+	for (i in tBodys)
+    {		
+        if((" " + tBodys[i].className + " ").indexOf(" " + classBody + " ") > -1)
+        {
+        	if(el && tBodys[i])
+	    	{
+	    		return [tBodys[i].clientWidth, el.clientHeight];
+	    	}
+        }
+    }
+	return null;
+}
+
+function getPreferredComponentSize(startElementId)
+{
+	var el = document.getElementById(startElementId);
 	if(el)
 	{
 		return [el.clientWidth,el.clientHeight];
