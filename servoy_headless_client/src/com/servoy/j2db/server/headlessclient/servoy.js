@@ -1773,6 +1773,7 @@ function getPreferredTableSize(startElementId)
 		{
 			return [tBody[0].clientWidth, el.clientHeight];
 		}
+		return [el.clientWidth,el.clientHeight];
 	}
     return null;
 }
