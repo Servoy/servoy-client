@@ -60,6 +60,7 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.behavior.IIgnoreDisabledComponentBehavior;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupElement;
 import org.apache.wicket.markup.MarkupStream;
@@ -1738,7 +1739,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; display: none;"; //$NON-NLS-1$
 				}
 			}));
-
+			tableContainerBody.add(new SimpleAttributeModifier("class", "rowsContainerBody"));
 			tableContainerBody.add(scrollBehavior = new ScrollBehavior("onscroll")); //$NON-NLS-1$
 		}
 
