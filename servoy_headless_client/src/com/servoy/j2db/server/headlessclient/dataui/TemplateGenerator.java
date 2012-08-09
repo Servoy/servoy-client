@@ -870,7 +870,7 @@ public class TemplateGenerator
 
 				html.append("</tr></thead>\n");
 			}
-			html.append("<tbody servoy:id='rowsContainerBody' class='rowsContainerBody'>\n");
+			html.append("<tbody servoy:id='rowsContainerBody'>\n");
 
 			StringBuffer columns = new StringBuffer();
 			int firstComponentHeight = -1;
