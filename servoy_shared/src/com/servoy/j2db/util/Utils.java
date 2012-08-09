@@ -2168,8 +2168,8 @@ public class Utils
 				}
 				else
 				{
-					bytes = new byte[length];
-					bb.get(bytes, 0, length);
+					bytes = new byte[(int)size];
+					bb.get(bytes, 0, (int)size);
 				}
 				return bytes;
 			}
