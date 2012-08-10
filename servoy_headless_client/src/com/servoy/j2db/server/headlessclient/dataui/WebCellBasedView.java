@@ -1404,7 +1404,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			public String getObject()
 			{
-				if (isScrollMode()) return "overflow-x: hidden; overflow-y: hidden;"; //$NON-NLS-1$
+				if (isScrollMode() && currentData != null && currentData.getSize() > 0) return "overflow-x: hidden; overflow-y: hidden;"; //$NON-NLS-1$
 				if (cellview instanceof Portal)
 				{
 					return scrollBarDefinitionToOverflowAttribute(scrollbars);
