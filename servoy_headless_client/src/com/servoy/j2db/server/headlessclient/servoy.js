@@ -1768,12 +1768,12 @@ function getPreferredTableSize(startElementId)
 {
 	var el = document.getElementById(startElementId);
 	if (el) {
-		var tBody =  YAHOO.util.Dom.getElementsByClassName('rowsContainerBody', 'tbody', el);
+		var tBody = YAHOO.util.Dom.getElementsByClassName('rowsContainerBody', 'tbody', el);		
 		if(tBody != null && tBody[0])
 		{
-			return [tBody[0].clientWidth, el.clientHeight];
+			return [el.clientWidth-15, el.clientHeight]; //minus 15px for tbody scroll bar
 		}
-		return [el.clientWidth,el.clientHeight];
+		return [el.clientWidth, el.clientHeight];
 	}
     return null;
 }
