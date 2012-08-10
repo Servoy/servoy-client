@@ -33,6 +33,7 @@ import com.servoy.j2db.smart.dataui.DataComboBox;
 import com.servoy.j2db.smart.dataui.DataImgMediaField;
 import com.servoy.j2db.smart.dataui.DataTextArea;
 import com.servoy.j2db.smart.dataui.DataTextEditor;
+import com.servoy.j2db.smart.dataui.ScriptButton;
 import com.servoy.j2db.smart.dataui.SpecialTabPanel;
 
 /**
@@ -79,7 +80,7 @@ public class GlobalAutoScrollerFocusListener implements PropertyChangeListener
 
 				owner = getEventualParentScrollPane(owner);
 				/* Auto scroll only when our specific fields receive focus. */
-				if (owner instanceof IDisplayData)
+				if (owner instanceof IDisplayData || owner instanceof ScriptButton)
 				{
 					/* Find a scrollable parent, if any. */
 					JComponent scrollableParent = findScrollableParent(owner);
