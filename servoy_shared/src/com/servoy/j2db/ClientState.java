@@ -271,12 +271,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		TimeZone defaultTimeZone = TimeZone.getDefault();
 		if (defaultTimeZone != null) //can this happen?
 		{
-			String str = getSettings().getProperty("timezone.default", defaultTimeZone.getID()); //$NON-NLS-1$
-			TimeZone tz = TimeZone.getTimeZone(str);
-			if (tz != null)
-			{
-				getClientInfo().setTimeZone(tz);
-			}
+			getClientInfo().setTimeZone(defaultTimeZone);
 		}
 
 		// create modemanager
