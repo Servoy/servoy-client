@@ -45,9 +45,9 @@ public interface HasRuntimeTextInput
 	public void setCaretPosition(int pos);
 
 	/**
-	 * Returns the currently selected text in the specified field. 
+	 * Returns the currently selected text in the specified text field or text area. 
 	 * 
-	 * NOTE: This function is for field elements only.
+	 * NOTE: This does not work for text fields in the Web Client.
 	 *
 	 * @sample var my_text = %%prefix%%%%elementName%%.getSelectedText();
 	 * 
