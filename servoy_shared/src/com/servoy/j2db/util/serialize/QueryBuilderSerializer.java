@@ -29,7 +29,6 @@ import org.jabsorb.serializer.UnmarshallException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
@@ -101,16 +100,7 @@ public class QueryBuilderSerializer extends AbstractSerializer
 		}
 
 		QBSelect qbSelect = (QBSelect)o;
-
-		QuerySelect query;
-		try
-		{
-			query = qbSelect.getQuery(false);
-		}
-		catch (RepositoryException e)
-		{
-			throw new MarshallException(e.getMessage(), e);
-		}
+		QuerySelect query = qbSelect.getQuery(false);
 
 		// make sure that queries are serialized in full, standard serialization optimizations result in missing data that cannot be resolved
 		Writer writer = new StringWriter();
