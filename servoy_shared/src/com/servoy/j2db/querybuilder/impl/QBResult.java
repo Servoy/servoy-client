@@ -67,6 +67,18 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#clear()
+	 * @sample
+	 * query.result.clear()
+	 */
+	@JSFunction
+	public QBResult clear()
+	{
+		getParent().getQuery().setColumns(null);
+		return this;
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(String)
 	 * @sample
 	 * query.result.add("custname")

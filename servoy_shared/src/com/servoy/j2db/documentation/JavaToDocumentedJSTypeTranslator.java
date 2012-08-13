@@ -42,8 +42,10 @@ import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
+import com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition;
 import com.servoy.j2db.querybuilder.impl.QBCondition;
 import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
+import com.servoy.j2db.querybuilder.impl.QBWhereCondition;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSMap;
@@ -148,6 +150,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(IQueryBuilderCondition.class, QBCondition.class);
 		javaClassToDocumentedJavaClass.put(IQueryBuilderLogicalCondition.class, QBLogicalCondition.class);
+		javaClassToDocumentedJavaClass.put(IQueryBuilderWhereCondition.class, QBWhereCondition.class);
 
 		javaClassToDocumentedJavaClass.put(IScriptRenderMethods.class, IScriptRenderMethodsWithFormat.class);
 

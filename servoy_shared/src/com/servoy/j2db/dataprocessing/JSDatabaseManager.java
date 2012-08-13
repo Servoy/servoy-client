@@ -83,6 +83,7 @@ import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.querybuilder.impl.QBSort;
 import com.servoy.j2db.querybuilder.impl.QBSorts;
 import com.servoy.j2db.querybuilder.impl.QBTableClause;
+import com.servoy.j2db.querybuilder.impl.QBWhereCondition;
 import com.servoy.j2db.querybuilder.impl.QUERY_COLUMN_TYPES;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
@@ -111,7 +112,7 @@ public class JSDatabaseManager
 			{
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
 				QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
-				QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBResult.class, //
+				QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
 				QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class };
 			}
 		});

@@ -68,6 +68,19 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#clear()
+	 * @sample
+	 * 
+	 * query.sort.clear()
+	 */
+	@JSFunction
+	public QBSorts clear()
+	{
+		getParent().getQuery().clearSorts();
+		return this;
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderSort)
 	 * @sample
 	 * query.sort.add(query.columns.orderid.desc)

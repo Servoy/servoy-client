@@ -78,7 +78,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return tableAlias;
 	}
 
-	abstract QueryTable getQueryTable() throws RepositoryException;
+	abstract QueryTable getQueryTable();
 
 
 	/**
@@ -165,7 +165,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return queryBuilderTableClause.getColumn(name);
 	}
 
-	Table getTable() throws RepositoryException
+	Table getTable()
 	{
 		if (table == null)
 		{

@@ -18,7 +18,6 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
@@ -42,7 +41,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	}
 
 	@Override
-	QueryTable getQueryTable() throws RepositoryException
+	QueryTable getQueryTable()
 	{
 		return join.getForeignTable();
 	}

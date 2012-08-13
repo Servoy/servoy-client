@@ -45,4 +45,9 @@ public interface IQueryBuilderSorts extends IQueryBuilderPart
 	 * Ad an ascending sorting on a column to the query sort.
 	 */
 	IQueryBuilderSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException;
+
+	/**
+	 * Clear the sorting clause for the query.
+	 */
+	IQueryBuilderSorts clear();
 }

@@ -56,4 +56,9 @@ public interface IQueryBuilderGroupby extends IQueryBuilderPart
 	 * <pre>
 	 */
 	IQueryBuilderGroupby add(IQueryBuilderColumn column) throws RepositoryException;
+
+	/**
+	 * Clear the to group-by clause.
+	 */
+	IQueryBuilderGroupby clear();
 }

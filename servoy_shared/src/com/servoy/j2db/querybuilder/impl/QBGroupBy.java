@@ -108,4 +108,19 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 		}
 		return this;
 	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderGroupby#clear()
+	 * @sample
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.columns.x.eq(100))
+	 * query.groupBy.clear.root.clearHaving()
+	 * foundset.loadRecords(q);
+	 */
+	@JSFunction
+	public QBGroupBy clear()
+	{
+		getParent().getQuery().clearGroupBy();
+		return this;
+	}
 }

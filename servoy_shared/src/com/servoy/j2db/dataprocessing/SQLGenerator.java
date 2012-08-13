@@ -1196,7 +1196,7 @@ public class SQLGenerator
 
 			prevTable = foreignQtable;
 		}
-		existsSelect.addHaving("AGGREGATE-CONDITION", AbstractBaseQuery.relinkTable(columnTable, prevTable, condition)); //$NON-NLS-1$
+		existsSelect.addHaving(AbstractBaseQuery.relinkTable(columnTable, prevTable, condition));
 
 		return new ExistsCondition(existsSelect, true);
 	}

@@ -19,7 +19,7 @@ package com.servoy.j2db.querybuilder;
 
 
 /**
- * Logical condirion (AND or OR clause) for building Servoy Query Objects.
+ * Logical condition (AND or OR clause) for building Servoy Query Objects.
  * 
  * @author rgansevles
  *

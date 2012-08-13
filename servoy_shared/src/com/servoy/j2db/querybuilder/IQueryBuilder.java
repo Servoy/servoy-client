@@ -99,6 +99,11 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderLogicalCondition having() throws RepositoryException;
 
 	/**
+	 * Clear the having-part of the query.
+	 */
+	IQueryBuilder clearHaving();
+
+	/**
 	 * Get the result part of the query, used to add result columns or values.
 	 * <pre>
 	 * query.result().add(query.getColumn("id")).add.query.getColumn("note"); // select id, note from tab

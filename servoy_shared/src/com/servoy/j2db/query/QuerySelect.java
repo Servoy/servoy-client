@@ -51,7 +51,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	private ArrayList<ISQLJoin> joins;
 	private ArrayList<IQuerySort> sorts;
 	private ArrayList<IQuerySelectValue> groupBy;
-	private HashMap<String, AndCondition> having = null; // Map of AndCondition objects
+	private AndCondition having = null;
 	private int lockMode = LOCK_MODE_NONE;
 
 	private static final long serialVersionUID = 1L;
@@ -220,14 +220,34 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 	}
 
-	public void setHaving(String name, ISQLCondition c)
+	public void clearConditions()
 	{
-		having = setInConditionMap(having, name, c);
+		conditions = null;
 	}
 
-	public void addHaving(String name, ISQLCondition c)
+	public void setHaving(ISQLCondition c)
 	{
-		having = addToConditionMap(having, name, c);
+		if (c == null || c instanceof AndCondition)
+		{
+			having = (AndCondition)c;
+		}
+		else
+		{
+			having = new AndCondition();
+			having.addCondition(c);
+		}
+	}
+
+	public void addHaving(ISQLCondition c)
+	{
+		if (having == null)
+		{
+			setHaving(c);
+		}
+		else if (c != null)
+		{
+			having.addCondition(c);
+		}
 	}
 
 	public void clearJoins()
@@ -240,9 +260,9 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		setCondition(name, null);
 	}
 
-	public void clearHaving(String name)
+	public void clearHaving()
 	{
-		setHaving(name, null);
+		having = null;
 	}
 
 	public void clearSorts()
@@ -432,9 +452,21 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	 * 
 	 * @return
 	 */
-	public ISQLCondition getWhere()
+	public AndCondition getWhere()
 	{
-		return getConditionMapCondition(conditions);
+		ISQLCondition where = getConditionMapCondition(conditions);
+		if (where == null || where instanceof AndCondition)
+		{
+			return (AndCondition)where;
+		}
+		AndCondition and = new AndCondition();
+		and.addCondition(where);
+		return and;
+	}
+
+	public Map<String, AndCondition> getConditions()
+	{
+		return conditions;
 	}
 
 	static ISQLCondition getConditionMapCondition(Map<String, AndCondition> conditions)
@@ -469,26 +501,9 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	 * 
 	 * @return
 	 */
-	public ISQLCondition getHaving()
+	public AndCondition getHaving()
 	{
-		if (having == null)
-		{
-			return null;
-		}
-
-		if (having.size() == 1)
-		{
-			return having.values().iterator().next();
-		}
-
-		AndCondition hv = new AndCondition();
-		Iterator<AndCondition> it = having.values().iterator();
-		while (it.hasNext())
-		{
-			hv.addCondition(it.next());
-		}
-
-		return hv;
+		return having;
 	}
 
 	public ISQLCondition getHavingClone()
@@ -749,17 +764,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 		if (having != null)
 		{
-			sb.append(" HAVING "); //$NON-NLS-1$
-			Iterator<Entry<String, AndCondition>> it = having.entrySet().iterator();
-			for (int i = 0; it.hasNext(); i++)
-			{
-				if (i > 0)
-				{
-					sb.append(" [AND] "); //$NON-NLS-1$
-				}
-				Map.Entry<String, AndCondition> entry = it.next();
-				sb.append(' ').append(entry.getKey().toString()).append(' ').append(entry.getValue().toString());
-			}
+			sb.append(" HAVING ").append(having.toString()); //$NON-NLS-1$
 		}
 
 		for (int i = 0; joins != null && i < joins.size(); i++)
@@ -824,7 +829,16 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.plain_pk_select = (bits & 2) != 0;
 		this.lockMode = (bits / 4);
 		this.conditions = (HashMap<String, AndCondition>)members[i++];
-		this.having = (HashMap<String, AndCondition>)members[i++];
+		Object hv = members[i++];
+		if (hv instanceof Map && ((Map)hv).size() > 0)
+		{
+			// old format Having was map, but only actually 1 key was used
+			this.having = (AndCondition)((Map)hv).values().iterator().next();
+		}
+		else
+		{
+			this.having = (AndCondition)hv;
+		}
 		this.joins = (ArrayList<ISQLJoin>)members[i++];
 		this.sorts = (ArrayList<IQuerySort>)members[i++];
 		this.groupBy = (ArrayList<IQuerySelectValue>)members[i++];

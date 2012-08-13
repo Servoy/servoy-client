@@ -56,16 +56,14 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
-	private static final String CONDITION_WHERE = "SQ:WHERE";
-
 	private final ITableAndRelationProvider tableProvider;
 
 	private QBResult result;
 	private QBSorts sort;
 	private QBGroupBy groupBy;
 	private QBFunctions functions;
-	protected QuerySelect query;
-	private QBLogicalCondition where;
+	private QuerySelect query;
+	private QBWhereCondition where;
 	private QBLogicalCondition having;
 	private QueryTable queryTable;
 
@@ -115,16 +113,24 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return scriptableParent;
 	}
 
-	Table getTable(String dataSource) throws RepositoryException
+	Table getTable(String dataSource)
 	{
 		if (dataSource == null)
 		{
-			throw new RepositoryException("Cannot access table in query without dataSource");
+			throw new RuntimeException("Cannot access table in query without dataSource");
 		}
-		ITable tbl = tableProvider.getTable(dataSource);
+		ITable tbl;
+		try
+		{
+			tbl = tableProvider.getTable(dataSource);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
 		if (!(tbl instanceof Table))
 		{
-			throw new RepositoryException("Cannot resolve datasource '" + dataSource + "'");
+			throw new RuntimeException("Cannot resolve datasource '" + dataSource + "'");
 		}
 		return (Table)tbl;
 	}
@@ -151,16 +157,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * query.where.add(query.columns.flag.eq(1))
 	 */
 	@JSReadonlyProperty
-	public QBLogicalCondition where() throws RepositoryException
+	public QBWhereCondition where() throws RepositoryException
 	{
 		if (where == null)
 		{
-			AndCondition c = getQuery().getCondition(QBSelect.CONDITION_WHERE);
-			if (c == null)
-			{
-				getQuery().setCondition(QBSelect.CONDITION_WHERE, c = new AndCondition());
-			}
-			where = new QBLogicalCondition(this, this, c);
+			where = new QBWhereCondition(this);
 		}
 		return where;
 	}
@@ -182,11 +183,30 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			ISQLCondition c = getQuery().getHaving();
 			if (!(c instanceof AndOrCondition))
 			{
-				getQuery().setHaving(null, c = AndCondition.and(c, new AndCondition()));
+				getQuery().setHaving(c = AndCondition.and(c, new AndCondition()));
 			}
 			having = new QBLogicalCondition(this, this, (AndOrCondition)c);
 		}
 		return having;
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderGroupby#clear()
+	 * @sample
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.columns.x.eq(100))
+	 * query.groupBy.clear.root.clearHaving()
+	 * foundset.loadRecords(q);
+	 */
+	@JSFunction
+	public QBSelect clearHaving()
+	{
+		QuerySelect q = getQuery(false);
+		if (q != null)
+		{
+			q.setHaving(null);
+		}
+		return this;
 	}
 
 	/**
@@ -378,12 +398,12 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 
-	public QuerySelect getQuery() throws RepositoryException
+	public QuerySelect getQuery()
 	{
 		return getQuery(true);
 	}
 
-	public QuerySelect getQuery(boolean create) throws RepositoryException
+	public QuerySelect getQuery(boolean create)
 	{
 		if (query == null && create)
 		{
@@ -393,7 +413,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@Override
-	QueryTable getQueryTable() throws RepositoryException
+	QueryTable getQueryTable()
 	{
 		if (queryTable == null)
 		{
@@ -435,5 +455,12 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			val = value;
 		}
 		return new QueryColumnValue(val, null);
+	}
+
+	@Override
+	public String toString()
+	{
+		QuerySelect q = getQuery(false);
+		return "QBSelect(" + (q == null ? "" : q.toString()) + ")";
 	}
 }

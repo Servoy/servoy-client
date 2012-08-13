@@ -70,4 +70,9 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	 * Get the distinct flag for the query.
 	 */
 	boolean isDistinct() throws RepositoryException;
+
+	/**
+	 * Clear the columns in the query result.
+	 */
+	IQueryBuilderResult clear();
 }
