@@ -257,6 +257,7 @@ public class JSDatabaseManager
 	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value, String filterName) throws ServoyException
 	{
 		String[] ds = DataSourceUtils.getDBServernameTablename(datasource);
+		if (ds == null) throw new RuntimeException("Datasource is invalid:  " + datasource); //$NON-NLS-1$
 		return js_addTableFilterParam(ds[0], ds[1], dataprovider, operator, value, filterName);
 	}
 
