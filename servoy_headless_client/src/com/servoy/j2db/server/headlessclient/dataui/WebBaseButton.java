@@ -1160,6 +1160,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			instrumentedBodyText.append(" position: relative;"); //$NON-NLS-1$
 		}
+		if (cssid != null)
+		{
+			instrumentedBodyText.append(" visibility: hidden;"); //$NON-NLS-1$
+		}
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
 		if (cssid != null)
 		{
