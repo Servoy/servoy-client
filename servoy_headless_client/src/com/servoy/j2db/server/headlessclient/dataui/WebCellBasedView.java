@@ -256,36 +256,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	private final class OddEvenSelectedBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
 	{
-		@SuppressWarnings("nls")
 		@Override
 		public void renderHead(IHeaderResponse response)
 		{
-			IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
-			Dimension tabSize = null;
-			if (tabPanel instanceof WebTabPanel)
+			String rowSelScritpt = getRowSelectionScript(true);
+			if (rowSelScritpt != null)
 			{
-				tabSize = ((WebTabPanel)tabPanel).getTabSize();
-			}
-
-			boolean renderView = true;
-			if (tableResizeBehavior != null && isAnchored)
-			{
-				if (!getPath().equals(lastRenderedPath))
-				{
-					bodySizeHintSetFromClient = false;
-					tabSize = null;
-					lastRenderedPath = getPath();
-				}
-			}
-			renderView = bodySizeHintSetFromClient || tabSize != null;
-
-			if (renderView)
-			{
-				String rowSelScritpt = getRowSelectionScript(true);
-				if (rowSelScritpt != null)
-				{
-					response.renderOnDomReadyJavascript(rowSelScritpt);
-				}
+				response.renderOnDomReadyJavascript(rowSelScritpt);
 			}
 		}
 
