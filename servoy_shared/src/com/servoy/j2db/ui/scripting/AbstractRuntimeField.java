@@ -145,6 +145,11 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 						IScriptable scriptable = label.getScriptObject();
 						if (scriptable instanceof IRuntimeComponent)
 						{
+							// because the setting of visible flag on the field in the super call,
+							// the labeFor component was already set too to this flag, so we
+							// need to reset it first, else the changes recorder of the scriptable label
+							// will not be set
+							((IRuntimeComponent)scriptable).setVisible(!b);
 							((IRuntimeComponent)scriptable).setVisible(b);
 						}
 						else
