@@ -354,9 +354,38 @@ public class ServoyStyleSheet implements IStyleSheet
 		return getLastValidColor(a, CSSName.COLOR.toString());
 	}
 
+	public List<Color> getForegrounds(IStyleRule a)
+	{
+		return getValidColors(a, CSSName.COLOR.toString());
+	}
+
 	public Color getBackground(IStyleRule a)
 	{
 		return getLastValidColor(a, CSSName.BACKGROUND_COLOR.toString());
+	}
+
+	public List<Color> getBackgrounds(IStyleRule a)
+	{
+		return getValidColors(a, CSSName.BACKGROUND_COLOR.toString());
+	}
+
+	private List<Color> getValidColors(IStyleRule a, String cssAttribute)
+	{
+		String[] cssDefinitions = a.getValues(cssAttribute);
+		List<Color> cssValidColors = new ArrayList<Color>();
+
+		if (cssDefinitions != null && cssDefinitions.length > 0)
+		{
+			for (String cssDefinition : cssDefinitions)
+			{
+				Color color = PersistHelper.createColorWithTransparencySupport(cssDefinition);
+				if (color != null)
+				{
+					cssValidColors.add(color);
+				}
+			}
+		}
+		return (cssValidColors.size() == 0) ? null : cssValidColors;
 	}
 
 	private Color getLastValidColor(IStyleRule a, String cssAttribute)

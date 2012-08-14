@@ -246,6 +246,51 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private boolean isListViewMode;
 
+	/***
+	 * This class is used to rerender the odd/even/selected style (with css transparency fallback color) upon creation of the table  (table is created via an ajax call).
+	 * <p>
+	 * It was introduced because renderering IRuntimeComponent does not support duplicate rules needed for fallback colors, it adds the javascript rowselectionscript to be executed 
+	 * just after all the rows components is rendered.
+	 * @author Ovidiu
+	 *
+	 */
+	private final class OddEvenSelectedBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
+	{
+		@SuppressWarnings("nls")
+		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
+			Dimension tabSize = null;
+			if (tabPanel instanceof WebTabPanel)
+			{
+				tabSize = ((WebTabPanel)tabPanel).getTabSize();
+			}
+
+			boolean renderView = true;
+			if (tableResizeBehavior != null && isAnchored)
+			{
+				if (!getPath().equals(lastRenderedPath))
+				{
+					bodySizeHintSetFromClient = false;
+					tabSize = null;
+					lastRenderedPath = getPath();
+				}
+			}
+			renderView = bodySizeHintSetFromClient || tabSize != null;
+
+			if (renderView) response.renderOnDomReadyJavascript(getRowSelectionScript(true));
+		}
+
+		@Override
+		protected void respond(AjaxRequestTarget target)
+		{
+			//no implementation . This behavior only needs to add javascript to the head section
+		}
+
+	}
+
+
 	/**
 	 * @author jcompagner
 	 *
@@ -590,9 +635,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (!isListViewMode())
 			{
-				color = WebCellBasedView.this.getListItemBgColor(listItem, selected);
+				color = WebCellBasedView.this.getListItemBgColor(listItem, selected, false);
 				if (color instanceof Undefined) color = null;
-				fgColor = WebCellBasedView.this.getListItemFgColor(listItem, selected);
+				fgColor = WebCellBasedView.this.getListItemFgColor(listItem, selected, false);
 				if (fgColor instanceof Undefined) fgColor = null;
 				styleFont = WebCellBasedView.this.getListItemFont(listItem, selected);
 				if (styleFont instanceof Undefined) styleFont = null;
@@ -907,7 +952,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					WebCellBasedView view = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedView.class);
 
 					Object color = view.getStyleAttributeForListItem(WebCellBasedViewListViewItem.this.listItem, isSelectedEl,
-						ISupportRowStyling.ATTRIBUTE.BGCOLOR);
+						ISupportRowStyling.ATTRIBUTE.BGCOLOR, false);
 
 					if (cellview instanceof Portal)
 					{
@@ -1678,6 +1723,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			add(pagingNavigator = new ServoyAjaxPagingNavigator("navigator", table)); //$NON-NLS-1$
 			add(tableResizeBehavior = new ServoyTableResizeBehavior(startY, endY, cellview));
+			add(new OddEvenSelectedBehavior());
 		}
 		else
 		{
@@ -2608,6 +2654,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		getStylePropertyChanges().setRendered();
 		hasOnRender = hasOnRender();
 		nrUpdatedListItems = 0;
+
 		clearSelectionByCellActionFlag();
 	}
 
@@ -3404,8 +3451,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return tooltip;
 	}
 
-
-	private Object getStyleAttributeForListItem(ListItem<IRecordInternal> listItem, boolean isSelected, ISupportRowStyling.ATTRIBUTE rowStyleAttribute)
+	private Object getStyleAttributeForListItem(ListItem<IRecordInternal> listItem, boolean isSelected, ISupportRowStyling.ATTRIBUTE rowStyleAttribute,
+		boolean asInlineCSSString)
 	{
 		Object listItemAttrValue = null;
 		final IRecordInternal rec = listItem.getModelObject();
@@ -3419,10 +3466,82 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				style = (listItem.getIndex() % 2 == 0) ? getRowOddStyle() : getRowEvenStyle(); // because index = 0 means record = 1
 			}
 
-			listItemAttrValue = getStyleAttributeValue(style, rowStyleAttribute);
+			if (asInlineCSSString)
+			{
+				listItemAttrValue = getStyleAttributeString(style, rowStyleAttribute);
+			}
+			else
+			{
+				listItemAttrValue = getStyleAttributeValue(style, rowStyleAttribute);
+			}
 		}
 
 		return listItemAttrValue;
+	}
+
+	/**
+	 * Returns for styleAttribute:
+	 * <p>
+	 *   <b>BGCOLOR</b>: an inline style string with background color to be applied to a component <br/>
+	 *   Needed because transparent colors are not supported in all browsers and a fallback color is also applied (if supplied)
+	 *            (ex: "background-color: #AAA;background-color: rgba(255,255,255,0.7)" )<br/>
+	 *            (<b>doesn't need further processing to be applyed on a component</b>)
+	 * </p>
+	 * <p>
+	 *   <b>FGCOLOR</b>: an inline style string to be applied to a component (same logic as GBcolor)
+	 *   (doesn't need further processing)
+	 * </p>
+	 * <p>
+	 *   <b>FONT</b>: string containing font font css rule values (needs further processing ,ex passed in ChangesRecorder.setFont())
+	 * </p>
+	 *   <b>BORDER</b>: string containing font border css rule values (needs further processing ,ex passed inChangesRecorder.setBorder())
+	 * @param style
+	 * @param styleAttribute
+	 * @return 
+	 */
+	private String getStyleAttributeString(IStyleRule style, ISupportRowStyling.ATTRIBUTE styleAttribute)
+	{
+		IStyleSheet ss = getRowStyleSheet();
+		if (ss != null && style != null)
+		{
+			switch (styleAttribute)
+			{
+				case BGCOLOR :
+					if (style.getValues(CSS.Attribute.BACKGROUND_COLOR.toString()) != null)
+					{
+						StringBuffer ret = new StringBuffer();
+						for (Color c : ss.getBackgrounds(style))
+						{
+							ret.append(CSS.Attribute.BACKGROUND_COLOR.toString()).append(':').append(PersistHelper.createColorString(c)).append(';');
+						}
+						return (ret.length() != 0) ? ret.toString() : null;
+					}
+					else
+					{
+						return null;
+					}
+
+				case FGCOLOR :
+					if (style.getValues(CSS.Attribute.COLOR.toString()) != null)
+					{
+						StringBuffer ret = new StringBuffer();
+						for (Color c : ss.getForegrounds(style))
+						{
+							ret.append(CSS.Attribute.COLOR.toString()).append(':').append(PersistHelper.createColorString(c)).append(';');
+						}
+						return (ret.length() != 0) ? ret.toString() : null;
+					}
+					else
+					{
+						return null;
+					}
+				case FONT :
+					return ss.hasFont(style) ? PersistHelper.createFontString(ss.getFont(style)) : null;
+				case BORDER :
+					return ss.hasBorder(style) ? ComponentFactoryHelper.createBorderString(ss.getBorder(style)) : null;
+			}
+		}
+		return null;
 	}
 
 	private String getStyleAttributeValue(IStyleRule style, ISupportRowStyling.ATTRIBUTE styleAttribute)
@@ -3445,42 +3564,49 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return null;
 	}
 
-	protected String getHeaderBgColor()
+	protected String getHeaderBgColorStyle()
 	{
-		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGCOLOR);
+		return getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGCOLOR);
 	}
 
-	protected String getHeaderFgColor()
+	protected String getHeaderFgColorStyle()
 	{
-		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FGCOLOR);
+		return getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FGCOLOR);
 	}
 
 	protected String getHeaderFont()
 	{
-		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FONT);
+		return getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.FONT);
 	}
 
 	protected String getHeaderBorder()
 	{
-		return getStyleAttributeValue(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BORDER);
+		return getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BORDER);
 	}
 
-	private Object getListItemFgColor(ListItem<IRecordInternal> listItem, boolean isSelected)
+	private Object getListItemFgColor(ListItem<IRecordInternal> listItem, boolean isSelected, boolean asInlineCSSString)
 	{
-		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FGCOLOR);
+		if (asInlineCSSString)
+		{
+			return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FGCOLOR, true);
+		}
+		else
+		{
+			return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FGCOLOR, false);
+		}
 	}
 
 	private Object getListItemFont(ListItem<IRecordInternal> listItem, boolean isSelected)
 	{
-		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FONT);
+		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.FONT, false);
 	}
 
 	private Object getListItemBorder(ListItem<IRecordInternal> listItem, boolean isSelected)
 	{
-		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.BORDER);
+		return getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.BORDER, false);
 	}
 
-	private Object getListItemBgColor(ListItem<IRecordInternal> listItem, boolean isSelected)
+	private Object getListItemBgColor(ListItem<IRecordInternal> listItem, boolean isSelected, boolean asInlineCssString)
 	{
 		Object color = null;
 		final IRecordInternal rec = listItem.getModelObject();
@@ -3488,11 +3614,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		Row rawData = null;
 		if (rec != null && (rawData = rec.getRawData()) != null)
 		{
-			color = getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.BGCOLOR);
+			if (asInlineCssString)
+			{
+				color = getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.BGCOLOR, true);
+			}
+			else
+			{
+				color = getStyleAttributeForListItem(listItem, isSelected, ISupportRowStyling.ATTRIBUTE.BGCOLOR, false);
+			}
+
 
 			if (rowBGColorProvider != null)
 			{
-				// TODO type and name should be get somehow if this is possible, we have to know the specific cell/column for that.
+				// TODO type and name should be get somehow if this is possible, we have to know the specific cell/column for that. 
 				String type = null;//(renderer instanceof IScriptBaseMethods) ? ((IScriptBaseMethods)renderer).js_getElementType() : null;
 				String cellName = null;//(renderer instanceof IScriptBaseMethods) ? ((IScriptBaseMethods)renderer).js_getName() : null;
 
@@ -3928,6 +4062,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('padding-right',").append(scrollPadding).append(");");
 			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();");
 			container.getHeaderResponse().renderOnDomReadyJavascript(tbodyStyle.toString());
+			//if (table.gets) container.getHeaderResponse().renderOnDomReadyJavascript(getRowSelectionScript(true));
 		}
 	}
 
@@ -3960,12 +4095,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return false;
 	}
 
-	public String getRowSelectionScript()
+	public String getRowSelectionScript(boolean allCurrentPageRows)
 	{
 		if (currentData == null) return null;
 		List<Integer> indexToUpdate;
 		if (!hasOnRender && (bgColorScript != null || (getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0)) &&
-			(indexToUpdate = getIndexToUpdate()) != null)
+			(indexToUpdate = getIndexToUpdate(allCurrentPageRows)) != null)
 		{
 			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
 			int lastRow = firstRow + table.getViewSize() - 1;
@@ -3983,10 +4118,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
 
 						Object selectedColor = null, selectedFgColor = null, selectedFont = null, selectedBorder = null;
-						selectedColor = getListItemBgColor(selectedListItem, isSelected);
+						selectedColor = getListItemBgColor(selectedListItem, isSelected, true);
 						if (!isListViewMode())
 						{
-							selectedFgColor = getListItemFgColor(selectedListItem, isSelected);
+							selectedFgColor = getListItemFgColor(selectedListItem, isSelected, true);
 							selectedFont = getListItemFont(selectedListItem, isSelected);
 							selectedBorder = getListItemBorder(selectedListItem, isSelected);
 						}
@@ -4056,7 +4191,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (currentData == null) return;
 		List<Integer> indexToUpdate;
-		if ((indexToUpdate = getIndexToUpdate()) != null)
+		if ((indexToUpdate = getIndexToUpdate(false)) != null)
 		{
 			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
 			int lastRow = firstRow + table.getViewSize() - 1;
@@ -4073,9 +4208,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
 						if (!isListViewMode())
 						{
-							Object color = WebCellBasedView.this.getListItemBgColor(selectedListItem, isSelected);
+							Object color = WebCellBasedView.this.getListItemBgColor(selectedListItem, isSelected, false);
 							sColor = (color == null || color instanceof Undefined) ? null : color.toString();
-							Object fgColor = WebCellBasedView.this.getListItemFgColor(selectedListItem, isSelected);
+							Object fgColor = WebCellBasedView.this.getListItemFgColor(selectedListItem, isSelected, false);
 							sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
 							Object styleFont = WebCellBasedView.this.getListItemFont(selectedListItem, isSelected);
 							sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
@@ -4111,36 +4246,51 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return null;
 	}
 
-	private List<Integer> getIndexToUpdate()
+	private List<Integer> getIndexToUpdate(boolean allCurrentPageIndexes)
 	{
-		if (currentData == null) return null;
-
-		List<Integer> indexesToUpdate = new ArrayList<Integer>();
-		List<Integer> oldSelectedIndexes = new ArrayList<Integer>();
-		List<Integer> newSelectedIndexesA = new ArrayList<Integer>();
-		if (selectedIndexes != null)
+		if (allCurrentPageIndexes)
 		{
-			for (int oldSelected : selectedIndexes)
-				oldSelectedIndexes.add(new Integer(oldSelected));
+			List<Integer> _selectedIndexes = new ArrayList<Integer>();
+			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
+			int lastRow = firstRow + table.getViewSize() - 1;
+			for (int index = firstRow; index <= lastRow; index++)
+			{
+				_selectedIndexes.add(Integer.valueOf(index));
+			}
+			return _selectedIndexes;
 		}
-
-		int[] newSelectedIndexes = getSelectedIndexes();
-		for (int sel : newSelectedIndexes)
+		else
 		{
-			Integer selection = new Integer(sel);
-			newSelectedIndexesA.add(selection);
-			// add new selection
-			if (oldSelectedIndexes.indexOf(selection) == -1) indexesToUpdate.add(selection);
-		}
 
-		for (int sel : oldSelectedIndexes)
-		{
-			Integer selection = new Integer(sel);
-			// add removed selection
-			if (newSelectedIndexesA.indexOf(selection) == -1) indexesToUpdate.add(selection);
-		}
+			if (currentData == null) return null;
 
-		return (indexesToUpdate.size() > 0) ? indexesToUpdate : null;
+			List<Integer> indexesToUpdate = new ArrayList<Integer>();
+			List<Integer> oldSelectedIndexes = new ArrayList<Integer>();
+			List<Integer> newSelectedIndexesA = new ArrayList<Integer>();
+			if (selectedIndexes != null)
+			{
+				for (int oldSelected : selectedIndexes)
+					oldSelectedIndexes.add(new Integer(oldSelected));
+			}
+
+			int[] newSelectedIndexes = getSelectedIndexes();
+			for (int sel : newSelectedIndexes)
+			{
+				Integer selection = new Integer(sel);
+				newSelectedIndexesA.add(selection);
+				// add new selection
+				if (oldSelectedIndexes.indexOf(selection) == -1) indexesToUpdate.add(selection);
+			}
+
+			for (int sel : oldSelectedIndexes)
+			{
+				Integer selection = new Integer(sel);
+				// add removed selection
+				if (newSelectedIndexesA.indexOf(selection) == -1) indexesToUpdate.add(selection);
+			}
+
+			return (indexesToUpdate.size() > 0) ? indexesToUpdate : null;
+		}
 	}
 
 	private int[] getSelectedIndexes()

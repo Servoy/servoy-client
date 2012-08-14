@@ -287,8 +287,8 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		labelResolver.add(new AttributeModifier("class", true, group)); //$NON-NLS-1$
 
 		ChangesRecorder changesRecorder = new ChangesRecorder();
-		changesRecorder.setBgcolor(view.getHeaderBgColor());
 		changesRecorder.setBorder(view.getHeaderBorder());
+		String inlineStyleStr = view.getHeaderBgColorStyle();
 
 		if (view.getHeaderBorder() != null)
 		{
@@ -297,13 +297,15 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 		final Properties changes = changesRecorder.getChanges();
 		if (changes.size() > 0) applyStyleChanges(headerColumnTable, changes);
+		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
 
 		ChangesRecorder textChangesRecorder = new ChangesRecorder();
-		textChangesRecorder.setFgcolor(view.getHeaderFgColor());
 		textChangesRecorder.setFont(view.getHeaderFont());
+		inlineStyleStr = view.getHeaderFgColorStyle();
 
 		final Properties textChanges = textChangesRecorder.getChanges();
 		if (textChanges.size() > 0) applyStyleChanges(labelResolver, textChanges);
+		if (inlineStyleStr != null) applyInlineStyleString(labelResolver, inlineStyleStr);
 
 		boolean blockResize = false;
 
@@ -568,6 +570,38 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 		c.add(headerStyles);
 	}
+
+	private void applyInlineStyleString(Component c, final String inlineCSSSting)
+	{
+		StyleAppendingModifier headerStyles = new StyleAppendingModifier(new Model<String>()
+		{
+			@Override
+			public String getObject()
+			{
+				return inlineCSSSting;
+			}
+		})
+		{
+			@Override
+			public boolean isEnabled(Component c)
+			{
+				Iterator<IPersist> it2 = SortableCellViewHeader.this.cellview.getAllObjects();
+				while (it2.hasNext())
+				{
+					IPersist element = it2.next();
+					if (SortableCellViewHeader.this.id.equals(ComponentFactory.getWebID(SortableCellViewHeader.this.form, element)) &&
+						SortableCellViewHeader.this.view.labelsFor.get(((ISupportName)element).getName()) != null)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+		};
+
+		c.add(headerStyles);
+	}
+
 
 	public boolean isUnmovable()
 	{

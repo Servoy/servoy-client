@@ -741,7 +741,7 @@ if (typeof(Servoy.TableView) == "undefined")
 	Servoy.TableView = 
 	{	
 		setRowStyleEl: function(el, bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, isListView, inDepth)
-		{
+		{//bgcolor and fgcolor comes directly as inline string: "background-color:#AAA;"
 			var elChildren = el.childNodes;
 			var elChildrenLen = elChildren.length;
 	
@@ -749,14 +749,26 @@ if (typeof(Servoy.TableView) == "undefined")
 			{
 				// ignore the tableview filler (last column) 
 				if(el.attributes['id'] && (!isListView || (el.attributes['class'] && (el.attributes['class'].value == 'listViewItem'))))
-				{
-					el.style.backgroundColor = bgcolor;
-					el.style.color = fgcolor;
+				{				   
+					if(bgcolor == ''){
+					    el.style.backgroundColor = bgcolor;
+					}else{
+						var styleAttrVal = el.getAttribute('style');
+						el.setAttribute('style',styleAttrVal+bgcolor);
+					}
+					if(fgcolor == ''){
+					    el.style.color = fgcolor;
+					}else{
+						var styleAttrVal = el.getAttribute('style');
+						el.setAttribute('style',styleAttrVal+fgcolor);
+					}
+										 
 					el.style.fontStyle = fontStyle;
 					el.style.fontWeight = fontWeight;
 					el.style.fontSize = fontSize;
 					el.style.fontFamily = fontFamily;
 					
+					 
 					if(el.tagName && el.tagName.toLowerCase() != "td")
 					{
 						var bStyleTop = '';
@@ -1787,7 +1799,6 @@ function getPreferredComponentSize(startElementId)
 	}
 	return null;
 }
-
 var validationFailedId = null;
 function setValidationFailed(id)
 {
@@ -2146,7 +2157,6 @@ if (typeof(Servoy.Utils) == "undefined")
 	  		el.select();
 	  	}
 	  },
-	  
 	  removeFormCssLink: function(id) 
 	  {
 		  var cssLink = document.getElementById(id);

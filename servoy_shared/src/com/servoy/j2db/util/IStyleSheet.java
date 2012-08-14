@@ -202,12 +202,35 @@ public interface IStyleSheet
 	public Color getForeground(IStyleRule a);
 
 	/**
+	 * Helper method, get the multiple foregrounds colors from supplied attributes.
+	 * Needed in cases like semitransparent color fallback mechanism:
+	 * <p>ex: 
+	 * <br/>color: rgb(100,0,0);<br/>
+	 * color: rgba(255,0,0,0.5);
+	 * </p>
+	 * @param a the attributes
+	 * @return the background color
+	 */
+	public List<Color> getForegrounds(IStyleRule a);
+
+	/**
 	 * Helper method, get the background color from supplied attributes.
 	 * @param a the attributes
 	 * @return the background color
 	 */
 	public Color getBackground(IStyleRule a);
 
+	/**
+	 * Helper method, get the multiple background colors from supplied attributes.
+	 * Needed in cases like semitransparent color fallback mechanism:
+	 * <p>ex: 
+	 * <br/>background-color: rgb(100,0,0);<br/>
+	 * background-color: rgba(255,0,0,0.5);
+	 * </p>
+	 * @param a the attributes
+	 * @return the background color
+	 */
+	public List<Color> getBackgrounds(IStyleRule a);
 
 	/**
 	 * Check whatever the supplied attributes have border attribute
