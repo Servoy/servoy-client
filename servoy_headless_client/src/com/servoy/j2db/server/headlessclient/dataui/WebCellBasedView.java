@@ -279,7 +279,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			renderView = bodySizeHintSetFromClient || tabSize != null;
 
-			if (renderView) response.renderOnDomReadyJavascript(getRowSelectionScript(true));
+			if (renderView)
+			{
+				String rowSelScritpt = getRowSelectionScript(true);
+				if (rowSelScritpt != null)
+				{
+					response.renderOnDomReadyJavascript(rowSelScritpt);
+				}
+			}
 		}
 
 		@Override
