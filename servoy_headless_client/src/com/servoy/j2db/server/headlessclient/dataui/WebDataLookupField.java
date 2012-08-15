@@ -206,7 +206,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 						str = object.toString();
 					}
 				}
-				if (str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
+				if (str == null || str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
 				return str;
 			}
 
