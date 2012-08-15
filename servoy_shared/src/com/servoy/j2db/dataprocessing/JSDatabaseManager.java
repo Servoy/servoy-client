@@ -220,7 +220,7 @@ public class JSDatabaseManager
 	 */
 	public boolean js_addTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value) throws ServoyException
 	{
-		return js_addTableFilterParam(serverName, tableName, dataprovider, operator, value, null);
+		return addTableFilterParam5args(serverName, tableName, dataprovider, operator, value);
 	}
 
 
@@ -238,7 +238,9 @@ public class JSDatabaseManager
 	 */
 	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value) throws ServoyException
 	{
-		return js_addTableFilterParam(datasource, dataprovider, operator, value, null);
+		String[] ds = DataSourceUtils.getDBServernameTablename(datasource);
+		if (ds == null) throw new RuntimeException("Datasource is invalid:  " + datasource); //$NON-NLS-1$
+		return addTableFilterParamInternal(ds[0], ds[1], dataprovider, operator, value, null);
 	}
 
 	/**
@@ -256,9 +258,35 @@ public class JSDatabaseManager
 	 */
 	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value, String filterName) throws ServoyException
 	{
-		String[] ds = DataSourceUtils.getDBServernameTablename(datasource);
-		if (ds == null) throw new RuntimeException("Datasource is invalid:  " + datasource); //$NON-NLS-1$
-		return js_addTableFilterParam(ds[0], ds[1], dataprovider, operator, value, filterName);
+		return addTableFilterParam5args(datasource, dataprovider, operator, value, filterName);
+	}
+
+	/*
+	 * js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value, String filterName) and js_addTableFilterParam(String
+	 * serverName, String tableName, String dataprovider, String operator, Object value) have ambigious signatures when value is null or a String. Select method
+	 * based on actual arguments.
+	 */
+	private boolean addTableFilterParam5args(String datasourceOrServerName, String dataproviderOrTablename, String operatorOrDataprovider,
+		Object valueOrOperator, Object filterNameOrValue) throws ServoyException
+	{
+		String[] ds = DataSourceUtils.getDBServernameTablename(datasourceOrServerName);
+		if (ds == null)
+		{
+			// datasourceOrServerName=serverName, dataproviderOrTablename=tableName, operatorOrDataprovider=dataprovider, valueOrOperator=operator, filterNameOrValue=value
+			if (!(valueOrOperator instanceof String))
+			{
+				throw new RuntimeException("Operator is invalid:  " + valueOrOperator); //$NON-NLS-1$
+			}
+			return addTableFilterParamInternal(datasourceOrServerName, dataproviderOrTablename, operatorOrDataprovider, (String)valueOrOperator,
+				filterNameOrValue, null);
+		}
+
+		// datasourceOrServerName=datasource, dataproviderOrTablename=dataprovider, operatorOrDataprovider=operator, valueOrOperator=value, filterNameOrValue=filter
+		if (filterNameOrValue != null && !(filterNameOrValue instanceof String))
+		{
+			throw new RuntimeException("FilterName is invalid:  " + filterNameOrValue); //$NON-NLS-1$
+		}
+		return addTableFilterParamInternal(ds[0], ds[1], dataproviderOrTablename, operatorOrDataprovider, valueOrOperator, (String)filterNameOrValue);
 	}
 
 	/**
@@ -276,6 +304,12 @@ public class JSDatabaseManager
 	 * @return true if the tablefilter could be applied.
 	 */
 	public boolean js_addTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value, String filterName)
+		throws ServoyException
+	{
+		return addTableFilterParamInternal(serverName, tableName, dataprovider, operator, value, filterName);
+	}
+
+	private boolean addTableFilterParamInternal(String serverName, String tableName, String dataprovider, String operator, Object value, String filterName)
 		throws ServoyException
 	{
 		checkAuthorized();
@@ -3094,7 +3128,7 @@ public class JSDatabaseManager
 	 */
 	public boolean js_hasRecordChanges(IFoundSetInternal foundset)
 	{
-		return js_hasRecordChanges(foundset, -1);
+		return js_hasRecordChanges(foundset, Integer.valueOf(-1));
 	}
 
 	/**
@@ -3196,7 +3230,7 @@ public class JSDatabaseManager
 	 */
 	public boolean js_hasNewRecords(IFoundSetInternal foundset)
 	{
-		return js_hasNewRecords(foundset, -1);
+		return js_hasNewRecords(foundset, Integer.valueOf(-1));
 	}
 
 	/**
@@ -3386,7 +3420,7 @@ public class JSDatabaseManager
 	 */
 	public boolean js_copyMatchingFields(Object source, IRecordInternal destination) throws ServoyException
 	{
-		return js_copyMatchingFields(source, destination, false);
+		return js_copyMatchingFields(source, destination, Boolean.FALSE);
 	}
 
 	/**
