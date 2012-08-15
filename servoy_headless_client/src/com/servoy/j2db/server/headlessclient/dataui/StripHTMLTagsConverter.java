@@ -24,15 +24,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.IResourceListener;
+import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IFormSubmittingComponent;
 import org.apache.wicket.markup.parser.XmlPullParser;
 import org.apache.wicket.markup.parser.XmlTag;
+import org.apache.wicket.protocol.http.WicketURLEncoder;
 import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.crypt.ICrypt;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.value.IValueMap;
 
@@ -170,6 +174,10 @@ public class StripHTMLTagsConverter implements IConverter
 
 		StringBuffer bodyTxt = new StringBuffer(bodyText.length());
 		XmlPullParser parser = new XmlPullParser();
+
+		ICrypt urlCrypt = null;
+		if (Application.exists()) urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+
 		try
 		{
 			parser.parse(new ByteArrayInputStream(bodyText.toString().getBytes("UTF8")), "UTF8"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -274,8 +282,7 @@ public class StripHTMLTagsConverter implements IConverter
 						String name = src.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
 						if (name.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 						{
-							String url = RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + //$NON-NLS-1$
-								"=true&" + name.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length());
+							String url = generateBlobloaderUrl(component, urlCrypt, name);
 							me.getAttributes().put(attribute, url);
 						}
 						else
@@ -359,8 +366,91 @@ public class StripHTMLTagsConverter implements IConverter
 		return st;
 	}
 
+	/**
+	 * @param component
+	 * @param urlCrypt
+	 * @param name
+	 * @return
+	 */
+	public static String generateBlobloaderUrl(Component component, ICrypt urlCrypt, String name)
+	{
+		String mediaUrlPart = name.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + '?').length());
+		if (urlCrypt != null)
+		{
+			mediaUrlPart = WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(mediaUrlPart));
+		}
+		else
+		{
+			// if no url crypt then the old way
+			mediaUrlPart = "true&" + mediaUrlPart; //$NON-NLS-1$
+		}
+
+		String url = RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + //$NON-NLS-1$
+			'=' + mediaUrlPart;
+		return url;
+	}
+
+	public static String getBlobLoaderUrlPart(Request request)
+	{
+		String url = request.getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER);
+		if (url != null)
+		{
+			// old url
+			if (url.equals("true")) //$NON-NLS-1$
+			{
+				url = request.getURL();
+			}
+			else
+			{
+				// encrypted
+				if (Application.exists())
+				{
+					ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+					url = urlCrypt.decryptUrlSafe(url);
+				}
+			}
+		}
+		return url;
+	}
+
+
 	public static CharSequence convertBlobLoaderReferences(CharSequence text, Component component)
 	{
+		if (text != null)
+		{
+			String txt = text.toString();
+			int index = txt.indexOf("media:///servoy_blobloader?"); //$NON-NLS-1$
+			if (index == -1) return txt;
+			ICrypt urlCrypt = null;
+			if (Application.exists()) urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+
+			if (urlCrypt != null)
+			{
+				while (index != -1)
+				{
+					// just try to search for the ending quote
+					int index2 = txt.indexOf("\"", index); //$NON-NLS-1$
+					int index3 = txt.indexOf("\'", index); //$NON-NLS-1$
+					if (index2 == -1)
+					{
+						index2 = index3;
+					}
+					else if (index3 != -1)
+					{
+						index2 = Math.min(index2, index3);
+					}
+					// if ending can't be resolved don't encrypt it.
+					if (index2 == -1) return Strings.replaceAll(text,
+						"media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&servoy_blobloader=true&"); //$NON-NLS-1$//$NON-NLS-2$
+
+					String bloburl = generateBlobloaderUrl(component, urlCrypt, txt.substring(index + "media:///".length(), index2)); //$NON-NLS-1$
+					txt = txt.substring(0, index) + bloburl + txt.substring(index2);
+
+					index = txt.indexOf("media:///servoy_blobloader?", index + 1); //$NON-NLS-1$
+				}
+				return txt;
+			}
+		}
 		if (RequestCycle.get() != null) return Strings.replaceAll(text,
 			"media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&servoy_blobloader=true&"); //$NON-NLS-1$//$NON-NLS-2$
 		return text;

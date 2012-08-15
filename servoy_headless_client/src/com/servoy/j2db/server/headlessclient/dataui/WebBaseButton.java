@@ -33,11 +33,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IResourceListener;
 import org.apache.wicket.Page;
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
@@ -47,6 +47,7 @@ import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.link.ILinkListener;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.crypt.ICrypt;
 import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.FormManager;
@@ -196,9 +197,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public void onResourceRequested()
 	{
-		if (getRequest().getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER) != null)
+		String url = StripHTMLTagsConverter.getBlobLoaderUrlPart(getRequest());
+		if (url != null)
 		{
-			String url = getRequest().getRelativeURL();
 			try
 			{
 				byte[] bytes = MediaURLStreamHandler.getBlobLoaderMedia(application, url);
@@ -968,9 +969,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				String mediaName = imageDisplay.getTextUrl().substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
 				if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 				{
-					imgURL = RequestCycle.get().urlFor(imageDisplayComponent, IResourceListener.INTERFACE) +
-						"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ //$NON-NLS-2$
-						mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$
+					ICrypt urlCrypt = null;
+					if (Application.exists()) urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+
+					imgURL = StripHTMLTagsConverter.generateBlobloaderUrl(imageDisplayComponent, urlCrypt, mediaName);
 				}
 			}
 		}
@@ -1016,9 +1018,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 							String mediaName = imageDisplay.getRolloverUrl().substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
 							if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 							{
-								url = RequestCycle.get().urlFor(imageDisplayComponent, IResourceListener.INTERFACE) +
-									"&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "=true&" + //$NON-NLS-1$ //$NON-NLS-2$ 
-									mediaName.substring((MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + "?").length()); //$NON-NLS-1$ 
+								ICrypt urlCrypt = null;
+								if (Application.exists()) urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+
+								url = StripHTMLTagsConverter.generateBlobloaderUrl(imageDisplayComponent, urlCrypt, mediaName);
 							}
 						}
 						else url = imageDisplay.getRolloverUrl();
