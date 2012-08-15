@@ -207,7 +207,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		}
 		else if (getRequest().getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER) != null)
 		{
-			String url = getRequest().getRelativeURL();
+			String url = StripHTMLTagsConverter.getBlobLoaderUrlPart(getRequest());
 			try
 			{
 				byte[] bytes = MediaURLStreamHandler.getBlobLoaderMedia(application, url);

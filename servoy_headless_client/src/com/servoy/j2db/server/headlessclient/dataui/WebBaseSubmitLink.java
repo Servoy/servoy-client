@@ -257,7 +257,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		}
 		else if (getRequest().getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER) != null)
 		{
-			String url = getRequest().getRelativeURL();
+			String url = StripHTMLTagsConverter.getBlobLoaderUrlPart(getRequest());
 			try
 			{
 				byte[] bytes = MediaURLStreamHandler.getBlobLoaderMedia(application, url);
