@@ -925,14 +925,19 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			Locale.setDefault(loc);
 		}
-		super.applicationSetup();
-
 		// set the timezone of the client info as default.
-		TimeZone tz = getClientInfo().getTimeZone();
-		if (tz != null)
+		TimeZone defaultTimeZone = TimeZone.getDefault();
+		if (defaultTimeZone != null) //can this happen?
 		{
-			TimeZone.setDefault(tz);
+			str = getSettings().getProperty("timezone.default", defaultTimeZone.getID()); //$NON-NLS-1$
+			TimeZone tz = TimeZone.getTimeZone(str);
+			if (tz != null)
+			{
+				getClientInfo().setTimeZone(tz);
+				TimeZone.setDefault(tz);
+			}
 		}
+		super.applicationSetup();
 
 		jsWindowManager = createJSWindowManager();
 
