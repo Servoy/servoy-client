@@ -118,24 +118,24 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				if (width != null) changes.put("width", width); //$NON-NLS-1$ 
 				Object height = componentChanges.remove("height"); //$NON-NLS-1$
 				if (height != null) changes.put("height", height); //$NON-NLS-1$ 
+			}
 
-				boolean visibilityChanged = false;
-				if (wrappedComponent.isVisible())
+			boolean visibilityChanged = false;
+			if (wrappedComponent.isVisible())
+			{
+				if ("none".equals(changes.get("display"))) //$NON-NLS-1$ //$NON-NLS-2$
 				{
-					if ("none".equals(changes.get("display"))) //$NON-NLS-1$ //$NON-NLS-2$
-					{
-						changes.remove("display"); //$NON-NLS-1$
-						visibilityChanged = true;
-					}
-				}
-				else
-				{
-					changes.put("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+					changes.remove("display"); //$NON-NLS-1$
 					visibilityChanged = true;
 				}
-
-				changed = changes.size() > 0 || visibilityChanged;
 			}
+			else
+			{
+				changes.put("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+				visibilityChanged = true;
+			}
+
+			changed = changes.size() > 0 || visibilityChanged;
 		}
 
 		/**
@@ -144,8 +144,7 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		public boolean isChanged()
 		{
 			createChanges();
-			return changed ||
-				(wrappedComponent instanceof IProviderStylePropertyChanges && ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().isChanged());
+			return changed;
 		}
 
 		/**
