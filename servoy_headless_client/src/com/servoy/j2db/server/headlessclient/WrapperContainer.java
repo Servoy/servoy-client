@@ -144,7 +144,8 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		public boolean isChanged()
 		{
 			createChanges();
-			return changed;
+			return changed ||
+				(wrappedComponent instanceof IProviderStylePropertyChanges && ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().isChanged());
 		}
 
 		/**
