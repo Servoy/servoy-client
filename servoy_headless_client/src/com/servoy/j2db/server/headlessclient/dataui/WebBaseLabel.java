@@ -205,7 +205,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 				Debug.error("Error serving media: " + media, ex); //$NON-NLS-1$
 			}
 		}
-		else if (getRequest().getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER) != null)
+		else if (getRequest().getParameter(StripHTMLTagsConverter.BLOB_LOADER_PARAM) != null)
 		{
 			String url = StripHTMLTagsConverter.getBlobLoaderUrlPart(getRequest());
 			try

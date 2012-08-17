@@ -55,6 +55,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class StripHTMLTagsConverter implements IConverter
 {
+	public static final String BLOB_LOADER_PARAM = "sb"; //$NON-NLS-1$
+
 	/**
 	 * @author jcompagner
 	 * 
@@ -378,15 +380,12 @@ public class StripHTMLTagsConverter implements IConverter
 			// if no url crypt then the old way
 			mediaUrlPart = "true&" + mediaUrlPart; //$NON-NLS-1$
 		}
-
-		String url = RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&" + MediaURLStreamHandler.MEDIA_URL_BLOBLOADER + //$NON-NLS-1$
-			'=' + mediaUrlPart;
-		return url;
+		return RequestCycle.get().urlFor(component, IResourceListener.INTERFACE).toString() + '&' + BLOB_LOADER_PARAM + '=' + mediaUrlPart;
 	}
 
 	public static String getBlobLoaderUrlPart(Request request)
 	{
-		String url = request.getParameter(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER);
+		String url = request.getParameter(BLOB_LOADER_PARAM);
 		if (url != null)
 		{
 			// old url
@@ -408,12 +407,13 @@ public class StripHTMLTagsConverter implements IConverter
 	}
 
 
+	@SuppressWarnings("nls")
 	public static CharSequence convertBlobLoaderReferences(CharSequence text, Component component)
 	{
 		if (text != null)
 		{
 			String txt = text.toString();
-			int index = txt.indexOf("media:///servoy_blobloader?"); //$NON-NLS-1$
+			int index = txt.indexOf("media:///servoy_blobloader?");
 			if (index == -1) return txt;
 			ICrypt urlCrypt = null;
 			if (Application.exists()) urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
@@ -423,30 +423,22 @@ public class StripHTMLTagsConverter implements IConverter
 				while (index != -1)
 				{
 					// just try to search for the ending quote
-					int index2 = txt.indexOf("\"", index); //$NON-NLS-1$
-					int index3 = txt.indexOf("\'", index); //$NON-NLS-1$
-					if (index2 == -1)
-					{
-						index2 = index3;
-					}
-					else if (index3 != -1)
-					{
-						index2 = Math.min(index2, index3);
-					}
-					// if ending can't be resolved don't encrypt it.
-					if (index2 == -1) return Strings.replaceAll(text,
-						"media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&servoy_blobloader=true&"); //$NON-NLS-1$//$NON-NLS-2$
+					int index2 = Utils.firstIndexOf(txt, new char[] { '\'', '"', ' ', '\t' }, index);
 
-					String bloburl = generateBlobloaderUrl(component, urlCrypt, txt.substring(index + "media:///".length(), index2)); //$NON-NLS-1$
+					// if ending can't be resolved don't encrypt it.
+					if (index2 == -1) return Strings.replaceAll(text, "media:///servoy_blobloader?",
+						RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&s=true&");
+
+					String bloburl = generateBlobloaderUrl(component, urlCrypt, txt.substring(index + "media:///".length(), index2));
 					txt = txt.substring(0, index) + bloburl + txt.substring(index2);
 
-					index = txt.indexOf("media:///servoy_blobloader?", index + 1); //$NON-NLS-1$
+					index = txt.indexOf("media:///servoy_blobloader?", index + 1);
 				}
 				return txt;
 			}
 		}
-		return Strings.replaceAll(text,
-			"media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&servoy_blobloader=true&"); //$NON-NLS-1$//$NON-NLS-2$
+		return Strings.replaceAll(text, "media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&" +
+			BLOB_LOADER_PARAM + "=true&");
 	}
 
 	public static CharSequence convertMediaReferences(CharSequence text, String solutionName, ResourceReference media, String prefix)

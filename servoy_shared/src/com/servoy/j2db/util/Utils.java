@@ -1596,6 +1596,42 @@ public class Utils
 		return result;
 	}
 
+	/**
+	 * will give you the index in the string of the first char in the char array that is found in that string.
+	 * 
+	 * @param string
+	 * @param chars
+	 * @return the index of the first char found or -1 if no char is found
+	 */
+	public static int firstIndexOf(String string, char[] chars)
+	{
+		return firstIndexOf(string, chars, 0);
+	}
+
+	/**
+	 * will give you the index in the string of the first char in the char array that is found in that string
+	 * starting at the startIndex
+	 * 
+	 * @param string
+	 * @param chars
+	 * @param startIndex
+	 * @return the index of the first char found or -1 if no char is found
+	 */
+	public static int firstIndexOf(String string, char[] chars, int startIndex)
+	{
+		if (startIndex < 0 || string.length() <= startIndex) return -1;
+
+		String charsString = new String(chars);
+		int counter = startIndex;
+		while (counter < string.length())
+		{
+			char ch = string.charAt(counter);
+			if (charsString.indexOf(ch) != -1) return counter;
+			counter++;
+		}
+		return -1;
+	}
+
 	public static int stringIndexOf(String string, int ch, int escape)
 	{
 		return stringIndexOf(string, ch, escape, 0);
