@@ -1193,13 +1193,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
-				String src = "";
-				if (!isElementAnchored)
-				{
-					src = imgURL;
-				}
 				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ")\"" : "";
-				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(src).append(
+				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
 					"\" style=\"vertical-align: middle;\"").append(onLoadCall).append("/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
@@ -1211,7 +1206,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText.append("<img id=\"");
 			instrumentedBodyText.append(elementID).append("_img");
 			instrumentedBodyText.append("\" src=\"");
-			instrumentedBodyText.append(!isElementAnchored ? imgURL : "");
+			instrumentedBodyText.append(imgURL);
 			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ")\"" : "";
 			instrumentedBodyText.append("\" align=\"middle\"").append(onLoadCall).append("/>");
 		}
