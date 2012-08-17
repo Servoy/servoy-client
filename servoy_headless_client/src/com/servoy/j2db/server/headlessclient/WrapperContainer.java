@@ -144,8 +144,7 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		public boolean isChanged()
 		{
 			createChanges();
-			return changed ||
-				(wrappedComponent instanceof IProviderStylePropertyChanges && ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().isChanged());
+			return changed;
 		}
 
 		/**
@@ -200,11 +199,5 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 	public String getMarkupId()
 	{
 		return wrappedComponent.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX;
-	}
-
-	@Override
-	public boolean isVisible()
-	{
-		return wrappedComponent.isVisible();
 	}
 }

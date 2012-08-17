@@ -717,8 +717,8 @@ public class WebEventExecutor extends BaseEventExecutor
 								WebForm parentForm = component.findParent(WebForm.class);
 								boolean isDesignMode = parentForm != null && parentForm.isDesignMode();
 
-
-								if (!component.isVisible())
+								if (!component.isVisible() ||
+									(component instanceof WrapperContainer && !((WrapperContainer)component).getDelegate().isVisible()))
 								{
 									((IProviderStylePropertyChanges)component).getStylePropertyChanges().setRendered();
 									if (isDesignMode)
