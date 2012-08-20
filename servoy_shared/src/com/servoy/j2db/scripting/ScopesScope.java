@@ -62,13 +62,13 @@ public class ScopesScope extends DefaultScope
 		}
 	}
 
-	public void createScriptProviders()
+	public void createScriptProviders(boolean overwriteInitialValue)
 	{
 		for (Object var : allVars.values())
 		{
 			if (var instanceof GlobalScope)
 			{
-				((GlobalScope)var).createScriptProviders();
+				((GlobalScope)var).createScriptProviders(overwriteInitialValue);
 			}
 		}
 	}
@@ -109,7 +109,7 @@ public class ScopesScope extends DefaultScope
 
 	public void reloadVariablesAndScripts()
 	{
-		createScriptProviders();
+		createScriptProviders(false);
 		createScopes();
 	}
 
