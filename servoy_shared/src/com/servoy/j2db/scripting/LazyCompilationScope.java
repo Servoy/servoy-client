@@ -51,17 +51,17 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		this.scriptEngine = scriptEngine;
 		idVars = new HashMap<Integer, String>();
 		functionParent = this;
-		createScriptProviders();
+		createScriptProviders(true);
 	}
 
 	// final because called from constructor
-	protected final void createScriptProviders()
+	protected final void createScriptProviders(boolean overwriteInitialValue)
 	{
 		Iterator< ? extends IScriptProvider> it = scriptLookup.getScriptMethods(false);
 		while (it.hasNext())
 		{
 			IScriptProvider sm = it.next();
-			put(sm, sm);
+			put(sm, sm, overwriteInitialValue);
 		}
 	}
 
@@ -94,6 +94,15 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 
 	public void put(IScriptProvider sm, Object function)
 	{
+		put(sm, function, true);
+	}
+
+	public void put(IScriptProvider sm, Object function, boolean overwriteInitialValue)
+	{
+		if (!overwriteInitialValue && allVars.containsKey(sm.getDataProviderID()))
+		{
+			return;
+		}
 		remove(sm);
 		allVars.put(sm.getDataProviderID(), function);
 		idVars.put(new Integer(sm.getID()), sm.getDataProviderID());
@@ -242,7 +251,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		}
 
 		idVars.clear();
-		createScriptProviders();
+		createScriptProviders(true);
 	}
 
 	/**
