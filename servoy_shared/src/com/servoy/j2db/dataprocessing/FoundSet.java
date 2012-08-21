@@ -4287,14 +4287,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		synchronized (pksAndRecords)
 		{
 			SafeArrayList<IRecordInternal> cachedRecords = null;
-			IDataSet pks = pksAndRecords.getPks();
+			PKDataSet pks = pksAndRecords.getPks();
 			if (pks == null)
 			{
-				cachedRecords = pksAndRecords.setPks(pks = new BufferedDataSet(), 0);
+				cachedRecords = pksAndRecords.setPks(new BufferedDataSet(), 0);
+				pks = pksAndRecords.getPks();
 			}
 			else
 			{
 				cachedRecords = pksAndRecords.getCachedRecords();
+				if (pks.hadMoreRows())
+				{
+					// When a record was added to a not-fully loaded foundset, create the pk cache so that duplicates
+					// are checked in queryForMorePKs(), the new pk may be part of one of the other chunks
+					pks.createPKCache();
+				}
 			}
 			cachedRecords.add(indexToAdd, newRecord);
 			if (indexToAdd % 40 == 0) removeRecords(indexToAdd, true, cachedRecords);
