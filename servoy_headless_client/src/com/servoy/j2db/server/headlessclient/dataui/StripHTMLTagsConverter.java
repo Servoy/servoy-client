@@ -427,7 +427,7 @@ public class StripHTMLTagsConverter implements IConverter
 
 					// if ending can't be resolved don't encrypt it.
 					if (index2 == -1) return Strings.replaceAll(text, "media:///servoy_blobloader?",
-						RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&s=true&");
+						RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&" + BLOB_LOADER_PARAM + "=true&");
 
 					String bloburl = generateBlobloaderUrl(component, urlCrypt, txt.substring(index + "media:///".length(), index2));
 					txt = txt.substring(0, index) + bloburl + txt.substring(index2);
