@@ -41,8 +41,8 @@ public class Forms
 	 * }
 	 * 
 	 * @special
-	 * @deprecated use solutionModel.getForms() instead.
-	 * (an exact replacement, if you need it would be 'solutionModel.getForms().map(function (jsForm) { return jsForm.name }').
+	 * @deprecated use solutionModel.getForms() instead;
+	 * an exact replacement, if you need it would be 'solutionModel.getForms().map(function (jsForm) { return jsForm.name } )'.
 	 */
 	@Deprecated
 	@JSReadonlyProperty

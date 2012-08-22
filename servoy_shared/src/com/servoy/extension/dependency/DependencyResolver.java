@@ -484,7 +484,7 @@ public class DependencyResolver implements IMessageProvider
 	/**
 	 * Finds multiple lib declarations between visited and installed extensions.
 	 * @param visited extensions visited in the dependency tree-path. Might have conflicts in itself if ignoreLibConflicts == true.
-	 * @param installed the installed lib dependencies. (no conflicts in this one)
+	 * @param installed the installed lib dependencies.
 	 * @param conflictsFound return length 1 array parameter; it's first element will be set to true if conflicts are found and false otherwise.
 	 * @return an array of lib version lists (per lib id) in case multiple version declarations are found for that lib id. Also specified if that lib id has conflicts or not.
 	 */

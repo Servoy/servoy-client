@@ -55,8 +55,8 @@ public class Form
 	 * 	application.output(methodNames[i]);
 	 * 
 	 * @special
-	 * @deprecated use solutionModel - JSForm.getMethods(Boolean) or JSForm.getMethods() instead.
-	 * (an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getMethods().map(function (jsMethod) { return jsMethod.getName() }').
+	 * @deprecated use solutionModel - JSForm.getMethods(Boolean) or JSForm.getMethods() instead;
+	 * an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getMethods().map(function (jsMethod) { return jsMethod.getName() } )'.
 	 */
 	@Deprecated
 	@JSReadonlyProperty
@@ -113,8 +113,8 @@ public class Form
 	 * 	application.output(varNames[i]);
 	 * 
 	 * @special 
-	 * @deprecated use solutionModel - JSForm.getVariables(Boolean) or JSForm.getVariables() instead.
-	 * (an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getVariables().map(function (jsVariable) { return jsVariable.name }').
+	 * @deprecated use solutionModel - JSForm.getVariables(Boolean) or JSForm.getVariables() instead;
+	 * an exact replacement, if you need it would be 'solutionModel.getForm(controller.getName()).getVariables().map(function (jsVariable) { return jsVariable.name } )'.
 	 */
 	@Deprecated
 	@JSReadonlyProperty
@@ -133,8 +133,8 @@ public class Form
 	 * 	application.output(relationsNames[i]);
 	 * 
 	 * @special
-	 * @deprecated use solutionModel.getRelations(dataSource) instead, where dataSource is provided by solution model's JSForm.dataSource or controller.getDataSource().
-	 * (an exact replacement, if you need it would be 'solutionModel.getRelations(controller.getDataSource()).map(function (jsRelation) { return jsRelation.name }').
+	 * @deprecated use solutionModel.getRelations(dataSource) instead, where dataSource is provided by solution model's JSForm.dataSource or controller.getDataSource();
+	 * an exact replacement, if you need it would be 'solutionModel.getRelations(controller.getDataSource()).map(function (jsRelation) { return jsRelation.name } )'.
 	 */
 	@Deprecated
 	@JSReadonlyProperty

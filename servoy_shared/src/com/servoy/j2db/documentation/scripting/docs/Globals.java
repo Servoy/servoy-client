@@ -38,8 +38,8 @@ public class Globals
 	 * 	application.output(allMethodNames[i]);
 	 *  
 	 * @special
-	 * @deprecated use solutionModel.getGlobalMethods("scopeName") instead.
-	 * (an exact replacement, if you need it would be 'solutionModel.getGlobalMethods("scopeName").map(function (jsMethod) { return jsMethod.getName() }').
+	 * @deprecated use solutionModel.getGlobalMethods("scopeName") instead;
+	 * an exact replacement, if you need it would be 'solutionModel.getGlobalMethods("scopeName").map(function (jsMethod) { return jsMethod.getName() } )'.
 	 */
 	@Deprecated
 	@JSReadonlyProperty
@@ -58,8 +58,8 @@ public class Globals
 	 * 	application.output(allVarNames[i]);
 	 * 
 	 * @special
-	 * @deprecated use solutionModel.getGlobalVariables("scopeName") instead.
-	 * (an exact replacement, if you need it would be 'solutionModel.getGlobalVariables("scopeName").map(function (jsVariable) { return jsVariable.name }').
+	 * @deprecated use solutionModel.getGlobalVariables("scopeName") instead;
+	 * an exact replacement, if you need it would be 'solutionModel.getGlobalVariables("scopeName").map(function (jsVariable) { return jsVariable.name } )'.
 	 */
 	@Deprecated
 	@JSReadonlyProperty
@@ -78,8 +78,8 @@ public class Globals
 	 * 	application.output(allRelationNames[i]);
 	 * 
 	 * @special
-	 * @deprecated use solutionModel.getRelations(null) instead.
-	 * (an exact replacement, if you need it would be 'solutionModel.getRelations(null).map(function (jsRelation) { return jsRelation.name }').
+	 * @deprecated use solutionModel.getRelations(null) instead;
+	 * an exact replacement, if you need it would be 'solutionModel.getRelations(null).map(function (jsRelation) { return jsRelation.name } )'.
 	 */
 	@Deprecated
 	@JSReadonlyProperty
