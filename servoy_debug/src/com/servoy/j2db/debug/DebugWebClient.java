@@ -440,7 +440,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		return super.putClientProperty(name, val);
 	}
 
-	@Override
 	public void onSolutionOpen()
 	{
 		if (changedProperties == null)

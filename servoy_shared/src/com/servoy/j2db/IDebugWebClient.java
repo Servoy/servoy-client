@@ -23,5 +23,8 @@ package com.servoy.j2db;
  */
 public interface IDebugWebClient extends IWebClientApplication, IDebugClient
 {
-
+	/**
+	 * Invoked just before the solution is opened
+	 */
+	public void onSolutionOpen();
 }

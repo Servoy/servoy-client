@@ -33,6 +33,7 @@ import org.mozilla.javascript.RhinoException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.IMainContainer;
@@ -42,6 +43,7 @@ import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
@@ -65,6 +67,14 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 		public DebugWebFormManager(IApplication app, IMainContainer mainp)
 		{
 			super(app, mainp);
+		}
+
+		@Override
+		protected void makeSolutionSettings(Solution s)
+		{
+			IApplication app = getApplication();
+			if (app instanceof IDebugWebClient) ((IDebugWebClient)app).onSolutionOpen();
+			super.makeSolutionSettings(s);
 		}
 
 		public void updateForm(Form form)

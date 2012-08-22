@@ -40,4 +40,9 @@ public interface IDebugJ2DBClient extends ISmartClientApplication, IDebugClient
 
 	IBrowserLauncher getBrowserLauncher();
 
+	/**
+	 * Invoked just before the solution is opened
+	 */
+	public void onSolutionOpen();
+
 }

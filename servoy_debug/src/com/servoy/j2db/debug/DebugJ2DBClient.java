@@ -219,6 +219,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		@Override
 		protected void makeSolutionSettings(Solution s)
 		{
+			IApplication app = getApplication();
+			if (app instanceof IDebugJ2DBClient) ((IDebugJ2DBClient)app).onSolutionOpen();
 			super.makeSolutionSettings(s);
 			solutionLoaded = true;
 		}
@@ -1008,7 +1010,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			}
 		}
 	}
-	
+
 	protected void infoToDebugger(String message)
 	{
 		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
@@ -1021,7 +1023,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			}
 		}
 	}
-	
+
 	@Override
 	public void reportInfo(Component parentComponent, String message, String title)
 	{
@@ -1328,7 +1330,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		return super.putClientProperty(name, value);
 	}
 
-	@Override
 	public void onSolutionOpen()
 	{
 		if (changedProperties == null)

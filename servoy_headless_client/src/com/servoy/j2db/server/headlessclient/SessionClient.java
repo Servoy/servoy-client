@@ -1744,14 +1744,4 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		return isFormElementsEditableInFindMode;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IApplication#onSolutionOpen()
-	 */
-	public void onSolutionOpen()
-	{
-		//nop
-	}
 }

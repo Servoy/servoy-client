@@ -4387,14 +4387,4 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	{
 		return isFormElementsEditableInFindMode;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IApplication#onSolutionOpen()
-	 */
-	public void onSolutionOpen()
-	{
-		//nop
-	}
 }

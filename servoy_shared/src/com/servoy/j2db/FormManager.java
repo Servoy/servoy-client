@@ -259,7 +259,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		destroyed = false;
 		Solution solution = s;
 
-		application.onSolutionOpen();
 		Iterator<Form> e = application.getFlattenedSolution().getForms(true);
 		// add all forms first, they may be referred to in the login form
 		Form first = application.getFlattenedSolution().getForm(solution.getFirstFormID());
