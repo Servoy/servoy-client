@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db.util.serialize;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jabsorb.JSONSerializer;
 import org.jabsorb.serializer.MarshallException;
 import org.jabsorb.serializer.Serializer;
@@ -64,15 +67,15 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 		this(defaultSerializer, false, false);
 	}
 
-	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays)
+	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleListsAsArrays)
 	{
-		this(defaultSerializer, handleArrays, false);
+		this(defaultSerializer, handleListsAsArrays, false);
 	}
 
-	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleArrays, boolean handleByteArrays)
+	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleListsAsArrays, boolean handleByteArrays)
 	{
 		this.defaultSerializer = defaultSerializer;
-		this.handleListsAsArrays = handleArrays;
+		this.handleListsAsArrays = handleListsAsArrays;
 		this.handleByteArrays = handleByteArrays;
 	}
 
@@ -263,6 +266,19 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 
 	public static Object unwrapFromJSON(Object obj)
 	{
+		// put this back for legacy behavior support, arrays used to be serialized as json objects
+		if (obj instanceof ArrayList)
+		{
+			List<Object> objArrayList = (List<Object>)obj;
+			Object[] plainArray = new Object[objArrayList.size()];
+
+			for (int i = 0; i < objArrayList.size(); i++)
+			{
+				plainArray[i] = unwrapFromJSON(objArrayList.get(i));
+			}
+
+			return plainArray;
+		}
 		if (obj == JSONObject.NULL)
 		{
 			return null;
