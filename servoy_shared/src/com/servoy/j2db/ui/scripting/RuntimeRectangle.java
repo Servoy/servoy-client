@@ -51,12 +51,8 @@ public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implem
 
 	public void setSize(int width, int height)
 	{
-		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
 		setComponentSize(newSize);
-		if (!old.equals(newSize))
-		{
-			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
-		}
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 }

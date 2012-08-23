@@ -52,21 +52,17 @@ public abstract class AbstractHTMLSubmitRuntimeLabel<C extends ILabel> extends A
 	 */
 	public void setSize(int width, int height)
 	{
-		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
 		setComponentSize(newSize);
-		if (!old.equals(newSize))
+		Border b = getComponent().getBorder();
+		Insets m = null;
+		// empty border gets handled as margin
+		if (b instanceof EmptyBorder)
 		{
-			Border b = getComponent().getBorder();
-			Insets m = null;
-			// empty border gets handled as margin
-			if (b instanceof EmptyBorder)
-			{
-				m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
-				b = null;
-			}
-			getChangesRecorder().setSize(width, height, b, m, getComponent().getFontSize(), false, getComponent().getVerticalAlignment());
+			m = ComponentFactoryHelper.getBorderInsetsForNoComponent(b);
+			b = null;
 		}
+		getChangesRecorder().setSize(width, height, b, m, getComponent().getFontSize(), false, getComponent().getVerticalAlignment());
 	}
 
 	@Override

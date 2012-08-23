@@ -256,10 +256,16 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		setSize(width, height, border, margin, fontSize, false, SwingConstants.CENTER);
 	}
 
+	private Dimension oldSize = null;
+
 	public void setSize(int width, int height, Border border, Insets margin, int fontSize, boolean isButton, int valign)
 	{
-		setChanged();
-		calculateWebSize(width, height, border, margin, fontSize, changedProperties, isButton, valign);
+		Dimension realSize = calculateWebSize(width, height, border, margin, fontSize, changedProperties, isButton, valign);
+		if (!Utils.equalObjects(realSize, oldSize))
+		{
+			setChanged();
+			oldSize = realSize;
+		}
 	}
 
 	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties)

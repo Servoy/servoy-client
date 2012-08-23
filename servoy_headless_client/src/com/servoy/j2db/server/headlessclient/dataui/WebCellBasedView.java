@@ -4142,7 +4142,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							if (bstyle == null) bstyle = ""; //$NON-NLS-1$
 							bwidth = borderProperties.getProperty("border-width"); //$NON-NLS-1$
 							bcolor = borderProperties.getProperty("border-color"); //$NON-NLS-1$
-							bcolor = getFirstToken(bcolor);
+							if (bcolor == null)
+							{
+								bcolor = borderProperties.getProperty("border-top-color", ""); //$NON-NLS-1$ //$NON-NLS-2$
+							}
+							else
+							{
+								bcolor = getFirstToken(bcolor);
+							}
 						}
 						else
 						{

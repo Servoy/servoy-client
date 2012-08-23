@@ -782,7 +782,7 @@ if (typeof(Servoy.TableView) == "undefined")
 							var defaultBorderWidth = bordersWidth.length > 0 ? bordersWidth[0] : '' 
 							
 							bStyleTop = defaultBorderWidth + " " + borderStyle + " " + borderColor;
-							bStyleRight = (bordersWidth.length > 1 ? bordersWidth[1] : defaultBorderWidth) + " " + borderStyle + " " + borderColor							
+							bStyleRight = (bordersWidth.length > 1 ? bordersWidth[1] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;							
 							bStyleBottom = (bordersWidth.length > 2 ? bordersWidth[2] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;
 							bStyleLeft = (bordersWidth.length > 3 ? bordersWidth[3] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;
 						}

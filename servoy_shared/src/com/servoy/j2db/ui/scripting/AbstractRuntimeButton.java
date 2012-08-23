@@ -70,13 +70,9 @@ public abstract class AbstractRuntimeButton<C extends IButton> extends AbstractR
 
 	public void setSize(int width, int height)
 	{
-		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
 		setComponentSize(newSize);
-		if (!old.equals(newSize))
-		{
-			getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
-		}
+		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, getComponent().getVerticalAlignment());
 	}
 
 	public void requestFocus()

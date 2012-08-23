@@ -173,13 +173,9 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 
 	public void setSize(int width, int height)
 	{
-		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
 		setComponentSize(newSize);
-		if (!old.equals(newSize))
-		{
-			getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0);
-		}
+		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0);
 	}
 
 	/** Get the value for a choice on possibly multiple values.

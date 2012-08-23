@@ -170,18 +170,14 @@ public abstract class AbstractRuntimeFormContainer<C extends IComponent, E exten
 
 	public void setSize(int width, int height)
 	{
-		Dimension old = new Dimension(getWidth(), getHeight());
 		Dimension newSize = new Dimension(width, height);
 		setComponentSize(newSize);
-		if (!old.equals(newSize))
+		if (getComponent() instanceof JComponent)
 		{
-			if (getComponent() instanceof JComponent)
-			{
-				((JComponent)getComponent()).repaint();
-			}
-			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0),
-				0, false, SwingConstants.TOP);
+			((JComponent)getComponent()).repaint();
 		}
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0,
+			false, SwingConstants.TOP);
 	}
 
 	@Override
