@@ -27,4 +27,5 @@ public interface IColumnInfoProvider
 
 	public boolean isHiddenInDeveloper(IServerInternal server, String tableName);
 
+	public void columInfoSequenceOverriden(Column c);
 }
