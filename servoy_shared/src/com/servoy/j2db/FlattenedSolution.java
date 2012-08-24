@@ -788,7 +788,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (flattenedFormCache == null)
 		{
 			// no caching
-			return new FlattenedForm(this, form);
+			return createFlattenedForm(form);
 		}
 
 		// cache flattened form
@@ -805,10 +805,31 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			if (flattedFormRef[0] == null || !useCached)
 			{
-				flattedFormRef[0] = new FlattenedForm(this, form);
+				flattedFormRef[0] = createFlattenedForm(form);
 			}
 			return flattedFormRef[0];
 		}
+	}
+
+	/*
+	 * Create a flattened form for the form that is child of the current solution.
+	 */
+	private FlattenedForm createFlattenedForm(Form form)
+	{
+		Form myForm;
+		if (form.getParent() == getSolution())
+		{
+			myForm = form;
+		}
+		else
+		{
+			myForm = (Form)getSolution().getChild(form.getUUID());
+			if (myForm == null)
+			{
+				throw new RuntimeException("Cannot find form '" + form + "' in solution '" + getSolution() + "'");
+			}
+		}
+		return new FlattenedForm(this, myForm);
 	}
 
 	public void flushFlattenedFormCache()
