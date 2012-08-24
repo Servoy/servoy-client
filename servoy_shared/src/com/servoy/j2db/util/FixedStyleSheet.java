@@ -73,11 +73,7 @@ public class FixedStyleSheet extends StyleSheet implements IStyleSheet
 		Object family = a.getAttribute(CSS.Attribute.FONT_FAMILY);
 		if (family != null && family.toString().indexOf(font.getName()) == -1)
 		{
-			Font familyFont = PersistHelper.createFontByFamily(family.toString(), font.getStyle(), font.getSize());
-			if (familyFont != null)
-			{
-				font = familyFont;
-			}
+			font = PersistHelper.createFont(family.toString(), font.getStyle(), font.getSize());
 		}
 		return font;
 	}
