@@ -46,6 +46,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.where.add(query.columns.orderdate.isNull)
+	 * 
+	 * @param condition the condition to add
 	 */
 	public QBLogicalCondition js_add(QBCondition condition)
 	{

@@ -170,9 +170,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_acquireLock(IFoundSetInternal,int)
+	 * @clonedesc js_acquireLock(IFoundSetInternal,Number)
 	 * 
-	 * @sampleas js_acquireLock(IFoundSetInternal,int)
+	 * @sampleas js_acquireLock(IFoundSetInternal,Number)
 	 * 
 	 * @param foundset The JSFoundset to get the lock for
 	 * @param recordIndex The record index which should be locked.
@@ -3118,9 +3118,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_hasRecordChanges(IFoundSetInternal,int)
+	 * @clonedesc js_hasRecordChanges(IFoundSetInternal,Number)
 	 * 
-	 * @sampleas js_hasRecordChanges(IFoundSetInternal,int)
+	 * @sampleas js_hasRecordChanges(IFoundSetInternal,Number)
 	 *  
 	 * @param foundset The JSFoundset to test if it has changes.
 	 * 
@@ -3132,9 +3132,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_hasRecordChanges(IFoundSetInternal,int)
+	 * @clonedesc js_hasRecordChanges(IFoundSetInternal,Number)
 	 * 
-	 * @sampleas js_hasRecordChanges(IFoundSetInternal,int)
+	 * @sampleas js_hasRecordChanges(IFoundSetInternal,Number)
 	 *  
 	 * @param record The JSRecord to test if it has changes.
 	 * 
@@ -3220,9 +3220,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_hasNewRecords(IFoundSetInternal,int)
+	 * @clonedesc js_hasNewRecords(IFoundSetInternal,Number)
 	 * 
-	 * @sampleas js_hasNewRecords(IFoundSetInternal,int)
+	 * @sampleas js_hasNewRecords(IFoundSetInternal,Number)
 	 * 
 	 * @param foundset The JSFoundset to test.
 	 * 
@@ -3234,9 +3234,9 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_hasNewRecords(IFoundSetInternal,int)
+	 * @clonedesc js_hasNewRecords(IFoundSetInternal,Number)
 	 * 
-	 * @sampleas js_hasNewRecords(IFoundSetInternal,int)
+	 * @sampleas js_hasNewRecords(IFoundSetInternal,Number)
 	 * 
 	 * @param record The JSRecord to test.
 	 * 

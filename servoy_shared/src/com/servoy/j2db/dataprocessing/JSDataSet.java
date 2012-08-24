@@ -633,7 +633,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	/**
 	 * Get the dataset as an html table, do not escape values or spaces, no multi_line_markup, do not add indentation, add column names.
 	 * 
-	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @return String html.
 	 */
@@ -645,7 +645,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	/**
 	 * Get the dataset as an html table, do not escape spaces, no multi_line_markup, do not add indentation, add column names.
 	 * 
-	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
 	 *
@@ -659,7 +659,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	/**
 	 * Get the dataset as an html table, no multi_line_markup, do not add indentation, add column names.
 	 * 
-	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
 	 *
@@ -675,7 +675,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	/**
 	 * Get the dataset as an html table, do not add indentation, add column names.
 	 * 
-	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
 	 *
@@ -693,7 +693,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	/**
 	 * Get the dataset as an html table, add column names.
 	 * 
-	 * @sampleas js_getAsHTML(boolean, boolean, boolean, boolean, boolean)
+	 * @sampleas js_getAsHTML(Boolean, Boolean, Boolean, Boolean, Boolean)
 	 *
 	 * @param escape_values if true, replaces illegal HTML characters with corresponding valid escape sequences.
 	 *

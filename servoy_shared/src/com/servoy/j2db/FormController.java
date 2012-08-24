@@ -1264,7 +1264,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(boolean)
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean)
 		 * 
 		 * @param clearLastResults boolean, clear previous search, default true  
 		 * 
@@ -1276,7 +1276,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(boolean,boolean)
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean,Boolean)
 		 * 
 		 * @param clearLastResults boolean, clear previous search, default true  
 		 * @param reduceSearch boolean, reduce (true) or extend (false) previous search results, default true

@@ -40,8 +40,8 @@ public class JSTableObject extends JSTable
 	}
 
 	/**
-	 * @clonedesc js_createNewColumn(String, int, int, boolean, boolean)
-	 * @sampleas js_createNewColumn(String, int, int, boolean, boolean)
+	 * @clonedesc js_createNewColumn(String, Number, Number, Boolean, Boolean)
+	 * @sampleas js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 *
 	 * @param columnName 
 	 * @param type 
@@ -54,8 +54,8 @@ public class JSTableObject extends JSTable
 	}
 
 	/**
-	 * @clonedesc js_createNewColumn(String, int, int, boolean, boolean)
-	 * @sampleas js_createNewColumn(String, int, int, boolean, boolean)
+	 * @clonedesc js_createNewColumn(String, Number, Number, Boolean, Boolean)
+	 * @sampleas js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 *
 	 * @param columnName 
 	 * @param type 

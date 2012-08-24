@@ -51,7 +51,7 @@ public class JSColumnObject extends JSColumn
 	 * Note that when a column is added to an existing table, allowNull will always be set.
 	 * For a primary key column, the allowNull flag will be always off, for other columns the flag is set by default.
 	 * 
-	 * @sampleas com.servoy.j2db.dataprocessing.JSTableObject#js_createNewColumn(String, int, int, boolean, boolean)
+	 * @sampleas com.servoy.j2db.dataprocessing.JSTableObject#js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 */
 	@Override
 	public boolean js_getAllowNull() // override for jsdoc 
@@ -65,7 +65,7 @@ public class JSColumnObject extends JSColumn
 	 *  - JSColumn.UUID_COLUMN;
 	 *  - JSColumn.EXCLUDED_COLUMN;
 	 *  
-	 * @sampleas com.servoy.j2db.dataprocessing.JSTableObject#js_createNewColumn(String, int, int, boolean, boolean)
+	 * @sampleas com.servoy.j2db.dataprocessing.JSTableObject#js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 * 
 	 * @param flag the flag to set
 	 * @param set true for set flag, false for clear flag

@@ -787,10 +787,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return true if the foundset is now in find mode, false otherwise.
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(boolean, boolean)
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean, Boolean)
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
 	 * @see com.servoy.j2db.FormController$JSForm#js_find()
-	 * @see com.servoy.j2db.FormController$JSForm#js_search(boolean, boolean)
+	 * @see com.servoy.j2db.FormController$JSForm#js_search(Boolean, Boolean)
 	 */
 	public boolean js_find()
 	{
@@ -825,7 +825,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
 	 * 
-	 * @sampleas js_search(boolean, boolean)
+	 * @sampleas js_search(Boolean, Boolean)
 	 *
 	 * @return the recordCount
 	 * 
@@ -842,7 +842,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
 	 * 
-	 * @sampleas js_search(boolean, boolean)
+	 * @sampleas js_search(Boolean, Boolean)
 	 *
 	 * @param clearLastResults boolean, clear previous search, default true  
 	 * 
@@ -2554,7 +2554,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Duplicate record at index in the foundset, change selection to new record.
 	 *
-	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
 	 * 
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param onTop when true the new record is added as the topmost record.
@@ -2569,7 +2569,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Duplicate record at index in the foundset, change selection to new record, place on top.
 	 *
-	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
 	 * 
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 *  
@@ -2583,7 +2583,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Duplicate selected record, change selection to new record.
 	 *
-	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
 	 * 
 	 * @param onTop when true the new record is added as the topmost record.
 	 *  
@@ -2597,7 +2597,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Duplicate selected record.
 	 *
-	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
 	 * 
 	 * @param onTop when true the new record is added as the topmost record.
 	 * @param changeSelection when true the selection is changed to the duplicated record.
@@ -2612,7 +2612,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Duplicate current record, change selection to new record, place on top.
 	 *
-	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
 	 * 
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
@@ -2624,7 +2624,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Duplicate record at index in the foundset.
 	 *
-	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
 	 * 
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param onTop when true the new record is added as the topmost record.
@@ -2643,7 +2643,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Duplicate record at index in the foundset, change selection to new record.
 	 *
-	 * @sampleas js_duplicateRecord(int, int, boolean)
+	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
 	 * 
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param location the new record is added at specified index

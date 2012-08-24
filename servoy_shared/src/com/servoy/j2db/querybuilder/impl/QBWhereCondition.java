@@ -74,6 +74,9 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
 	 * query.where.add("mycond", query.columns.orderdate.isNull)
+	 * 
+	 * @param name the name of the condition 
+	 * @param condition the condition to add
 	 */
 	public QBWhereCondition js_add(String name, QBCondition condition)
 	{
