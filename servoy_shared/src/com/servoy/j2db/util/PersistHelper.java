@@ -502,7 +502,7 @@ public class PersistHelper
 		return retval;
 	}
 
-	public static Font createFontByFamily(String family, int style, int size)
+	private static Font createFontByFamily(String family, int style, int size)
 	{
 		initFonts();
 		StringTokenizer tk = new StringTokenizer(family.toString(), ","); //$NON-NLS-1$

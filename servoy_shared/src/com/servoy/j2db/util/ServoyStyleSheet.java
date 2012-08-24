@@ -216,11 +216,6 @@ public class ServoyStyleSheet implements IStyleSheet
 
 				}
 			}
-			Font familyFont = PersistHelper.createFontByFamily(family, style, size);
-			if (familyFont != null)
-			{
-				return familyFont;
-			}
 			return PersistHelper.createFont(family, style, size);
 		}
 		return null;
