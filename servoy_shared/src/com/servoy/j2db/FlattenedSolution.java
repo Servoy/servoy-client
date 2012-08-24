@@ -422,16 +422,21 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public Solution getSolutionCopy()
 	{
+		return getSolutionCopy(true);
+	}
+
+	public Solution getSolutionCopy(boolean create)
+	{
 		if (mainSolution == null)
 		{
 			if (loginFlattenedSolution != null)
 			{
-				return loginFlattenedSolution.getSolutionCopy();
+				return loginFlattenedSolution.getSolutionCopy(create);
 			}
 			return null;
 		}
 
-		if (copySolution != null) return copySolution;
+		if (copySolution != null || !create) return copySolution;
 
 		try
 		{
@@ -817,13 +822,22 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private FlattenedForm createFlattenedForm(Form form)
 	{
 		Form myForm;
-		if (form.getParent() == getSolution())
+		Solution solcopy = getSolutionCopy(false);
+		if (form.getParent() == getSolution() || form.getParent() == solcopy)
 		{
 			myForm = form;
 		}
 		else
 		{
-			myForm = (Form)getSolution().getChild(form.getUUID());
+			myForm = null;
+			if (solcopy != null)
+			{
+				myForm = (Form)solcopy.getChild(form.getUUID());
+			}
+			if (myForm == null)
+			{
+				myForm = (Form)getSolution().getChild(form.getUUID());
+			}
 			if (myForm == null)
 			{
 				throw new RuntimeException("Cannot find form '" + form + "' in solution '" + getSolution() + "'");
