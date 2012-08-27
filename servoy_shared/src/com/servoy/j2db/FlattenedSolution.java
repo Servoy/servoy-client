@@ -838,6 +838,14 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			{
 				myForm = (Form)getSolution().getChild(form.getUUID());
 			}
+			if (myForm == null && modules != null)
+			{
+				for (Solution mod : modules)
+				{
+					myForm = (Form)mod.getChild(form.getUUID());
+					if (myForm != null) break;
+				}
+			}
 			if (myForm == null)
 			{
 				throw new RuntimeException("Cannot find form '" + form + "' in solution '" + getSolution() + "'");
