@@ -1188,8 +1188,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	/**
 	 * The method that is triggered when a record is being saved. 
-	 * A record is saved when a user clicks out of it (for example on an empty part of the layout or to another form); can return false (for example as part of a validation) where a condition must be changed to return true. 
-	 * NOTE: The name of this property has been changed from onRecordSave.
+	 * A record is saved when a user clicks out of it (for example on an empty part of the layout or to another form).
+	 * When the method returns false (for example as part of a validation), the user cannot leave the record, for example in
+	 * a table view a user cannot move to another record when the callback returns false.
 	 * 
 	 * @templatedescription Callback method form when editing is stopped
 	 * @templatename onRecordEditStop
