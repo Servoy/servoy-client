@@ -82,14 +82,18 @@ public class LibActivationHandler implements IMessageProvider
 		public final FullLibDependencyDeclaration toSelect;
 		/** the .exp file that contains the dependency to select */
 		public final File toSelectSourceExp;
-		/** this is a list of either newly installed libs or already installed libs that will not be used (might have been before) */
-		public final FullLibDependencyDeclaration[] toBeRemoved;
+		/** this is a list of either newly installed libs or already installed libs that will not be used (might have been before); can be null in case of uninstall */
+		public final FullLibDependencyDeclaration[] toBeDeactivated;
+		/** this is a list of uninstalled instances of this lib; can be null */
+		public final FullLibDependencyDeclaration[] uninstalled;
 
-		public LibActivation(FullLibDependencyDeclaration toSelect, File toSelectSourceExp, FullLibDependencyDeclaration[] toBeRemoved)
+		public LibActivation(FullLibDependencyDeclaration toSelect, File toSelectSourceExp, FullLibDependencyDeclaration[] toBeDeactivated,
+			FullLibDependencyDeclaration[] uninstalled)
 		{
 			this.toSelect = toSelect;
 			this.toSelectSourceExp = toSelectSourceExp;
-			this.toBeRemoved = toBeRemoved;
+			this.toBeDeactivated = toBeDeactivated;
+			this.uninstalled = uninstalled;
 		}
 	}
 
@@ -107,46 +111,61 @@ public class LibActivationHandler implements IMessageProvider
 	{
 		for (LibActivation libActivation : libActivations)
 		{
-			if (libActivation.toBeRemoved != null)
-			{
-				removeLibs(libActivation.toBeRemoved, libActivation.toSelect);
-			}
-
+			deactivateLibs(libActivation.toBeDeactivated, libActivation.uninstalled, libActivation.toSelect);
 			activateLib(libActivation);
 		}
 	}
 
-	protected void removeLibs(FullLibDependencyDeclaration[] toBeRemoved, FullLibDependencyDeclaration toActivate)
+	protected void deactivateLibs(FullLibDependencyDeclaration[] toBeDeactivated, FullLibDependencyDeclaration[] uninstalled,
+		FullLibDependencyDeclaration toActivate)
 	{
-		for (FullLibDependencyDeclaration libVersion : toBeRemoved)
+		if (toBeDeactivated != null)
 		{
-			File libFileToBeRemoved = getLibFile(libVersion);
-			if (libFileToBeRemoved != null && libFileToBeRemoved.exists())
+			for (FullLibDependencyDeclaration libVersion : toBeDeactivated)
 			{
-				// check to see if it's used in any plugin jnlp file; if it is, edit the JNLP and remember the change
-				if (!toActivate.relativePath.equals(libVersion.relativePath))
+				deactivateLib(libVersion, false, toActivate);
+			}
+		}
+		if (uninstalled != null)
+		{
+			for (FullLibDependencyDeclaration libVersion : uninstalled)
+			{
+				deactivateLib(libVersion, true, toActivate);
+			}
+		}
+	}
+
+	protected void deactivateLib(FullLibDependencyDeclaration libVersion, boolean uninstalled, FullLibDependencyDeclaration toActivate)
+	{
+		File libFileToBeRemoved = getLibFile(libVersion);
+		if (libFileToBeRemoved != null && (libFileToBeRemoved.exists() || uninstalled))
+		{
+			// check to see if it's used in any plugin jnlp file; if it is, edit the JNLP and remember the change
+			if (!toActivate.relativePath.equals(libVersion.relativePath))
+			{
+				if (pluginsDir.exists() && pluginsDir.isDirectory())
 				{
-					if (pluginsDir.exists() && pluginsDir.isDirectory())
+					Collection<File> jnlps = FileUtils.listFiles(pluginsDir, new String[] { "jnlp" }, true); //$NON-NLS-1$
+					Iterator<File> it = jnlps.iterator();
+					while (it.hasNext())
 					{
-						Collection<File> jnlps = FileUtils.listFiles(pluginsDir, new String[] { "jnlp" }, true); //$NON-NLS-1$
-						Iterator<File> it = jnlps.iterator();
-						while (it.hasNext())
-						{
-							File jnlp = it.next();
-							replaceReferencesInJNLP(jnlp, libFileToBeRemoved, toActivate);
-						}
-					}
-					else
-					{
-						Debug.warn("[RI] Cannot find plugins directory when choosing lib version."); //$NON-NLS-1$
+						File jnlp = it.next();
+						replaceReferencesInJNLP(jnlp, libFileToBeRemoved, toActivate);
 					}
 				}
+				else
+				{
+					Debug.warn("[RI] Cannot find plugins directory when choosing lib version."); //$NON-NLS-1$
+				}
+			}
 
+			if (!uninstalled)
+			{
 				// delete the lib file
 				boolean deleted = libFileToBeRemoved.delete();
 				if (!deleted)
 				{
-					String tmp = "Cannot deactivate lib version " + toBeRemoved + " - " + libFileToBeRemoved + "."; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					String tmp = "Cannot deactivate lib version " + libVersion + " - " + libFileToBeRemoved + "."; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					messages.addError(tmp);
 					Debug.warn(tmp);
 				}

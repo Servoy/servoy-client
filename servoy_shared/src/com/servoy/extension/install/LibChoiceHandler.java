@@ -26,8 +26,8 @@ import com.servoy.extension.IFileBasedExtensionProvider;
 import com.servoy.extension.IMessageProvider;
 import com.servoy.extension.Message;
 import com.servoy.extension.MessageKeeper;
+import com.servoy.extension.dependency.ILibVersionChooser;
 import com.servoy.extension.dependency.LibChoice;
-import com.servoy.extension.dependency.MaxVersionLibChooser;
 import com.servoy.extension.dependency.TrackableLibDependencyDeclaration;
 import com.servoy.extension.install.LibActivationHandler.LibActivation;
 import com.servoy.extension.parser.EXPParser;
@@ -44,10 +44,11 @@ public class LibChoiceHandler implements IMessageProvider
 {
 
 	protected IEXPParserPool parserPool;
-	protected IExtensionProvider extensionProvider;
+	protected IExtensionProvider extensionProvider; // can be null in case of uninstall
 	protected IFileBasedExtensionProvider installedExtensionsProvider;
 
 	protected MessageKeeper messages = new MessageKeeper();
+	protected List<LibActivation> activations = new ArrayList<LibActivation>();
 
 	public LibChoiceHandler(IFileBasedExtensionProvider installedExtensionsProvider, IExtensionProvider extensionProvider, IEXPParserPool parserPool)
 	{
@@ -56,32 +57,59 @@ public class LibChoiceHandler implements IMessageProvider
 		this.parserPool = parserPool;
 	}
 
-	public void handleChoices(LibChoice[] libChoices, MaxVersionLibChooser maxVersionLibChooser, LibActivationHandler libActivationHandler)
+	/**
+	 * Chooses the lib versions that will get activated for choices.
+	 * This MUST be called BEFORE the actuall install/uninstall/replace process executes, so while any uninstalled extensions are still available (installed),
+	 * because access is needed to them for getting the uninstalledLibDependencies file paths.
+	 * @param libChoices the lib choices to be made.
+	 * @param libVersionChooser the chooser to apply to each choice.
+	 */
+	public void prepareChoices(LibChoice[] libChoices, ILibVersionChooser libVersionChooser)
 	{
-		List<LibActivation> activations = new ArrayList<LibActivation>();
+		activations.clear();
+
 		for (LibChoice choice : libChoices)
 		{
-			TrackableLibDependencyDeclaration chosenOne = maxVersionLibChooser.chooseLibDeclaration(choice);
+			TrackableLibDependencyDeclaration chosenOne = libVersionChooser.chooseLibDeclaration(choice);
 			List<FullLibDependencyDeclaration> shovedLibs = new ArrayList<FullLibDependencyDeclaration>();
+			List<FullLibDependencyDeclaration> uninstalledLibs = null;
 			for (TrackableLibDependencyDeclaration ldd : choice.libDependencies)
 			{
 				if (chosenOne != ldd) shovedLibs.add(getFullDependencyDeclaration(ldd));
 			}
+			if (choice.uninstalledLibDependencies != null)
+			{
+				uninstalledLibs = new ArrayList<FullLibDependencyDeclaration>();
+				for (TrackableLibDependencyDeclaration ldd : choice.uninstalledLibDependencies)
+				{
+					uninstalledLibs.add(getFullDependencyDeclaration(ldd));
+				}
+			}
 			activations.add(new LibActivation(getFullDependencyDeclaration(chosenOne), getEXPFile(chosenOne),
-				shovedLibs.toArray(new FullLibDependencyDeclaration[shovedLibs.size()])));
+				shovedLibs.toArray(new FullLibDependencyDeclaration[shovedLibs.size()]), uninstalledLibs != null
+					? uninstalledLibs.toArray(new FullLibDependencyDeclaration[uninstalledLibs.size()]) : null));
 		}
+	}
+
+	/**
+	 * Gives the prepared choices to the libActivationHandler for actual activation/deactivation of lib versions.
+	 * This MUST be called AFTER the actuall install/uninstall/replace process executes, to make sure any herein activated lib version is
+	 * not then deleted by that process (more then one extension/version could install the lib in the same path).
+	 * @param libActivationHandler the handles the activations.
+	 */
+	public void handlePreparedChoices(LibActivationHandler libActivationHandler)
+	{
 		libActivationHandler.activateLibVersions(activations.toArray(new LibActivation[activations.size()]));
 	}
 
-
 	protected File getEXPFile(TrackableLibDependencyDeclaration tldd)
 	{
-		File f;
+		File f = null;
 		if (tldd.declaringExtensionInstalled)
 		{
 			f = installedExtensionsProvider.getEXPFile(tldd.declaringExtensionId, tldd.declaringExtensionVersion, null);
 		}
-		else
+		else if (extensionProvider != null)
 		{
 			f = extensionProvider.getEXPFile(tldd.declaringExtensionId, tldd.declaringExtensionVersion, null);
 		}

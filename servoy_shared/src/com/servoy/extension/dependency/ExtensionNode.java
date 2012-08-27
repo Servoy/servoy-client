@@ -35,11 +35,17 @@ public class ExtensionNode implements Serializable
 	public final static int SIMPLE_DEPENDENCY_RESOLVE = 1;
 	public final static int UPGRADE_RESOLVE = 2;
 	public final static int DOWNGRADE_RESOLVE = 3;
+	public final static int UNINSTALL_RESOLVE = 4;
 
-	public final String id;
-	public final String version;
 	public final int resolveType;
+	public final String id;
+
+	/** The already installed version; will be null in case of SIMPLE_DEPENDENCY_RESOLVE. */
 	public final String installedVersion;
+
+	/** The new version; will be null in case of UNINSTALL_RESOLVE. */
+	public final String version;
+
 
 	/** 
 	 * used for computing the install order; is only filled properly when a new
@@ -52,7 +58,9 @@ public class ExtensionNode implements Serializable
 	 */
 	protected transient List<ExtensionNode> brokenDepChildren = new ArrayList<ExtensionNode>();
 
-
+	/**
+	 * At least one of version and installeVersion must not be null.
+	 */
 	public ExtensionNode(String id, String version, String installedVersion)
 	{
 		this.id = id;
@@ -61,6 +69,10 @@ public class ExtensionNode implements Serializable
 		if (installedVersion == null)
 		{
 			this.resolveType = SIMPLE_DEPENDENCY_RESOLVE;
+		}
+		else if (version == null)
+		{
+			this.resolveType = UNINSTALL_RESOLVE;
 		}
 		else
 		{

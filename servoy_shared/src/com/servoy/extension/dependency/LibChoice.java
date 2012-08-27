@@ -31,24 +31,31 @@ public class LibChoice implements Serializable
 
 	/** Whether or not the listed lib versions/dependencies are in conflict, or there is no conflict, but still one must be chosen. */
 	public final boolean conflict;
-	/** The list of lib version declarations for this lib id on the dependency tree path. */
+
+	/** The list of lib version declarations for this lib id on the dependency tree path; this are from the extensions that will still be available after the whole install/uninstall/replace process. */
 	public final TrackableLibDependencyDeclaration[] libDependencies;
+
+	/** The list of lib version declarations for this lib id that will be uninstalled after the whole install/uninstall/replace process. Can be null in case of install/replace. */
+	public final TrackableLibDependencyDeclaration[] uninstalledLibDependencies;
 
 	/**
 	 * Creates a new set of lib dependency declarations to choose from for a lib id.
 	 * @param conflict if the listed lib versions/dependencies are in conflict, or there is no conflict, but still one must be chosen.
-	 * @param libDependencies the list of lib version declarations for this lib id on the dependency tree path.
+	 * @param libDependencies the list of lib version declarations for this lib id on the dependency tree path; this are from the extensions that will still be available after the whole install/uninstall/replace process.
+	 * @param uninstalledLibDependencies the list of lib version declarations for this lib id that will be uninstalled after the whole install/uninstall/replace process. Can be null in case of install/replace.
 	 */
-	public LibChoice(boolean conflict, TrackableLibDependencyDeclaration[] libDependencies)
+	public LibChoice(boolean conflict, TrackableLibDependencyDeclaration[] libDependencies, TrackableLibDependencyDeclaration[] uninstalledLibDependencies)
 	{
 		this.conflict = conflict;
 		this.libDependencies = libDependencies;
+		this.uninstalledLibDependencies = uninstalledLibDependencies;
 	}
 
 	@Override
 	public String toString()
 	{
-		return (conflict ? "conflict: " : "choice: ") + Arrays.asList(libDependencies);
+		return (conflict ? "conflict: " : "choice: ") + Arrays.asList(libDependencies) +
+			(uninstalledLibDependencies != null ? "; uninstalled: " + Arrays.asList(uninstalledLibDependencies) : "");
 	}
 
 }

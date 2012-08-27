@@ -19,19 +19,18 @@ package com.servoy.extension.dependency;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Stack;
 
 import com.servoy.extension.DependencyMetadata;
 import com.servoy.extension.ExtensionDependencyDeclaration;
 import com.servoy.extension.IExtensionProvider;
-import com.servoy.extension.IMessageProvider;
 import com.servoy.extension.LibDependencyDeclaration;
-import com.servoy.extension.Message;
-import com.servoy.extension.MessageKeeper;
 import com.servoy.extension.VersionStringUtils;
 import com.servoy.j2db.util.Utils;
 
@@ -44,7 +43,7 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class DependencyResolver implements IMessageProvider
+public class DependencyResolver extends AbstractResolver
 {
 
 	private final IExtensionProvider extensionProvider;
@@ -53,8 +52,8 @@ public class DependencyResolver implements IMessageProvider
 	private Map<String, DependencyMetadata> allInstalledExtensions; // created from installedExtensions; <extensionID, version>
 
 	// the following members may be altered and restored while trying to resolve extensions
-	private Map<String, List<TrackableLibDependencyDeclaration>> allInstalledLibs; // created from installedExtensions; <libID, array(lib_declarattions)>
-	private Map<String, Integer> uninstalledLibIds; // when a tree path simulates extension uninstall, remember which libs were uninstalled, cause a lib choice might be needed in this case (if only installed libs remain we still need to change active lib version)
+	private Map<String, List<TrackableLibDependencyDeclaration>> allInstalledLibs; // initially created from installedExtensions; <libID, array(lib_declarattions)>
+	private Map<String, List<TrackableLibDependencyDeclaration>> uninstalledLibs; // when a tree path simulates extension uninstall, remember which libs were uninstalled, cause a lib choice might be needed in this case (if only installed libs remain we still need to change active lib version)
 
 	private Map<String, String> visitedExtensions;
 	private Map<String, List<TrackableLibDependencyDeclaration>> visitedLibs;
@@ -62,7 +61,6 @@ public class DependencyResolver implements IMessageProvider
 	private Stack<ExtensionNode> treePath;
 
 	private List<DependencyPath> results;
-	private final MessageKeeper messages = new MessageKeeper();
 
 	/**
 	 * See class docs.
@@ -122,9 +120,9 @@ public class DependencyResolver implements IMessageProvider
 				{
 					visitedExtensions = new HashMap<String, String>();
 					visitedLibs = new HashMap<String, List<TrackableLibDependencyDeclaration>>();
+					uninstalledLibs = new HashMap<String, List<TrackableLibDependencyDeclaration>>();
 					stillToResolve = new Stack<StillToResolve>();
 					treePath = new Stack<ExtensionNode>();
-					uninstalledLibIds = new HashMap<String, Integer>();
 
 					resolveDependenciesRecursive(extension[0], null, false);
 				}
@@ -147,20 +145,6 @@ public class DependencyResolver implements IMessageProvider
 		return results != null ? new ArrayList<DependencyPath>(results) : null;
 	}
 
-	/**
-	 * Can be called after a call to {@link #resolveDependencies(String, String)}.
-	 * @return a list of reasons why some tree paths were not resolved. Useful especially when no tree path was resolved ({@link #getResults()} == null).
-	 */
-	public synchronized Message[] getMessages()
-	{
-		return messages.getMessages();
-	}
-
-	public void clearMessages()
-	{
-		messages.clearMessages();
-	}
-
 	protected void processInstalledExtensions()
 	{
 		allInstalledLibs = new HashMap<String, List<TrackableLibDependencyDeclaration>>();
@@ -171,7 +155,7 @@ public class DependencyResolver implements IMessageProvider
 			allInstalledExtensions.put(extension.id, extension);
 			if (extension.getLibDependencies() != null)
 			{
-				addToLibsMap(extension.id, extension.version, extension.getLibDependencies(), true);
+				addToLibsMap(extension.id, extension.version, extension.getLibDependencies(), allInstalledLibs, true);
 			}
 		}
 	}
@@ -182,11 +166,8 @@ public class DependencyResolver implements IMessageProvider
 	 * It also looks for possibilities to update installed extensions so that the given dependency can be installed.
 	 * 
 	 * @param extension description of the given extension dependency.
-	 * @param visitedExtensions keeps track of recursively visited extension ids, to avoid cycles. The map's key is the extension id, the map's value is the version.
-	 * @param visitedLibs keeps track of lib dependencies encountered in current tree path.
 	 * @param parentNode parent extension node in the search tree.
 	 * @param brokenDependency true if this call is the result of handling an inverse broken dependency, false if it's a normal dependency.
-	 * @return the root node of the resolved dependency tree. Null if the dependency could not be resolved due to missing extension(s)/version(s) or conflict(s).
 	 */
 	protected void resolveDependenciesRecursive(DependencyMetadata extension, ExtensionNode parentNode, boolean brokenDependency)
 	{
@@ -261,12 +242,12 @@ public class DependencyResolver implements IMessageProvider
 			{
 				// add lib and extension dependencies to this tree path
 				visitedExtensions.put(extension.id, extension.version);
-				if (extension.getLibDependencies() != null) addToLibsMap(extension.id, extension.version, extension.getLibDependencies(), false);
+				if (extension.getLibDependencies() != null) addToLibsMap(extension.id, extension.version, extension.getLibDependencies(), visitedLibs, false);
 				treePath.push(node);
 				if (libsToBeRemovedBecauseOfReplace[0] != null)
 				{
 					removeFromLibsMap(extension.id, libsToBeRemovedBecauseOfReplace[0], allInstalledLibs);
-					addUninstalledLibIds(libsToBeRemovedBecauseOfReplace[0]);
+					addToLibsMap(extension.id, node.installedVersion, libsToBeRemovedBecauseOfReplace[0], uninstalledLibs, true);
 				}
 			} // else it's an already resolved or already installed node
 
@@ -276,7 +257,7 @@ public class DependencyResolver implements IMessageProvider
 				// we are only doing this here because while recursively creating the tree path, some installed extensions might be replaced with other versions later in the tree path;
 				// so we can't check this at each recursive call - just here at the end
 				boolean[] conflictsFound = new boolean[] { false };
-				LibChoice[] libConflicts = findLibConflicts(visitedLibs, allInstalledLibs, conflictsFound);
+				LibChoice[] libConflicts = findLibChoices(conflictsFound);
 				if (!conflictsFound[0] || ignoreLibConflicts)
 				{
 					if (results == null) results = new ArrayList<DependencyPath>();
@@ -303,8 +284,8 @@ public class DependencyResolver implements IMessageProvider
 				treePath.pop();
 				if (libsToBeRemovedBecauseOfReplace[0] != null)
 				{
-					addToLibsMap(extension.id, extension.version, libsToBeRemovedBecauseOfReplace[0], true);
-					removeUninstalledLibIds(libsToBeRemovedBecauseOfReplace[0]);
+					addToLibsMap(extension.id, extension.version, libsToBeRemovedBecauseOfReplace[0], allInstalledLibs, true);
+					removeFromLibsMap(extension.id, libsToBeRemovedBecauseOfReplace[0], uninstalledLibs);
 				}
 			} // else it's an already resolved or already installed node
 		}
@@ -323,153 +304,132 @@ public class DependencyResolver implements IMessageProvider
 
 	protected boolean handleDependencies(DependencyMetadata extension, int[] pops, ExtensionNode parentNode)
 	{
-		boolean ok = false;
-		boolean dependenciesOKForNow;
-
-		// check for lib dependency conflicts with this version for current tree path
-		dependenciesOKForNow = checkNoLibConflicts(extension.id, extension.version, extension.getLibDependencies(), visitedLibs);
+		boolean ok = true;
 
 		// schedule resolve on all extension dependencies of this version
-		if (dependenciesOKForNow)
+		if (extension.getExtensionDependencies() != null && extension.getExtensionDependencies().length > 0)
 		{
-			if (extension.getExtensionDependencies() != null && extension.getExtensionDependencies().length > 0)
+			for (int i = extension.getExtensionDependencies().length - 1; ok && (i >= 0); i--)
 			{
-				for (int i = extension.getExtensionDependencies().length - 1; dependenciesOKForNow && (i >= 0); i--)
+				DependencyMetadata[] availableDependencyVersions = extensionProvider.getDependencyMetadata(extension.getExtensionDependencies()[i]);
+
+				// the provider might not have available a version of this dependency that is already installed and can be used
+				DependencyMetadata installedExtDep = allInstalledExtensions.get(extension.getExtensionDependencies()[i].id);
+				if (installedExtDep != null &&
+					VersionStringUtils.belongsToInterval(installedExtDep.version, extension.getExtensionDependencies()[i].minVersion,
+						extension.getExtensionDependencies()[i].maxVersion))
 				{
-					DependencyMetadata[] availableDependencyVersions = extensionProvider.getDependencyMetadata(extension.getExtensionDependencies()[i]);
-
-					// the provider might not have available a version of this dependency that is already installed and can be used
-					DependencyMetadata installedExtDep = allInstalledExtensions.get(extension.getExtensionDependencies()[i].id);
-					if (installedExtDep != null &&
-						VersionStringUtils.belongsToInterval(installedExtDep.version, extension.getExtensionDependencies()[i].minVersion,
-							extension.getExtensionDependencies()[i].maxVersion))
-					{
-						boolean foundInProvider = false;
-						if (availableDependencyVersions != null && availableDependencyVersions.length > 0)
-						{
-							for (DependencyMetadata dmd : availableDependencyVersions)
-							{
-								if (dmd.id.equals(installedExtDep.id) && dmd.version.equals(installedExtDep.version))
-								{
-									foundInProvider = true;
-									break;
-								}
-							}
-						}
-						if (!foundInProvider) availableDependencyVersions = Utils.arrayAdd(availableDependencyVersions, installedExtDep, false);
-					}
-
+					boolean foundInProvider = false;
 					if (availableDependencyVersions != null && availableDependencyVersions.length > 0)
 					{
-						stillToResolve.push(new StillToResolve(availableDependencyVersions, parentNode, false));
-						pops[0]++;
+						for (DependencyMetadata dmd : availableDependencyVersions)
+						{
+							if (dmd.id.equals(installedExtDep.id) && dmd.version.equals(installedExtDep.version))
+							{
+								foundInProvider = true;
+								break;
+							}
+						}
 					}
-					else
-					{
-						messages.addWarning("Cannot find a compatible version for extension dependency: " + extension.getExtensionDependencies()[i] + ".");
-						dependenciesOKForNow = false;
-					}
+					if (!foundInProvider) availableDependencyVersions = Utils.arrayAdd(availableDependencyVersions, installedExtDep, false);
 				}
 
-				ok = dependenciesOKForNow; // if true, it is a valid path for now; it will continue because stillToResolve is not empty for sure
+				if (availableDependencyVersions != null && availableDependencyVersions.length > 0)
+				{
+					stillToResolve.push(new StillToResolve(availableDependencyVersions, parentNode, false));
+					pops[0]++;
+				}
+				else
+				{
+					messages.addWarning("Cannot find a compatible version for extension dependency: " + extension.getExtensionDependencies()[i] + ".");
+					ok = false;
+				}
 			}
-			else
-			{
-				// no more dependencies - so valid path
-				ok = true;
-			}
-		} // else lib conflicts - invalid tree path
+		}
+
 		return ok;
 	}
 
 	protected boolean handleReplace(DependencyMetadata extension, LibDependencyDeclaration[][] libsToBeRemovedBecauseOfUpdate, int[] pops,
 		ExtensionNode parentNode)
 	{
-		boolean ok = false;
 		// already installed extension, with different version; it is not visited before in this tree path so we might be able to update it
-		boolean dependenciesOKForNow;
+		boolean ok = true;
 
-		// check for lib dependency conflicts with this version for current tree path
-		dependenciesOKForNow = checkNoLibConflicts(extension.id, extension.version, extension.getLibDependencies(), visitedLibs);
-
-		if (dependenciesOKForNow)
+		// find who used to depend on old version, as well as the old version
+		List<DependencyMetadata> brokenDependenciesToOldVersion = new ArrayList<DependencyMetadata>();
+		for (DependencyMetadata dmd : installedExtensions)
 		{
-			// find who used to depend on old version, as well as the old version
-			List<DependencyMetadata> brokenDependenciesToOldVersion = new ArrayList<DependencyMetadata>();
-			for (DependencyMetadata dmd : installedExtensions)
+			if (dmd.id.equals(extension.id))
 			{
-				if (dmd.id.equals(extension.id))
+				libsToBeRemovedBecauseOfUpdate[0] = dmd.getLibDependencies();
+			}
+			else
+			{
+				boolean noBrokenDep = true;
+				if (dmd.getExtensionDependencies() != null && dmd.getExtensionDependencies().length > 0)
 				{
-					libsToBeRemovedBecauseOfUpdate[0] = dmd.getLibDependencies();
-				}
-				else
-				{
-					boolean noBrokenDep = true;
-					if (dmd.getExtensionDependencies() != null && dmd.getExtensionDependencies().length > 0)
+					for (int i = 0; noBrokenDep && (i < dmd.getExtensionDependencies().length); i++)
 					{
-						for (int i = 0; noBrokenDep && (i < dmd.getExtensionDependencies().length); i++)
+						// see if it's a dependency broken by this update
+						if (dmd.getExtensionDependencies()[i].id.equals(extension.id) &&
+							!VersionStringUtils.belongsToInterval(extension.version, dmd.getExtensionDependencies()[i].minVersion,
+								dmd.getExtensionDependencies()[i].maxVersion))
 						{
-							// see if it's a dependency broken by this update
-							if (dmd.getExtensionDependencies()[i].id.equals(extension.id) &&
-								!VersionStringUtils.belongsToInterval(extension.version, dmd.getExtensionDependencies()[i].minVersion,
-									dmd.getExtensionDependencies()[i].maxVersion))
-							{
-								brokenDependenciesToOldVersion.add(dmd);
-								noBrokenDep = false;
-							}
+							brokenDependenciesToOldVersion.add(dmd);
+							noBrokenDep = false;
 						}
 					}
 				}
 			}
+		}
 
-			// find alternatives to broken dependencies and schedule a resolve on them
-			for (int i = brokenDependenciesToOldVersion.size() - 1; dependenciesOKForNow && (i >= 0); i--)
+		// find alternatives to broken dependencies and schedule a resolve on them
+		for (int i = brokenDependenciesToOldVersion.size() - 1; ok && (i >= 0); i--)
+		{
+			DependencyMetadata[] possibleReplacements = extensionProvider.getDependencyMetadata(new ExtensionDependencyDeclaration(
+				brokenDependenciesToOldVersion.get(i).id, VersionStringUtils.UNBOUNDED, VersionStringUtils.UNBOUNDED));
+			if (possibleReplacements != null)
 			{
-				DependencyMetadata[] possibleReplacements = extensionProvider.getDependencyMetadata(new ExtensionDependencyDeclaration(
-					brokenDependenciesToOldVersion.get(i).id, VersionStringUtils.UNBOUNDED, VersionStringUtils.UNBOUNDED));
-				if (possibleReplacements != null)
+				// check which versions are compatible with the new updated dependency
+				List<DependencyMetadata> compatibleAlternatives = new ArrayList<DependencyMetadata>();
+				for (DependencyMetadata candidate : possibleReplacements)
 				{
-					// check which versions are compatible with the new updated dependency
-					List<DependencyMetadata> compatibleAlternatives = new ArrayList<DependencyMetadata>();
-					for (DependencyMetadata candidate : possibleReplacements)
+					boolean noDependencyConflict = true;
+					if (candidate.getExtensionDependencies() != null && candidate.getExtensionDependencies().length > 0)
 					{
-						boolean noDependencyConflict = true;
-						if (candidate.getExtensionDependencies() != null && candidate.getExtensionDependencies().length > 0)
+						for (int j = 0; noDependencyConflict && (j < candidate.getExtensionDependencies().length); j++)
 						{
-							for (int j = 0; noDependencyConflict && (j < candidate.getExtensionDependencies().length); j++)
+							if (candidate.getExtensionDependencies()[j].id.equals(extension.id) &&
+								!VersionStringUtils.belongsToInterval(extension.version, candidate.getExtensionDependencies()[j].minVersion,
+									candidate.getExtensionDependencies()[j].maxVersion))
 							{
-								if (candidate.getExtensionDependencies()[j].id.equals(extension.id) &&
-									!VersionStringUtils.belongsToInterval(extension.version, candidate.getExtensionDependencies()[j].minVersion,
-										candidate.getExtensionDependencies()[j].maxVersion))
-								{
-									noDependencyConflict = false;
-								}
+								noDependencyConflict = false;
 							}
 						}
-						if (noDependencyConflict) compatibleAlternatives.add(candidate);
 					}
-					if (compatibleAlternatives.size() > 0)
-					{
-						// schedule for resolve
-						stillToResolve.push(new StillToResolve(compatibleAlternatives.toArray(new DependencyMetadata[compatibleAlternatives.size()]),
-							parentNode, true));
-						pops[0]++;
-					}
-					else
-					{
-						messages.addWarning("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " +
-							extension + ". Broken extension: " + brokenDependenciesToOldVersion.get(i) + ".");
-						dependenciesOKForNow = false; // other versions of a broken dependency were found, but none was compatible; invalid tree path
-					}
+					if (noDependencyConflict) compatibleAlternatives.add(candidate);
+				}
+				if (compatibleAlternatives.size() > 0)
+				{
+					// schedule for resolve
+					stillToResolve.push(new StillToResolve(compatibleAlternatives.toArray(new DependencyMetadata[compatibleAlternatives.size()]), parentNode,
+						true));
+					pops[0]++;
 				}
 				else
 				{
 					messages.addWarning("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " + extension +
-						"'. Broken extension: '" + brokenDependenciesToOldVersion.get(i) + "'.");
-					dependenciesOKForNow = false; // no replacements for a broken dependency; invalid tree path
+						". Broken extension: " + brokenDependenciesToOldVersion.get(i) + ".");
+					ok = false; // other versions of a broken dependency were found, but none was compatible; invalid tree path
 				}
 			}
-			ok = dependenciesOKForNow; // if true, it is a valid path for now; it will continue because stillToResolve is not empty for sure
+			else
+			{
+				messages.addWarning("An installed extension's replacement is not possible due to resulting broken dependencies. Extension: " + extension +
+					"'. Broken extension: '" + brokenDependenciesToOldVersion.get(i) + "'.");
+				ok = false; // no replacements for a broken dependency; invalid tree path
+			}
 		}
 
 		if (ok)
@@ -483,23 +443,21 @@ public class DependencyResolver implements IMessageProvider
 
 	/**
 	 * Finds multiple lib declarations between visited and installed extensions.
-	 * @param visited extensions visited in the dependency tree-path. Might have conflicts in itself if ignoreLibConflicts == true.
-	 * @param installed the installed lib dependencies.
 	 * @param conflictsFound return length 1 array parameter; it's first element will be set to true if conflicts are found and false otherwise.
 	 * @return an array of lib version lists (per lib id) in case multiple version declarations are found for that lib id. Also specified if that lib id has conflicts or not.
 	 */
-	protected LibChoice[] findLibConflicts(Map<String, List<TrackableLibDependencyDeclaration>> visited,
-		Map<String, List<TrackableLibDependencyDeclaration>> installed, boolean[] conflictsFound)
+	protected LibChoice[] findLibChoices(boolean[] conflictsFound)
 	{
 		// check the lib situation after this supposed install
 		conflictsFound[0] = false;
 		List<LibChoice> libChoices = null;
-		Iterator<Entry<String, List<TrackableLibDependencyDeclaration>>> it = visited.entrySet().iterator(); // visited might have conflicts in itself if ignoreLibConflicts == true 
+		Iterator<Entry<String, List<TrackableLibDependencyDeclaration>>> it = visitedLibs.entrySet().iterator(); // visited might have conflicts in itself if ignoreLibConflicts == true
+		Set<String> createdChoices = new HashSet<String>();
 		while (it.hasNext())
 		{
 			Entry<String, List<TrackableLibDependencyDeclaration>> entry = it.next();
 			List<TrackableLibDependencyDeclaration> visitedLibVersions = entry.getValue();
-			List<TrackableLibDependencyDeclaration> installedLibVersions = installed.get(entry.getKey());
+			List<TrackableLibDependencyDeclaration> installedLibVersions = allInstalledLibs.get(entry.getKey());
 			if (installedLibVersions == null) installedLibVersions = new ArrayList<TrackableLibDependencyDeclaration>();
 
 			if (visitedLibVersions != null && installedLibVersions != null) // visitedLibVersions should always be != null actually at this point
@@ -532,8 +490,11 @@ public class DependencyResolver implements IMessageProvider
 					oneLibConflicts.addAll(visitedLibVersions);
 					oneLibConflicts.addAll(installedLibVersions);
 
+					List<TrackableLibDependencyDeclaration> uninstalled = uninstalledLibs.get(entry.getKey());
 					libChoices.add(new LibChoice(availableLibVersions.size() == 0,
-						oneLibConflicts.toArray(new TrackableLibDependencyDeclaration[oneLibConflicts.size()])));
+						oneLibConflicts.toArray(new TrackableLibDependencyDeclaration[oneLibConflicts.size()]), uninstalled != null
+							? uninstalled.toArray(new TrackableLibDependencyDeclaration[uninstalled.size()]) : null));
+					createdChoices.add(entry.getKey());
 					if (availableLibVersions.size() == 0)
 					{
 						conflictsFound[0] = true;
@@ -550,133 +511,26 @@ public class DependencyResolver implements IMessageProvider
 		// also check for situations where (because of an extension upgrade/downgrade) previously installed
 		// libs were uninstalled, but only one or more declarations with same id still remain installed;
 		// active lib declaration should be updated in this case as well
-		Iterator<String> uit = uninstalledLibIds.keySet().iterator();
+		Iterator<String> uit = uninstalledLibs.keySet().iterator();
 		while (uit.hasNext())
 		{
 			String uninstalledLibId = uit.next();
-			List<TrackableLibDependencyDeclaration> stillInstalledWithSameId = installed.get(uninstalledLibId);
-			if (stillInstalledWithSameId != null && visited.get(uninstalledLibId) == null)
+			if (!createdChoices.contains(uninstalledLibId))
 			{
-				if (libChoices == null) libChoices = new ArrayList<LibChoice>();
-				// do not mark this as install lib conflict (even if they are conflicting) because these libs were already previously installed
-				libChoices.add(new LibChoice(false, stillInstalledWithSameId.toArray(new TrackableLibDependencyDeclaration[stillInstalledWithSameId.size()])));
+				List<TrackableLibDependencyDeclaration> stillInstalledWithSameId = allInstalledLibs.get(uninstalledLibId);
+				if (stillInstalledWithSameId != null)
+				{
+					List<TrackableLibDependencyDeclaration> uninstalled = uninstalledLibs.get(uninstalledLibId);
+					if (libChoices == null) libChoices = new ArrayList<LibChoice>();
+					// do not mark this as install lib conflict (even if they are conflicting) because these libs were already previously installed
+					libChoices.add(new LibChoice(false,
+						stillInstalledWithSameId.toArray(new TrackableLibDependencyDeclaration[stillInstalledWithSameId.size()]),
+						uninstalled.toArray(new TrackableLibDependencyDeclaration[uninstalled.size()])));
+				}
 			}
 		}
 
 		return libChoices == null ? null : libChoices.toArray(new LibChoice[libChoices.size()]);
-	}
-
-	protected boolean checkNoLibConflicts(String extensionId, String extensionVersion, LibDependencyDeclaration[] libDependencies,
-		Map<String, List<TrackableLibDependencyDeclaration>> existingLibDependencies)
-	{
-		if (ignoreLibConflicts) return true;
-
-		boolean noConflict = true;
-		if (libDependencies != null && libDependencies.length > 0)
-		{
-			for (int i = 0; noConflict && (i < libDependencies.length); i++)
-			{
-				LibDependencyDeclaration lib = libDependencies[i];
-				List<TrackableLibDependencyDeclaration> sameVisitedLibs = existingLibDependencies.get(lib.id);
-				if (sameVisitedLibs != null)
-				{
-					List<String> availableLibVersions = new ArrayList<String>(sameVisitedLibs.size() + 1);
-					availableLibVersions.add(lib.version);
-					for (LibDependencyDeclaration sameExistingLib : sameVisitedLibs)
-					{
-						availableLibVersions.add(sameExistingLib.version);
-					}
-					filterOutIncompatibleLibVersions(lib, availableLibVersions);
-					for (LibDependencyDeclaration sameExistingLib : sameVisitedLibs)
-					{
-						filterOutIncompatibleLibVersions(sameExistingLib, availableLibVersions);
-					}
-
-					if (availableLibVersions.size() == 0)
-					{
-						noConflict = false; // incompatible libs...
-
-						// now create a pretty warning message
-						List<TrackableLibDependencyDeclaration> libDepsToList = new ArrayList<TrackableLibDependencyDeclaration>(sameVisitedLibs);
-						libDepsToList.add(new TrackableLibDependencyDeclaration(lib, extensionId, extensionVersion, false));
-						LibChoice justForTheWarning = new LibChoice(true, libDepsToList.toArray(new TrackableLibDependencyDeclaration[libDepsToList.size()]));
-						messages.addWarning("Library dependency incompatibility for lib id '" + lib.id + "': " + justForTheWarning + ".");
-					}
-				}
-			}
-		}
-		return noConflict;
-	}
-
-	/**
-	 * It will remove from the availableLibVersions list the versions that are not compatible with the given lib.
-	 */
-	protected void filterOutIncompatibleLibVersions(LibDependencyDeclaration lib, List<String> availableLibVersions)
-	{
-		Iterator<String> it = availableLibVersions.iterator();
-		while (it.hasNext())
-		{
-			String ver = it.next();
-			if (!VersionStringUtils.belongsToInterval(ver, lib.minVersion, lib.maxVersion))
-			{
-				it.remove();
-			}
-		}
-	}
-
-	protected void addUninstalledLibIds(LibDependencyDeclaration[] libDependencyDeclarations)
-	{
-		for (LibDependencyDeclaration ldd : libDependencyDeclarations)
-		{
-			Integer count = uninstalledLibIds.get(ldd.id);
-			if (count == null) count = Integer.valueOf(1);
-			else count = Integer.valueOf(count.intValue() + 1);
-
-			uninstalledLibIds.put(ldd.id, count);
-		}
-	}
-
-	protected void removeUninstalledLibIds(LibDependencyDeclaration[] libDependencyDeclarations)
-	{
-		for (LibDependencyDeclaration ldd : libDependencyDeclarations)
-		{
-			Integer count = uninstalledLibIds.get(ldd.id); // should never be null
-			if (count.intValue() == 1) uninstalledLibIds.remove(ldd.id);
-			else uninstalledLibIds.put(ldd.id, Integer.valueOf(count.intValue() - 1));
-		}
-	}
-
-	protected void addToLibsMap(String extensionId, String extensionVersion, LibDependencyDeclaration[] libDependencies, boolean installed)
-	{
-		Map<String, List<TrackableLibDependencyDeclaration>> libsMap = (installed ? allInstalledLibs : visitedLibs);
-		for (LibDependencyDeclaration lib : libDependencies)
-		{
-			List<TrackableLibDependencyDeclaration> x = libsMap.get(lib.id);
-			if (x == null)
-			{
-				x = new ArrayList<TrackableLibDependencyDeclaration>(1);
-				libsMap.put(lib.id, x);
-			}
-			x.add(new TrackableLibDependencyDeclaration(lib, extensionId, extensionVersion, installed));
-		}
-	}
-
-	protected void removeFromLibsMap(String extensionId, LibDependencyDeclaration[] libDependencies,
-		Map<String, List<TrackableLibDependencyDeclaration>> libsMap)
-	{
-		for (LibDependencyDeclaration lib : libDependencies)
-		{
-			List<TrackableLibDependencyDeclaration> x = libsMap.get(lib.id);
-			if (x != null)
-			{
-				Iterator<TrackableLibDependencyDeclaration> it = x.iterator();
-				while (it.hasNext())
-				{
-					if (it.next().declaringExtensionId.equals(extensionId)) it.remove();
-				}
-				if (x.size() == 0) libsMap.remove(lib.id);
-			}
-		}
 	}
 
 	protected static class StillToResolve

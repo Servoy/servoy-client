@@ -30,11 +30,15 @@ public class TrackableLibDependencyDeclaration extends LibDependencyDeclaration 
 
 	public final String declaringExtensionId;
 	public final String declaringExtensionVersion;
+
+	/** For an extension that was already installed before the install/replace/uninstall operation this is true. Else false. */
 	public final boolean declaringExtensionInstalled;
 
 	/**
 	 * See {@link LibDependencyDeclaration#LibDependencyDeclaration(String, String, String, String)}.
 	 * @param declaringExtensionId the extension that defines this lib dependency.
+	 * @param declaringExtensionVersion the version of the declaring extension.
+	 * @param declaringExtensionInstalled For an extension that was already installed before the install/replace/uninstall operation this is true. Else false.
 	 */
 	public TrackableLibDependencyDeclaration(String id, String version, String minVersion, String maxVersion, String declaringExtensionId,
 		String declaringExtensionVersion, boolean declaringExtensionInstalled) throws IllegalArgumentException
@@ -60,7 +64,6 @@ public class TrackableLibDependencyDeclaration extends LibDependencyDeclaration 
 	@SuppressWarnings("nls")
 	public String toString()
 	{
-		return super.toString() + " - '" + declaringExtensionId + "'";
+		return super.toString() + " - '" + declaringExtensionId + ", " + declaringExtensionVersion + "'";
 	}
-
 }

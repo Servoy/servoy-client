@@ -29,26 +29,48 @@ import java.util.List;
 public class DependencyPath implements Serializable
 {
 
-	/** The list of extension/version nodes in this valid dependency path. */
-	public final ExtensionNode[] extensionPath;
+	/** true if this is a dependency path for an uninstall operation (in which case only installSequence and libChoices are meaningful),
+	 * and false if it's an install/replace path (in which case all members are meaningful) */
+	public final boolean uninstall;
+
+	/** The list of extension/version nodes in this valid install/replace dependency path. It is not used for uninstall. */
+	public final transient ExtensionNode[] extensionPath;
+
 	/** Any lib choices that must be made on this dependency path. Each lib choice is a list of conflicting/non-conflicting lib declarations with the same lib id but other versions. Can be null. */
 	public final LibChoice[] libChoices;
 
 	public final InstallStep[] installSequence;
 
 	/**
-	 * Creates a new extension dependency path result.
+	 * Creates a new INSTALL/REPLACE extension dependency path result.
 	 * @param extensionPath the list of extension/version nodes in this valid dependency path.
-	 * @param libConflicts any lib conflicts found on this dependency path. First index identifies a list of more then one conflicting lib declarations with the same lib id. Can be null.
+	 * @param libChoices any lib choices found on this dependency path. A list of more then one conflicting/non-conflicting lib declarations with the same lib id that are affected by the INSTALL/REPLACE. Can be null.
 	 */
 	public DependencyPath(ExtensionNode[] extensionPath, LibChoice[] libChoices)
 	{
+		uninstall = false;
+
 		this.extensionPath = extensionPath;
 		this.libChoices = libChoices;
 
 		ArrayList<InstallStep> installSeq = new ArrayList<InstallStep>(extensionPath.length * 2);
 		computeInstallDep(extensionPath[0], installSeq); // at this time, all ExtensionNode children members are usable (valid search tree)
 		installSequence = installSeq.toArray(new InstallStep[installSeq.size()]);
+	}
+
+	/**
+	 * Creates a new UNINSTALL extension dependency path result.
+	 * @param extensionPath the list of installed extensions that depend on the extension to be uninstalled.
+	 * @param libChoices the uninstall operation might have deleted some libs that extensions remaining installed might still need. In
+	 * this case, one of the remaining installed versions of that lib needs to be activated instead. Can be null.
+	 */
+	public DependencyPath(InstallStep[] uninstallSequence, LibChoice[] libChoices)
+	{
+		uninstall = true;
+
+		installSequence = uninstallSequence;
+		this.libChoices = libChoices;
+		extensionPath = null;
 	}
 
 	protected void computeInstallDep(ExtensionNode node, List<InstallStep> installSeq)
@@ -105,7 +127,14 @@ public class DependencyPath implements Serializable
 	@SuppressWarnings("nls")
 	public String toString()
 	{
-		return "{" + Arrays.asList(extensionPath) + ", LIB Choices: " + (libChoices == null ? null : Arrays.asList(libChoices)) + "}";
+		if (uninstall)
+		{
+			return "{ U OP, " + Arrays.asList(installSequence) + ", LIB Choices: " + (libChoices == null ? null : Arrays.asList(libChoices)) + "}";
+		}
+		else
+		{
+			return "{ I/R OP, " + Arrays.asList(extensionPath) + ", LIB Choices: " + (libChoices == null ? null : Arrays.asList(libChoices)) + "}";
+		}
 	}
 
 }
