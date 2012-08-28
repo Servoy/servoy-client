@@ -140,6 +140,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.PageContributor;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
@@ -3490,6 +3491,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			switch (styleAttribute)
 			{
+				case BGIMAGE :
+					String bgImageValStr = style.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString());
+					if (bgImageValStr != null)
+					{
+						TextualStyle headerStyle = new TemplateGenerator.TextualStyle();
+						headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), bgImageValStr);
+
+						return headerStyle.toString();
+					}
+					else
+					{
+						return null;
+					}
 				case BGCOLOR :
 					if (style.getValues(CSS.Attribute.BACKGROUND_COLOR.toString()) != null)
 					{
@@ -3547,6 +3561,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		return null;
 	}
+
+	protected String getHeaderBgImageStyle()
+	{
+		String inlineStyle = getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGIMAGE);
+		//the returned string is style='...' , we nedd to get the ... part
+		if (inlineStyle != null) return inlineStyle.substring(inlineStyle.indexOf('\'') + 1, inlineStyle.length() - 2);
+		return getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGIMAGE);
+	}
+
 
 	protected String getHeaderBgColorStyle()
 	{

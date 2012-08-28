@@ -290,6 +290,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		changesRecorder.setBorder(view.getHeaderBorder());
 		String inlineStyleStr = view.getHeaderBgColorStyle();
 
+
 		if (view.getHeaderBorder() != null)
 		{
 			add(new StyleAppendingModifier(new Model<String>("border-right: none; padding: 0px;"))); //$NON-NLS-1$
@@ -297,6 +298,9 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 		final Properties changes = changesRecorder.getChanges();
 		if (changes.size() > 0) applyStyleChanges(headerColumnTable, changes);
+		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
+
+		inlineStyleStr = view.getHeaderBgImageStyle();
 		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
 
 		ChangesRecorder textChangesRecorder = new ChangesRecorder();

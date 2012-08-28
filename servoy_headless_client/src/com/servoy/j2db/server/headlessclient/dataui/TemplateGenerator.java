@@ -1310,7 +1310,7 @@ public class TemplateGenerator
 							{
 								// filter doesn't get along with rounded border; css should define fallback for this
 								appendValue(retval, pSelector, "filter", "progid:DXImageTransform.Microsoft.gradient(startColorStr=" + colors[0] +
-									", EndColorStr=" + colors[1] + ")");
+									", EndColorStr=" + colors[1] + ", GradientType=" + (val.contains("top") ? "0" : "1") + ")");
 							}
 						}
 						for (String linearIdentifier : ServoyStyleSheet.LinearGradientsIdentifiers)
