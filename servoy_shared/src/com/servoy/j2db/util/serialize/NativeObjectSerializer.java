@@ -259,6 +259,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 		while (jsonKeysIte.hasNext())
 		{
 			jsonKey = jsonKeysIte.next();
+			if (jsonKey.equals("javaClass")) continue;
 			if (!hasPropertyMark || jsonKey.startsWith(PROPERTY_MARK))
 			{
 				if (prefixKeys && jsonKey.startsWith(PROPERTY_MARK))
