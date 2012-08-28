@@ -76,60 +76,62 @@
 		<delete dir="${temp.folder}"/>
 	</target>
 
-	<target name="@dot" depends="init" unless="@dot" description="Create jar: servoy_shared @dot.">
+	<target name="@dot.nestedJars">
+	</target>
+	<target name="@dot" depends="init,@dot.nestedJars" unless="@dot" description="Create jar: servoy_shared @dot.">
 		<delete dir="${build.result.folder}/@dot"/>
 		<mkdir dir="${build.result.folder}/@dot"/>
 		<path id="@dot.classpath">
 			<pathelement path="../org.eclipse.dltk.javascript.rhino/bin/"/>
-			
+			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_5.2.14.1027/bin/"/>
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
-			
+			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_5.2.14.1027/@dot"/>
 			<pathelement path="lib/annotations-1.0.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/annotations-1.0.jar"/>
 			<pathelement path="lib/BrowserLauncher2.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/BrowserLauncher2.jar"/>
 			<pathelement path="lib/commons-codec.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/commons-codec.jar"/>
 			<pathelement path="lib/commons-collections.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/commons-collections.jar"/>
 			<pathelement path="lib/commons-dbcp.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/commons-dbcp.jar"/>
 			<pathelement path="lib/commons-httpclient.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/commons-httpclient.jar"/>
 			<pathelement path="lib/commons-io-1.4.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/commons-io-1.4.jar"/>
 			<pathelement path="lib/commons-logging.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/commons-logging.jar"/>
 			<pathelement path="lib/dom4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/dom4j.jar"/>
 			<pathelement path="lib/jabsorb.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/jabsorb.jar"/>
 			<pathelement path="lib/joda-time.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/joda-time.jar"/>
 			<pathelement path="lib/log4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/log4j.jar"/>
 			<pathelement path="lib/servlet-api.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/servlet-api.jar"/>
 			<pathelement path="lib/slf4j-api.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/slf4j-api.jar"/>
 			<pathelement path="lib/slf4j-log4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/slf4j-log4j.jar"/>
 			<pathelement path="lib/wicket-calendar.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/wicket-calendar.jar"/>
 			<pathelement path="lib/wicket-extentions.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/wicket-extentions.jar"/>
 			<pathelement path="lib/wicket.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/wicket.jar"/>
 			<pathelement path="lib/commons-pool.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/commons-pool.jar"/>
 			<pathelement path="lib/activation.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/activation.jar"/>
 			<pathelement path="lib/mail.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/mail.jar"/>
 			<pathelement path="lib/client/httpclient.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/client/httpclient.jar"/>
 			<pathelement path="lib/client/httpcore.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_5.2.14.1027/lib/client/httpcore.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -177,7 +179,7 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_shared_5.2.14.1027${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_shared_5.2.14.1027" log="${compilation.prereq.log}">
-			<include name="C:/Users/Administrator/dev_v52x_branch/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="E:/Workspaces/5_2/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_5.2.14.1027/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
@@ -199,7 +201,7 @@
 		<antcall target="apitools.generation">
 			<param name="target.folder" value="${build.result.folder}"/>
 			<param name="projectLocation" value="${basedir}"/>
-			<param name="binary.folders" value="${build.result.folder}/@dot;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/mail.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/slf4j-log4j.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/dom4j.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/joda-time.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-io-1.4.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/BrowserLauncher2.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/jabsorb.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/wicket.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/servlet-api.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/client/httpclient.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/activation.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-codec.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/slf4j-api.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/client/httpcore.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/log4j.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-dbcp.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/wicket-extentions.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/wicket-calendar.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-httpclient.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-logging.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-collections.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-pool.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/annotations-1.0.jar"/>
+			<param name="binary.folders" value="${build.result.folder}/@dot;E:\Workspaces\5_2\servoy_shared/lib/mail.jar;E:\Workspaces\5_2\servoy_shared/lib/slf4j-log4j.jar;E:\Workspaces\5_2\servoy_shared/lib/dom4j.jar;E:\Workspaces\5_2\servoy_shared/lib/joda-time.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-io-1.4.jar;E:\Workspaces\5_2\servoy_shared/lib/BrowserLauncher2.jar;E:\Workspaces\5_2\servoy_shared/lib/jabsorb.jar;E:\Workspaces\5_2\servoy_shared/lib/wicket.jar;E:\Workspaces\5_2\servoy_shared/lib/servlet-api.jar;E:\Workspaces\5_2\servoy_shared/lib/client/httpclient.jar;E:\Workspaces\5_2\servoy_shared/lib/activation.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-codec.jar;E:\Workspaces\5_2\servoy_shared/lib/slf4j-api.jar;E:\Workspaces\5_2\servoy_shared/lib/client/httpcore.jar;E:\Workspaces\5_2\servoy_shared/lib/log4j.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-dbcp.jar;E:\Workspaces\5_2\servoy_shared/lib/wicket-extentions.jar;E:\Workspaces\5_2\servoy_shared/lib/wicket-calendar.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-httpclient.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-logging.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-collections.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-pool.jar;E:\Workspaces\5_2\servoy_shared/lib/annotations-1.0.jar"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
 		</antcall>
 		<eclipse.gatherBundle 
@@ -259,7 +261,7 @@
 		<antcall target="apitools.generation">
 			<param name="target.folder" value="${destination.temp.folder}/servoy_shared_5.2.14.1027"/>
 			<param name="projectLocation" value="${basedir}"/>
-			<param name="binary.folders" value="${build.result.folder}/@dot;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/mail.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/slf4j-log4j.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/dom4j.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/joda-time.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-io-1.4.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/BrowserLauncher2.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/jabsorb.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/wicket.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/servlet-api.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/client/httpclient.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/activation.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-codec.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/slf4j-api.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/client/httpcore.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/log4j.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-dbcp.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/wicket-extentions.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/wicket-calendar.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-httpclient.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-logging.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-collections.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/commons-pool.jar;C:\Users\Administrator\dev_v52x_branch\servoy_shared/lib/annotations-1.0.jar"/>
+			<param name="binary.folders" value="${build.result.folder}/@dot;E:\Workspaces\5_2\servoy_shared/lib/mail.jar;E:\Workspaces\5_2\servoy_shared/lib/slf4j-log4j.jar;E:\Workspaces\5_2\servoy_shared/lib/dom4j.jar;E:\Workspaces\5_2\servoy_shared/lib/joda-time.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-io-1.4.jar;E:\Workspaces\5_2\servoy_shared/lib/BrowserLauncher2.jar;E:\Workspaces\5_2\servoy_shared/lib/jabsorb.jar;E:\Workspaces\5_2\servoy_shared/lib/wicket.jar;E:\Workspaces\5_2\servoy_shared/lib/servlet-api.jar;E:\Workspaces\5_2\servoy_shared/lib/client/httpclient.jar;E:\Workspaces\5_2\servoy_shared/lib/activation.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-codec.jar;E:\Workspaces\5_2\servoy_shared/lib/slf4j-api.jar;E:\Workspaces\5_2\servoy_shared/lib/client/httpcore.jar;E:\Workspaces\5_2\servoy_shared/lib/log4j.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-dbcp.jar;E:\Workspaces\5_2\servoy_shared/lib/wicket-extentions.jar;E:\Workspaces\5_2\servoy_shared/lib/wicket-calendar.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-httpclient.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-logging.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-collections.jar;E:\Workspaces\5_2\servoy_shared/lib/commons-pool.jar;E:\Workspaces\5_2\servoy_shared/lib/annotations-1.0.jar"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
 		</antcall>
 	</target>
@@ -306,7 +308,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="C:/Users/Administrator/dev_v52x_branch/servoy_shared" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="E:/Workspaces/5_2/servoy_shared" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
@@ -331,7 +333,7 @@
 	</target>
 
 	<target name="apitools.generation" if="generateAPIDescription">
-		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}"		/>
+		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}" allownonapiproject="${allowNonApiProject}"		/>
 	</target>
 
 </project>
