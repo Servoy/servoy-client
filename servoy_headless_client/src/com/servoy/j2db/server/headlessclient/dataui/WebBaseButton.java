@@ -38,6 +38,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IResourceListener;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
@@ -113,6 +114,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	protected final WebEventExecutor eventExecutor;
 	private final AbstractRuntimeButton<IButton> scriptable;
 	private int anchors = 0;
+	private static final ResourceReference TRANSPARENT_GIF = new ResourceReference(IApplication.class, "images/transparent.gif");
 
 	public WebBaseButton(IApplication application, AbstractRuntimeButton<IButton> scriptable, String id)
 	{
@@ -1193,8 +1195,18 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
-				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ")\"" : "";
-				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
+				String src = "";
+				if (!isElementAnchored)
+				{
+					src = imgURL;
+				}
+				else
+				{
+					src = RequestCycle.get().urlFor(TRANSPARENT_GIF).toString();
+				}
+				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
+					"); this.setAttribute('src', '" + imgURL + "'); \"" : "";
+				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(src).append(
 					"\" style=\"vertical-align: middle;\"").append(onLoadCall).append("/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
@@ -1206,8 +1218,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText.append("<img id=\"");
 			instrumentedBodyText.append(elementID).append("_img");
 			instrumentedBodyText.append("\" src=\"");
-			instrumentedBodyText.append(imgURL);
-			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ")\"" : "";
+			instrumentedBodyText.append(!isElementAnchored ? imgURL : RequestCycle.get().urlFor(TRANSPARENT_GIF).toString());
+			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
+				"); this.setAttribute('src', '" + imgURL + "');\"" : "";
 			instrumentedBodyText.append("\" align=\"middle\"").append(onLoadCall).append("/>");
 		}
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
