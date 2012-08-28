@@ -750,6 +750,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			Debug.error(ex);
 		}
+		//dispose owned windows
+		Window[] ownedWindows = getMainApplicationFrame().getOwnedWindows();
+		if (ownedWindows != null)
+		{
+			for (Window w : ownedWindows)
+				w.dispose();
+		}
 		getMainApplicationFrame().setVisible(false);
 		saveSettings();
 	}
