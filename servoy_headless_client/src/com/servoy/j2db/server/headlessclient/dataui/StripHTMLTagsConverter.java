@@ -404,8 +404,16 @@ public class StripHTMLTagsConverter implements IConverter
 				// encrypted
 				if (Application.exists())
 				{
-					ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-					url = urlCrypt.decryptUrlSafe(url);
+					try
+					{
+						ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+						url = urlCrypt.decryptUrlSafe(url);
+						url = url.replace("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					catch (Exception e)
+					{
+						Debug.error("Error decrypting blobloader url: " + url, e);
+					}
 				}
 			}
 		}
@@ -429,7 +437,7 @@ public class StripHTMLTagsConverter implements IConverter
 				while (index != -1)
 				{
 					// just try to search for the ending quote
-					int index2 = Utils.firstIndexOf(txt, new char[] { '\'', '"', ' ', '\t' }, index);
+					int index2 = Utils.firstIndexOf(txt, new char[] { '\'', '"', ' ', '\t', ')' }, index);
 
 					// if ending can't be resolved don't encrypt it.
 					if (index2 == -1) return Strings.replaceAll(text, "media:///servoy_blobloader?",
@@ -443,8 +451,8 @@ public class StripHTMLTagsConverter implements IConverter
 				return txt;
 			}
 		}
-		if (RequestCycle.get() != null) return Strings.replaceAll(text,
-			"media:///servoy_blobloader?", RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&" + BLOB_LOADER_PARAM + "=true&");
+		if (RequestCycle.get() != null) return Strings.replaceAll(text, "media:///servoy_blobloader?",
+			RequestCycle.get().urlFor(component, IResourceListener.INTERFACE) + "&" + BLOB_LOADER_PARAM + "=true&");
 		return text;
 	}
 
