@@ -139,6 +139,13 @@ public class LookupListModel extends AbstractListModel
 			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
 			if ((total & 1) != 0)
 			{
+				if (table.getColumn(vl.getDataProviderID1()) == null)
+				{
+					String msg = "Lookup values with non-column data providers (like unstored calculations) are not supported, could not find column '" +
+						vl.getDataProviderID1() + "' in table '" + table + "'";
+					application.reportJSError(msg, null);
+					throw new RuntimeException(msg);
+				}
 				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID1());
 				columns.add(cSQLName);
 				if ((showValues & 1) != 0)
@@ -148,6 +155,13 @@ public class LookupListModel extends AbstractListModel
 			}
 			if ((total & 2) != 0)
 			{
+				if (table.getColumn(vl.getDataProviderID2()) == null)
+				{
+					String msg = "Lookup values with non-column data providers (like unstored calculations) are not supported, could not find column '" +
+						vl.getDataProviderID2() + "' in table '" + table + "'";
+					application.reportJSError(msg, null);
+					throw new RuntimeException(msg);
+				}
 				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID2());
 				columns.add(cSQLName);
 				if ((showValues & 2) != 0)
@@ -157,6 +171,13 @@ public class LookupListModel extends AbstractListModel
 			}
 			if ((total & 4) != 0)
 			{
+				if (table.getColumn(vl.getDataProviderID3()) == null)
+				{
+					String msg = "Lookup values with non-column data providers (like unstored calculations) are not supported, could not find column '" +
+						vl.getDataProviderID3() + "' in table '" + table + "'";
+					application.reportJSError(msg, null);
+					throw new RuntimeException(msg);
+				}
 				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID3());
 				columns.add(cSQLName);
 				if ((showValues & 4) != 0)
