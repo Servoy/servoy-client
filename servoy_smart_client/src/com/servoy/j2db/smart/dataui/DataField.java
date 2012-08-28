@@ -847,9 +847,15 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.scriptable = scriptable;
 		addKeyListener(new KeyAdapter()
 		{
+			private boolean enterKeyPressed = false;
+
 			@Override
 			public void keyPressed(KeyEvent e)
 			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+				{
+					enterKeyPressed = true;
+				}
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && !isValueValid)
 				{
 					e.consume();
@@ -859,8 +865,9 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			@Override
 			public void keyReleased(KeyEvent e)
 			{
-				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && enterKeyPressed)
 				{
+					enterKeyPressed = false;
 					eventExecutor.actionPerformed(e.getModifiers());
 				}
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE)

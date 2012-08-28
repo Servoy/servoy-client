@@ -79,16 +79,26 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 		}
 	}
 
+	private boolean enterKeyPressed = false;
+
 	public void keyPressed(KeyEvent e)
 	{
+		if (e.getKeyCode() == KeyEvent.VK_ENTER)
+		{
+			enterKeyPressed = true;
+		}
 	}
 
 	public void keyReleased(KeyEvent e)
 	{
 		//for the moment it's hard-coded (in future, define different methods for different keys
-		if (e.getKeyCode() == KeyEvent.VK_ENTER && enclosedComponent instanceof JTextArea && !((JTextArea)enclosedComponent).isEditable())
+		if (e.getKeyCode() == KeyEvent.VK_ENTER && enterKeyPressed)
 		{
-			actionPerformed(e.getModifiers());
+			enterKeyPressed = false;
+			if (enclosedComponent instanceof JTextArea && !((JTextArea)enclosedComponent).isEditable())
+			{
+				actionPerformed(e.getModifiers());
+			}
 		}
 		else if (rightClickCommand != null && (e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU || (e.getKeyCode() == KeyEvent.VK_F10 && e.isShiftDown())))
 		{
