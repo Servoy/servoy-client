@@ -1192,7 +1192,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * When the method returns false (for example as part of a validation), the user cannot leave the record, for example in
 	 * a table view a user cannot move to another record when the callback returns false.
 	 * 
-	 * @templatedescription Callback method form when editing is stopped
+	 * @templatedescription Callback method form when editing is stopped, return false if the record fails to validate then the user cannot leave the record.
 	 * @templatename onRecordEditStop
 	 * @templatetype Boolean
 	 * @templateparam JSRecord<${dataSource}> record record being saved
