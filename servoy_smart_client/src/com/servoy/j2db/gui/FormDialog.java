@@ -43,7 +43,7 @@ import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.cmd.ICmdManager;
-import com.servoy.j2db.ui.IVisibleChangeListener;
+import com.servoy.j2db.ui.IWindowVisibleChangeListener;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -129,7 +129,7 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 	@Override
 	public void setVisible(boolean b)
 	{
-		for (IVisibleChangeListener l : visibleChangeListeners.toArray(new IVisibleChangeListener[visibleChangeListeners.size()]))
+		for (IWindowVisibleChangeListener l : visibleChangeListeners.toArray(new IWindowVisibleChangeListener[visibleChangeListeners.size()]))
 			l.beforeVisibleChange(this, b);
 
 		if (!b)
@@ -311,14 +311,14 @@ public class FormDialog extends JEscapeDialog implements FormWindow
 		}
 	}
 
-	private final ArrayList<IVisibleChangeListener> visibleChangeListeners = new ArrayList<IVisibleChangeListener>();
+	private final ArrayList<IWindowVisibleChangeListener> visibleChangeListeners = new ArrayList<IWindowVisibleChangeListener>();
 
-	public void addVisibleChangeListener(IVisibleChangeListener l)
+	public void addWindowVisibleChangeListener(IWindowVisibleChangeListener l)
 	{
 		if (visibleChangeListeners.indexOf(l) == -1) visibleChangeListeners.add(l);
 	}
 
-	public void removeVisibleChangeListener(IVisibleChangeListener l)
+	public void removeWindowVisibleChangeListener(IWindowVisibleChangeListener l)
 	{
 		visibleChangeListeners.remove(l);
 	}

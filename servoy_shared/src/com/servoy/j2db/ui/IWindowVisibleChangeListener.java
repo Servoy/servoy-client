@@ -19,10 +19,11 @@ package com.servoy.j2db.ui;
 
 
 /**
- * Listener for components that support notifying there visibility state
+ * Listener for swing JSWindow visibility changing
+ * 
  * @author gboros
  */
-public interface IVisibleChangeListener
+public interface IWindowVisibleChangeListener
 {
-	void beforeVisibleChange(ISupportVisibleChangeListener component, boolean newVisibleState);
+	void beforeVisibleChange(IWindowVisibleChangeNotifier component, boolean newVisibleState);
 }

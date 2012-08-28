@@ -16,13 +16,13 @@
  */
 package com.servoy.j2db;
 
-import com.servoy.j2db.ui.ISupportVisibleChangeListener;
+import com.servoy.j2db.ui.IWindowVisibleChangeNotifier;
 
 /**
  * Behaviour common to all types of AWT Window classes that can work with Servoy Forms.
  * @author acostescu
  */
-public interface FormWindow extends ISupportVisibleChangeListener
+public interface FormWindow extends IWindowVisibleChangeNotifier
 {
 
 	void storeBounds(); // used to keep runtime bounds / form

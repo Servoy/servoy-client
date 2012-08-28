@@ -66,8 +66,8 @@ import com.servoy.j2db.dataprocessing.LookupListChangeListener;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.ui.ISupportVisibleChangeListener;
-import com.servoy.j2db.ui.IVisibleChangeListener;
+import com.servoy.j2db.ui.IWindowVisibleChangeListener;
+import com.servoy.j2db.ui.IWindowVisibleChangeNotifier;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
@@ -104,9 +104,9 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	private static Timer timer = new Timer("Lookup ValueList Timer", true); //$NON-NLS-1$
 
-	private final IVisibleChangeListener popupParentVisibleChangeListener = new IVisibleChangeListener()
+	private final IWindowVisibleChangeListener popupParentVisibleChangeListener = new IWindowVisibleChangeListener()
 	{
-		public void beforeVisibleChange(final ISupportVisibleChangeListener component, boolean newVisibleState)
+		public void beforeVisibleChange(final IWindowVisibleChangeNotifier component, boolean newVisibleState)
 		{
 			if (!newVisibleState && popup != null)
 			{
@@ -532,10 +532,10 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				{
 					super.setVisible(b);
 
-					if (windowParent instanceof ISupportVisibleChangeListener)
+					if (windowParent instanceof IWindowVisibleChangeNotifier)
 					{
-						if (b) ((ISupportVisibleChangeListener)windowParent).addVisibleChangeListener(popupParentVisibleChangeListener);
-						else ((ISupportVisibleChangeListener)windowParent).removeVisibleChangeListener(popupParentVisibleChangeListener);
+						if (b) ((IWindowVisibleChangeNotifier)windowParent).addWindowVisibleChangeListener(popupParentVisibleChangeListener);
+						else ((IWindowVisibleChangeNotifier)windowParent).removeWindowVisibleChangeListener(popupParentVisibleChangeListener);
 					}
 				}
 			};
