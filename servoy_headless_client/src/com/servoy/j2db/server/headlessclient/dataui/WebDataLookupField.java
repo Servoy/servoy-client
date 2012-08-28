@@ -214,7 +214,9 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			{
 				if (IValueList.SEPARATOR_DESIGN_VALUE.equals(object)) return;
 				String renderedObject = getTextValue(object);
-				if (!HtmlUtils.hasHtmlTag(renderedObject)) renderedObject = HtmlUtils.escapeMarkup(renderedObject, true, false).toString();
+				// escape the markup if it is not html or not just an empty none breaking space (null or empty string object)
+				if (!renderedObject.equals("&nbsp;") && !HtmlUtils.hasHtmlTag(renderedObject)) renderedObject = HtmlUtils.escapeMarkup(renderedObject, true, //$NON-NLS-1$
+					false).toString();
 				response.write(renderedObject);
 			}
 
