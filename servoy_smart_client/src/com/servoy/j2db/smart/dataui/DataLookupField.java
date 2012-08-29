@@ -18,6 +18,7 @@ package com.servoy.j2db.smart.dataui;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -465,7 +466,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 					jlist.setModel(dlm);
 					jlist.setSelectedValue(txt, true);
 					jlist.setFont(getFont());
-					jlist.setBackground(getBackground());
+					jlist.setBackground(isOpaque() ? getBackground() : new Color(240, 240, 240)); //for transparent use GREY default color for popup
 					jlist.setForeground(getForeground());
 				}
 				showPopup();
@@ -590,7 +591,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				jlist.addMouseListener(new ListMouseListener());
 
 				jlist.setFont(getFont());
-				jlist.setBackground(getBackground());
+				jlist.setBackground(isOpaque() ? getBackground() : new Color(240, 240, 240)); //for transparent use GREY default color for popup
 				jlist.setForeground(getForeground());
 
 				jlist.setFocusable(false);
