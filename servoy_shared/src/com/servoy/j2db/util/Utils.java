@@ -77,6 +77,8 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IEventDelegator;
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
@@ -1415,12 +1417,20 @@ public class Utils
 		return getAsInteger(o.toString(), throwOnException);
 	}
 
-	public static byte[] getURLContent(String url)
+	public static byte[] getURLContent(String url, IServiceProvider serviceProvider)
 	{
 		ByteArrayOutputStream sb = new ByteArrayOutputStream();
 		try
 		{
-			URL u = new URL(url);
+			URL u;
+			if (url.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+			{
+				u = new URL(null, url, new MediaURLStreamHandler(serviceProvider));
+			}
+			else
+			{
+				u = new URL(url);
+			}
 			InputStream is = u.openStream();
 			BufferedInputStream bis = new BufferedInputStream(is);
 			Utils.streamCopy(bis, sb);
