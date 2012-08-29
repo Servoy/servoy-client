@@ -1776,11 +1776,10 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			Object[] a = (Object[])msg;
 			StringBuilder buf = new StringBuilder();
-
+			buf.append('[');
 			for (int i = 0; i < a.length; i++)
 			{
-				if (i == 0) buf.append('[');
-				else buf.append(", "); //$NON-NLS-1$
+				if (i > 0) buf.append(", "); //$NON-NLS-1$
 				if (a[i] instanceof Scriptable) buf.append(getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
 				else buf.append(String.valueOf(a[i]));
 			}
