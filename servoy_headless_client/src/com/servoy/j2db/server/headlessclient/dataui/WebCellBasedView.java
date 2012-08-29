@@ -3492,13 +3492,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			switch (styleAttribute)
 			{
 				case BGIMAGE :
-					String bgImageValStr = style.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString());
-					if (bgImageValStr != null)
+					String[] bgImageValStrArr = style.getValues(CSS.Attribute.BACKGROUND_IMAGE.toString());
+					if (bgImageValStrArr != null)
 					{
-						TextualStyle headerStyle = new TemplateGenerator.TextualStyle();
-						headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), bgImageValStr);
-
-						return headerStyle.toString();
+						StringBuffer ret = new StringBuffer();
+						for (String val : bgImageValStrArr)
+						{
+							TextualStyle headerStyle = new TemplateGenerator.TextualStyle();
+							headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), val);
+							//the returned string is style='...' , we nedd to get the ... part
+							String inlineStyle = headerStyle.toString();
+							if (inlineStyle != null) ret.append(inlineStyle.substring(inlineStyle.indexOf('\'') + 1, inlineStyle.length() - 2));
+						}
+						return ret.toString();
 					}
 					else
 					{
@@ -3564,9 +3570,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	protected String getHeaderBgImageStyle()
 	{
-		String inlineStyle = getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGIMAGE);
-		//the returned string is style='...' , we nedd to get the ... part
-		if (inlineStyle != null) return inlineStyle.substring(inlineStyle.indexOf('\'') + 1, inlineStyle.length() - 2);
 		return getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.BGIMAGE);
 	}
 
