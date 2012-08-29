@@ -16,7 +16,11 @@
  */
 package com.servoy.j2db.util;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class HtmlUtils
@@ -336,5 +340,30 @@ public class HtmlUtils
 			sb.append(fontFamily);
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Method than escapes all "&lt;" and "&gt;" characters in a String, into their respective html entity name, whenever they do not surround an HTML tag.
+	 * 
+	 * @param str the text to escape characters in
+	 * 
+	 * @return the resulted text
+	 */
+	public static String escapeLessThanOrGreaterThanInHTML(String str)
+	{
+		String result = str;
+		Pattern p = Pattern.compile("<[^/][^>]*>"); //$NON-NLS-1$
+		Matcher m = p.matcher(result);
+		List<String> tagList = Arrays.asList(HtmlUtils.tags);
+		while (m.find())
+		{
+			String match = m.group();
+			if (!tagList.contains(match.substring(0, match.length() - 1)))
+			{
+				String repl = match.replace("<", "&lt;").replace(">", "&gt;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				result = result.replace(match, repl);
+			}
+		}
+		return result;
 	}
 }
