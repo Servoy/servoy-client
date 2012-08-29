@@ -42,6 +42,7 @@ import org.apache.wicket.util.convert.IConverter;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -194,7 +195,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			protected String getTextValue(Object object)
 			{
 				String str = ""; //$NON-NLS-1$
-				if (object != null)
+				if (object instanceof DisplayString)
+				{
+					str = object.toString();
+				}
+				else if (object != null && !(object instanceof String))
 				{
 					IConverter con = getConverter(object.getClass());
 					if (con != null)
@@ -205,6 +210,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					{
 						str = object.toString();
 					}
+				}
+				else if (object != null)
+				{
+					str = object.toString();
 				}
 				if (str == null || str.trim().equals("")) str = "&nbsp;"; //$NON-NLS-1$//$NON-NLS-2$
 				return str;

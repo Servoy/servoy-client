@@ -57,6 +57,7 @@ import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDisplayDependencyData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
@@ -954,20 +955,28 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			{
 				return super.getListCellRendererComponent(lst, null, index, isSelected, cellHasFocus);
 			}
-
-			AbstractFormatter formatter = getFormatter();
-			if (formatter != null)
+			Object val = value;
+			if (val instanceof DisplayString)
 			{
-				try
+				val = val.toString();
+			}
+			// if the value is not a string try to format it.
+			if (!(val instanceof String))
+			{
+				AbstractFormatter formatter = getFormatter();
+				if (formatter != null)
 				{
-					value = formatter.valueToString(value);
-				}
-				catch (ParseException e)
-				{
-					// ignore
+					try
+					{
+						val = formatter.valueToString(val);
+					}
+					catch (ParseException e)
+					{
+						// ignore
+					}
 				}
 			}
-			if (value instanceof String && ((String)value).trim().length() == 0)
+			if (val instanceof String && ((String)val).trim().length() == 0)
 			{
 				setText("A"); //$NON-NLS-1$
 				Dimension size = getPreferredSize();
@@ -978,7 +987,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			{
 				setPreferredSize(null); // let UI decide
 			}
-			return super.getListCellRendererComponent(lst, value, index, isSelected, cellHasFocus);
+			return super.getListCellRendererComponent(lst, val, index, isSelected, cellHasFocus);
 		}
 	}
 

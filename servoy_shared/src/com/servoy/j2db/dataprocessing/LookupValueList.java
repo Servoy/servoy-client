@@ -426,7 +426,7 @@ public class LookupValueList implements IValueList
 				}
 				index = alReal.size();
 				alReal.add(obj);
-				alDisplay.add(obj.toString());
+				alDisplay.add(CustomValueList.convertToString(obj, application));
 			}
 			else if (showValues != returnValues)
 			{
