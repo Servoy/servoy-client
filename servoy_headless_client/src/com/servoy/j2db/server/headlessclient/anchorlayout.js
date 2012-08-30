@@ -10,7 +10,7 @@ function layoutOneElement(elementInfo)
 	if (/TabPanel/.test(elementHint))
 	{
 		rearrageTabsInTabPanel(element.id);
-		updateTablesPreferredSize();
+		setTimeout(function(){updateTablesPreferredSize()},0);
 	}	
 
 	else if (/Label/.test(elementHint) || /Button/.test(elementHint))
@@ -24,6 +24,10 @@ function layoutOneElement(elementInfo)
 				imageURL = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
 				imageURL = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);		
 				imgEl.src = imageURL;
+				var imageOnLoad = imgEl.onload;
+				imageOnLoad = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
+				imageOnLoad = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);		
+				imgEl.onload = imageOnLoad;
 			},0);
 		}
 	}
