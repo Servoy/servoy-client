@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ResourceReference;
+
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -389,4 +392,28 @@ public class MediaURLStreamHandler extends URLStreamHandler
 		}
 		return null;
 	}
+
+	/***
+	 *   gets translated relative URL from media:///name to  resources/servoy/media?s=sol_name&id=name
+	 *   used in web client
+	 * @param solution
+	 * @param url
+	 * @return
+	 */
+	public static String getTranslatedMediaURL(FlattenedSolution solution, String url)
+	{
+		ResourceReference rr = new ResourceReference("media"); //$NON-NLS-1$
+		String lowercase = url.toLowerCase();
+		if (lowercase.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+		{
+			String name = url.substring(MediaURLStreamHandler.MEDIA_URL_DEF.length());
+			Media media = solution.getMedia(name);
+			if (media != null)
+			{
+				return RequestCycle.get().urlFor(rr) + "?id=" + media.getName() + "&s=" + solution.getSolution().getName();
+			}
+		}
+		return null;
+	}
+
 }

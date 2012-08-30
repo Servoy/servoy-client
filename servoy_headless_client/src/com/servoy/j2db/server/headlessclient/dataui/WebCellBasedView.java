@@ -89,6 +89,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IView;
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
@@ -3498,13 +3499,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						StringBuffer ret = new StringBuffer();
 						for (String val : bgImageMediaUrls)
 						{
-							String urlContentVla = val.replaceAll(".*url\\((.*?)\\)", "$1"); //extract media://name from url(media:///name) 
-							String httpUrl = null;
-							if (urlContentVla.startsWith("media:///")) //$NON-NLS-1$ 
-							{
-								String mediaUrl = RequestCycle.get().urlFor(new ResourceReference("media")).toString(); //$NON-NLS-1$ 
-								httpUrl = mediaUrl + "?s=" + application.getSolutionName() + "&id=" + urlContentVla.substring(9); //$NON-NLS-1$ //$NON-NLS-2$ 
-							}
+							String urlContentVal = val.replaceAll(".*url\\((.*?)\\)", "$1"); //extract media://name from url(media:///name) 
+							String httpUrl = MediaURLStreamHandler.getTranslatedMediaURL(application.getFlattenedSolution(), urlContentVal);
+
 							TextualStyle headerStyle = new TemplateGenerator.TextualStyle();
 							headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), "url(" + httpUrl + ")");
 							//the returned string is style='...' , we nedd to get the ... part

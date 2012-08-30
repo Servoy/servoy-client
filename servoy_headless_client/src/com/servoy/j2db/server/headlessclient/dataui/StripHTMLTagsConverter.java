@@ -42,7 +42,6 @@ import org.apache.wicket.util.value.IValueMap;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -289,11 +288,10 @@ public class StripHTMLTagsConverter implements IConverter
 						}
 						else
 						{
-							Media media = solutionRoot.getMedia(name);
-							if (media != null)
+							String translatedUrl = MediaURLStreamHandler.getTranslatedMediaURL(solutionRoot, lowercase);
+							if (translatedUrl != null)
 							{
-								String url = RequestCycle.get().urlFor(rr) + "?id=" + media.getName() + "&s=" + solutionName;
-								me.getAttributes().put(attribute, url);
+								me.getAttributes().put(attribute, translatedUrl);
 							}
 						}
 					}
