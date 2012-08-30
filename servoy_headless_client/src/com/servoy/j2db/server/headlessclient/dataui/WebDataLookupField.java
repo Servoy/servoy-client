@@ -290,8 +290,9 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					}
 				}
 
-				if (getBackground() != null)
+				if (getBackground() != null && getBackground().getAlpha() == 255)
 				{
+					// background shouldn't be transparent
 					bgColor = getWebColor(getBackground().getRGB());
 				}
 				if (getForeground() != null)
