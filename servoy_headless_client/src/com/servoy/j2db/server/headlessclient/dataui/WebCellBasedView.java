@@ -3500,9 +3500,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						for (String val : bgImageMediaUrls)
 						{
 							TextualStyle headerStyle = new TemplateGenerator.TextualStyle();
-							if (val.contains("media:///"))
+							if (val.contains(MediaURLStreamHandler.MEDIA_URL_DEF))
 							{
-								String urlContentVal = val.replaceAll(".*url\\((.*?)\\)", "$1"); //extract media://name from url(media:///name) 
+								String urlContentVal = val.replaceAll(".*url\\([\"']?(.*?)[\"']?\\)", "$1"); //extract media://name from url("media:///name") 
 								String httpUrl = MediaURLStreamHandler.getTranslatedMediaURL(application.getFlattenedSolution(), urlContentVal);
 								headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), "url(" + httpUrl + ")");
 							}
@@ -3517,7 +3517,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 
 						}
-						return ret.toString();
+						return ret.toString();//.replaceAll("(background-image:)(.*?)(;)(background-image:)", "$1");
 					}
 					else
 					{
