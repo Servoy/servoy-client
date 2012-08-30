@@ -754,7 +754,15 @@ if (typeof(Servoy.TableView) == "undefined")
 					    el.style.backgroundColor = bgcolor;
 					}else{
 						var styleAttrVal = el.getAttribute('style');
-						el.setAttribute('style',styleAttrVal+bgcolor);
+						if (bgcolor.indexOf("rgba") != -1 && el.tagName.toLowerCase() == "td")
+						{
+							// do not apply semi transparent color, has to be applied only once (on element)
+							el.setAttribute('style',styleAttrVal+'background-color:transparent;');
+						}
+						else
+						{
+							el.setAttribute('style',styleAttrVal+bgcolor);
+						}
 					}
 					if(fgcolor == ''){
 					    el.style.color = fgcolor;
