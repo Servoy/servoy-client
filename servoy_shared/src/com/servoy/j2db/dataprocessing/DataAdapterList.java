@@ -340,12 +340,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	}
 
 	/**
-	 * Inform all dataAdapters about the new state
+	 * Inform all dataAdapters about the new state. <br><br>
+	 * 
+	 * Note on param: stopAnyEdit, the Renderer paints state 6 (record 6) after that the editor comes in and edits 
+	 * that state 6, then another row must be repainted so State 7 and it calls stop editing on 6, but the editor is 
+	 * still editing that state 6
 	 * 
 	 * @param state the new state (can be null to delete old state)
-	 * 
-	 *            Note on param: stopAnyEdit,de renderer paint state 6 ddarna komt de editor en die edit state 6 ondertussen moet een andere rij gerepaint
-	 *            worden dan zet de renderer dus state 7 er in en roept stop editing aan op 6!!! terwijl de editor nog aan het editen is
 	 */
 	public void setRecord(IRecordInternal state, boolean stopAnyEdit)
 	{
