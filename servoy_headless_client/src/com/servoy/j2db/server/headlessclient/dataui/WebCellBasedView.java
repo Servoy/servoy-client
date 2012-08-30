@@ -3492,17 +3492,26 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			switch (styleAttribute)
 			{
 				case BGIMAGE :
-					String[] bgImageValStrArr = style.getValues(CSS.Attribute.BACKGROUND_IMAGE.toString());
-					if (bgImageValStrArr != null)
+					String[] bgImageMediaUrls = style.getValues(CSS.Attribute.BACKGROUND_IMAGE.toString());
+					if (bgImageMediaUrls != null)
 					{
 						StringBuffer ret = new StringBuffer();
-						for (String val : bgImageValStrArr)
+						for (String val : bgImageMediaUrls)
 						{
+							String urlContentVla = val.replaceAll(".*url\\((.*?)\\)", "$1"); //extract media://name from url(media:///name) 
+							String httpUrl = null;
+							if (urlContentVla.startsWith("media:///")) //$NON-NLS-1$ 
+							{
+								String mediaUrl = RequestCycle.get().urlFor(new ResourceReference("media")).toString(); //$NON-NLS-1$ 
+								httpUrl = mediaUrl + "?s=" + application.getSolutionName() + "&id=" + urlContentVla.substring(9); //$NON-NLS-1$ //$NON-NLS-2$ 
+							}
 							TextualStyle headerStyle = new TemplateGenerator.TextualStyle();
-							headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), val);
+							headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), "url(" + httpUrl + ")");
 							//the returned string is style='...' , we nedd to get the ... part
 							String inlineStyle = headerStyle.toString();
 							if (inlineStyle != null) ret.append(inlineStyle.substring(inlineStyle.indexOf('\'') + 1, inlineStyle.length() - 2));
+
+
 						}
 						return ret.toString();
 					}
