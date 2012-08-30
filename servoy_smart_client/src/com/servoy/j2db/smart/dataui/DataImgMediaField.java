@@ -406,7 +406,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		byte[] array = null;
 		if (tmp instanceof String)
 		{
-			array = Utils.getURLContent((String)tmp);
+			array = Utils.getURLContent((String)tmp, application);
 			if (array == null)
 			{
 				Debug.error("Cannot get media for field with dataprovider '" + getDataProviderID() + "' on form " +
