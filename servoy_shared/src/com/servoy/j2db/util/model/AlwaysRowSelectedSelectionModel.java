@@ -115,7 +115,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			if (getSelectionMode() == SINGLE_SELECTION)
 			{
 				int selectedRow = getSelectedRow();
-				if (selectedRow >= index0 && selectedRow <= index1)
+				if (selectedRow >= index0 && selectedRow <= index1 && foundset.getSize() > 0)
 				{
 
 					// selected record was removed, set selection after the removed block or before (if at the end)
