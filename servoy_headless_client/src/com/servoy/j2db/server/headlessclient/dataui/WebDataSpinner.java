@@ -121,15 +121,10 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 				IConverter converter = field.getConverter(field.getType());
 				for (int i = 0; i < size; i++)
 				{
-					v = vl.getElementAt(i);
-					if (v == null)
-					{
-						values[size - i - 1] = "";
-					}
-					else
-					{
-						values[size - i - 1] = converter.convertToString(v, getLocale());
-					}
+					v = vl.getRealElementAt(i);
+					String val = (v != null) ? converter.convertToString(v, getLocale()) : "";
+					if (val == null) val = "";
+					values[size - i - 1] = val;
 				}
 			}
 		}
