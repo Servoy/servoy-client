@@ -213,7 +213,7 @@ public class JSDatabaseManager
 	 * @param serverName The name of the database server connection for the specified table name.
 	 * @param tableName The name of the specified table. 
 	 * @param dataprovider A specified dataprovider column name.  
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null). 
 	 * @param value The specified filter value. 
 	 * 
 	 * @return true if the tablefilter could be applied.
@@ -231,7 +231,7 @@ public class JSDatabaseManager
 	 * 
 	 * @param datasource The datasource
 	 * @param dataprovider A specified dataprovider column name.  
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null). 
 	 * @param value The specified filter value. 
 	 * 
 	 * @return true if the tablefilter could be applied.
@@ -250,7 +250,7 @@ public class JSDatabaseManager
 	 * 
 	 * @param datasource The datasource 
 	 * @param dataprovider A specified dataprovider column name.  
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null). 
 	 * @param value The specified filter value. 
 	 * @param filterName The specified name of the database table filter. 
 	 * 
@@ -297,7 +297,7 @@ public class JSDatabaseManager
 	 * @param serverName The name of the database server connection for the specified table name.
 	 * @param tableName The name of the specified table. 
 	 * @param dataprovider A specified dataprovider column name.  
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "||=" (or-is-null). 
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null). 
 	 * @param value The specified filter value. 
 	 * @param filterName The specified name of the database table filter. 
 	 * 
