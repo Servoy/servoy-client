@@ -920,7 +920,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			sbAttachDrop.append("Servoy.DD.attachDrop([");
 
 			final boolean hasDragEvent = ((IFormDataDragNDrop)behaviorComponent).getDragNDropController().getForm().getOnDragMethodID() > 0 ||
-				((WebDataRenderer)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
+				((IFormDataDragNDrop)behaviorComponent).getDragNDropController().getForm().getOnDragOverMethodID() > 0;
 			final boolean hasDropEvent = ((IFormDataDragNDrop)behaviorComponent).getDragNDropController().getForm().getOnDropMethodID() > 0;
 
 
