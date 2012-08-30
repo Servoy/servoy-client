@@ -615,22 +615,21 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		body.add(form);
 	}
 
-	private ServoyDivDialog createDivDialog(String name)
+	private ServoyDivDialog createDivDialog(MainPage dialogContainer, String name)
 	{
 		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), isShowingInDialog());
 		divDialog.setPageMapName(null);
 		divDialog.setCookieName(COOKIE_PREFIX + name);
 		divDialog.setModal(true);
+		dialogContainer.showingInDialog = true;
+		dialogContainer.showingInWindow = false;
 		divDialog.setPageCreator(new ModalWindow.PageCreator()
 		{
 			private static final long serialVersionUID = 1L;
 
 			public Page createPage()
 			{
-				MainPage page = (MainPage)((FormManager)client.getFormManager()).getOrCreateMainContainer(divDialog.getPageMapName());
-				page.showingInDialog = true;
-				page.showingInWindow = false;
-				return page;
+				return (MainPage)((FormManager)client.getFormManager()).getOrCreateMainContainer(divDialog.getPageMapName());
 			}
 		});
 		divDialog.setWindowClosedCallback(new ModalWindow.WindowClosedCallback()
@@ -1613,7 +1612,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				ServoyDivDialog divDialog = divDialogs.get(windowName);
 				if (divDialog == null)
 				{
-					divDialog = createDivDialog(windowName);
+					divDialog = createDivDialog(dialogContainer, windowName);
 				}
 				divDialog.setPageMapName(windowName);
 				divDialog.setResizable(resizeable);
