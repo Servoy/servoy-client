@@ -3499,11 +3499,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						StringBuffer ret = new StringBuffer();
 						for (String val : bgImageMediaUrls)
 						{
-							String urlContentVal = val.replaceAll(".*url\\((.*?)\\)", "$1"); //extract media://name from url(media:///name) 
-							String httpUrl = MediaURLStreamHandler.getTranslatedMediaURL(application.getFlattenedSolution(), urlContentVal);
-
 							TextualStyle headerStyle = new TemplateGenerator.TextualStyle();
-							headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), "url(" + httpUrl + ")");
+							if (val.contains("media:///"))
+							{
+								String urlContentVal = val.replaceAll(".*url\\((.*?)\\)", "$1"); //extract media://name from url(media:///name) 
+								String httpUrl = MediaURLStreamHandler.getTranslatedMediaURL(application.getFlattenedSolution(), urlContentVal);
+								headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), "url(" + httpUrl + ")");
+							}
+							else
+							{
+								headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), val);
+							}
+
 							//the returned string is style='...' , we nedd to get the ... part
 							String inlineStyle = headerStyle.toString();
 							if (inlineStyle != null) ret.append(inlineStyle.substring(inlineStyle.indexOf('\'') + 1, inlineStyle.length() - 2));
