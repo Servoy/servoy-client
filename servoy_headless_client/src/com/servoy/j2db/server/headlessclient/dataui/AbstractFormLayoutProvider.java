@@ -29,7 +29,6 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
@@ -278,25 +277,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		}
 
 		fillPartBackground(partStyle, part);
-
-		if (part.getPartType() == Part.BODY)
-		{
-			final int scrollBars = f.getScrollbars();
-
-			String overflowX = "auto"; //$NON-NLS-1$
-			if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) overflowX = "hidden"; //$NON-NLS-1$ 
-			else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) overflowX = "scroll"; //$NON-NLS-1$
-			partStyle.setProperty("overflow-x", overflowX); //$NON-NLS-1$
-
-			String overflowY = "auto"; //$NON-NLS-1$
-			if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) overflowY = "hidden"; //$NON-NLS-1$
-			else if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) overflowY = "scroll"; //$NON-NLS-1$
-			partStyle.setProperty("overflow-y", overflowY); //$NON-NLS-1$
-		}
-		else
-		{
-			partStyle.setProperty("overflow", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		}
 
 		int spaceUsedOnlyInPrintAbove = 0;
 		int spaceUsedOnlyInPrintBelow = 0;
