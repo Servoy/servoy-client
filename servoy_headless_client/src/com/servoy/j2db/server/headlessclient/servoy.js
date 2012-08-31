@@ -779,10 +779,10 @@ if (typeof(Servoy.TableView) == "undefined")
 					 
 					if(el.tagName && el.tagName.toLowerCase() != "td")
 					{
-						var bStyleTop = '';
-						var bStyleBottom = '';
-						var bStyleLeft = '';
-						var bStyleRight = '';
+						var bStyleTop = " ";
+						var bStyleBottom = " ";
+						var bStyleLeft = " ";
+						var bStyleRight = " ";
 						
 						if(borderWidth != '' || borderStyle != '' || borderColor != '')
 						{
@@ -796,14 +796,34 @@ if (typeof(Servoy.TableView) == "undefined")
 						}
 						el.style.borderTop = bStyleTop;
 						el.style.borderBottom = bStyleBottom;
+
+					// helper function
+                   var resetStyleForIE =  function(el) {
+					  if(jQuery.browser.msie  ) { 
+		                        // border width
+		                    if( bStyleTop == " ") el.style.borderTopWidth = "";
+		                   	if( bStyleBottom == " ") el.style.borderBottomWidth = "";	
+		                   	if( bStyleLeft == " ") el.style.borderLeftWidth = "";						
+							if( bStyleRight == " ") el.style.borderRightWidth = "";
+														
+								//padding  
+							if( bStyleTop == " ") el.style.borderBottomColor = "" ;
+							if( bStyleBottom == " ") el.style.borderTopColor = "" ;
+							if( bStyleLeft == " ") el.style.borderLeftColor = "" ;
+							if( bStyleRight == " ") el.style.borderRightColor = "" ;    
+						}               
+	                }
+						resetStyleForIE(el);
 						
-						if(Servoy.TableView.isInFirstTD(el))
+						if(Servoy.TableView.isInFirstTD(el))// ||( jQuery.browser.msie && jQuery.browser.version < 9 ))
 						{
 							el.style.borderLeft = bStyleLeft;
+							resetStyleForIE(el);
 						}
 						else if(Servoy.TableView.isInLastTD(el))
 						{
 							el.style.borderRight = bStyleRight;
+						   resetStyleForIE(el);
 						}
 					}
 				}
