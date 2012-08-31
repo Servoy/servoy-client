@@ -29,6 +29,7 @@ import javax.swing.event.ChangeListener;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.ITabPaneAlike;
@@ -82,7 +83,8 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 	{
 		int count = getTabCount();
 		setTitleAt(count, text);
-		add(flp, Integer.toString(count));
+		// if component with same name is already present in FixedCardLayout will be removed, so name must be unique
+		add(flp, ((IFormLookupPanel)flp).getFormName() + "_" + System.currentTimeMillis());
 
 		// By the time a tab is added, the opacity may have been already set.
 		// So just make sure its propagated to the new tab.
