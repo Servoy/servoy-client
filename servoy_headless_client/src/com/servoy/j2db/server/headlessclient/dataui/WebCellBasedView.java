@@ -4084,7 +4084,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			StringBuffer tbodyStyle = new StringBuffer("$('#").append(tableContainerBody.getMarkupId()).append("').css('top',").append(top).append(");");
 			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('padding-right',").append(scrollPadding).append(");");
 			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();");
-			container.getHeaderResponse().renderOnDomReadyJavascript(tbodyStyle.toString());
+			container.getHeaderResponse().renderOnLoadJavascript(tbodyStyle.toString());
 			//if (table.gets) container.getHeaderResponse().renderOnDomReadyJavascript(getRowSelectionScript(true));
 		}
 	}
