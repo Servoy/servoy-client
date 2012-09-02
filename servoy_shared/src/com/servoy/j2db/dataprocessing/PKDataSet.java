@@ -92,9 +92,9 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 
 	private final IDataSet pks;
 	private transient SortedList<Object[]> sortedPKs; // cache of pks for fast lookup, used for matching the the next chunk in FoundSet with the current set.
-	private PksAndRecordsHolder pksAndRecordsHolder;
+	private transient PksAndRecordsHolder pksAndRecordsHolder;
 
-	private ITransactable transactionListener;
+	private transient ITransactable transactionListener;
 
 	public PKDataSet(IDataSet pks)
 	{
