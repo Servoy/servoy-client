@@ -152,6 +152,7 @@ import com.servoy.j2db.ui.IPortalComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -1060,7 +1061,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (c instanceof Component)
 					{
 						Component innerComponent = (Component)c;
-						if (!ignoreStyles) WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
+						if (!ignoreStyles)
+						{
+							WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
+							if (innerComponent instanceof IScriptableProvider &&
+								((IScriptableProvider)innerComponent).getScriptObject() instanceof IRuntimeComponent &&
+								((IRuntimeComponent)((IScriptableProvider)innerComponent).getScriptObject()).isTransparent() && bgColor != null)
+							{
+								// apply the bg color even if transparent
+								if (innerComponent instanceof IProviderStylePropertyChanges &&
+									((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
+								{
+									((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges())).setBgcolor(bgColor);
+								}
+							}
+						}
 						boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 						if (((updateComponentRenderState(c, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null || compBorder != null))) &&
