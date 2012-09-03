@@ -41,11 +41,11 @@ import com.servoy.j2db.util.Debug;
  * @since 6.0
  *
  */
-public class SerializingRemoteInvocationHandler extends AbstractRemoteInvocationHandler
+public class SerializingRemoteInvocationHandler<T extends Remote> extends AbstractRemoteInvocationHandler<T>
 {
 	private final IApplication application;
 
-	private SerializingRemoteInvocationHandler(IApplication application, Remote remote)
+	private SerializingRemoteInvocationHandler(IApplication application, T remote)
 	{
 		super(remote);
 		this.application = application;
@@ -67,18 +67,18 @@ public class SerializingRemoteInvocationHandler extends AbstractRemoteInvocation
 		{
 			return null;
 		}
-		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new SerializingRemoteInvocationHandler(application, obj));
+		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new SerializingRemoteInvocationHandler<T>(application, obj));
 	}
 
 	/**
 	 * Write the object to an object stream and read it back.
-	 * @param <T>
+	 * @param <O>
 	 * @param o
 	 * @return
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	public <T> T serializeAndDeserialize(T o) throws IOException, ClassNotFoundException
+	public <O> O serializeAndDeserialize(O o) throws IOException, ClassNotFoundException
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream os = new ObjectOutputStream(baos);
@@ -103,7 +103,7 @@ public class SerializingRemoteInvocationHandler extends AbstractRemoteInvocation
 			}
 		};
 		@SuppressWarnings("unchecked")
-		T o2 = (T)is.readObject();
+		O o2 = (O)is.readObject();
 		is.close();
 
 		return o2;

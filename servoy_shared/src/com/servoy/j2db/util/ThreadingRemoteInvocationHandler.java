@@ -32,16 +32,15 @@ import com.servoy.j2db.persistence.RepositoryException;
  *
  * @since 6.1
  */
-public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHandler
+public class ThreadingRemoteInvocationHandler<T extends Remote> extends AbstractRemoteInvocationHandler<T>
 {
 	private static ExecutorService threadPool = Executors.newCachedThreadPool();
 
-	private ThreadingRemoteInvocationHandler(Remote remote)
+	private ThreadingRemoteInvocationHandler(T remote)
 	{
 		super(remote);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T extends Remote> T createThreadingRemoteInvocationHandler(T obj)
 	{
 		if (obj == null)
@@ -51,13 +50,14 @@ public class ThreadingRemoteInvocationHandler extends AbstractRemoteInvocationHa
 		return createThreadingRemoteInvocationHandler(obj, getRemoteInterfaces(obj.getClass()));
 	}
 
-	public static <T extends Remote> T createThreadingRemoteInvocationHandler(T obj, Class[] interfaces)
+	@SuppressWarnings("unchecked")
+	public static <T extends Remote> T createThreadingRemoteInvocationHandler(T obj, Class< ? >[] interfaces)
 	{
 		if (obj == null)
 		{
 			return null;
 		}
-		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new ThreadingRemoteInvocationHandler(obj));
+		return (T)Proxy.newProxyInstance(obj.getClass().getClassLoader(), interfaces, new ThreadingRemoteInvocationHandler<T>(obj));
 	}
 
 	/*

@@ -30,13 +30,18 @@ import java.util.Set;
  *
  * @since 6.1
  */
-public abstract class AbstractRemoteInvocationHandler implements InvocationHandler
+public abstract class AbstractRemoteInvocationHandler<T extends Remote> implements InvocationHandler, IDelegate<T>
 {
-	private final Remote remote;
+	private final T remote;
 
-	protected AbstractRemoteInvocationHandler(Remote remote)
+	protected AbstractRemoteInvocationHandler(T remote)
 	{
 		this.remote = remote;
+	}
+
+	public T getDelegate()
+	{
+		return remote;
 	}
 
 	/*
