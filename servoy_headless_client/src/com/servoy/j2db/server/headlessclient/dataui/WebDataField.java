@@ -773,7 +773,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					add(new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress", new NumberValidationModel(false)));
 				}
 			}
-			else if (mappedType == IColumnTypes.TEXT && list != null)
+			else if ((mappedType == IColumnTypes.MEDIA || mappedType == IColumnTypes.TEXT) && list != null) // media and list != null is binary uuid column as real in a valuelist.
 			{
 				setType(String.class);
 			}
