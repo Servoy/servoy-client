@@ -47,11 +47,12 @@ public class ModificationSubject implements IModificationSubject
 	 */
 	public boolean hasListeners()
 	{
-		if (listeners.size() > 0)
+		synchronized (listeners)
 		{
 			// if there are only subjects as listeners, check if they have listeners.
-			for (Object element : listeners.toArray())
+			for (int i = 0; i < listeners.size(); i++)
 			{
+				Object element = listeners.get(i);
 				if (!(element instanceof IModificationSubject) || ((IModificationSubject)element).hasListeners())
 				{
 					return true;
@@ -63,11 +64,12 @@ public class ModificationSubject implements IModificationSubject
 
 	public void fireModificationEvent(ModificationEvent event)
 	{
-		if (listeners.size() > 0)
+		synchronized (listeners)
 		{
-			for (Object element : listeners.toArray())
+			// don't use foreach or iterators here; apparently that was the weird cause for SVY-2919
+			for (int i = 0; i < listeners.size(); i++)
 			{
-				((IModificationListener)element).valueChanged(event);
+				listeners.get(i).valueChanged(event);
 			}
 		}
 	}
