@@ -610,8 +610,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			WebDataRenderer body = (WebDataRenderer)dataRenderers[FormController.FORM_EDITOR];//Body
 			if (body != null)
 			{
-				final int scrollBars = f.getScrollbars();
-
 				((WebRecordView)view).add(body);
 				body.setDefaultModel(rendererModel);
 				body.setParentView(view);
