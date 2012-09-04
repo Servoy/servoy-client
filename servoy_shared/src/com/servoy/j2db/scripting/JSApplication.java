@@ -1674,15 +1674,9 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					//for mail going to most general version of sendMail with exposed arg types (so not Attachment)
-					Method m = so.getClass().getMethod(
-						"js_sendMail", new Class[] { String.class, String.class, String.class, String.class, String.class, String.class }); //$NON-NLS-1$
-					if (args.length <= 6)
-					{
-						Boolean b = (Boolean)m.invoke(so, new Object[] { args[0], args[1], args[2], args[3], args[4], args[5] });
-						return b.booleanValue();
-					}
-					else throw new Exception("Send mail failed; use the plugin directly.");
+					Method m = so.getClass().getMethod("js_sendMail", getClassArrayFromObjectArgs(args)); //$NON-NLS-1$
+					Boolean b = (Boolean)m.invoke(so, args);
+					return b.booleanValue();
 				}
 				catch (Exception e)
 				{
