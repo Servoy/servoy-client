@@ -57,7 +57,7 @@ public class DataServerProxy implements IDataServer
 		mappedServers.put(sourceName, destinationName);
 	}
 
-	private String getMappedServerName(String sourceName)
+	public String getMappedServerName(String sourceName)
 	{
 		String retval = mappedServers.get(sourceName);
 		if (retval == null) retval = sourceName;
