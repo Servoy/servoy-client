@@ -2735,7 +2735,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				int oldRowsPerPage = table.getRowsPerPage();
 
-				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
+				// if the design height of the BODY part is higher then the actual display area available for the BODY (table/list view)
+				// then use the design height; this allows a desired behavior (SVY-2943 - small area to display 1-2 rows + scrollbar for 3-4 more and then paging)
+				// you can still use only the available area and then use paging by designing table view forms with low body height
+				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(Math.max(bodyHeightHint, endY - startY));
 				maxRowsPerPage = rowsCalculation.getRight().getLeft().intValue();
 
 				if (isScrollMode())

@@ -93,7 +93,6 @@ import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.printing.FormPreviewPanel;
@@ -237,33 +236,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			}
 		});
 
-
-		add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				StringBuilder scrollingOverflow = new StringBuilder();
-
-				final int scrollBars = formController.getForm().getScrollbars();
-
-				String overflowX = "auto"; //$NON-NLS-1$
-				if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) overflowX = "hidden"; //$NON-NLS-1$ 
-				else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) overflowX = "scroll"; //$NON-NLS-1$
-				scrollingOverflow.append("overflow-x:").append(overflowX).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-
-				String overflowY = "auto"; //$NON-NLS-1$
-				if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) overflowY = "hidden"; //$NON-NLS-1$
-				else if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) overflowY = "scroll"; //$NON-NLS-1$
-				scrollingOverflow.append("overflow-y:").append(overflowY).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-
-				return scrollingOverflow.toString();
-			}
-		}));
-
-
 		container = new WebMarkupContainer("servoywebform") //$NON-NLS-1$
 		{
 			@Override
@@ -280,6 +252,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				}
 			}
 		};
+		container.add(new StyleAppendingModifier(new Model<String>()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject()
+			{
+				IWebFormContainer tabpanel = findParent(IWebFormContainer.class);
+				if (tabpanel != null)
+				{
+					return "min-width:0px;min-height:0px;";
+				}
+				return null;
+			}
+		}));
 //		container.add(new StyleAppendingModifier(new Model<String>()
 //		{
 //			private static final long serialVersionUID = 1L;
