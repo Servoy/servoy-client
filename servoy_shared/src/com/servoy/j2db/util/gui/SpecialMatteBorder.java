@@ -443,6 +443,6 @@ public class SpecialMatteBorder extends AbstractBorder
 
 	private float getWebClientCompatibleValue(float radius)
 	{
-		return Math.max(1, 2 * radius - top);
+		return Math.max(0, 2 * radius - top);
 	}
 }
