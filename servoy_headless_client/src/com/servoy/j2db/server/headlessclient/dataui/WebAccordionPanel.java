@@ -265,6 +265,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 					@Override
 					public String getObject()
 					{
+						String formStyle = "padding: 0px;"; //$NON-NLS-1$
 						if (getBorder() instanceof TitledBorder)
 						{
 							int fsize = 0;
@@ -272,9 +273,9 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 							TitledBorder td = (TitledBorder)getBorder();
 							if (td.getTitleFont() != null) fsize = td.getTitleFont().getSize();
 							if (fsize > 11) height = getAllPartsHeight() - (fsize - 11);
-							return "height: " + height + "px;"; //$NON-NLS-1$ //$NON-NLS-2$
+							formStyle += "height: " + height + "px;"; //$NON-NLS-1$ //$NON-NLS-2$
 						}
-						return ""; //$NON-NLS-1$
+						return formStyle;
 					}
 				}));
 				link.add(icon);
