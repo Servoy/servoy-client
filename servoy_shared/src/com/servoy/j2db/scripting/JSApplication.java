@@ -1674,9 +1674,15 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_sendMail", new Class[] { Object[].class }); //$NON-NLS-1$
-					Boolean b = (Boolean)m.invoke(so, new Object[] { args });
-					return b.booleanValue();
+					//for mail going to most general version of sendMail with exposed arg types (so not Attachment)
+					Method m = so.getClass().getMethod(
+						"js_sendMail", new Class[] { String.class, String.class, String.class, String.class, String.class, String.class }); //$NON-NLS-1$
+					if (args.length <= 6)
+					{
+						Boolean b = (Boolean)m.invoke(so, new Object[] { args[0], args[1], args[2], args[3], args[4], args[5] });
+						return b.booleanValue();
+					}
+					else throw new Exception("Send mail failed; use the plugin directly.");
 				}
 				catch (Exception e)
 				{
@@ -2896,8 +2902,8 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_writeTXTFile", new Class[] { Object[].class }); //$NON-NLS-1$
-					Boolean obj = (Boolean)m.invoke(so, new Object[] { args });
+					Method m = so.getClass().getMethod("js_writeTXTFile", getClassArrayFromObjectArgs(args)); //$NON-NLS-1$
+					Boolean obj = (Boolean)m.invoke(so, args);
 					if (obj != null) return obj.booleanValue();
 					return false;
 				}
@@ -2926,7 +2932,7 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_writeXMLFile", new Class[] { Object.class, String.class }); //$NON-NLS-1$
+					Method m = so.getClass().getMethod("js_writeXMLFile", new Class[] { String.class, String.class }); //$NON-NLS-1$
 					Boolean obj = (Boolean)m.invoke(so, new Object[] { fileName, xml });
 					if (obj != null) return obj.booleanValue();
 					return false;
@@ -2956,7 +2962,7 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_writeFile", new Class[] { Object.class, byte[].class }); //$NON-NLS-1$
+					Method m = so.getClass().getMethod("js_writeFile", new Class[] { String.class, byte[].class }); //$NON-NLS-1$
 					Boolean obj = (Boolean)m.invoke(so, new Object[] { fileName, data });
 					if (obj != null) return obj.booleanValue();
 					return false;
@@ -2986,8 +2992,8 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_readTXTFile", new Class[] { Object[].class }); //$NON-NLS-1$
-					Object obj = m.invoke(so, new Object[] { args });
+					Method m = so.getClass().getMethod("js_readTXTFile", getClassArrayFromObjectArgs(args)); //$NON-NLS-1$
+					Object obj = m.invoke(so, args);
 					if (obj != null) return obj.toString();
 					return null;
 				}
@@ -3016,8 +3022,8 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_showFileOpenDialog", new Class[] { Object[].class }); //$NON-NLS-1$
-					Object obj = m.invoke(so, new Object[] { null });
+					Method m = so.getClass().getMethod("js_showFileOpenDialog", new Class[] { }); //$NON-NLS-1$
+					Object obj = m.invoke(so, (Object[])null);
 					if (obj != null) return obj.toString();
 					return null;
 				}
@@ -3046,8 +3052,8 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_showFileSaveDialog", new Class[] { Object[].class }); //$NON-NLS-1$
-					Object obj = m.invoke(so, new Object[] { args });
+					Method m = so.getClass().getMethod("js_showFileSaveDialog", getClassArrayFromObjectArgs(args)); //$NON-NLS-1$
+					Object obj = m.invoke(so, args);
 					if (obj != null) return obj.toString();
 					return null;
 				}
@@ -3060,6 +3066,16 @@ public class JSApplication implements IReturnedTypesProvider
 		application.reportError("Showing file save dialog failed",
 			"For this operation the file plugin is needed\nNote this method is deprecated, use the plugin directly in your code");
 		return null;
+	}
+
+	private Class[] getClassArrayFromObjectArgs(Object[] args)
+	{
+		Class[] clz = new Class[args.length];
+		for (int i = 0; i < args.length; i++)
+		{
+			clz[i] = (args[i] != null ? args[i].getClass() : Object.class);
+		}
+		return clz;
 	}
 
 	/**
@@ -3076,8 +3092,8 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_showDirectorySelectDialog", new Class[] { Object[].class }); //$NON-NLS-1$
-					Object obj = m.invoke(so, new Object[] { args });
+					Method m = so.getClass().getMethod("js_showDirectorySelectDialog", getClassArrayFromObjectArgs(args)); //$NON-NLS-1$
+					Object obj = m.invoke(so, args);
 					if (obj != null) return obj.toString();
 					return null;
 				}
@@ -3106,8 +3122,8 @@ public class JSApplication implements IReturnedTypesProvider
 			{
 				try
 				{
-					Method m = so.getClass().getMethod("js_readFile", new Class[] { Object[].class }); //$NON-NLS-1$
-					return (byte[])m.invoke(so, new Object[] { args });
+					Method m = so.getClass().getMethod("js_readFile", getClassArrayFromObjectArgs(args)); //$NON-NLS-1$
+					return (byte[])m.invoke(so, args);
 				}
 				catch (Exception e)
 				{
