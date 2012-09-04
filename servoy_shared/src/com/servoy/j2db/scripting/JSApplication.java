@@ -3064,6 +3064,7 @@ public class JSApplication implements IReturnedTypesProvider
 
 	private Class[] getClassArrayFromObjectArgs(Object[] args)
 	{
+		if (args == null) return null;
 		Class[] clz = new Class[args.length];
 		for (int i = 0; i < args.length; i++)
 		{
