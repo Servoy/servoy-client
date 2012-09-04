@@ -74,6 +74,36 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	public int saveData();
 
 	/**
+	 * Get the orginal server name for the server after databaseManager.switchServer(original_servername, switched_to_servername).
+	 * When the server was not used with databaseManager.switchServer() the input server name is returned.
+	 * <p>
+	 * This call can be used to find transactions in the client (which are based on kept with original_servername) for real underlying servers.
+	 * <pre>
+	 * String originalServerName = plugin.getClientPluginAccess().getDatabaseManager().getOriginalServerName(serverName);
+	 * String tid = plugin.getClientPluginAccess().getDatabaseManager().getTransactionID(originalServerName);
+	 * </pre>
+	 * @param switched_to_servername
+	 */
+	public String getOriginalServerName(String switched_to_servername);
+
+	/**
+	 * Get the orginal server name for the server after databaseManager.switchServer(original_servername, switched_to_servername).
+	 * When the server was not used with databaseManager.switchServer() the input server name is returned.
+	 * @param original_servername
+	 */
+	public String getSwitchedToServerName(String original_servername);
+
+	/**
+	 * Notify the current client of data changes.
+	 * @see ISQLActionTypes for action.
+	 * 
+	 * @param dataSource
+	 * @param pks when null, whole table is flushed
+	 * @param action
+	 */
+	public boolean notifyDataChange(String dataSource, IDataSet pks, int action);
+
+	/**
 	 * Get a query factory for building queries.
 	 * 
 	 * @return a query factory

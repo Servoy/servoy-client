@@ -177,6 +177,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		action.run();
 	}
 
+	/*
+	 * Flush locally in the current client, for client plugins
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IDatabaseManager#notifyDataChange(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, int)
+	 */
+	public boolean notifyDataChange(String dataSource, IDataSet pks, int action)
+	{
+		if (pks == null)
+		{
+			flushCachedDatabaseData(dataSource);
+		}
+		else
+		{
+			notifyDataChange(dataSource, pks, action, null);
+		}
+		return true;
+	}
+
 	private final List<Runnable> runOnEditOrTransactionStoppedActions = Collections.synchronizedList(new ArrayList<Runnable>(3));
 	private final AtomicBoolean isBusy = new AtomicBoolean(false);
 
@@ -1841,6 +1859,26 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return globalTransaction.getTransactionID(serverName);
 		}
 		return null;
+	}
+
+	public String getOriginalServerName(String serverName)
+	{
+		IDataServer dataServer = application.getDataServer();
+		if (dataServer instanceof DataServerProxy)
+		{
+			return ((DataServerProxy)dataServer).getReverseMappedServerName(serverName);
+		}
+		return serverName;
+	}
+
+	public String getSwitchedToServerName(String serverName)
+	{
+		IDataServer dataServer = application.getDataServer();
+		if (dataServer instanceof DataServerProxy)
+		{
+			return ((DataServerProxy)dataServer).getMappedServerName(serverName);
+		}
+		return serverName;
 	}
 
 	public IDataSet getDataSetByQuery(String serverName, ISQLSelect sqlSelect, int maxNumberOfRowsToRetrieve) throws ServoyException
