@@ -67,6 +67,9 @@ public class ModificationSubject implements IModificationSubject
 		{
 			for (Object element : listeners.toArray())
 			{
+				// this is needed because of the nested valueChanged and fireModificationEvent calls for DelegateModificationSubject
+				// and the fact that listeners can be destroyed before the end of an iteration (in a deeper nested call), 
+				// so valueChanged could be called on a destroyed/removed listener
 				if (listeners.contains(element))
 				{
 					((IModificationListener)element).valueChanged(event);
