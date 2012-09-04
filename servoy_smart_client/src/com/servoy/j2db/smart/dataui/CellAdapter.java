@@ -72,6 +72,7 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.component.ServoyBeanState;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.DisplaysAdapter;
@@ -540,7 +541,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					{
 						data = ((DbIdentValue)data).getPkValue();
 					}
-					((IDisplayData)editor).setValueObject(data);
+					convertAndSetValue(((IDisplayData)editor), data);
 				}
 				catch (IllegalArgumentException iae)
 				{
@@ -816,7 +817,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					data = ((DbIdentValue)data).getPkValue();
 				}
 
-				((IDisplayData)renderer).setValueObject(data);
+				convertAndSetValue(((IDisplayData)renderer), data);
 			}
 		}
 		if (renderer instanceof IServoyAwareBean && state != null)
@@ -1076,7 +1077,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			state.getRawData().containsCalculation(possibleCalcDataprovider) && state.getRawData().mustRecalculate(possibleCalcDataprovider, true))
 		{
 			IApplication app = dal.getApplication();
-			((IDisplayData)renderer).setValueObject(state.getRawData().getValue(possibleCalcDataprovider));
+			convertAndSetValue(((IDisplayData)renderer), state.getRawData().getValue(possibleCalcDataprovider));
 
 			final String key = row + "_" + possibleCalcDataprovider; //$NON-NLS-1$
 			if (!rowAndDataprovider.containsKey(key))
@@ -1316,6 +1317,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				IDisplayData displayData = (IDisplayData)editor;
 				obj = displayData.getValueObject();
+
+				if (!findMode)
+				{
+					// use UI converter to convert from UI value to record value
+					obj = ComponentFormat.applyUIConverterFromObject(displayData, obj, dataProviderID, application.getFoundSetManager());
+				}
+
 				// if the editor is not enable or is readonly dont try to set any value.
 				if (!displayData.isEnabled() || displayData.isReadOnly()) return obj;
 				// then make sure the current state is in edit, if not, try to start it else just return.
@@ -1399,7 +1407,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 								// reset display to changed value in validator method
 								displayValue = stateValue;
 							}
-							displayData.setValueObject(displayValue);
+							convertAndSetValue(displayData, displayValue);
 							return displayValue;
 						}
 
@@ -1408,7 +1416,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 							fireModificationEvent(currentEditingState);
 							displayData.notifyLastNewValueWasChange(oldVal, obj);
 							obj = dal.getValueObject(currentEditingState, dataProviderID);
-							displayData.setValueObject(obj);// we also want to reset the value in the current display if changed by script
+							if (!findMode)
+							{
+								// use UI converter to convert from UI value to record value
+								obj = ComponentFormat.applyUIConverterToObject(displayData, obj, dataProviderID, application.getFoundSetManager());
+							}
+							convertAndSetValue(displayData, obj);// we also want to reset the value in the current display if changed by script
 						}
 						else if (!displayData.isValueValid())
 						{
@@ -1439,6 +1452,23 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		finally
 		{
 			gettingEditorValue = false;
+		}
+	}
+
+	/**
+	 * @param obj
+	 * @param displayData
+	 */
+	public void convertAndSetValue(IDisplayData displayData, Object obj)
+	{
+		if (!findMode)
+		{
+			// use UI converter to convert from UI value to record value
+			displayData.setValueObject(ComponentFormat.applyUIConverterToObject(displayData, obj, dataProviderID, application.getFoundSetManager()));
+		}
+		else
+		{
+			displayData.setValueObject(obj);
 		}
 	}
 
@@ -1594,7 +1624,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				}
 				if (s == currentEditingState && table.getEditorComponent() == editor && editor instanceof IDisplayData)
 				{
-					((IDisplayData)editor).setValueObject(obj);
+					convertAndSetValue(((IDisplayData)editor), obj);
 				}
 			}
 		}
