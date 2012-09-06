@@ -1911,14 +1911,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		
 		setLabelChildHeight: function(elemid, valign)
 		{
-			if(Servoy.Utils.isFirefox)
-			{
-				setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign);},50);
-			}
-			else
-			{
-				Servoy.Utils.setLabelChildHeightEx(elemid, valign);
-			}
+			setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign);},50);
 		},
 		
 		setLabelChildHeightEx: function(elemid, valign) 
@@ -1976,7 +1969,6 @@ if (typeof(Servoy.Utils) == "undefined")
 					top = top - Math.floor(elemHeight/2);
 				}
 			} 
-			
 			child.style.top = top + "px";
 			child.style.visibility = 'visible';
 		  }		  
