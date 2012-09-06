@@ -923,12 +923,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			cssId = getMarkupId() + "_lb"; //$NON-NLS-1$
 		}
 
-		boolean isAnchored = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) && anchors > 0 && anchors != IAnchorConstants.DEFAULT; //$NON-NLS-1$
+		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(
 			markupStream,
 			openTag,
 			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size == null ? 0 : size.height, true, designMode ? null : cursor, false, isAnchored));
+				size == null ? 0 : size.height, true, designMode ? null : cursor, false, anchor));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1071,9 +1071,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
-		String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored,
-		boolean isElementAnchored)
+		String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors)
 	{
+		boolean isElementAnchored = anchors != IAnchorConstants.DEFAULT;
 		Insets padding = null;
 		Insets borderMargin = null;
 		boolean usePadding = false;
@@ -1146,6 +1146,15 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 			else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else
+		{
+			instrumentedBodyText.append(" top: 0px;");
+			// if it is both anchored to north and south then also anchor the span to the bottom.
+			if ((anchors & IAnchorConstants.NORTH) > 0 && (anchors & IAnchorConstants.SOUTH) > 0)
+			{
+				instrumentedBodyText.append(" bottom: 0px;");
+			}
 		}
 
 		// Full height.

@@ -68,7 +68,6 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
@@ -903,11 +902,10 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		{
 			designMode = true;
 		}
-		boolean isAnchored = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) && anchors > 0 && anchors != IAnchorConstants.DEFAULT; //$NON-NLS-1$
-
+		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, margin, cssid,
 			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored(),
-			isAnchored));
+			anchor));
 	}
 
 	protected boolean isAnchored()
