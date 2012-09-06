@@ -2173,6 +2173,7 @@ if (typeof(Servoy.Utils) == "undefined")
 	  
 	  getActionParams: function(e)
 	  {
+		e = Wicket.fixEvent(e);
 	  	var elem;
   		if (e.target)
 		{
@@ -2829,6 +2830,7 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		
 		tabForwardHandler: function (event)
 		{
+			event = Wicket.fixEvent(event);
 			if (event.shiftKey == false && event.keyCode == 9)
 			{	
 				window.setTimeout(function() {
@@ -2841,6 +2843,7 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 	
 		tabRewindHandler: function (event)
 		{
+			event = Wicket.fixEvent(event);
 			if (event.shiftKey && event.keyCode == 9)
 			{
 				window.setTimeout(function() {
