@@ -151,10 +151,10 @@ public class Log4JHTMLTableLayout extends Layout
 
 		if (event.getThrowableInformation() != null)
 		{
-			if (event.getThrowableInformation().getThrowable() instanceof IOException)
+			if (event.getThrowableInformation().getThrowable() instanceof IOException || Level.WARN.isGreaterOrEqual(event.getLevel()))
 			{
 				buffer.append("<tr><td bgcolor=\"#FF9900\" style=\"color:White; font-size : xx-small;\" colspan=\"7\">");
-				buffer.append("I/O exception, see log for full details: ");
+				buffer.append("Exception, see log file for full details: ");
 				buffer.append(event.getThrowableInformation().getThrowable().getMessage());
 				buffer.append("</td></tr>" + Layout.LINE_SEP);
 			}
