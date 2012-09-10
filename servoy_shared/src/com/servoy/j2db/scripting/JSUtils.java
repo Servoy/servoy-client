@@ -786,10 +786,30 @@ public class JSUtils
 	 */
 	public double js_stringToNumber(String textString)
 	{
+		return js_stringToNumber(textString, null);
+	}
+
+	/**
+	 * Filters characters out of from a string and leaves digits, returns the number. Decimal separator is specified as parameter.
+	 *
+	 * @sample 
+	 * //returns '65567'
+	 * var retval = utils.stringToNumber('fg65gf567'); 
+	 *
+	 * @param textString the text to process
+	 * @param decimalSeparator decimal separator
+	 * 
+	 * @return the resulting number
+	 */
+	public double js_stringToNumber(String textString, String decimalSeparator)
+	{
 		if (textString != null)
 		{
-			DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
-			String decimalSeparator = String.valueOf(dfs.getDecimalSeparator());
+			if (decimalSeparator == null)
+			{
+				DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
+				decimalSeparator = String.valueOf(dfs.getDecimalSeparator());
+			}
 			int flag = 0;
 			StringBuilder sb = new StringBuilder();
 			char[] array = textString.toCharArray();
