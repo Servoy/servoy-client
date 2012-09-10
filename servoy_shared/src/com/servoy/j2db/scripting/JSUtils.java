@@ -778,7 +778,7 @@ public class JSUtils
 	 * Filters characters out of from a string and leaves digits, returns the number. Uses locale decimal separator.
 	 *
 	 * @sample 
-	 * //returns '65567'
+	 * //returns 65567
 	 * var retval = utils.stringToNumber('fg65gf567'); 
 	 *
 	 * @param textString the text to process
@@ -793,8 +793,8 @@ public class JSUtils
 	 * Filters characters out of from a string and leaves digits, returns the number. Decimal separator is specified as parameter.
 	 *
 	 * @sample 
-	 * //returns '65567'
-	 * var retval = utils.stringToNumber('fg65gf567'); 
+	 * //returns 65.567
+	 * var retval = utils.stringToNumber('fg65gf.567','.'); 
 	 *
 	 * @param textString the text to process
 	 * @param decimalSeparator decimal separator
