@@ -338,13 +338,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newBodyWidthHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyWidth")); //$NON-NLS-1$ 
 			int newBodyHeightHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyHeight")); //$NON-NLS-1$ 
 
-			if (isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue())
-			{
-				newBodyWidthHint -= 17; // extract the vertical scrollbar width
-			}
-
 			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
 			{
+				// if size is changed, reset scroll
+				if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint)
+				{
+					WebCellBasedView.this.isScrollFirstShow = true;
+				}
+
 				bodyWidthHint = newBodyWidthHint;
 				bodyHeightHint = newBodyHeightHint;
 				bodySizeHintSetFromClient = true;
@@ -2658,6 +2659,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		clearSelectionByCellActionFlag();
 	}
 
+	private boolean isScrollFirstShow = true;
+
 	@Override
 	protected void onBeforeRender()
 	{
@@ -2727,16 +2730,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				int oldRowsPerPage = table.getRowsPerPage();
 
-				// if the design height of the BODY part is higher then the actual display area available for the BODY (table/list view)
-				// then use the design height; this allows a desired behavior (SVY-2943 - small area to display 1-2 rows + scrollbar for 3-4 more and then paging)
-				// you can still use only the available area and then use paging by designing table view forms with low body height
-				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(Math.max(bodyHeightHint, endY - startY));
+				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
 				maxRowsPerPage = rowsCalculation.getRight().getLeft().intValue();
 
 				if (isScrollMode())
 				{
-					table.setStartIndex(0);
-					table.setViewSize(2 * maxRowsPerPage);
+					if (isScrollFirstShow)
+					{
+						table.setStartIndex(0);
+						table.setViewSize(2 * maxRowsPerPage);
+					}
 				}
 				else
 				{
@@ -2838,6 +2841,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private IFoundSetInternal currentData;
 	private boolean isCurrentDataChanged;
 	private int[] selectedIndexes;
+	private int[] selectedIndexesBeforUpdateRenderState; // used by getRowSelectionScript
 	private String bgColorScript;
 	private List<Object> bgColorArgs;
 
@@ -4130,6 +4134,95 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return false;
 	}
 
+	/**
+	 * This function is used by {@link #getRowSelectionScript()}
+	 * @param preCaoncatenation TODO
+	 * 
+	 */
+	private String toJsArrayString(List<String> arr, String preCaoncatenation)
+	{
+		StringBuilder jsArr = new StringBuilder();
+		jsArr.append('[');
+		boolean firstElemntFlag = true;
+		for (String str : arr)
+		{
+			if (!firstElemntFlag)
+			{
+				jsArr.append(",");
+			}
+			else
+			{
+				firstElemntFlag = false;
+			}
+
+			if (str == null)
+			{
+				jsArr.append("''");
+			}
+			else
+			{
+				jsArr.append("'" + preCaoncatenation).append(str).append("'");
+			}
+		}
+		jsArr.append(']');
+		return jsArr.toString();
+	}
+
+	/**
+	 * Used by  {@link #getRowSelectionScript()}
+	 */
+	private void splitFontStyle(Object fontString, StringBuilder fstyle, StringBuilder fweight, StringBuilder fsize, StringBuilder ffamily)
+	{
+		if (fontString != null)
+		{
+			Pair<String, String> fontCSSProps[] = PersistHelper.createFontCSSProperties(fontString.toString());
+			for (Pair<String, String> fontCSSProp : fontCSSProps)
+			{
+				if (fontCSSProp != null)
+				{
+					String key = fontCSSProp.getLeft();
+					String value = fontCSSProp.getRight();
+					if (value == null) value = ""; //$NON-NLS-1$
+					if ("font-style".equals(key)) //$NON-NLS-1$
+					fstyle.append(value);
+					else if ("font-weight".equals(key)) //$NON-NLS-1$
+					fweight.append(value);
+					else if ("font-size".equals(key)) //$NON-NLS-1$
+					fsize.append(value);
+					else if ("font-family".equals(key)) //$NON-NLS-1$
+					ffamily.append(value);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param borderStyle
+	 * @param bstyle
+	 * @param bwidth
+	 * @param bcolor
+	 */
+	private void splitBorderStyle(Object borderStyle, StringBuilder bstyle, StringBuilder bwidth, StringBuilder bcolor)
+	{
+		if (borderStyle != null)
+		{
+			Properties borderProperties = new Properties();
+			ComponentFactoryHelper.createBorderCSSProperties(borderStyle.toString(), borderProperties);
+			bstyle.append(borderProperties.getProperty("border-style")); //$NON-NLS-1$
+			if (bstyle.length() < 1) bstyle.append(""); //$NON-NLS-1$
+			bwidth.append(borderProperties.getProperty("border-width")); //$NON-NLS-1$
+			bcolor.append(borderProperties.getProperty("border-color")); //$NON-NLS-1$
+			if (bcolor.length() < 1)
+			{
+				bcolor.append(borderProperties.getProperty("border-top-color", "")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				bcolor.append(getFirstToken(bcolor.toString()));
+			}
+		}
+	}
+
 	public String getRowSelectionScript(boolean allCurrentPageRows)
 	{
 		if (currentData == null) return null;
@@ -4144,6 +4237,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			AppendingStringBuffer sab = new AppendingStringBuffer();
 			for (int rowIdx : indexToUpdate)
 			{
+				ArrayList<String> bgRuntimeColorjsArray = new ArrayList<String>();
+				ArrayList<String> fgRuntimeColorjsArray = new ArrayList<String>();
+				ArrayList<String> fstyleJsAray = new ArrayList<String>();
+				ArrayList<String> fweightJsAray = new ArrayList<String>();
+				ArrayList<String> fsizeJsAray = new ArrayList<String>();
+				ArrayList<String> ffamilyJsAray = new ArrayList<String>();
+				ArrayList<String> bstyleJsAray = new ArrayList<String>();
+				ArrayList<String> bwidthJsAray = new ArrayList<String>();
+				ArrayList<String> bcolorJsAray = new ArrayList<String>();
+
 				if (rowIdx >= firstRow && rowIdx <= lastRow)
 				{
 					ListItem<IRecordInternal> selectedListItem = (ListItem<IRecordInternal>)table.get(Integer.toString(rowIdx));
@@ -4151,6 +4254,53 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						String selectedId = selectedListItem.getMarkupId();
 						boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
+
+						// IF ONLY SELCTED STYLE RULE is defined then apply runtimeComonent style properties
+						if (!isSelected && (getRowOddStyle().getAttributeCount() == 0) && (getRowEvenStyle().getAttributeCount() == 0))
+						{
+
+							Iterable< ? extends Component> it = Utils.iterate(selectedListItem.iterator());
+							for (Component c : it)
+							{
+								if (c instanceof CellContainer)
+								{
+									CellContainer cell = (CellContainer)c;
+									Component cellContents = cell.iterator().next();
+									if (cellContents instanceof IScriptableProvider)
+									{
+
+										IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
+										if (scriptableComponent instanceof IRuntimeComponent)
+										{
+											IRuntimeComponent runtimeComponent = (IRuntimeComponent)scriptableComponent;
+											bgRuntimeColorjsArray.add(runtimeComponentStyleAttributes.get(runtimeComponent).get(
+												RenderableWrapper.PROPERTY_BGCOLOR));
+											fgRuntimeColorjsArray.add(runtimeComponentStyleAttributes.get(runtimeComponent).get(
+												RenderableWrapper.PROPERTY_FGCOLOR));
+
+											// font style
+											String fontStyle = runtimeComponentStyleAttributes.get(runtimeComponent).get(RenderableWrapper.PROPERTY_FONT);
+											StringBuilder fstyle = new StringBuilder(""), fweight = new StringBuilder(""), fsize = new StringBuilder(""), ffamily = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+											splitFontStyle(fontStyle, fstyle, fweight, fsize, ffamily);
+											fstyleJsAray.add(fstyle.toString());
+											fweightJsAray.add(fweight.toString());
+											fsizeJsAray.add(fsize.toString());
+											ffamilyJsAray.add(ffamily.toString());
+
+											// border style
+											String borderStyle = runtimeComponentStyleAttributes.get(runtimeComponent).get(RenderableWrapper.PROPERTY_BORDER);
+											StringBuilder bstyle = new StringBuilder(""), bwidth = new StringBuilder(""), bcolor = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+											splitBorderStyle(borderStyle, bstyle, bwidth, bcolor);
+											bstyleJsAray.add(bstyle.toString());
+											bwidthJsAray.add(bwidth.toString());
+											bcolorJsAray.add(bcolor.toString());
+										}
+
+									}
+								}
+							}
+						}
+
 
 						Object selectedColor = null, selectedFgColor = null, selectedFont = null, selectedBorder = null;
 						selectedColor = getListItemBgColor(selectedListItem, isSelected, true);
@@ -4162,63 +4312,45 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						}
 						selectedColor = (selectedColor == null ? "" : selectedColor.toString()); //$NON-NLS-1$
 						selectedFgColor = (selectedFgColor == null) ? "" : selectedFgColor.toString(); //$NON-NLS-1$
-						String fstyle = "", fweight = "", fsize = "", ffamily = ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-						if (selectedFont != null)
+
+						// font styles
+						StringBuilder fstyle = new StringBuilder(""), fweight = new StringBuilder(""), fsize = new StringBuilder(""), ffamily = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						splitFontStyle(selectedFont, fstyle, fweight, fsize, ffamily);
+						//border styles
+						StringBuilder bstyle = new StringBuilder(""), bwidth = new StringBuilder(""), bcolor = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						splitBorderStyle(selectedBorder, bstyle, bwidth, bcolor);
+
+						if (!isSelected && (getRowOddStyle().getAttributeCount() == 0) && (getRowEvenStyle().getAttributeCount() == 0))
 						{
-							Pair<String, String> fontCSSProps[] = PersistHelper.createFontCSSProperties(selectedFont.toString());
-							for (Pair<String, String> fontCSSProp : fontCSSProps)
-							{
-								if (fontCSSProp != null)
-								{
-									String key = fontCSSProp.getLeft();
-									String value = fontCSSProp.getRight();
-									if (value == null) value = ""; //$NON-NLS-1$
-									if ("font-style".equals(key)) //$NON-NLS-1$
-									fstyle = value;
-									else if ("font-weight".equals(key)) //$NON-NLS-1$
-									fweight = value;
-									else if ("font-size".equals(key)) //$NON-NLS-1$
-									fsize = value;
-									else if ("font-family".equals(key)) //$NON-NLS-1$
-									ffamily = value;
-								}
-							}
-						}
-						String bstyle = "", bwidth = "", bcolor = ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						if (selectedBorder != null)
-						{
-							Properties borderProperties = new Properties();
-							ComponentFactoryHelper.createBorderCSSProperties(selectedBorder.toString(), borderProperties);
-							bstyle = borderProperties.getProperty("border-style"); //$NON-NLS-1$
-							if (bstyle == null) bstyle = ""; //$NON-NLS-1$
-							bwidth = borderProperties.getProperty("border-width"); //$NON-NLS-1$
-							bcolor = borderProperties.getProperty("border-color"); //$NON-NLS-1$
-							if (bcolor == null)
-							{
-								bcolor = borderProperties.getProperty("border-top-color", ""); //$NON-NLS-1$ //$NON-NLS-2$
-							}
-							else
-							{
-								bcolor = getFirstToken(bcolor);
-							}
+							//backgroundcolor and color are sent as final inline string
+							sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
+							append(selectedId).append("', "). //$NON-NLS-1$
+							append(toJsArrayString(bgRuntimeColorjsArray, "background-color:")).append(","). //$NON-NLS-1$   
+							append(toJsArrayString(fgRuntimeColorjsArray, "color:")).append(","). //$NON-NLS-1$
+							append(toJsArrayString(fstyleJsAray, "")).append(", "). //$NON-NLS-1$
+							append(toJsArrayString(fweightJsAray, "")).append(", "). //$NON-NLS-1$
+							append(toJsArrayString(fsizeJsAray, "")).append(", "). //$NON-NLS-1$
+							append(toJsArrayString(ffamilyJsAray, "")).append(", "). //$NON-NLS-1$
+							append(toJsArrayString(bstyleJsAray, "")).append(", "). //$NON-NLS-1$
+							append(toJsArrayString(bwidthJsAray, "")).append(","). //$NON-NLS-1$
+							append(toJsArrayString(bcolorJsAray, "")).append(","). //$NON-NLS-1$
+							append(isListViewMode()).append(");\n"); //$NON-NLS-1$
 						}
 						else
 						{
-
+							sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
+							append(selectedId).append("', '"). //$NON-NLS-1$
+							append(selectedColor).append("', '"). //$NON-NLS-1$
+							append(selectedFgColor).append("', '"). //$NON-NLS-1$
+							append(fstyle).append("', '"). //$NON-NLS-1$
+							append(fweight).append("', '"). //$NON-NLS-1$
+							append(fsize).append("', '"). //$NON-NLS-1$
+							append(ffamily).append("', '"). //$NON-NLS-1$
+							append(bstyle).append("', '"). //$NON-NLS-1$
+							append(bwidth).append("', '"). //$NON-NLS-1$
+							append(bcolor).append("', "). //$NON-NLS-1$
+							append(isListViewMode()).append(");\n"); //$NON-NLS-1$
 						}
-
-						sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
-						append(selectedId).append("', '"). //$NON-NLS-1$
-						append(selectedColor).append("', '"). //$NON-NLS-1$
-						append(selectedFgColor).append("', '"). //$NON-NLS-1$
-						append(fstyle).append("', '"). //$NON-NLS-1$
-						append(fweight).append("', '"). //$NON-NLS-1$
-						append(fsize).append("', '"). //$NON-NLS-1$
-						append(ffamily).append("', '"). //$NON-NLS-1$
-						append(bstyle).append("', '"). //$NON-NLS-1$
-						append(bwidth).append("', '"). //$NON-NLS-1$
-						append(bcolor).append("', "). //$NON-NLS-1$
-						append(isListViewMode()).append(");\n"); //$NON-NLS-1$
 					}
 				}
 			}
@@ -4228,6 +4360,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		return null;
 	}
+
 
 	public void updateRowComponentsRenderState(AjaxRequestTarget target)
 	{
@@ -4264,7 +4397,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 				}
 			}
-
+			selectedIndexesBeforUpdateRenderState = selectedIndexes;
 			selectedIndexes = newSelectedIndexes;
 		}
 	}
@@ -4309,8 +4442,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			List<Integer> indexesToUpdate = new ArrayList<Integer>();
 			List<Integer> oldSelectedIndexes = new ArrayList<Integer>();
 			List<Integer> newSelectedIndexesA = new ArrayList<Integer>();
-			if (selectedIndexes != null)
+
+			if (selectedIndexesBeforUpdateRenderState != null)
 			{
+				for (int oldSelected : selectedIndexesBeforUpdateRenderState)
+					oldSelectedIndexes.add(new Integer(oldSelected));
+			}
+
+			if (selectedIndexes != null)
+			{ // !!needed because of case when selecting the previously selected index
 				for (int oldSelected : selectedIndexes)
 					oldSelectedIndexes.add(new Integer(oldSelected));
 			}
@@ -4328,7 +4468,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				Integer selection = new Integer(sel);
 				// add removed selection
-				if (newSelectedIndexesA.indexOf(selection) == -1) indexesToUpdate.add(selection);
+				if (newSelectedIndexesA.indexOf(selection) == -1)
+				{
+					indexesToUpdate.add(selection);
+				}
+				else if (selectedIndexesBeforUpdateRenderState != selectedIndexes)
+				{// !!!!needed because of case when selecting the previously selected index
+					indexesToUpdate.add(selection);
+				}
 			}
 
 			return (indexesToUpdate.size() > 0) ? indexesToUpdate : null;
@@ -4643,11 +4790,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			super.renderHead(response);
 			StringBuffer sb = new StringBuffer();
-			sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = 0;"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append("Servoy.TableView.scrollToTop('").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (isScrollFirstShow)
+			{
+				isScrollFirstShow = false;
+				sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = 0;"); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				sb.append("Servoy.TableView.scrollToTop('").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			response.renderOnDomReadyJavascript(sb.toString());
 
 		}

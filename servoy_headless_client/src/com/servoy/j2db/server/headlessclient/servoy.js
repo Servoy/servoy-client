@@ -845,15 +845,19 @@ if (typeof(Servoy.TableView) == "undefined")
 		{
 			var rowEl = document.getElementById(rowId);
 			if(rowEl)
-			{
-				var rowChildren = rowEl.childNodes;
-				var rowChildrenLen = rowChildren.length;
+			{   
+			   var rowChildren = $(rowEl).children();
+			   var rowChildrenLen = $(rowEl).children().size();			    
 
 				for(var i = 0; i < rowChildrenLen; i++)
 				{
 					if(rowChildren[i].tagName)
 					{
-						Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, isListView, true);
+					   if(!$.isArray(bgcolor)){
+						 Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor, fgcolor, fontStyle, fontWeight, fontSize, fontFamily, borderStyle, borderWidth, borderColor, isListView, true);
+						}else {
+						 Servoy.TableView.setRowStyleEl(rowChildren[i], bgcolor[i], fgcolor[i], fontStyle[i], fontWeight[i], fontSize[i], fontFamily[i], borderStyle[i], borderWidth[i], borderColor[i], isListView, true);
+						}
 					}
 				}				
 			}
