@@ -81,12 +81,9 @@ public class ArgumentType
 	public static ArgumentType convertFromColumnType(int columnType, String typeSuggestion)
 	{
 		if (columnType == IColumnTypes.DATETIME) return Date;
-		else if (columnType == IColumnTypes.INTEGER || columnType == IColumnTypes.NUMBER) return Number;
-		else if (columnType == IColumnTypes.TEXT) return String;
-		else
-		{
-			if (typeSuggestion != null) return valueOf(typeSuggestion);
-			else return Object;
-		}
+		if (columnType == IColumnTypes.INTEGER || columnType == IColumnTypes.NUMBER) return Number;
+		if (columnType == IColumnTypes.TEXT) return String;
+		if (columnType != IColumnTypes.MEDIA && typeSuggestion != null) return valueOf(typeSuggestion);
+		return Object;
 	}
 }
