@@ -208,7 +208,12 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			{
 				FormScope fs = webForm.getController().getFormScope();
 				Object value = DataAdapterList.getValueObject(currentRecord, fs, name);
-				return TagResolver.formatObject(value, webForm.getController().getApplication().getSettings());
+				String stringValue = TagResolver.formatObject(value, webForm.getController().getApplication().getSettings());
+				return DataAdapterList.processValue(
+					stringValue,
+					name,
+					webForm.getController().getApplication().getFlattenedSolution().getDataproviderLookup(
+						webForm.getController().getApplication().getFoundSetManager(), webForm.getController().getForm()));
 			}
 			return null;
 		}

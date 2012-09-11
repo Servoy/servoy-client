@@ -668,10 +668,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public boolean isCountOrAvgOrSumAggregateDataProvider(IDataAdapter dataAdapter)
 	{
-		return isCountOrAvgOrSumAggregateDataProvider(dataAdapter.getDataProviderID());
+		return isCountOrAvgOrSumAggregateDataProvider(dataAdapter.getDataProviderID(), dataProviderLookup);
 	}
 
-	private boolean isCountOrAvgOrSumAggregateDataProvider(String dataProvider)
+	private static boolean isCountOrAvgOrSumAggregateDataProvider(String dataProvider, IDataProviderLookup dataProviderLookup)
 	{
 		try
 		{
@@ -802,9 +802,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	public String getStringValue(String name)
 	{
 		String stringValue = TagResolver.formatObject(getValueObject(currentRecord, name), application.getSettings());
+		return processValue(stringValue, name, dataProviderLookup);
+	}
+
+	public static String processValue(String stringValue, String dataProviderID, IDataProviderLookup dataProviderLookup)
+	{
 		if (stringValue == null)
 		{
-			if ("selectedIndex".equals(name) || isCountOrAvgOrSumAggregateDataProvider(name)) //$NON-NLS-1$
+			if ("selectedIndex".equals(dataProviderID) || isCountOrAvgOrSumAggregateDataProvider(dataProviderID, dataProviderLookup)) //$NON-NLS-1$
 			{
 				return "0"; //$NON-NLS-1$
 			}
