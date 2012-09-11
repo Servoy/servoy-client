@@ -21,13 +21,14 @@ import org.apache.wicket.ResourceReference;
 
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.ISupportWebBounds;
 
 /**
  * Interface for components that can display image
  * @author gboros
  *
  */
-public interface IImageDisplay extends IComponent
+public interface IImageDisplay extends IComponent, ISupportWebBounds
 {
 	public MediaResource getIcon();
 

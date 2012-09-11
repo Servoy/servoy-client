@@ -950,7 +950,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				{
 					imgURL = imageDisplayComponent.urlFor(imageDisplay.getIconReference()) +
 						"?id=" + imageDisplay.getMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-						imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getSize().width + "&h=" + imageDisplay.getSize().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getWebBounds().width + "&h=" + imageDisplay.getWebBounds().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						(imageDisplay.getMedia().getMediaData() != null ? +imageDisplay.getMedia().getMediaData().hashCode() : 0);
 				}
 				else
@@ -1001,7 +1001,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 						{
 							url = imageDisplayComponent.urlFor(imageDisplay.getRolloverIconReference()) +
 								"?id=" + imageDisplay.getRolloverMedia().getName() + "&s=" + solutionName + "&option=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-								imageDisplay.getMediaOptions() + "&w=" + imageDisplay.getSize().width + "&h=" + imageDisplay.getSize().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								imageDisplay.getMediaOptions() +
+								"&w=" + imageDisplay.getWebBounds().width + "&h=" + imageDisplay.getWebBounds().height + "&l=" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								(imageDisplay.getRolloverMedia().getMediaData() != null ? +imageDisplay.getRolloverMedia().getMediaData().hashCode() : 0);
 						}
 						else
