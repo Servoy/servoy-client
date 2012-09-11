@@ -365,6 +365,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		return changed;
 	}
 
+
 	@Override
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
@@ -376,7 +377,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 				MainPage page = (MainPage)((WebFormManager)getFormManager()).getMainContainer(null);
 				throw new RestartResponseException(page);
 			}
-			synchronized (webClientSession.getWebClient())
+			synchronized (onBeginRequestLock)
 			{
 				executeEvents();
 			}
