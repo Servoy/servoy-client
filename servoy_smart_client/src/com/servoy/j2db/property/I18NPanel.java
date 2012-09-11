@@ -85,13 +85,13 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.StringComparator;
@@ -746,8 +746,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 			}
 			Column pkColumn = list.get(0);
 
-			QueryTable messagesTable = new QueryTable(i18nTable.getSQLName(), i18nTable.getDataSource(), i18nTable.getCatalog(),
-				i18nTable.getSchema());
+			QueryTable messagesTable = new QueryTable(i18nTable.getSQLName(), i18nTable.getDataSource(), i18nTable.getCatalog(), i18nTable.getSchema());
 			QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength());
 
 			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
@@ -922,6 +921,14 @@ public class I18NPanel extends JPanel implements DocumentListener
 
 					statement2 = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, delete);
 				}
+			}
+			if (statement1 != null)
+			{
+				statement1.setDataType(ISQLStatement.I18N_DATA_TYPE);
+			}
+			if (statement2 != null)
+			{
+				statement2.setDataType(ISQLStatement.I18N_DATA_TYPE);
 			}
 			dataServer.performUpdates(application.getClientID(), statement2 == null ? new ISQLStatement[] { statement1 }
 				: new ISQLStatement[] { statement1, statement2 });

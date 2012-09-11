@@ -232,13 +232,13 @@ public class Messages
 		}
 		else if (dataServer != null)
 		{
-			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, language, ALL_LOCALES, null,
-				null, null, null);
+			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
+				null, null, null, null);
 		}
 		else if (ApplicationServerSingleton.get() != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
-				ApplicationServerSingleton.get().getLocalRepository(), properties, language, ALL_LOCALES, null, null, null, null);
+				ApplicationServerSingleton.get().getLocalRepository(), properties, null, language, ALL_LOCALES, null, null, null, null);
 		}
 	}
 
@@ -288,35 +288,35 @@ public class Messages
 		}
 		else if (dataServer != null)
 		{
-			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, language, ALL_LOCALES,
+			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
 				searchKey, searchText, columnNameFilter, columnValueFilter);
 		}
 		else if (ApplicationServerSingleton.get() != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
-				ApplicationServerSingleton.get().getLocalRepository(), properties, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
+				ApplicationServerSingleton.get().getLocalRepository(), properties, null, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
 				columnValueFilter);
 		}
 	}
 
 	public static void loadMessagesFromDatabase(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer, IRepository repository,
-		Properties defaultProperties, Properties localProperties, Locale language, String searchKey, String searchText, String columnNameFilter,
+		Properties defaultProperties, Properties localeProperties, Locale language, String searchKey, String searchText, String columnNameFilter,
 		String[] columnValueFilter)
 	{
 		if (Messages.customMessageLoader != null)
 		{
-			Messages.customMessageLoader.loadMessages(i18nDatasource, defaultProperties, localProperties, language, searchKey);
+			Messages.customMessageLoader.loadMessages(i18nDatasource, defaultProperties, localeProperties, language, searchKey);
 		}
 		else if (dataServer != null)
 		{
-			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, defaultProperties, language, ALL_LOCALES,
-				searchKey, searchText, columnNameFilter, columnValueFilter);
+			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, defaultProperties, localeProperties,
+				language, ALL_LOCALES, searchKey, searchText, columnNameFilter, columnValueFilter);
 		}
 		else if (ApplicationServerSingleton.get() != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
-				ApplicationServerSingleton.get().getLocalRepository(), defaultProperties, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
-				columnValueFilter);
+				ApplicationServerSingleton.get().getLocalRepository(), defaultProperties, localeProperties, language, ALL_LOCALES, searchKey, searchText,
+				columnNameFilter, columnValueFilter);
 		}
 	}
 
@@ -326,8 +326,8 @@ public class Messages
 	 * @exclude
 	 */
 	public static void loadMessagesFromDatabaseRepositoryInternal(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
-		IRepository repository, Properties properties, Locale language, int loadingType, String searchKey, String searchText, String columnNameFilter,
-		String[] columnValueFilter)
+		IRepository repository, Properties properties, Properties localeProperties, Locale language, int loadingType, String searchKey, String searchText,
+		String columnNameFilter, String[] columnValueFilter)
 	{
 		noConnection = false;
 		String[] names = getServerTableNames(i18nDatasource, settings);
@@ -366,14 +366,14 @@ public class Messages
 				}
 			}
 
-			loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, language, loadingType, searchKey, searchText,
-				filterColumn, null);
+			loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, localeProperties, language, loadingType, searchKey,
+				searchText, filterColumn, null);
 			if (columnValueFilter != null)
 			{
 				for (int i = columnValueFilter.length - 1; i >= 0; i--)
 				{
-					loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, language, loadingType, searchKey,
-						searchText, filterColumn, columnValueFilter[i]);
+					loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, localeProperties, language, loadingType,
+						searchKey, searchText, filterColumn, columnValueFilter[i]);
 				}
 			}
 		}
@@ -386,8 +386,8 @@ public class Messages
 	}
 
 	private static void loadMessagesFromDatabaseRepositorySinglefilter(IServer server, Table table, String clientId, IDataServer dataServer,
-		Properties properties, Locale language, int loadingType, String searchKey, String searchText, Column filterColumn, String singleColumnValueFilter)
-		throws RemoteException, ServoyException
+		Properties properties, Properties localeProperties, Locale language, int loadingType, String searchKey, String searchText, Column filterColumn,
+		String singleColumnValueFilter) throws RemoteException, ServoyException
 	{
 
 		Debug.trace("Loading messages from DB: Server: " + server.getName() + " Table: " + table.getName() + " Language: " + language); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -457,13 +457,13 @@ public class Messages
 		if (loadingType == ALL_LOCALES || loadingType == SPECIFIED_LANGUAGE)
 		{
 			fillLocaleMessages(clientId, dataServer, table, server.getName(), filterColumn, singleColumnValueFilter, searchKey, searchText, language,
-				properties, SPECIFIED_LANGUAGE);
+				localeProperties != null ? localeProperties : properties, SPECIFIED_LANGUAGE);
 		}
 
 		if (loadingType == ALL_LOCALES || loadingType == SPECIFIED_LOCALE)
 		{
 			fillLocaleMessages(clientId, dataServer, table, server.getName(), filterColumn, singleColumnValueFilter, searchKey, searchText, language,
-				properties, SPECIFIED_LOCALE);
+				localeProperties != null ? localeProperties : properties, SPECIFIED_LOCALE);
 		}
 	}
 

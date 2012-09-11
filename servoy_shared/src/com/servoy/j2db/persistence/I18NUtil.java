@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.ISQLActionTypes;
@@ -104,8 +103,7 @@ public class I18NUtil
 			{
 				Column pkColumn = i18NTable.getRowIdentColumns().get(0); // runtime exception when no ident columns
 
-				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(),
-					i18NTable.getSchema());
+				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength());
 				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5);
 				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150);
@@ -188,9 +186,12 @@ public class I18NUtil
 						}
 					}
 				}
-
+				for (SQLStatement st : updateStatements)
+				{
+					st.setDataType(ISQLStatement.I18N_DATA_TYPE);
+				}
 				dataServer.performUpdates(clientID, updateStatements.toArray(new ISQLStatement[updateStatements.size()]));
-				Messages.changedTime = System.currentTimeMillis();
+
 			}
 		}
 	}
@@ -206,8 +207,7 @@ public class I18NUtil
 			Table i18NTable = (Table)i18NServer.getTable(i18NTableName);
 			if (i18NTable != null)
 			{
-				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(),
-					i18NTable.getSchema());
+				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
 				QuerySelect sql = new QuerySelect(messagesTable);
 
 				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5);

@@ -54,6 +54,7 @@ public class SQLStatement implements ITrackingSQLStatement
 
 	private boolean oracleFix;
 	private final ISQLSelect requerySelect;
+	private int dataType = ISQLStatement.REGULAR_DATA_TYPE;
 
 	/**
 	 * create a SQLStatement
@@ -304,4 +305,15 @@ public class SQLStatement implements ITrackingSQLStatement
 	{
 		return requerySelect;
 	}
+
+	public int getDataType()
+	{
+		return dataType;
+	}
+
+	public void setDataType(int dataType)
+	{
+		this.dataType = dataType;
+	}
+
 }

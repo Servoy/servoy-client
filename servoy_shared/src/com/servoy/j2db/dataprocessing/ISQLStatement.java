@@ -75,4 +75,9 @@ public interface ISQLStatement extends Serializable, ISQLActionTypes
 	public void setExpectedUpdateCount(int expectedUpdateCount);
 
 	public ISQLSelect getRequerySelect();
+
+	public static int REGULAR_DATA_TYPE = 0;
+	public static int I18N_DATA_TYPE = 1;
+
+	public int getDataType();
 }
