@@ -857,8 +857,6 @@ public class JSUtils
 			{
 				int digits = ((Number)digitsOrFormat).intValue();
 				double val = Utils.getAsDouble(number);
-				double d = 1 / Math.pow(10, digits + 2);
-				val += d;
 				return Utils.formatNumber(application.getLocale(), val, digits);
 			}
 			else if (digitsOrFormat instanceof String)
