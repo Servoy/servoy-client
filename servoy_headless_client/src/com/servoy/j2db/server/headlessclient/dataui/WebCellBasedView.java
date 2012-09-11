@@ -340,12 +340,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
 			{
-				// if size is changed, reset scroll
-				if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint)
-				{
-					WebCellBasedView.this.isScrollFirstShow = true;
-				}
-
 				bodyWidthHint = newBodyWidthHint;
 				bodyHeightHint = newBodyHeightHint;
 				bodySizeHintSetFromClient = true;
@@ -2659,8 +2653,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		clearSelectionByCellActionFlag();
 	}
 
-	private boolean isScrollFirstShow = true;
-
 	@Override
 	protected void onBeforeRender()
 	{
@@ -2735,11 +2727,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 				if (isScrollMode())
 				{
-					if (isScrollFirstShow)
-					{
-						table.setStartIndex(0);
-						table.setViewSize(2 * maxRowsPerPage);
-					}
+					table.setStartIndex(0);
+					table.setViewSize(2 * maxRowsPerPage);
 				}
 				else
 				{
@@ -4790,18 +4779,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			super.renderHead(response);
 			StringBuffer sb = new StringBuffer();
-			if (isScrollFirstShow)
-			{
-				isScrollFirstShow = false;
-				sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = 0;"); //$NON-NLS-1$ //$NON-NLS-2$
-				sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
-				sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
-				sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			else
-			{
-				sb.append("Servoy.TableView.scrollToTop('").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = 0;"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("Servoy.TableView.scrollToTop('").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 			response.renderOnDomReadyJavascript(sb.toString());
 
 		}
