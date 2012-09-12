@@ -88,8 +88,14 @@ public class I18NUtil
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
 		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves) throws Exception
 	{
+		writeMessagesToRepository(i18NServerName, i18NTableName, repository, dataServer, clientID, messages, noUpdates, noRemoves, null);
+	}
+
+	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
+		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, TreeMap<String, MessageEntry> remoteMessages) throws Exception
+	{
 		// get remote messages snapshot
-		TreeMap<String, MessageEntry> remoteMessages = loadSortedMessagesFromRepository(repository, dataServer, clientID, i18NServerName, i18NTableName);
+		if (remoteMessages == null) remoteMessages = loadSortedMessagesFromRepository(repository, dataServer, clientID, i18NServerName, i18NTableName);
 
 		if (remoteMessages != null)
 		{

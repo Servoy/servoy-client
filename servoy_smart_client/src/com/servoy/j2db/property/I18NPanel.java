@@ -28,7 +28,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.ref.WeakReference;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventObject;
@@ -69,29 +68,12 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMessagesCallback;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.dataprocessing.IDataSet;
-import com.servoy.j2db.dataprocessing.ISQLActionTypes;
-import com.servoy.j2db.dataprocessing.ISQLStatement;
-import com.servoy.j2db.dataprocessing.SQLStatement;
-import com.servoy.j2db.dataprocessing.ValueFactory;
 import com.servoy.j2db.gui.FixedJSplitPane;
-import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.ColumnInfo;
-import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.I18NUtil;
+import com.servoy.j2db.persistence.I18NUtil.MessageEntry;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.property.I18NMessagesModel.I18NMessagesModelEntry;
-import com.servoy.j2db.query.AbstractBaseQuery;
-import com.servoy.j2db.query.CompareCondition;
-import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.QueryColumn;
-import com.servoy.j2db.query.QueryDelete;
-import com.servoy.j2db.query.QueryInsert;
-import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
-import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.StringComparator;
@@ -721,226 +703,60 @@ public class I18NPanel extends JPanel implements DocumentListener
 			}
 		}
 
-		IDataServer dataServer = application.getDataServer();
-
-		try
+		if (Messages.customMessageLoader != null)
 		{
-			IServer i18nServer = (application.getRepository()).getServer(serverName);
-			if (i18nServer == null) throw new IllegalArgumentException("i18n server " + serverName + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
-
-			Table i18nTable = (Table)i18nServer.getTable(tableName);
-			if (i18nTable == null) throw new IllegalArgumentException("i18n table " + tableName + "not found"); //$NON-NLS-1$ //$NON-NLS-2$
-
-			List<Column> list = i18nTable.getRowIdentColumns();
-			if (list.size() > 1) throw new IllegalArgumentException("i18n table has multiply pk columns"); //$NON-NLS-1$
-			if (list.size() == 0) throw new IllegalArgumentException("i18n table has no pk columns"); //$NON-NLS-1$
-
-			String language = getSelectedLanguage();
-			String filterColumn = null;
-			String filterValue = null;
-			if (application instanceof IMessagesCallback)
+			try
 			{
-				filterColumn = ((IMessagesCallback)application).getI18NColumnNameFilter();
-				Object v = ((IMessagesCallback)application).getI18NColumnValueFilter();
-				if (v instanceof String) filterValue = (String)v;
+				TreeMap<String, MessageEntry> messages = Messages.customMessageLoader.readMessages(serverName, tableName);
+				adjustMessagesMap(newKey, referenceValue, localeValue, messages);
+				Messages.customMessageLoader.save(serverName, tableName, messages);
+				operationPerformed = true;
 			}
-			Column pkColumn = list.get(0);
-
-			QueryTable messagesTable = new QueryTable(i18nTable.getSQLName(), i18nTable.getDataSource(), i18nTable.getCatalog(), i18nTable.getSchema());
-			QueryColumn pkCol = new QueryColumn(messagesTable, pkColumn.getID(), pkColumn.getSQLName(), pkColumn.getType(), pkColumn.getLength());
-
-			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
-			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 5); //$NON-NLS-1$
-			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000); //$NON-NLS-1$
-			QueryColumn filterCol = null;
-			if (filterColumn != null && filterValue != null && filterColumn.length() > 0 && filterValue.length() > 0)
+			catch (Exception e)
 			{
-				// do type/length count in this constructor? (we do not know them...)
-				filterCol = new QueryColumn(messagesTable, -1, filterColumn, Types.VARCHAR, 2000);
+				Debug.error("exception when inserting/updating i18n key: " + newKey);
+				Debug.error(e);
+				// throw new RuntimeException(e);
 			}
-			TablePlaceholderKey langPlaceholderKey = new TablePlaceholderKey(messagesTable, "LANGUAGE"); //$NON-NLS-1$
-			TablePlaceholderKey valuePlaceholderKey = new TablePlaceholderKey(messagesTable, "VALUE"); //$NON-NLS-1$
-
-			QuerySelect selectSQL = new QuerySelect(messagesTable);
-			selectSQL.addColumn(pkCol);
-			selectSQL.addCondition("MESSAGES", new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, newKey)); //$NON-NLS-1$
-			selectSQL.addCondition("MESSAGES", new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, new Placeholder(langPlaceholderKey))); //$NON-NLS-1$
-			if (filterCol != null)
-			{
-				selectSQL.addCondition("MESSAGES", new CompareCondition(ISQLCondition.EQUALS_OPERATOR, filterCol, filterValue)); //$NON-NLS-1$
-			}
-
-			// in case we need to insert a record, we must know if it is database managed or servoy managed
-			boolean logIdIsServoyManaged = false;
-			ColumnInfo ci = pkColumn.getColumnInfo();
-			if (ci != null)
-			{
-				int autoEnterType = ci.getAutoEnterType();
-				int autoEnterSubType = ci.getAutoEnterSubType();
-				logIdIsServoyManaged = (autoEnterType == ColumnInfo.SEQUENCE_AUTO_ENTER) && (autoEnterSubType != ColumnInfo.NO_SEQUENCE_SELECTED) &&
-					(autoEnterSubType != ColumnInfo.DATABASE_IDENTITY);
-			}
-
-			SQLStatement statement1 = null;
-			SQLStatement statement2 = null;
-
-			selectSQL.setPlaceholderValue(langPlaceholderKey, ValueFactory.createNullValue(Types.VARCHAR));
-			IDataSet set = dataServer.performQuery(application.getClientID(), serverName, null, selectSQL, null, false, 0, 25, IDataServer.MESSAGES_QUERY);
-			if (set.getRowCount() == 0)
-			{
-				QueryInsert insert = new QueryInsert(messagesTable);
-				Object messageId = null;
-				if (logIdIsServoyManaged) messageId = dataServer.getNextSequence(serverName, i18nTable.getName(), pkColumn.getName(), -1);
-				if (filterCol == null)
-				{
-					if (logIdIsServoyManaged)
-					{
-						insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgLang, msgVal },
-							new Object[] { messageId, newKey, ValueFactory.createNullValue(Types.VARCHAR), referenceValue });
-					}
-					else
-					{
-						insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal },
-							new Object[] { newKey, ValueFactory.createNullValue(Types.VARCHAR), referenceValue });
-					}
-				}
-				else
-				{
-					if (logIdIsServoyManaged)
-					{
-						insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgLang, msgVal, filterCol },
-							new Object[] { messageId, newKey, ValueFactory.createNullValue(Types.VARCHAR), referenceValue, filterValue });
-					}
-					else
-					{
-						insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal, filterCol },
-							new Object[] { newKey, ValueFactory.createNullValue(Types.VARCHAR), referenceValue, filterValue });
-					}
-				}
-				statement1 = new SQLStatement(ISQLActionTypes.INSERT_ACTION, serverName, tableName, null, insert);
-				if (localeValue != null && !"".equals(localeValue))
-				{
-					insert = AbstractBaseQuery.deepClone(insert);
-					if (logIdIsServoyManaged) messageId = dataServer.getNextSequence(serverName, i18nTable.getName(), pkColumn.getName(), -1);
-					if (filterCol == null)
-					{
-						if (logIdIsServoyManaged)
-						{
-							insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgLang, msgVal },
-								new Object[] { messageId, newKey, language, localeValue });
-						}
-						else
-						{
-							insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal }, new Object[] { newKey, language, localeValue });
-						}
-					}
-					else
-					{
-						if (logIdIsServoyManaged)
-						{
-							insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgLang, msgVal, filterCol },
-								new Object[] { messageId, newKey, language, localeValue, filterValue });
-						}
-						else
-						{
-							insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal, filterCol },
-								new Object[] { newKey, language, localeValue, filterValue });
-						}
-					}
-					statement2 = new SQLStatement(ISQLActionTypes.INSERT_ACTION, serverName, tableName, null, insert);
-				}
-			}
-			else
-			{
-				QueryUpdate update = new QueryUpdate(messagesTable);
-				update.addValue(msgVal, new Placeholder(valuePlaceholderKey));
-				update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, newKey));
-				update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, new Placeholder(langPlaceholderKey)));
-				if (filterCol != null)
-				{
-					update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, filterCol, filterValue));
-				}
-
-				update.setPlaceholderValue(langPlaceholderKey, ValueFactory.createNullValue(Types.VARCHAR));
-				update.setPlaceholderValue(valuePlaceholderKey, referenceValue);
-				statement1 = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, serverName, tableName, null, update);
-
-				if (localeValue != null && !"".equals(localeValue))
-				{
-					selectSQL.setPlaceholderValue(langPlaceholderKey, language);
-					set = dataServer.performQuery(application.getClientID(), serverName, null, selectSQL, null, false, 0, 25, IDataServer.MESSAGES_QUERY);
-					if (set.getRowCount() == 0)
-					{
-						QueryInsert insert = new QueryInsert(messagesTable);
-						Object messageId = null;
-						if (logIdIsServoyManaged) messageId = dataServer.getNextSequence(serverName, i18nTable.getName(), pkColumn.getName(), -1);
-						if (filterCol == null)
-						{
-							if (logIdIsServoyManaged)
-							{
-								insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgLang, msgVal },
-									new Object[] { messageId, newKey, language, localeValue });
-							}
-							else
-							{
-								insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal }, new Object[] { newKey, language, localeValue });
-							}
-						}
-						else
-						{
-							if (logIdIsServoyManaged)
-							{
-								insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgLang, msgVal, filterCol },
-									new Object[] { messageId, newKey, language, localeValue, filterValue });
-							}
-							else
-							{
-								insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal, filterCol },
-									new Object[] { newKey, language, localeValue, filterValue });
-							}
-						}
-						statement2 = new SQLStatement(ISQLActionTypes.INSERT_ACTION, serverName, tableName, null, insert);
-					}
-					else
-					{
-						update = AbstractBaseQuery.deepClone(update);
-						update.setPlaceholderValue(langPlaceholderKey, language);
-						update.setPlaceholderValue(valuePlaceholderKey, localeValue);
-						statement2 = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, serverName, tableName, null, update);
-					}
-				}
-				else
-				{
-					QueryDelete delete = new QueryDelete(messagesTable);
-					delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, newKey));
-					delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, language));
-					if (filterCol != null)
-					{
-						delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, filterCol, filterValue));
-					}
-
-					statement2 = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, delete);
-				}
-			}
-			if (statement1 != null)
-			{
-				statement1.setDataType(ISQLStatement.I18N_DATA_TYPE);
-			}
-			if (statement2 != null)
-			{
-				statement2.setDataType(ISQLStatement.I18N_DATA_TYPE);
-			}
-			dataServer.performUpdates(application.getClientID(), statement2 == null ? new ISQLStatement[] { statement1 }
-				: new ISQLStatement[] { statement1, statement2 });
-			operationPerformed = true;
 		}
-		catch (Exception e)
+		else
 		{
-			Debug.error("exception when inseting new i18n key");
-			Debug.error(e);
-			// throw new RuntimeException(e);
+			IDataServer dataServer = application.getDataServer();
+			IRepository repository = application.getRepository();
+
+			try
+			{
+				TreeMap<String, MessageEntry> repositoryMessages = I18NUtil.loadSortedMessagesFromRepository(repository, dataServer, application.getClientID(),
+					serverName, tableName);
+				TreeMap<String, MessageEntry> messages = new TreeMap<String, I18NUtil.MessageEntry>(repositoryMessages);
+				adjustMessagesMap(newKey, referenceValue, localeValue, messages);
+				I18NUtil.writeMessagesToRepository(serverName, tableName, repository, dataServer, application.getClientID(), messages, false, false,
+					repositoryMessages);
+				operationPerformed = true;
+			}
+			catch (Exception e)
+			{
+				Debug.error("exception when inserting new i18n key: " + newKey);
+				Debug.error(e);
+				// throw new RuntimeException(e);
+			}
 		}
 		return operationPerformed;
+	}
+
+	private void adjustMessagesMap(String newKey, String referenceValue, String localeValue, TreeMap<String, MessageEntry> messages)
+	{
+		I18NUtil.MessageEntry messageEntry = new I18NUtil.MessageEntry(null, newKey, referenceValue);
+		messages.put(messageEntry.getLanguageKey(), messageEntry);
+		messageEntry = new I18NUtil.MessageEntry(getSelectedLanguage(), newKey, localeValue);
+		if (localeValue == null || "".equals(localeValue))
+		{
+			messages.remove(messageEntry.getLanguageKey());
+		}
+		else
+		{
+			messages.put(messageEntry.getLanguageKey(), messageEntry);
+		}
 	}
 
 	private void initI18NMessagesModel(String searchKey)
