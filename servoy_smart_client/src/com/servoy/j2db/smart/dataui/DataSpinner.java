@@ -65,42 +65,59 @@ public class DataSpinner extends DataChoice
 //				int y = (int)(enclosedComponent.getHeight() * (((double)e.getValue()) / e.getAdjustable().getMaximum()));
 //				final int idx = enclosedComponent.locationToIndex(new Point(getViewport().getViewPosition().x, y));
 				final int idx = getVisibleIndex();
-				if (idx > 0 && !isRowSelected(idx))
+				if (idx > 0 && !isRowSelected(idx) && idx < list.getSize()) //list.getSize() returns SpinnerModel -2 size. We have +2 size on the SpinnerModel for First and last blank model elements.
 				{
-					boolean focused = enclosedComponent.hasFocus();
-					if (!focused) enclosedComponent.requestFocus();
-
-					// if you would create a new record with non-nullable dataProvider for this spinner, type something in another text field then click
-					// on an arrow of the spinner, this would determine something like spinner:commit(someValue)->currentComponentNotCommitted->currentComponentCommit->TextFieldCommit->notifyDisplayAdaptersRecordChanged->spinner:changeValueTo(null)
-					// after that the spinner:commit continued with wrong (null) value... so we will do this later to allow the currentComponent to commit it's value
-					Runnable r = new Runnable()
-					{
-						public void run()
-						{
-							setElementAt(Boolean.TRUE, idx);
-							boolean old = disableUserAdjustmentListeners;
-							try
-							{
-								enclosedComponent.setSelectedIndex(idx);
-							}
-							finally
-							{
-								disableUserAdjustmentListeners = old;
-							}
-						}
-					};
-					if (!focused)
-					{
-						application.invokeLater(r);
-					}
-					else
-					{
-						r.run();
-					}
+					setSelectedIndex(idx);
 				}
-				else if (list.getSize() > 0 && idx == 0 && list.getSelectedRow() != -1)
+				else if (list.getSize() > 0 && idx == 0 && list.getSelectedRow() != -1) //user reached the first element and pressed again 'up' . Circular behavior should go to last
 				{
+					setSelectedIndex(list.getSize());
 					ensureSelectedIsVisible(false); // do not allow blank value as a user choice
+				}
+				else if (idx > list.getSize())
+				// user has reached the last element .Circular behavior should go to first element
+				{
+					setSelectedIndex(1);
+					ensureSelectedIsVisible(false); // do not allow blank value as a user choice
+				}
+			}
+
+			/**
+			 * This method belongs to the anonymous inner class AdjustmentListener(){...} .  
+			 * Currently only it uses this method when needing to change the selected index.
+			 * @param idx
+			 */
+			private void setSelectedIndex(final int idx)
+			{
+				boolean focused = enclosedComponent.hasFocus();
+				if (!focused) enclosedComponent.requestFocus();
+
+				// if you would create a new record with non-nullable dataProvider for this spinner, type something in another text field then click
+				// on an arrow of the spinner, this would determine something like spinner:commit(someValue)->currentComponentNotCommitted->currentComponentCommit->TextFieldCommit->notifyDisplayAdaptersRecordChanged->spinner:changeValueTo(null)
+				// after that the spinner:commit continued with wrong (null) value... so we will do this later to allow the currentComponent to commit it's value
+				Runnable r = new Runnable()
+				{
+					public void run()
+					{
+						setElementAt(Boolean.TRUE, idx);
+						boolean old = disableUserAdjustmentListeners;
+						try
+						{
+							enclosedComponent.setSelectedIndex(idx);
+						}
+						finally
+						{
+							disableUserAdjustmentListeners = old;
+						}
+					}
+				};
+				if (!focused)
+				{
+					application.invokeLater(r);
+				}
+				else
+				{
+					r.run();
 				}
 			}
 		});
@@ -165,6 +182,8 @@ public class DataSpinner extends DataChoice
 	@Override
 	public void setValueObject(Object data)
 	{
+		boolean fistTime = true;
+
 		if (Utils.equalObjects(getValueObject(), data) && list.getSelectedItem() != null)
 		{
 			// do nothing, data may be invalid value; same condition as for combo
@@ -231,7 +250,8 @@ public class DataSpinner extends DataChoice
 	protected void ensureSelectedIsVisible(boolean force)
 	{
 		// avoid doing this needlessly, currently this method gets called at least once for each list item when selection changes from outside the component
-		int idx = list.getSelectedRow() + 1;
+		int selectedRow = list.getSelectedRow();
+		int idx = selectedRow == -1 ? 1 : selectedRow + 1;
 		if (force || (getVisibleIndex() != idx))
 		{
 			boolean old = disableUserAdjustmentListeners;
@@ -272,13 +292,18 @@ public class DataSpinner extends DataChoice
 
 		public int getSize()
 		{
-			return comboModel.getSize() + 1;
+			/*
+			 * we have 2 empty model elements one in the front of the list and one at the end of the list The first empty element is needed for the reason in
+			 * the SpinnerModel Description, plus detect when the beginning of the list reached (for circular spinner model) The last empty element is needed
+			 * only for detection of the end of the list (for circular cycling of the spinner).
+			 */
+			return comboModel.getSize() + 2;
 		}
 
 		public Object getElementAt(int index)
 		{
 			if (index < 1) return null;
-			return comboModel.getElementAt(index - 1);
+			return comboModel.getElementAt(index - 1); //returns null for the last empty element from getSize()+2
 		}
 
 		public void addListDataListener(final ListDataListener l)
