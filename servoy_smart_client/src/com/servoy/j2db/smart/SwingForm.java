@@ -802,28 +802,20 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	public void setComponentEnabled(boolean enabled)
 	{
-		if (isEnabled() != enabled)
+		addEnabledComponents(this, componentsWithEnabledStateChanged);
+		if (!enabled) setEnabled(enabled);
+		else
 		{
-			if (!enabled)
+			for (Component component : componentsWithEnabledStateChanged)
 			{
-				addEnabledComponents(this, componentsWithEnabledStateChanged);
-				setEnabled(enabled);
+				component.setEnabled(enabled);
 			}
-			else
+
+			enablePanel(enabled);
+			componentsWithEnabledStateChanged.clear();
+			if (west != null)
 			{
-				if (componentsWithEnabledStateChanged.size() != 0)
-				{
-					for (Component component : componentsWithEnabledStateChanged)
-					{
-						component.setEnabled(enabled);
-					}
-				}
-				componentsWithEnabledStateChanged.clear();
-				enablePanel(enabled);
-				if (west != null)
-				{
-					west.setEnabled(enabled);
-				}
+				west.setEnabled(enabled);
 			}
 		}
 	}

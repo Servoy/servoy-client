@@ -819,6 +819,23 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		}
 	}
 
+	private static class WicketCompVisitorMarker2 implements IVisitor<Component>
+	{
+		private final boolean enabledFlag;
+
+		public WicketCompVisitorMarker2(boolean enabledFlag)
+		{
+			this.enabledFlag = enabledFlag;
+		}
+
+		public Object component(Component component)
+		{
+			((WebForm)component).setEnabled(enabledFlag);
+			return CONTINUE_TRAVERSAL;
+		}
+	}
+
+
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#setReadOnly(boolean)
 	 */
@@ -864,11 +881,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	public void setComponentEnabled(final boolean enabled)
 	{
-		if (enabled != isEnabled())
-		{
-			enableChanged = Boolean.TRUE;
-			setEnabled(enabled);
-		}
+		enableChanged = Boolean.TRUE;
+		setEnabled(enabled);
+		visitChildren(WebForm.class, new WicketCompVisitorMarker2(enabled));
 	}
 
 	/**
