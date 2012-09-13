@@ -43,7 +43,9 @@ public interface IServerAccess extends IPluginAccess
 	 */
 	public void registerRMIService(String rmiLookupName, Remote obj) throws RemoteException;
 
-	@Deprecated
+	/**
+	 * Get a remote server service, will not work in the Servoy Runtime product!
+	 */
 	public Remote getRemoteService(String rmiLookupName);
 
 	/**
