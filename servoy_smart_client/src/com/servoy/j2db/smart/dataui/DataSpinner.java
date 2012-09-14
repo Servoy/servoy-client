@@ -182,8 +182,6 @@ public class DataSpinner extends DataChoice
 	@Override
 	public void setValueObject(Object data)
 	{
-		boolean fistTime = true;
-
 		if (Utils.equalObjects(getValueObject(), data) && list.getSelectedItem() != null)
 		{
 			// do nothing, data may be invalid value; same condition as for combo
@@ -250,8 +248,7 @@ public class DataSpinner extends DataChoice
 	protected void ensureSelectedIsVisible(boolean force)
 	{
 		// avoid doing this needlessly, currently this method gets called at least once for each list item when selection changes from outside the component
-		int selectedRow = list.getSelectedRow();
-		int idx = selectedRow == -1 ? 1 : selectedRow + 1;
+		int idx = list.getSelectedRow() + 1;
 		if (force || (getVisibleIndex() != idx))
 		{
 			boolean old = disableUserAdjustmentListeners;
