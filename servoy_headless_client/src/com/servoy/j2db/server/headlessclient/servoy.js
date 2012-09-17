@@ -2184,6 +2184,8 @@ if (typeof(Servoy.Utils) == "undefined")
 
 	  isChrome : navigator.userAgent.toLowerCase().indexOf('chrome') > -1,
 	  
+	  isSafari : navigator.userAgent.toLowerCase().indexOf('safari') > -1,
+	  
 	  isFirefox : navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
 	  
 	  doSelect: function(el) 
@@ -2740,7 +2742,6 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		{
 			var Dom = YAHOO.util.Dom,
 		    Event = YAHOO.util.Event;
-		    
 		    var myConfig = {
 		    	width: '100%',
 		        animate: false,
@@ -2756,8 +2757,24 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		        
 		        Dom.setStyle(this.toolbar._titlebar, 'display', 'none'); //hide title
 		        Dom.setStyle(this.dompath, 'display', 'none'); //now we hide
-		        this.on('editorContentLoaded', function(){
-			        document.getElementById(editorId+'_editor').style.height = (document.getElementById(wrapperId).offsetHeight - document.getElementById(editorId+'_toolbar').offsetHeight -5) +"px";
+		       	this.on('editorContentLoaded', function(){
+		       		var toolbarHeight = document.getElementById(editorId+'_toolbar').offsetHeight;
+		       		if (Servoy.Utils.isChrome || Servoy.Utils.isSafari)
+		       		{
+		       			// height is not correct :(, we have to calculate how many rows we have
+		       			var rows = 3;
+		       			var toolbarWidth = document.getElementById(editorId+'_toolbar').offsetWidth;
+		       			if (toolbarWidth >1000)
+		       			{
+		       				rows = 1;
+		       			}
+		       			else if (toolbarWidth >550)
+		       			{
+		       				rows = 2;	
+		       			}
+		       			toolbarHeight = rows * 51; // 51 is row height
+		       		}
+		       		document.getElementById(editorId+'_editor').style.height = (document.getElementById(wrapperId).clientHeight - toolbarHeight) +"px";
 			    }, this, true);
 		        
 		        this.toolbar.on('editcodeClick', function() {

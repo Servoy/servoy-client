@@ -108,6 +108,7 @@ import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
 import com.servoy.j2db.server.headlessclient.dataui.StylePropertyChangeMarkupContainer;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlArea;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
@@ -2387,6 +2388,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 					public Object component(Component component)
 					{
 						((IWebFormContainer)component).notifyResized();
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+				page.visitChildren(WebDataHtmlArea.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
+						// we have to re render
+						((WebDataHtmlArea)component).getScriptObject().getChangesRecorder().setChanged();
 						return IVisitor.CONTINUE_TRAVERSAL;
 					}
 				});
