@@ -1027,6 +1027,39 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
+	public Map<String, Object> getCustomMobileProperties()
+	{
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { "mobile" });
+		if (map == null || map.size() == 0)
+		{
+			return null;
+		}
+		return map;
+	}
+
+	public Map<String, Object> setCustomMobileProperties(Map<String, Object> map)
+	{
+		return (Map<String, Object>)putCustomProperty(new String[] { "mobile" }, map);
+	}
+
+	public Object getCustomMobileProperty(String key)
+	{
+		if (key != null)
+		{
+			return getCustomProperty(new String[] { "mobile", key }); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return null;
+	}
+
+	public Object putCustomMobileProperty(String key, Object value)
+	{
+		if (key != null)
+		{
+			return putCustomProperty(new String[] { "mobile", key }, value); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return null;
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<Object> getInstanceMethodArguments(String methodKey)
 	{

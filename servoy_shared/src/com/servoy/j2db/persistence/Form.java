@@ -76,6 +76,14 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	public static final int NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX_LENGTH = NAMED_FOUNDSET_GLOBAL_RELATION_PREFIX.length();
 
+	public static Comparator<IFormElement> FORM_INDEX_COMPARATOR = new Comparator<IFormElement>()
+	{
+		public int compare(IFormElement element1, IFormElement element2)
+		{
+			return element1.getFormIndex() - element2.getFormIndex();
+		}
+	};
+
 	public transient Form extendsForm;
 
 	/**
@@ -1011,13 +1019,17 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
 	{
-		return new FormTypeIterator(getAllObjectsAsList(), new Comparator<IFormElement>()
-		{
-			public int compare(IFormElement element1, IFormElement element2)
-			{
-				return element1.getFormIndex() - element2.getFormIndex();
-			}
-		});
+		return getFormElementsSorted(FORM_INDEX_COMPARATOR);
+	}
+
+	/**
+	 * Get all objects sorted
+	 * 
+	 * @return all the form elements
+	 */
+	public Iterator<IFormElement> getFormElementsSorted(Comparator<IFormElement> comparator)
+	{
+		return new FormTypeIterator(getAllObjectsAsList(), comparator);
 	}
 
 	static Comparator<Part> partComparator = new PartComparator();
@@ -1040,12 +1052,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	}
 
-	protected static class FormTypeIterator implements Iterator<IFormElement>
+	public static class FormTypeIterator implements Iterator<IFormElement>
 	{
 		private List<IFormElement> array;
 		private int index = 0;
 
-		FormTypeIterator(List<IPersist> list, final Comparator<IFormElement> comparator)
+		public FormTypeIterator(List<IPersist> list, final Comparator<IFormElement> comparator)
 		{
 			array = new ArrayList<IFormElement>();
 			if (list != null)
