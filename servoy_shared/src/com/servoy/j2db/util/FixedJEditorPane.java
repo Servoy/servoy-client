@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.awt.Rectangle;
@@ -25,7 +25,6 @@ import java.io.Reader;
 import java.util.concurrent.Executor;
 
 import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
@@ -205,7 +204,6 @@ public class FixedJEditorPane extends JEditorPane
 				int p = adoc.getAsynchronousLoadPriority();
 				if (p >= Thread.MIN_PRIORITY)
 				{
-					if (p > Thread.MAX_PRIORITY) p = Thread.MAX_PRIORITY;
 					setDocument(doc);
 					synchronized (this)
 					{
@@ -260,57 +258,12 @@ public class FixedJEditorPane extends JEditorPane
 				{
 					loading = null;
 				}
-				//scroll if necessary
-				Runnable callScrollToReference = new Runnable()
-				{
-					public void run()
-					{
-						if (doc instanceof HTMLDocument)
-						{
-							// I'll leave this for the moment... in case I want to review later
-//							HTMLDocument d = (HTMLDocument)doc;
-//							HTMLDocument.Iterator iter = d.getIterator(HTML.Tag.HTML);
-//							if (iter.isValid())
-//							{
-//								iter.next();
-//								int start = iter.getStartOffset();
-//								try
-//								{
-//									Rectangle r = modelToView(0);
-//									if (r != null)
-//									{
-//										Rectangle vis = getVisibleRect();
-//										r.height = vis.height;
-//										scrollRectToVisible(r);
-//									}
-//								}
-//								catch (BadLocationException ble)
-//								{
-//									UIManager.getLookAndFeel().provideErrorFeedback(FixedJEditorPane.this);
-//								}
-//							}
-						}
-					}
-				};
-//				SwingUtilities.invokeLater(callScrollToReference);
 			}
 			catch (IOException ioe)
 			{
 				UIManager.getLookAndFeel().provideErrorFeedback(FixedJEditorPane.this);
 			}
-			finally
-			{
-				SwingUtilities.invokeLater(new Runnable()
-				{
-					public void run()
-					{
-						/** causes null pointer exception and now I don't need it. I just keep it for further reviews */
-//						firePropertyChange("document", null, doc);
-					}
-				});
-			}
 		}
-
 	}
 
 	static class PageStream extends FilterInputStream
@@ -543,6 +496,23 @@ public class FixedJEditorPane extends JEditorPane
 			catch (Throwable t)
 			{
 				return Default;
+			}
+		}
+	}
+
+
+	/**
+	 * 
+	 */
+	public void cancelASyncLoad()
+	{
+		synchronized (this)
+		{
+			if (loading != null)
+			{
+				/** we are loading asynchronously, so we need to cancel the old stream */
+				loading.cancel();
+				loading = null;
 			}
 		}
 	}
