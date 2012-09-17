@@ -1332,44 +1332,51 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	@SuppressWarnings("nls")
 	public void showOpenFileDialog(final IMediaUploadCallback callback, boolean multiSelect, String title)
 	{
-		this.mediaUploadMultiSelect = multiSelect;
-		this.mediaUploadCallback = new IMediaUploadCallback()
+		if (isShowingInDialog() && callingContainer != null)
 		{
-			boolean uploaded = false;
-
-			public void uploadComplete(IUploadData[] fu)
+			callingContainer.showOpenFileDialog(callback, multiSelect, title);
+		}
+		else
+		{
+			this.mediaUploadMultiSelect = multiSelect;
+			this.mediaUploadCallback = new IMediaUploadCallback()
 			{
-				uploaded = true;
-				mediaUploadCallback = null;
-				callback.uploadComplete(fu);
-				jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
-				triggerBrowserRequestIfNeeded();
-			}
+				boolean uploaded = false;
 
-			public void onSubmit()
-			{
-				if (!uploaded)
+				public void uploadComplete(IUploadData[] fu)
 				{
+					uploaded = true;
 					mediaUploadCallback = null;
-					fileUploadWindow.setPageMapName(null);
-					fileUploadWindow.remove(fileUploadWindow.getContentId());
+					callback.uploadComplete(fu);
 					jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
 					triggerBrowserRequestIfNeeded();
 				}
-			}
-		};
 
-		fileUploadWindow.setPageMapName(FILE_UPLOAD_PAGEMAP);
-		if (title == null)
-		{
-			fileUploadWindow.setTitle(Messages.getString("servoy.filechooser.title"));
+				public void onSubmit()
+				{
+					if (!uploaded)
+					{
+						mediaUploadCallback = null;
+						fileUploadWindow.setPageMapName(null);
+						fileUploadWindow.remove(fileUploadWindow.getContentId());
+						jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
+						triggerBrowserRequestIfNeeded();
+					}
+				}
+			};
+
+			fileUploadWindow.setPageMapName(FILE_UPLOAD_PAGEMAP);
+			if (title == null)
+			{
+				fileUploadWindow.setTitle(Messages.getString("servoy.filechooser.title"));
+			}
+			else if (!"".equals(title))
+			{
+				fileUploadWindow.setTitle(title);
+			}
+			jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_SHOW, new Object[] { FILE_UPLOAD_PAGEMAP }));
+			triggerBrowserRequestIfNeeded();
 		}
-		else if (!"".equals(title))
-		{
-			fileUploadWindow.setTitle(title);
-		}
-		jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_SHOW, new Object[] { FILE_UPLOAD_PAGEMAP }));
-		triggerBrowserRequestIfNeeded();
 	}
 
 	public Color getBackground()
