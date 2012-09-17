@@ -65,7 +65,7 @@ public class DataSpinner extends DataChoice
 //				int y = (int)(enclosedComponent.getHeight() * (((double)e.getValue()) / e.getAdjustable().getMaximum()));
 //				final int idx = enclosedComponent.locationToIndex(new Point(getViewport().getViewPosition().x, y));
 				final int idx = getVisibleIndex();
-				if (idx > 0 && !isRowSelected(idx) && idx < list.getSize()) //list.getSize() returns SpinnerModel -2 size. We have +2 size on the SpinnerModel for First and last blank model elements.
+				if (idx > 0 && !isRowSelected(idx) && idx < list.getSize() + 1) //list.getSize() returns SpinnerModel -2 size. We have +2 size on the SpinnerModel for First and last blank model elements.
 				{
 					setSelectedIndex(idx);
 				}
