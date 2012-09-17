@@ -262,6 +262,7 @@ public class FormatParser
 
 		public String getDateMask()
 		{
+			if (!mask) return null;
 			StringBuilder maskPattern = new StringBuilder(displayFormat.length());
 			int counter = 0;
 			while (counter < displayFormat.length())
