@@ -2318,24 +2318,31 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	/**
+	 *  Register this client as table user for all used tables.
+	 *  
+	 * @param serverName when non-null limit to server name.
 	 * 
+	 * @throws ServoyException
 	 */
-	public void registerClientTables() throws ServoyException
+	public void registerClientTables(String serverName) throws ServoyException
 	{
 		for (String datasource : rowManagers.keySet())
 		{
-			ITable t = getTable(datasource);
-			try
+			if (serverName == null || serverName.equals(DataSourceUtils.getDataSourceServerName(datasource)))
 			{
-				if (Debug.tracing())
+				ITable t = getTable(datasource);
+				try
 				{
-					Debug.trace("Registering table '" + t.getServerName() + ". " + t.getName() + "' for client '" + application.getClientID() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$//$NON-NLS-4$
+					if (Debug.tracing())
+					{
+						Debug.trace("Registering table '" + t.getServerName() + ". " + t.getName() + "' for client '" + application.getClientID() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$//$NON-NLS-4$
+					}
+					getDataServer().addClientAsTableUser(application.getClientID(), t.getServerName(), t.getName());
 				}
-				getDataServer().addClientAsTableUser(application.getClientID(), t.getServerName(), t.getName());
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
+				catch (RemoteException e)
+				{
+					throw new RepositoryException(e);
+				}
 			}
 		}
 	}

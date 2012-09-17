@@ -2280,6 +2280,7 @@ public class JSDatabaseManager
 
 		pds.switchServer(sourceName, destinationName);
 		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null);//flush all
+		((FoundSetManager)application.getFoundSetManager()).registerClientTables(sourceName); // register existing used tables to server
 		return true;
 	}
 

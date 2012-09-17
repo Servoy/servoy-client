@@ -4005,7 +4005,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 					try
 					{
-						((FoundSetManager)getFoundSetManager()).registerClientTables();
+						((FoundSetManager)getFoundSetManager()).registerClientTables(null);
 					}
 					catch (Exception e)
 					{
