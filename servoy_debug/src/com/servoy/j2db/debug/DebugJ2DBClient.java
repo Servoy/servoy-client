@@ -35,6 +35,7 @@ import java.net.URLStreamHandler;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1322,6 +1323,32 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			shutDown(true);
 		}
+	}
+
+	Map<String, String> localUserProperties = new HashMap<String, String>();
+
+	@Override
+	public void setUserProperty(String name, String value)
+	{
+		localUserProperties.put(name, value);
+	}
+
+	@Override
+	public String getUserProperty(String name)
+	{
+		if (localUserProperties.containsKey(name))
+		{
+			return localUserProperties.get(name);
+		}
+		return super.getUserProperty(name);
+	}
+
+	@Override
+	public String[] getUserPropertyNames()
+	{
+		List<String> userPropertyNames = new ArrayList<String>(localUserProperties.keySet());
+		userPropertyNames.addAll(Arrays.asList(super.getUserPropertyNames()));
+		return userPropertyNames.toArray(new String[0]);
 	}
 
 	private HashMap<Object, Object> changedProperties;
