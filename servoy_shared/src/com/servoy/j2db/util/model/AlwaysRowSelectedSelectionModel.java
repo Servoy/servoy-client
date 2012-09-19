@@ -30,7 +30,6 @@ import javax.swing.event.ListDataListener;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.dataprocessing.EditRecordList;
 import com.servoy.j2db.dataprocessing.IRecord;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.util.Debug;
@@ -81,7 +80,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 			if (fc.isFormVisible())
 			{
 				EditRecordList editRecordList = fc.getApplication().getFoundSetManager().getEditRecordList();
-				IRecordInternal[] editedRecords = editRecordList.getEditedRecords(fc.getFoundSet());
+				IRecord[] editedRecords = editRecordList.getEditedRecords(fc.getFoundSet());
 				if (editedRecords.length > 0)
 				{
 					int stopEditing = editRecordList.stopEditing(false, Arrays.asList(editedRecords));

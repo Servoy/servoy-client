@@ -497,8 +497,8 @@ public class JSDatabaseManager
 					ISQLTableJoin join = (ISQLTableJoin)sql.getJoin(oldTable, relation.getName());
 					if (join == null)
 					{
-						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable,
-							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
+						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable, new QueryTable(ft.getSQLName(),
+							ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
 						sql.addJoin(join);
 					}
 
@@ -600,9 +600,8 @@ public class JSDatabaseManager
 			for (int i = 0; i < dpnames.length; i++)
 			{
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
-					dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale()
-						: 0);
+				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
+					: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)
@@ -2339,7 +2338,8 @@ public class JSDatabaseManager
 			{
 				editRecordList.startEditing(record, false);
 			}
-			return editRecordList.stopEditing(true, Arrays.asList(editRecordList.getEditedRecords(foundset))) == ISaveConstants.STOPPED;
+			IRecord[] editedRecords = editRecordList.getEditedRecords(foundset);
+			return editRecordList.stopEditing(true, Arrays.asList(editedRecords)) == ISaveConstants.STOPPED;
 		}
 		return js_saveData();
 	}
