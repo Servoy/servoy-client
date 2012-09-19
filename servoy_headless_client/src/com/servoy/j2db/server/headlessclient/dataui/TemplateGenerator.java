@@ -2349,12 +2349,13 @@ public class TemplateGenerator
 		}
 		if (label.getRotation() > 0)
 		{
+			TextualStyle rotationStyle = css.addStyle(styleName + ComponentFactory.getWebID(form, label) + " span");
 			String rotation = "rotate(" + label.getRotation() + "deg)";
-			styleObj.setProperty("-ms-transform", rotation);
-			styleObj.setProperty("-moz-transform", rotation);
-			styleObj.setProperty("-webkit-transform", rotation);
-			styleObj.setProperty("-o-transform", rotation);
-			styleObj.setProperty("transform", rotation);
+			rotationStyle.setProperty("-ms-transform", rotation);
+			rotationStyle.setProperty("-moz-transform", rotation);
+			rotationStyle.setProperty("-webkit-transform", rotation);
+			rotationStyle.setProperty("-o-transform", rotation);
+			rotationStyle.setProperty("transform", rotation);
 		}
 	}
 
