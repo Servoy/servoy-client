@@ -31,6 +31,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
@@ -148,12 +149,44 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		try
 		{
 			ScriptVariable variable = form.createNewScriptVariable(new ScriptNameValidator(application.getFlattenedSolution()), name, type);
+			reftreshFormScopes();
 			return new JSVariable(application, this, variable, true);
 		}
 		catch (RepositoryException e)
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Removes a form JSVariable - based on the name of the variable object.
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('Form2', null, null, true, 800, 600);
+	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
+	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
+	 * application.output("var before deletion:"+ variable);
+	 * form.removeVariable('myVar');
+	 * var variableAfterDeletion = form.getVariable('myVar');
+	 * application.output("var after deletion:"+ variableAfterDeletion);
+	 *
+	 * @param name the specified name of the variable
+	 * 
+	 * @return true if removed, false otherwise (ex: no var with that name)
+	 */
+	@JSFunction
+	public boolean removeVariable(String name)
+	{
+		if (name == null) return false;
+		checkModification();
+		ScriptVariable variable = form.getScriptVariable(name);
+		if (variable != null)
+		{
+			form.removeChild(variable);
+			reftreshFormScopes();
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -286,12 +319,48 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		{
 			ScriptMethod method = form.createNewScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), name);
 			method.setDeclaration(code);
+			reftreshFormScopes();
 			return new JSMethod(this, method, application, true);
 		}
 		catch (RepositoryException e)
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Removes a  form JSMethod - based on the specified code. 
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
+	 * myVar = form.newVariable('js_var',JSVariable.TEXT);
+	 * myVar.defaultValue = "'This is a default value (with triple quotes)!'";
+	 * var hello = form.newMethod('function aMethod(event){application.output("Hello world!");}');
+	 * var removeMethod = form.newMethod('function tempMethod(event){ \
+	 *									solutionModel.getForm(event.getFormName()).removeMethod("aMethod"); \
+	 *									forms[event.getFormName()].controller.recreateUI();\
+	 *									}');
+	 * var button1 = form.newButton('Call method!',50,50,120,30,hello);
+	 * var button2 = form.newButton('Remove Mehtod!',200,50,120,30,removeMethod);
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param code the specified code for the new method
+	 * 
+	 * @return true if method was removed successfully , false otherwise
+	 */
+	@JSFunction
+	public boolean removeMethod(String name)
+	{
+		if (name == null) return false;
+		checkModification();
+		ScriptMethod method = form.getScriptMethod(name);
+		if (method != null)
+		{
+			form.removeChild(method);
+			reftreshFormScopes();
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -4536,5 +4605,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		}
 		else if (!form.getUUID().equals(other.form.getUUID())) return false;
 		return true;
-	}	
+	}
+
+	/**
+	 *  called when adding or removing a method/variable to the form 
+	 * 
+	 */
+	private void reftreshFormScopes()
+	{
+		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
+		for (FormController formController : controllers)
+		{
+			formController.getFormScope().reload();
+		}
+	}
 }
