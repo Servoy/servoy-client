@@ -337,6 +337,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			int newBodyWidthHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyWidth")); //$NON-NLS-1$ 
 			int newBodyHeightHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyHeight")); //$NON-NLS-1$ 
+			
+			if (isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue())
+			{
+				newBodyWidthHint -= 17; // extract the vertical scrollbar width
+			}
 
 			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
 			{
