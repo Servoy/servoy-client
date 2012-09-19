@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import java.util.List;
+
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -66,12 +68,20 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	public String getDataSource(ITable table);
 
 	/**
-	 * Save data
+	 * Save all data, not encouraged to be used by plugins, leave save to solution.
 	 * 
 	 * @see ISaveConstants
-	 * @return a constant
+	 * @return a constant, if autosave is disabled AUTO_SAVE_BLOCKED will be return and nothing is saved
 	 */
 	public int saveData();
+
+	/**
+	 * Save specific record data, not encouraged to be used by plugins, leave save to solution.
+	 * 
+	 * @see ISaveConstants
+	 * @return a constant, will allow to save individual record even when autosave is disabled 
+	 */
+	public int saveData(List<IRecord> recordsToSave);
 
 	/**
 	 * Get the orginal server name for the server after databaseManager.switchServer(original_servername, switched_to_servername).

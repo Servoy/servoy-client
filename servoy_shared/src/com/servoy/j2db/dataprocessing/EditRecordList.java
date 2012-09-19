@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -218,7 +218,7 @@ public class EditRecordList
 
 	public int stopEditing(boolean javascriptStop)
 	{
-		return stopEditing(javascriptStop, (List<IRecordInternal>)null, 0);
+		return stopEditing(javascriptStop, (List<IRecord>)null, 0);
 	}
 
 	/**
@@ -228,9 +228,9 @@ public class EditRecordList
 	 * @param recordToSave null means all records
 	 * @return IRowChangeListener static final
 	 */
-	public int stopEditing(boolean javascriptStop, IRecordInternal recordToSave)
+	public int stopEditing(boolean javascriptStop, IRecord recordToSave)
 	{
-		return stopEditing(javascriptStop, Arrays.asList(new IRecordInternal[] { recordToSave }), 0);
+		return stopEditing(javascriptStop, Arrays.asList(new IRecord[] { recordToSave }), 0);
 	}
 
 	/**
@@ -240,12 +240,12 @@ public class EditRecordList
 	 * @param recordsToSave null means all records
 	 * @return IRowChangeListener static final
 	 */
-	public int stopEditing(boolean javascriptStop, List<IRecordInternal> recordsToSave)
+	public int stopEditing(boolean javascriptStop, List<IRecord> recordsToSave)
 	{
 		return stopEditing(javascriptStop, recordsToSave, 0);
 	}
 
-	private int stopEditing(final boolean javascriptStop, final List<IRecordInternal> recordsToSave, int recursionDepth)
+	private int stopEditing(final boolean javascriptStop, final List<IRecord> recordsToSave, int recursionDepth)
 	{
 		if (recursionDepth > 50)
 		{
@@ -269,7 +269,7 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
-				for (IRecordInternal record : recordsToSave)
+				for (IRecord record : recordsToSave)
 				{
 					if (editedRecords.contains(record))
 					{

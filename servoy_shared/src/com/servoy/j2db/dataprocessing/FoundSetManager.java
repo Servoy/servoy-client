@@ -29,10 +29,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -1715,8 +1715,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect sqlString = foundset.getSqlSelect();
 
 				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
-				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString,
-					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString, getTableFilterParams(
+					t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1747,8 +1747,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(Integer.valueOf(1), "n", true), null)); //$NON-NLS-1$
 
-				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
-					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect, getTableFilterParams(
+					table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (set.getRowCount() > 0)
 				{
 					Object[] row = set.getRow(0);
@@ -1989,8 +1989,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			boolean didHaveRowAndIsUpdated = false;
 			for (int i = 0; i < pks.getRowCount(); i++)
 			{
-				boolean b = rm.changeByOther(RowManager.createPKHashKey(pks.getRow(i)), action, insertColumnData,
-					insertedRows == null ? null : insertedRows.get(i));
+				boolean b = rm.changeByOther(RowManager.createPKHashKey(pks.getRow(i)), action, insertColumnData, insertedRows == null ? null
+					: insertedRows.get(i));
 				didHaveRowAndIsUpdated = (didHaveRowAndIsUpdated || b);
 			}
 			final boolean didHaveDataCached = didHaveRowAndIsUpdated;
@@ -2015,8 +2015,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							}
 							catch (Exception e1)
 							{
-								application.reportError(
-									Messages.getString("servoy.foundsetManager.error.ExecutingDataBroadcastMethod", new Object[] { sm.getName() }), e1); //$NON-NLS-1$
+								application.reportError(Messages.getString(
+									"servoy.foundsetManager.error.ExecutingDataBroadcastMethod", new Object[] { sm.getName() }), e1); //$NON-NLS-1$
 							}
 						}
 					}
@@ -2350,6 +2350,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public int saveData()
 	{
 		return editRecordList.stopEditing(false);
+	}
+
+	public int saveData(List<IRecord> recordsToSave)
+	{
+		return editRecordList.stopEditing(true, recordsToSave);
 	}
 
 	/** register runnables that contain fire calls, should be done after foundsets are created.
