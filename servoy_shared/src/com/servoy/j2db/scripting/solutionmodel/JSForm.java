@@ -333,8 +333,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 *
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
-	 * myVar = form.newVariable('js_var',JSVariable.TEXT);
-	 * myVar.defaultValue = "'This is a default value (with triple quotes)!'";
 	 * var hello = form.newMethod('function aMethod(event){application.output("Hello world!");}');
 	 * var removeMethod = form.newMethod('function tempMethod(event){ \
 	 *									solutionModel.getForm(event.getFormName()).removeMethod("aMethod"); \
