@@ -1885,8 +1885,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					minTabIndexElemId = c.getMarkupId();
 				}
 			}
-			headercontainer.getHeaderResponse().renderOnDomReadyJavascript(
-				"Servoy.TabCycleHandling.registerListeners('" + minTabIndexElemId + "','" + maxTabIndexElemId + "');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+			if (minTabIndexElemId != null && maxTabIndexElemId != null)
+			{
+				headercontainer.getHeaderResponse().renderOnLoadJavascript(
+					"Servoy.TabCycleHandling.registerListeners('" + minTabIndexElemId + "','" + maxTabIndexElemId + "');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 		}
 	}
 

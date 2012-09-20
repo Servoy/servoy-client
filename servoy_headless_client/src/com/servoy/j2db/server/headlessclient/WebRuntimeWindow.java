@@ -60,7 +60,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		FormManager fm = (FormManager)application.getFormManager();
 		IMainContainer parentContainer = getParentContainerForShow(fm);
 		if (((WebRequestCycle)RequestCycle.get()).getWebRequest().isAjax() && !((MainPage)parentContainer).isShowPageInDialogDelayed() &&
-			!((MainPage)parentContainer).isPopupClosing())
+			!((MainPage)parentContainer).isAChildPopupClosing())
 		{
 			IMainContainer dialogContainer = fm.getOrCreateMainContainer(windowName);
 			// In case this modal dialog wants to show another modal dialog during onStart event, we make sure it
@@ -329,25 +329,23 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		return (MainPage)((FormManager)application.getFormManager()).getMainContainer(windowName);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#resetBounds()
-	 */
 	@Override
 	public void resetBounds()
 	{
-		MainPage mp = null;
-		RequestCycle rc = RequestCycle.get();
-		if (rc != null)
+		MainPage mp = getMainPage();
+		if (mp == null)
 		{
-			Page tmp = rc.getResponsePage();
-			if ((tmp instanceof MainPage))
+			RequestCycle rc = RequestCycle.get();
+			if (rc != null)
 			{
-				mp = (MainPage)tmp;
+				Page tmp = rc.getResponsePage();
+				if ((tmp instanceof MainPage))
+				{
+					mp = (MainPage)tmp;
+				}
 			}
+			if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
 		}
-		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
 		if (mp != null)
 		{
 			mp.resetBounds(windowName);

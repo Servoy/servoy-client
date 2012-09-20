@@ -73,8 +73,13 @@ public class PageJSActionBuffer
 
 		public boolean apply(AjaxRequestTarget target, String pageName)
 		{
-			if (pageName == null) target.appendJavascript(js); // only if req. comes from current page
-			return true;
+			boolean applied = false;
+			if (pageName == null)
+			{
+				applied = true;
+				target.appendJavascript(js); // only if req. comes from current page
+			}
+			return applied;
 		}
 
 		public boolean apply(IHeaderResponse response)
@@ -115,50 +120,62 @@ public class PageJSActionBuffer
 
 		public boolean apply(AjaxRequestTarget target, String pageName)
 		{
-			if (pageName == null || divDialog == null || pageName.equals(divDialog.getPageMapName())) // pageName != null if a dialog close is applied on the child's ajax request although it's added to the paren't action buffer
+			boolean applied = true;
+			switch (operation)
 			{
-				switch (operation)
-				{
-					case DivDialogAction.OP_SHOW :
+				case DivDialogAction.OP_SHOW :
+					applied = (pageName == null); // this should only happen when the request comes from the root iframe itself, otherwise it has wrong effects
+					if (applied)
+					{
 						if (!divDialog.isShown())
 						{
 							divDialog.setPageMapName((String)parameters[0]);
 							divDialog.show(target);
 						}
-						break;
-					case DivDialogAction.OP_CLOSE :
-						if (divDialog.isShown())
-						{
-							divDialog.close(target);
-						}
-						break;
-					case DivDialogAction.OP_TO_FRONT :
-						if (divDialog.getPageMapName() != null && divDialog.isShown())
-						{
-							divDialog.toFront(target);
-						}
-						break;
-					case DivDialogAction.OP_TO_BACK :
-						if (divDialog.getPageMapName() != null && divDialog.isShown())
-						{
-							divDialog.toBack(target);
-						}
-						break;
-					case DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED :
-						target.addComponent((WebMarkupContainer)parameters[0]);
-						break;
-					case DivDialogAction.OP_SET_BOUNDS :
-						divDialog.setBounds(target, (Integer)(parameters[0]), (Integer)parameters[1], (Integer)parameters[2], (Integer)parameters[3]);
-						break;
-					case DivDialogAction.OP_SAVE_BOUNDS :
-						divDialog.saveBounds(target);
-						break;
-					case DivDialogAction.OP_RESET_BOUNDS :
-						DivWindow.deleteStoredBounds(target, (String)parameters[0]);
-				}
-				return true;
+					}
+					break;
+				case DivDialogAction.OP_CLOSE :
+					if (divDialog.isShown())
+					{
+						divDialog.close(target);
+					}
+					break;
+				case DivDialogAction.OP_TO_FRONT :
+					if (divDialog.getPageMapName() != null && divDialog.isShown())
+					{
+						divDialog.toFront(target);
+					}
+					break;
+				case DivDialogAction.OP_TO_BACK :
+					if (divDialog.getPageMapName() != null && divDialog.isShown())
+					{
+						divDialog.toBack(target);
+					}
+					break;
+				case DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED :
+					applied = (pageName == null); // this should only happen when the request comes from the root iframe itself, otherwise it has no effect
+					if (applied) target.addComponent((WebMarkupContainer)parameters[0]);
+					break;
+				case DivDialogAction.OP_SET_BOUNDS :
+					divDialog.setBounds(target, (Integer)(parameters[0]), (Integer)parameters[1], (Integer)parameters[2], (Integer)parameters[3]);
+					break;
+				case DivDialogAction.OP_SAVE_BOUNDS :
+					divDialog.saveBounds(target);
+					break;
+				case DivDialogAction.OP_RESET_BOUNDS :
+					DivWindow.deleteStoredBounds(target, (String)parameters[0]);
 			}
-			return false;
+			onAfterApply();
+			return applied;
+		}
+
+		/**
+		 * Does nothing; gets called after apply executes.
+		 * Can be overriden.
+		 */
+		protected void onAfterApply()
+		{
+			// can be overridden to do stuff after apply
 		}
 
 		public boolean apply(IHeaderResponse response)
@@ -204,19 +221,36 @@ public class PageJSActionBuffer
 			if (it.next().apply(target, null)) it.remove();
 		}
 
-		if (toBeAppliedAsWell != null)
-		{
-			it = toBeAppliedAsWell.buffer1.iterator();
-			while (it.hasNext())
-			{
-				if (it.next().apply(target, toBeAppliedAsWellPageName)) it.remove();
-			}
-		}
-
 		Iterator<TriggerAjaxUpdateAction> it1 = buffer2.iterator();
 		while (it1.hasNext())
 		{
 			if (it1.next().apply(target, null)) it1.remove();
+		}
+
+		// what follows here is possibly running div window operations that are queued in the root iframe;
+		// do this after the triggers above because one of the following operations might be a close on the current request's page and we
+		// want to limit the chance that js is still trying to execute in a disposed page (the close JS also has a setTimeout because of this)
+		if (toBeAppliedAsWell != null)
+		{
+			// show div window operations must execute only in the root iframe's context; it will not work correctly otherwise
+			// so in case root iframe has such operations, just skip this part instead of only executing the ones we can, in order to
+			// maintain the sequence of the operations
+			boolean ok = true;
+			it = toBeAppliedAsWell.buffer1.iterator();
+			while (it.hasNext())
+			{
+				PageAction pa = it.next();
+				if (pa instanceof DivDialogAction && ((DivDialogAction)pa).operation == DivDialogAction.OP_SHOW) ok = false; // just wait for the triggered req. on root iframe
+			}
+
+			if (ok)
+			{
+				it = toBeAppliedAsWell.buffer1.iterator();
+				while (it.hasNext())
+				{
+					if (it.next().apply(target, toBeAppliedAsWellPageName)) it.remove();
+				}
+			}
 		}
 	}
 

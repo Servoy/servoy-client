@@ -113,7 +113,6 @@ public class DivWindow extends ModalWindow
 		@Override
 		protected void respond(AjaxRequestTarget target)
 		{
-
 			if (resize(target) && resizeCallback != null)
 			{
 				resizeCallback.onResize(target);
@@ -330,25 +329,25 @@ public class DivWindow extends ModalWindow
 	}
 
 	/**
-	 * @return true if it was triggered by initial show, in which case the callbacks shouldn't be called.
+	 * @return true if it was not triggered by initial show or other operations for which the callback shouldn't be called.
 	 */
 	protected boolean resize(AjaxRequestTarget target)
 	{
 		Request request = RequestCycle.get().getRequest();
 		bounds.width = Integer.parseInt(request.getParameter("divW")); //$NON-NLS-1$
 		bounds.height = Integer.parseInt(request.getParameter("divH")); //$NON-NLS-1$
-		return "true".equals(request.getParameter("is"));
+		return !("true".equals(request.getParameter("is")));
 	}
 
 	/**
-	 * @return true if it was triggered by initial show, in which case the callbacks shouldn't be called.
+	 * @return true if it was not triggered by initial show or other operations for which the callback shouldn't be called.
 	 */
 	protected boolean move(AjaxRequestTarget target)
 	{
 		Request request = RequestCycle.get().getRequest();
 		bounds.x = Integer.parseInt(request.getParameter("xLoc"));
 		bounds.y = Integer.parseInt(request.getParameter("yLoc"));
-		return "true".equals(request.getParameter("is"));
+		return !("true".equals(request.getParameter("is")));
 	}
 
 	/**
@@ -445,7 +444,7 @@ public class DivWindow extends ModalWindow
 	@Override
 	protected String getCloseJavacript()
 	{
-		return getActionJavascript(".close", "");
+		return getActionJavascript(".closeAfterTimeout", "window, 50");
 	}
 
 	public void setBounds(AjaxRequestTarget target, int x, int y, int width, int height)
@@ -453,6 +452,10 @@ public class DivWindow extends ModalWindow
 		target.appendJavascript(getActionJavascript(".setPosition", ((x >= 0) ? ("'" + x + "px'") : "winObj.window.style.left") + "," +
 			((y >= 0) ? ("'" + y + "px'") : "winObj.window.style.top") + "," + ((width >= 0) ? ("'" + width + "px'") : "winObj.window.style.width") + "," +
 			((height >= 0) ? ("'" + height + "px'") : "winObj.content.style.height")));
+		bounds.x = x;
+		bounds.y = y;
+		bounds.width = width;
+		bounds.height = height;
 	}
 
 	public void saveBounds(AjaxRequestTarget target)

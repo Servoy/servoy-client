@@ -88,13 +88,17 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		this._super.show.call(this);
 		
 		// initialize bounds
+		this.refreshBounds(true);
+	},
+	
+	refreshBounds: function(internalEvent) {
 		this.width = parseInt(this.window.style.width, 10);
 		this.height = parseInt(this.content.style.height, 10);
 		this.left_ = parseInt(this.window.style.left, 10);
 		this.top_ =  parseInt(this.window.style.top, 10);
 		
-		this.settings.onMove(this.left_, this.top_, true);
-		this.settings.onResize(this.width, this.height, true);
+		this.settings.onMove(this.left_, this.top_, internalEvent);
+		this.settings.onResize(this.width, this.height, internalEvent);
 	},
 	
 	createDOM: function() {
@@ -198,6 +202,20 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	canCloseInternal: function() {
 		return true; // if there are other windows on-top, those will be closed as well
 	},
+	
+	// it might be useful to allow other AJAX scripts to execute before actually closing the window
+	// because those scripts might be executing on a response from the window itself, so it would be wrong do unload the window while scripts still execute
+	closeAfterTimeout: function(w, timeout)
+	{
+		if (!w) w = window;
+		if (w === window) {
+			// when executing in root window
+			window.setTimeout(this.close.bind(this), timeout); // force param = undefined
+		} else {
+			// when executing in this window's (that is about to be closed) request, postpone then move call to root window, in order to generate the closed callback correctly in Opera
+			w.setTimeout(this.closeAfterTimeout.bind(this, window, 1), timeout);
+		}
+	},
 
 	// override
 	close: function(force) {
@@ -235,7 +253,9 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		this.window.style.top = y;
 		this.window.style.width = width;
 		this.content.style.height = height;
-		savePosition(x, y, width, height);
+		this.savePosition(x, y, width, height);
+		
+		this.refreshBounds();
 	},
 	
 	savePositionAs: function(x, y, width, height) {
@@ -424,23 +444,6 @@ Wicket.Object.extendClass(Wicket.DivWindow.Mask, Wicket.Window.Mask, {
 
 Wicket.DivWindow.currentModalWindow = null;
 Wicket.DivWindow.openWindows = { }; // windowId: DivWindow object pairs
-
-Wicket.DivWindow.refreshWindows = function(startWindow) {
-	 if (typeof(startWindow) == "undefined" || startWindow == null) {
-	   startWindow = window;
-	 }
-   try {
-		startWindow.triggerAjaxUpdate();
-   } catch(ignore){alert(ignore);}
-   var openWindows = startWindow.Wicket.DivWindow.openWindows;
-   for (w in openWindows) {
-      if (typeof(w) != "undefined" && w != null) {
-        try {
-			openWindows[w].content.contentWindow.Wicket.DivWindow.refreshWindows(openWindows[w].content.contentWindow);
-		} catch(ignore){alert("2:" + ignore);}
-	}
-   } 
-}
 
 Wicket.DivWindow.create = function(settings, windowId, currentWindowIsInIframe) {
 	var win = Wicket.DivWindow.get(currentWindowIsInIframe);

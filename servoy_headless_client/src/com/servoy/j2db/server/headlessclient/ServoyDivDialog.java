@@ -19,7 +19,6 @@ package com.servoy.j2db.server.headlessclient;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.string.AppendingStringBuffer;
 
 /**
  * Web-client DIV window customised to Servoy needs.
@@ -68,17 +67,4 @@ public class ServoyDivDialog extends DivWindow
 		super.show(target);
 	}
 
-
-	@Override
-	@SuppressWarnings("nls")
-	protected AppendingStringBuffer postProcessSettings(AppendingStringBuffer settings)
-	{
-		AppendingStringBuffer buffer = super.postProcessSettings(settings);
-		buffer.append("var userOnCloseButton = settings.onCloseButton;\n");
-		buffer.append("if (userOnCloseButton){\n");
-		buffer.append("var cb = null;\n");
-		buffer.append("settings.onCloseButton = function() { if(!cb) { cb=this.caption.getElementsByTagName('a')[0];Wicket.Event.add(cb, 'blur', function() {setTimeout(userOnCloseButton, 500); }); } cb.focus();cb.blur();};\n");
-		buffer.append("}");
-		return buffer;
-	}
 }

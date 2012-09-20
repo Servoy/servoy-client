@@ -747,14 +747,18 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			RequestCycle rc = RequestCycle.get();
 			closing = true;
 
-			MainPage mp = getMainPage();
+			MainPage mp = MainPage.getRequestMainPage();
+			if (mp == null)
+			{
+				mp = getMainPage();
+			}
 
 			// generate requests on all other reachable browser tabs/browser windows that are open in this client;
 			// so that they can show the "page expired" page (even if AJAX timer is not enabled)
 			List<String> triggerReqScripts = getTriggerReqOnOtherPagesJS(rc, mp);
 
 			MainPage.ShowUrlInfo showUrlInfo = mp.getShowUrlInfo();
-			boolean shownInDialog = mp.isShowingInDialog() || mp.isPopupClosing(); // if this page is showing in a div dialog (or is about to be closed as it was in one), the page redirect needs to happen inside root page, not in iframe
+			boolean shownInDialog = mp.isShowingInDialog() || mp.isClosingAsDivPopup(); // if this page is showing in a div dialog (or is about to be closed as it was in one), the page redirect needs to happen inside root page, not in iframe
 			boolean retval = super.closeSolution(force, args);
 			if (retval)
 			{
@@ -950,9 +954,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		if (getMainPage() != null)
+		MainPage mp = MainPage.getRequestMainPage();
+		if (mp == null) mp = getMainPage();
+		if (mp != null)
 		{
-			getMainPage().setShowURLCMD(url, target, target_options, timeout, onRootFrame);
+			mp.setShowURLCMD(url, target, target_options, timeout, onRootFrame);
 			return true;
 		}
 		return false;

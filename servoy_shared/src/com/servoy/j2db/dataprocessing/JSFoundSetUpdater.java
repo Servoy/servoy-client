@@ -209,7 +209,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				String transaction_id = fsm.getTransactionID(foundset.getSQLSheet());
 				try
 				{
-					SQLStatement statement = new SQLStatement(ISQLStatement.UPDATE_ACTION, table.getServerName(), table.getName(), pks, transaction_id,
+					SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, table.getServerName(), table.getName(), pks, transaction_id,
 						sqlUpdate, fsm.getTableFilterParams(table.getServerName(), sqlUpdate));
 					if (allFoundsetRecordsLoaded)
 					{

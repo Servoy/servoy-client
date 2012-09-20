@@ -38,7 +38,6 @@ import javax.swing.border.Border;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IPageMap;
-import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageMap;
@@ -156,14 +155,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private WebMarkupContainer divDialogsParent;
 	private RepeatingView divDialogRepeater;
 	private final PageJSActionBuffer jsActionBuffer = new PageJSActionBuffer();
-	private final HashMap<String, ServoyDivDialog> divDialogs = new HashMap<String, ServoyDivDialog>();
+	private final DivDialogsKeeper divDialogs = new DivDialogsKeeper();
 
 	private MainPage callingContainer;
+	private boolean closingAsDivPopup = false;
+	private boolean closingAChildDivPopoup = false;
+	private boolean closingAsWindow = false;
 
 	private boolean showingInDialog = false;
 	private boolean showingInWindow = false;
-
-	private boolean closingPopoup = false;
 
 	public ResourceReference serveResourceReference = new ResourceReference("resources"); //$NON-NLS-1$
 
@@ -196,6 +196,36 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	private boolean mediaUploadMultiSelect;
 
 	private Dimension size = null; // keeps the size in case of browser windows (non-modal windows); not used for dialogs;
+
+	private class DivDialogsKeeper
+	{
+		private final HashMap<String, ServoyDivDialog> divDialogsMap = new HashMap<String, ServoyDivDialog>();
+		private final List<ServoyDivDialog> dialogsOrderedByOpenSequence = new ArrayList<ServoyDivDialog>();
+
+		public ServoyDivDialog remove(String pageMapName)
+		{
+			ServoyDivDialog dd = divDialogsMap.remove(pageMapName);
+			if (dd != null) dialogsOrderedByOpenSequence.remove(dd);
+			return dd;
+		}
+
+		public int size()
+		{
+			return dialogsOrderedByOpenSequence.size();
+		}
+
+		public void put(String name, ServoyDivDialog divDialog)
+		{
+			divDialogsMap.put(name, divDialog);
+			dialogsOrderedByOpenSequence.add(divDialog);
+		}
+
+		public ServoyDivDialog get(String pageMapName)
+		{
+			return divDialogsMap.get(pageMapName);
+		}
+
+	}
 
 	private class SetStatusBehavior extends AbstractBehavior
 	{
@@ -378,12 +408,17 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 			@Override
 			protected void respond(AjaxRequestTarget target)
 			{
-				for (ServoyDivDialog divDialog : divDialogs.values())
+				for (ServoyDivDialog divDialog : divDialogs.dialogsOrderedByOpenSequence)
 				{
 					if (!divDialog.isShown())
 					{
 						// this means a refresh was probably triggered and we must re-show these... because we do not keep closed dialogs in divDialogs
+						int x = divDialog.getX();
+						int y = divDialog.getY();
+						int w = divDialog.getWidth();
+						int h = divDialog.getHeight();
 						divDialog.show(target);
+						divDialog.setBounds(target, x, y, w, h);
 					}
 				}
 				WebEventExecutor.generateResponse(target, MainPage.this);
@@ -618,7 +653,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private ServoyDivDialog createDivDialog(MainPage dialogContainer, String name)
 	{
-		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), isShowingInDialog());
+		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), true);
 		divDialog.setPageMapName(null);
 		divDialog.setCookieName(COOKIE_PREFIX + name);
 		divDialog.setModal(true);
@@ -1346,11 +1381,12 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 				public void uploadComplete(IUploadData[] fu)
 				{
+					touch();
 					uploaded = true;
 					mediaUploadCallback = null;
 					callback.uploadComplete(fu);
 					jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
-					triggerBrowserRequestIfNeeded();
+					triggerBrowserRequestIfNeeded(); // this will probably do nothing cause a MediaUploadPage is the source of the req.
 				}
 
 				public void onSubmit()
@@ -1361,7 +1397,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 						fileUploadWindow.setPageMapName(null);
 						fileUploadWindow.remove(fileUploadWindow.getContentId());
 						jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
-						triggerBrowserRequestIfNeeded();
+						triggerBrowserRequestIfNeeded(); // this will probably do nothing cause a MediaUploadPage is the source of the req.
 					}
 				}
 			};
@@ -1610,8 +1646,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		// this is in order to avoid situations where some main pages need to reference each other in browser JS, but some div windows in the chain between them
 		// have already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
 		// see also triggerBrowserRequestIfNeeded() that uses these references
-		if (isShowingInDialog() && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2, resizeable, closeAll, modal,
-			undecorated, storeBounds);
+		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2,
+			resizeable, closeAll, modal, undecorated, storeBounds);
 		else
 		{
 			if (useAJAX)
@@ -1666,14 +1702,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		// first touch this page so that it is locked if this is a normal request
 		touch();
 
-		ServoyDivDialog divDialog = divDialogs.remove(popupName);
-		if (divDialog != null)
-		{
-			closingPopoup = true;
-			jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_CLOSE));
-			triggerBrowserRequestIfNeeded();
-		}
-
 		// set new current container
 		FormManager formManager = ((FormManager)client.getFormManager());
 		String mpmn = getModalPageMapName();
@@ -1690,11 +1718,10 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private String getModalPageMapName()
 	{
-		// TODO: what happens when there is more then 1 modal open? how do we choose the right one?
-		Iterator<ServoyDivDialog> it = divDialogs.values().iterator();
-		while (it.hasNext())
+		// take the top-most modal dialog
+		for (int hi = divDialogs.dialogsOrderedByOpenSequence.size() - 1; hi >= 0; hi--)
 		{
-			ServoyDivDialog dw = it.next();
+			ServoyDivDialog dw = divDialogs.dialogsOrderedByOpenSequence.get(hi);
 			if (dw.isModal() && dw.isShown())
 			{
 				return dw.getPageMapName();
@@ -1705,13 +1732,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void setDialogBounds(String windowName, int x, int y, int width, int height)
 	{
+		touch();
 		if (callingContainer != null)
 		{
+			callingContainer.touch();
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(windowName);
 			if (divDialog != null)
 			{
-				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SET_BOUNDS, new Object[] { x, y, width, height }));
-				triggerBrowserRequestIfNeeded();
+				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SET_BOUNDS, new Object[] { x, y, width, height }));
+				callingContainer.triggerBrowserRequestIfNeeded();
 			}
 		}
 	}
@@ -1729,28 +1758,29 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		{
 			if (isShowingInWindow())
 			{
-				// this is a non-modal browser window; close it through JS
-				appendJavaScriptChanges("if (!self.closed) self.close();"); //$NON-NLS-1$
+				// this is a non-modal browser window; close it through JS; using setTimeout to allow any pending triggerAjaxUpdate that initiated in this page to do it's job
+				appendJavaScriptChanges("if (!self.closed) window.setTimeout('self.close();', 1);"); //$NON-NLS-1$
+				closingAsWindow = true;
 			}
-			if (isShowingInDialog())
+
+			ServoyDivDialog divDialog = callingContainer.divDialogs.remove(getPageMapName());
+			if (divDialog != null)
 			{
-				ServoyDivDialog divDialog = callingContainer.divDialogs.get(getPageMapName());
-				if (divDialog != null)
+				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SAVE_BOUNDS));
+				callingContainer.closingAChildDivPopoup = true;
+				closingAsDivPopup = true;
+				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_CLOSE, new Object[] { this })
 				{
-					jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SAVE_BOUNDS, null));
-					triggerBrowserRequestIfNeeded();
-				}
+					@Override
+					protected void onAfterApply()
+					{
+						MainPage.this.closingAsDivPopup = false;
+					}
+				});
+				callingContainer.triggerBrowserRequestIfNeeded();
 			}
+
 			callingContainer.closeChildWindow(getPageMapName());
-			if (isShowingInDialog() && getRequestCycle() != null)
-			{
-				IRequestTarget requestTarget = getRequestCycle().getRequestTarget();
-				if (requestTarget instanceof AjaxRequestTarget)
-				{
-					// force a ajax update so that parent dialogs are really closed.
-					((AjaxRequestTarget)requestTarget).appendJavascript("Wicket.DivWindow.refreshWindows(window.top);"); //$NON-NLS-1$
-				}
-			}
 		}
 		showingInWindow = false;
 		showingInDialog = false;
@@ -1838,8 +1868,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	public void setShowPageInDialogDelayed(int windowType, String formName, Rectangle initialBounds, String title, boolean resizable, boolean showTextToolbar,
 		boolean closeAll, String dialogName)
 	{
-		if (isShowingInDialog() && callingContainer != null) callingContainer.setShowPageInDialogDelayed(windowType, formName, initialBounds, title, resizable,
-			showTextToolbar, closeAll, dialogName);
+		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null) callingContainer.setShowPageInDialogDelayed(windowType, formName,
+			initialBounds, title, resizable, showTextToolbar, closeAll, dialogName);
 		else
 		{
 			getPageContributor().showFormInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar, closeAll,
@@ -1849,31 +1879,32 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		}
 	}
 
-
-	public boolean isPopupClosing()
+	public boolean isClosingAsDivPopup()
 	{
-		if (!closingPopoup)
-		{
-			if (isShowingInDialog() && callingContainer != null) return callingContainer.closingPopoup;
-			return false;
-		}
-		return true;
+		return closingAsDivPopup;
+	}
+
+	public boolean isAChildPopupClosing()
+	{
+		return closingAChildDivPopoup;
 	}
 
 	public void renderJavascriptChanges(final AjaxRequestTarget target)
 	{
-		closingPopoup = false;
+		closingAChildDivPopoup = false;
+		closingAsWindow = false;
+		if (callingContainer != null && closingAsDivPopup) callingContainer.closingAChildDivPopoup = false; // all div operations will get executed on this target anyway
 
-		if (callingContainer != null && callingContainer.closingPopoup)
+		if (callingContainer != null && (isShowingInDialog() || isClosingAsDivPopup()))
 		{
-			// in this case execute both this page's actions and the close action from parent main page (as it's JS will work both in parent and child)
+			callingContainer.touch(); // to avoid concurrent modification exceptions on the action buffer
+			// in this case execute both this page's actions and the other div window actions from parent (root) main page (only if they will all work both from parent and child)
 			jsActionBuffer.apply(target, callingContainer.jsActionBuffer, getPageMapName());
 		}
 		else
 		{
 			jsActionBuffer.apply(target);
 		}
-
 	}
 
 	public static class ShowUrlInfo implements Serializable
@@ -2069,13 +2100,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void toBack()
 	{
+		touch();
 		if (isShowingInDialog() && callingContainer != null)
 		{
+			callingContainer.touch();
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null)
 			{
-				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_BACK));
-				triggerBrowserRequestIfNeeded();
+				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_BACK));
+				callingContainer.triggerBrowserRequestIfNeeded();
 			}
 		}
 		else
@@ -2086,13 +2119,15 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void toFront()
 	{
+		touch();
 		if (isShowingInDialog() && callingContainer != null)
 		{
+			callingContainer.touch();
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null)
 			{
-				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_FRONT));
-				triggerBrowserRequestIfNeeded();
+				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_FRONT));
+				callingContainer.triggerBrowserRequestIfNeeded();
 			}
 		}
 		else
@@ -2103,12 +2138,20 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void resetBounds(String windowName)
 	{
-		jsActionBuffer.addAction(new DivDialogAction(null, DivDialogAction.OP_RESET_BOUNDS, new Object[] { COOKIE_PREFIX + windowName }));
-		triggerBrowserRequestIfNeeded();
+		touch();
+		MainPage mp = this;
+		if (callingContainer != null)
+		{
+			callingContainer.touch();
+			mp = callingContainer;
+		}
+		mp.jsActionBuffer.addAction(new DivDialogAction(null, DivDialogAction.OP_RESET_BOUNDS, new Object[] { COOKIE_PREFIX + windowName }));
+		mp.triggerBrowserRequestIfNeeded();
 	}
 
 	public void appendJavaScriptChanges(String script)
 	{
+		touch();
 		jsActionBuffer.addAction(new JSChangeAction(script));
 		triggerBrowserRequestIfNeeded();
 	}
@@ -2120,7 +2163,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	public void triggerBrowserRequestIfNeeded()
 	{
 		if (!useAJAX) return;
-		MainPage requestMP = getRequestMainPage();
+		MainPage requestMP = MainPage.getRequestMainPage();
 		if (requestMP != null && requestMP.jsActionBuffer != null && !requestMP.jsActionBuffer.hasAjaxUpdateTrigger(this))
 		{
 			Pair<String, MainPage> goToCorrectWindow = getWindowScopeBrowserScript(requestMP);
@@ -2139,7 +2182,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		String script = null;
 		if (useAJAX)
 		{
-			Pair<String, MainPage> goToCorrectWindow = getWindowScopeBrowserScript(getRequestMainPage());
+			Pair<String, MainPage> goToCorrectWindow = getWindowScopeBrowserScript(MainPage.getRequestMainPage());
 			// generate a JS script that will disable AJAX timer requests on this page
 			if (goToCorrectWindow != null && goToCorrectWindow.getRight() != this)
 			{
@@ -2149,7 +2192,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		return script;
 	}
 
-	private MainPage getRequestMainPage()
+	public static MainPage getRequestMainPage()
 	{
 		RequestCycle rc = RequestCycle.get();
 		if (rc == null) return null; // can't find the page that generated this request
@@ -2199,11 +2242,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					// window.opener/parent depending on window type
 					mp = requestMPsParents.get(i);
-					if (mp.isShowingInDialog())
+					if (mp.isShowingInDialog() || mp.isClosingAsDivPopup())
 					{
 						goToCorrectScopeScript += "window.parent.";
 					}
-					else if (mp.isShowingInWindow())
+					else if (mp.isShowingInWindow() || mp.closingAsWindow)
 					{
 						goToCorrectScopeScript += "window.opener.";
 					}
@@ -2213,13 +2256,13 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				for (int i = thisMPsParents.size() - 1; i >= 0 && ok; i--)
 				{
 					mp = thisMPsParents.get(i);
-					if (mp.isShowingInDialog())
+					if (mp.isShowingInDialog() || mp.isClosingAsDivPopup())
 					{
 						ServoyDivDialog dw = mp.callingContainer.divDialogs.get(mp.getPageMapName());
 						if (dw != null) goToCorrectScopeScript += "Wicket.DivWindow.openWindows['" + dw.getJSId() + "'].content.contentWindow.";
 						else ok = false;
 					}
-					else if (mp.isShowingInWindow())
+					else if (mp.isShowingInWindow() || mp.closingAsWindow)
 					{
 						goToCorrectScopeScript += MainPage.getValidJSVariableName(mp.getPageMapName()) + ".";
 					}
