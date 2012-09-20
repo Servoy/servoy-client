@@ -4437,16 +4437,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			List<Integer> oldSelectedIndexes = new ArrayList<Integer>();
 			List<Integer> newSelectedIndexesA = new ArrayList<Integer>();
 
+			//selectedIndexesBeforUpdateRenderState  together with selectedIndexes form the 'old' selected indexes
+			//selectedIndexesBeforUpdateRenderState was introduced for the case when selecting a previously  selected row
 			if (selectedIndexesBeforUpdateRenderState != null)
 			{
 				for (int oldSelected : selectedIndexesBeforUpdateRenderState)
 					oldSelectedIndexes.add(new Integer(oldSelected));
 			}
-
 			if (selectedIndexes != null)
 			{ // !!needed because of case when selecting the previously selected index
 				for (int oldSelected : selectedIndexes)
-					oldSelectedIndexes.add(new Integer(oldSelected));
+					if (oldSelectedIndexes.indexOf(new Integer(oldSelected)) == -1) oldSelectedIndexes.add(new Integer(oldSelected));
 			}
 
 			int[] newSelectedIndexes = getSelectedIndexes();
@@ -4466,7 +4467,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					indexesToUpdate.add(selection);
 				}
-				else if (selectedIndexesBeforUpdateRenderState != selectedIndexes)
+				else if ((selectedIndexesBeforUpdateRenderState != null && selectedIndexes != null) &&
+					!compareArrays(selectedIndexesBeforUpdateRenderState, selectedIndexes))// selected a previously selected row case
 				{// !!!!needed because of case when selecting the previously selected index
 					indexesToUpdate.add(selection);
 				}
@@ -4474,6 +4476,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			return (indexesToUpdate.size() > 0) ? indexesToUpdate : null;
 		}
+	}
+
+	private boolean compareArrays(int[] arr1, int[] arr2)
+	{
+		if (arr1.length != arr2.length)
+		{
+			return false;
+		}
+		else
+		{
+			for (int i = 0; i < arr1.length; i++)
+			{
+				if (arr1[i] != arr2[i])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private int[] getSelectedIndexes()
