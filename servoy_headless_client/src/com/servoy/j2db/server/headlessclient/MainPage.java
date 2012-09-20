@@ -1368,7 +1368,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	@SuppressWarnings("nls")
 	public void showOpenFileDialog(final IMediaUploadCallback callback, boolean multiSelect, String title)
 	{
-		if (isShowingInDialog() && callingContainer != null)
+		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null)
 		{
 			callingContainer.showOpenFileDialog(callback, multiSelect, title);
 		}
