@@ -312,7 +312,12 @@ public class WebEventExecutor extends BaseEventExecutor
 		{
 			if (component instanceof ILabel || component instanceof IFieldComponent || component instanceof SortableCellViewHeader)
 			{
-				component.add(new ServoyAjaxEventBehavior("oncontextmenu", "Cmd", true) //$NON-NLS-1$ //$NON-NLS-2$
+				String sharedName = "Cmd";
+				if (component instanceof SortableCellViewHeader)
+				{
+					sharedName = null;
+				}
+				component.add(new ServoyAjaxEventBehavior("oncontextmenu", sharedName, true) //$NON-NLS-1$ 
 				{
 					@Override
 					protected void onEvent(AjaxRequestTarget target)
