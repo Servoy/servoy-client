@@ -121,11 +121,13 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setBgcolor(String clr)
 	{
+		// always set in changesrecorder, has old value check as well
+		if (getComponent().isOpaque()) getChangesRecorder().setBgcolor(clr);
+
 		String old = getBgcolor();
 		if (!Utils.stringSafeEquals(old, clr))
 		{
 			getComponent().setBackground(PersistHelper.createColor(clr));
-			if (getComponent().isOpaque()) getChangesRecorder().setBgcolor(clr);
 			propertyChanged("bgcolor", clr, old);
 		}
 	}
@@ -137,11 +139,13 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void setFgcolor(String clr)
 	{
+		// always set in changesrecorder, has old value check as well
+		getChangesRecorder().setFgcolor(clr);
+		
 		String old = getFgcolor();
 		if (!Utils.stringSafeEquals(old, clr))
 		{
 			getComponent().setForeground(PersistHelper.createColor(clr));
-			getChangesRecorder().setFgcolor(clr);
 			propertyChanged("fgcolor", clr, old);
 		}
 	}
