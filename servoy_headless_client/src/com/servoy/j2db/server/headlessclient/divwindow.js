@@ -228,6 +228,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	},
 
 	closeInternal: function(force, allWindows) {
+		if (this.closed) return;
 		// close child windows first if necessary (first modals then non-modals)
 		if (this.settings.modal) {
 			for (var i = 0; i < allWindows.length; i++) {

@@ -395,7 +395,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				public boolean isEnabled(Component component)
 				{
 					// data notify is disabled when in design mode
-					return !client.getFlattenedSolution().isInDesign(null) && getController() != null && getController().isFormVisible();
+					return !client.getFlattenedSolution().isInDesign(null) && ((getController() != null && getController().isFormVisible()) || closingAsWindow);
 				}
 			});
 
