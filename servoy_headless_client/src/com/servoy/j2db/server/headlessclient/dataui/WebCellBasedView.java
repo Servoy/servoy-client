@@ -138,7 +138,6 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.PageContributor;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
@@ -4467,8 +4466,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					indexesToUpdate.add(selection);
 				}
-				else if ((selectedIndexesBeforUpdateRenderState != null && selectedIndexes != null) &&
-					!compareArrays(selectedIndexesBeforUpdateRenderState, selectedIndexes))// selected a previously selected row case
+				else if (!Arrays.equals(selectedIndexesBeforUpdateRenderState, selectedIndexes))// selected a previously selected row case
 				{// !!!!needed because of case when selecting the previously selected index
 					indexesToUpdate.add(selection);
 				}
@@ -4476,25 +4474,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			return (indexesToUpdate.size() > 0) ? indexesToUpdate : null;
 		}
-	}
-
-	private boolean compareArrays(int[] arr1, int[] arr2)
-	{
-		if (arr1.length != arr2.length)
-		{
-			return false;
-		}
-		else
-		{
-			for (int i = 0; i < arr1.length; i++)
-			{
-				if (arr1[i] != arr2[i])
-				{
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 
 	private int[] getSelectedIndexes()
