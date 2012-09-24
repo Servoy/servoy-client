@@ -1501,9 +1501,9 @@ function getRootServoyFrame(closeDialog)
 	while (typeof(mywindow.parent) != "undefined" && mywindow != mywindow.parent) {
 		try {		
 			win = mywindow.parent.Wicket.Window;
-		} catch (ignore) {}
+		} catch (ignore) { win = null; }
 		
-		if (typeof(win) != "undefined" && typeof(win.current) != "undefined") {
+		if (win != null && typeof(win) != "undefined" && typeof(win.current) != "undefined") {
 			if (closeDialog) {
 				// we can't call close directly, because it will delete our window,
 				// so we will schedule it as timeout for parent's window
