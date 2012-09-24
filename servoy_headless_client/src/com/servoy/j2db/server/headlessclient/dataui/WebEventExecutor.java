@@ -686,8 +686,6 @@ public class WebEventExecutor extends BaseEventExecutor
 				// at every request mark the pagemap as dirty so lru eviction really works
 				((ModifiedAccessStackPageMap)mainPage.getPageMap()).flagDirty();
 			}
-			// PageContributor installs focus/blur event handlers for changed/new components
-			target.addListener(mainPage.getPageContributor());
 
 			// If the main form is switched then do a normal redirect.
 			if (mainPage.isMainFormSwitched())

@@ -128,7 +128,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Main page being a main container.
  */
-public class MainPage extends WebPage implements IMainContainer, IEventCallback, IAjaxIndicatorAware
+public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorAware
 {
 	private static final long serialVersionUID = 1L;
 
@@ -317,6 +317,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	public String getContainerName()
 	{
 		return getPageMap().getName();
+	}
+
+	public boolean isUsingAjax()
+	{
+		return useAJAX;
 	}
 
 	@SuppressWarnings("nls")
@@ -625,7 +630,6 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				});
 
 				addWebAnchoringInfoIfNeeded(false);
-				if (useAJAX) pageContributor.addFocusEventListeners(MainPage.this);
 			}
 		};
 		listview.setReuseItems(true);

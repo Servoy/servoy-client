@@ -405,293 +405,308 @@ function rearrageTabsInTabPanel(tabPanelId)
 
 var onFocusModifiers = 0;
 var radioCheckInputMouseDown;
-function addListeners(strEvent, callbackUrl, ids, post)
+
+function setupListeners(el, callbackUrl, strEvents, isPost)
 {
-	if (ids)
+	var strEvent, post;
+	var resetFocus = false;
+	for(var i = 0; i < strEvents.length; i++)
 	{
-		for (i in ids)
+		strEvent = strEvents[i];
+		post = isPost[i];
+
+		if(strEvent == "focus")
 		{
-			var el = document.getElementById(ids[i])
-			var callback
-			if (post)
+			el.blur();
+			resetFocus = true;
+		}
+		setupListener(el, callbackUrl, strEvent, post);
+	}
+	
+	el.removeAttribute('onfocus');
+	if(resetFocus) el.focus();
+}
+
+function setupListener(el, callbackUrl, strEvent, post)
+{
+	var callback
+	if (post)
+	{
+		callback = function(e)
+		{	
+			if(e.type == "blur")
 			{
-				callback = function(e)
-				{
-					if(strEvent == "blur")
-					{
-						ignoreFocusGained = null;
-					}
-					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
-					if(!e) e = window.event;
-					var modifiers;
-					if(strEvent == "focus")
-					{
-						if(this.className && this.className == 'radioCheckInput' && radioCheckInputMouseDown) return false;
-					
-						modifiers = onFocusModifiers;
-						onFocusModifiers = 0;
-
-						var delayedCall = this.onclick;
-
-						// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
-						if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
-						{
-							if(modifiers > 0)
-							{
-								Wicket.Focus.lastFocusId = null;
-								this.blur();
-							}
-							
-							if(delayedCall)
-							{
-								var thisEl = this;
-								setTimeout(function()
-								{
-									var wcall=wicketAjaxGet
-									(
-										callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-										null,
-										function() { onAjaxError(); }.bind(thisEl),
-										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);
-								}, 300);
-							}
-							else
-							{
-								var wcall=wicketAjaxGet
-								(
-									callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-									null,
-									function() { onAjaxError(); }.bind(this),
-									function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-								);
-							}
-							return false;
-						}
-						
-						if(modifiers > 0)
-						{
-							Wicket.Focus.lastFocusId = null;
-							this.blur();
-						}
-						
-						if(delayedCall)
-						{
-								var thisEl = this;
-								setTimeout(function()
-								{
-									var wcall=wicketAjaxPost
-									(
-										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-										wicketSerialize(Wicket.$(thisEl.id)),
-										null,
-										function() { onAjaxError(); }.bind(thisEl),
-										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);
-								}, 300);						
-						}
-						else
-						{
-							var wcall=wicketAjaxPost
-							(
-								callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-								wicketSerialize(Wicket.$(this.id)),
-								null,
-								function() { onAjaxError(); }.bind(this),
-								function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-							);						
-						}
-						return false;
-					}
-					else
-					{
-						modifiers = Servoy.Utils.getModifiers(e);
-						// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
-						// of the input via "onchange", else the blur may replace the input
-						var delayedCall = (strEvent == "blur" && this.className && (this.className.indexOf('typeahead') != -1));
-						
-						// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
-						if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
-						{
-							if(delayedCall)
-							{
-								var thisEl = this;
-								setTimeout(function()
-								{
-									var wcall=wicketAjaxGet
-									(
-										callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-										null,
-										function() { onAjaxError(); }.bind(thisEl),
-										function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);
-								}, 200);
-								return false;							
-							}
-							else
-							{
-								var wcall=wicketAjaxGet
-								(
-									callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-									null,
-									function() { onAjaxError(); }.bind(this),
-									function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-								);
-								return !wcall;
-							}
-						}
-						
-						if(delayedCall)
-						{
-							var thisEl = this;
-							setTimeout(function()
-							{
-								var wcall=wicketAjaxPost
-								(
-									callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-									wicketSerialize(Wicket.$(thisEl.id)),
-									null,
-									function() { onAjaxError(); }.bind(thisEl),
-									function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-								);
-							}, 200);						
-							return false;						
-						}
-						else
-						{
-							var wcall=wicketAjaxPost
-							(
-								callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-								wicketSerialize(Wicket.$(this.id)),
-								null,
-								function() { onAjaxError(); }.bind(this),
-								function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-							);
-							return !wcall;
-						}
-					}
-				}
+				ignoreFocusGained = null;
 			}
-			else
-			{
-				callback = function(e)
-				{	
-					if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
-					if (ignoreFocusGained && ignoreFocusGained == this.id)
-					{
-						ignoreFocusGained = null;
-						return true;
-					}
-					if(!e) e = window.event;
-					var modifiers;
-					
-					if(strEvent == "focus")
-					{
-						if(this.className && this.className == 'radioCheckInput' && radioCheckInputMouseDown) return false;
-
-						modifiers = onFocusModifiers;
-						onFocusModifiers = 0;			
-
-						var delayedCall = this.onclick;
-
-						if(modifiers > 0)
-						{
-							Wicket.Focus.lastFocusId = null;
-							this.blur();
-						}
-						
-						if(delayedCall)
-						{
-								var thisEl = this;
-								setTimeout(function()
-								{
-									var wcall=wicketAjaxGet
-									(					
-										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-										null,
-										function() { onAjaxError(); }.bind(thisEl),
-										function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);		
-								}, 300);						
-						}
-						else
-						{
-							var wcall=wicketAjaxGet
-							(					
-								callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-								null,
-								function() { onAjaxError(); }.bind(this),
-								function() { return Wicket.$(this.id) != null; }.bind(this)
-							);						
-						}
-						
-						return false;
-					}
-					else
-					{
-						modifiers = Servoy.Utils.getModifiers(e);
-						// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
-						// of the input via "onchange", else the blur may replace the input
-						var delayedCall = (strEvent == "blur" && this.className && (this.className.indexOf('typeahead') != -1));
-						
-						if(delayedCall)
-						{
-							var thisEl = this;
-							setTimeout(function()
-								{
-									var wcall=wicketAjaxGet
-									(					
-										callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
-										null,
-										function() { onAjaxError(); }.bind(thisEl),
-										function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
-									);
-								}, 200);
-							return false;						
-						}
-						else
-						{
-							var wcall=wicketAjaxGet
-							(					
-								callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-								null,
-								function() { onAjaxError(); }.bind(this),
-								function() { return Wicket.$(this.id) != null; }.bind(this)
-							);
-							return !wcall;
-						}
-					}
-				}
-			}
-			if(strEvent == "blur")
-			{
-				var b = el.onblur; 
-				el.onblur = function(event)
-				{ 
-					if (b) { b.apply(this,[event]);}
-					callback.apply(this,[event]);
-				}
-			}
-			else
-			{
-				Wicket.Event.add(el, strEvent, callback)
-			}
+			if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
+			if(!e) e = window.event;
+			var modifiers;
 			if(strEvent == "focus")
 			{
-				var mousedownCallback = function(e)
+				if(this.className && this.className == 'radioCheckInput' && radioCheckInputMouseDown) return false;
+			
+				modifiers = onFocusModifiers;
+				onFocusModifiers = 0;
+
+				var delayedCall = this.onclick;
+
+				// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
+				if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
 				{
-					if(!e) e = window.event;
-					onFocusModifiers = Servoy.Utils.getModifiers(e);
-					// if right click, set the alt key flag, as we need to handle
-					// this case when changing the selection
-					if((e.which && e.which == 3) || (e.button && e.button == 2))
+					if(modifiers > 0)
 					{
-						onFocusModifiers += 4
+						Wicket.Focus.lastFocusId = null;
+						this.blur();
+					}
+					
+					if(delayedCall)
+					{
+						var thisEl = this;
+						setTimeout(function()
+						{
+							var wcall=wicketAjaxGet
+							(
+								callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(thisEl),
+								function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+							);
+						}, 300);
+					}
+					else
+					{
+						var wcall=wicketAjaxGet
+						(
+							callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							null,
+							function() { onAjaxError(); }.bind(this),
+							function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+						);
+					}
+					return false;
+				}
+				
+				if(modifiers > 0)
+				{
+					Wicket.Focus.lastFocusId = null;
+					this.blur();
+				}
+				
+				if(delayedCall)
+				{
+						var thisEl = this;
+						setTimeout(function()
+						{
+							var wcall=wicketAjaxPost
+							(
+								callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+								wicketSerialize(Wicket.$(thisEl.id)),
+								null,
+								function() { onAjaxError(); }.bind(thisEl),
+								function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+							);
+						}, 300);						
+				}
+				else
+				{
+					var wcall=wicketAjaxPost
+					(
+						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+						wicketSerialize(Wicket.$(this.id)),
+						null,
+						function() { onAjaxError(); }.bind(this),
+						function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+					);						
+				}
+				return false;
+			}
+			else
+			{
+				modifiers = Servoy.Utils.getModifiers(e);
+				// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
+				// of the input via "onchange", else the blur may replace the input
+				var delayedCall = (strEvent == "blur" && this.className && (this.className.indexOf('typeahead') != -1));
+				
+				// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
+				if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
+				{
+					if(delayedCall)
+					{
+						var thisEl = this;
+						setTimeout(function()
+						{
+							var wcall=wicketAjaxGet
+							(
+								callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(thisEl),
+								function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+							);
+						}, 200);
+						return false;							
+					}
+					else
+					{
+						var wcall=wicketAjaxGet
+						(
+							callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							null,
+							function() { onAjaxError(); }.bind(this),
+							function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+						);
+						return !wcall;
 					}
 				}
-				Wicket.Event.add(el, "mousedown", mousedownCallback);
+				
+				if(delayedCall)
+				{
+					var thisEl = this;
+					setTimeout(function()
+					{
+						var wcall=wicketAjaxPost
+						(
+							callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+							wicketSerialize(Wicket.$(thisEl.id)),
+							null,
+							function() { onAjaxError(); }.bind(thisEl),
+							function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+						);
+					}, 200);						
+					return false;						
+				}
+				else
+				{
+					var wcall=wicketAjaxPost
+					(
+						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+						wicketSerialize(Wicket.$(this.id)),
+						null,
+						function() { onAjaxError(); }.bind(this),
+						function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+					);
+					return !wcall;
+				}
 			}
 		}
+	}
+	else
+	{	
+		callback = function(e)
+		{	
+			if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
+			if (ignoreFocusGained && ignoreFocusGained == this.id)
+			{
+				ignoreFocusGained = null;
+				return true;
+			}
+			if(!e) e = window.event;
+			var modifiers;
+			
+			if(strEvent == "focus")
+			{
+				if(this.className && this.className == 'radioCheckInput' && radioCheckInputMouseDown) return false;
+
+				modifiers = onFocusModifiers;
+				onFocusModifiers = 0;			
+
+				var delayedCall = this.onclick;
+
+				if(modifiers > 0)
+				{
+					Wicket.Focus.lastFocusId = null;
+					this.blur();
+				}
+				
+				if(delayedCall)
+				{
+						var thisEl = this;
+						setTimeout(function()
+						{
+							var wcall=wicketAjaxGet
+							(					
+								callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(thisEl),
+								function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+							);		
+						}, 300);						
+				}
+				else
+				{
+					var wcall=wicketAjaxGet
+					(					
+						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+						null,
+						function() { onAjaxError(); }.bind(this),
+						function() { return Wicket.$(this.id) != null; }.bind(this)
+					);						
+				}
+				
+				return false;
+			}
+			else
+			{
+				modifiers = Servoy.Utils.getModifiers(e);
+				// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
+				// of the input via "onchange", else the blur may replace the input
+				var delayedCall = (strEvent == "blur" && this.className && (this.className.indexOf('typeahead') != -1));
+				
+				if(delayedCall)
+				{
+					var thisEl = this;
+					setTimeout(function()
+						{
+							var wcall=wicketAjaxGet
+							(					
+								callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(thisEl),
+								function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+							);
+						}, 200);
+					return false;						
+				}
+				else
+				{
+					var wcall=wicketAjaxGet
+					(					
+						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+						null,
+						function() { onAjaxError(); }.bind(this),
+						function() { return Wicket.$(this.id) != null; }.bind(this)
+					);
+					return !wcall;
+				}
+			}
+		}
+	}
+	if(strEvent == "blur")
+	{
+		var b = el.onblur; 
+		el.onblur = function(event)
+		{ 
+			if (b) { b.apply(this,[event]);}
+			callback.apply(this,[event]);
+		}
+	}
+	else
+	{
+		Wicket.Event.add(el, strEvent, callback)
+	}
+	if(strEvent == "focus")
+	{
+		var mousedownCallback = function(e)
+		{
+			if(!e) e = window.event;
+			onFocusModifiers = Servoy.Utils.getModifiers(e);
+			// if right click, set the alt key flag, as we need to handle
+			// this case when changing the selection
+			if((e.which && e.which == 3) || (e.button && e.button == 2))
+			{
+				onFocusModifiers += 4
+			}
+		}
+		Wicket.Event.add(el, "mousedown", mousedownCallback);
 	}
 }
 
@@ -969,7 +984,10 @@ if (typeof(Servoy.TableView) == "undefined")
 				}
 			}
 
-			$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
+			if(!Servoy.TableView.keepLoadedRows)
+			{
+				$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
+			}
 
 			Servoy.TableView.hasTopBuffer[rowContainerBodyId] = hasTopBuffer;
 			Servoy.TableView.hasBottomBuffer[rowContainerBodyId] = hasBottomBuffer;

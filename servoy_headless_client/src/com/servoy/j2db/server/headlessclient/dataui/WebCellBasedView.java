@@ -337,7 +337,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			int newBodyWidthHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyWidth")); //$NON-NLS-1$ 
 			int newBodyHeightHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyHeight")); //$NON-NLS-1$ 
-			
+
 			if (isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue())
 			{
 				newBodyWidthHint -= 17; // extract the vertical scrollbar width
@@ -4878,16 +4878,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				sb.append(scrollDiff).append(", "); //$NON-NLS-1$
 				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
 				sb.append(hasBottomBuffer).append(");"); //$NON-NLS-1$
-
-				if (newRows != null)
-				{
-					Page page = findPage();
-					if (page instanceof MainPage)
-					{
-						PageContributor pc = (PageContributor)((MainPage)page).getPageContributor();
-						sb.append(pc.getListenersScript(getRowsComponents(newRows)));
-					}
-				}
 
 				target.appendJavascript(sb.toString());
 			}

@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.wicket.AbstractRestartResponseException;
 import org.apache.wicket.AccessStackPageMap;
 import org.apache.wicket.Application;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IPageMap;
 import org.apache.wicket.IRequestTarget;
@@ -39,8 +40,10 @@ import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.application.IComponentOnBeforeRenderListener;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.markup.html.PackageResource;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.AjaxEnclosureListener;
 import org.apache.wicket.protocol.http.BufferedWebResponse;
 import org.apache.wicket.protocol.http.HttpSessionStore;
@@ -78,11 +81,18 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
+import com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel;
+import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
+import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IWebClientSessionFactory;
+import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -356,6 +366,77 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 						if (record != null && fs != null)
 						{
 							((IServoyAwareBean)component).setSelectedRecord(new ServoyBeanState(record, fs));
+						}
+					}
+				}
+				else
+				{
+					if (!component.isEnabled()) return;
+					Component targetComponent = null;
+					boolean hasFocus = false, hasBlur = false;
+					if (component instanceof IFieldComponent && ((IFieldComponent)component).getEventExecutor() != null)
+					{
+						// Skip RadioChoice and CheckboxChoice, they are inside <div>s and does not really 
+						// make sense to fire on blur/focus gain.
+						if (!(component instanceof WebDataRadioChoice || component instanceof WebDataCheckBoxChoice))
+						{
+							targetComponent = component;
+							if (component instanceof WebBaseSelectBox)
+							{
+								Component[] cs = ((WebBaseSelectBox)component).getFocusChildren();
+								if (cs != null && cs.length == 1) targetComponent = cs[0];
+							}
+
+							// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
+							if (((IFieldComponent)component).getEventExecutor().hasEnterCmds() ||
+								component.findParent(WebCellBasedView.class) != null ||
+								(((IFieldComponent)component).getScriptObject() instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)((IFieldComponent)component).getScriptObject()).getRenderEventExecutor().hasRenderCallback()))
+							{
+								hasFocus = true;
+							}
+							// Always trigger event on focus lost:
+							// 1) check for new selected index, record validation may have failed preventing a index changed
+							// 2) prevent focus gained to be called when field validation failed
+							// 3) general ondata change
+							hasBlur = true;
+						}
+					}
+					else if (component instanceof WebBaseLabel)
+					{
+						targetComponent = component;
+						hasFocus = true;
+					}
+
+					if (targetComponent != null)
+					{
+						MainPage mainPage = targetComponent.findParent(MainPage.class);
+						if (mainPage.isUsingAjax())
+						{
+							AbstractAjaxBehavior eventCallback = mainPage.getPageContributor().getEventCallback();
+							if (eventCallback != null)
+							{
+								StringBuilder js = new StringBuilder("setupListeners(this,'").append(eventCallback.getCallbackUrl()).append("',["); //$NON-NLS-1$ //$NON-NLS-2$
+								StringBuilder jsPost = new StringBuilder("["); //$NON-NLS-1$
+								if (hasFocus)
+								{
+									js.append("'focus'"); //$NON-NLS-1$
+									jsPost.append("false"); //$NON-NLS-1$
+								}
+								if (hasBlur)
+								{
+									if (hasFocus)
+									{
+										js.append(","); //$NON-NLS-1$
+										jsPost.append(","); //$NON-NLS-1$
+									}
+									js.append("'blur'"); //$NON-NLS-1$
+									jsPost.append("true"); //$NON-NLS-1$
+								}
+								jsPost.append("]"); //$NON-NLS-1$
+								js.append("],").append(jsPost).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+
+								if (js.length() > 0) targetComponent.add(new AttributeModifier("onfocus", true, new Model<String>(js.toString()))); //$NON-NLS-1$
+							}
 						}
 					}
 				}

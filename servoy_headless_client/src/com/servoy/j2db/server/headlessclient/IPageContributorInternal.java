@@ -20,11 +20,11 @@ import java.awt.Rectangle;
 import java.util.SortedSet;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AjaxRequestTarget.IListener;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
 
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 
-public interface IPageContributorInternal extends IPageContributor, IProviderStylePropertyChanges, IListener
+public interface IPageContributorInternal extends IPageContributor, IProviderStylePropertyChanges
 {
 
 	public abstract void showFormInDialogDelayed(int type, String formName, Rectangle r, String title, boolean resizeble, boolean showTextToolbar,
@@ -42,4 +42,6 @@ public interface IPageContributorInternal extends IPageContributor, IProviderSty
 	void markComponentForAnchorLayoutIfNeeded(Component component);
 
 	void addTabIndexChange(String componentID, int tabIndex);
+
+	AbstractAjaxBehavior getEventCallback();
 }

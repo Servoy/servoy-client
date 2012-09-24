@@ -19,21 +19,18 @@ package com.servoy.j2db.server.headlessclient;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.AjaxRequestTarget.IJavascriptResponse;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -41,27 +38,18 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.WebRequest;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
-import com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel;
-import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
-import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.OrientationApplier;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -90,8 +78,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	private boolean anchorInfoChanged = false;
 	private StringBuffer componentsThatNeedAnchorRelayout;
 	private boolean isResizing = false;
-	private final Map<String, Pair<List<String>, Boolean>> eventMarkupIds = new HashMap<String, Pair<List<String>, Boolean>>();
-	private final Map<String, IEventCallback> eventCallback = new HashMap<String, IEventCallback>();
 
 	private final IApplication application;
 
@@ -303,23 +289,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		isResizing = b;
 	}
 
-	public void setEventListeners(String event, List<String> markupIds, IEventCallback callback, boolean post)
-	{
-		Pair<List<String>, Boolean> pair = new Pair<List<String>, Boolean>(markupIds, Boolean.valueOf(post));
-		boolean equals = pair.equals(eventMarkupIds.get(event));
-		if (markupIds != null && markupIds.size() != 0 && !equals)
-		{
-			Pair<List<String>, Boolean> old = eventMarkupIds.get(event);
-			if (old != null && old.getLeft().size() != 0 && !equals)
-			{
-				Debug.trace("Overwriting event listeners not for event '" + event + "'"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			getStylePropertyChanges().setChanged();
-			eventMarkupIds.put(event, pair);
-			eventCallback.put(event, callback);
-		}
-	}
-
 	private DelayedDialog delayedDialog = null;
 
 	public void showFormInDialogDelayed(int type, String formName, Rectangle r, String title2, boolean resizeble, boolean showTextToolbar, boolean closeAll,
@@ -450,100 +419,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		return visibleChildren;
 	}
 
-	/**
-	 * Called when all components have been rendered. The map contains the rendered components.
-	 */
-	public void onAfterRespond(Map<String, Component> map, IJavascriptResponse response)
-	{
-		response.addJavascript(getListenersScript(map.values()));
-	}
-
-	public String getListenersScript(Collection<Component> components)
-	{
-		// find all field components that will be re-rendered, look for children because some may have been added during 
-		// rendering (for example, extra rows in table view)
-		final List<String> focusGainedFields = new ArrayList<String>();
-		final List<String> focusLostFields = new ArrayList<String>();
-
-		for (Object comp : components)
-		{
-			for (Component c : getVisibleChildren((Component)comp, false))
-			{
-				addComponentToEventListWhenNeeded(c, focusGainedFields, focusLostFields);
-			}
-		}
-		MainPage mainPage = (MainPage)findPage();
-		if (!eventCallback.containsKey("focus")) setEventListeners("focus", focusGainedFields, mainPage, false); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!eventCallback.containsKey("blur")) setEventListeners("blur", focusLostFields, mainPage, true /* handle changed data */); //$NON-NLS-1$ //$NON-NLS-2$
-
-		Map<String, Pair<List<String>, Boolean>> markupIdMap = new HashMap<String, Pair<List<String>, Boolean>>();
-		markupIdMap.put("focus", new Pair<List<String>, Boolean>(focusGainedFields, Boolean.FALSE)); //$NON-NLS-1$
-		markupIdMap.put("blur", new Pair<List<String>, Boolean>(focusLostFields, Boolean.TRUE /* handle changed data */)); //$NON-NLS-1$
-
-		String js = eventCallbackBehavior.getAddListsenersScript(markupIdMap);
-		if (components.size() > 0 && components.iterator().next().findParent(WebCellBasedView.class) != null)
-		{
-			// in tableview non changed fields can be replaced with ajax causing focus event to come twice
-			js = "setTimeout(function(){" + js + "},100)";
-		}
-
-		return js;
-	}
-
-	public void onBeforeRespond(Map<String, Component> map, AjaxRequestTarget target)
-	{
-	}
-
-	public void addFocusEventListeners(MainPage mainPage)
-	{
-		final List<String> focusGainedFields = new ArrayList<String>();
-		final List<String> focusLostFields = new ArrayList<String>();
-		// find all field components that will be re-rendered
-		for (Component component : getVisibleChildren(mainPage, false))
-		{
-			addComponentToEventListWhenNeeded(component, focusGainedFields, focusLostFields);
-		}
-		setEventListeners("focus", focusGainedFields, mainPage, false); //$NON-NLS-1$
-		setEventListeners("blur", focusLostFields, mainPage, true /* handle changed data */); //$NON-NLS-1$
-	}
-
-
-	private static void addComponentToEventListWhenNeeded(Component c, List<String> focusGainedFields, List<String> focusLostFields)
-	{
-		if (!c.isEnabled()) return;
-		if (c instanceof IFieldComponent && ((IFieldComponent)c).getEventExecutor() != null)
-		{
-			// Skip RadioChoice and CheckboxChoice, they are inside <div>s and does not really 
-			// make sense to fire on blur/focus gain.
-			if (!(c instanceof WebDataRadioChoice || c instanceof WebDataCheckBoxChoice))
-			{
-				Component focusComponent = c;
-				if (c instanceof WebBaseSelectBox)
-				{
-					Component[] cs = ((WebBaseSelectBox)c).getFocusChildren();
-					if (cs != null && cs.length == 1) focusComponent = cs[0];
-				}
-
-				// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
-				if (((IFieldComponent)c).getEventExecutor().hasEnterCmds() ||
-					c.findParent(WebCellBasedView.class) != null ||
-					(((IFieldComponent)c).getScriptObject() instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)((IFieldComponent)c).getScriptObject()).getRenderEventExecutor().hasRenderCallback()))
-				{
-					focusGainedFields.add(focusComponent.getMarkupId());
-				}
-				// Always trigger event on focus lost:
-				// 1) check for new selected index, record validation may have failed preventing a index changed
-				// 2) prevent focus gained to be called when field validation failed
-				// 3) general ondata change
-				focusLostFields.add(focusComponent.getMarkupId());
-			}
-		}
-		else if (c instanceof WebBaseLabel)
-		{
-			focusGainedFields.add(c.getMarkupId());
-		}
-	}
-
 	private class EventCallbackBehavior extends AbstractServoyDefaultAjaxBehavior
 	{
 		private static final long serialVersionUID = 1L;
@@ -556,7 +431,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			final String event = getRequestCycle().getRequest().getParameter("event"); //$NON-NLS-1$
 			if (markupId != null && event != null)
 			{
-				final IEventCallback callback = eventCallback.get(event);
+				final MainPage callback = findParent(MainPage.class);
 				if (callback == null)
 				{
 					Debug.trace("Callback handler not found, event=" + event + " id=" + markupId); //$NON-NLS-1$ //$NON-NLS-2$
@@ -587,56 +462,12 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			}
 		}
 
-		@Override
-		public void renderHead(IHeaderResponse response)
-		{
-			super.renderHead(response);
-			// if it's ajax request it is already sent via onAfterRespond
-			if (!((WebRequest)RequestCycle.get().getRequest()).isAjax() && !eventMarkupIds.isEmpty())
-			{
-				response.renderOnLoadJavascript(getAddListsenersScript(eventMarkupIds));
-				eventMarkupIds.clear();
-			}
-		}
 
 		@Override
 		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
 		{
 			return super.getCallbackUrl(true);
 		}
-
-
-		public String getAddListsenersScript(Map<String, Pair<List<String>, Boolean>> markupIdMap)
-		{
-			if (markupIdMap == null || markupIdMap.isEmpty())
-			{
-				return null;
-			}
-			// function addListeners(strEvent, callbackUrl, ids, post)
-			StringBuffer js = new StringBuffer();
-			js.append("var cb='").append(getCallbackUrl()).append('\''); //$NON-NLS-1$
-			for (Entry<String, Pair<List<String>, Boolean>> entry : markupIdMap.entrySet())
-			{
-				Pair<List<String>, Boolean> pair = entry.getValue();
-				List<String> ids = pair.getLeft();
-				if (!ids.isEmpty())
-				{
-					js.append(";\naddListeners('"); //$NON-NLS-1$
-					js.append(entry.getKey());
-					js.append("',cb,");//$NON-NLS-1$
-					for (int i = 0; i < ids.size(); i++)
-					{
-						js.append((i == 0) ? '[' : ',');
-						js.append('\'');
-						js.append(ids.get(i));
-						js.append('\'');
-					}
-					js.append("],").append(pair.getRight().booleanValue()).append(')');//$NON-NLS-1$
-				}
-			}
-			return js.toString();
-		}
-
 	}
 
 	public class DelayedDialog implements Serializable
@@ -690,4 +521,13 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		return repeatingView;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.IPageContributorInternal#getEventCallback()
+	 */
+	public AbstractAjaxBehavior getEventCallback()
+	{
+		return eventCallbackBehavior;
+	}
 }
