@@ -42,6 +42,12 @@ public class EnablePanel extends JPanel implements ISkinnable
 		super.setEnabled(b);
 	}
 
+	/**
+	 * Method for enabling/disabling only the panel, and not its components also.
+	 * For instance, if a disabled controller in a panel is enabled, the panel itself should be enabled as well.
+	 * 
+	 * @param b
+	 */
 	public void enablePanel(boolean b)
 	{
 		super.setEnabled(b);
