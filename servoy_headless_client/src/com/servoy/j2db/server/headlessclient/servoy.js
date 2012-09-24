@@ -1770,8 +1770,8 @@ function getRootServoyFrame()
 	while (typeof(mywindow.parent) != "undefined" && mywindow != mywindow.parent) {
 		try {
 			win = mywindow.parent.Wicket.Window;
-		} catch (ignore) {}
-		if (typeof(win) != "undefined") {
+		} catch (ignore) { win = null; }
+		if (typeof(win) != "undefined" && win != null) {
 			mywindow = mywindow.parent
 		} else {
 			break
