@@ -4466,7 +4466,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					indexesToUpdate.add(selection);
 				}
-				else if (!Arrays.equals(selectedIndexesBeforUpdateRenderState, selectedIndexes))// selected a previously selected row case
+				else if ((selectedIndexesBeforUpdateRenderState != null && selectedIndexes != null) &&
+					!Arrays.equals(selectedIndexesBeforUpdateRenderState, selectedIndexes))// selected a previously selected row case
 				{// !!!!needed because of case when selecting the previously selected index
 					indexesToUpdate.add(selection);
 				}
