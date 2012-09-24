@@ -17,11 +17,11 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.scripting.JSWindow;
@@ -59,17 +59,18 @@ public class WebRuntimeWindowManager extends RuntimeWindowManager
 		FormManager fm = ((FormManager)application.getFormManager());
 		List<String> all = fm.getCreatedMainContainerKeys();
 		int size = all.size();
-		ArrayList<IMainContainer> al = new ArrayList<IMainContainer>(size);
+		ArrayList<String> al = new ArrayList<String>(size);
+		HashSet<String> visited = new HashSet<String>();
 		ArrayList<String> result = new ArrayList<String>(size);
 		for (String key : all)
 		{
-			((MainPage)fm.getMainContainer(key)).addCallingContainers(al);
+			((MainPage)fm.getMainContainer(key)).getMainPageReversedCloseSeq(al, visited);
 		}
 		// now we have in al first the root containers and then children, according to hierarchy; this list in reveresed order is what we want
 
-		for (int i = size - 1; i >= 0; i--)
+		for (int i = al.size() - 1; i >= 0; i--)
 		{
-			result.add(al.get(i).getContainerName());
+			result.add(al.get(i));
 		}
 		return result;
 	}

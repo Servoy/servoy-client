@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -200,7 +201,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	private class DivDialogsKeeper
 	{
 		private final HashMap<String, ServoyDivDialog> divDialogsMap = new HashMap<String, ServoyDivDialog>();
-		private final List<ServoyDivDialog> dialogsOrderedByOpenSequence = new ArrayList<ServoyDivDialog>();
+		private final List<ServoyDivDialog> dialogsOrderedByOpenSequence = new ArrayList<ServoyDivDialog>(); // useful for knowing which modal is on top of which other modal
 
 		public ServoyDivDialog remove(String pageMapName)
 		{
@@ -2090,15 +2091,28 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		mainFormSwitched = true;
 	}
 
-	public void addCallingContainers(ArrayList<IMainContainer> al)
+	public void getMainPageReversedCloseSeq(ArrayList<String> al, Set<String> visited)
 	{
-		if (!al.contains(this))
+		String name = this.getContainerName();
+		if (!visited.contains(name))
 		{
+			visited.add(name);
 			if (callingContainer != null)
 			{
-				callingContainer.addCallingContainers(al);
+				callingContainer.getMainPageReversedCloseSeq(al, visited);
+				if (!al.contains(name)) al.add(name);
 			}
-			al.add(this);
+
+			touch();
+			for (int i = divDialogs.dialogsOrderedByOpenSequence.size() - 1; i >= 0; i--)
+			{
+				String dName = divDialogs.dialogsOrderedByOpenSequence.get(i).getPageMapName();
+				if (!al.contains(dName))
+				{
+					al.add(dName);
+					visited.add(name);
+				}
+			}
 		}
 	}
 
