@@ -236,15 +236,9 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		return Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 	}
 
-	@Override
-	public IEventExecutor getEventExecutor()
-	{
-		return null;
-	}
-
 	public void setActionCmd(String actionCmd, Object[] args)
 	{
-		IEventExecutor eventExecutor = super.getEventExecutor();
+		IEventExecutor eventExecutor = getEventExecutor();
 		if (eventExecutor instanceof WebEventExecutor) ((WebEventExecutor)eventExecutor).setActionCmd(actionCmd, args);
 	}
 
@@ -263,10 +257,14 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 
 	public void setEnterCmds(String[] enterCmds, Object[][] args)
 	{
+		IEventExecutor eventExecutor = getEventExecutor();
+		if (eventExecutor instanceof WebEventExecutor) ((WebEventExecutor)eventExecutor).setEnterCmds(enterCmds, args);
 	}
 
 	public void setLeaveCmds(String[] leaveCmds, Object[][] args)
 	{
+		IEventExecutor eventExecutor = getEventExecutor();
+		if (eventExecutor instanceof WebEventExecutor) ((WebEventExecutor)eventExecutor).setLeaveCmds(leaveCmds, args);
 	}
 
 	public void setMaxLength(int maxLength)
