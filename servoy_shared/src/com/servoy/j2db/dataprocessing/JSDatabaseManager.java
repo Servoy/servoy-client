@@ -2134,7 +2134,7 @@ public class JSDatabaseManager
 								{
 									//update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
 
-									QueryTable qTable = new QueryTable(table.getName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+									QueryTable qTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
 									QueryColumn qc = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale());
@@ -2158,7 +2158,7 @@ public class JSDatabaseManager
 
 				IDataSet pks = new BufferedDataSet();
 				pks.addRow(new Object[] { sourceRecordPK });
-				QueryTable qTable = new QueryTable(mainTable.getName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
+				QueryTable qTable = new QueryTable(mainTable.getSQLName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
 				QueryDelete qDelete = new QueryDelete(qTable);
 				QueryColumn qc = new QueryColumn(qTable, pkc.getID(), pkc.getSQLName(), pkc.getType(), pkc.getLength(), pkc.getScale());
 				ISQLCondition condition = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);

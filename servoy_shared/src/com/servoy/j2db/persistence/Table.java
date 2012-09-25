@@ -49,7 +49,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
  */
 	private final String serverName;
 	private boolean existInDB;
-	private final String plainSQLName;
+	private String plainSQLName;
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
@@ -259,8 +259,9 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	 * @param table_cat
 	 * @param table_schem
 	 */
-	public void updateCatalogAndSchema(String table_cat, String table_schem)
+	public void updateSqlnameCatalogAndSchema(String table_dbname, String table_cat, String table_schem)
 	{
+		this.plainSQLName = table_dbname;
 		this.catalog = table_cat;
 		this.schema = table_schem;
 	}
@@ -380,39 +381,39 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return newList.iterator();
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int lenght, int scale, boolean allowNull) throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull) throws RepositoryException
 	{
-		Column c = createNewColumn(validator, colname, type, lenght, scale);
+		Column c = createNewColumn(validator, colname, type, length, scale);
 		c.setAllowNull(allowNull);
 		return c;
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int lenght, int scale, boolean allowNull, boolean pkColumn)
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull, boolean pkColumn)
 		throws RepositoryException
 	{
-		Column c = createNewColumn(validator, colname, type, lenght, scale, allowNull);
+		Column c = createNewColumn(validator, colname, type, length, scale, allowNull);
 		c.setDatabasePK(pkColumn);
 		return c;
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int lenght, boolean allowNull) throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull) throws RepositoryException
 	{
-		Column c = createNewColumn(validator, colname, type, lenght, 0);
+		Column c = createNewColumn(validator, colname, type, length, 0);
 		c.setAllowNull(allowNull);
 		return c;
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int lenght, boolean allowNull, boolean pkColumn)
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull, boolean pkColumn)
 		throws RepositoryException
 	{
-		Column c = createNewColumn(validator, colname, type, lenght, 0, allowNull);
+		Column c = createNewColumn(validator, colname, type, length, 0, allowNull);
 		c.setDatabasePK(pkColumn);
 		return c;
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int lenght) throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, int type, int length) throws RepositoryException
 	{
-		return createNewColumn(validator, colname, type, lenght, 0);
+		return createNewColumn(validator, colname, type, length, 0);
 	}
 
 	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale) throws RepositoryException
