@@ -203,6 +203,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 * @param targetServerName
 	 * @param targetTableName when null a temporary table will be created
 	 * @param targetTid transaction id
+	 * @param types the column types
 	 * @return the table where the set was inserted into
 	 * @throws ServoyException
 	 * @throws RemoteException
