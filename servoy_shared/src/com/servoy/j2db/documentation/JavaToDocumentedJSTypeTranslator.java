@@ -210,7 +210,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 		Pair<Class< ? >, Integer> classAndArray = splitArrayIfNeeded(javaClass);
 		String jsType;
-		if (classAndArray.getLeft().equals(Byte.TYPE) && classAndArray.getRight().intValue() == 1)
+		if (classAndArray.getLeft().equals(Byte.TYPE))
 		{
 			jsType = Byte.TYPE.getName();
 		}
