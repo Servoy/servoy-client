@@ -234,13 +234,15 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 			for (var i = 0; i < allWindows.length; i++) {
 				var w = allWindows[i];
 				if (!w.closed && w.settings.modal && w.parentModalWindow == this) {
-					w.closeInternal(true, allWindows);
+					w.closeInternal(false, allWindows); // try nicely (to trigger onClose)
+					if (!w.closed) w.closeInternal(true, allWindows); // force then
 				}
 			}
 			for (var i = 0; i < allWindows.length; i++) {
 				var w = allWindows[i];
 				if (!w.closed && !w.settings.modal && w.parentModalWindow == this) {
-					w.closeInternal(true, allWindows);
+					w.closeInternal(false, allWindows); // try nicely (to trigger onClose)
+					if (!w.closed) w.closeInternal(true, allWindows); // force then
 				}
 			}
 		}
