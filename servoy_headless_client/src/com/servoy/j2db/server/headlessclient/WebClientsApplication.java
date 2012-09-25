@@ -19,6 +19,7 @@ package com.servoy.j2db.server.headlessclient;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -415,27 +416,19 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 							AbstractAjaxBehavior eventCallback = mainPage.getPageContributor().getEventCallback();
 							if (eventCallback != null)
 							{
-								StringBuilder js = new StringBuilder("setupListeners(this,'").append(eventCallback.getCallbackUrl()).append("',["); //$NON-NLS-1$ //$NON-NLS-2$
-								StringBuilder jsPost = new StringBuilder("["); //$NON-NLS-1$
 								if (hasFocus)
 								{
-									js.append("'focus'"); //$NON-NLS-1$
-									jsPost.append("false"); //$NON-NLS-1$
+									StringBuilder js = new StringBuilder();
+									js.append("eventCallback(this,'focus','").append(eventCallback.getCallbackUrl()).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
+									targetComponent.add(new EventCallbackModifier("onfocus", true, new Model<String>(js.toString()))); //$NON-NLS-1$
+									targetComponent.add(new EventCallbackModifier("onmousedown", true, new Model<String>("focusMousedownCallback(event)"))); //$NON-NLS-1$ //$NON-NLS-2$
 								}
 								if (hasBlur)
 								{
-									if (hasFocus)
-									{
-										js.append(","); //$NON-NLS-1$
-										jsPost.append(","); //$NON-NLS-1$
-									}
-									js.append("'blur'"); //$NON-NLS-1$
-									jsPost.append("true"); //$NON-NLS-1$
+									StringBuilder js = new StringBuilder();
+									js.append("postEventCallback(this,'blur','").append(eventCallback.getCallbackUrl()).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
+									targetComponent.add(new EventCallbackModifier("onblur", true, new Model<String>(js.toString()))); //$NON-NLS-1$
 								}
-								jsPost.append("]"); //$NON-NLS-1$
-								js.append("],").append(jsPost).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
-
-								if (js.length() > 0) targetComponent.add(new AttributeModifier("onfocus", true, new Model<String>(js.toString()))); //$NON-NLS-1$
 							}
 						}
 					}
@@ -702,5 +695,54 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 			super.removeEntry(entry);
 		}
 
+	}
+
+	private class EventCallbackModifier extends AttributeModifier
+	{
+		private static final String STR_EVENT_CALLBACK = "eventCallback("; //$NON-NLS-1$
+		private static final String STR_POST_EVENT_CALLBACK = "postEventCallback("; //$NON-NLS-1$
+		private static final String STR_FOCUS_MOUSEDOWN_CALLBACK = "focusMousedownCallback("; //$NON-NLS-1$
+		private static final String DELIMITER = ";"; //$NON-NLS-1$
+
+		EventCallbackModifier(final String attribute, final boolean addAttributeIfNotPresent, final IModel< ? > replaceModel)
+		{
+			super(attribute, addAttributeIfNotPresent, replaceModel);
+		}
+
+		@Override
+		protected String newValue(final String currentValue, final String replacementValue)
+		{
+			if (currentValue != null)
+			{
+				if (replacementValue != null)
+				{
+					StringBuilder newValue = new StringBuilder();
+					StringTokenizer st = new StringTokenizer(currentValue, DELIMITER);
+					String t;
+					boolean replacementValueAdded = false;
+					while (st.hasMoreTokens())
+					{
+						t = st.nextToken();
+						if ((t.startsWith(STR_EVENT_CALLBACK) && replacementValue.startsWith(STR_EVENT_CALLBACK)) ||
+							(t.startsWith(STR_POST_EVENT_CALLBACK) && replacementValue.startsWith(STR_POST_EVENT_CALLBACK)) ||
+							(t.startsWith(STR_FOCUS_MOUSEDOWN_CALLBACK) && replacementValue.startsWith(STR_FOCUS_MOUSEDOWN_CALLBACK)))
+						{
+							newValue.append(replacementValue);
+							replacementValueAdded = true;
+						}
+						else
+						{
+							newValue.append(t);
+						}
+						newValue.append(DELIMITER);
+					}
+					if (!replacementValueAdded) newValue.append(replacementValue);
+					if (newValue.length() > 0) return newValue.toString();
+				}
+
+				return currentValue;
+			}
+			return replacementValue;
+		}
 	}
 }
