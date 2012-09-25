@@ -88,17 +88,13 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 		// TODO void for now
 	}
 
-	@Override
-	public IEventExecutor getEventExecutor()
-	{
-		return null;
-	}
-
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setEnterCmds(java.lang.String, Object[][])
 	 */
 	public void setEnterCmds(String[] enterCmds, Object[][] args)
 	{
+		IEventExecutor eventExecutor = getEventExecutor();
+		if (eventExecutor instanceof WebEventExecutor) ((WebEventExecutor)eventExecutor).setEnterCmds(enterCmds, args);
 	}
 
 	/**
@@ -115,6 +111,8 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	 */
 	public void setLeaveCmds(String[] leaveCmds, Object[][] args)
 	{
+		IEventExecutor eventExecutor = getEventExecutor();
+		if (eventExecutor instanceof WebEventExecutor) ((WebEventExecutor)eventExecutor).setLeaveCmds(leaveCmds, args);
 	}
 
 	/**
