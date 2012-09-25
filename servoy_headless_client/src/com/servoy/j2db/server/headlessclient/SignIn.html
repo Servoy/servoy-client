@@ -4,7 +4,14 @@
         <script type="text/javascript">
 			function setDefaultFocus()
 			{
-				document.getElementById("username").focus()
+				if (document.getElementById("username").value == "" || document.getElementById("password").value != "")
+				{
+					document.getElementById("username").focus()
+				}
+				else
+				{
+					document.getElementById("password").focus()
+				}
 			}
 		</script>
     </head>
