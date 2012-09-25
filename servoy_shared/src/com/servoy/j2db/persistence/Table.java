@@ -48,7 +48,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
  */
 	private final String serverName;
 	private boolean existInDB;
-	private final String plainSQLName;
+	private String plainSQLName;
 	private final int tableType;
 
 	private volatile boolean hiddenInDeveloper = false;
@@ -238,8 +238,9 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	 * @param table_cat
 	 * @param table_schem
 	 */
-	public void updateCatalogAndSchema(String table_cat, String table_schem)
+	public void updateSqlnameCatalogAndSchema(String table_dbname, String table_cat, String table_schem)
 	{
+		this.plainSQLName = table_dbname;
 		this.catalog = table_cat;
 		this.schema = table_schem;
 	}
