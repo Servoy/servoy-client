@@ -209,7 +209,7 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid) throws ServoyException, RemoteException;
+		String targetTid, int[] types) throws ServoyException, RemoteException;
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException;
 

@@ -497,8 +497,8 @@ public class JSDatabaseManager
 					ISQLTableJoin join = (ISQLTableJoin)sql.getJoin(oldTable, relation.getName());
 					if (join == null)
 					{
-						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable, new QueryTable(ft.getSQLName(),
-							ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
+						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable,
+							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), fs_old);
 						sql.addJoin(join);
 					}
 
@@ -600,8 +600,9 @@ public class JSDatabaseManager
 			for (int i = 0; i < dpnames.length; i++)
 			{
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType()
-					: dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale() : 0);
+				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0) : ColumnType.getInstance(
+					dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(), dp instanceof Column ? ((Column)dp).getScale()
+						: 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)
@@ -1014,7 +1015,7 @@ public class JSDatabaseManager
 		try
 		{
 			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name,
-				new QueryCustomSelect(sql_query, arguments), max_returned_rows);
+				new QueryCustomSelect(sql_query, arguments), max_returned_rows, null);
 		}
 		catch (ServoyException e)
 		{
@@ -1032,17 +1033,17 @@ public class JSDatabaseManager
 	 * @sample
 	 * // select customer data for order 1234
 	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
-	 * var q = databaseManager.createSelect("db:/example_data/customers")
-	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country)
-	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234))
+	 * var q = databaseManager.createSelect("db:/example_data/customers");
+	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country);
+	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
 	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999); // the uri can be used to create a form using solution model
 	 * 
 	 * // the uri can be used to create a form using solution model
-	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
-	 * myForm.newTextField('city', 140, 20, 140,20)
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600);
+	 * myForm.newTextField('city', 140, 20, 140,20);
 	 * 
 	 * // the uri can be used to acces a foundset directly
-	 * var fs = databaseManager.getFoundSet(uri)
+	 * var fs = databaseManager.getFoundSet(uri);
 	 * fs.loadAllRecords();
 	 *
 	 * @param name data source name
@@ -1052,6 +1053,41 @@ public class JSDatabaseManager
 	 * @return datasource containing the results of the query or null if the parameters are wrong. 
 	 */
 	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows) throws ServoyException
+	{
+		return js_createDataSourceByQuery(name, query, max_returned_rows, null);
+	}
+
+	/**  
+	 * Performs a query and saves the result in a datasource.
+	 * Will throw an exception if anything went wrong when executing the query.
+	 * Column types in the datasource are sent explicitly.
+	 * 
+	 * <br>Table filters on the involved tables in the query are applied.
+	 *
+	 * @sample
+	 * // select customer data for order 1234
+	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
+	 * var q = databaseManager.createSelect("db:/example_data/customers");
+	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country);
+	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]); 
+	 * 
+	 * // the uri can be used to create a form using solution model
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600);
+	 * myForm.newTextField('city', 140, 20, 140,20);
+	 * 
+	 * // the uri can be used to acces a foundset directly
+	 * var fs = databaseManager.getFoundSet(uri);
+	 * fs.loadAllRecords();
+	 *
+	 * @param name Data source name
+	 * @param query The query builder to be executed.
+	 * @param max_returned_rows The maximum number of rows returned by the query. 
+	 * @param types The column types  
+	 * 
+	 * @return datasource containing the results of the query or null if the parameters are wrong. 
+	 */
+	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows, int[] types) throws ServoyException
 	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		checkAuthorized();
@@ -1069,7 +1105,7 @@ public class JSDatabaseManager
 
 		try
 		{
-			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, _max_returned_rows);
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, _max_returned_rows, types);
 		}
 		catch (ServoyException e)
 		{
