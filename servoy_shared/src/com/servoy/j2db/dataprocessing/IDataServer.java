@@ -202,13 +202,14 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 * @param targetServerName
 	 * @param targetTableName when null a temporary table will be created
 	 * @param targetTid transaction id
+	 * @param types the column types
 	 * @return the table where the set was inserted into
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid) throws ServoyException, RemoteException;
+		String targetTid, int[] types) throws ServoyException, RemoteException;
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException;
 

@@ -1726,7 +1726,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return set;
 	}
 
-	public String createDataSourceFromQuery(String name, String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve) throws ServoyException
+	public String createDataSourceFromQuery(String name, String serverName, String sql, Object[] args, int maxNumberOfRowsToRetrieve, int[] types)
+		throws ServoyException
 	{
 		if (name == null || !checkQueryForSelect(sql))
 		{
@@ -1763,7 +1764,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, new QueryCustomSelect(sql, args), null,
 				false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource, table == null ? IServer.INMEM_SERVER : table.getServerName(),
-				table == null ? null : table.getName() /* create temp table when null */, targetTid);
+				table == null ? null : table.getName() /* create temp table when null */, targetTid, types);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);

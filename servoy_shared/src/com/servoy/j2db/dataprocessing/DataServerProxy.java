@@ -244,10 +244,10 @@ public class DataServerProxy implements IDataServer
 
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid) throws ServoyException, RemoteException
+		String targetTid, int[] types) throws ServoyException, RemoteException
 	{
 		return ds.insertQueryResult(client_id, getMappedServerName(queryServerName), queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
-			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid);
+			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid, types);
 	}
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException

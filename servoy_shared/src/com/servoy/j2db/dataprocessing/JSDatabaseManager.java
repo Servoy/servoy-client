@@ -745,6 +745,38 @@ public class JSDatabaseManager
 	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows)
 		throws ServoyException
 	{
+		return js_createDataSourceByQuery(name, server_name, sql_query, arguments, max_returned_rows, null);
+	}
+
+	/**  
+	 * Performs a sql query on the specified server, saves the the result in a datasource.
+	 * Will throw an exception if anything went wrong when executing the query.
+	 * Column types in the datasource are inferred from the query result.
+	 *
+	 * @sample
+	 *  var query = 'select address, city, country  from customers';
+	 *  var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]);
+	 * 
+	 * // the uri can be used to create a form using solution model
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
+	 * myForm.newTextField('city', 140, 20, 140,20)
+	 * 
+	 * // the uri can be used to acces a foundset directly
+	 * var fs = databaseManager.getFoundSet(uri)
+	 * fs.loadAllRecords();
+	 *
+	 * @param name data source name
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query.  
+	 * @param types The column types
+	 * 
+	 * @return datasource containing the results of the query or null if the parameters are wrong. 
+	 */
+	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows, int[] types)
+		throws ServoyException
+	{
 		checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
 		if (sql_query == null || sql_query.trim().length() == 0) throw new RuntimeException(new DataException(ServoyException.BAD_SQL_SYNTAX,
@@ -757,7 +789,8 @@ public class JSDatabaseManager
 
 		try
 		{
-			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name, sql_query, arguments, max_returned_rows);
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name, sql_query, arguments, max_returned_rows,
+				types);
 		}
 		catch (ServoyException e)
 		{
