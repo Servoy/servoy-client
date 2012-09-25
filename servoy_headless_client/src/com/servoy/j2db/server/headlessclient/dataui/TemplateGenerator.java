@@ -2260,6 +2260,7 @@ public class TemplateGenerator
 			// with { width: 100%; height: 100%; }, which works fine.
 			String wrapperId = ComponentFactory.getWebID(form, label) + WRAPPER_SUFFIX;
 			wrapperStyle = css.addStyle(styleName + wrapperId);
+			wrapperStyle.setProperty("min-width", label.getSize().width + "px");
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, label, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, label, "", WRAPPER_SUFFIX));
@@ -2292,7 +2293,7 @@ public class TemplateGenerator
 				html.append("<div ");
 			}
 			// we want to wrap only if there is no html content in the label text
-			if (!HtmlUtils.hasUsefulHtmlContent(label.getText())) html.append(" style=\"white-space: nowrap;\" ");
+			if (!HtmlUtils.hasUsefulHtmlContent(label.getText())) html.append(" style=\"white-space: nowrap; min-width:" + label.getSize().width + "px;\" ");
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
 			html.append(getCSSClassParameter("label"));
@@ -2426,6 +2427,7 @@ public class TemplateGenerator
 			String wrapperId = ComponentFactory.getWebID(form, field) + WRAPPER_SUFFIX;
 			TextualStyle wrapperStyle = css.addStyle('#' + wrapperId);
 			wrapperStyle.setProperty("overflow", "visible");
+			wrapperStyle.setProperty("min-width", field.getSize().width + "px");
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, field, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
