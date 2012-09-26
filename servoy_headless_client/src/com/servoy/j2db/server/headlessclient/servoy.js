@@ -938,10 +938,7 @@ if (typeof(Servoy.TableView) == "undefined")
 				}
 			}
 
-			if(!Servoy.TableView.keepLoadedRows)
-			{
-				$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
-			}
+			$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
 
 			Servoy.TableView.hasTopBuffer[rowContainerBodyId] = hasTopBuffer;
 			Servoy.TableView.hasBottomBuffer[rowContainerBodyId] = hasBottomBuffer;
