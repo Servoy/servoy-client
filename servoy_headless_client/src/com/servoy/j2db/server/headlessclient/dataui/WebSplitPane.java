@@ -636,12 +636,15 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 		}
 
+		resizeScript.append("var dividerMoveTimer;"); //$NON-NLS-1$
 		resizeScript.append("resize.on('resize', function(ev) {"); //$NON-NLS-1$ 
 		resizeScript.append("var d = ev.").append(dim).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim).append("', (newLeftSize - ").append(dividerSize).append(") + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', d + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("clearTimeout(dividerMoveTimer);"); //$NON-NLS-1$
+		resizeScript.append("dividerMoveTimer = setTimeout(function() {wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));}, 200);"); //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		resizeScript.append("});"); //$NON-NLS-1$ 
 
 		resizeScript.append("resize.on('endResize', function(ev) {"); //$NON-NLS-1$ 
