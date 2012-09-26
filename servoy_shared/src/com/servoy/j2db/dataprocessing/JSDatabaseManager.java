@@ -972,14 +972,33 @@ public class JSDatabaseManager
 		return true;
 	}
 
+	/**
+	 * @clonedesc js_createDataSourceByQuery(String, String, String, Object[], int, int[])
+	 * @sampleas js_createDataSourceByQuery(String, String, String, Object[], int, int[])
+	 * 
+	 * @param name data source name
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query.  
+	 * 
+	 * @return datasource containing the results of the query or null if the parameters are wrong.
+	 */
+	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows)
+		throws ServoyException
+	{
+		return js_createDataSourceByQuery(name, server_name, sql_query, arguments, max_returned_rows, null);
+	}
+
 	/**  
 	 * Performs a sql query on the specified server, saves the the result in a datasource.
 	 * Will throw an exception if anything went wrong when executing the query.
-	 * Column types in the datasource are inferred from the query result.
+	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 *
 	 * @sample
 	 * var query = 'select address, city, country  from customers';
 	 * var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999);
+	 * //var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]);
 	 * 
 	 * // the uri can be used to create a form using solution model
 	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
@@ -993,11 +1012,12 @@ public class JSDatabaseManager
 	 * @param server_name The name of the server where the query should be executed.
 	 * @param sql_query The custom sql.
 	 * @param arguments Specified arguments or null if there are no arguments.
-	 * @param max_returned_rows The maximum number of rows returned by the query.  
+	 * @param max_returned_rows The maximum number of rows returned by the query. 
+	 * @param types The column types 
 	 * 
 	 * @return datasource containing the results of the query or null if the parameters are wrong. 
 	 */
-	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows)
+	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows, int[] types)
 		throws ServoyException
 	{
 		checkAuthorized();
@@ -1015,7 +1035,7 @@ public class JSDatabaseManager
 		try
 		{
 			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name,
-				new QueryCustomSelect(sql_query, arguments), max_returned_rows, null);
+				new QueryCustomSelect(sql_query, arguments), max_returned_rows, types);
 		}
 		catch (ServoyException e)
 		{
@@ -1024,27 +1044,8 @@ public class JSDatabaseManager
 	}
 
 	/**  
-	 * Performs a query and saves the result in a datasource.
-	 * Will throw an exception if anything went wrong when executing the query.
-	 * Column types in the datasource are inferred from the query result.
-	 * 
-	 * <br>Table filters on the involved tables in the query are applied.
-	 *
-	 * @sample
-	 * // select customer data for order 1234
-	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
-	 * var q = databaseManager.createSelect("db:/example_data/customers");
-	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country);
-	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
-	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999); // the uri can be used to create a form using solution model
-	 * 
-	 * // the uri can be used to create a form using solution model
-	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600);
-	 * myForm.newTextField('city', 140, 20, 140,20);
-	 * 
-	 * // the uri can be used to acces a foundset directly
-	 * var fs = databaseManager.getFoundSet(uri);
-	 * fs.loadAllRecords();
+	 * @clonedesc js_createDataSourceByQuery(String, QBSelect, Number, int[])
+	 * @sampleas js_createDataSourceByQuery(String, QBSelect, Number, int[])
 	 *
 	 * @param name data source name
 	 * @param query The query builder to be executed.
@@ -1060,7 +1061,7 @@ public class JSDatabaseManager
 	/**  
 	 * Performs a query and saves the result in a datasource.
 	 * Will throw an exception if anything went wrong when executing the query.
-	 * Column types in the datasource are sent explicitly.
+	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 * 
 	 * <br>Table filters on the involved tables in the query are applied.
 	 *
@@ -1070,7 +1071,8 @@ public class JSDatabaseManager
 	 * var q = databaseManager.createSelect("db:/example_data/customers");
 	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country);
 	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
-	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]); 
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999); 
+	 * //var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]); 
 	 * 
 	 * // the uri can be used to create a form using solution model
 	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600);
