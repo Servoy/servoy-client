@@ -953,9 +953,17 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			RelationItem ri = (RelationItem)allobjects.get(pos);
 			String pdp = ri.getPrimaryDataProviderID();
-			if (!pdp.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+			if (pdp != null)
 			{
-				return false;
+				if (!pdp.startsWith(ScriptVariable.GLOBAL_DOT_PREFIX))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				Debug.error("Relation '" + getName() + "' has NULL primary dataprovider in a relation item."); //$NON-NLS-1$//$NON-NLS-2$
+				throw new NullPointerException();
 			}
 		}
 		return true;
