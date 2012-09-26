@@ -954,7 +954,20 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			{
 				public void run()
 				{
-					setValueEx(value);
+					try
+					{
+						setValueEx(value);
+					}
+					catch (Exception e)
+					{
+						Debug.error("error setting a vallue in the html editor:  " + value, e); //$NON-NLS-1$
+						if (editorKit instanceof FixedHTMLEditorKit)
+						{
+							Debug.error("creating a new document on the html editor kit and setting the value again"); //$NON-NLS-1$
+							enclosedComponent.setDocument(editorKit.createDefaultDocument());
+							setValueEx(value);
+						}
+					}
 				}
 			});
 		}
@@ -988,7 +1001,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 					String lowercaseValue = svalue.toLowerCase();
 					if (lowercaseValue.indexOf("rtf") != -1 || lowercaseValue.indexOf("<html") != -1) //$NON-NLS-1$ //$NON-NLS-2$
 					{
-						enclosedComponent.getDocument().remove(0, enclosedComponent.getDocument().getLength());
 						if (svalue.length() > 10000 && application.getModeManager().getMode() == IModeManager.EDIT_MODE && isAsyncLoading() &&
 							lowercaseValue.indexOf("<html") != -1)
 						{
@@ -997,6 +1009,10 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 						}
 						else
 						{
+							// cancel an async load that could have been done the previous time
+							enclosedComponent.cancelASyncLoad();
+							// always just create a new document, asyn load will also do that.
+							enclosedComponent.setDocument(editorKit.createDefaultDocument());
 							enclosedComponent.putClientProperty(FixedJEditorPane.CHARSET_DIRECTIVE, "UTF-8");
 							enclosedComponent.getDocument().putProperty("IgnoreCharsetDirective", new Boolean(true));
 							StringReader sr = new StringReader(svalue);
@@ -1005,7 +1021,10 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 					}
 					else
 					{
-						enclosedComponent.getDocument().remove(0, enclosedComponent.getDocument().getLength());
+						// cancel an async load that could have been done the previous time
+						enclosedComponent.cancelASyncLoad();
+						// always just create a new document, asyn load will also do that.
+						enclosedComponent.setDocument(editorKit.createDefaultDocument());
 						enclosedComponent.getDocument().insertString(0, svalue, null);
 					}
 					if (selStart <= enclosedComponent.getDocument().getLength() && selEnd <= enclosedComponent.getDocument().getLength()) enclosedComponent.select(
