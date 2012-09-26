@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -1501,6 +1502,38 @@ public class Utils
 		}
 	}
 
+	public static <T extends Closeable> T close(T closeable)
+	{
+		try
+		{
+			if (closeable != null)
+			{
+				closeable.close();
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		return null;
+	}
+
+	public static <T extends Closeable> T closeQuietly(T closeable)
+	{
+		try
+		{
+			if (closeable != null)
+			{
+				closeable.close();
+			}
+		}
+		catch (IOException e)
+		{
+			//ignore
+		}
+		return null;
+	}
+
 	public static <T extends Connection> T closeConnection(T connection)
 	{
 		try
@@ -1846,34 +1879,12 @@ public class Utils
 
 	public static InputStream closeInputStream(InputStream is)
 	{
-		try
-		{
-			if (is != null)
-			{
-				is.close();
-			}
-		}
-		catch (IOException ex)
-		{
-			Debug.error(ex);
-		}
-		return null;
+		return close(is);
 	}
 
 	public static Reader closeReader(Reader r)
 	{
-		try
-		{
-			if (r != null)
-			{
-				r.close();
-			}
-		}
-		catch (IOException ex)
-		{
-			Debug.error(ex);
-		}
-		return null;
+		return close(r);
 	}
 
 	public static void invokeLater(IEventDelegator delegator, List<Runnable> runnables)
@@ -2178,18 +2189,7 @@ public class Utils
 
 	public static Writer closeWriter(Writer w)
 	{
-		try
-		{
-			if (w != null)
-			{
-				w.close();
-			}
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
-		return null;
+		return close(w);
 	}
 
 	public static byte[] readFile(File f, long size)
