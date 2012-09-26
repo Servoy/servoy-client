@@ -498,11 +498,19 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	private final List<Runnable> events = new ArrayList<Runnable>();
+	private final ThreadLocal<List<Runnable>> requestEvents = new ThreadLocal<List<Runnable>>()
+	{
+		@Override
+		protected java.util.List<Runnable> initialValue()
+		{
+			return new ArrayList<Runnable>();
+		}
+	};
 
 	@SuppressWarnings("nls")
 	public void executeEvents()
 	{
-		Runnable[] runnables = null;
+		List<Runnable> runnables = null;
 		// This can get called during constructor, if an exception is thrown from super(), through shutdown(),
 		// so the events array may be not initialized yet.
 		if (events != null)
@@ -511,15 +519,25 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			{
 				if (events.size() > 0)
 				{
-					runnables = new Runnable[events.size()];
-					runnables = events.toArray(runnables);
+					runnables = new ArrayList<Runnable>(events);
 					events.clear();
 				}
+			}
+
+			List<Runnable> list = requestEvents.get();
+			if (list.size() > 0)
+			{
+				if (runnables == null)
+				{
+					runnables = new ArrayList<Runnable>(list);
+				}
+				else runnables.addAll(list);
+				list.clear();
 			}
 		}
 		if (runnables != null)
 		{
-			final Runnable[] toExecute = runnables;
+			final List<Runnable> toExecute = runnables;
 			Runnable run = new Runnable()
 			{
 				public void run()
@@ -618,7 +636,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 		else
 		{
-			synchronized (events)
+			if (RequestCycle.get() != null)
+			{
+				requestEvents.get().add(r);
+			}
+			else synchronized (events)
 			{
 				events.add(r);
 			}
@@ -1013,7 +1035,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 					MainPage page = (MainPage)((WebFormManager)getFormManager()).getMainContainer(null);
 					throw new RestartResponseException(page);
 				}
-
 				executeEvents();
 			}
 		}
@@ -1023,6 +1044,17 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	WebClientSession webClientSession)
 	{
 		userRequestProperties.clear();
+		// just to make sure that on the end of the request there are really no more events waiting.
+		// if that is the case then copy them to the events for the next time (no much sense to do them now, everything is detached)
+		List<Runnable> list = requestEvents.get();
+		if (list.size() > 0)
+		{
+			synchronized (events)
+			{
+				events.addAll(list);
+				list.clear();
+			}
+		}
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException
