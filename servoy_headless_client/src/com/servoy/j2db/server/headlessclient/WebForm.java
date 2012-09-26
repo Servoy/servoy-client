@@ -707,7 +707,14 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		this.destroyed = true;
 		if (getParent() != null && getRequestCycle() != null)
 		{
-			remove();
+			try
+			{
+				remove();
+			}
+			catch (Exception e)
+			{
+				Debug.log("error destroying the webform", e); //$NON-NLS-1$
+			}
 		}
 	}
 
