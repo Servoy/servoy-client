@@ -240,6 +240,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private ScrollBehavior scrollBehavior;
 	private int maxRowsPerPage;
 	private boolean isKeepLoadedRowsInScrollMode;
+	private int firstSelectedIndex;
 
 	private int viewType;
 
@@ -2729,22 +2730,28 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(bodyHeightHint);
 				maxRowsPerPage = rowsCalculation.getRight().getLeft().intValue();
 
+				// set headers width according to cell's width
+				setHeadersWidth();
+				firstSelectedIndex = 0;
+				if (currentData != null)
+				{
+					firstSelectedIndex = currentData.getSelectedIndex();
+				}
+
 				if (isScrollMode())
 				{
 					table.setStartIndex(0);
-					table.setViewSize(2 * maxRowsPerPage);
+					int viewSize;
+					if (isKeepLoadedRowsInScrollMode && firstSelectedIndex > maxRowsPerPage)
+					{
+						viewSize = firstSelectedIndex + 2 * maxRowsPerPage;
+					}
+					else viewSize = 2 * maxRowsPerPage;
+					table.setViewSize(viewSize);
 				}
 				else
 				{
 					table.setRowsPerPage(maxRowsPerPage);
-				}
-
-				// set headers width according to cell's width
-				setHeadersWidth();
-				int firstSelectedIndex = 0;
-				if (currentData != null)
-				{
-					firstSelectedIndex = currentData.getSelectedIndex();
 				}
 
 				// if rowPerPage changed & the selected was visible, switch to the page so it remain visible
@@ -4785,7 +4792,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			super.renderHead(response);
 			StringBuffer sb = new StringBuffer();
-			sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = 0;"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = "); //$NON-NLS-1$ //$NON-NLS-2$
+			if (isKeepLoadedRowsInScrollMode && (firstSelectedIndex > maxRowsPerPage))
+			{
+				sb.append(firstSelectedIndex).append(" * $('#").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append( //$NON-NLS-1$
+					"').children('tr:first').height()"); //$NON-NLS-1$
+			}
+			else
+			{
+				sb.append("0"); //$NON-NLS-1$
+			}
+			sb.append(';');
 			sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -4817,8 +4834,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					table.setStartIndex(viewStartIdx + rowsToRemove);
 					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
+					isGettingRows = true;
 					newRows = getRows(table, viewStartIdx + viewSize, newRowsCount);
 					rowsBuffer = renderRows(getResponse(), newRows);
+					isGettingRows = false;
 				}
 			}
 			else
@@ -4828,6 +4847,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					newRowsCount = Math.min(Math.max(Math.abs(scrollDiff), maxRowsPerPage), viewStartIdx);
 
 					table.setStartIndex(viewStartIdx - newRowsCount);
+					isGettingRows = true;
 					if (newRowsCount > pageViewSize)
 					{
 						rowsToRemove = -1; // remove all
@@ -4841,6 +4861,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 
 					rowsBuffer = renderRows(getResponse(), newRows);
+					isGettingRows = false;
 				}
 			}
 
@@ -4937,13 +4958,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			int endIdx = startIdx + rowsCount;
 			ListItem< ? > listItem;
-			isGettingRows = true;
+
 			for (int i = startIdx; i < endIdx; i++)
 			{
 				listItem = listView.getOrCreateListItem(i);
 				rows.add(listItem);
 			}
-			isGettingRows = false;
 
 			return rows;
 		}
