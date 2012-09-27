@@ -4366,6 +4366,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (currentData == null) return;
 		List<Integer> indexToUpdate;
+		selectedIndexesBeforUpdateRenderState = selectedIndexes;
 		if ((indexToUpdate = getIndexToUpdate(false)) != null)
 		{
 			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
@@ -4397,7 +4398,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 				}
 			}
-			selectedIndexesBeforUpdateRenderState = selectedIndexes;
 			selectedIndexes = newSelectedIndexes;
 		}
 	}
