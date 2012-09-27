@@ -76,6 +76,7 @@ import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.MethodArgument;
@@ -83,6 +84,7 @@ import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -129,6 +131,37 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormController implements IForm, ListSelectionListener, TableModelListener, IFoundSetListener, IPrepareForSave, IFoundSetEventListener
 {
+	/**
+	 * @author Ovidiu
+	 *  this class is an implementations of ISupportSCriptProviders Which always resolves methods and variables based on the Runtime cached FlattenedForm
+	 */
+	public static class RuntimeSupportScriptProviders implements ISupportScriptProviders
+	{
+		private IApplication application = null;
+		private Form form = null;
+
+		public RuntimeSupportScriptProviders(IApplication application, Form form)
+		{
+			this.application = application;
+			this.form = form;
+		}
+
+		public Iterator<ScriptVariable> getScriptVariables(boolean b)
+		{
+			return application.getFlattenedSolution().getFlattenedForm(form, true).getScriptVariables(b);
+		}
+
+		public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
+		{
+			return application.getFlattenedSolution().getFlattenedForm(form, true).getScriptMethods(sort);
+		}
+
+		public ScriptMethod getScriptMethod(int methodId)
+		{
+			return application.getFlattenedSolution().getFlattenedForm(form, true).getScriptMethod(methodId);
+		}
+	}
+
 	//Place holder class for the JavaScript FromController obj, all javascript calls must be delegated to the FormController
 	//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "controller", scriptingName = "controller")
@@ -4534,7 +4567,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			{
 				//make scope for state delegation via prototype mechanism
 				List<Form> forms = application.getFlattenedSolution().getFormHierarchy(form);
-				formScope = new FormScope(this, forms.toArray(new ISupportScriptProviders[forms.size()]));
+				List<ISupportScriptProviders> scriptProviders = new ArrayList<ISupportScriptProviders>();
+				for (Form frm : forms)
+				{
+					scriptProviders.add(new RuntimeSupportScriptProviders(application, frm));
+				}
+				formScope = new FormScope(this, scriptProviders.toArray(new ISupportScriptProviders[scriptProviders.size()]));
 				// Set the solution scope first as parent. Will be overridden by foundset
 
 				if (formModel != null)
@@ -4702,6 +4740,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				if (throwException)
 				{
 					throw new IllegalArgumentException("Could not find function '" + cmd + "' for form " + getName());
+				}
+				else
+				{
+					application.reportJSError("Could not find function '" + cmd + "' for form " + getName() + " , invoked by Object:", src);
 				}
 				return null;
 			}

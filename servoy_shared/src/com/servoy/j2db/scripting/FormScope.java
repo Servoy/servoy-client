@@ -322,6 +322,61 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		}
 	}
 
+
+	public void remove(ScriptMethod method)
+	{
+		ScriptMethod scriptMethod = method;
+		String methodsForm = ((Form)scriptMethod.getParent()).getName();
+		String currentForm = getFormController().getForm().getName();
+		//look into current scope
+		if (methodsForm.equals(currentForm)) // method is from the current form scope, (not extended scope)
+		{
+			//replace with override parent base
+			ScriptMethod baseMethod = getOverrideParrent(scriptMethod, (Form)method.getParent());
+			super.remove(scriptMethod);
+			if (baseMethod != null) super.put(baseMethod, baseMethod);
+		}
+		else
+		{//look into extended scope
+			for (LazyCompilationScope scope : extendScopes)
+			{
+				scriptMethod = scope.getScriptLookup().getScriptMethod(method.getID());
+				if (scriptMethod != null)
+				{
+					//replace with override parent base
+					ScriptMethod baseMethod = getOverrideParrent(scriptMethod, (Form)method.getParent());
+					scope.remove(scriptMethod);
+					if (baseMethod != null) scope.put(baseMethod, baseMethod);
+					break;
+				}
+			}
+		}
+	}
+
+	/** 
+	 *  returns the parrent's form  method if if overriding is present or null if there is no base method (no overriding).
+	 *  Goes recursively through the parents until it finds the first base method which is non private
+	 *  @param currentForm starting point from where to search
+	 *  @param method  method for which to search 
+	 */
+	private ScriptMethod getOverrideParrent(ScriptMethod method, Form currentForm)
+	{
+		Form parrentForm = currentForm.getExtendsForm();
+
+		if (parrentForm != null)
+		{
+			ScriptMethod baseMethod = parrentForm.getScriptMethod(method.getName());
+			if ((baseMethod == null && parrentForm.getExtendsForm() != null) ||
+			/**/(baseMethod != null && parrentForm.getExtendsForm() != null && baseMethod.isPrivate()))
+			{
+				baseMethod = getOverrideParrent(method, parrentForm);
+			}
+
+			return baseMethod;
+		}
+		return null;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

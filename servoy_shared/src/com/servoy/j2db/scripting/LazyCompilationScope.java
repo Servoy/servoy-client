@@ -33,6 +33,7 @@ import org.mozilla.javascript.debug.IDebuggerWithWatchPoints;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jblok
@@ -115,6 +116,10 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		{
 			Object o = allVars.remove(sName);
 			return o instanceof Function ? (Function)o : null;
+		}
+		else
+		{
+			remove(sm.getName());
 		}
 		return null;
 	}
@@ -261,6 +266,14 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	public String toString()
 	{
 		return "LazyCompilationScope parent '" + (getParentScope() == this ? "this" : getParentScope()) + "', scriptLookup: " + scriptLookup; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+	}
+
+	@Override
+	public void remove(String name)
+	{
+		Utils.mapRemoveByValue(name, idVars);
+		allVars.remove(name);
+		super.remove(name);
 	}
 
 	@Override

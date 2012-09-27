@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -2617,5 +2618,30 @@ public class Utils
 	private static String getPrefixedType(String type, String prefix)
 	{
 		return prefix != null ? prefix + type : type;
+	}
+
+	/**
+	 * Removes the first map entry based on a map value
+	 * 
+	 * @param name the map value to remove the map entry
+	 * @param idVars - A map from which to remove the value and key
+	 * @return
+	 */
+	public static <K, V> V mapRemoveByValue(V name, Map<K, V> idVars)
+	{
+		K removalKey = null;
+		for (Map.Entry<K, V> entry : idVars.entrySet())
+		{
+			if (name.equals(entry.getValue()))
+			{
+				removalKey = entry.getKey();
+				break;
+			}
+		}
+		if (removalKey != null)
+		{
+			return idVars.remove(removalKey);
+		}
+		return null;
 	}
 }

@@ -520,6 +520,14 @@ public class ScriptVariableScope extends LazyCompilationScope
 		return o;
 	}
 
+	public void remove(ScriptVariable var)
+	{
+		if (locked) throw new WrappedException(new RuntimeException(Messages.getString("servoy.javascript.error.lockedForDeleteName", new Object[] { var }))); //$NON-NLS-1$
+		nameType.remove(var.getName());
+		if (replacedNameType != null) replacedNameType.remove(var.getName());
+		super.remove(var.getName());
+	}
+
 	@Override
 	public void destroy()
 	{

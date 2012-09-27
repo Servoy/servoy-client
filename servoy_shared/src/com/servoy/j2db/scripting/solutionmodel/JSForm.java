@@ -56,6 +56,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.TableNode;
+import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.solutionmodel.ISMForm;
@@ -149,7 +150,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		try
 		{
 			ScriptVariable variable = form.createNewScriptVariable(new ScriptNameValidator(application.getFlattenedSolution()), name, type);
-			reftreshFormScopes();
+			addVariableToScopes(variable);
 			return new JSVariable(application, this, variable, true);
 		}
 		catch (RepositoryException e)
@@ -162,13 +163,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * Removes a form JSVariable - based on the name of the variable object.
 	 *
 	 * @sample 
-	 * var form = solutionModel.newForm('Form2', null, null, true, 800, 600);
+	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
 	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
-	 * application.output("var before deletion:"+ variable);
-	 * form.removeVariable('myVar');
-	 * var variableAfterDeletion = form.getVariable('myVar');
-	 * application.output("var after deletion:"+ variableAfterDeletion);
+	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
+	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
+	 * forms['newForm1'].controller.show();
+	 *
+	 * variable = form.removeVariable('myVar');
+	 * application.sleep(4000);
+	 * forms['newForm1'].controller.recreateUI();
 	 *
 	 * @param name the specified name of the variable
 	 * 
@@ -183,7 +187,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		if (variable != null)
 		{
 			form.removeChild(variable);
-			reftreshFormScopes();
+			removeVariableFromScopes(variable);
 			return true;
 		}
 		return false;
@@ -319,7 +323,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		{
 			ScriptMethod method = form.createNewScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), name);
 			method.setDeclaration(code);
-			reftreshFormScopes();
+			addMethodToScopes(method);
 			return new JSMethod(this, method, application, true);
 		}
 		catch (RepositoryException e)
@@ -334,7 +338,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
 	 * var hello = form.newMethod('function aMethod(event){application.output("Hello world!");}');
-	 * var removeMethod = form.newMethod('function tempMethod(event){ \
+	 * var removeMethod = form.newMethod('function removeMethod(event){ \
 	 *									solutionModel.getForm(event.getFormName()).removeMethod("aMethod"); \
 	 *									forms[event.getFormName()].controller.recreateUI();\
 	 *									}');
@@ -354,8 +358,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		ScriptMethod method = form.getScriptMethod(name);
 		if (method != null)
 		{
+			removeMethodFromScopes(method);
 			form.removeChild(method);
-			reftreshFormScopes();
 			return true;
 		}
 		return false;
@@ -4605,16 +4609,48 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return true;
 	}
 
-	/**
-	 *  called when adding or removing a method/variable to the form 
-	 * 
-	 */
-	private void reftreshFormScopes()
+	private void addVariableToScopes(ScriptVariable var)
 	{
 		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
 		for (FormController formController : controllers)
 		{
-			formController.getFormScope().reload();
+			FormScope formScope = formController.getFormScope();
+			formScope.put(var);
+		}
+	}
+
+	private void removeVariableFromScopes(ScriptVariable var)
+	{
+		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
+		for (FormController formController : controllers)
+		{
+			FormScope formScope = formController.getFormScope();
+			formScope.remove(var);
+		}
+	}
+
+	/**
+	 * Overrides existing inherited method
+	 * @param method
+	 */
+	private void addMethodToScopes(ScriptMethod method)
+	{
+		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
+		for (FormController formController : controllers)
+		{
+			FormScope formScope = formController.getFormScope();
+			formScope.put(method, method, true);
+		}
+	}
+
+
+	private void removeMethodFromScopes(ScriptMethod method)
+	{
+		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
+		for (FormController formController : controllers)
+		{
+			FormScope formScope = formController.getFormScope();
+			formScope.remove(method);
 		}
 	}
 }
