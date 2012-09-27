@@ -687,4 +687,36 @@ public class Settings extends SortedProperties
 		return file;
 	}
 
+	public static final String USER = "user."; //$NON-NLS-1$
+	public static final String DEVELOPER_USER = "developer.user."; //$NON-NLS-1$
+
+	public void loadUserProperties(Map<String, String> userProperties)
+	{
+		Iterator<Object> it = this.keySet().iterator();
+		while (it.hasNext())
+		{
+			String key = (String)it.next();
+			if (key.startsWith(USER))
+			{
+				userProperties.put(key.substring(USER.length()), this.getProperty(key));
+			}
+		}
+	}
+
+	public String getUserProperty(String prefix, String name)
+	{
+		return getProperty(prefix + (name.length() > 255 ? name.substring(0, 255) : name));
+	}
+
+	public void setUserProperty(String prefix, String name, String value)
+	{
+		if (value == null)
+		{
+			this.remove(prefix + (name.length() > 255 ? name.substring(0, 255) : name));
+		}
+		else
+		{
+			this.setProperty(prefix + (name.length() > 255 ? name.substring(0, 255) : name), (value.length() > 255 ? value.substring(0, 255) : value));
+		}
+	}
 }

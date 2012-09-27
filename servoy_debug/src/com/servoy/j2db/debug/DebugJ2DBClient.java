@@ -35,7 +35,6 @@ import java.net.URLStreamHandler;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -461,6 +460,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 			});
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, menuShortcutKeyMask), "CTRL+L");
+		Settings.getInstance().loadUserProperties(defaultUserProperties);
 	}
 
 	@Override
@@ -1325,29 +1325,43 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 	}
 
-	Map<String, String> localUserProperties = new HashMap<String, String>();
+	Map<String, String> defaultUserProperties = new HashMap<String, String>();
 
 	@Override
 	public void setUserProperty(String name, String value)
 	{
-		localUserProperties.put(name, value);
+		defaultUserProperties.remove(name);
+		((Settings)getSettings()).setUserProperty(Settings.DEVELOPER_USER, name, value);
 	}
 
 	@Override
 	public String getUserProperty(String name)
 	{
-		if (localUserProperties.containsKey(name))
+		if (defaultUserProperties.containsKey(name))
 		{
-			return localUserProperties.get(name);
+			return defaultUserProperties.get(name);
 		}
-		return super.getUserProperty(name);
+		return ((Settings)getSettings()).getUserProperty(Settings.DEVELOPER_USER, name);
 	}
 
 	@Override
 	public String[] getUserPropertyNames()
 	{
-		List<String> userPropertyNames = new ArrayList<String>(localUserProperties.keySet());
-		userPropertyNames.addAll(Arrays.asList(super.getUserPropertyNames()));
+		List<String> userPropertyNames = new ArrayList<String>(defaultUserProperties.keySet());
+		userPropertyNames.addAll(userPropertyNames);
+		Iterator<Object> it = getSettings().keySet().iterator();
+		while (it.hasNext())
+		{
+			String key = (String)it.next();
+			if (key.startsWith(Settings.DEVELOPER_USER))
+			{
+				String name = key.substring(Settings.DEVELOPER_USER.length());
+				if (!userPropertyNames.contains(name))
+				{
+					userPropertyNames.add(name);
+				}
+			}
+		}
 		return userPropertyNames.toArray(new String[0]);
 	}
 

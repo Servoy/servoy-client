@@ -1588,7 +1588,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	public String getUserProperty(String name)
 	{
 		if (name == null) return null;
-		return getSettings().getProperty("user." + (name.length() > 255 ? name.substring(0, 255) : name)); //$NON-NLS-1$
+		return ((Settings)getSettings()).getUserProperty(Settings.USER, name);
 	}
 
 	public String[] getUserPropertyNames()
@@ -1598,9 +1598,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		while (it.hasNext())
 		{
 			String key = (String)it.next();
-			if (key.startsWith("user.")) //$NON-NLS-1$
+			if (key.startsWith(Settings.USER))
 			{
-				retval.add(key.substring("user.".length())); //$NON-NLS-1$
+				retval.add(key.substring(Settings.USER.length()));
 			}
 		}
 		return retval.toArray(new String[retval.size()]);
@@ -1609,14 +1609,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	public void setUserProperty(String name, String value)
 	{
 		if (name == null) return;
-		if (value == null)
-		{
-			getSettings().remove("user." + (name.length() > 255 ? name.substring(0, 255) : name)); //$NON-NLS-1$
-		}
-		else
-		{
-			getSettings().setProperty("user." + (name.length() > 255 ? name.substring(0, 255) : name), (value.length() > 255 ? value.substring(0, 255) : value)); //$NON-NLS-1$
-		}
+		((Settings)getSettings()).setUserProperty(Settings.USER, name, value);
 	}
 
 	public Object getClientProperty(Object name)

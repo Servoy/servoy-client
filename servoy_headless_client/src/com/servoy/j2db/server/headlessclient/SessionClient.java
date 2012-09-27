@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -128,8 +127,6 @@ import com.servoy.j2db.util.toolbar.Toolbar;
  */
 public class SessionClient extends ClientState implements ISessionClient
 {
-	private static final String USER = "user."; //$NON-NLS-1$
-
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
 
 	protected final WebCredentials credentials;
@@ -170,7 +167,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		try
 		{
 			settings = Settings.getInstance();
-			loadDefaultUserProperties();
+			((Settings)settings).loadUserProperties(defaultUserProperties);
 			this.credentials = credentials;
 
 			this.preferredSolutionMethodNameToCall = method;
@@ -1473,11 +1470,11 @@ public class SessionClient extends ClientState implements ISessionClient
 		CharSequence name = Utils.stringLimitLenght(a_name, 255);
 		if (session != null)
 		{
-			return (String)session.getAttribute(USER + name);
+			return (String)session.getAttribute(Settings.USER + name);
 		}
 		else
 		{
-			return settings.getProperty(USER + name);
+			return settings.getProperty(Settings.USER + name);
 		}
 	}
 
@@ -1490,7 +1487,7 @@ public class SessionClient extends ClientState implements ISessionClient
 			while (it.hasMoreElements())
 			{
 				String key = (String)it.nextElement();
-				if (key.startsWith(USER))
+				if (key.startsWith(Settings.USER))
 				{
 					retval.add(key);
 				}
@@ -1517,35 +1514,22 @@ public class SessionClient extends ClientState implements ISessionClient
 		{
 			if (value == null)
 			{
-				session.removeAttribute(USER + name);
+				session.removeAttribute(Settings.USER + name);
 			}
 			else
 			{
-				session.setAttribute(USER + name, Utils.stringLimitLenght(value, 255));
+				session.setAttribute(Settings.USER + name, Utils.stringLimitLenght(value, 255));
 			}
 		}
 		else
 		{
 			if (value == null)
 			{
-				settings.remove(USER + name);
+				settings.remove(Settings.USER + name);
 			}
 			else
 			{
-				settings.setProperty(USER + name, Utils.stringLimitLenght(value, 255).toString());
-			}
-		}
-	}
-
-	private void loadDefaultUserProperties()
-	{
-		Iterator<Object> it = getSettings().keySet().iterator();
-		while (it.hasNext())
-		{
-			String key = (String)it.next();
-			if (key.startsWith(USER))
-			{
-				defaultUserProperties.put(key.substring(USER.length()), getSettings().getProperty(key));
+				settings.setProperty(Settings.USER + name, Utils.stringLimitLenght(value, 255).toString());
 			}
 		}
 	}
