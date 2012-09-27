@@ -4807,7 +4807,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("Servoy.TableView.scrollToTop('").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-			response.renderOnDomReadyJavascript(sb.toString());
+			response.renderOnLoadJavascript(sb.toString());
 
 		}
 
