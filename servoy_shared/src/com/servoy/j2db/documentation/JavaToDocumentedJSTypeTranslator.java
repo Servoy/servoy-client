@@ -100,8 +100,8 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(Long.TYPE, com.servoy.j2db.documentation.scripting.docs.Number.class);
 		javaClassToDocumentedJavaClass.put(Integer.class, com.servoy.j2db.documentation.scripting.docs.Number.class);
 		javaClassToDocumentedJavaClass.put(Integer.TYPE, com.servoy.j2db.documentation.scripting.docs.Number.class);
-		javaClassToDocumentedJavaClass.put(Byte.class, com.servoy.j2db.documentation.scripting.docs.Number.class);
-		javaClassToDocumentedJavaClass.put(Byte.TYPE, com.servoy.j2db.documentation.scripting.docs.Number.class);
+		javaClassToDocumentedJavaClass.put(Byte.class, Byte.TYPE);
+//		javaClassToDocumentedJavaClass.put(Byte.TYPE, Byte.TYPE);
 		javaClassToDocumentedJavaClass.put(Short.class, com.servoy.j2db.documentation.scripting.docs.Number.class);
 		javaClassToDocumentedJavaClass.put(Short.TYPE, com.servoy.j2db.documentation.scripting.docs.Number.class);
 		javaClassToDocumentedJavaClass.put(Number.class, com.servoy.j2db.documentation.scripting.docs.Number.class);
@@ -178,7 +178,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 		String translatedClassName;
 		Pair<Class< ? >, Integer> classAndArray = splitArrayIfNeeded(javaClass);
-		if (classAndArray.getLeft().equals(Byte.TYPE) && classAndArray.getRight().intValue() == 1)
+		if (classAndArray.getLeft().equals(Byte.TYPE))
 		{
 			translatedClassName = Byte.TYPE.getName();
 		}
