@@ -997,7 +997,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			}
 			else
 			{
-				Debug.error("Relation '" + getName() + "' has NULL primary dataprovider in a relation item."); //$NON-NLS-1$//$NON-NLS-2$
+				Debug.error("Relation '" + getName() + "' has NULL primary dataprovider in a relation item. Solution: " + getRootObject()); //$NON-NLS-1$//$NON-NLS-2$
 				throw new NullPointerException();
 			}
 		}
