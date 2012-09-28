@@ -1348,7 +1348,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public String[] getUserPropertyNames()
 	{
 		List<String> userPropertyNames = new ArrayList<String>(defaultUserProperties.keySet());
-		userPropertyNames.addAll(userPropertyNames);
 		Iterator<Object> it = getSettings().keySet().iterator();
 		while (it.hasNext())
 		{
