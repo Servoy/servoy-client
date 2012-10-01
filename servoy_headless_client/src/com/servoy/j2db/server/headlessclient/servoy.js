@@ -862,12 +862,13 @@ if (typeof(Servoy.TableView) == "undefined")
 		hasBottomBuffer: new Array(),
 		keepLoadedRows : false,
 		topPhHeight: new Array(),
+		scrollCallback: new Array(),
 
 		appendRows: function(rowContainerBodyId, rows, newRowsCount, rowsCountToRemove, scrollDiff, hasTopBuffer, hasBottomBuffer)
 		{	
 			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
 			
-			var row, rowHeight = 0;
+			var row, rowHeight = 0, topPhChanged = false;
 			if(scrollDiff > 0)
 			{
 				if(rowsCountToRemove > 0 && !Servoy.TableView.keepLoadedRows)
@@ -888,6 +889,7 @@ if (typeof(Servoy.TableView) == "undefined")
 						row.remove();
 					}
 					Servoy.TableView.topPhHeight[rowContainerBodyId] = topPhHeight;
+					topPhChanged = true;
 					$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + topPhHeight + "'></tr>");
 				}
 				
@@ -935,6 +937,11 @@ if (typeof(Servoy.TableView) == "undefined")
 							Servoy.TableView.currentScrollTop[rowContainerBodyId] = topPhHeight;
 						}
 					}
+					else
+					{
+						Servoy.TableView.topPhHeight[rowContainerBodyId] = 0;
+					}
+					topPhChanged = true;
 				}
 			}
 
@@ -943,6 +950,11 @@ if (typeof(Servoy.TableView) == "undefined")
 			Servoy.TableView.hasTopBuffer[rowContainerBodyId] = hasTopBuffer;
 			Servoy.TableView.hasBottomBuffer[rowContainerBodyId] = hasBottomBuffer;
 			Servoy.TableView.isAppendingRows = false;
+			
+			if(topPhChanged)
+			{
+				setTimeout(function() { Servoy.TableView.updateScrollTopPlaceholder(rowContainerBodyEl, Servoy.TableView.scrollCallback[rowContainerBodyId], Servoy.TableView.topPhHeight[rowContainerBodyId]);}, 0);
+			}
 		},
 
 		needToUpdateRowsBuffer: function(rowContainerBodyId)
@@ -1039,6 +1051,17 @@ if (typeof(Servoy.TableView) == "undefined")
 			}
 		
 			return false;
+		},
+		
+		updateScrollTopPlaceholder: function(scrollEl, callbackUrl, newValue)
+		{
+			wicketAjaxGet
+			(					
+				callbackUrl+'&topPh='+newValue,
+				null,
+				function() { onAjaxError(); }.bind(scrollEl),
+				function() { return Wicket.$(scrollEl.id) != null; }.bind(scrollEl)
+			);
 		}
 	};
 }

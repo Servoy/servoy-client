@@ -238,11 +238,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private boolean isScrollMode;
 	private ScrollBehavior scrollBehavior;
+	private TopPlaceholderUpdater topPlaceholderUpdater;
 	private int maxRowsPerPage;
+	private boolean isScrollFirstShow = true;
 	private boolean isKeepLoadedRowsInScrollMode;
-	private int firstSelectedIndex;
-
-	private int viewType;
+	private boolean hasTopBuffer, hasBottomBuffer;
+	private int currentScrollTop;
+	private int topPhHeight;
 
 	private boolean isLeftToRightOrientation;
 	private Dimension formBodySize;
@@ -345,6 +347,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
 			{
+				// if size is changed, reset scroll
+				if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint)
+				{
+					WebCellBasedView.this.isScrollFirstShow = true;
+					WebCellBasedView.this.hasTopBuffer = false;
+					WebCellBasedView.this.hasBottomBuffer = true;
+					WebCellBasedView.this.currentScrollTop = 0;
+					WebCellBasedView.this.topPhHeight = 0;
+				}
+
 				bodyWidthHint = newBodyWidthHint;
 				bodyHeightHint = newBodyHeightHint;
 				bodySizeHintSetFromClient = true;
@@ -1345,7 +1357,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.endY = endY;
 		this.formDesignHeight = form.getSize().height;
 		this.sizeHint = sizeHint;
-		this.viewType = viewType;
 		this.isListViewMode = viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW;
 
 		this.bodyWidthHint = form.getWidth();
@@ -1787,6 +1798,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}));
 			tableContainerBody.add(new SimpleAttributeModifier("class", "rowsContainerBody"));
 			tableContainerBody.add(scrollBehavior = new ScrollBehavior("onscroll")); //$NON-NLS-1$
+			tableContainerBody.add(topPlaceholderUpdater = new TopPlaceholderUpdater());
 		}
 
 		add(new StyleAppendingModifier(new Model<String>()
@@ -2732,33 +2744,30 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 				// set headers width according to cell's width
 				setHeadersWidth();
-				firstSelectedIndex = 0;
-				if (currentData != null)
-				{
-					firstSelectedIndex = currentData.getSelectedIndex();
-				}
 
 				if (isScrollMode())
 				{
-					table.setStartIndex(0);
-					int viewSize;
-					if (isKeepLoadedRowsInScrollMode && firstSelectedIndex > maxRowsPerPage)
+					if (isScrollFirstShow)
 					{
-						viewSize = firstSelectedIndex + 2 * maxRowsPerPage;
+						table.setStartIndex(0);
+						table.setViewSize(2 * maxRowsPerPage);
+						isScrollFirstShow = false;
 					}
-					else viewSize = 2 * maxRowsPerPage;
-					table.setViewSize(viewSize);
 				}
 				else
 				{
 					table.setRowsPerPage(maxRowsPerPage);
+					int firstSelectedIndex = 0;
+					if (currentData != null)
+					{
+						firstSelectedIndex = currentData.getSelectedIndex();
+					}
+					// if rowPerPage changed & the selected was visible, switch to the page so it remain visible
+					int currentPage = table.getCurrentPage();
+					if (maxRowsPerPage != oldRowsPerPage && currentPage * oldRowsPerPage <= firstSelectedIndex &&
+						(currentPage + 1) * oldRowsPerPage > firstSelectedIndex) table.setCurrentPage(firstSelectedIndex < 1 ? 0 : firstSelectedIndex /
+						maxRowsPerPage);
 				}
-
-				// if rowPerPage changed & the selected was visible, switch to the page so it remain visible
-				int currentPage = table.getCurrentPage();
-				if (maxRowsPerPage != oldRowsPerPage && currentPage * oldRowsPerPage <= firstSelectedIndex &&
-					(currentPage + 1) * oldRowsPerPage > firstSelectedIndex) table.setCurrentPage(firstSelectedIndex < 1 ? 0 : firstSelectedIndex /
-					maxRowsPerPage);
 			}
 			pagingNavigator.setVisible(!isScrollMode() && showPageNavigator && table.getPageCount() > 1);
 		}
@@ -4771,6 +4780,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return "";
 	}
 
+	private class TopPlaceholderUpdater extends AbstractServoyDefaultAjaxBehavior
+	{
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
+		 */
+		@Override
+		protected void respond(AjaxRequestTarget target)
+		{
+			topPhHeight = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("topPh")); //$NON-NLS-1$
+		}
+	}
+
 	private class ScrollBehavior extends ServoyAjaxEventBehavior
 	{
 		private boolean isGettingRows;
@@ -4792,102 +4815,99 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			super.renderHead(response);
 			StringBuffer sb = new StringBuffer();
-			sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = "); //$NON-NLS-1$ //$NON-NLS-2$
-			if (isKeepLoadedRowsInScrollMode && (firstSelectedIndex > maxRowsPerPage))
-			{
-				sb.append(firstSelectedIndex).append(" * $('#").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append( //$NON-NLS-1$
-					"').children('tr:first').height()"); //$NON-NLS-1$
-			}
-			else
-			{
-				sb.append("0"); //$NON-NLS-1$
-			}
-			sb.append(';');
-			sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = false;"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = true;"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			sb.append("Servoy.TableView.scrollCallback['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = '").append(topPlaceholderUpdater.getCallbackUrl(true)).append("';"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			sb.append("Servoy.TableView.currentScrollTop['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = ").append(currentScrollTop).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			sb.append("Servoy.TableView.topPhHeight['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = ").append(topPhHeight).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			sb.append("Servoy.TableView.hasTopBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = ").append(hasTopBuffer).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			sb.append("Servoy.TableView.hasBottomBuffer['").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("'] = ").append(hasBottomBuffer).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			sb.append("Servoy.TableView.keepLoadedRows = " + isKeepLoadedRowsInScrollMode + ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("Servoy.TableView.scrollToTop('").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-			response.renderOnLoadJavascript(sb.toString());
 
+			response.renderOnLoadJavascript(sb.toString());
 		}
 
 		@Override
 		protected void onEvent(AjaxRequestTarget target)
 		{
+			currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
 			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
 
-			Collection<ListItem< ? >> newRows = null;
-			StringBuffer rowsBuffer = null;
-			int newRowsCount = 0, rowsToRemove = 0;
-			int viewStartIdx = table.getStartIndex();
-			int viewSize = table.getViewSize();
-			int pageViewSize = 3 * maxRowsPerPage;
-
-			if (scrollDiff > 0)
+			if (scrollDiff != 0)
 			{
-				int tableSize = table.getList().size();
+				Collection<ListItem< ? >> newRows = null;
+				StringBuffer rowsBuffer = null;
+				int newRowsCount = 0, rowsToRemove = 0;
+				int viewStartIdx = table.getStartIndex();
+				int viewSize = table.getViewSize();
+				int pageViewSize = 3 * maxRowsPerPage;
 
-				if (viewStartIdx + viewSize < tableSize)
+				if (scrollDiff > 0)
 				{
-					newRowsCount = Math.min(2 * maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
-					if (!isKeepLoadedRowsInScrollMode && viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
+					int tableSize = table.getList().size();
 
-					table.setStartIndex(viewStartIdx + rowsToRemove);
-					table.setViewSize(viewSize + newRowsCount - rowsToRemove);
-					isGettingRows = true;
-					newRows = getRows(table, viewStartIdx + viewSize, newRowsCount);
-					rowsBuffer = renderRows(getResponse(), newRows);
-					isGettingRows = false;
-				}
-			}
-			else
-			{
-				if (viewStartIdx > 0)
-				{
-					newRowsCount = Math.min(Math.max(Math.abs(scrollDiff), maxRowsPerPage), viewStartIdx);
+					if (viewStartIdx + viewSize < tableSize)
+					{
+						newRowsCount = Math.min(2 * maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
+						if (!isKeepLoadedRowsInScrollMode && viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
 
-					table.setStartIndex(viewStartIdx - newRowsCount);
-					isGettingRows = true;
-					if (newRowsCount > pageViewSize)
-					{
-						rowsToRemove = -1; // remove all
-						newRows = getRows(table, viewStartIdx - newRowsCount, viewSize);
-					}
-					else
-					{
-						if (viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
+						table.setStartIndex(viewStartIdx + rowsToRemove);
 						table.setViewSize(viewSize + newRowsCount - rowsToRemove);
-						newRows = getRows(table, viewStartIdx - newRowsCount, newRowsCount);
+						isGettingRows = true;
+						newRows = getRows(table, viewStartIdx + viewSize, newRowsCount);
+						rowsBuffer = renderRows(getResponse(), newRows);
+						isGettingRows = false;
 					}
-
-					rowsBuffer = renderRows(getResponse(), newRows);
-					isGettingRows = false;
 				}
-			}
+				else
+				{
+					if (viewStartIdx > 0)
+					{
+						newRowsCount = Math.min(Math.max(Math.abs(scrollDiff), maxRowsPerPage), viewStartIdx);
 
-			if (rowsBuffer != null)
-			{
-				boolean hasTopBuffer = table.getStartIndex() > 0;
-				boolean hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+						table.setStartIndex(viewStartIdx - newRowsCount);
+						isGettingRows = true;
+						if (newRowsCount > pageViewSize)
+						{
+							rowsToRemove = -1; // remove all
+							newRows = getRows(table, viewStartIdx - newRowsCount, viewSize);
+						}
+						else
+						{
+							if (viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
+							table.setViewSize(viewSize + newRowsCount - rowsToRemove);
+							newRows = getRows(table, viewStartIdx - newRowsCount, newRowsCount);
+						}
 
-				StringBuffer sb = new StringBuffer();
-				sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
-				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
-				sb.append(rowsBuffer.toString()).append("',"); //$NON-NLS-1$
-				sb.append(newRowsCount).append(","); //$NON-NLS-1$
-				sb.append(rowsToRemove).append(","); //$NON-NLS-1$
-				sb.append(scrollDiff).append(", "); //$NON-NLS-1$
-				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
-				sb.append(hasBottomBuffer).append(");"); //$NON-NLS-1$
+						rowsBuffer = renderRows(getResponse(), newRows);
+						isGettingRows = false;
+					}
+				}
 
-				target.appendJavascript(sb.toString());
+				if (rowsBuffer != null)
+				{
+					hasTopBuffer = table.getStartIndex() > 0;
+					hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+
+					StringBuffer sb = new StringBuffer();
+					sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
+					sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
+					sb.append(rowsBuffer.toString()).append("',"); //$NON-NLS-1$
+					sb.append(newRowsCount).append(","); //$NON-NLS-1$
+					sb.append(rowsToRemove).append(","); //$NON-NLS-1$
+					sb.append(scrollDiff).append(", "); //$NON-NLS-1$
+					sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
+					sb.append(hasBottomBuffer).append(");"); //$NON-NLS-1$
+
+					target.appendJavascript(sb.toString());
+				}
 			}
 		}
 
 		@Override
 		protected CharSequence generateCallbackScript(final CharSequence partialCall)
 		{
-			return super.generateCallbackScript(partialCall + "+'&scrollDiff='+scrollDiff"); //$NON-NLS-1$
+			return super.generateCallbackScript(partialCall + "+'&scrollDiff='+scrollDiff+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$
 		}
 
 		@Override
@@ -4911,11 +4931,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						scriptBuilder.append("');");
 					}
 
-					scriptBuilder.append("clearTimeout(Servoy.TableView.appendRowsTimer); Servoy.TableView.appendRowsTimer = setTimeout(\"var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('");
+					scriptBuilder.append(
+						"clearTimeout(Servoy.TableView.appendRowsTimer); Servoy.TableView.appendRowsTimer = setTimeout(\"var currentScrollTop = $('#").append(
+						WebCellBasedView.this.tableContainerBody.getMarkupId()).append(
+						"').scrollTop();var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('");
 					scriptBuilder.append(WebCellBasedView.this.tableContainerBody.getMarkupId());
-					scriptBuilder.append("'); if (scrollDiff != 0) { ");
+					scriptBuilder.append("');");
 					scriptBuilder.append(script);
-					scriptBuilder.append("};\", 500);");
+					scriptBuilder.append("\", 500);");
 
 					return scriptBuilder.toString();
 				}
