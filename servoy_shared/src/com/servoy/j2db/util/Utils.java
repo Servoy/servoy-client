@@ -2624,13 +2624,13 @@ public class Utils
 	 * Removes the first map entry based on a map value
 	 * 
 	 * @param name the map value to remove the map entry
-	 * @param idVars - A map from which to remove the value and key
+	 * @param map - A map from which to remove the value and key
 	 * @return
 	 */
-	public static <K, V> V mapRemoveByValue(V name, Map<K, V> idVars)
+	public static <K, V> V mapRemoveByValue(V name, Map<K, V> map)
 	{
 		K removalKey = null;
-		for (Map.Entry<K, V> entry : idVars.entrySet())
+		for (Map.Entry<K, V> entry : map.entrySet())
 		{
 			if (name.equals(entry.getValue()))
 			{
@@ -2640,7 +2640,7 @@ public class Utils
 		}
 		if (removalKey != null)
 		{
-			return idVars.remove(removalKey);
+			return map.remove(removalKey);
 		}
 		return null;
 	}

@@ -160,6 +160,43 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
+	 * Creates a new form JSVariable - based on the name of the variable object , the  type  and it's default value , uses the SolutionModel JSVariable constants.
+	 *
+	 *<p>
+	 * <b>This method does not require the form to be destroyed and recreated. Use this method if you want to change the form's model without destroying the runtime form</b>
+	 *</p>
+	 * @sample 
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * var variable = form.newVariable('myVar', JSVariable.TEXT , "'This is a default value (with triple quotes)!'");
+	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param name the specified name of the variable
+	 *
+	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
+	 * 
+	 * @param the default value as a javascript expression string
+	 * 
+	 * @return a JSVariable object
+	 */
+	@JSFunction
+	public JSVariable newVariable(String name, int type, String defaultValue)
+	{
+		checkModification();
+		try
+		{
+			ScriptVariable variable = form.createNewScriptVariable(new ScriptNameValidator(application.getFlattenedSolution()), name, type);
+			variable.setDefaultValue(defaultValue);
+			addVariableToScopes(variable);
+			return new JSVariable(application, this, variable, true);
+		}
+		catch (RepositoryException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * Removes a form JSVariable - based on the name of the variable object.
 	 *
 	 * @sample 
@@ -346,7 +383,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var button2 = form.newButton('Remove Mehtod!',200,50,120,30,removeMethod);
 	 * forms['newForm1'].controller.show();
 	 *
-	 * @param code the specified code for the new method
+	 * @param name the specified name of the method
 	 * 
 	 * @return true if method was removed successfully , false otherwise
 	 */
@@ -4615,7 +4652,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		for (FormController formController : controllers)
 		{
 			FormScope formScope = formController.getFormScope();
-			formScope.put(var);
+			formScope.put(var, true);
 		}
 	}
 

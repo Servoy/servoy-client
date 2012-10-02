@@ -2182,4 +2182,8 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public int getEncapsulation();
 
 	public void setEncapsulation(int arg);
+
+	public boolean removeVariable(String name);
+
+	public boolean removeMethod(String name);
 }

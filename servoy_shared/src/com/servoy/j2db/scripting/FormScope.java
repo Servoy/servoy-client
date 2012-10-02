@@ -377,6 +377,46 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		return null;
 	}
 
+	@Override
+	public void remove(ScriptVariable var)
+	{
+		ScriptVariable scriptVariable = var;
+		String variablesForm = ((Form)scriptVariable.getParent()).getName();
+		String currentForm = getFormController().getForm().getName();
+		//look into matched scope
+		if (variablesForm.equals(currentForm)) // method is from the current form scope, (not extended scope)
+		{
+			//replace with override parent base
+			ScriptVariable baseVariable = getOverrideParrent(scriptVariable, (Form)var.getParent());
+			super.remove(scriptVariable);
+			if (baseVariable != null) super.put(baseVariable);
+		}
+
+	}
+
+	/**
+	 *  Similar to getOverrideParrent(ScriptMethod method, Form currentForm) but for script Variables
+	 * @param var
+	 * @param currentForm
+	 * @return
+	 */
+	private ScriptVariable getOverrideParrent(ScriptVariable var, Form currentForm)
+	{
+		Form parrentForm = currentForm.getExtendsForm();
+
+		if (parrentForm != null)
+		{
+			ScriptVariable baseVariable = parrentForm.getScriptVariable(var.getName());
+			if (baseVariable == null && parrentForm.getExtendsForm() != null)
+			{
+				baseVariable = getOverrideParrent(var, parrentForm);
+			}
+
+			return baseVariable;
+		}
+		return null;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
