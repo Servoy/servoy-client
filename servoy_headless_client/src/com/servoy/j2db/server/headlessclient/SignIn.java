@@ -61,7 +61,23 @@ public class SignIn extends WebPage
 
 		// Add sign-in form to page, passing feedback panel as
 		// validation error handler
-		add(new SignInForm("signInForm"));
+		SignInForm signInForm = new SignInForm("signInForm");
+		add(signInForm);
+
+		signInForm.loadPersistentFormComponentValues();
+
+		String usr = username.getDefaultModelObjectAsString();
+		String pwd = password.getDefaultModelObjectAsString();
+		if (usr != "" && usr != null && pwd != "" && pwd != null)
+		{
+			if (signIn(usr, pwd))
+			{
+				if (!getPage().continueToOriginalDestination())
+				{
+					setResponsePage(Session.get().getPageFactory().newPage(getApplication().getHomePage(), null));
+				}
+			}
+		}
 	}
 
 	/**
@@ -109,30 +125,6 @@ public class SignIn extends WebPage
 
 			// Show remember me checkbox?
 			rememberMeRow.setVisible(includeRememberMe);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.apache.wicket.markup.html.form.Form#onBeforeRender()
-		 */
-		@Override
-		protected void onBeforeRender()
-		{
-			super.onBeforeRender();
-
-			String usr = username.getDefaultModelObjectAsString();
-			String pwd = password.getDefaultModelObjectAsString();
-			if (usr != "" && usr != null && pwd != "" && pwd != null)
-			{
-				if (signIn(usr, pwd))
-				{
-					if (!getPage().continueToOriginalDestination())
-					{
-						setResponsePage(Session.get().getPageFactory().newPage(getApplication().getHomePage(), null));
-					}
-				}
-			}
 		}
 
 		/**
