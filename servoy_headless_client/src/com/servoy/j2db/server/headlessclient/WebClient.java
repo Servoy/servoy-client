@@ -48,6 +48,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 
@@ -721,6 +722,20 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							credentials.clear();
 							getClientInfo().clearUserInfo();
 						}
+						//remove cookies
+						//TODO: make cookies remove through signIn form
+						WebRequest webRequest = ((WebRequestCycle)RequestCycle.get()).getWebRequest();
+						WebResponse webResponse = ((WebRequestCycle)RequestCycle.get()).getWebResponse();
+
+						Cookie username = webRequest.getCookie("signInForm.username");
+						username.setMaxAge(0);
+						username.setPath("/");
+						webResponse.addCookie(username);
+
+						Cookie password = webRequest.getCookie("signInForm.password");
+						password.setMaxAge(0);
+						password.setPath("/");
+						webResponse.addCookie(password);
 					}
 				});
 			}
