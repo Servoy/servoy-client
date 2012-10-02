@@ -2817,6 +2817,7 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 	{
 		maxTabIndexElemId : null,
 		minTabIndexElemId : null,
+		elementsArray : null,
 	
 		registerListeners: function (elemIdMinTabIndex, elemIdMaxTabIndex)
 		{
@@ -2870,8 +2871,63 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 					element.tabIndex = newIndex[1];
 				}
 			}
+		},
+		
+		forceTabbingSequence: function (indexEntries)
+		{
+			Servoy.TabCycleHandling.elementsArray = new Array();
+			for (var i=0; i < indexEntries.length; i++)
+			{
+				var element = document.getElementById(indexEntries[i]);
+				if (element)
+				{
+					Servoy.TabCycleHandling.elementsArray[i] = indexEntries[i];
+					Wicket.Event.add(element,"keydown",Servoy.TabCycleHandling.nextElementTabHandler);
+				}
+			}
+		},
+		
+		nextElementTabHandler: function (event)
+		{
+			event = Wicket.fixEvent(event);
+			if (event.keyCode == 9)
+			{
+				var elem = null;
+				if (event.srcElement) elem = event.srcElement;
+				else if (event.target) elem = event.target;
+
+				if (elem)
+				{
+					var nextIndex = -1;
+					for (var i=0; i < Servoy.TabCycleHandling.elementsArray.length; i++)
+					{
+						var aux = document.getElementById(Servoy.TabCycleHandling.elementsArray[i]);
+						if (elem == aux)
+						{
+							if (event.shiftKey == false)
+							{
+								if (i == Servoy.TabCycleHandling.elementsArray.length-1) nextIndex = 0;
+								else nextIndex = i+1;
+							}
+							else
+							{
+								if (i == 0) nextIndex = Servoy.TabCycleHandling.elementsArray.length-1;
+								else nextIndex = i-1;
+							}
+							break;
+						}
+					}
+
+					if (nextIndex != -1)
+					{
+						window.setTimeout(function() {
+							requestFocus(Servoy.TabCycleHandling.elementsArray[nextIndex]);
+						},1);
+						return true;
+					}
+				}
+			}
+			return false;
 		}
-		
-		
 	};
 }

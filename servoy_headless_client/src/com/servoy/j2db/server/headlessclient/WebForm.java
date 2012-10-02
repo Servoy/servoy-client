@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.WeakHashMap;
 
 import javax.print.Doc;
@@ -1870,7 +1871,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			headercontainer.getHeaderResponse().renderJavascript(cssRef, null);
 		}
 
-
 		if (isFormInWindow())
 		{
 			List<Component> componentz = getTabSeqComponents();
@@ -1895,9 +1895,43 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			if (minTabIndexElemId != null && maxTabIndexElemId != null)
 			{
 				headercontainer.getHeaderResponse().renderOnLoadJavascript(
-					"Servoy.TabCycleHandling.registerListeners('" + minTabIndexElemId + "','" + maxTabIndexElemId + "');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					"Servoy.TabCycleHandling.registerListeners('" + minTabIndexElemId + "','" + maxTabIndexElemId + "');");
 			}
 		}
+
+		if (isFormInFormPopup())
+		{
+			TreeMap<String, String> tm = new TreeMap<String, String>();
+			for (Component c : getTabSeqComponents())
+			{
+				tm.put(String.valueOf(TabIndexHelper.getTabIndex(c)), c.getMarkupId());
+			}
+			StringBuffer stringBuffer = new StringBuffer();
+			stringBuffer.append("Servoy.TabCycleHandling.forceTabbingSequence([");
+			for (Map.Entry<String, String> entry : tm.entrySet())
+			{
+				stringBuffer.append("'" + entry.getValue() + "',");
+			}
+			stringBuffer.deleteCharAt(stringBuffer.length() - 1);
+			stringBuffer.append("]);");
+			headercontainer.getHeaderResponse().renderOnLoadJavascript(stringBuffer.toString());
+		}
+	}
+
+	private boolean isFormInFormPopup()
+	{
+		MainPage mp = getMainPage();
+		Object parent = getParent();
+		if (mp != null)
+		{
+			IPageContributor pageContributor = mp.getPageContributor();
+			// we are showing this form in something that is outside of Servoy 
+			if (pageContributor != null && pageContributor.getRepeatingView() != null && (parent != null && parent instanceof Panel))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean isDesignMode()
