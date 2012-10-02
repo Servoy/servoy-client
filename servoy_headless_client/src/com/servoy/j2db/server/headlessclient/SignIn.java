@@ -111,6 +111,30 @@ public class SignIn extends WebPage
 			rememberMeRow.setVisible(includeRememberMe);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.markup.html.form.Form#onBeforeRender()
+		 */
+		@Override
+		protected void onBeforeRender()
+		{
+			super.onBeforeRender();
+
+			String usr = username.getDefaultModelObjectAsString();
+			String pwd = password.getDefaultModelObjectAsString();
+			if (usr != "" && usr != null && pwd != "" && pwd != null)
+			{
+				if (signIn(usr, pwd))
+				{
+					if (!getPage().continueToOriginalDestination())
+					{
+						setResponsePage(Session.get().getPageFactory().newPage(getApplication().getHomePage(), null));
+					}
+				}
+			}
+		}
+
 		/**
 		 * @see wicket.markup.html.form.Form#onSubmit()
 		 */
@@ -120,7 +144,7 @@ public class SignIn extends WebPage
 			if (signIn(username.getDefaultModelObjectAsString(), password.getDefaultModelObjectAsString()))
 			{
 				// If login has been called because the user was not yet
-				// logged in, than continue to the original destination,
+				// logged in, then continue to the original destination,
 				// otherwise to the Home page
 				if (!getPage().continueToOriginalDestination())
 				{
