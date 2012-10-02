@@ -746,9 +746,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						WebResponse webResponse = ((WebRequestCycle)RequestCycle.get()).getWebResponse();
 
 						Cookie password = webRequest.getCookie("signInForm.password");
-						password.setMaxAge(0);
-						password.setPath("/");
-						webResponse.addCookie(password);
+						if (password != null)
+						{
+							password.setMaxAge(0);
+							password.setPath("/");
+							webResponse.addCookie(password);
+						}
 					}
 				});
 			}
