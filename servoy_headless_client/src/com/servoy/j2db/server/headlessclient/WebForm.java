@@ -1920,18 +1920,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	private boolean isFormInFormPopup()
 	{
-		MainPage mp = getMainPage();
-		Object parent = getParent();
-		if (mp != null)
-		{
-			IPageContributor pageContributor = mp.getPageContributor();
-			// we are showing this form in something that is outside of Servoy 
-			if (pageContributor != null && pageContributor.getRepeatingView() != null && (parent != null && parent instanceof Panel))
-			{
-				return true;
-			}
-		}
-		return false;
+		return findParent(IRepeatingView.class) != null;
 	}
 
 	public boolean isDesignMode()
