@@ -724,15 +724,18 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						}
 						//remove cookies
 						//TODO: make cookies remove through signIn form
-						WebRequest webRequest = ((WebRequestCycle)RequestCycle.get()).getWebRequest();
-						WebResponse webResponse = ((WebRequestCycle)RequestCycle.get()).getWebResponse();
-
-						Cookie password = webRequest.getCookie("signInForm.password");
-						if (password != null)
+						if (RequestCycle.get() != null)
 						{
-							password.setMaxAge(0);
-							password.setPath("/");
-							webResponse.addCookie(password);
+							WebRequest webRequest = ((WebRequestCycle)RequestCycle.get()).getWebRequest();
+							WebResponse webResponse = ((WebRequestCycle)RequestCycle.get()).getWebResponse();
+
+							Cookie password = webRequest.getCookie("signInForm.password");
+							if (password != null)
+							{
+								password.setMaxAge(0);
+								password.setPath("/");
+								webResponse.addCookie(password);
+							}
 						}
 					}
 				});
