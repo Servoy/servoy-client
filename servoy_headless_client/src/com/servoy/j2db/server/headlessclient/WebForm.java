@@ -96,6 +96,7 @@ import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.printing.FormPreviewPanel;
 import com.servoy.j2db.printing.PageList;
 import com.servoy.j2db.printing.PrintPreview;
@@ -892,6 +893,12 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		enableChanged = Boolean.TRUE;
 		setEnabled(enabled);
 		visitChildren(WebForm.class, new WicketCompVisitorMarker2(enabled));
+		//if form is in a tabpanel, mark parent tabpanel as changed
+		MarkupContainer parent = getParent();
+		if (parent instanceof WebTabPanel && (((WebTabPanel)parent).getOrient() == TabPanel.DEFAULT))
+		{
+			((WebTabPanel)getParent()).getStylePropertyChanges().setChanged();
+		}
 	}
 
 	/**
@@ -1814,7 +1821,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		enableChanged = Boolean.FALSE;
 		if (previousParent != getParent())
 		{
 			formWidth = 0;
@@ -1832,6 +1838,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	{
 		super.onRender(markupStream);
 		uiRecreated = false;
+		enableChanged = Boolean.FALSE;
 	}
 
 	long lastModifiedTime = 0;
