@@ -2875,6 +2875,10 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		
 		forceTabbingSequence: function (indexEntries)
 		{
+			var dummyElem = document.createElement("div");
+			dummyElem.innerHTML='<a href="javascript: void(0)" stye="z-index: 1000000;"></a>';
+			document.body.appendChild(dummyElem);
+			
 			Servoy.TabCycleHandling.elementsArray = new Array();
 			for (var i=0; i < indexEntries.length; i++)
 			{
