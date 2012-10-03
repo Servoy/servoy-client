@@ -139,8 +139,11 @@ public class UninstallDependencyResolver extends AbstractResolver
 			uninstallStep = new InstallStep(InstallStep.UNINSTALL, new ExtensionNode(extension.id, null, extension.version));
 			visitedExtensions.add(extension.id);
 
-			addToLibsMap(extension.id, extension.version, extension.getLibDependencies(), uninstalledLibs, false);
-			removeFromLibsMap(extension.id, extension.getLibDependencies(), allInstalledLibs);
+			if (extension.getLibDependencies() != null)
+			{
+				addToLibsMap(extension.id, extension.version, extension.getLibDependencies(), uninstalledLibs, true);
+				removeFromLibsMap(extension.id, extension.getLibDependencies(), allInstalledLibs);
+			}
 
 			// find out who depends on the extension to be uninstalled
 			for (DependencyMetadata dmd : installedExtensions)
