@@ -27,6 +27,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
@@ -39,6 +40,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner, jblok
@@ -251,7 +253,18 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
 
-		Object object = super.get(name, start);
+		Object object = null;
+		//not found in current scope look into extended scopes
+		object = super.get(name, start);
+		//search extended scopes for the method
+		if ((object == null || object == Scriptable.NOT_FOUND))
+		{
+			for (LazyCompilationScope scope : extendScopes)
+			{
+				if ((object = ((ExtendsScope)scope).getExtended(name, start)) != null) break;
+			}
+		}
+
 		if ((object == null || object == Scriptable.NOT_FOUND) && ("foundset".equals(name) || "elements".equals(name)))
 		{
 			Debug.error(
@@ -303,6 +316,17 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		}
 
 		/**
+		 * Used by FormScope.get(name,start) to search for methods in extended scope if id didn't find the method in the current scope
+		 * @param name
+		 * @param start
+		 * @return
+		 */
+		public Object getExtended(String name, Scriptable start)
+		{
+			return super.get(name, start);
+		}
+
+		/**
 		 * @see com.servoy.j2db.scripting.LazyCompilationScope#getFunctionSuper(com.servoy.j2db.persistence.IScriptProvider)
 		 */
 		@Override
@@ -326,29 +350,20 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	public void remove(ScriptMethod method)
 	{
 		ScriptMethod scriptMethod = method;
-		String methodsForm = ((Form)scriptMethod.getParent()).getName();
-		String currentForm = getFormController().getForm().getName();
-		//look into current scope
-		if (methodsForm.equals(currentForm)) // method is from the current form scope, (not extended scope)
+		Object o = null;
+
+		ScriptMethod baseMethod = getOverrideParent(scriptMethod, (Form)method.getParent());
+		super.remove(scriptMethod);
+
+		//look into extended scope and replace with it's base method
+		for (LazyCompilationScope scope : extendScopes)
 		{
-			//replace with override parent base
-			ScriptMethod baseMethod = getOverrideParrent(scriptMethod, (Form)method.getParent());
-			super.remove(scriptMethod);
-			if (baseMethod != null) super.put(baseMethod, baseMethod);
-		}
-		else
-		{//look into extended scope
-			for (LazyCompilationScope scope : extendScopes)
+			scriptMethod = scope.getScriptLookup().getScriptMethod(method.getID());
+			if (scriptMethod != null)
 			{
-				scriptMethod = scope.getScriptLookup().getScriptMethod(method.getID());
-				if (scriptMethod != null)
-				{
-					//replace with override parent base
-					ScriptMethod baseMethod = getOverrideParrent(scriptMethod, (Form)method.getParent());
-					scope.remove(scriptMethod);
-					if (baseMethod != null) scope.put(baseMethod, baseMethod);
-					break;
-				}
+				//replace with override parent base
+				o = scope.remove(scriptMethod);
+				if (baseMethod != null && o != null) scope.put(baseMethod, baseMethod);
 			}
 		}
 	}
@@ -359,7 +374,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	 *  @param currentForm starting point from where to search
 	 *  @param method  method for which to search 
 	 */
-	private ScriptMethod getOverrideParrent(ScriptMethod method, Form currentForm)
+	private ScriptMethod getOverrideParent(ScriptMethod method, Form currentForm)
 	{
 		Form parrentForm = currentForm.getExtendsForm();
 
@@ -369,7 +384,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			if ((baseMethod == null && parrentForm.getExtendsForm() != null) ||
 			/**/(baseMethod != null && parrentForm.getExtendsForm() != null && baseMethod.isPrivate()))
 			{
-				baseMethod = getOverrideParrent(method, parrentForm);
+				baseMethod = getOverrideParent(method, parrentForm);
 			}
 
 			return baseMethod;
@@ -384,12 +399,39 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		String variablesForm = ((Form)scriptVariable.getParent()).getName();
 		String currentForm = getFormController().getForm().getName();
 		//look into matched scope
-		if (variablesForm.equals(currentForm)) // method is from the current form scope, (not extended scope)
+		if (variablesForm.equals(currentForm))
 		{
 			//replace with override parent base
-			ScriptVariable baseVariable = getOverrideParrent(scriptVariable, (Form)var.getParent());
+			ScriptVariable baseVariable = getOverrideParent(scriptVariable, (Form)var.getParent());
 			super.remove(scriptVariable);
-			if (baseVariable != null) super.put(baseVariable);
+			if (baseVariable != null)
+			{
+				super.put(baseVariable);
+			}
+		}
+		else
+		{
+			ScriptVariable baseVariable = getOverrideParent(scriptVariable, (Form)var.getParent());
+			if (baseVariable == null)
+			{
+				Iterator<ScriptVariable> it = getScriptLookup().getScriptVariables(false);
+
+				if (!it.hasNext())
+				{ //current form does not redefine ("override") the variable  -> remove it since it has no inherited var
+					super.remove(scriptVariable);
+				}
+				else
+				{ //look into the current form variable's 
+					boolean foundInVars = false;
+					for (ScriptVariable loopVar : Utils.iterate(getScriptLookup().getScriptVariables(false)))
+					{
+						if (loopVar.getName().equals(var.getName())) foundInVars = true;
+					}
+					if (!foundInVars) super.remove(scriptVariable);
+				}
+
+
+			}
 		}
 
 	}
@@ -400,7 +442,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	 * @param currentForm
 	 * @return
 	 */
-	private ScriptVariable getOverrideParrent(ScriptVariable var, Form currentForm)
+	private ScriptVariable getOverrideParent(ScriptVariable var, Form currentForm)
 	{
 		Form parrentForm = currentForm.getExtendsForm();
 
@@ -409,7 +451,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			ScriptVariable baseVariable = parrentForm.getScriptVariable(var.getName());
 			if (baseVariable == null && parrentForm.getExtendsForm() != null)
 			{
-				baseVariable = getOverrideParrent(var, parrentForm);
+				baseVariable = getOverrideParent(var, parrentForm);
 			}
 
 			return baseVariable;
@@ -430,6 +472,22 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			throw new RuntimeException("Setting of foundset object is not possible on form: " + _fp.getName()); //$NON-NLS-1$
 		}
 		super.put(name, arg1, value);
+	}
+
+	/**
+	 * @param oldform
+	 * @param form
+	 */
+	public void updateProviderswithCopy(Form originalForm, Form copyForm)
+	{
+		RuntimeSupportScriptProviders thisScope = (RuntimeSupportScriptProviders)getScriptLookup();
+		thisScope.updateProviderwithCopy(originalForm, copyForm);
+		for (LazyCompilationScope scope : extendScopes)
+		{
+			RuntimeSupportScriptProviders runtimeScriptProvider = (RuntimeSupportScriptProviders)scope.getScriptLookup();
+			runtimeScriptProvider.updateProviderwithCopy(originalForm, copyForm);
+		}
+
 	}
 
 

@@ -160,6 +160,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			return application.getFlattenedSolution().getFlattenedForm(form, true).getScriptMethod(methodId);
 		}
+
+		/**
+		 * When a JSform changed it first creates a copy before changing . It then uses that copy throughout it's life for any new modifications
+		 * This method is used for updating the scriptLookup with the correct copy .
+		 * For example calling getScriptVariables will return the correct variable list.
+		 */
+		public void updateProviderwithCopy(Form originalForm, Form copyForm)
+		{
+			if (this.form.getName().equals(originalForm.getName())) this.form = copyForm;
+		}
+
 	}
 
 	//Place holder class for the JavaScript FromController obj, all javascript calls must be delegated to the FormController

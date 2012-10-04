@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaArray;
@@ -281,11 +283,42 @@ public abstract class DefaultScope implements Scriptable
 		this.prototype = null;
 	}
 
-
+	/**
+	 *  Method used to remove a method or a variable from the {@link FormScope}
+	 * @param name
+	 */
 	public void remove(String name)
 	{
-		Utils.mapRemoveByValue(name, allIndex);
-		allVars.remove(name);
+		boolean found = false;
+		Object o = allVars.remove(name);
+		if (o != null)
+		{
+			Iterator<Entry<Integer, Object>> it = allIndex.entrySet().iterator();
+			while (it.hasNext())
+			{
+				Map.Entry<Integer, Object> entry = it.next();
+				if (entry.getValue().equals(name))
+				{
+					Integer key = entry.getKey();
+					allIndex.remove(key);
+					Integer nextKey = new Integer(key.intValue() + 1);
+					o = allIndex.remove(nextKey);
+					while (o != null)
+					{
+						allIndex.put(key, o);
+						key = nextKey;
+						nextKey = new Integer(key.intValue() + 1);
+						o = allIndex.remove(nextKey);
+					}
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				Utils.mapRemoveByValue(name, allIndex);
+			}
+		}
 	}
 
 }

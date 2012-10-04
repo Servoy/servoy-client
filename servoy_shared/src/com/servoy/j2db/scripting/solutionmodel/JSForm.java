@@ -96,6 +96,15 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			form = application.getFlattenedSolution().createPersistCopy(form);
 			((FormManager)application.getFormManager()).addForm(form, false);
 
+			//forms scope still uses the old copy of Script Providers
+			Form oldform = form;
+			List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
+			for (FormController formController : controllers)
+			{
+				FormScope formScope = formController.getFormScope();
+				formScope.updateProviderswithCopy(oldform, form);
+			}
+
 			isCopy = true;
 		}
 		form.setLastModified(System.currentTimeMillis());
@@ -129,13 +138,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	/**
 	 * Creates a new form JSVariable - based on the name of the variable object and the number type, uses the SolutionModel JSVariable constants.
 	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
-	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
-	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
-	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
+	 * @sampleas newVariable(String,int,String)
 	 *
 	 * @param name the specified name of the variable
 	 *
@@ -146,17 +149,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	@JSFunction
 	public JSVariable newVariable(String name, int type)
 	{
-		checkModification();
-		try
-		{
-			ScriptVariable variable = form.createNewScriptVariable(new ScriptNameValidator(application.getFlattenedSolution()), name, type);
-			addVariableToScopes(variable);
-			return new JSVariable(application, this, variable, true);
-		}
-		catch (RepositoryException e)
-		{
-			throw new RuntimeException(e);
-		}
+		return newVariable(name, type, null);
 	}
 
 	/**
@@ -168,6 +161,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT , "'This is a default value (with triple quotes)!'");
+	 * //or variable = form.newVariable('myVar', JSVariable.TEXT)
+	 * //variable.defaultValue = "'This is a default value (with triple quotes)!'" // setting the default value after the variable is created requires form recreation
+	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"   
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 *
@@ -175,7 +171,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 *
 	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
 	 * 
-	 * @param the default value as a javascript expression string
+	 * @param defaultValue the default value as a javascript expression string
 	 * 
 	 * @return a JSVariable object
 	 */
@@ -394,7 +390,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		checkModification();
 		ScriptMethod method = form.getScriptMethod(name);
 		if (method != null)
-		{
+		{ // first remove from scopes , then remove from model copy - !important
 			removeMethodFromScopes(method);
 			form.removeChild(method);
 			return true;

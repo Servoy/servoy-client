@@ -135,7 +135,10 @@ public class ScriptVariableScope extends LazyCompilationScope
 				initValue = evalValue(name, str, sourceName, var.getLineNumberOffset());
 			}
 			putWithoutFireChange(name, initValue);
-			allIndex.put(new Integer(allIndex.size()), name);
+			if (Utils.mapGetKeyByValue(allIndex, name) == null)
+			{//insert "inded-> name" only if "index -> name" isn't already present  (case of form inheritance)
+				allIndex.put(new Integer(allIndex.size()), name);
+			}
 		}
 	}
 

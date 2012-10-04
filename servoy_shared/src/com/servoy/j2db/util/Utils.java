@@ -65,6 +65,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -2644,4 +2645,24 @@ public class Utils
 		}
 		return null;
 	}
+
+	/**
+	 * Returns the first Key of a map based on the value parameter
+	 *  
+	 * @param map
+	 * @param value
+	 * @return
+	 */
+	public static <K, V> K mapGetKeyByValue(Map<K, V> map, V value)
+	{
+		for (Entry<K, V> entry : map.entrySet())
+		{
+			if (value.equals(entry.getValue()))
+			{
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+
 }

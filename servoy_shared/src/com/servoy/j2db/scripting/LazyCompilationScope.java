@@ -32,6 +32,7 @@ import org.mozilla.javascript.debug.IDebuggerWithWatchPoints;
 
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -104,7 +105,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		{
 			return;
 		}
-		remove(sm);
+		remove(sm.getName());
 		allVars.put(sm.getDataProviderID(), function);
 		idVars.put(new Integer(sm.getID()), sm.getDataProviderID());
 	}
@@ -115,11 +116,8 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		if (sName != null)
 		{
 			Object o = allVars.remove(sName);
-			return o instanceof Function ? (Function)o : null;
-		}
-		else
-		{
-			remove(sm.getName());
+			// Script method may be either  a interpreted rhino Function  or a (yet to be interpreted ScriptMethod)
+			return (o instanceof Function || o instanceof ScriptMethod) ? o : null;
 		}
 		return null;
 	}
@@ -272,7 +270,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	public void remove(String name)
 	{
 		Utils.mapRemoveByValue(name, idVars);
-		allVars.remove(name);
 		super.remove(name);
 	}
 

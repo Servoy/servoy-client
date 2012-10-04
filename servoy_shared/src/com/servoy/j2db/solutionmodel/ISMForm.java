@@ -190,23 +190,42 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 
 
 	/**
-	 * Creates a new form ISMVariable - based on the name of the variable object and the number type, uses the SolutionModel ISMVariable constants.
+	 * Creates a new form JSVariable - based on the name of the variable object and the number type, uses the SolutionModel JSVariable constants.
 	 *
+	 * @sampleas newVariable(String,int,String)
+	 *
+	 * @param name the specified name of the variable
+	 *
+	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
+	 * 
+	 * @return a JSVariable object
+	 */
+	public ISMVariable newVariable(String name, int type);
+
+	/**
+	 * Creates a new form JSVariable - based on the name of the variable object , the  type  and it's default value , uses the SolutionModel JSVariable constants.
+	 *
+	 *<p>
+	 * <b>This method does not require the form to be destroyed and recreated. Use this method if you want to change the form's model without destroying the runtime form</b>
+	 *</p>
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var variable = form.newVariable('myVar', ISMVariable.TEXT);
-	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
-	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
-	 * var field = form.newField(variable, ISMField.TEXT_FIELD, 100, 100, 200, 200);
+	 * var variable = form.newVariable('myVar', JSVariable.TEXT , "'This is a default value (with triple quotes)!'");
+	 * //or variable = form.newVariable('myVar', JSVariable.TEXT)
+	 * //variable.defaultValue = "'This is a default value (with triple quotes)!'" // setting the default value after the variable is created requires form recreation
+	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"   
+	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 *
 	 * @param name the specified name of the variable
 	 *
-	 * @param type the specified type of the variable (see Solution Model -> ISMVariable node constants)
+	 * @param type the specified type of the variable (see Solution Model -> JSVariable node constants)
 	 * 
-	 * @return a ISMVariable object
+	 * @param defaultValue the default value as a javascript expression string
+	 * 
+	 * @return a JSVariable object
 	 */
-	public ISMVariable newVariable(String name, int type);
+	public ISMVariable newVariable(String name, int type, String defaultValue);
 
 	/**
 	 * Gets an existing form variable for the given name.
@@ -2183,7 +2202,44 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 
 	public void setEncapsulation(int arg);
 
+	/**
+	 * Removes a form JSVariable - based on the name of the variable object.
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
+	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
+	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
+	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
+	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
+	 * forms['newForm1'].controller.show();
+	 *
+	 * variable = form.removeVariable('myVar');
+	 * application.sleep(4000);
+	 * forms['newForm1'].controller.recreateUI();
+	 *
+	 * @param name the specified name of the variable
+	 * 
+	 * @return true if removed, false otherwise (ex: no var with that name)
+	 */
 	public boolean removeVariable(String name);
 
+	/**
+	 * Removes a  form JSMethod - based on the specified code. 
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
+	 * var hello = form.newMethod('function aMethod(event){application.output("Hello world!");}');
+	 * var removeMethod = form.newMethod('function removeMethod(event){ \
+	 *									solutionModel.getForm(event.getFormName()).removeMethod("aMethod"); \
+	 *									forms[event.getFormName()].controller.recreateUI();\
+	 *									}');
+	 * var button1 = form.newButton('Call method!',50,50,120,30,hello);
+	 * var button2 = form.newButton('Remove Mehtod!',200,50,120,30,removeMethod);
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param name the specified name of the method
+	 * 
+	 * @return true if method was removed successfully , false otherwise
+	 */
 	public boolean removeMethod(String name);
 }
