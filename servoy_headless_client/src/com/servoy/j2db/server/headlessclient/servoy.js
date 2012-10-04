@@ -2826,7 +2826,7 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
 			
 			var dummyElem = document.createElement("div");
-			dummyElem.innerHTML='<a href="javascript: void(0)" stye="z-index: 1000000;"></a>';
+			dummyElem.innerHTML='<a href="javascript: void(0)"></a>';
 			document.body.appendChild(dummyElem);
 			
 			Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
@@ -2876,7 +2876,7 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		forceTabbingSequence: function (indexEntries)
 		{
 			var dummyElem = document.createElement("div");
-			dummyElem.innerHTML='<a href="javascript: void(0)" stye="z-index: 1000000;"></a>';
+			dummyElem.innerHTML='<a href="javascript: void(0)"></a>';
 			document.body.appendChild(dummyElem);
 			
 			Servoy.TabCycleHandling.elementsArray = new Array();
