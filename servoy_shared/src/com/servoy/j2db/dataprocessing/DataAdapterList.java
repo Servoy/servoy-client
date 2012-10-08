@@ -352,6 +352,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public void setRecord(IRecordInternal state, boolean stopAnyEdit)
 	{
+		if (destroyed)
+		{
+			Debug.error("calling setRecord on a destroyed DataAdapterList, formcontroller: " + formController + ", currentRecord: " + currentRecord,
+				new RuntimeException());
+			return;
+		}
 		if (undoManager != null) undoManager.setIgnoreEdits(true);
 
 		if (currentRecord != null)

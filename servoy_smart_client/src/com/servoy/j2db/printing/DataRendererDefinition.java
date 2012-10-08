@@ -791,32 +791,37 @@ public class DataRendererDefinition implements Cloneable //cloneable for page bo
 		}
 	}
 
-	private int searchDesiredBreakThroughViews(int pos, int returnValue, JTextComponent tcomp, int parentY, Rectangle allocation)
+	private int searchDesiredBreakThroughViews(final int pos, int returnValue, final JTextComponent tcomp, int parentY, Rectangle allocation)
 	{
 		// see if last kid view passes the desired break position or not (if not, then the desired position is fine)
-		boolean viewsPassDesiredBreak;
+		final boolean[] viewsPassDesiredBreak = new boolean[1];
 
-		try
+		application.invokeAndWait(new Runnable()
 		{
-			Rectangle r = null;
-			int lastPosition = tcomp.getDocument().getLength() - 1;
-			if (lastPosition >= 0)
+			public void run()
 			{
-				r = tcomp.modelToView(tcomp.getDocument().getLength() - 1);
+				Rectangle r = null;
+				int lastPosition = tcomp.getDocument().getLength() - 1;
+				if (lastPosition >= 0)
+				{
+					try
+					{
+						r = tcomp.modelToView(tcomp.getDocument().getLength() - 1);
+					}
+					catch (BadLocationException e)
+					{
+						viewsPassDesiredBreak[0] = true;
+					}
+				}
+				else
+				{
+					r = new Rectangle(0, 0, 0, 0);
+				}
+				viewsPassDesiredBreak[0] = (r.y + r.height >= pos);
 			}
-			else
-			{
-				r = new Rectangle(0, 0, 0, 0);
-			}
+		});
 
-			viewsPassDesiredBreak = (r.y + r.height >= pos);
-		}
-		catch (BadLocationException e)
-		{
-			viewsPassDesiredBreak = true;
-		}
-
-		if (viewsPassDesiredBreak)
+		if (viewsPassDesiredBreak[0])
 		{
 			return walkView(pos, returnValue, tcomp.getUI().getRootView(tcomp), parentY, allocation);
 		}
