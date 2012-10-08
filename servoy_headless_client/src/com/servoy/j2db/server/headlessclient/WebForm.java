@@ -895,9 +895,19 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		visitChildren(WebForm.class, new WicketCompVisitorMarker2(enabled));
 		//if form is in a tabpanel, mark parent tabpanel as changed
 		MarkupContainer parent = getParent();
-		if (parent instanceof WebTabPanel && (((WebTabPanel)parent).getOrient() == TabPanel.DEFAULT))
+		if (parent instanceof WebTabPanel && ((WebTabPanel)parent).getOrient() != TabPanel.HIDE &&
+			((WebTabPanel)parent).getOrient() != TabPanel.SPLIT_HORIZONTAL && ((WebTabPanel)parent).getOrient() != TabPanel.SPLIT_VERTICAL)
 		{
 			((WebTabPanel)getParent()).getStylePropertyChanges().setChanged();
+		}
+		else
+		{
+			//check if form is in an accordeon panel
+			WebAccordionPanel accPanel = findParent(WebAccordionPanel.class);
+			if (accPanel != null)
+			{
+				accPanel.getStylePropertyChanges().setChanged();
+			}
 		}
 	}
 
