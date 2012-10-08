@@ -1009,10 +1009,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 						}
 						else
 						{
-							// cancel an async load that could have been done the previous time
-							enclosedComponent.cancelASyncLoad();
-							// always just create a new document, asyn load will also do that.
-							enclosedComponent.setDocument(editorKit.createDefaultDocument());
+							cancelLoadAndClearDocument();
 							enclosedComponent.putClientProperty(FixedJEditorPane.CHARSET_DIRECTIVE, "UTF-8");
 							enclosedComponent.getDocument().putProperty("IgnoreCharsetDirective", new Boolean(true));
 							StringReader sr = new StringReader(svalue);
@@ -1021,10 +1018,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 					}
 					else
 					{
-						// cancel an async load that could have been done the previous time
-						enclosedComponent.cancelASyncLoad();
-						// always just create a new document, asyn load will also do that.
-						enclosedComponent.setDocument(editorKit.createDefaultDocument());
+						cancelLoadAndClearDocument();
 						enclosedComponent.getDocument().insertString(0, svalue, null);
 					}
 					if (selStart <= enclosedComponent.getDocument().getLength() && selEnd <= enclosedComponent.getDocument().getLength()) enclosedComponent.select(
@@ -1033,7 +1027,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 				}
 				else
 				{
-					enclosedComponent.setText("");
+					cancelLoadAndClearDocument();
 				}
 
 				if (enclosedComponent.getWidth() == 0)
@@ -1053,6 +1047,14 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
 
+	}
+
+	private void cancelLoadAndClearDocument()
+	{
+		// cancel an async load that could have been done the previous time
+		enclosedComponent.cancelASyncLoad();
+		// always just create a new document, asyn load will also do that.
+		enclosedComponent.setDocument(editorKit.createDefaultDocument());
 	}
 
 	public boolean needEntireState()
