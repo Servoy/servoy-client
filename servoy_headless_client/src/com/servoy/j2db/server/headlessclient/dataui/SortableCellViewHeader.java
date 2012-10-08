@@ -328,9 +328,6 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		inlineStyleStr = view.getHeaderBgImageStyle();
 		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
 
-		inlineStyleStr = view.getHeaderMarginStyle();
-		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
-
 		ChangesRecorder textChangesRecorder = new ChangesRecorder();
 		textChangesRecorder.setFont(view.getHeaderFont());
 		inlineStyleStr = view.getHeaderFgColorStyle();
