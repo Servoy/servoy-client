@@ -737,12 +737,15 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return true;
 	}
 
+	private String[] startupArguments;
+
 	@SuppressWarnings("nls")
 	protected void startupApplication(String[] args)
 	{
 		try
 		{
 			logStartUp();
+			startupArguments = args;
 			handleArguments(args);
 
 			// set some props 
@@ -3947,7 +3950,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 								Debug.trace("Setting disconnect dialog to false.");
 							}
 							disconnectDialog.setVisible(false);
-							closeSolution(true, null);
+							closeSolution(true, startupArguments);
 							// logout to make sure the login solution is reloaded in case the main solution needs state from the login solution
 							logout(null);
 						}
