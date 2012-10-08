@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
+import javax.swing.text.html.CSS;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
@@ -286,6 +287,30 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		headerColumnTable.add(labelResolver = new LabelResolverLink("sortLink", useAJAX, group, id)); //$NON-NLS-1$
 		labelResolver.add(new AttributeModifier("class", true, group)); //$NON-NLS-1$
 
+		// append background image in case of labelFor for the current label (goes through all labelFor components in the map to get the component by name )
+		Iterator<IPersist> iterator = cellview.getAllObjects();
+		while (iterator.hasNext())
+		{
+			IStyleRule cssRule = null;
+			IPersist element = iterator.next();
+			if (id.equals(ComponentFactory.getWebID(form, element)))
+			{
+				GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
+				if (gc != null)
+				{
+					Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(application, gc, form);
+					cssRule = pair.getRight() == null ? null : pair.getRight();
+					if (cssRule != null)
+					{
+						TextualStyle headerStyle = new TextualStyle();
+						headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString()));
+						add(new StyleAppendingModifier(new Model<String>(headerStyle.toString())));
+					}
+				}
+			}
+		}
+
+
 		ChangesRecorder changesRecorder = new ChangesRecorder();
 		changesRecorder.setBorder(view.getHeaderBorder());
 		String inlineStyleStr = view.getHeaderBgColorStyle();
@@ -301,6 +326,9 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
 
 		inlineStyleStr = view.getHeaderBgImageStyle();
+		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
+
+		inlineStyleStr = view.getHeaderMarginStyle();
 		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
 
 		ChangesRecorder textChangesRecorder = new ChangesRecorder();
