@@ -131,7 +131,7 @@ public class SolutionLoader extends WebPage
 						}
 						if (!authorized)
 						{
-							((WebResponse)RequestCycle.get().getResponse()).getHttpServletResponse().setHeader("WWW-Authenticate", "Basic realm=\"config\""); //$NON-NLS-1$ //$NON-NLS-2$
+							((WebResponse)RequestCycle.get().getResponse()).getHttpServletResponse().setHeader("WWW-Authenticate", "Basic realm=\"webclient\""); //$NON-NLS-1$ //$NON-NLS-2$
 							throw new AbortWithWebErrorCodeException(401);
 						}
 					}
