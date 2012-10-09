@@ -430,7 +430,7 @@ public class BufferedDataSet implements IDataSet
 		if (columnNames != null && columnNames.length > 0)
 		{
 			sb.append('{');
-			sb.append("Columnnames"); //$NON-NLS-1$
+			sb.append("Columnnames "); //$NON-NLS-1$
 			sb.append(Arrays.toString(columnNames));
 			sb.append("} "); //$NON-NLS-1$
 		}
@@ -439,6 +439,7 @@ public class BufferedDataSet implements IDataSet
 		{
 			sb.append("\nrow_"); //$NON-NLS-1$
 			sb.append(i + 1);
+			sb.append('=');
 			sb.append(Arrays.toString(getRow(i)));
 			sb.append(' ');
 		}
