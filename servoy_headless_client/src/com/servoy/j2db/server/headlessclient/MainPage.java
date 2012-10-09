@@ -336,7 +336,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		add(title);
 
 		useAJAX = Utils.getAsBoolean(client.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		int dataNotifyFrequency = Utils.getAsInteger(sc.getSettings().getProperty("servoy.webclient.datanotify.frequency", "5")); //$NON-NLS-1$  //$NON-NLS-2$
+		int dataNotifyFrequency = Utils.getAsInteger(sc.getSettings().getProperty("servoy.webclient.datanotify.frequency", "15")); //$NON-NLS-1$  //$NON-NLS-2$
 		if (dataNotifyFrequency > 0 && useAJAX)
 		{
 			add(new AbstractAjaxTimerBehavior(Duration.seconds(dataNotifyFrequency))
@@ -1081,7 +1081,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			{
 				private static final long serialVersionUID = 1L;
 
-				final String formName = main.getController().getName();
+				final String formName = callingContainer != null ? callingContainer.getHistory().getFormName(
+					callingContainer.getHistory().getIndex() - 1 > 0 ? callingContainer.getHistory().getIndex() - 1 : 0) : main.getController().getName();
 
 				@Override
 				public void undo()
