@@ -336,51 +336,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	}
 
 
-	public void remove(ScriptMethod method)
-	{
-		ScriptMethod scriptMethod = method;
-		Object o = null;
-
-		ScriptMethod baseMethod = getOverrideParent(scriptMethod, (Form)method.getParent());
-		super.remove(scriptMethod);
-
-		//look into extended scope and replace with it's base method
-		for (LazyCompilationScope scope : extendScopes)
-		{
-			scriptMethod = scope.getScriptLookup().getScriptMethod(method.getID());
-			if (scriptMethod != null)
-			{
-				//replace with override parent base
-				o = scope.remove(scriptMethod);
-				if (baseMethod != null && o != null) scope.put(baseMethod, baseMethod);
-			}
-		}
-	}
-
-	/** 
-	 *  returns the parrent's form  method if if overriding is present or null if there is no base method (no overriding).
-	 *  Goes recursively through the parents until it finds the first base method which is non private
-	 *  @param currentForm starting point from where to search
-	 *  @param method  method for which to search 
-	 */
-	private ScriptMethod getOverrideParent(ScriptMethod method, Form currentForm)
-	{
-		Form parrentForm = currentForm.getExtendsForm();
-
-		if (parrentForm != null)
-		{
-			ScriptMethod baseMethod = parrentForm.getScriptMethod(method.getName());
-			if ((baseMethod == null && parrentForm.getExtendsForm() != null) ||
-			/**/(baseMethod != null && parrentForm.getExtendsForm() != null && baseMethod.isPrivate()))
-			{
-				baseMethod = getOverrideParent(method, parrentForm);
-			}
-
-			return baseMethod;
-		}
-		return null;
-	}
-
 	@Override
 	public void remove(ScriptVariable var)
 	{
