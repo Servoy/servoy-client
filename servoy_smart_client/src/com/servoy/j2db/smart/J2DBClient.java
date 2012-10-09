@@ -59,6 +59,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -1964,7 +1965,13 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					frame.setTitle(getApplicationName() +
 						" - " + ((solution.getTitleText() != null) ? getI18NMessageIfPrefixed(solution.getTitleText()) : solution.getName())); //$NON-NLS-1$
 					J2DBGlobals.firePropertyChange(J2DBClient.this, "solution", null, solution); //$NON-NLS-1$
-					handleArguments(null); // clear the loaded solution names.
+					if (startupArguments != null)
+					{
+						if (Arrays.asList(startupArguments).contains("s:" + solution.getName()) || //$NON-NLS-1$
+							Arrays.asList(startupArguments).contains("solution:" + solution.getName())) handleArguments(startupArguments); //$NON-NLS-1$
+						else handleArguments(null);
+					}
+					else handleArguments(null); // clear the loaded solution names.
 				}
 				finally
 				{
