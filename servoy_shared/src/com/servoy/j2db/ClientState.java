@@ -1124,6 +1124,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected transient boolean isClosing = false;
 
+	protected String[] startupArguments;
+
 	public boolean closeSolution(boolean force, Object[] args)
 	{
 		if (solutionRoot.getSolution() == null || isClosing) return true;
@@ -1140,9 +1142,25 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 					s_args[i] = (args[i] != null && args[i] != Scriptable.NOT_FOUND && args[i] != Undefined.instance ? args[i].toString() : null);
 				}
 			}
-			else if (!force && args == null && getPreferedSolutionNameToLoadOnInit() != null)
+			else if (!force && args == null)
 			{
-				s_args = new String[] { getPreferedSolutionNameToLoadOnInit() };
+				if (getPreferedSolutionNameToLoadOnInit() != null) s_args = new String[] { getPreferedSolutionNameToLoadOnInit() };
+				if (!Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")) && startupArguments != null)
+				{
+					if (s_args == null) s_args = startupArguments;
+					else
+					{
+						for (String arg : startupArguments)
+						{
+							if ((arg.startsWith("s:") || arg.startsWith("solution:")) &&
+								arg.substring(arg.indexOf(":")).equals(getPreferedSolutionNameToLoadOnInit()))
+							{
+								s_args = startupArguments;
+								break;
+							}
+						}
+					}
+				}
 			}
 
 			boolean autoSaveBlocked = false;
