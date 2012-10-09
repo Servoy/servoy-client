@@ -197,4 +197,10 @@ public class GlobalScope extends ScriptVariableScope
 		this.application = null;
 		super.destroy();
 	}
+
+	@Override
+	public String toString()
+	{
+		return "GlobalScope[name:" + scopeName + ", values:" + allVars + ']';
+	}
 }

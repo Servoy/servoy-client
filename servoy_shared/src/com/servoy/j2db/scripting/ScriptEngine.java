@@ -705,7 +705,7 @@ public class ScriptEngine implements IScriptSupport
 	{
 		scopesScope = new ScopesScope(solutionScope, this, application);
 		solutionScope.setScopesScope(scopesScope);
-		scopesScope.createScopes();
+		scopesScope.createGlobalsScope();
 	}
 
 	public boolean isAWTSuspendedRunningScript()

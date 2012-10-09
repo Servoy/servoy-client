@@ -878,7 +878,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				if (scriptEngine == null && solutionRoot.getSolution() != null)
 				{
 					scriptEngine = createScriptEngine();
-					scriptEngine.getScopesScope().createScopes();
+					scriptEngine.getScopesScope().createGlobalsScope();
 				}
 			}
 		}

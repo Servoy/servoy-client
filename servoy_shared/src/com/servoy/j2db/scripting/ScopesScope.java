@@ -53,13 +53,10 @@ public class ScopesScope extends DefaultScope
 		return delegateModificationSubject;
 	}
 
-	public void createScopes()
+	public void createGlobalsScope()
 	{
 		removeModificationListeners();
-		for (String scopeName : application.getFlattenedSolution().getScopeNames())
-		{
-			createGlobalScope(scopeName);
-		}
+		createGlobalScope(ScriptVariable.GLOBAL_SCOPE);
 	}
 
 	public void createScriptProviders(boolean overwriteInitialValue)
@@ -71,6 +68,22 @@ public class ScopesScope extends DefaultScope
 				((GlobalScope)var).createScriptProviders(overwriteInitialValue);
 			}
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.DefaultScope#get(java.lang.String, org.mozilla.javascript.Scriptable)
+	 */
+	@Override
+	public Object get(String name, Scriptable start)
+	{
+		Object object = super.get(name, start);
+		if (object == Scriptable.NOT_FOUND && application.getFlattenedSolution().getScopeNames().contains(name))
+		{
+			object = createGlobalScope(name);
+		}
+		return object;
 	}
 
 	public GlobalScope getOrCreateGlobalScope(String sc)
@@ -110,7 +123,7 @@ public class ScopesScope extends DefaultScope
 	public void reloadVariablesAndScripts()
 	{
 		createScriptProviders(false);
-		createScopes();
+		createGlobalsScope();
 	}
 
 	/**
@@ -200,4 +213,9 @@ public class ScopesScope extends DefaultScope
 		super.destroy();
 	}
 
+	@Override
+	public String toString()
+	{
+		return "ScopesScope[" + allVars.keySet() + ']';
+	}
 }
