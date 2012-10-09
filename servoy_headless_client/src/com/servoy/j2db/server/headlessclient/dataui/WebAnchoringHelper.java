@@ -126,6 +126,7 @@ public class WebAnchoringHelper
 		if (!anchoredLeft || !anchoredRight) style.put("width", width + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 		else style.remove("width"); //$NON-NLS-1$
 		style.put("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (width != -1) style.put("min-width", width + "px"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		StringBuffer sb = new StringBuffer();
 		for (String key : style.keySet())

@@ -1122,7 +1122,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		// rely on the fact that by default the <button> tag vertically centers its content.
 		StringBuffer instrumentedBodyText = new StringBuffer();
 		// how is it possible that span receives focus when you click on it? i guess weird behavior from ie; give focus to component if that happens
-		instrumentedBodyText.append("<span onfocus='this.parentNode.focus()' style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: block;"); //$NON-NLS-1$
+		instrumentedBodyText.append("<span onfocus='this.parentNode.focus()' style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: block; overflow: hidden;"); //$NON-NLS-1$
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
