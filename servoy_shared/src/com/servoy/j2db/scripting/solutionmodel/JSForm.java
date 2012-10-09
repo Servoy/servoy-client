@@ -4663,31 +4663,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		}
 	}
 
-	/**
-	 * Overrides existing inherited method
-	 * @param method
-	 */
-	private void addMethodToScopes(ScriptMethod method)
-	{
-		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
-		for (FormController formController : controllers)
-		{
-			FormScope formScope = formController.getFormScope();
-			formScope.put(method, method, true);
-		}
-	}
-
-
-	private void removeMethodFromScopes(ScriptMethod method)
-	{
-		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
-		for (FormController formController : controllers)
-		{
-			FormScope formScope = formController.getFormScope();
-			formScope.remove(method);
-		}
-	}
-
 	private void refreshFromScopes()
 	{
 		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);

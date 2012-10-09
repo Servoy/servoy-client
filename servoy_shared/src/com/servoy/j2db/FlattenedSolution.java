@@ -783,7 +783,15 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			return null;
 		}
-		Form form = (Form)persist.getAncestor(IRepository.FORMS);
+		Form form = null;
+		if (persist instanceof FlattenedForm)
+		{
+			form = ((FlattenedForm)persist).getForm();
+		}
+		else
+		{
+			form = (Form)persist.getAncestor(IRepository.FORMS);
+		}
 		if (form == null || form.getExtendsID() <= 0)
 		{
 			// no form or nothing to flatten

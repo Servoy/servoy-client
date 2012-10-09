@@ -60,6 +60,14 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		return flattenedSolution.getFormHierarchy(form);
 	}
 
+	/**
+	 * @return the form
+	 */
+	public Form getForm()
+	{
+		return form;
+	}
+
 	@Override
 	public void setExtendsID(int arg)
 	{
