@@ -356,7 +356,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		{
 			ScriptMethod method = form.createNewScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), name);
 			method.setDeclaration(code);
-			addMethodToScopes(method);
+			refreshFromScopes();//addMethodToScopes(method);
 			return new JSMethod(this, method, application, true);
 		}
 		catch (RepositoryException e)
@@ -391,8 +391,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		ScriptMethod method = form.getScriptMethod(name);
 		if (method != null)
 		{ // first remove from scopes , then remove from model copy - !important
-			removeMethodFromScopes(method);
+			//removeMethodFromScopes(method);
 			form.removeChild(method);
+			refreshFromScopes();
 			return true;
 		}
 		return false;
@@ -4684,6 +4685,16 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		{
 			FormScope formScope = formController.getFormScope();
 			formScope.remove(method);
+		}
+	}
+
+	private void refreshFromScopes()
+	{
+		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
+		for (FormController formController : controllers)
+		{
+			FormScope formScope = formController.getFormScope();
+			formScope.reload();
 		}
 	}
 }
