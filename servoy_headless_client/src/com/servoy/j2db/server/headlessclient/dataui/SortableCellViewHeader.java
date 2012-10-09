@@ -299,7 +299,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				if (gc != null)
 				{
 					Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(application, gc, form);
-					cssRule = pair.getRight() == null ? null : pair.getRight();
+					cssRule = pair == null || pair.getRight() == null ? null : pair.getRight();
 					if (cssRule != null)
 					{
 						TextualStyle headerStyle = new TextualStyle();
