@@ -927,6 +927,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		}
 	}
 
+	protected void setVerticalScrollBarPolicySpecial(int policy)
+	{
+		super.setVerticalScrollBarPolicy(policy);
+	}
+
 	@Override
 	public void setHorizontalScrollBarPolicy(int policy)
 	{
