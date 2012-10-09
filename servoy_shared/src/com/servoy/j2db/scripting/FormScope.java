@@ -253,18 +253,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
 
-		Object object = null;
-		//not found in current scope look into extended scopes
-		object = super.get(name, start);
-		//search extended scopes for the method
-		if ((object == null || object == Scriptable.NOT_FOUND))
-		{
-			for (LazyCompilationScope scope : extendScopes)
-			{
-				if ((object = ((ExtendsScope)scope).getExtended(name, start)) != null) break;
-			}
-		}
-
+		Object object = super.get(name, start);
 		if ((object == null || object == Scriptable.NOT_FOUND) && ("foundset".equals(name) || "elements".equals(name)))
 		{
 			Debug.error(
