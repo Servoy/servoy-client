@@ -189,7 +189,9 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
 	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
 	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
-	 * 	query.where.add(join.columns.quantity.le(10))
+	 *  // to add a join based on a relation, use the relation name
+	 *  var join2 = query.joins.add('orders_to_customers', 'cust')
+	 * 	query.where.add(join2.columns.customerid.eq(999))
 	 * 	foundset.loadRecords(query)
 	 * 
 	 * @param dataSource data source
