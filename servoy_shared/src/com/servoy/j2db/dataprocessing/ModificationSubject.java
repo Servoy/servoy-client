@@ -34,7 +34,10 @@ public class ModificationSubject implements IModificationSubject
 
 	public void addModificationListener(IModificationListener listener)
 	{
-		listeners.add(listener);
+		if (!listeners.contains(listener))
+		{
+			listeners.add(listener);
+		}
 	}
 
 	public void removeModificationListener(IModificationListener listener)

@@ -881,8 +881,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			{
 				if (record == null)
 				{
-					return fs.getFormController().getApplication().getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(
-						scope.getRight(), obj);
+					return fs.getFormController().getApplication().getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
 				}
 				//does an additional fire in foundset!
 				return record.getParentFoundSet().setDataProviderValue(dataProviderID, obj);

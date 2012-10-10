@@ -347,7 +347,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			{
 				if (record == null)
 				{
-					prevValue = application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
+					prevValue = application.getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
 				}
 				else
 				{

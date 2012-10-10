@@ -271,7 +271,7 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			{
 				if (record == null)
 				{
-					webForm.getController().getApplication().getScriptEngine().getSolutionScope().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(
+					webForm.getController().getApplication().getScriptEngine().getSolutionScope().getScopesScope().getGlobalScope(scope.getLeft()).put(
 						scope.getRight(), obj);
 				}
 				else

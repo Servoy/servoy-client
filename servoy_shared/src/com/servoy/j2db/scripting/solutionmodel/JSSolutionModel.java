@@ -1041,7 +1041,7 @@ public class JSSolutionModel implements ISolutionModel
 			String scope = scopeName == null ? ScriptVariable.GLOBAL_SCOPE : scopeName;
 			ScriptVariable variable = fs.getSolutionCopy().createNewScriptVariable(new ScriptNameValidator(application.getFlattenedSolution()), scope, name,
 				type);
-			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope).put(variable);
+			application.getScriptEngine().getScopesScope().getGlobalScope(scope).put(variable);
 			return new JSVariable(application, variable, true);
 		}
 		catch (RepositoryException e)
@@ -1167,7 +1167,7 @@ public class JSSolutionModel implements ISolutionModel
 			String scope = scopeName == null ? ScriptVariable.GLOBAL_SCOPE : scopeName;
 			ScriptMethod method = fs.getSolutionCopy().createNewGlobalScriptMethod(new ScriptNameValidator(application.getFlattenedSolution()), scope, name);
 			method.setDeclaration(code);
-			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope).put(method, method);
+			application.getScriptEngine().getScopesScope().getGlobalScope(scope).put(method, method);
 			JSMethod jsMethod = new JSMethod(method, application, true);
 			return jsMethod;
 		}

@@ -1004,6 +1004,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	private Map<String, Pair<String, IRootObject>> getScopesPerSolution()
 	{
+		if (mainSolution == null && loginFlattenedSolution != null)
+		{
+			return loginFlattenedSolution.getScopesPerSolution();
+		}
+
 		Map<String, Pair<String, IRootObject>> scopes = new HashMap<String, Pair<String, IRootObject>>();
 
 		if (mainSolution != null)

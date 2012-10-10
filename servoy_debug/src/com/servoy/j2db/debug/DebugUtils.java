@@ -75,7 +75,7 @@ public class DebugUtils
 				}
 				else if (persist.getParent() instanceof Solution)
 				{
-					LazyCompilationScope scope = clientState.getScriptEngine().getScopesScope().getOrCreateGlobalScope(((ScriptMethod)persist).getScopeName());
+					LazyCompilationScope scope = clientState.getScriptEngine().getScopesScope().getGlobalScope(((ScriptMethod)persist).getScopeName());
 					scope.remove((IScriptProvider)persist);
 					scope.put((IScriptProvider)persist, (IScriptProvider)persist);
 				}
@@ -95,7 +95,7 @@ public class DebugUtils
 				ScriptVariable sv = (ScriptVariable)persist;
 				if (persist.getParent() instanceof Solution)
 				{
-					clientState.getScriptEngine().getScopesScope().getOrCreateGlobalScope(sv.getScopeName()).put(sv);
+					clientState.getScriptEngine().getScopesScope().getGlobalScope(sv.getScopeName()).put(sv);
 				}
 				if (persist.getParent() instanceof Form)
 				{

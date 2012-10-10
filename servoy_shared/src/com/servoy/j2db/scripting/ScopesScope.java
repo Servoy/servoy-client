@@ -55,19 +55,7 @@ public class ScopesScope extends DefaultScope
 
 	public void createGlobalsScope()
 	{
-		removeModificationListeners();
-		createGlobalScope(ScriptVariable.GLOBAL_SCOPE);
-	}
-
-	public void createScriptProviders(boolean overwriteInitialValue)
-	{
-		for (Object var : allVars.values())
-		{
-			if (var instanceof GlobalScope)
-			{
-				((GlobalScope)var).createScriptProviders(overwriteInitialValue);
-			}
-		}
+		getGlobalScope(ScriptVariable.GLOBAL_SCOPE);
 	}
 
 	/*
@@ -81,24 +69,24 @@ public class ScopesScope extends DefaultScope
 		Object object = super.get(name, start);
 		if (object == Scriptable.NOT_FOUND && application.getFlattenedSolution().getScopeNames().contains(name))
 		{
-			object = createGlobalScope(name);
+			object = getGlobalScope(name);
+		}
+		else if (object instanceof GlobalScope && !((GlobalScope)object).isInitialized())
+		{
+			application.reportJSError("Scope '" + name +
+				"' was accessed while not fully created yet, check for scope variables recursively referring to each other", null);
 		}
 		return object;
 	}
 
-	public GlobalScope getOrCreateGlobalScope(String sc)
+	/**
+	 * Get or create global scope.
+	 * @param sc
+	 * @return
+	 */
+	public GlobalScope getGlobalScope(String sc)
 	{
 		String scopeName = sc == null ? ScriptVariable.GLOBAL_SCOPE : sc;
-		GlobalScope gs = getGlobalScope(scopeName);
-		if (gs == null)
-		{
-			gs = createGlobalScope(scopeName);
-		}
-		return gs;
-	}
-
-	protected GlobalScope createGlobalScope(String scopeName)
-	{
 		GlobalScope gs;
 		Object gsObj = allVars.get(scopeName);
 		if (gsObj instanceof GlobalScope)
@@ -109,21 +97,22 @@ public class ScopesScope extends DefaultScope
 		{
 			gs = new GlobalScope(getParentScope(), scopeName, scriptEngine, application);
 			allVars.put(scopeName, gs);
+			gs.createVars();
+			gs.getModificationSubject().addModificationListener(delegateModificationSubject);
 		}
-		gs.createVars();
-		gs.getModificationSubject().addModificationListener(delegateModificationSubject);
 		return gs;
-	}
-
-	public GlobalScope getGlobalScope(String scopeName)
-	{
-		return (GlobalScope)allVars.get(scopeName == null ? ScriptVariable.GLOBAL_SCOPE : scopeName);
 	}
 
 	public void reloadVariablesAndScripts()
 	{
-		createScriptProviders(false);
-		createGlobalsScope();
+		for (Object var : allVars.values().toArray())
+		{
+			if (var instanceof GlobalScope)
+			{
+				((GlobalScope)var).createScriptProviders(false);
+				((GlobalScope)var).createVars();
+			}
+		}
 	}
 
 	/**

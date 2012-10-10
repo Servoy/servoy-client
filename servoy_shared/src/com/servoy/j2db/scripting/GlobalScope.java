@@ -71,14 +71,26 @@ public class GlobalScope extends ScriptVariableScope
 		return scopeName;
 	}
 
+	boolean initialized = false;
+
+	/**
+	 * @return the initialized
+	 */
+	public boolean isInitialized()
+	{
+		return initialized;
+	}
+
 	public void createVars()
 	{
+		initialized = false;
 		//put all vars in scope
 		Iterator<ScriptVariable> it = getScriptLookup().getScriptVariables(false);
 		while (it.hasNext())
 		{
 			put(it.next());
 		}
+		initialized = true;
 	}
 
 	@Override

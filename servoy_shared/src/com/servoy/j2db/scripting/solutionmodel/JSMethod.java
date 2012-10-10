@@ -152,7 +152,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 		else if (parent == null)
 		{
 			// global method
-			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(sm.getScopeName()).put(sm, sm);
+			application.getScriptEngine().getScopesScope().getGlobalScope(sm.getScopeName()).put(sm, sm);
 		}
 	}
 

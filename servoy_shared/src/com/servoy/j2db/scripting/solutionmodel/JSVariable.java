@@ -110,7 +110,7 @@ public class JSVariable implements IConstantsObject, ISMVariable
 		variable.setDefaultValue(arg);
 		if (form == null)
 		{
-			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(variable.getScopeName()).put(variable, true);
+			application.getScriptEngine().getScopesScope().getGlobalScope(variable.getScopeName()).put(variable, true);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class JSVariable implements IConstantsObject, ISMVariable
 				variable.updateName(new ScriptNameValidator(application.getFlattenedSolution()), name);
 				if (form == null)
 				{
-					application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(variable.getScopeName()).put(variable, false);
+					application.getScriptEngine().getScopesScope().getGlobalScope(variable.getScopeName()).put(variable, false);
 				}
 			}
 			catch (RepositoryException e)
@@ -189,7 +189,7 @@ public class JSVariable implements IConstantsObject, ISMVariable
 
 		if (form == null)
 		{
-			application.getScriptEngine().getScopesScope().getOrCreateGlobalScope(variable.getScopeName()).put(variable, true);
+			application.getScriptEngine().getScopesScope().getGlobalScope(variable.getScopeName()).put(variable, true);
 		}
 	}
 
@@ -210,8 +210,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	{
 		return variable;
 	}
-	
-	
+
+
 	/*
 	 * (non-Javadoc)
 	 * 

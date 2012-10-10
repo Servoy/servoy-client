@@ -821,7 +821,7 @@ public class SessionClient extends ClientState implements ISessionClient
 		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
 		if (scope.getLeft() != null)
 		{
-			getScriptEngine().getScopesScope().getOrCreateGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
+			getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft()).put(scope.getRight(), obj);
 		}
 		else if (p != null)
 		{
