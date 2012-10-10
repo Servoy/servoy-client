@@ -7,7 +7,7 @@
 	<property name="basearch" value="${arch}"/>
 	<property name="basenl" value="${nl}"/>
 	<property name="bundleId" value="servoy_headless_client"/>
-	<property name="bundleVersion" value="5.2.14.1027"/>
+	<property name="bundleVersion" value="5.2.15.1028"/>
 	<property name="p2.publishonerror" value="false"/>
 
 	<!-- Compiler settings. -->
@@ -42,7 +42,7 @@
 			<isset property="buildTempFolder"/>
 		</condition>
 		<property name="pluginTemp" value="${basedir}"/>
-		<condition property="build.result.folder" value="${pluginTemp}/servoy_headless_client_5.2.14.1027"		>
+		<condition property="build.result.folder" value="${pluginTemp}/servoy_headless_client_5.2.15.1028"		>
 			<isset property="buildTempFolder"/>
 		</condition>
 		<property name="build.result.folder" value="${basedir}"/>
@@ -72,13 +72,11 @@
 		<antcall target="gather.bin.parts">
 			<param name="destination.temp.folder" value="${temp.folder}/"/>
 		</antcall>
-		<jar destfile="${plugin.destination}/servoy_headless_client_5.2.14.1027.jar" basedir="${temp.folder}/servoy_headless_client_5.2.14.1027" filesetmanifest="merge"/>
+		<jar destfile="${plugin.destination}/servoy_headless_client_5.2.15.1028.jar" basedir="${temp.folder}/servoy_headless_client_5.2.15.1028" filesetmanifest="merge"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
-	<target name="@dot.nestedJars">
-	</target>
-	<target name="@dot" depends="init,@dot.nestedJars" unless="@dot" description="Create jar: servoy_headless_client @dot.">
+	<target name="@dot" depends="init" unless="@dot" description="Create jar: servoy_headless_client @dot.">
 		<delete dir="${build.result.folder}/@dot"/>
 		<mkdir dir="${build.result.folder}/@dot"/>
 		<path id="@dot.classpath">
@@ -143,25 +141,25 @@
 			<pathelement path="${build.result.folder}/../servoy_smart_client/@dot"/>
 			
 			<pathelement path="../eclipse_build/eclipse_compile_target/install/plugins/org.eclipse.swt_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/plugins/org.eclipse.swt.win32.win32.x86_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.carbon.macosx_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx.x86_64_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390x_3.5.0.v3550b.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390_3.5.0.v3550b.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_64_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.sparc_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.x86_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.aix.ppc_3.5.2.v3557f.jar"/>
 			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.hpux.ia64_32_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.hpux.PA_RISC_3.5.0.HEAD.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.linux.x86_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.solaris.sparc_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.photon.qnx.x86_3.5.2.v3557f.jar"/>
-			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_64_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390_3.5.0.v3550b.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.x86_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.carbon.macosx_3.5.2.v3557f.jar"/>
 			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.wpf.win32.x86_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.sparc_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.photon.qnx.x86_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.linux.x86_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_64_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.aix.ppc_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390x_3.5.0.v3550b.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_64_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.hpux.PA_RISC_3.5.0.HEAD.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx.x86_64_3.5.2.v3557f.jar"/>
+			<pathelement path="../eclipse_build/eclipse_compile_target/install/deltapack/plugins/org.eclipse.swt.motif.solaris.sparc_3.5.2.v3557f.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -207,14 +205,14 @@
 	</target>
 
 	<target name="checkCompilationResults" if="compilation.error.occured">
-		<echo file="${compilation.problem.marker}" message="servoy_headless_client_5.2.14.1027${line.separator}compilation.error.occured=${compilation.error.occured}"/>
-		<eclipse.logCompileError bundle="servoy_headless_client_5.2.14.1027" log="${compilation.prereq.log}">
-			<include name="E:/Workspaces/5_2/servoy_smart_client/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_smart_client_5.2.14.1027/compilation.problem"/>
-			<include name="E:/Workspaces/5_2/servoy_shared/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_shared_5.2.14.1027/compilation.problem"/>
-			<include name="E:/Workspaces/5_2/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
-			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_5.2.14.1027/compilation.problem"/>
+		<echo file="${compilation.problem.marker}" message="servoy_headless_client_5.2.15.1028${line.separator}compilation.error.occured=${compilation.error.occured}"/>
+		<eclipse.logCompileError bundle="servoy_headless_client_5.2.15.1028" log="${compilation.prereq.log}">
+			<include name="C:/Users/Administrator/dev_v52x_branch/servoy_smart_client/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_smart_client_5.2.15.1028/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_v52x_branch/servoy_shared/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_shared_5.2.15.1028/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_v52x_branch/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_5.2.15.1028/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
@@ -224,7 +222,7 @@
 	</target>
 
 	<target name="publish.bin.parts" depends="init" if="p2.publish.parts" unless="compilation.problem.marker.exists">
-		<mkdir dir="${build.result.folder}/servoy_headless_client_5.2.14.1027"/>
+		<mkdir dir="${build.result.folder}/servoy_headless_client_5.2.15.1028"/>
 		<copy todir="${build.result.folder}" failonerror="true" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="META-INF/MANIFEST.MF"/>
@@ -248,19 +246,19 @@
 	</target>
 
 	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.14.1027"/>
-		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.14.1027" failonerror="true" overwrite="false">
+		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.15.1028"/>
+		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.15.1028" failonerror="true" overwrite="false">
 			<fileset dir="${build.result.folder}/@dot">
 				<include name="**"/>
 			</fileset>
 		</copy>
-		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.14.1027" failonerror="true" overwrite="true">
+		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.15.1028" failonerror="true" overwrite="true">
 			<fileset dir="${basedir}">
 				<include name="META-INF/"/>
 			</fileset>
 		</copy>
 		<antcall target="apitools.generation">
-			<param name="target.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.14.1027"/>
+			<param name="target.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.15.1028"/>
 			<param name="projectLocation" value="${basedir}"/>
 			<param name="binary.folders" value="${build.result.folder}/@dot"/>
 			<param name="projectName" value="${bundleId}_${bundleVersion}"/>
@@ -271,10 +269,10 @@
 	</target>
 
 	<target name="gather.sources" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.14.1027"/>
-		<copy file="${build.result.folder}/src.zip" todir="${destination.temp.folder}/servoy_headless_client_5.2.14.1027" failonerror="false" overwrite="false"/>
+		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.15.1028"/>
+		<copy file="${build.result.folder}/src.zip" todir="${destination.temp.folder}/servoy_headless_client_5.2.15.1028" failonerror="false" overwrite="false"/>
 		<antcall target="copy.src.includes">
-			<param name="source.destination.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.14.1027"/>
+			<param name="source.destination.folder" value="${destination.temp.folder}/servoy_headless_client_5.2.15.1028"/>
 		</antcall>
 	</target>
 
@@ -291,8 +289,8 @@
 	</target>
 
 	<target name="gather.logs" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.14.1027"/>
-		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.14.1027" failonerror="false" overwrite="false">
+		<mkdir dir="${destination.temp.folder}/servoy_headless_client_5.2.15.1028"/>
+		<copy todir="${destination.temp.folder}/servoy_headless_client_5.2.15.1028" failonerror="false" overwrite="false">
 			<fileset dir="${build.result.folder}">
 				<include name="@dot${logExtension}"/>
 			</fileset>
@@ -302,14 +300,14 @@
 	<target name="clean" depends="init" description="Clean the plug-in: servoy_headless_client of all the zips, jars and logs created.">
 		<delete dir="${build.result.folder}/@dot"/>
 		<delete file="${build.result.folder}/src.zip"/>
-		<delete file="${plugin.destination}/servoy_headless_client_5.2.14.1027.jar"/>
-		<delete file="${plugin.destination}/servoy_headless_client_5.2.14.1027.zip"/>
+		<delete file="${plugin.destination}/servoy_headless_client_5.2.15.1028.jar"/>
+		<delete file="${plugin.destination}/servoy_headless_client_5.2.15.1028.zip"/>
 		<delete dir="${temp.folder}"/>
 		<delete file="${compilation.problem.marker}" quiet="true"/>
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="E:/Workspaces/5_2/servoy_headless_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/Users/Administrator/dev_v52x_branch/servoy_headless_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
@@ -329,12 +327,12 @@
 				<include name="**/*.bin${logExtension}"/>
 			</fileset>
 		</delete>
-		<zip destfile="${plugin.destination}/servoy_headless_client_5.2.14.1027.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<zip destfile="${plugin.destination}/servoy_headless_client_5.2.15.1028.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
 		<delete dir="${temp.folder}"/>
 	</target>
 
 	<target name="apitools.generation" if="generateAPIDescription">
-		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}" allownonapiproject="${allowNonApiProject}"		/>
+		<apitooling.apigeneration  projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" extramanifests="${extraManifests}"		/>
 	</target>
 
 </project>
