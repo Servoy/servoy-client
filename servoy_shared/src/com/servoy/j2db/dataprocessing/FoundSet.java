@@ -1345,7 +1345,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Perform a relookup for the current records
+	 * Perform a relookup for the currently selected records
 	 * Lookups are defined in the dataprovider (columns) auto-enter setting and are normally performed over a relation upon record creation.
 	 *
 	 * @sample %%prefix%%foundset.relookup(1);
