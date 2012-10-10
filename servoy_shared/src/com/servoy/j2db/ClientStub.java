@@ -91,7 +91,19 @@ public class ClientStub implements IUserClient
 				{
 					public void run()
 					{
-						((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(dataSource);
+						String ds = dataSource;
+						IDataServer dataServer = client.getDataServer();
+						if (dataServer instanceof DataServerProxy)
+						{
+							String[] dbServernameTablename = DataSourceUtils.getDBServernameTablename(ds);
+							if (dbServernameTablename != null)
+							{
+								// map from real db server to server name from before switch-server
+								ds = DataSourceUtils.createDBTableDataSource(
+									((DataServerProxy)dataServer).getReverseMappedServerName(dbServernameTablename[0]), dbServernameTablename[1]);
+							}
+						}
+						((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(ds);
 					}
 				};
 				if (client.isEventDispatchThread())
