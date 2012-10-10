@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Insets;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -99,6 +100,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * Flag that tells if the content of the field can be edited or not. 
 	 * The default value of this flag is "true", that is the content can be edited.
 	 */
+	@ServoyMobile
 	public boolean getEditable()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EDITABLE).booleanValue();
@@ -150,6 +152,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templatecode
 	 * return true
 	 */
+	@ServoyMobile
 	public int getOnDataChangeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID).intValue();
@@ -168,6 +171,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
+	@ServoyMobile
 	public int getOnRightClickMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();
@@ -223,6 +227,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
+	@ServoyMobile
 	public int getOnFocusLostMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID).intValue();
@@ -317,6 +322,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID, arg);
 	}
 
+	@ServoyMobile
 	public int getValuelistID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID).intValue();
@@ -332,6 +338,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID, arg);
 	}
 
+	@ServoyMobile
 	public String getDataProviderID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID);
@@ -361,6 +368,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
+	@ServoyMobile
 	public int getOnActionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
@@ -394,6 +402,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
 	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTISELECT_LISTBOX or SPINNER.
 	 */
+	@ServoyMobile
 	public int getDisplayType()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE).intValue();

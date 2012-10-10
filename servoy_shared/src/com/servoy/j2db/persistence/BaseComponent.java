@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
 
@@ -135,6 +136,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	}
 
+	@ServoyMobile
 	public java.awt.Dimension getSize()
 	{
 		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
@@ -155,6 +157,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, arg);
 	}
 
+	@ServoyMobile
 	public java.awt.Point getLocation()
 	{
 		java.awt.Point point = getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
@@ -222,6 +225,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * 
 	 * @return visible property
 	 */
+	@ServoyMobile
 	public boolean getVisible()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VISIBLE).booleanValue();
@@ -237,6 +241,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * 
 	 * @return enabled state
 	 */
+	@ServoyMobile
 	public boolean getEnabled()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENABLED).booleanValue();
@@ -362,6 +367,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * The default value is "false", that is the components 
 	 * are not transparent.
 	 */
+	@ServoyMobile
 	public boolean getTransparent()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
