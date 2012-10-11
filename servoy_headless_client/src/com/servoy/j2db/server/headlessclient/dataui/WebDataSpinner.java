@@ -252,7 +252,11 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		super.setReadOnly(b);
 		if (b)
 		{
-			setEnabled(false);
+			setComponentEnabled(false);
+		}
+		else
+		{
+			setComponentEnabled(true);
 		}
 	}
 

@@ -126,7 +126,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	protected boolean shouldShowExtraComponents()
 	{
-		return isEnabled() && showExtraComponents && !designMode;
+		return isEnabledInHierarchy() && showExtraComponents && !designMode;
 	}
 
 	public Component[] getFocusChildren()

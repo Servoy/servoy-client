@@ -250,8 +250,11 @@ public class DataSpinner extends DataChoice
 		super.setReadOnly(b);
 		if (b)
 		{
-			setEnabled(false);
-			setVerticalScrollBarPolicySpecial(VERTICAL_SCROLLBAR_NEVER);
+			setComponentEnabled(false);
+		}
+		else
+		{
+			setComponentEnabled(true);
 		}
 	}
 
@@ -293,6 +296,10 @@ public class DataSpinner extends DataChoice
 		if (!b)
 		{
 			setVerticalScrollBarPolicySpecial(VERTICAL_SCROLLBAR_NEVER);
+		}
+		else
+		{
+			setVerticalScrollBarPolicySpecial(VERTICAL_SCROLLBAR_ALWAYS);
 		}
 	}
 
