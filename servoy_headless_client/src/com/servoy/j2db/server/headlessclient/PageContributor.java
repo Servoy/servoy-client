@@ -204,7 +204,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		if (formAnchorInfos != null && formAnchorInfos.size() != 0 && WebClientSession.get() != null &&
 			Utils.getAsBoolean(WebClientSession.get().getWebClient().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
 		{
-
 			if (anchorInfoChanged)
 			{
 				response.renderJavascriptReference(anchorlayout);
@@ -252,6 +251,11 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		return orientation;
 	}
 
+	public void removeFormAnchorInfo(FormAnchorInfo fai)
+	{
+		formAnchorInfos.remove(fai);
+	}
+
 	public void setFormAnchorInfos(SortedSet<FormAnchorInfo> infos, boolean onlyChanged)
 	{
 		anchorInfoChanged = !Utils.equalObjects(formAnchorInfos, infos);
@@ -261,7 +265,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 		else
 		{
-			if (!onlyChanged || !infos.equals(formAnchorInfos))
+			if (!onlyChanged || anchorInfoChanged)
 			{
 				if (!isResizing) getStylePropertyChanges().setChanged();
 				formAnchorInfos = infos;

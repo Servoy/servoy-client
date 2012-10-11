@@ -816,6 +816,11 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 							FormAnchorInfo fai = form.getFormAnchorInfo(getOnlyChangedControls);
 							if (fai != null)
 							{
+								if (form.isUIRecreated() && fai.isTableView)
+								{
+									pageContributor.removeFormAnchorInfo(fai);
+								}
+
 								if (form.equals(main))
 								{
 									fai.isTopLevelForm = true;
