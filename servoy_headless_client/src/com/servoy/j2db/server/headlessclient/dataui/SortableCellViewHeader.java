@@ -288,24 +288,17 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		labelResolver.add(new AttributeModifier("class", true, group)); //$NON-NLS-1$
 
 		// append background image in case of labelFor for the current label (goes through all labelFor components in the map to get the component by name )
-		Iterator<IPersist> iterator = cellview.getAllObjects();
-		while (iterator.hasNext())
 		{
-			IStyleRule cssRule = null;
-			IPersist element = iterator.next();
-			if (id.equals(ComponentFactory.getWebID(form, element)))
+			GraphicalComponent gc = getLabelComponent();
+			if (gc != null)
 			{
-				GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
-				if (gc != null)
+				Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(application, gc, form);
+				IStyleRule cssRule = pair == null || pair.getRight() == null ? null : pair.getRight();
+				if (cssRule != null)
 				{
-					Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(application, gc, form);
-					cssRule = pair == null || pair.getRight() == null ? null : pair.getRight();
-					if (cssRule != null)
-					{
-						TextualStyle headerStyle = new TextualStyle();
-						headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString()));
-						add(new StyleAppendingModifier(new Model<String>(headerStyle.toString())));
-					}
+					TextualStyle headerStyle = new TextualStyle();
+					headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString()));
+					add(new StyleAppendingModifier(new Model<String>(headerStyle.toString())));
 				}
 			}
 		}
@@ -560,6 +553,29 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			setResizeImage(dir ? view.R_ARROW_DOWN : view.R_ARROW_UP);
 		}
 	}
+
+	/**
+	 * 
+	 * @return GraphicalComponent -  the "label for" component ,if it has one
+	 */
+	private GraphicalComponent getLabelComponent()
+	{
+		Iterator<IPersist> iterator = cellview.getAllObjects();
+		while (iterator.hasNext())
+		{
+			IPersist element = iterator.next();
+			if (id.equals(ComponentFactory.getWebID(form, element)))
+			{
+				GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
+				if (gc != null)
+				{
+					return gc;
+				}
+			}
+		}
+		return null;
+	}
+
 
 	private void applyStyleChanges(Component c, final Properties changes)
 	{
