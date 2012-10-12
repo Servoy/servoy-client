@@ -67,6 +67,8 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 			// will be showed in postponed mode. Otherwise a stack of nested modal dialogs will not display OK.
 			((MainPage)dialogContainer).setShowPageInDialogDelayed(true);
 
+			//calling container can be set just after the creation of the container (needed for browser back button (wicket undo))
+			((MainPage)dialogContainer).setCallingContainerIfNull((MainPage)parentContainer);
 			if (formName != null)
 			{
 				final FormController fp = fm.showFormInMainPanel(formName, dialogContainer, title, closeAll || !legacyV3Behavior, windowName);

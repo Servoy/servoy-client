@@ -1086,12 +1086,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			{
 				private static final long serialVersionUID = 1L;
 
-				final String formName = main.getController().getName();
+				final String formName = callingContainer != null ? callingContainer.getHistory().getFormName(
+					callingContainer.getHistory().getIndex() - 1 > 0 ? callingContainer.getHistory().getIndex() - 1 : 0) : main.getController().getName();
 
 				@Override
 				public void undo()
 				{
-					((FormManager)client.getFormManager()).showFormInCurrentContainer(formName);
+					((FormManager)client.getFormManager()).showFormInMainPanel(formName);
 				}
 			});
 			main.setMainPage(null);
@@ -1105,6 +1106,11 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		/*
 		 * if (navigator != null) { calculateFormAndNavigatorSizes(); }
 		 */
+	}
+
+	public void setCallingContainerIfNull(MainPage callingContainer)
+	{
+		if (this.callingContainer == null) this.callingContainer = callingContainer;
 	}
 
 	public void remove(IComponent c)
