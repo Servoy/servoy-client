@@ -271,12 +271,12 @@ public class JavaToDocumentedJSTypeTranslator
 					else if (IScriptable.class.isAssignableFrom(cls))
 					{
 						// makes some sense to be used in JS, but is not documented
-						Debug.warn("Undocumented scriptable type exposed to JS: " + cls.getName() + "."); //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.trace("Undocumented scriptable type exposed to JS: " + cls.getName() + "."); //$NON-NLS-1$ //$NON-NLS-2$
 						translatedClassName = cls.getName();
 					}
 					else
 					{
-						Debug.warn("Undocumented/non-scriptable type exposed to JS: " + cls.getName() + ". Changed into Object."); //$NON-NLS-1$ //$NON-NLS-2$
+						Debug.trace("Undocumented/non-scriptable type exposed to JS: " + cls.getName() + ". Changed into Object."); //$NON-NLS-1$ //$NON-NLS-2$
 						cls = com.servoy.j2db.documentation.scripting.docs.Object.class;
 						translatedClassName = com.servoy.j2db.documentation.scripting.docs.Object.class.getName();
 					}
