@@ -1067,10 +1067,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The method that is executed when a solution opens and an error occurs. The default is -none.
 	 * 
-	 * @templatedescription Callback method for when an error occurred
+	 * @templatedescription Callback method for when an error occurred (the error can be a JavaScript or Servoy Java error).
 	 * @templatename onError
 	 * @templatetype Boolean
-	 * @templateparam Exception ex exception to handle
+	 * @templateparam * ex exception to handle
 	 * @templateaddtodo
 	 * @templatecode
 	 * application.output('Exception Object: '+ex)
@@ -1081,7 +1081,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 *  var servoyException = ex;
 	 * 	application.output("is a ServoyException")
 	 * 	application.output("Errorcode: "+servoyException.getErrorCode())
-	 *  var trace = servoyException.getStackTrace();
+	 *  //var trace = servoyException.getStackTrace();
 	 * 	if (servoyException.getErrorCode() == ServoyException.SAVE_FAILED)
 	 * 	{
 	 *  		plugins.dialogs.showErrorDialog( 'Error',  'It seems you did not fill in a required field', 'OK');
