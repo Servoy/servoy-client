@@ -130,7 +130,7 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 	protected CharSequence getSuccessScript()
 	{
 		WebClientSession webClientSession = WebClientSession.get();
-		if (webClientSession != null && webClientSession.blockRequest()) return "wicketHide('blocker');"; //$NON-NLS-1$
+		if (webClientSession != null && webClientSession.blockRequest()) return "hideBlocker();"; //$NON-NLS-1$
 		return null;
 	}
 

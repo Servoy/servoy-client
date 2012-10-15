@@ -1729,14 +1729,21 @@ function onAjaxError()
 	}
 	clickedElementId = null;	
 	wicketShow('indicator');
-	wicketHide('blocker');
+	hideBlocker();
 }
 
 function onABC() {
 	wicketShow('blocker');
+	$('body').css('cursor','wait');
 	var e=wicketGet('blocker');
 	if (e != null) e.focus();
 	onAjaxCall();
+}
+
+function hideBlocker()
+{
+	$('body').css('cursor','default'); 
+	return wicketHide('blocker');
 }
 
 function onAjaxCall()
