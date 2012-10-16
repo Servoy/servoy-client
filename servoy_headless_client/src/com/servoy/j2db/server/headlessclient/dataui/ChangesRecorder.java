@@ -122,6 +122,11 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public void setChanges(Properties changes)
 	{
+		//TODO should we do this for more properties ?
+		if ("none".equals(changedProperties.getProperty("display")) && !changes.containsKey("display"))
+		{
+			changedProperties.remove("display");
+		}
 		changedProperties.putAll(changes);
 		if (!IStyleSheet.COLOR_TRANSPARENT.equals(changes.getProperty("background-color"))) //$NON-NLS-1$
 		{
