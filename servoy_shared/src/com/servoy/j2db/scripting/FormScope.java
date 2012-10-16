@@ -30,6 +30,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
@@ -262,6 +263,33 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			if (name.equals("foundset")) return _fp.getFormModel();
 		}
 		return object;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.scripting.DefaultScope#hasInstance(org.mozilla.javascript.Scriptable)
+	 */
+	@Override
+	public boolean hasInstance(Scriptable instance)
+	{
+		if (instance instanceof FormScope)
+		{
+			Form instanceForm = ((FormScope)instance).getFormController().getForm();
+			Form thisForm = getFormController().getForm();
+
+			if (thisForm.equals(instanceForm)) return true;
+
+			if (instanceForm instanceof FlattenedForm)
+			{
+				if (thisForm instanceof FlattenedForm)
+				{
+					thisForm = ((FlattenedForm)thisForm).getForm();
+				}
+				return ((FlattenedForm)instanceForm).getAllForms().contains(thisForm);
+			}
+		}
+		return false;
 	}
 
 	/**
