@@ -124,6 +124,7 @@ import com.servoy.j2db.printing.FormPreviewPanel;
 import com.servoy.j2db.printing.PageList;
 import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSEvent.EventType;
@@ -830,7 +831,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		{
 			for (Component child : ((Container)parent).getComponents())
 			{
-				if ((child instanceof IScriptableProvider || child instanceof ListView || child instanceof TableView) && child.isEnabled())
+				if ((child instanceof IScriptableProvider || child instanceof IScriptable || child instanceof ListView || child instanceof TableView) &&
+					child.isEnabled())
 				{
 					components.add(child);
 				}
