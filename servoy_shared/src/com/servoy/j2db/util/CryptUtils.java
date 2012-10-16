@@ -18,12 +18,17 @@
 package com.servoy.j2db.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -83,5 +88,41 @@ public class CryptUtils
 		return cipher;
 	}
 
-
+	/**
+	 * AES Decryption of the specified file and write the output in a temporary file.
+	 * 
+	 * @param password
+	 * @return file
+	 * 
+	 */
+	public static File fileDecryption(File file, String password)
+	{
+		File tempFile = null;
+		CipherInputStream cis = null;
+		OutputStream out = null;
+		try
+		{
+			InputStream is = new FileInputStream(file);
+			cis = new CipherInputStream(is, CryptUtils.createCipher(password, Cipher.DECRYPT_MODE));
+			tempFile = File.createTempFile("import", ".tmp"); //$NON-NLS-1$ //$NON-NLS-2$
+			tempFile.deleteOnExit();
+			out = new FileOutputStream(tempFile);
+			Utils.streamCopy(cis, out);
+			out.flush();
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		finally
+		{
+			Utils.close(cis);
+			Utils.close(out);
+		}
+		return tempFile;
+	}
 }
