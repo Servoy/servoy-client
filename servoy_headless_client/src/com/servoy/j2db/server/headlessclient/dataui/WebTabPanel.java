@@ -477,15 +477,16 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		// Test if current one is there
 		if (currentForm.isReady())
 		{
-			if (WebTabPanel.this.get(currentForm.getWebForm().getId()) != null)
+			WebForm webForm = currentForm.getWebForm();
+			if (WebTabPanel.this.get(webForm.getId()) != null)
 			{
 				// replace it
-				WebTabPanel.this.replace(currentForm.getWebForm());
+				WebTabPanel.this.replace(webForm);
 			}
 			else
 			{
 				// else add it
-				WebTabPanel.this.add(currentForm.getWebForm());
+				WebTabPanel.this.add(webForm);
 			}
 			recomputeTabSequence();
 			boolean visible = true;
@@ -530,7 +531,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			currentForm.setWebForm(null);
 			//replace(new Label("webform", new Model<String>("")));
 		}
-		else super.remove(component);
+		super.remove(component);
 	}
 
 	public void recomputeTabSequence()
