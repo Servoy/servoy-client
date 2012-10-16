@@ -178,7 +178,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	private boolean opaque;
 	private String tooltip;
 	private final WebMarkupContainer container;
-
+	private boolean readonly;
+	private final List<Component> markedComponents;
 	private List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private WebDefaultRecordNavigator defaultNavigator = null;
 
@@ -193,6 +194,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public WebForm(final FormController controller)
 	{
 		super("webform"); //$NON-NLS-1$
+		markedComponents = new ArrayList<Component>();
 		TabIndexHelper.setUpTabIndexAttributeModifier(this, ISupportWebTabSeq.SKIP);
 		this.variation = "form::" + controller.getForm().getSolution().getName() + ":" + controller.getName() + "::form"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		this.formController = controller;
@@ -354,6 +356,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		container.setMarkupId("form_" + ComponentFactory.stripIllegalCSSChars(formController.getName())); // same as in template generator //$NON-NLS-1$
 		TabIndexHelper.setUpTabIndexAttributeModifier(container, ISupportWebTabSeq.SKIP);
 		add(container);
+		readonly = false;
 		setOutputMarkupId(true);
 	}
 
@@ -811,18 +814,35 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	private static class WicketCompVisitorMarker implements IVisitor<Component>
 	{
 		private final boolean readonlyFlag;
+		private final List<Component> markedList;
 
-		public WicketCompVisitorMarker(boolean readonlyFlag)
+		public WicketCompVisitorMarker(List<Component> markedList, boolean readonlyFlag)
 		{
+			this.markedList = markedList;
 			this.readonlyFlag = readonlyFlag;
 		}
 
 		public Object component(Component component)
 		{
-			if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeReadOnly)
+			if (component instanceof WebForm)
+			{
+				((WebForm)component).getController().setReadOnly(readonlyFlag);
+			}
+			else if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeReadOnly)
 			{
 				HasRuntimeReadOnly scriptable = (HasRuntimeReadOnly)((IScriptableProvider)component).getScriptObject();
-				scriptable.setReadOnly(readonlyFlag);
+				if (!scriptable.isReadOnly() && readonlyFlag)
+				{
+					scriptable.setReadOnly(readonlyFlag);
+					if (!markedList.contains(component))
+					{
+						markedList.add(component);
+					}
+				}
+				else if (!readonlyFlag && markedList.contains(component))
+				{
+					scriptable.setReadOnly(readonlyFlag);
+				}
 			}
 			return CONTINUE_TRAVERSAL;
 		}
@@ -850,7 +870,24 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	 */
 	public void setReadOnly(boolean b)
 	{
-		visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(b));
+		if (readonly != b)
+		{
+			readonly = b;
+			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(markedComponents, readonly));
+			if (!readonly)
+			{
+				markedComponents.clear();
+			}
+		}
+		else
+		{
+			visitChildren(WebForm.class, new WicketCompVisitorMarker(markedComponents, b));
+		}
+	}
+
+	public List<Component> getReadOnlyComponents()
+	{
+		return markedComponents;
 	}
 
 	/**

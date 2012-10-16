@@ -228,9 +228,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	private List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private boolean transferFocusBackwards = false;
+	private boolean readonly;
 
 	private IView view;
 
+	private final List<Component> componentsWithEditableStateChanged = new ArrayList<Component>();
 	private final List<Component> componentsWithEnabledStateChanged = new ArrayList<Component>();
 
 	private Color bgColor;
@@ -254,6 +256,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		am.put(ACTION_GO_OUT_TO_PREV, new GoOutOfSwingFormAction(true));
 
 		addFocusListener(new AutoTransferFocusListener(this, this));
+		readonly = false;
 
 		registerFindKeystrokes(this);
 		containerTimer = new Timer(300, new AbstractAction()
@@ -535,9 +538,35 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	@Override
 	public void setReadOnly(boolean b)
 	{
-		for (int i = 0; i < getComponentCount(); i++)
+		if (readonly != b)
 		{
-			setReadOnly(getComponent(i), b);
+			readonly = b;
+			if (readonly == true)
+			{
+				for (int i = 0; i < getComponentCount(); i++)
+				{
+					setReadOnly(getComponent(i), b);
+				}
+			}
+			else
+			{
+				if (componentsWithEditableStateChanged.size() != 0)
+				{
+					for (Component component : componentsWithEditableStateChanged)
+					{
+						setReadOnly(component, b);
+					}
+				}
+				componentsWithEditableStateChanged.clear();
+			}
+		}
+		else
+		{
+			//set readOnly for all form children 
+			for (int i = 0; i < getComponentCount(); i++)
+			{
+				setReadOnlyOnFormChildren(getComponent(i), b);
+			}
 		}
 	}
 
@@ -567,6 +596,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				if (componentIsReadOnly(comp) == false)
 				{
 					((ListView)comp).setEditable(false);
+					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
@@ -582,6 +612,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				if (componentIsReadOnly(comp) == false)
 				{
 					((TableView)comp).setEditable(false);
+					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
 				}
 			}
 			else
@@ -591,7 +622,18 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		}
 		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly)
 		{
-			((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(b);
+			if (b == true)
+			{
+				if (componentIsReadOnly(comp) == false)
+				{
+					((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(true);
+					if (componentsWithEditableStateChanged.contains(comp) == false) componentsWithEditableStateChanged.add(comp); // pay attention; what to do if container
+				}
+			}
+			else
+			{
+				((HasRuntimeReadOnly)((IScriptableProvider)comp).getScriptObject()).setReadOnly(false);
+			}
 		}
 		else if (comp instanceof Container)
 		{
@@ -599,6 +641,25 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			for (Component element : comps)
 			{
 				setReadOnly(element, b);
+			}
+		}
+	}
+
+	private void setReadOnlyOnFormChildren(Component comp, boolean b)
+	{
+		if (comp instanceof Container)
+		{
+			if (comp instanceof SwingForm)
+			{
+				((SwingForm)comp).getController().setReadOnly(b);
+			}
+			else
+			{
+				Component[] comps = ((Container)comp).getComponents();
+				for (Component element : comps)
+				{
+					setReadOnlyOnFormChildren(element, b);
+				}
 			}
 		}
 	}
