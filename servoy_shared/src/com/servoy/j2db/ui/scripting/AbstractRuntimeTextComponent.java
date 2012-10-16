@@ -76,7 +76,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 	{
 		if (textComponent != null)
 		{
-			textComponent.scrollRectToVisible(new Rectangle(x, y, textComponent.getWidth(), textComponent.getHeight()));
+			textComponent.scrollRectToVisible(new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height));
 		}
 	}
 
