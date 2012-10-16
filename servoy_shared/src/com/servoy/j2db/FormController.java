@@ -2975,6 +2975,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	private void refreshAllPartRenderers(IRecordInternal[] records)
 	{
 		if (!isFormVisible || application.isShutDown()) return;
+		// don't do anything yet when there are records but the selection is invalid
+		if (formModel.getSize() > 0 && (formModel.getSelectedIndex() == -1 || formModel.getSelectedIndex() > formModel.getSize())) return;
+
 		boolean executeOnRecordSelect = false;
 		IRecordInternal[] state = records;
 		if (state == null)
