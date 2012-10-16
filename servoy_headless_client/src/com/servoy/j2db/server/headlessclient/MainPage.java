@@ -1092,6 +1092,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				@Override
 				public void undo()
 				{
+					((FormManager)client.getFormManager()).setCurrentContainer(MainPage.this, MainPage.this.getPageMap().getName());
 					((FormManager)client.getFormManager()).showFormInMainPanel(formName, MainPage.this, null, true, MainPage.this.getPageMap().getName());
 				}
 			});
