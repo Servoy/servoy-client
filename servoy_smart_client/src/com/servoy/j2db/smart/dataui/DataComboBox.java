@@ -29,15 +29,14 @@ import java.awt.Insets;
 import java.awt.ItemSelectable;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.Format;
@@ -46,6 +45,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
@@ -139,8 +141,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	private boolean showingPopup;
 	private static final int MAXIMUM_ROWS = 20;
 
-	private final KeyListener navigationKeyListener;
-	private boolean isNavigationKeyOn;
+	private int lastPopupHighlightRequested = -1;
 
 	public DataComboBox(IApplication application, RuntimeDataCombobox scriptable, IValueList vl)
 	{
@@ -242,20 +243,16 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		{
 			((ComboPopup)o).getList().setSelectionModel(new DefaultListSelectionModel()
 			{
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see javax.swing.DefaultListSelectionModel#setSelectionInterval(int, int)
-				 */
+
 				@Override
 				public void setSelectionInterval(int index0, int index1)
 				{
 					int leftInd = index0;
 					int rightInd = index1;
-					if (isNavigationKeyOn)
+					Object x = getListModelWrapper().get(index0);
+					if (x == IValueList.SEPARATOR)
 					{
-						Object x = getListModelWrapper().get(index0);
-						if (x == IValueList.SEPARATOR)
+						if (lastPopupHighlightRequested != index0)
 						{
 							int index = getMinSelectionIndex();
 							if (index < index0)
@@ -268,28 +265,50 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 								leftInd--;
 								rightInd--;
 							}
-						}
+							super.setSelectionInterval(leftInd, rightInd);
+						} // else do nothing
 					}
-					super.setSelectionInterval(leftInd, rightInd);
+					else super.setSelectionInterval(leftInd, rightInd);
+					lastPopupHighlightRequested = index0;
 				}
 			});
 		}
 
-		navigationKeyListener = new KeyAdapter()
+		AbstractAction navigatingViaKeyboardAction = new AbstractAction()
 		{
-			@Override
-			public void keyPressed(KeyEvent e)
+			public void actionPerformed(ActionEvent e)
 			{
-				isNavigationKeyOn = e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN;
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e)
-			{
-				isNavigationKeyOn = false;
+				lastPopupHighlightRequested = -1; // to make sure separators are skipped when pressing up/down and still avoid flicker when just moving mouse over the separator
 			}
 		};
-		addKeyListener(navigationKeyListener);
+		// the following 2 will also consume (besides the intended effect) the up/down press events in combos for parent hierarchy and window level actions but
+		// I guess that shouldn't be a problem as combos seem to have done this before as well, because of already registered keystrokes
+		prependKeyPressAction(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "keyNavS", navigatingViaKeyboardAction); //$NON-NLS-1$
+		prependKeyPressAction(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "keyNavS", navigatingViaKeyboardAction); //$NON-NLS-1$
+	}
+
+	/**
+	 * Adds a pre-action to a keystroke, keeping the old action as well if present.
+	 */
+	private void prependKeyPressAction(int scope, KeyStroke keyStroke, Object actionKey, final Action action)
+	{
+		InputMap im = getInputMap(scope);
+		Object actionKeyImpl = im.get(keyStroke);
+		if (actionKeyImpl == null)
+		{
+			actionKeyImpl = actionKey;
+			im.put(keyStroke, actionKeyImpl);
+		}
+		ActionMap am = getActionMap();
+		final Action oldAction = am.get(actionKeyImpl);
+		am.put(actionKeyImpl, new AbstractAction()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				action.actionPerformed(e);
+				if (oldAction != null) oldAction.actionPerformed(e);
+			}
+		});
 	}
 
 	public final RuntimeDataCombobox getScriptObject()
@@ -607,7 +626,6 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 	public void destroy()
 	{
 		getListModelWrapper().deregister();
-		removeKeyListener(navigationKeyListener);
 	}
 
 	class DividerListCellRenderer implements ListCellRenderer
@@ -1196,50 +1214,24 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		else
 		{
 			Object value = dataModel.getElementAt(anIndex);
-			if (IValueList.SEPARATOR.equals(value))
+			// this part should be moved to setSelectedItem() as well
+			if (value instanceof Date && format instanceof StateFullSimpleDateFormat)
 			{
-				// separators should not be selectable - so hijack this one and choose the nearest non-separator value
-				boolean found = false;
-				int i = 1;
-				while (!found && (anIndex + i < size || anIndex - i >= 0))
+				// original date is set in setValueObject, do not use getValueObject() here because when an editable combo is made empty, 
+				// the underlying value is set to null, but date merging should continue from last merged date (see NullDateFormatter)
+				StateFullSimpleDateFormat sfsd = (StateFullSimpleDateFormat)format;
+				String stringRep = sfsd.format(value);
+				try
 				{
-					if (anIndex + i < size && !IValueList.SEPARATOR.equals(dataModel.getElementAt(anIndex + i)))
-					{
-						found = true;
-						setSelectedIndex(anIndex + i);
-					}
-					else if (anIndex - i >= 0 && !IValueList.SEPARATOR.equals(dataModel.getElementAt(anIndex - i)))
-					{
-						found = true;
-						setSelectedIndex(anIndex - i);
-					}
-					i++;
+					sfsd.parse(stringRep);
+					value = sfsd.getMergedDate();
 				}
-				if (!found)
+				catch (ParseException e)
 				{
-					setSelectedItem(-1);
+					Debug.error(e);
 				}
 			}
-			else
-			{
-				if (value instanceof Date && format instanceof StateFullSimpleDateFormat)
-				{
-					// original date is set in setValueObject, do not use getValueObject() here because when an editable combo is made empty, 
-					// the underlying value is set to null, but date merging should continue from last merged date (see NullDateFormatter)
-					StateFullSimpleDateFormat sfsd = (StateFullSimpleDateFormat)format;
-					String stringRep = sfsd.format(value);
-					try
-					{
-						sfsd.parse(stringRep);
-						value = sfsd.getMergedDate();
-					}
-					catch (ParseException e)
-					{
-						Debug.error(e);
-					}
-				}
-				setSelectedItem(value);
-			}
+			setSelectedItem(value);
 		}
 	}
 
@@ -1249,6 +1241,13 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		Object oldSelection = selectedItemReminder;
 		if (oldSelection == null || !oldSelection.equals(anObject))
 		{
+			if (IValueList.SEPARATOR.equals(anObject))
+			{
+				// here we can't know the actual index to choose a nearby item, maybe there are multiple separators, so just ignore it (it's probably nicer anyway);
+				// reset the editor's value, cause it might have been set as well by an Enter key press
+				getEditor().setItem(oldSelection);
+				return;
+			}
 
 			if (anObject != null && !isEditable())
 			{
