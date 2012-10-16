@@ -17,10 +17,8 @@
 
 package com.servoy.j2db.ui.scripting;
 
-import java.awt.Dimension;
 import java.awt.Rectangle;
 
-import javax.swing.JViewport;
 import javax.swing.text.JTextComponent;
 
 import com.servoy.j2db.IApplication;
@@ -79,22 +77,7 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 	{
 		if (textComponent != null)
 		{
-			Rectangle r = new Rectangle(x, y, 0, 0);
-			if (textComponent.getParent() instanceof JViewport)
-			{
-				// you cannot ask for a region bigger then the actual view extent size to be visible - that would have no effect in some cases;
-				// but if you want x and y to be the coordinates where the visible area starts (if that is possible) then a rectangle the same size as the visible area must be used
-				Dimension s = ((JViewport)textComponent.getParent()).getExtentSize();
-				r.width = s.width;
-				r.height = s.height;
-			}
-			else
-			{
-				// hopefully this will never happen - cause if it's a scrolled component these will probably be bigger then any visible area of the textComponent
-				r.width = textComponent.getWidth();
-				r.height = textComponent.getHeight();
-			}
-			textComponent.scrollRectToVisible(r);
+			textComponent.scrollRectToVisible(new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height));
 		}
 	}
 

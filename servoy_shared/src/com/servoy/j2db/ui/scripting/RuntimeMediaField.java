@@ -59,7 +59,7 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 	{
 		if (jComponent != null)
 		{
-			jComponent.scrollRectToVisible(new Rectangle(x, y, jComponent.getWidth(), jComponent.getHeight()));
+			jComponent.scrollRectToVisible(new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height));
 		}
 	}
 

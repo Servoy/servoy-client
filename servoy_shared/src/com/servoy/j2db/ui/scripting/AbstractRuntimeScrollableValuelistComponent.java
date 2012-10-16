@@ -94,7 +94,7 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 	{
 		if (field != null)
 		{
-			field.scrollRectToVisible(new Rectangle(x, y, field.getWidth(), field.getHeight()));
+			field.scrollRectToVisible(new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height));
 		}
 	}
 
