@@ -118,7 +118,19 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 	public void insertTab(String name, String text, Icon icon, Component flp, String tooltip, int index)
 	{
 		setTitleAt(index, text);
-		add(flp, Integer.toString(index), index);
+
+		// because we use FixedCardLayout, we need to first remove the forms from the right,
+		// so the layout manager will have the forms in the right order
+		ArrayList<Component> nextComponents = new ArrayList<Component>();
+		nextComponents.add(flp);
+		int componentCount = getComponentCount();
+		for (int i = index; i < componentCount; i++)
+		{
+			nextComponents.add(getComponent(index));
+			remove(index);
+		}
+		for (Component c : nextComponents)
+			add(c, ((IFormLookupPanel)c).getFormName() + "_" + System.currentTimeMillis());
 
 		// By the time a tab is inserted, the opacity may have been already set.
 		// So just make sure its propagated to the new tab.
