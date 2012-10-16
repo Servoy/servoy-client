@@ -905,6 +905,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 		IHeaderResponse response = container.getHeaderResponse();
 
+
 		String showUrl = getShowUrlScript();
 		if (showUrl != null)
 		{
@@ -1086,14 +1087,12 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			{
 				private static final long serialVersionUID = 1L;
 
-				final String formName = callingContainer != null ? callingContainer.getHistory().getFormName(
-					callingContainer.getHistory().getIndex() - 1 > 0 ? callingContainer.getHistory().getIndex() - 1 : 0) : main.getController().getName();
+				final String formName = main.getController().getName();
 
 				@Override
 				public void undo()
 				{
-					client.getRuntimeWindowManager().closeFormInWindow(null, true);
-					((FormManager)client.getFormManager()).showFormInMainPanel(formName);
+					((FormManager)client.getFormManager()).showFormInMainPanel(formName, MainPage.this, null, true, MainPage.this.getPageMap().getName());
 				}
 			});
 			main.setMainPage(null);
