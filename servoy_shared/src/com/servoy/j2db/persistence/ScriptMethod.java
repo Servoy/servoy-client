@@ -163,6 +163,6 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	@Override
 	public String toString()
 	{
-		return "ScriptMethod[name:" + getName() + ", inmenu:" + getShowInMenu() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return "ScriptMethod[name:" + (getParent() instanceof Solution ? ScopesUtils.getScopeString(this) : getName()) + ", inmenu:" + getShowInMenu() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }
