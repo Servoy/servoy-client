@@ -4725,7 +4725,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 			GlobalScope globalScope = null;
 			if (id > 0)
 			{
-				globalScope = application.getScriptEngine().getScopesScope().getGlobalScopeForFunction(new Integer(id));
+				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
+				if (scriptMethod != null)
+				{
+					application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+					globalScope = application.getScriptEngine().getScopesScope().getGlobalScopeForFunction(new Integer(id));
+				}
 			}
 			else if (nameScope != null)
 			{
