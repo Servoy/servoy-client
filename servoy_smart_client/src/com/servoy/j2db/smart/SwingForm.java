@@ -574,11 +574,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	{
 		if (comp instanceof ListView)
 		{
-			if (((ListView)comp).isEditable() == true) return false;
+			return !((ListView)comp).isEditable();
 		}
 		else if (comp instanceof TableView)
 		{
-			if (((TableView)comp).isEditable() == true) return false;
+			return !((TableView)comp).isEditable();
 		}
 		else if (comp instanceof IScriptableProvider && ((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly)
 		{

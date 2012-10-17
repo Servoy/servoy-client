@@ -827,6 +827,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			if (component instanceof WebForm)
 			{
 				((WebForm)component).getController().setReadOnly(readonlyFlag);
+				return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			}
 			else if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeReadOnly)
 			{
