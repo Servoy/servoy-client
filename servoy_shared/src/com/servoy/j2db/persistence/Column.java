@@ -1232,9 +1232,9 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	}
 
 	/**
-	 * Check if db column type is compatibe woth external column type (like from import)
+	 * Check if db column type is compatible with external column type (like from import)
 	 */
-	public static boolean isColumnInfoCompatible(ColumnType dbColumnType, ColumnType externalColumnType)
+	public static boolean isColumnInfoCompatible(ColumnType dbColumnType, ColumnType externalColumnType, boolean checkLength)
 	{
 		if (dbColumnType == null && externalColumnType == null)
 		{
@@ -1254,7 +1254,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 		if (dbtype == exttype)
 		{
-			if (dbtype == IColumnTypes.TEXT && dbColumnType.getLength() != 0 && externalColumnType.getLength() != 0 &&
+			if (checkLength && dbtype == IColumnTypes.TEXT && dbColumnType.getLength() != 0 && externalColumnType.getLength() != 0 &&
 				dbColumnType.getLength() != externalColumnType.getLength())
 			{
 				// different length
