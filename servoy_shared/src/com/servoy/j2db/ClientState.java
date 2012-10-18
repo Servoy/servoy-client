@@ -1144,7 +1144,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 			else if (!force && args == null)
 			{
-				if (getPreferedSolutionNameToLoadOnInit() != null && startupArguments != null) s_args = new String[] { getPreferedSolutionNameToLoadOnInit() };
+				if (getPreferedSolutionNameToLoadOnInit() != null && isInDeveloper()) s_args = new String[] { getPreferedSolutionNameToLoadOnInit() };
 				if (!Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")) && startupArguments != null)
 				{
 					if (s_args == null) s_args = startupArguments;
