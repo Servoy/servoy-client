@@ -38,8 +38,8 @@ public class JQueryLoader implements Serializable
 
 
 	// this should be compatible with jquery-ui from accordion
-	public static final JavascriptResourceReference JS_JQUERY = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.5.2.min.js"); //$NON-NLS-1$
-	public static final JavascriptResourceReference JS_JQUERY_DEBUG = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.5.2.js"); //$NON-NLS-	
+	public static final JavascriptResourceReference JS_JQUERY = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.8.2.min.js"); //$NON-NLS-1$
+	public static final JavascriptResourceReference JS_JQUERY_DEBUG = new JavascriptResourceReference(MainPage.class, "jquery/jquery-1.8.2.js"); //$NON-NLS-	
 	public static final ResourceReference CSS_UI = new CompressedResourceReference(MainPage.class, "jquery/jquery-ui.css"); //$NON-NLS-1$
 	public static final JavascriptResourceReference JS_JQUERY_NUMPAD_DECIMAL = new JavascriptResourceReference(MainPage.class,
 		"jquery/jquery.numpadDecSeparator-1.1.2.js"); //$NON-NLS-1$
