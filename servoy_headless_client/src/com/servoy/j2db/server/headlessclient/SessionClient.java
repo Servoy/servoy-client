@@ -1030,14 +1030,19 @@ public class SessionClient extends ClientState implements ISessionClient
 			}
 			if (message != null && msg.getProperty(realKey) == null)
 			{
-				return message;
+				if (args == null || args.length == 0)
+				{
+					return message;
+				}
+				else
+				{
+					return getFormattedText(message, loc, args);
+				}
 			}
 			message = msg.getProperty(realKey);
 			if (message == null) return '!' + realKey + '!';
 			message = Utils.stringReplace(message, "'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
-			MessageFormat mf = new MessageFormat(message);
-			mf.setLocale(loc);
-			return mf.format(args);
+			return getFormattedText(message, loc, args);
 		}
 		catch (MissingResourceException e)
 		{
@@ -1049,6 +1054,12 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 	}
 
+	private static String getFormattedText(String message, Locale locale, Object[] args)
+	{
+		MessageFormat mf = new MessageFormat(message);
+		mf.setLocale(locale);
+		return mf.format(args);
+	}
 
 	private Properties getMessages(Locale loc)
 	{
