@@ -179,6 +179,8 @@ public class DataSpinner extends DataChoice
 		pinCellHeight();
 	}
 
+	private Object valueObject;
+
 	@Override
 	public void setValueObject(Object data)
 	{
@@ -187,6 +189,7 @@ public class DataSpinner extends DataChoice
 			// do nothing, data may be invalid value; same condition as for combo
 			return;
 		}
+		valueObject = data;
 		super.setValueObject(data);
 	}
 
@@ -337,7 +340,7 @@ public class DataSpinner extends DataChoice
 
 		public Object getElementAt(int index)
 		{
-			if (index < 1) return null;
+			if (index < 1) return valueObject;
 			return comboModel.getElementAt(index - 1); //returns null for the last empty element from getSize()+2
 		}
 
