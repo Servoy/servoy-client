@@ -351,6 +351,24 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#concat(Object, Object)
+	 * @param arg1 
+	 * @param arg2 
+	 * @sample
+	 * 	/** @type {QBSelect<db:/udm/contacts>} *&#47;
+	 * 	var query = databaseManager.createSelect('db:/udm/contacts') //$NON-NLS-1$
+	 * 	query.result.add(query.columns.name_first.concat(' ').concat(query.columns.name_last))
+	 * 	var ds = databaseManager.getDataSetByQuery(query, -1)
+	 * 
+	 */
+	@JSFunction
+	public QBFunction concat(Object arg1, Object arg2)
+	{
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.concat,
+			new IQuerySelectValue[] { getRoot().createOperand(arg1), getRoot().createOperand(arg2) });
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#floor(Object)
 	 * @param arg number object
 	 * @sample

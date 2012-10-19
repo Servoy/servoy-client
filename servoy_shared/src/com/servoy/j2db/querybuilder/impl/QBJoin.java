@@ -47,7 +47,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoin#on()
+	 * Get the on clause for the join.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/person>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/person')

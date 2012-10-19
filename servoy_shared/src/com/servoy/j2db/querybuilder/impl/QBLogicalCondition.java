@@ -41,7 +41,7 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition#add(IQueryBuilderCondition)
+	 * Add a condition to the AND or OR condition list.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')

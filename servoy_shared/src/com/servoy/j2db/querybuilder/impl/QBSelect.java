@@ -151,7 +151,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#where()
+	 * Get the where-part of the query, used to add conditions.
+	 * The conditions added here are AND-ed.
 	 * @sample
 	 * var query = foundset.getQuery()
 	 * query.where.add(query.columns.flag.eq(1))
@@ -167,7 +168,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#having()
+	 * Get the having-part of the query, used to add conditions.
+	 * The conditions added here are AND-ed.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -191,7 +193,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderGroupby#clear()
+	 * Clear the having-part of the query.
 	 * @sample
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.columns.x.eq(100))
@@ -210,7 +212,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#result()
+	 * Get the result part of the query, used to add result columns or values.
 	 * @sample
 	 * query.result.add(query.columns.company_id).add(query.columns.customerid)
 	 */
@@ -225,7 +227,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#sort()
+	 * Get the sorting part of the query.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -245,7 +247,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#groupBy()
+	 * Get the group by clause from a query
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -289,7 +291,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#getParameter(String)
+	 * Get or create a parameter for the query, this used to parameterize queries.
 	 * @sampleas params()
 	 */
 	@JSFunction
@@ -299,7 +301,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#or()
+	 * Create an OR-condition to add conditions to.
 	 * @sampleas and()
 	 */
 	@JSReadonlyProperty
@@ -309,7 +311,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#and()
+	 * Create an AND-condition to add conditions to.
 	 * @sample
 	 * query.where.add(
 	 *	  query.or
@@ -332,7 +334,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderCondition)
+	 * Create an negated condition.
 	 * @sample
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
 	 * 
@@ -345,7 +347,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#not(IQueryBuilderCondition)
+	 * Create an negated condition.
 	 * @sample
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
 	 * 
@@ -358,7 +360,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#exists(IQueryBuilder)
+	 * Get an exists-condition from a subquery
 	 * @sample
 	 * foundset.query.where.add(query.exists(query2))
 	 * 
@@ -380,7 +382,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilder#functions()
+	 * Get the functions clause from a query, used for functions that are not tied to a column.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders') //$NON-NLS-1$

@@ -142,6 +142,11 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	IQueryBuilderFunction divide(Object arg1, Object arg2);
 
 	/**
+	 * Create concat(args, arg2) expression
+	 */
+	IQueryBuilderFunction concat(Object arg1, Object arg2);
+
+	/**
 	 * Create second(date) expression
 	 */
 	IQueryBuilderFunction second(Object date);

@@ -51,7 +51,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#addPk()
+	 * Add the tables' primary pk columns in alphabetical order to the query result.
 	 * @sample
 	 * query.result.addPk()
 	 */
@@ -67,7 +67,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#clear()
+	 * Clear the columns in the query result.
 	 * @sample
 	 * query.result.clear()
 	 */
@@ -79,7 +79,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(String)
+	 * Add a column by name to the query result.
 	 * @sample
 	 * query.result.add("custname")
 	 */
@@ -89,7 +89,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
+	 * Add a column to the query result.
 	 * @sample
 	 * query.result.add(query.columns.custname)
 	 * 
@@ -101,7 +101,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
+	 * Add an aggregate to the query result.
 	 * @sample
 	 * query.result.add(query.columns.label_text.max)
 	 * 
@@ -113,7 +113,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#add(IQueryBuilderColumn)
+	 * Add a function result to the query result.
 	 * @sample
 	 * query.result.add(query.columns.custname.upper())
 	 * 
@@ -131,7 +131,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#addValue(Object)
+	 * Add a value to the query result.
 	 * @sample
 	 * query.result.addValue(100)
 	 */
@@ -142,19 +142,15 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return this;
 	}
 
-	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#setDistinct(boolean)
-	 * @sample
-	 * query.result.distinct = true
-	 */
 	public void js_setDistinct(boolean distinct) throws RepositoryException
 	{
 		setDistinct(distinct);
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderResult#setDistinct(boolean)
-	 * @sampleas js_setDistinct(boolean)
+	 * Get/set the distinct flag for the query.
+	 * @sample
+	 * query.result.distinct = true
 	 */
 	public boolean js_isDistinct() throws RepositoryException
 	{

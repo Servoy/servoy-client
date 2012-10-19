@@ -116,7 +116,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#between(Object, Object)
+	 * Compare column to a range of 2 values or other columns.
 	 * @param value1
 	 * @param value2
 	 * @sample
@@ -130,7 +130,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#in(IQueryBuilderPart)
+	 * Compare column with subquery result.
 	 * @param query subquery
 	 * @sample
 	 * query.where.add(query.columns.flag.isin(query2))
@@ -146,7 +146,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#in(Object[])
+	 * Compare column with values.
 	 * @param values array of values
 	 * @sample
 	 * query.where.add(query.columns.flag.isin([1, 5, 99]))
@@ -163,7 +163,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#isNull()
+	 * Compare column with null.
 	 * @sample
 	 * query.where.add(query.columns.flag.isNull)
 	 */
@@ -174,7 +174,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#eq(Object)
+	 * Compare column with a value or another column.
+	 * Operator: equals
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.eq(1))
@@ -186,7 +187,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#like(String)
+	 * Compare column with a value or another column.
+	 * Operator: like
 	 * 
 	 * @param pattern the string value of the pattern
 	 * 
@@ -200,7 +202,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#like(String, char)
+	 * Compare column with a value or another column.
+	 * Operator: like, with escape character
 	 * 
 	 * @param pattern the string value of the pattern
 	 * @param escape the escape char
@@ -215,7 +218,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#not()
+	 * Create a negated condition.
 	 * @sample
 	 * query.where.add(query.columns.flag.not.eq(1))
 	 * 
@@ -227,7 +230,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#asc()
+	 * Create an ascending sort expression
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -243,7 +246,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#desc()
+	 * Create an descending sort expression
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -259,7 +262,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#count()
+	 * Create an aggregate expression.
 	 * @sample
 	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
@@ -274,7 +277,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#avg()
+	 * Create an aggregate expression.
 	 * @sample
 	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
@@ -289,7 +292,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#max()
+	 * Create an aggregate expression.
 	 * @sample
 	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
@@ -304,7 +307,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#min()
+	 * Create an aggregate expression.
 	 * @sample
 	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
@@ -319,7 +322,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#sum()
+	 * Create an aggregate expression.
 	 * @sample
 	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
@@ -334,7 +337,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#upper()
+	 * Create upper(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.upper)
 	 */
@@ -345,7 +348,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#abs()
+	 * Create abs(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.abs)
 	 */
@@ -356,7 +359,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#sqrt()
+	 * Create sqrt(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.sqrt)
 	 */
@@ -367,7 +370,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#lower()
+	 * Create lower(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.lower)
 	 */
@@ -378,7 +381,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#trim()
+	 * Create trim(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.trim)
 	 */
@@ -389,7 +392,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#length()
+	 * Create length(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.len)
 	 */
@@ -405,7 +408,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#bit_length()
+	 * Create bit_length(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.bit_length)
 	 */
@@ -416,7 +419,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#cast(String)
+	 * Create cast(column, type) expression
 	 * @param type string type, see QUERY_COLUMN_TYPES
 	 * @sample
 	 * query.result.add(query.columns.mycol.cast(QUERY_COLUMN_TYPES.TYPE_INTEGER))
@@ -428,7 +431,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#substring(int)
+	 * Create substring(pos) expression
 	 * @param pos
 	 * @sample
 	 * query.result.add(query.columns.mycol.substring(3))
@@ -440,7 +443,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#substring(int, int)
+	 * Create substring(pos, len) expression
 	 * @param pos
 	 * @param len
 	 * @sample
@@ -453,7 +456,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#locate(Object)
+	 * Create locate(arg) expression
 	 * @param arg string to locate
 	 * @sample
 	 * query.result.add(query.columns.mycol.locate('sample'))
@@ -465,7 +468,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#locate(Object, int)
+	 * Create locate(arg, start) expression
 	 * @param arg string to locate
 	 * @param start start pos
 	 * @sample
@@ -478,7 +481,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#nullif(Object)
+	 * Create nullif(arg) expression
 	 * @param arg object to compare
 	 * @sample
 	 * query.result.add(query.columns.mycol.nullif('none'))
@@ -490,7 +493,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#mod(Object)
+	 * Create mod(arg) expression
 	 * @param arg mod arg
 	 * @sample
 	 * query.result.add(query.columns.mycol.mod(2))
@@ -502,7 +505,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#plus(Object)
+	 * Add up value
 	 * @param arg nr to add
 	 * @sample
 	 * query.result.add(query.columns.mycol.plus(2))
@@ -514,7 +517,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#minus(Object)
+	 * Subtract value
 	 * @param arg nr to subtract
 	 * @sample
 	 * query.result.add(query.columns.mycol.minus(2))
@@ -526,7 +529,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#multiply(Object)
+	 * Multiply with value
 	 * @param arg nr to multiply with
 	 * @sample
 	 * query.result.add(query.columns.mycol.multiply(2))
@@ -538,7 +541,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#divide(Object)
+	 * Divide by value
 	 * @param arg nr to divide by
 	 * @sample
 	 * query.result.add(query.columns.mycol.divide(2))
@@ -550,7 +553,19 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#floor()
+	 * Concatename with value
+	 * @param arg valeu to concatenate with
+	 * @sample
+	 * query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname))
+	 */
+	@JSFunction
+	public QBFunction concat(Object arg)
+	{
+		return getRoot().functions().concat(this, arg);
+	}
+
+	/**
+	 * Create floor(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.floor)
 	 */
@@ -561,7 +576,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#round()
+	 * Create round(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.round)
 	 */
@@ -572,7 +587,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#ceil()
+	 * Create ceil(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.ceil)
 	 */
@@ -583,7 +598,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#second()
+	 * Extract second from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.second)
 	 */
@@ -594,7 +609,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#minute()
+	 * Extract minute from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.minute)
 	 */
@@ -605,7 +620,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#hour()
+	 * Extract hour from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.hour)
 	 */
@@ -616,7 +631,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#day()
+	 * Extract day from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.day)
 	 */
@@ -627,7 +642,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#month()
+	 * Extract month from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.month)
 	 */
@@ -638,7 +653,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#year()
+	 * Extract year from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.year)
 	 */

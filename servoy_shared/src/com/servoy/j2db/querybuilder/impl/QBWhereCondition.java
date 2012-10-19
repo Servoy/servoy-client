@@ -69,7 +69,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition#add(String, IQueryBuilderCondition)
+	 * Add a named condition to the AND or OR condition list.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -90,7 +90,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition#conditionnames()
+	 * Get the names for the conditions in the query where-clause.
 	 * @sample
 	 * var q = foundset.getQuery()
 	 * for (var c in q.where.conditionnames)
@@ -111,7 +111,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition#remove(String)
+	 * Remove a named condition from the AND or OR condition list.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -129,7 +129,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition#clear()
+	 * Clear the conditions in the query where-clause.
 	 * @sample
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var query = databaseManager.createSelect('db:/example_data/orders')
@@ -147,7 +147,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition#getCondition(String)
+	 * Get a named condition in the query where-clause.
 	 * @sampleas conditionnames()
 	 */
 	@JSFunction

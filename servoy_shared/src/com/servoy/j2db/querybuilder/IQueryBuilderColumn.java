@@ -68,8 +68,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	IQueryBuilderCondition le(Object value);
 
 	/**
-	 * Compare column with a value or another column.
-	 * Compare column to between 2 values or other columns.
+	 * Compare column to a range of 2 values or other columns.
 	 * <pre>
 	 * query.where().add(query.getColumn("value").between(new Integer(1), new Integer(99));
 	 * </pre>
@@ -93,8 +92,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	IQueryBuilderCondition in(Object[] values);
 
 	/**
-	 * Compare column with a value or another column.
-	 * Operator: isNull
+	 * Compare column with null.
 	 * @see #eq
 	 */
 	IQueryBuilderCondition isNull();
@@ -183,32 +181,32 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	IQueryBuilderFunction upper();
 
 	/**
-	 * Create upper(column) expression
+	 * Create abs(column) expression
 	 */
 	IQueryBuilderFunction abs();
 
 	/**
-	 * Create upper(column) expression
+	 * Create sqrt(column) expression
 	 */
 	IQueryBuilderFunction sqrt();
 
 	/**
-	 * Create upper(column) expression
+	 * Create lower(column) expression
 	 */
 	IQueryBuilderFunction lower();
 
 	/**
-	 * Create upper(column) expression
+	 * Create trim(column) expression
 	 */
 	IQueryBuilderFunction trim();
 
 	/**
-	 * Create upper(column) expression
+	 * Create length(column) expression
 	 */
 	IQueryBuilderFunction length();
 
 	/**
-	 * Create upper(column) expression
+	 * Create bit_length(column) expression
 	 */
 	IQueryBuilderFunction bit_length();
 
@@ -280,6 +278,12 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * @param arg to divide by
 	 */
 	IQueryBuilderFunction divide(Object arg);
+
+	/**  
+	 * Concatenate with value
+	 * @param arg to concatenate with
+	 */
+	IQueryBuilderFunction concat(Object arg);
 
 	/** 
 	 * Create floor(column) expression
