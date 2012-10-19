@@ -156,10 +156,9 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 					Debug.log("foreign table for relation '" + relationName + "' not found");
 					return null;
 				}
-
 				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
-					new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema(), alias), root.getGlobalScopeProvider()),
-					relation.getForeignDataSource(), name);
+					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias),
+					root.getGlobalScopeProvider()), relation.getForeignDataSource(), name);
 			}
 			catch (RepositoryException e)
 			{
@@ -266,8 +265,8 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 		{
 			Table foreignTable = root.getTable(dataSource);
 			join = addJoin(
-				new QueryJoin(name, parent.getQueryTable(), new QueryTable(foreignTable.getSQLName(), foreignTable.getCatalog(), foreignTable.getSchema(),
-					alias), new AndCondition(), joinType), dataSource, name);
+				new QueryJoin(name, parent.getQueryTable(), new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
+					foreignTable.getSchema(), alias), new AndCondition(), joinType), dataSource, name);
 		}
 		return join;
 	}
