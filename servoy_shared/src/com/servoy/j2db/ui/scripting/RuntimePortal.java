@@ -22,6 +22,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 
 import javax.swing.JComponent;
+import javax.swing.JViewport;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -94,7 +95,16 @@ public class RuntimePortal extends AbstractRuntimeBaseComponent<IPortalComponent
 	{
 		if (jComponent != null)
 		{
-			jComponent.scrollRectToVisible(new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height));
+			Rectangle rect = new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height);
+			if (jComponent.getParent() instanceof JViewport)
+			{
+				// you cannot ask for a region bigger then the actual view extent size to be visible - that would have no effect in some cases;
+				// but if you want x and y to be the coordinates where the visible area starts (if that is possible) then a rectangle the same size as the visible area must be used
+				Dimension s = ((JViewport)jComponent.getParent()).getExtentSize();
+				rect.width = s.width;
+				rect.height = s.height;
+			}
+			jComponent.scrollRectToVisible(rect);
 		}
 	}
 

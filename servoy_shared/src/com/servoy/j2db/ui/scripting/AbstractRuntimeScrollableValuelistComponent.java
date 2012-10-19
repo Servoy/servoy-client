@@ -17,11 +17,13 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.JViewport;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
@@ -94,7 +96,16 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 	{
 		if (field != null)
 		{
-			field.scrollRectToVisible(new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height));
+			Rectangle rect = new Rectangle(x, y, getComponent().getSize().width, getComponent().getSize().height);
+			if (field.getParent() instanceof JViewport)
+			{
+				// you cannot ask for a region bigger then the actual view extent size to be visible - that would have no effect in some cases;
+				// but if you want x and y to be the coordinates where the visible area starts (if that is possible) then a rectangle the same size as the visible area must be used
+				Dimension s = ((JViewport)field.getParent()).getExtentSize();
+				rect.width = s.width;
+				rect.height = s.height;
+			}
+			field.scrollRectToVisible(rect);
 		}
 	}
 
