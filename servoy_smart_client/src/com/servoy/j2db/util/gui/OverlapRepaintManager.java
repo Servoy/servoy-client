@@ -19,6 +19,7 @@ package com.servoy.j2db.util.gui;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Rectangle;
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ import javax.swing.SwingUtilities;
  */
 public class OverlapRepaintManager extends RepaintManager
 {
-	private final Set<JComponent> components = new HashSet<JComponent>();
+	private final Set<WeakReferenceValidator<JComponent>> components = new HashSet<WeakReferenceValidator<JComponent>>();
 
 	/**
 	 * Creates a new OverlapRepaintManager that uses a default RepaintManager instance to handle unaltered operations.
@@ -50,7 +51,7 @@ public class OverlapRepaintManager extends RepaintManager
 	{
 		synchronized (this)
 		{
-			components.add(c);
+			components.add(new WeakReferenceValidator<JComponent>(c));
 		}
 		super.addDirtyRegion(c, x, y, w, h); // add the dirty region
 	}
@@ -86,17 +87,53 @@ public class OverlapRepaintManager extends RepaintManager
 	@Override
 	public void paintDirtyRegions()
 	{
-		Set<JComponent> tmp;
+		Set<WeakReferenceValidator<JComponent>> tmp;
+		JComponent component;
 		synchronized (this)
 		{ // swap for thread safety
-			tmp = new HashSet<JComponent>(components);
+			tmp = new HashSet<WeakReferenceValidator<JComponent>>(components);
 			components.clear();
 		}
-		for (JComponent component : tmp)
+		for (WeakReferenceValidator<JComponent> reference : tmp)
 		{
-			Rectangle dirtyRegion = super.getDirtyRegion(component);
-			searchOverlappingRegionsInHierarchy(component.getParent(), component, dirtyRegion);
+			component = reference.get();
+			if (component != null)
+			{
+				Rectangle dirtyRegion = super.getDirtyRegion(component);
+				searchOverlappingRegionsInHierarchy(component.getParent(), component, dirtyRegion);
+			}
 		}
 		super.paintDirtyRegions();
+	}
+
+	class WeakReferenceValidator<X> extends WeakReference<X>
+	{
+		public WeakReferenceValidator(X referent)
+		{
+			super(referent);
+		}
+
+		@Override
+		public int hashCode()
+		{
+			X x = get();
+			if (x != null) return x.hashCode();
+			else return super.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			X x = get();
+			if (x != null)
+			{
+				if (obj instanceof WeakReferenceValidator)
+				{
+					return x.equals(((WeakReferenceValidator< ? >)obj).get());
+				}
+				else return false;
+			}
+			else return super.equals(obj);
+		}
 	}
 }
