@@ -1786,6 +1786,10 @@ public class JSApplication implements IReturnedTypesProvider
 			buf.append(']');
 			application.output(buf.toString(), level);
 		}
+		else if (msg instanceof NativeError)
+		{
+			application.output(msg.toString() + '\n' + ((NativeError)msg).getStack(), level);
+		}
 		else if (msg instanceof Scriptable)
 		{
 			application.output(getScriptableString((Scriptable)msg, new HashSet<Scriptable>()), level);
