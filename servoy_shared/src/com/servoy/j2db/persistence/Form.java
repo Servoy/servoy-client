@@ -2191,6 +2191,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * 
 	 * @return the encapsulation mode/level for the form
 	 */
+	@ServoyMobile
 	public int getEncapsulation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
