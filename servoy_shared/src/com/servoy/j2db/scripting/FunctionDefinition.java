@@ -71,7 +71,14 @@ public class FunctionDefinition
 				else
 				{
 					// form method
-					contextName = split[0];
+					if (split.length == 3)
+					{
+						contextName = split[1];
+					}
+					else
+					{
+						contextName = split[0];
+					}
 				}
 				methodName = split[split.length - 1];
 			}
