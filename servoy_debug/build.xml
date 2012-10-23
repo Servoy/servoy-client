@@ -164,26 +164,28 @@
 			<pathelement path="${build.result.folder}/../servoy_shared_7.0.0.2000/lib/xstream.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi_3.7.2.v20120110-1415.jar"/>
 			<pathelement path="../eclipse_target/ship_plugins/plugins/org.eclipse.equinox.transforms.hook_1.0.300.201106061129.jar"/>
+			<pathelement path="../servoy_base/bin/"/>
+			<pathelement path="../servoy_base/@dot"/>
 			<pathelement path="../servoy_smart_client/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client_7.0.0.2000/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client/@dot"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client_7.0.0.2000/@dot"/>
 			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.swt_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.x86_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc64_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.swt.win32.win32.x86_3.7.2.v3740f.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.carbon.macosx_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.hpux.ia64_32_3.7.2.v3740f.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx.x86_64_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390x_3.7.2.v3740f.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc64_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.hpux.ia64_32_3.7.2.v3740f.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc64_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390x_3.7.2.v3740f.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_64_3.7.2.v3740f.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.sparc_3.7.2.v3740f.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_3.7.2.v3740f.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_64_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.sparc_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.x86_3.7.2.v3740f.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_64_3.7.2.v3740f.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -231,14 +233,16 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_debug_7.0.0.2000${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_debug_7.0.0.2000" log="${compilation.prereq.log}">
-			<include name="C:/Users/Administrator/dev_trunk/servoy_smart_client/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_smart_client_7.0.0.2000/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/servoy_headless_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_headless_client_7.0.0.2000/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.0.0.2000/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/servoy_shared/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_shared_7.0.0.2000/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_trunk/servoy_smart_client/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_smart_client_7.0.0.2000/compilation.problem"/>
+			<include name="C:/Users/Administrator/dev_trunk/servoy_base/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_base_6.1.2.1421/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
