@@ -37,9 +37,10 @@ public class SolutionMetaData extends RootObjectMetaData
 	public static final int AUTHENTICATOR = 32;
 	public static final int PRE_IMPORT_HOOK = 64;
 	public static final int POST_IMPORT_HOOK = 128;
+	public static final int MOBILE = 256;
 
-	public static final String[] solutionTypeNames = { "Normal", "Module", "Web client only", "Smart client only", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
-	public static final int[] solutionTypes = { SOLUTION, MODULE, WEB_CLIENT_ONLY, SMART_CLIENT_ONLY, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK };
+	public static final String[] solutionTypeNames = { "Normal", "Module", "Web client only", "Smart client only", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
+	public static final int[] solutionTypes = { SOLUTION, MODULE, WEB_CLIENT_ONLY, SMART_CLIENT_ONLY, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE };
 
 
 	private int solutionType;
