@@ -1367,7 +1367,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatecode
 	 * controller.deleteRecord()
 	 */
-	@ServoyMobile
 	public int getOnDeleteRecordCmdMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID).intValue();
