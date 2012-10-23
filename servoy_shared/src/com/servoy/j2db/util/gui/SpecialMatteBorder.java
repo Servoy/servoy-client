@@ -132,29 +132,16 @@ public class SpecialMatteBorder extends AbstractBorder
 			if (roundingRadius > 0 && top > 0f && topColor != null)
 			{
 				((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				float lineWidth = top;
 				if (dashPattern == null)
 				{
-					((Graphics2D)g).setStroke(new BasicStroke(lineWidth, line_cap, line_join));
+					((Graphics2D)g).setStroke(new BasicStroke(top, line_cap, line_join));
 				}
 				else
 				{
-					((Graphics2D)g).setStroke(new BasicStroke(lineWidth, line_cap, line_join, 1f, dashPattern, 0f));
+					((Graphics2D)g).setStroke(new BasicStroke(top, line_cap, line_join, 1f, dashPattern, 0f));
 				}
 
-				float halfLW = lineWidth / 2f;
-				float shapeWidth = width - lineWidth;
-				float shapeHeight = height - lineWidth;
-				// subtract 1px if needed
-				if (2 * (int)halfLW == lineWidth)
-				{
-					shapeWidth -= 1;
-					shapeHeight -= 1;
-				}
-				// make this more in line with WC
-				Shape shape = new RoundRectangle2D.Float(halfLW, halfLW, shapeWidth, shapeHeight, getWebClientCompatibleValue(getArcWidth()),
-					getWebClientCompatibleValue(getArcHeight()));
-
+				Shape shape = createRoundedShape(width, height);
 				g.setColor(topColor);
 				((Graphics2D)g).draw(shape);
 			}
@@ -292,6 +279,22 @@ public class SpecialMatteBorder extends AbstractBorder
 			g.setColor(oldColor);
 			((Graphics2D)g).setStroke(oldStroke);
 		}
+	}
+
+	public Shape createRoundedShape(int width, int height)
+	{
+		float halfLW = top / 2f;
+		float shapeWidth = width - top;
+		float shapeHeight = height - top;
+		// subtract 1px if needed
+		if (2 * (int)halfLW == top)
+		{
+			shapeWidth -= 1;
+			shapeHeight -= 1;
+		}
+		// make this more in line with WC
+		return new RoundRectangle2D.Float(halfLW, halfLW, shapeWidth, shapeHeight, getWebClientCompatibleValue(getArcWidth()),
+			getWebClientCompatibleValue(getArcHeight()));
 	}
 
 	public Color getTopColor()

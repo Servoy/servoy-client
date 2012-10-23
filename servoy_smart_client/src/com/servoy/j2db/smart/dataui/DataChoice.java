@@ -167,6 +167,30 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		getViewport().setView(enclosedComponent);
 	}
 
+	/**
+	 * @return the choiceType
+	 */
+	public int getChoiceType()
+	{
+		return choiceType;
+	}
+
+	/**
+	 * @return the rendererComponent
+	 */
+	public JComponent getRendererComponent()
+	{
+		return rendererComponent;
+	}
+
+	/**
+	 * @return the enclosedComponent
+	 */
+	public JEditList getEnclosedComponent()
+	{
+		return enclosedComponent;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
