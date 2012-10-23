@@ -89,7 +89,9 @@
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_7.0.0.2000/@dot"/>
 			<pathelement path="../servoy_base/bin/"/>
-			<pathelement path="../servoy_base/@dot"/>
+			
+			<pathelement path="${build.result.folder}/../servoy_base/@dot"/>
+			
 			<pathelement path="lib/annotations-1.0.jar"/>
 			<pathelement path="${build.result.folder}/../servoy_shared_7.0.0.2000/lib/annotations-1.0.jar"/>
 			<pathelement path="lib/BrowserLauncher2.jar"/>
