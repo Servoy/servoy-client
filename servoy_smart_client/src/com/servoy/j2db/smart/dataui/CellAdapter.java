@@ -181,7 +181,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		{
 			componentBgColor = renderer.getBackground();
 			componentFgColor = renderer.getForeground();
-			//componentFgColor = Color.blue;
 			componentFont = renderer.getFont();
 			renderer.addComponentListener(new ComponentListener()
 			{
