@@ -915,7 +915,7 @@ public class TemplateGenerator
 					}
 				}
 
-				columns.append("<td><div servoy:id='listViewItem' class=\"listViewItem\" style=\"position: absolute; height: ").append(
+				columns.append("<td><div servoy:id='listViewItem' class=\"listViewItem\" tabindex=\"-1\" style=\"position: absolute; height: ").append(
 					firstComponentHeight - yOffset).append("px;");
 				if (enableAnchoring || obj instanceof Portal)
 				{

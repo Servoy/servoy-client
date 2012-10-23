@@ -117,6 +117,11 @@ public class PropertyCopy
 			((ILabel)copy).setText(((ILabel)org).getText());
 		}
 
+		if (org instanceof IFieldComponent && copy instanceof IFieldComponent)
+		{
+			((IFieldComponent)copy).setEditable(((IFieldComponent)org).isEditable());
+		}
+
 		if (org instanceof IScriptableProvider && copy instanceof IScriptableProvider)
 		{
 			IScriptable source = ((IScriptableProvider)org).getScriptObject();

@@ -140,6 +140,7 @@ import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
+import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
@@ -399,7 +400,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				Debug.log("Strange - CellContainer with no child..."); //$NON-NLS-1$
 			}
-			return child;
+
+			return child instanceof WrapperContainer ? ((WrapperContainer)child).getDelegate() : child;
 		}
 
 		@Override
@@ -560,7 +562,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			for (int i = 0; i < getViewSize(); i++)
 			{
 				index = firstIndex + i;
-				ListItem<IRecordInternal> item = (ListItem<IRecordInternal>)get(Integer.toString(index));
+				WebMarkupContainer item = ((WebCellBasedViewListItem)get(Integer.toString(index))).getListContainer();
 				if (item != null)
 				{
 					Iterator< ? extends Component> children = item.iterator();
@@ -927,7 +929,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			super("listViewItem"); //$NON-NLS-1$
 			setOutputMarkupId(true);
 			this.listItem = listItem;
-			add(new ServoyAjaxEventBehavior("onclick", "listView") //$NON-NLS-1$ //$NON-NLS-2$
+			add(new ServoyAjaxEventBehavior("onfocus", "listView") //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				@Override
 				protected void onEvent(AjaxRequestTarget target)
