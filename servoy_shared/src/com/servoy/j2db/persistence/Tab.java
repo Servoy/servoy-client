@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -115,6 +116,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 * The name of the relation that links the form which contains the tab 
 	 * with the form displayed in the tab.
 	 */
+	@ServoyMobile
 	public String getRelationName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME);
