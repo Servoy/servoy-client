@@ -19,6 +19,7 @@ package com.servoy.j2db.util.gui;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Rectangle;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JComponent;
@@ -90,7 +91,7 @@ public class OverlapRepaintManager extends RepaintManager
 		Set<JComponent> tmp;
 		synchronized (this)
 		{ // swap for thread safety
-			tmp = new WeakHashSet<JComponent>(components);
+			tmp = new HashSet<JComponent>(components);
 			components.clear();
 		}
 		for (JComponent component : tmp)
