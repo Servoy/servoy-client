@@ -265,6 +265,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The names of the database server and table that this form is linked to.
 	 */
+	@ServoyMobile
 	public String getDataSource()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE);
