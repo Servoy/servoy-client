@@ -181,6 +181,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		{
 			componentBgColor = renderer.getBackground();
 			componentFgColor = renderer.getForeground();
+			//componentFgColor = Color.blue;
 			componentFont = renderer.getFont();
 			renderer.addComponentListener(new ComponentListener()
 			{
@@ -651,7 +652,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
 					renderer.setBackground(newBGColor);
 				}
-				Color newFGColor = fgColor != null ? fgColor : componentFgColor;
+				Color newFGColor = fgColor != null ? fgColor : (componentFgColor != null) ? componentFgColor : jtable.getForeground();
 				if (newFGColor != null)
 				{
 					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
