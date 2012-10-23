@@ -22,7 +22,6 @@ import java.util.Arrays;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSBaseEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
 
 /**
  * JSDNDEvent, used as argument to drag and drop callbacks.

@@ -22,7 +22,7 @@ import java.awt.Point;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -231,7 +231,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 
 	public Object fireRightclickCommand(boolean saveData, Object display, int modifiers, String formName, Point mouseLocation)
 	{
-		return fireEventCommand(JSEvent.EventType.rightClick, rightClickCommand, null, rightClickArgs, saveData, display, false, modifiers, formName, false,
+		return fireEventCommand(EventType.rightClick, rightClickCommand, null, rightClickArgs, saveData, display, false, modifiers, formName, false,
 			mouseLocation);
 	}
 

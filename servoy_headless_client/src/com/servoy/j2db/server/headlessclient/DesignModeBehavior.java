@@ -36,7 +36,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;

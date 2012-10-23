@@ -24,7 +24,7 @@ import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.runtime.HasRuntimeEnabled;

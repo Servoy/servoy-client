@@ -59,7 +59,7 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IAnchoredComponent;

@@ -16,13 +16,11 @@
  */
 package com.servoy.j2db.scripting;
 
-import java.awt.Event;
 import java.util.Arrays;
 
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.api.IJSEvent;
 
 /**
  * JSEvent, used as first argument to user-event callbacks.
@@ -32,137 +30,8 @@ import com.servoy.j2db.scripting.api.IJSEvent;
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSEvent extends JSBaseEvent implements IJSEvent
+public class JSEvent extends JSBaseEvent
 {
-	public enum EventType
-	{
-		action, focusGained, focusLost, doubleClick, rightClick, onDrag, onDrop, onDragOver, onDragEnd, form, dataChange, none
-	}
-
-	/**
-	 * Constant returned by JSEvent.getType() if the event is not used in a known event or command.
-	 * @sample
-	 * if (event.getType() == JSEvent.NONE) 
-	 * {
-	 * 	// type is not set.
-	 * }
-	 */
-	public static final String NONE = EventType.none.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onAction event. 
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.ACTION) 
-	 * {
-	 * 	// its an action event.
-	 * }
-	 */
-	public static final String ACTION = EventType.action.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onFocusGained or the forms onElementFocusGained event.
-	 *
-	 * @sample 
-	 * if (event.getType() == JSEvent.FOCUSGAINED) 
-	 * {
-	 * 	// its a focus gained event.
-	 * }
-	 */
-	public static final String FOCUSGAINED = EventType.focusGained.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onFocusLost or the forms onElementFocusLost event.
-	 *
-	 * @sample 
-	 * if (event.getType() == JSEvent.FOCUSLOST) 
-	 * {
-	 * 	// its a focus lost event.
-	 * }
-	 */
-	public static final String FOCUSLOST = EventType.focusLost.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDoubleClick event.
-	 *
-	 * @sample 
-	 * if (event.getType() == JSEvent.DOUBLECLICK) 
-	 * {
-	 * 	// its a double click event.
-	 * }
-	 */
-	public static final String DOUBLECLICK = EventType.doubleClick.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onRightClick event.
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.RIGHTCLICK) 
-	 * {
-	 * 	// its a right click event.
-	 * }
-	 */
-	public static final String RIGHTCLICK = EventType.rightClick.toString();
-
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onDataChange event.
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.DATACHANGE) 
-	 * {
-	 * 	// its a data change event
-	 * }
-	 */
-	public static final String DATACHANGE = EventType.dataChange.toString();
-
-	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to a form event (like onShow) or command (like onDeleteRecord)
-	 *
-	 * @sample
-	 * if (event.getType() == JSEvent.FORM) 
-	 * {
-	 * 	// its a form event or command
-	 * }
-	 */
-	public static final String FORM = EventType.form.toString();
-
-	/**
-	 * Constant for the SHIFT modifier that can be returned by JSEvent.getModifiers();
-	 * 
-	 * @sampleas js_getModifiers()
-	 * 
-	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
-	 */
-	public static final int MODIFIER_SHIFT = Event.SHIFT_MASK;
-
-	/**
-	 * Constant for the CTRL modifier that can be returned by JSEvent.getModifiers();
-	 * 
-	 * @sampleas js_getModifiers()
-	 * 
-	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
-	 */
-	public static final int MODIFIER_CTRL = Event.CTRL_MASK;
-
-	/**
-	 * Constant for the META modifier that can be returned by JSEvent.getModifiers();
-	 * 
-	 * @sampleas js_getModifiers()
-	 * 
-	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
-	 */
-	public static final int MODIFIER_META = Event.META_MASK;
-
-	/**
-	 * Constant for the ALT modifier that can be returned by JSEvent.getModifiers();
-	 * 
-	 * @sampleas js_getModifiers()
-	 * 
-	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
-	 */
-	public static final int MODIFIER_ALT = Event.ALT_MASK;
-
 	@Override
 	public String toString()
 	{

@@ -59,7 +59,7 @@ import com.servoy.j2db.dnd.IFormDataDragNDrop;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.CloseableAjaxRequestTarget;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;

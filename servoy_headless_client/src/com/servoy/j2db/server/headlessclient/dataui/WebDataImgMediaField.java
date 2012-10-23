@@ -66,7 +66,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSEvent.EventType;
+import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.MediaUploadPage;
