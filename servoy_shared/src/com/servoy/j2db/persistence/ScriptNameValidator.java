@@ -167,14 +167,6 @@ public class ScriptNameValidator implements IValidateName
 				searchContext.getType() == IRepository.SCRIPTCALCULATIONS);
 			if (obj != null) return obj;
 
-			for (ScriptCalculation sc : Utils.iterate(solutionRoot.getScriptCalculations(table, false)))
-			{
-				if (nameToCheck.equals(sc.getName()) && sc.getID() != skip_element_id)
-				{
-					return sc;
-				}
-			}
-
 			if (searchContext.getType() != IRepository.METHODS)
 			{
 				// Test forms that uses those tables...
