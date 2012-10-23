@@ -31,7 +31,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -566,6 +568,26 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		getStylePropertyChanges().setRendered();
 	}
 
+	private StringBuilder getDividerLocationJSSetter(String dim, String pos)
+	{
+		StringBuilder resizeScript = new StringBuilder("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
+		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
+			"*dividerLocation;}"); //$NON-NLS-1$ 
+		resizeScript.append("if(newDividerLocation < ").append(leftFormMinSize).append(") { newDividerLocation = ").append(leftFormMinSize).append(";};"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		resizeScript.append("if(dividerLocation != newDividerLocation) { wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
+			"&location=' + newDividerLocation);}"); //$NON-NLS-1$
+		resizeScript.append("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim.toLowerCase()).append("', newDividerLocation + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
+		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$		
+
+		return resizeScript;
+	}
+
 	@Override
 	public void renderHead(HtmlHeaderContainer container)
 	{
@@ -587,20 +609,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			pos = "top"; //$NON-NLS-1$
 		}
 
-		StringBuffer resizeScript = new StringBuffer("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
-		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
-			"*dividerLocation;}"); //$NON-NLS-1$ 
-		resizeScript.append("if(newDividerLocation < ").append(leftFormMinSize).append(") { newDividerLocation = ").append(leftFormMinSize).append(";};"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("if(dividerLocation != newDividerLocation) { wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
-			"&location=' + newDividerLocation);}"); //$NON-NLS-1$
-		resizeScript.append("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim.toLowerCase()).append("', newDividerLocation + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		StringBuilder resizeScript = getDividerLocationJSSetter(dim, pos);
 		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ 
 		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -770,7 +779,27 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	{
 		if (locationPos < 0) return;
 		setDividerLocation(locationPos);
-		sizeChanged = true;
+
+		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
+		if (requestTarget instanceof AjaxRequestTarget)
+		{
+			String dim, pos;
+			if (orient == TabPanel.SPLIT_HORIZONTAL)
+			{
+				dim = "Width"; //$NON-NLS-1$
+				pos = "left"; //$NON-NLS-1$
+			}
+			else
+			{
+				dim = "Height"; //$NON-NLS-1$
+				pos = "top"; //$NON-NLS-1$
+			}
+
+			StringBuilder dividerLocationJSSetter = getDividerLocationJSSetter(dim, pos);
+			AjaxRequestTarget ajaxRequestTarget = (AjaxRequestTarget)requestTarget;
+			ajaxRequestTarget.appendJavascript(dividerLocationJSSetter.toString());
+		}
+		else sizeChanged = true;
 	}
 
 	public double getDividerLocation()
