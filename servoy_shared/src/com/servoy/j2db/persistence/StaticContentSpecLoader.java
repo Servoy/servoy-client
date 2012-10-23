@@ -218,6 +218,8 @@ public class StaticContentSpecLoader
 	public static final TypedProperty<String> PROPERTY_TEXT = new TypedProperty<String>("text"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_TITLETEXT = new TypedProperty<String>("titleText"); //$NON-NLS-1$
 	public static final TypedProperty<String> PROPERTY_TOOLTIPTEXT = new TypedProperty<String>("toolTipText"); //$NON-NLS-1$
+	public static final TypedProperty<String> PROPERTY_PLACEHOLDERTEXT = new TypedProperty<String>("placeholderText"); //$NON-NLS-1$
+	public static final TypedProperty<Integer> PROPERTY_TEXTROTATION = new TypedProperty<Integer>("textRotation"); //$NON-NLS-1$
 
 	// deprecated or metadata properties
 	private static final TypedProperty<String> PROPERTY_SERVERNAME = new TypedProperty<String>("serverName"); //$NON-NLS-1$;
@@ -485,7 +487,7 @@ public class StaticContentSpecLoader
 		//ADDS FOR REPOSITORY VERSION 14 OR LOWER
 		if (old_repository_version < 14)
 		{
-			cs.new Element(213, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ROTATION.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(213, IRepository.GRAPHICALCOMPONENTS, PROPERTY_ROTATION.getPropertyName(), IRepository.INTEGER).flagAsDeprecated();
 			cs.new Element(214, IRepository.PORTALS, PROPERTY_SCROLLBARS.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(215, IRepository.FORMS, PROPERTY_SCROLLBARS.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(216, IRepository.FORMS, PROPERTY_DEFAULTPAGEFORMAT.getPropertyName(), IRepository.STRING);
@@ -778,7 +780,11 @@ public class StaticContentSpecLoader
 			cs.new Element(402, IRepository.TABS, PROPERTY_MNEMONIC.getPropertyName(), IRepository.STRING);
 		}
 		//##add property adds here
-
+		if (old_repository_version < 43)
+		{
+			cs.new Element(403, IRepository.FIELDS, PROPERTY_PLACEHOLDERTEXT.getPropertyName(), IRepository.STRING);
+			cs.new Element(404, IRepository.GRAPHICALCOMPONENTS, PROPERTY_TEXTROTATION.getPropertyName(), IRepository.INTEGER);
+		}
 		return cs;
 	}
 

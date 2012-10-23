@@ -357,20 +357,46 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.  
 	 * This property also applies to buttons and images.
+	 * 
+	 * @deprecated Renamed to textRotation.
 	 */
+	@Deprecated
 	public int getRotation()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROTATION).intValue();
+		return getTextRotation();
 	}
 
 	/**
 	 * Sets the rotation (max 360)
 	 * 
 	 * @param i angle in degrees
+	 * 
+	 * @deprecated Renamed to textRotation.
 	 */
+	@Deprecated
 	public void setRotation(int i)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROTATION, i);
+		setTextRotation(i);
+	}
+
+
+	/**
+	 * Sets the rotation (max 360)
+	 * 
+	 * @param i angle in degrees
+	 */
+	public void setTextRotation(int i)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXTROTATION, i);
+	}
+
+	/**
+	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.  
+	 * This property also applies to buttons and images.
+	 */
+	public int getTextRotation()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXTROTATION).intValue();
 	}
 
 	@Override
