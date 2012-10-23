@@ -39,7 +39,8 @@ Bundle-ClassPath: .,
  lib/PBKDF2.jar,
  lib/minis.jar,
  lib/xstream.jar
-Require-Bundle: org.eclipse.dltk.javascript.rhino
+Require-Bundle: org.eclipse.dltk.javascript.rhino,
+ servoy_base;visibility:=reexport
 Export-Package: antlr,
  antlr.ASdebug,
  antlr.actions.java,

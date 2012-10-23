@@ -19,6 +19,10 @@ package com.servoy.j2db.scripting;
 import java.awt.Point;
 import java.util.Date;
 
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
@@ -59,7 +63,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return a String representing the type of this event.
 	 */
-	public String js_getType()
+	@JSFunction
+	public String getType()
 	{
 		return type;
 	}
@@ -71,7 +76,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return a Date when this event happened.
 	 */
-	public Date js_getTimestamp()
+	@JSFunction
+	public Date getTimestamp()
 	{
 		return timestamp;
 	}
@@ -88,7 +94,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return an Object representing the source of this event.
 	 */
-	public Object js_getSource()
+	@JSFunction
+	public Object getSource()
 	{
 		if (source instanceof IScriptableProvider) return ((IScriptableProvider)source).getScriptObject();
 		return source;
@@ -102,7 +109,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return a String representing the form name.
 	 */
-	public String js_getFormName()
+	@JSFunction
+	public String getFormName()
 	{
 		return formName;
 	}
@@ -118,7 +126,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return a String representing the element name.
 	 */
-	public String js_getElementName()
+	@JSFunction
+	public String getElementName()
 	{
 		return elementName;
 	}
@@ -135,7 +144,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return an int which holds the modifiers as a bitset.
 	 */
-	public int js_getModifiers()
+	@JSFunction
+	public int getModifiers()
 	{
 		return modifiers;
 	}
@@ -151,7 +161,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return an int representing the X position.
 	 */
-	public int js_getX()
+	@JSFunction
+	public int getX()
 	{
 		return x;
 	}
@@ -167,7 +178,8 @@ public class JSBaseEvent implements IConstantsObject
 	 * 
 	 * @return an int representing the Y position.
 	 */
-	public int js_getY()
+	@JSFunction
+	public int getY()
 	{
 		return y;
 	}
@@ -198,12 +210,14 @@ public class JSBaseEvent implements IConstantsObject
 	 * return true;
 	 * 
 	 */
-	public Object js_getData()
+	@JSGetter
+	public Object getData()
 	{
 		return data;
 	}
 
-	public void js_setData(Object object)
+	@JSSetter
+	public void setData(Object object)
 	{
 		this.data = object;
 	}
@@ -254,15 +268,5 @@ public class JSBaseEvent implements IConstantsObject
 	{
 		this.x = point.x;
 		this.y = point.y;
-	}
-
-	public Object getData()
-	{
-		return data;
-	}
-
-	public void setData(Object object)
-	{
-		this.data = object;
 	}
 }

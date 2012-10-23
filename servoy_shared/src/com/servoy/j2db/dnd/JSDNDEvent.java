@@ -240,7 +240,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * @return a String representing the type of this event.
 	 */
 	@Override
-	public String js_getType()
+	public String getType()
 	{
 		return type;
 	}
@@ -258,7 +258,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * @return an int which holds the modifiers as a bitset.
 	 */
 	@Override
-	public int js_getModifiers()
+	public int getModifiers()
 	{
 		return modifiers;
 	}

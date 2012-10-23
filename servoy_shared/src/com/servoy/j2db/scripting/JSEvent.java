@@ -22,6 +22,7 @@ import java.util.Arrays;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.api.IJSEvent;
 
 /**
  * JSEvent, used as first argument to user-event callbacks.
@@ -31,7 +32,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSEvent extends JSBaseEvent
+public class JSEvent extends JSBaseEvent implements IJSEvent
 {
 	public enum EventType
 	{

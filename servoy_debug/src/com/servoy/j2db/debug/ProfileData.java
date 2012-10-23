@@ -94,45 +94,45 @@ public final class ProfileData
 				StringBuilder sb = new StringBuilder();
 				sb.append("JSEvent["); //$NON-NLS-1$
 				boolean added = false;
-				if (event.js_getType() != null)
+				if (event.getType() != null)
 				{
 					sb.append("type="); //$NON-NLS-1$
-					sb.append(event.js_getType());
+					sb.append(event.getType());
 					added = true;
 				}
-				if (event.js_getFormName() != null)
+				if (event.getFormName() != null)
 				{
 					if (added) sb.append(","); //$NON-NLS-1$
 					sb.append("form="); //$NON-NLS-1$
-					sb.append(event.js_getFormName());
+					sb.append(event.getFormName());
 					added = true;
 				}
-				if (event.js_getElementName() != null)
+				if (event.getElementName() != null)
 				{
 					if (added) sb.append(","); //$NON-NLS-1$
 					sb.append("element="); //$NON-NLS-1$
-					sb.append(event.js_getElementName());
+					sb.append(event.getElementName());
 					added = true;
 				}
-				if (event.js_getModifiers() != 0)
+				if (event.getModifiers() != 0)
 				{
 					if (added) sb.append(","); //$NON-NLS-1$
 					sb.append("modifiers="); //$NON-NLS-1$
-					sb.append(event.js_getModifiers());
+					sb.append(event.getModifiers());
 					added = true;
 				}
-				if (event.js_getX() != 0)
+				if (event.getX() != 0)
 				{
 					if (added) sb.append(","); //$NON-NLS-1$
 					sb.append("x="); //$NON-NLS-1$
-					sb.append(event.js_getX());
+					sb.append(event.getX());
 					added = true;
 				}
-				if (event.js_getY() != 0)
+				if (event.getY() != 0)
 				{
 					if (added) sb.append(","); //$NON-NLS-1$
 					sb.append("y="); //$NON-NLS-1$
-					sb.append(event.js_getY());
+					sb.append(event.getY());
 					added = true;
 				}
 				sb.append("]"); //$NON-NLS-1$

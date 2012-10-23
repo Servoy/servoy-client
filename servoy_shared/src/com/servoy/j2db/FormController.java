@@ -4869,18 +4869,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 							if (newArg instanceof JSEvent)
 							{
 								JSEvent event = (JSEvent)newArg;
-								if (formScope != null && event.js_getSource() instanceof IComponent && ((IComponent)event.js_getSource()).getName() != null)
+								if (formScope != null && event.getSource() instanceof IComponent && ((IComponent)event.getSource()).getName() != null)
 								{
 									Object elementScope = formScope.get("elements");
 									if (elementScope instanceof Scriptable)
 									{
-										Object elementSrc = ((Scriptable)elementScope).get(((IComponent)event.js_getSource()).getName(),
-											(Scriptable)elementScope);
+										Object elementSrc = ((Scriptable)elementScope).get(((IComponent)event.getSource()).getName(), (Scriptable)elementScope);
 										if (elementSrc != null)
 										{
 											if (elementSrc instanceof ITwoNativeJavaObject)
 											{
-												Object scriptable = event.js_getSource();
+												Object scriptable = event.getSource();
 												if (scriptable instanceof IScriptableProvider)
 												{
 													scriptable = ((IScriptableProvider)scriptable).getScriptObject();
