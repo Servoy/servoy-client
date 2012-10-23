@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FilteredIterator;
@@ -1013,7 +1012,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnCloseMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID).intValue();
@@ -1026,7 +1024,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatename onSolutionOpen
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnOpenMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID).intValue();
@@ -1107,7 +1104,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * //by default error report means logging the error, in smart client an error dialog will also show up
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnErrorMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID).intValue();

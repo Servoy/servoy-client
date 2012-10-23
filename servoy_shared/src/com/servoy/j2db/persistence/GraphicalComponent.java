@@ -21,7 +21,6 @@ import java.awt.Dimension;
 import java.awt.Insets;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -103,7 +102,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID, arg);
 	}
 
-	@ServoyMobile
 	public String getDataProviderID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID);
@@ -157,7 +155,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The text that is displayed inside the component.
 	 */
-	@ServoyMobile
 	public String getText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);
@@ -237,7 +234,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The image Media object that should be displayed inside the component.
 	 */
-	@ServoyMobile
 	public int getImageMediaID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
@@ -256,7 +252,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The method that is executed when the component is clicked.
 	 */
-	@ServoyMobile
 	public int getOnActionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
@@ -275,7 +270,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnDoubleClickMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID).intValue();
@@ -289,7 +283,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The method that is executed when the component is right clicked.
 	 */
-	@ServoyMobile
 	public int getOnRightClickMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();

@@ -20,7 +20,6 @@ package com.servoy.j2db.persistence;
 import java.util.Iterator;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -174,7 +173,6 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnChangeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID).intValue();
