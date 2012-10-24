@@ -27,6 +27,7 @@ import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
 import com.servoy.j2db.util.AnchorLayout;
+import com.servoy.j2db.util.WeakHashSet;
 
 /**
  * This repaint manager makes sure that overlapping components inside a container are repainted properly.<BR>
@@ -37,8 +38,7 @@ import com.servoy.j2db.util.AnchorLayout;
  */
 public class OverlapRepaintManager extends RepaintManager
 {
-
-	private final Set<JComponent> components = new HashSet<JComponent>();
+	private final Set<JComponent> components = new WeakHashSet<JComponent>();
 
 	/**
 	 * Creates a new OverlapRepaintManager that uses a default RepaintManager instance to handle unaltered operations.
@@ -55,8 +55,6 @@ public class OverlapRepaintManager extends RepaintManager
 		{
 			components.add(c);
 		}
-		// must see if somewhere in the component hierarchy, on some level that uses AnchorLayout,
-		// this area paints over an overlapped component that should be on top of the current repainting one...
 		super.addDirtyRegion(c, x, y, w, h); // add the dirty region
 	}
 
@@ -87,7 +85,6 @@ public class OverlapRepaintManager extends RepaintManager
 			searchOverlappingRegionsInHierarchy(parent.getParent(), (JComponent)parent, parentRepaintedArea);
 		}
 	}
-
 
 	@Override
 	public void paintDirtyRegions()
