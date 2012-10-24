@@ -275,7 +275,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnDoubleClickMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID).intValue();
@@ -289,7 +288,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The method that is executed when the component is right clicked.
 	 */
-	@ServoyMobile
 	public int getOnRightClickMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();

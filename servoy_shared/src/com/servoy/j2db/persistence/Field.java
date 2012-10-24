@@ -171,7 +171,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnRightClickMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();
