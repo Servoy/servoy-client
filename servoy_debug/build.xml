@@ -165,9 +165,9 @@
 			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi_3.7.2.v20120110-1415.jar"/>
 			<pathelement path="../eclipse_target/ship_plugins/plugins/org.eclipse.equinox.transforms.hook_1.0.300.201106061129.jar"/>
 			<pathelement path="../servoy_base/bin/"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_base_7.0.0.2000/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_base/@dot"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_base_7.0.0.2000/@dot"/>
 			<pathelement path="../servoy_smart_client/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client_7.0.0.2000/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client/@dot"/>
@@ -236,7 +236,7 @@
 		<echo file="${compilation.problem.marker}" message="servoy_debug_7.0.0.2000${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_debug_7.0.0.2000" log="${compilation.prereq.log}">
 			<include name="C:/Users/Administrator/dev_trunk/servoy_base/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_base_6.1.2.1421/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_base_7.0.0.2000/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/servoy_smart_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_smart_client_7.0.0.2000/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/servoy_headless_client/compilation.problem"/>

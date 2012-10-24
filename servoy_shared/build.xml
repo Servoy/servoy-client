@@ -89,9 +89,9 @@
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_7.0.0.2000/@dot"/>
 			<pathelement path="../servoy_base/bin/"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_base_7.0.0.2000/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_base/@dot"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_base_7.0.0.2000/@dot"/>
 			<pathelement path="lib/annotations-1.0.jar"/>
 			<pathelement path="${build.result.folder}/../servoy_shared_7.0.0.2000/lib/annotations-1.0.jar"/>
 			<pathelement path="lib/BrowserLauncher2.jar"/>
@@ -209,7 +209,7 @@
 			<include name="C:/Users/Administrator/dev_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.0.0.2000/compilation.problem"/>
 			<include name="C:/Users/Administrator/dev_trunk/servoy_base/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_base_6.1.2.1421/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_base_7.0.0.2000/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
