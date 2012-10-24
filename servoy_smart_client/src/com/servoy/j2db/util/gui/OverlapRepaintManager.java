@@ -26,8 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
-import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.util.WeakHashSet;
 
 /**
  * This repaint manager makes sure that overlapping components inside a container are repainted properly.<BR>
@@ -38,7 +37,7 @@ import com.servoy.j2db.ui.RenderEventExecutor;
  */
 public class OverlapRepaintManager extends RepaintManager
 {
-	private final Set<JComponent> components = new HashSet<JComponent>();
+	private final Set<JComponent> components = new WeakHashSet<JComponent>();
 
 	/**
 	 * Creates a new OverlapRepaintManager that uses a default RepaintManager instance to handle unaltered operations.
@@ -51,44 +50,11 @@ public class OverlapRepaintManager extends RepaintManager
 	@Override
 	public void addDirtyRegion(final JComponent c, final int x, final int y, final int w, final int h)
 	{
-		// must see if somewhere in the component hierarchy, on some level that uses AnchorLayout,
-		// this area paints over an overlapped component that should be on top of the current repainting one...
-		int dX = x, dY = y, dW = w, dH = h;
-		if (SwingUtilities.isEventDispatchThread())
-		{
-			// if its marked as dirty because of a change in fireOnRender that was run from paint
-			// ignore this as the changes are already painted - if not ignored, we will have
-			// a cycle calling of repaint -> paintComponent -> fireOnRender -> repaint 
-			ISupportOnRenderCallback componentOnRenderParent = getOnRenderParent(c);
-			if (componentOnRenderParent != null)
-			{
-				RenderEventExecutor ree = componentOnRenderParent.getRenderEventExecutor();
-				if (ree != null && ree.hasRenderCallback())
-				{
-					if (ree.isOnRenderRunningOnComponentPaint()) return;
-					else
-					{
-						// make the entire component dirty so changes made in onRender are applied
-						dX = 0;
-						dY = 0;
-						dW = c.getWidth();
-						dH = c.getHeight();
-					}
-				}
-			}
-		}
 		synchronized (this)
 		{
 			components.add(c);
 		}
-		super.addDirtyRegion(c, dX, dY, dW, dH); // add the dirty region
-	}
-
-	private ISupportOnRenderCallback getOnRenderParent(Component c)
-	{
-		if (c == null) return null;
-		if (c instanceof ISupportOnRenderCallback) return (ISupportOnRenderCallback)c;
-		else return getOnRenderParent(c.getParent());
+		super.addDirtyRegion(c, x, y, w, h); // add the dirty region
 	}
 
 	private void searchOverlappingRegionsInHierarchy(Container parent, JComponent c, Rectangle repaintedArea)
