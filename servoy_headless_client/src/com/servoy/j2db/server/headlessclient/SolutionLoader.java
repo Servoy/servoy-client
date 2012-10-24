@@ -94,7 +94,8 @@ public class SolutionLoader extends WebPage
 		{
 			IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
 			SolutionMetaData smd = (SolutionMetaData)repository.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
-			if (smd == null || smd.getSolutionType() == SolutionMetaData.SOLUTION || smd.getSolutionType() == SolutionMetaData.WEB_CLIENT_ONLY)
+			if (smd == null || smd.getSolutionType() == SolutionMetaData.SOLUTION || smd.getSolutionType() == SolutionMetaData.WEB_CLIENT_ONLY ||
+				(smd.getSolutionType() == SolutionMetaData.MOBILE && ApplicationServerSingleton.get().isDeveloperStartup()))
 			{
 				theReq = smd;
 			}
