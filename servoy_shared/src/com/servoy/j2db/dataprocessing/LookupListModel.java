@@ -352,6 +352,7 @@ public class LookupListModel extends AbstractListModel
 		if (lookup instanceof GlobalMethodValueList)
 		{
 			GlobalMethodValueList clist = (GlobalMethodValueList)lookup;
+			clist.removeLookupListChangeListener();
 			clist.fill(realState, txt, null);
 			for (int i = 0; i < clist.getSize(); i++)
 			{
@@ -361,6 +362,7 @@ public class LookupListModel extends AbstractListModel
 				alReal.add(clist.getRealElementAt(i));
 			}
 			hadMoreRows = true;
+			clist.reAddLookupListChangeListener();
 		}
 		else if (lookup instanceof CustomValueList)
 		{
