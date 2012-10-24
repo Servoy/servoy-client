@@ -96,6 +96,7 @@ import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -110,7 +111,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet")
-public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scriptable, Cloneable //, Wrapper
+public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scriptable, Cloneable, IJSFoundSetNormal //, Wrapper
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
@@ -2906,9 +2907,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return Record record. 
 	 */
-	public IRecordInternal js_getRecord(int index)
+	public IJSRecord js_getRecord(int index)
 	{
-		return getRecord(index - 1); // index is row + 1, so we substract 1 here.
+		return (IJSRecord)getRecord(index - 1); // index is row + 1, so we substract 1 here.
 	}
 
 
@@ -2934,10 +2935,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample var selectedRecord = %%prefix%%foundset.getSelectedRecord();
 	 * @return Record record. 
 	 */
-	public IRecordInternal js_getSelectedRecord()
+	@JSFunction
+	public IJSRecord getSelectedRecord()
 	{
 		checkSelection();
-		IRecordInternal record = getRecord(getSelectedIndex());
+		IJSRecord record = (IJSRecord)getRecord(getSelectedIndex());
 		return record == getPrototypeState() ? null : record; // safety, do not return proto
 	}
 

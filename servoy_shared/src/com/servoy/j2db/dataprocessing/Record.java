@@ -35,6 +35,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -43,6 +44,10 @@ import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedRelation;
+import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.scripting.api.IJSDataSet;
+import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ScopesUtils;
@@ -55,7 +60,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord")
-public class Record implements Scriptable, IRecordInternal
+public class Record implements Scriptable, IRecordInternal, IJSRecord
 {
 	public static final String JS_RECORD = "JSRecord"; //$NON-NLS-1$
 
@@ -70,9 +75,18 @@ public class Record implements Scriptable, IRecordInternal
 			Method[] methods = Record.class.getMethods();
 			for (Method m : methods)
 			{
+				String name = null;
 				if (m.getName().startsWith("js_")) //$NON-NLS-1$
 				{
-					String name = m.getName().substring(3);
+					name = m.getName().substring(3);
+				}
+				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSFunction.class) ||
+					AnnotationManager.getInstance().isAnnotationPresent(m, JSReadonlyProperty.class))
+				{
+					name = m.getName();
+				}
+				if (name != null)
+				{
 					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
 					if (nativeJavaMethod == null)
 					{
@@ -313,11 +327,6 @@ public class Record implements Scriptable, IRecordInternal
 	public int stopEditing()
 	{
 		return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(false, this);
-	}
-
-	public boolean isEditing()
-	{
-		return (parent != null ? parent.getFoundSetManager().getEditRecordList().isEditing(this) : false);
 	}
 
 	public boolean existInDataSource()
@@ -890,9 +899,10 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return a boolean when in edit.
 	 */
-	public boolean js_isEditing()
+	@JSFunction
+	public boolean isEditing()
 	{
-		return isEditing();
+		return (parent != null ? parent.getFoundSetManager().getEditRecordList().isEditing(this) : false);
 	}
 
 	/**
@@ -903,7 +913,8 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return true if the current record is a new record, false otherwise; 
 	 */
-	public boolean js_isNew()
+	@JSFunction
+	public boolean isNew()
 	{
 		return getRawData() != null && !existInDataSource();
 	}
@@ -916,7 +927,8 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return an Array with the pk values.
 	 */
-	public Object[] js_getPKs()
+	@JSFunction
+	public Object[] getPKs()
 	{
 		return getPK();
 	}
@@ -975,7 +987,8 @@ public class Record implements Scriptable, IRecordInternal
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.revertChanges();
 	 */
-	public void js_revertChanges()
+	@JSFunction
+	public void revertChanges()
 	{
 		try
 		{
@@ -1029,7 +1042,8 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return a JSDataSet with the changed data of this record.
 	 */
-	public JSDataSet js_getChangedData()
+	@JSFunction
+	public IJSDataSet getChangedData()
 	{
 		if (getParentFoundSet() != null && getRawData() != null)
 		{
@@ -1059,7 +1073,8 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return true if the current record has outstanding/changed data.
 	 */
-	public boolean js_hasChangedData()
+	@JSFunction
+	public boolean hasChangedData()
 	{
 		return getRawData() != null && getRawData().isChanged();
 	}
@@ -1072,15 +1087,10 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return The occurred exception.
 	 */
-	public Exception js_getException()
+	@JSReadonlyProperty
+	public Exception getException()
 	{
 		return row.getLastException();
-	}
-
-	public void js_setException(@SuppressWarnings("unused")
-	Exception ex)
-	{
-		//ignore
 	}
 
 	/**
@@ -1091,7 +1101,8 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return The datasource string of this record.
 	 */
-	public String js_getDataSource()
+	@JSFunction
+	public String getDataSource()
 	{
 		return parent.getDataSource();
 	}
@@ -1104,14 +1115,9 @@ public class Record implements Scriptable, IRecordInternal
 	 * 
 	 * @return The parent foundset of the record.
 	 */
-	public IFoundSetInternal js_getFoundset()
+	@JSReadonlyProperty
+	public IJSFoundSetNormal getFoundset()
 	{
-		return parent;
-	}
-
-	public void js_setFoundset(@SuppressWarnings("unused")
-	IFoundSetInternal foundset)
-	{
-		//ignore
+		return (IJSFoundSetNormal)parent;
 	}
 }

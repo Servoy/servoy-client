@@ -1,15 +1,40 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+ */
 package com.servoy.j2db.scripting.api;
 
 import java.awt.Event;
 import java.util.Date;
 
-public interface IJSEvent {
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
+
+/**
+ * 
+ * @author jcompagner
+ * @since 7.0
+ */
+@ServoyMobile
+public interface IJSEvent
+{
 
 	public enum EventType
 	{
 		action, focusGained, focusLost, doubleClick, rightClick, onDrag, onDrop, onDragOver, onDragEnd, form, dataChange, none
 	}
-	
+
 	/**
 	 * Constant returned by JSEvent.getType() if the event is not used in a known event or command.
 	 * @sample
@@ -133,7 +158,7 @@ public interface IJSEvent {
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
 	public static final int MODIFIER_ALT = Event.ALT_MASK;
-	
+
 	/**
 	 * returns the event type see the JSEvents constants what it can return.
 	 * Plugins can create events with there own types.
@@ -156,7 +181,7 @@ public interface IJSEvent {
 	 * @return a Date when this event happened.
 	 */
 	public Date getTimestamp();
-	
+
 	/**
 	 * returns the source component/element of the event.
 	 * If it has a name the getElementName() is the name of this component.
@@ -180,7 +205,7 @@ public interface IJSEvent {
 	 * @return a String representing the form name.
 	 */
 	public String getFormName();
-	
+
 	/**
 	 * returns the name of the element, can be null if the form was the source of the event. 
 	 * 
@@ -263,5 +288,5 @@ public interface IJSEvent {
 	public Object getData();
 
 	public void setData(Object object);
-	
+
 }

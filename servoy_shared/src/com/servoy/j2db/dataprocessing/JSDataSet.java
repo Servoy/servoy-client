@@ -51,6 +51,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.scripting.api.IJSDataSet;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IDelegate;
@@ -64,7 +65,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Serializable
+public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Serializable, IJSDataSet
 {
 	private static final long serialVersionUID = 1L;
 
