@@ -169,9 +169,14 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		super.setValueList(vl);
 		if (list instanceof CustomValueList)
 		{
+			if (dlm != null && changeListener != null)
+			{
+				dlm.getValueList().removeListDataListener(changeListener);
+			}
 			dlm = new LookupListModel(application, (CustomValueList)list);
 			if (changeListener == null) changeListener = new ChangeListener();
 			list.addListDataListener(changeListener);
+
 			if (jlist != null)
 			{
 				jlist.setModel(dlm);
