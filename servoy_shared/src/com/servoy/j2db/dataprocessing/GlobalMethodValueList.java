@@ -18,8 +18,6 @@ package com.servoy.j2db.dataprocessing;
 
 import java.sql.Types;
 
-import javax.swing.event.ListDataListener;
-
 import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.IServiceProvider;
@@ -84,26 +82,6 @@ public class GlobalMethodValueList extends CustomValueList
 	public boolean hasRealValues()
 	{
 		return hasRealValue;
-	}
-
-	private LookupListChangeListener savedLookupListChangeListener;
-
-	public void removeLookupListChangeListener()
-	{
-		for (ListDataListener ldl : getListDataListeners())
-		{
-			if (ldl instanceof LookupListChangeListener)
-			{
-				savedLookupListChangeListener = (LookupListChangeListener)ldl;
-				removeListDataListener(ldl);
-				break;
-			}
-		}
-	}
-
-	public void reAddLookupListChangeListener()
-	{
-		if (savedLookupListChangeListener != null) addListDataListener(savedLookupListChangeListener);
 	}
 
 	public void fill(IRecordInternal state, String display, Object real)

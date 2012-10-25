@@ -97,6 +97,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 	protected void createCustomListModel(CustomValueList vList)
 	{
+		if (dlm != null && changeListener != null)
+		{
+			dlm.getValueList().removeListDataListener(changeListener);
+		}
 		dlm = new LookupListModel(application, vList);
 
 		if (changeListener == null) changeListener = new LookupListChangeListener(this);
@@ -105,6 +109,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 
 	protected void createLookupListModel(LookupValueList vlist)
 	{
+		if (dlm != null && changeListener != null)
+		{
+			dlm.getValueList().removeListDataListener(changeListener);
+		}
 		dlm = new LookupListModel(application, vlist);
 
 		if (dlm.isShowValues() != dlm.isReturnValues())
@@ -364,6 +372,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			protected Iterator<Object> getChoices(String input)
 			{
+				if (changeListener != null) dlm.getValueList().removeListDataListener(changeListener);
 				try
 				{
 					dlm.fill(parentState, getDataProviderID(), input, false);
@@ -372,6 +381,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				catch (Exception ex)
 				{
 					Debug.error(ex);
+				}
+				finally
+				{
+					if (changeListener != null) dlm.getValueList().addListDataListener(changeListener);
 				}
 				return Collections.emptyList().iterator();
 			}
@@ -470,26 +483,34 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			String result = matchValueListValue(trimmed, false);
 			if (result == null)
 			{
-				dlm.fill(parentState, getDataProviderID(), trimmed, false);
-				result = matchValueListValue(trimmed, false);
-				if (result == null && list.hasRealValues())
+				if (changeListener != null) dlm.getValueList().removeListDataListener(changeListener);
+				try
 				{
-					dlm.fill(parentState, getDataProviderID(), null, false);
-					//if it doesn't have real values, just keep what is typed
-					// now just try to match it be start with matching instead of equals:
-					result = matchValueListValue(trimmed, true);
-					// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
-					String displayValue = result == null ? "" : result;
-					// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
-					if (displayValue != null && !displayValue.equals(trimmed) && RequestCycle.get() != null)
+					dlm.fill(parentState, getDataProviderID(), trimmed, false);
+					result = matchValueListValue(trimmed, false);
+					if (result == null && list.hasRealValues())
 					{
-						IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
-						if (requestTarget instanceof AjaxRequestTarget)
+						dlm.fill(parentState, getDataProviderID(), null, false);
+						//if it doesn't have real values, just keep what is typed
+						// now just try to match it be start with matching instead of equals:
+						result = matchValueListValue(trimmed, true);
+						// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
+						String displayValue = result == null ? "" : result;
+						// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
+						if (displayValue != null && !displayValue.equals(trimmed) && RequestCycle.get() != null)
 						{
-							((AjaxRequestTarget)requestTarget).appendJavascript("if (document.getElementById('" + getMarkupId() + "').value == '" + value +
-								"') document.getElementById('" + getMarkupId() + "').value='" + displayValue + "'");
+							IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
+							if (requestTarget instanceof AjaxRequestTarget)
+							{
+								((AjaxRequestTarget)requestTarget).appendJavascript("if (document.getElementById('" + getMarkupId() + "').value == '" + value +
+									"') document.getElementById('" + getMarkupId() + "').value='" + displayValue + "'");
+							}
 						}
 					}
+				}
+				finally
+				{
+					if (changeListener != null) dlm.getValueList().addListDataListener(changeListener);
 				}
 			}
 			// If no match was found then return back the value, otherwise return the found match.
@@ -619,6 +640,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 */
 	public void destroy()
 	{
+		if (dlm != null && changeListener != null)
+		{
+			dlm.getValueList().removeListDataListener(changeListener);
+		}
 		parentState = null;
 		detachModel();
 	}
