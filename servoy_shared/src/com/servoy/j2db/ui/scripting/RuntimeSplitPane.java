@@ -181,7 +181,6 @@ public class RuntimeSplitPane extends AbstractRuntimeFormContainer<ISplitPane, J
 	public void setDividerLocation(double location)
 	{
 		getComponent().setRuntimeDividerLocation(location);
-		getChangesRecorder().setChanged();
 	}
 
 	public int getDividerSize()
