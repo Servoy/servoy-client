@@ -859,6 +859,14 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 	}
 
+	private boolean isEditorTransferHandlerDisabled;
+
+	public void disableEditorTransferHandler()
+	{
+		isEditorTransferHandlerDisabled = true;
+		if (formattedComboEditor != null) formattedComboEditor.editor.setTransferHandler(null);
+	}
+
 	private void setComboEditable(boolean editable)
 	{
 		boolean wasEditable = isEditable();
@@ -875,7 +883,7 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 					formattedComboEditor.editor.setHorizontalAlignment(getHorizontalAlignment());
 					formattedComboEditor.editor.setBorder(null);
 					formattedComboEditor.editor.getDocument().addDocumentListener(closePopupDocumentListener);
-					formattedComboEditor.editor.setTransferHandler(getTransferHandler());
+					if (isEditorTransferHandlerDisabled) formattedComboEditor.editor.setTransferHandler(null);
 					if (marginBorder instanceof EmptyBorder)
 					{
 						formattedComboEditor.editor.setMargin(((EmptyBorder)marginBorder).getBorderInsets());
