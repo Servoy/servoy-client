@@ -175,6 +175,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 						child.addMouseMotionListener(dragTester);
 						child.addMouseListener(dragTester);
 						if (child instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)child).clearTransferHandler();
+						else if (child instanceof DataComboBox) ((DataComboBox)child).disableEditorTransferHandler();
 						else ((JComponent)child).setTransferHandler(null);
 					}
 				}
