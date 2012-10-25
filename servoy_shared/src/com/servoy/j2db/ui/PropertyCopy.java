@@ -109,6 +109,7 @@ public class PropertyCopy
 		if (org instanceof IFieldComponent && copy instanceof IFieldComponent)
 		{
 			((IFieldComponent)copy).setFormat((((IFieldComponent)org).getDataType()), (((IFieldComponent)org).getFormat()));
+			((IFieldComponent)copy).setEditable(((IFieldComponent)org).isEditable());
 		}
 		if (org instanceof ILabel && copy instanceof ILabel)
 		{
