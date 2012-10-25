@@ -28,7 +28,6 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -65,6 +64,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.MyImageIcon;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
@@ -839,23 +839,6 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 
 	private Timer clickTimer;
 
-	public static int getClickInterval()
-	{
-		int clickInterval = 200;
-		try
-		{
-			if (Toolkit.getDefaultToolkit() != null && Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval") instanceof Integer)
-			{
-				clickInterval = ((Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")).intValue();
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-		}
-		return clickInterval;
-	}
-
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setActionCommand(java.lang.String, Object[])
 	 */
@@ -907,7 +890,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 					{
 						long lastTime = lastPressedTimestamp;
 						long currentTime = lastPressedTimestamp = e.getWhen();
-						if (currentTime - lastTime < getClickInterval())
+						if (currentTime - lastTime < UIUtils.getClickInterval())
 						{
 							shouldDiscardRelease = true;
 							return;
@@ -927,7 +910,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 					{
 						if (doubleClickMouseAdapter != null)
 						{
-							clickTimer = new Timer(getClickInterval(), new ActionListener()
+							clickTimer = new Timer(UIUtils.getClickInterval(), new ActionListener()
 							{
 								public void actionPerformed(ActionEvent ev)
 								{
