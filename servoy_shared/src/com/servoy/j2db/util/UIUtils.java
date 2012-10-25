@@ -24,6 +24,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.net.URL;
 
@@ -100,6 +101,23 @@ public class UIUtils
 	public static boolean isCommandKeyDown(InputEvent e)
 	{
 		return Utils.isAppleMacOS() ? e.isMetaDown() : e.isControlDown();
+	}
+
+	public static int getClickInterval()
+	{
+		int clickInterval = 200;
+		try
+		{
+			if (Toolkit.getDefaultToolkit() != null && Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval") instanceof Integer) //$NON-NLS-1$
+			{
+				clickInterval = ((Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval")).intValue(); //$NON-NLS-1$
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return clickInterval;
 	}
 
 	/**

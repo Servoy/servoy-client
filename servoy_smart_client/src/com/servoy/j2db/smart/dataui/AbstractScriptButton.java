@@ -57,6 +57,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.JpegEncoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
@@ -655,7 +656,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 				{
 					if (doubleclickMouseAdapter != null)
 					{
-						clickTimer = new Timer(AbstractScriptLabel.getClickInterval(), new ActionListener()
+						clickTimer = new Timer(UIUtils.getClickInterval(), new ActionListener()
 						{
 							public void actionPerformed(ActionEvent ev)
 							{
@@ -769,7 +770,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 				}
 			};
 			addMouseListener(doubleclickMouseAdapter);
-			setMultiClickThreshhold(AbstractScriptLabel.getClickInterval());
+			setMultiClickThreshhold(UIUtils.getClickInterval());
 		}
 	}
 
