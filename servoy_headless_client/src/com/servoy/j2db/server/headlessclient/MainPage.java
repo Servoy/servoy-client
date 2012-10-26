@@ -333,6 +333,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		webForms = new ArrayList<IFormUIInternal< ? >>();
 
 		title = new Label("title", new Model<String>("Servoy Web Client")); //$NON-NLS-1$ //$NON-NLS-2$
+		title.setOutputMarkupId(true);
 		add(title);
 
 		useAJAX = Utils.getAsBoolean(client.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
@@ -1280,6 +1281,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			titleString += " - " + appName; //$NON-NLS-1$
 		}
 		this.title.setDefaultModelObject(titleString);
+		if (getRequestCycle().getRequestTarget() instanceof AjaxRequestTarget) ((AjaxRequestTarget)getRequestCycle().getRequestTarget()).addComponent(title);
 	}
 
 	public String nextInputNameId()
