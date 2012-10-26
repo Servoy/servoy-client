@@ -49,6 +49,7 @@ import org.mozilla.javascript.NativeError;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.xml.XMLObject;
 
 import com.servoy.j2db.ApplicationException;
@@ -73,6 +74,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
+import com.servoy.j2db.scripting.api.IJSApplication;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
@@ -96,7 +98,7 @@ import com.servoy.j2db.util.gui.SnapShot;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Application", scriptingName = "application")
-public class JSApplication implements IReturnedTypesProvider
+public class JSApplication implements IReturnedTypesProvider, IJSApplication
 {
 	static
 	{
@@ -1755,7 +1757,8 @@ public class JSApplication implements IReturnedTypesProvider
 	 *
 	 * @param msg Object to send to output stream
 	 */
-	public void js_output(Object msg)
+	@JSFunction
+	public void output(Object msg)
 	{
 		js_output(msg, ILogLevel.INFO);
 	}
