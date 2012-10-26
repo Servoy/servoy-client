@@ -98,7 +98,6 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.IJSControllerNormal;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
@@ -110,6 +109,7 @@ import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.api.IJSController;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -180,7 +180,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	//Place holder class for the JavaScript FromController obj, all javascript calls must be delegated to the FormController
 	//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "controller", scriptingName = "controller")
-	public static class JSForm implements IJSControllerNormal
+	public static class JSForm implements IJSController
 	{
 		private static final long serialVersionUID = 1L;
 

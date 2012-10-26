@@ -91,12 +91,12 @@ import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.IJSFoundSetNormal;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.scripting.api.IJSFoundSet;
 import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -112,7 +112,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet")
-public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scriptable, Cloneable, IJSFoundSetNormal //, Wrapper
+public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scriptable, Cloneable, IJSFoundSet //, Wrapper
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 

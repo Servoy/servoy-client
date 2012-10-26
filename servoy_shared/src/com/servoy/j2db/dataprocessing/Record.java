@@ -40,7 +40,6 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.scripting.IJSFoundSetNormal;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;
@@ -48,6 +47,7 @@ import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedRelation;
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.scripting.api.IJSDataSet;
+import com.servoy.j2db.scripting.api.IJSFoundSet;
 import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
@@ -1117,8 +1117,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
-	public IJSFoundSetNormal getFoundset()
+	public IJSFoundSet getFoundset()
 	{
-		return (IJSFoundSetNormal)parent;
+		return (IJSFoundSet)parent;
 	}
 }

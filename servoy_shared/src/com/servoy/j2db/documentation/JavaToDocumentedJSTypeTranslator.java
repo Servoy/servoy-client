@@ -47,7 +47,6 @@ import com.servoy.j2db.querybuilder.impl.QBCondition;
 import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
 import com.servoy.j2db.querybuilder.impl.QBWhereCondition;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.IJSFoundSetNormal;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.api.IJSController;
@@ -135,7 +134,6 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(IFoundSetInternal.class, FoundSet.class);
 		javaClassToDocumentedJavaClass.put(IJSFoundSet.class, FoundSet.class);
-		javaClassToDocumentedJavaClass.put(IJSFoundSetNormal.class, FoundSet.class);
 		javaClassToDocumentedJavaClass.put(IFoundSet.class, FoundSet.class);
 		javaClassToDocumentedJavaClass.put(RelatedFoundSet.class, FoundSet.class);
 
