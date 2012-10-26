@@ -406,6 +406,11 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		return null;
 	}
 
+	public void setDividerLocation(final double location)
+	{
+		setRuntimeDividerLocation(location);
+	}
+
 	public void setRuntimeDividerLocation(final double location)
 	{
 		if (location < 1)

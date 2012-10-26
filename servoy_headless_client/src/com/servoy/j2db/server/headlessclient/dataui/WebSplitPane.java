@@ -130,7 +130,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		{
 			if (getComponent().getRequest().getParameter("location") != null) //$NON-NLS-1$
 			{
-				setDividerLocation(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$ 
+				setDividerLocationInternal(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$ 
 			}
 			if (getComponent().getRequest().getParameter("changed") != null) //$NON-NLS-1$
 			{
@@ -762,7 +762,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return null;
 	}
 
-	private void setDividerLocation(double newDividerLocation)
+	private void setDividerLocationInternal(double newDividerLocation)
 	{
 		if (Math.abs(dividerLocation - newDividerLocation) > Double.MIN_VALUE)
 		{
@@ -775,10 +775,17 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		}
 	}
 
+	public void setDividerLocation(double newDividerLocation)
+	{
+		if (newDividerLocation < 0) return;
+		setDividerLocationInternal(newDividerLocation);
+		sizeChanged = true;
+	}
+
 	public void setRuntimeDividerLocation(double locationPos)
 	{
 		if (locationPos < 0) return;
-		setDividerLocation(locationPos);
+		setDividerLocationInternal(locationPos);
 
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
 		if (requestTarget instanceof AjaxRequestTarget)

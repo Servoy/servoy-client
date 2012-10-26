@@ -2045,8 +2045,7 @@ public class ComponentFactory
 			Debug.error(ex);
 		}
 
-		splitPane.setRuntimeDividerLocation(meta.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL ? splitPane.getSize().width / 2
-			: splitPane.getSize().height / 2);
+		splitPane.setDividerLocation(meta.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL ? splitPane.getSize().width / 2 : splitPane.getSize().height / 2);
 		if (el != null && meta.getOnChangeMethodID() > 0)
 		{
 			splitPane.setOnDividerChangeMethodCmd((Integer.toString(meta.getOnChangeMethodID())));
