@@ -19,6 +19,8 @@ package com.servoy.j2db.scripting.annotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,6 +37,7 @@ public class AnnotationManager
 	private static AnnotationManager INSTANCE = new AnnotationManager();
 
 	private final Map<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>> annotationCache = new ConcurrentHashMap<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>>();
+	private final Map<Pair<Class< ? >, Class< ? >>, Pair<Boolean, Annotation>> classAnnotationCache = new ConcurrentHashMap<Pair<Class< ? >, Class< ? >>, Pair<Boolean, Annotation>>();
 
 
 	private AnnotationManager()
@@ -136,12 +139,13 @@ public class AnnotationManager
 			for (Class< ? > cls = method.getDeclaringClass(); annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
 			{
 				// check if the method is part of an interface that has the annotation
-				Class< ? >[] interfaces = cls.getInterfaces();
-				for (int i = 0; annotation == null && i < interfaces.length; i++)
+				List<Class< ? >> interfaces = getFlattenedListOfInterfaces(cls);
+				for (Class< ? > intf : interfaces)
 				{
 					try
 					{
-						annotation = interfaces[i].getMethod(method.getName(), method.getParameterTypes()).getAnnotation(annotationClass);
+						annotation = intf.getMethod(method.getName(), method.getParameterTypes()).getAnnotation(annotationClass);
+						if (annotation == null) annotation = intf.getAnnotation(annotationClass);
 					}
 					catch (SecurityException e)
 					{
@@ -157,4 +161,41 @@ public class AnnotationManager
 		return pair;
 	}
 
+	private List<Class< ? >> getFlattenedListOfInterfaces(Class< ? > cls)
+	{
+		List<Class< ? >> listOfInterfaces = new ArrayList<Class< ? >>();
+		for (Class< ? > anInterface : cls.getInterfaces())
+		{
+			listOfInterfaces.add(anInterface);
+			listOfInterfaces.addAll(getFlattenedListOfInterfaces(anInterface));
+		}
+		return listOfInterfaces;
+	}
+
+	public boolean isAnnotationPresent(Class< ? > cls, Class< ? extends Annotation> annotationClass)
+	{
+		return getCachedAnnotation(cls, annotationClass).getLeft().booleanValue();
+	}
+
+	private Pair<Boolean, Annotation> getCachedAnnotation(Class< ? > targetClass, Class< ? extends Annotation> annotationClass)
+	{
+		Pair<Class< ? >, Class< ? >> key = new Pair<Class< ? >, Class< ? >>(targetClass, annotationClass);
+		Pair<Boolean, Annotation> pair = classAnnotationCache.get(key);
+		if (pair == null)
+		{
+			Class< ? > clz = targetClass;
+			Annotation annotation = clz.getAnnotation(annotationClass);
+			for (; annotation == null && (clz != Object.class && clz != null); clz = clz.getSuperclass())
+			{
+				List<Class< ? >> interfaces = getFlattenedListOfInterfaces(clz);
+				for (Class< ? > intf : interfaces)
+				{
+					annotation = intf.getAnnotation(annotationClass);
+				}
+			}
+			classAnnotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
+		}
+
+		return pair;
+	}
 }
