@@ -144,6 +144,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	{
 		private IApplication application = null;
 		private Form form = null;
+		private Form flattenedForm;
 
 		public RuntimeSupportScriptProviders(IApplication application, Form form)
 		{
@@ -153,17 +154,30 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		public Iterator<ScriptVariable> getScriptVariables(boolean b)
 		{
-			return application.getFlattenedSolution().getFlattenedForm(form, true).getScriptVariables(b);
+			return getFlattenedForm().getScriptVariables(b);
 		}
 
 		public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
 		{
-			return application.getFlattenedSolution().getFlattenedForm(form, true).getScriptMethods(sort);
+			return getFlattenedForm().getScriptMethods(sort);
 		}
 
 		public ScriptMethod getScriptMethod(int methodId)
 		{
-			return application.getFlattenedSolution().getFlattenedForm(form, true).getScriptMethod(methodId);
+			return getFlattenedForm().getScriptMethod(methodId);
+		}
+
+
+		/**
+		 * @return
+		 */
+		public Form getFlattenedForm()
+		{
+			if (flattenedForm == null)
+			{
+				flattenedForm = application.getFlattenedSolution().getFlattenedForm(form, true);
+			}
+			return flattenedForm;
 		}
 
 		/**
@@ -173,6 +187,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 */
 		public void updateProviderwithCopy(Form originalForm, Form copyForm)
 		{
+			flattenedForm = null;
 			if (this.form.getName().equals(originalForm.getName())) this.form = copyForm;
 		}
 
