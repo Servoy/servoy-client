@@ -135,7 +135,7 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				visibilityChanged = true;
 			}
 
-			changed = changes.size() > 0 || visibilityChanged;
+			changed = (changes.size() > 0 && !(changes.size() == 1 && changes.contains("display"))) || visibilityChanged; //$NON-NLS-1$
 		}
 
 		/**
@@ -183,6 +183,11 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 			{
 				((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().setRendered();
 			}
+
+			// remove all changes but the "display" as it needed for visibility flip
+			Object displayChange = changes.get("display"); //$NON-NLS-1$
+			changes.clear();
+			if (displayChange != null) changes.put("display", displayChange); //$NON-NLS-1$
 		}
 
 		/**
