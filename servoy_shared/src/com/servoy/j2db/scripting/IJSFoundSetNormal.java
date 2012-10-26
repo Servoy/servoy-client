@@ -15,11 +15,15 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.dataprocessing;
+package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Function;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IRecord;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.api.IJSFoundSet;
 import com.servoy.j2db.util.ServoyException;
@@ -30,7 +34,6 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet")
 public interface IJSFoundSetNormal extends IJSFoundSet
 {
 

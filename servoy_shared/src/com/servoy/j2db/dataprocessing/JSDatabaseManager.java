@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
@@ -88,6 +89,9 @@ import com.servoy.j2db.querybuilder.impl.QUERY_COLUMN_TYPES;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.api.IJSDatabaseManager;
+import com.servoy.j2db.scripting.api.IJSFoundSet;
+import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.scripting.info.SQL_ACTION_TYPES;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -102,7 +106,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Database Manager", scriptingName = "databaseManager")
-public class JSDatabaseManager
+public class JSDatabaseManager implements IJSDatabaseManager
 {
 	static
 	{
@@ -2345,7 +2349,8 @@ public class JSDatabaseManager
 	 * 
 	 * @return true if the save was done without an error.
 	 */
-	public boolean js_saveData() throws ServoyException
+	@JSFunction
+	public boolean saveData() throws ServoyException
 	{
 		checkAuthorized();
 		EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
@@ -2358,41 +2363,43 @@ public class JSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_saveData()
+	 * @clonedesc saveData()
 	 * 
-	 * @sampleas js_saveData()
+	 * @sampleas saveData()
 	 *  
 	 * @param foundset The JSFoundset to save.
 	
 	 * @return true if the save was done without an error.
 	 */
-	public boolean js_saveData(IFoundSetInternal foundset) throws ServoyException
+	@JSFunction
+	public boolean saveData(IJSFoundSet foundset) throws ServoyException
 	{
 		checkAuthorized();
 		if (foundset != null)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
-			IRecordInternal[] failedRecords = editRecordList.getFailedRecords(foundset);
+			IRecordInternal[] failedRecords = editRecordList.getFailedRecords((IFoundSetInternal)foundset);
 			for (IRecordInternal record : failedRecords)
 			{
 				editRecordList.startEditing(record, false);
 			}
-			IRecord[] editedRecords = editRecordList.getEditedRecords(foundset);
+			IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)foundset);
 			return editRecordList.stopEditing(true, Arrays.asList(editedRecords)) == ISaveConstants.STOPPED;
 		}
-		return js_saveData();
+		return saveData();
 	}
 
 	/**
-	 * @clonedesc js_saveData()
+	 * @clonedesc saveData()
 	 * 
-	 * @sampleas js_saveData()
+	 * @sampleas saveData()
 	 *  
 	 * @param record The JSRecord to save.
 	
 	 * @return true if the save was done without an error.
 	 */
-	public boolean js_saveData(IRecordInternal record) throws ServoyException
+	@JSFunction
+	public boolean saveData(IJSRecord record) throws ServoyException
 	{
 		checkAuthorized();
 		if (record != null)
@@ -2401,11 +2408,11 @@ public class JSDatabaseManager
 			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
 			if (Arrays.asList(failedRecords).contains(record))
 			{
-				editRecordList.startEditing(record, false);
+				editRecordList.startEditing((IRecordInternal)record, false);
 			}
-			return editRecordList.stopEditing(true, record) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, (IRecord)record) == ISaveConstants.STOPPED;
 		}
-		return js_saveData();
+		return saveData();
 	}
 
 	/**

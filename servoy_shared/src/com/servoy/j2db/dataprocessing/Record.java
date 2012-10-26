@@ -40,6 +40,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.scripting.IJSFoundSetNormal;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;

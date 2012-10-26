@@ -47,8 +47,13 @@ import com.servoy.j2db.querybuilder.impl.QBCondition;
 import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
 import com.servoy.j2db.querybuilder.impl.QBWhereCondition;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.IJSFoundSetNormal;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSMap;
+import com.servoy.j2db.scripting.api.IJSController;
+import com.servoy.j2db.scripting.api.IJSDataSet;
+import com.servoy.j2db.scripting.api.IJSFoundSet;
+import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 import com.servoy.j2db.solutionmodel.ISMComponent;
@@ -129,12 +134,16 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(Exception.class, ServoyException.class);
 
 		javaClassToDocumentedJavaClass.put(IFoundSetInternal.class, FoundSet.class);
+		javaClassToDocumentedJavaClass.put(IJSFoundSet.class, FoundSet.class);
+		javaClassToDocumentedJavaClass.put(IJSFoundSetNormal.class, FoundSet.class);
 		javaClassToDocumentedJavaClass.put(IFoundSet.class, FoundSet.class);
 		javaClassToDocumentedJavaClass.put(RelatedFoundSet.class, FoundSet.class);
 
 		javaClassToDocumentedJavaClass.put(IDataSet.class, JSDataSet.class);
+		javaClassToDocumentedJavaClass.put(IJSDataSet.class, JSDataSet.class);
 
 		javaClassToDocumentedJavaClass.put(IRecordInternal.class, Record.class);
+		javaClassToDocumentedJavaClass.put(IJSRecord.class, Record.class);
 		javaClassToDocumentedJavaClass.put(IRecord.class, Record.class);
 
 		javaClassToDocumentedJavaClass.put(IComponent.class, IRuntimeComponent.class);
@@ -147,6 +156,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(IForm.class, com.servoy.j2db.documentation.scripting.docs.Form.class);
 		javaClassToDocumentedJavaClass.put(FormScope.class, com.servoy.j2db.documentation.scripting.docs.Form.class);
+		javaClassToDocumentedJavaClass.put(IJSController.class, com.servoy.j2db.documentation.scripting.docs.Form.class);
 
 		javaClassToDocumentedJavaClass.put(IQueryBuilderCondition.class, QBCondition.class);
 		javaClassToDocumentedJavaClass.put(IQueryBuilderLogicalCondition.class, QBLogicalCondition.class);

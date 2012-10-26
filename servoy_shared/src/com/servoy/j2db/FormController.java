@@ -48,6 +48,9 @@ import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.component.ComponentFactory;
@@ -95,6 +98,7 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.IJSControllerNormal;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
@@ -176,7 +180,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	//Place holder class for the JavaScript FromController obj, all javascript calls must be delegated to the FormController
 	//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "controller", scriptingName = "controller")
-	public static class JSForm
+	public static class JSForm implements IJSControllerNormal
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -1204,7 +1208,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * %%prefix%%controller.setSelectedIndex(current+1);
 		 * @return the index
 		 */
-		public int jsFunction_getSelectedIndex()
+		@JSFunction
+		public int getSelectedIndex()
 		{
 			checkDestroyed();
 			return formController.getRecordIndex() + 1;
@@ -1221,7 +1226,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * 
 		 * @param index the index to select 
 		 */
-		public void jsFunction_setSelectedIndex(int index) //Object[] args)
+		@JSFunction
+		public void setSelectedIndex(int index) //Object[] args)
 		{
 			checkDestroyed();
 			//int index = Utils.getAsInteger(args[0]);
@@ -1244,13 +1250,15 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * //enables the form for input
 		 * %%prefix%%controller.enabled = true;
 		 */
-		public boolean js_getEnabled()
+		@JSGetter
+		public boolean getEnabled()
 		{
 			checkDestroyed();
 			return formController.isEnabled();
 		}
 
-		public void js_setEnabled(boolean b)
+		@JSSetter
+		public void setEnabled(boolean b)
 		{
 			checkDestroyed();
 			formController.setComponentEnabled(b);
