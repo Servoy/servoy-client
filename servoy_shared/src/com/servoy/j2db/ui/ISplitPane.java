@@ -48,6 +48,8 @@ public interface ISplitPane extends IComponent, IScriptableProvider, IDisplayRel
 
 	FormScope getForm(boolean bLeftForm);
 
+	void setDividerLocation(double location);
+
 	void setRuntimeDividerLocation(double location);
 
 	double getDividerLocation();
