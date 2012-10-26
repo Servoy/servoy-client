@@ -110,6 +110,7 @@ import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.scripting.api.IJSController;
+import com.servoy.j2db.scripting.api.IJSFoundSet;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -368,7 +369,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		// @param dialogName optional the dialog name
 		// @param modal optional boolean indicating modality for dialogs; default value is false
 		//
-		public void js_showRecords(FoundSet foundset) throws ServoyException
+		@JSFunction
+		public void showRecords(IJSFoundSet foundset) throws ServoyException
 		{
 			showRecords(foundset, null, null);
 		}

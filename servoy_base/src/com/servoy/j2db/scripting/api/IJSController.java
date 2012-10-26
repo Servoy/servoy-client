@@ -17,9 +17,10 @@
 
 package com.servoy.j2db.scripting.api;
 
+
 /**
  * @author jcompagner
- *
+ * @since 7.0
  */
 public interface IJSController
 {
@@ -64,4 +65,28 @@ public interface IJSController
 	 * @param index the index to select 
 	 */
 	public void setSelectedIndex(int index);
+
+	/**
+	 * Load data into the form and shows the form, is a shortcut for the functions 'loadRecords' and 'show'.
+	 *
+	 * @sample
+	 * %%prefix%%controller.showRecords(foundset);
+	 * // load foundset & show the form in newly created named modal dialog
+	 * var w = application.createWindow("mydialog", JSWindow.MODAL_DIALOG);
+	 * %%prefix%%controller.showRecords(foundset, w);
+	 * // load foundset & show the form in an existing window/dialog
+	 * var w = application.getWindow("mydialog"); // use null name for main app. window
+	 * %%prefix%%controller.showRecords(foundset, w);
+	 * //%%prefix%%controller.showRecords(foundset, "mydialog");
+	 * 
+	 * @param foundset the foundset to load before showing the form.
+	 */
+	// Deprecated implementation:
+	// //show the form in the named modal dialog 
+	// //%%prefix%%controller.show(foundset, 'mydialog', true);
+	// @param data the foundset/pkdataset/singleNumber_pk/UUIDpk to load before showing the form
+	// @param dialogName optional the dialog name
+	// @param modal optional boolean indicating modality for dialogs; default value is false
+	//
+	public void showRecords(IJSFoundSet foundset) throws Exception;
 }
