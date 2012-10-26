@@ -621,19 +621,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			Color tableSelectionColor = jtable.getSelectionForeground();
 			if (bgColor != null)
 			{
-				int red = Math.abs(tableSelectionColor.getRed() - bgColor.getRed());
-				int blue = Math.abs(tableSelectionColor.getBlue() - bgColor.getBlue());
-				int green = Math.abs(tableSelectionColor.getGreen() - bgColor.getBlue());
-
-				if (red < 128 && blue < 128 && green < 128)
-				{
-					red = Math.abs(tableSelectionColor.getRed() - 255);
-					blue = Math.abs(tableSelectionColor.getBlue() - 255);
-					green = Math.abs(tableSelectionColor.getGreen() - 255);
-					tableSelectionColor = new Color(red, blue, green);
-				}
+				tableSelectionColor = adjustColorDifference(bgColor, tableSelectionColor);
 			}
-
 			renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
 			renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
 
@@ -651,11 +640,15 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
 					renderer.setBackground(newBGColor);
 				}
-				Color newFGColor = fgColor != null ? fgColor : (componentFgColor != null) ? componentFgColor : jtable.getForeground();
+				Color newFGColor = fgColor != null ? fgColor : componentFgColor;
 				if (newFGColor != null)
 				{
 					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
 					renderer.setForeground(newFGColor);
+				}
+				else if (newBGColor != null)
+				{
+					renderer.setForeground(adjustColorDifference(newBGColor, jtable.getForeground()));
 				}
 				Font newFont = font != null ? font : componentFont;
 				if (newFont != null)
@@ -832,6 +825,28 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		return renderer.isVisible() ? renderer : empty;
+	}
+
+	/**
+	 * Ensures that the background color difference  in background color and foreground color is at least "half" of the color range
+	 * @param bgColor
+	 * @param foregroundColor
+	 * @return
+	 */
+	private Color adjustColorDifference(Color bgColor, Color foregroundColor)
+	{
+		int red = Math.abs(foregroundColor.getRed() - bgColor.getRed());
+		int blue = Math.abs(foregroundColor.getBlue() - bgColor.getBlue());
+		int green = Math.abs(foregroundColor.getGreen() - bgColor.getBlue());
+
+		if (red < 128 && blue < 128 && green < 128)
+		{
+			red = Math.abs(foregroundColor.getRed() - 255);
+			blue = Math.abs(foregroundColor.getBlue() - 255);
+			green = Math.abs(foregroundColor.getGreen() - 255);
+			foregroundColor = new Color(red, blue, green);
+		}
+		return foregroundColor;
 	}
 
 	private Object getStyleAttributeForRow(JTable jtable, boolean isSelected, int row, ISupportRowStyling.ATTRIBUTE rowStyleAttribute)
