@@ -21,7 +21,7 @@ import com.servoy.j2db.scripting.annotations.ServoyMobile;
 
 /**
  * @author jcompagner
- *
+ * @since 7.0
  */
 @ServoyMobile
 public interface IJSDatabaseManager
@@ -71,4 +71,43 @@ public interface IJSDatabaseManager
 	 * @return true if the save was done without an error.
 	 */
 	public boolean saveData(IJSRecord record) throws Exception;
+
+	/**
+	 * Set autosave, if false then no saves will happen by the ui (not including deletes!). 
+	 * Until you call databaseManager.saveData() or setAutoSave(true)
+	 * 
+	 * If you also want to be able to rollback deletes then you have to use databaseManager.startTransaction().
+	 * Because even if autosave is false deletes of records will be done. 
+	 *
+	 * @sample
+	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * databaseManager.setAutoSave(false)
+	 * //Now let users input data
+	 * 
+	 * //On save or cancel, when data has been entered:
+	 * if (cancel) databaseManager.rollbackEditedRecords()
+	 * databaseManager.setAutoSave(true)
+	 *
+	 * @param autoSave Boolean to enable or disable autosave.
+	 * 
+	 * @return false if the current edited record could not be saved.
+	 */
+	public boolean setAutoSave(boolean autoSave);
+
+	/**
+	 * Returns true or false if autosave is enabled or disabled.
+	 *
+	 * @sample
+	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
+	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * databaseManager.setAutoSave(false)
+	 * //Now let users input data
+	 * 
+	 * //On save or cancel, when data has been entered:
+	 * if (cancel) databaseManager.rollbackEditedRecords()
+	 * databaseManager.setAutoSave(true)
+	 * 
+	 * @return true if autosave if enabled.
+	 */
+	public boolean getAutoSave();
 }

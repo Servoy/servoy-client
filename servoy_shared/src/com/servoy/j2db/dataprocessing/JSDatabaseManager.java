@@ -2859,7 +2859,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return false if the current edited record could not be saved.
 	 */
-	public boolean js_setAutoSave(boolean autoSave)
+	@JSFunction
+	public boolean setAutoSave(boolean autoSave)
 	{
 		if (Debug.tracing())
 		{
@@ -2884,7 +2885,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return true if autosave if enabled.
 	 */
-	public boolean js_getAutoSave()
+	@JSFunction
+	public boolean getAutoSave()
 	{
 		return application.getFoundSetManager().getEditRecordList().getAutoSave();
 	}
