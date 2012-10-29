@@ -1942,8 +1942,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		  {
 			var elemHeight =  elem.clientHeight;
 			var childHeight = child.clientHeight;
-			var childImgHeight = childImg.clientHeight;
-	
+			
 			var top; 
 	
 			if(valign == 1)			// ISupportTextSetup.TOP
@@ -1970,7 +1969,7 @@ if (typeof(Servoy.Utils) == "undefined")
 				// images on large label have special handling for vertical align
 				if(childImg)
 				{
-					top = Math.floor((childHeight - childImgHeight)/2);
+					top = Math.floor((childHeight - childImg.clientHeight)/2);
 				}
 				
 				// buttons have special bottom padding set with element height;
