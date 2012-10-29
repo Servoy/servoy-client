@@ -462,6 +462,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * The text that is displayed in the column header associated with the component when the form
 	 * is in table view.
 	 */
+	@ServoyMobile
 	public String getText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);
