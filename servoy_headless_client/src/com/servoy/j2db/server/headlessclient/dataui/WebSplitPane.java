@@ -35,6 +35,7 @@ import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -782,29 +783,27 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		sizeChanged = true;
 	}
 
+	private final DividerSetterBehavior dividerSetterBehavior = new DividerSetterBehavior();
+
 	public void setRuntimeDividerLocation(double locationPos)
 	{
 		if (locationPos < 0) return;
 		setDividerLocationInternal(locationPos);
 
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
-		if (isVisibleInHierarchy() && requestTarget instanceof AjaxRequestTarget)
+		if (requestTarget instanceof AjaxRequestTarget)
 		{
-			String dim, pos;
-			if (orient == TabPanel.SPLIT_HORIZONTAL)
+			dividerSetterBehavior.setEnabled(true);
+			MainPage page = (MainPage)getPage();
+			if (page.getPageContributor().getBehavior("dividerSetter") == dividerSetterBehavior) //$NON-NLS-1$
 			{
-				dim = "Width"; //$NON-NLS-1$
-				pos = "left"; //$NON-NLS-1$
+				page.getPageContributor().getStylePropertyChanges().setChanged();
 			}
 			else
 			{
-				dim = "Height"; //$NON-NLS-1$
-				pos = "top"; //$NON-NLS-1$
+				page.getPageContributor().addBehavior("dividerSetter", dividerSetterBehavior); //$NON-NLS-1$
 			}
 
-			StringBuilder dividerLocationJSSetter = getDividerLocationJSSetter(dim, pos);
-			AjaxRequestTarget ajaxRequestTarget = (AjaxRequestTarget)requestTarget;
-			ajaxRequestTarget.appendJavascript(dividerLocationJSSetter.toString());
 		}
 		else sizeChanged = true;
 	}
@@ -993,5 +992,44 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	private class DividerSetterBehavior extends AbstractBehavior
+	{
+		boolean isEnabled;
+
+		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			if (isEnabled)
+			{
+				String dim, pos;
+				if (orient == TabPanel.SPLIT_HORIZONTAL)
+				{
+					dim = "Width"; //$NON-NLS-1$
+					pos = "left"; //$NON-NLS-1$
+				}
+				else
+				{
+					dim = "Height"; //$NON-NLS-1$
+					pos = "top"; //$NON-NLS-1$
+				}
+
+				StringBuilder dividerLocationJSSetter = getDividerLocationJSSetter(dim, pos);
+				response.renderJavascript(dividerLocationJSSetter.toString(), null);
+			}
+		}
+
+		@Override
+		public void onRendered(Component component)
+		{
+			super.onRendered(component);
+			isEnabled = false;
+		}
+
+		void setEnabled(boolean enabled)
+		{
+			this.isEnabled = enabled;
+		}
 	}
 }
