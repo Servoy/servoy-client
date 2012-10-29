@@ -788,7 +788,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		setDividerLocationInternal(locationPos);
 
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
-		if (requestTarget instanceof AjaxRequestTarget)
+		if (isVisibleInHierarchy() && requestTarget instanceof AjaxRequestTarget)
 		{
 			String dim, pos;
 			if (orient == TabPanel.SPLIT_HORIZONTAL)
