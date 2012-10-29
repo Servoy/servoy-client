@@ -633,21 +633,32 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * @sample
 	 * var listProvider = solutionModel.newGlobalMethod('globals', 'function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode) {' +
 	 * 		'	' +
+	 * 		'var args = null;' +
+	 * 		'/** @type QBSelect<db:/example_data/employees> *&#47;' +
+	 * 		'var query = databaseManager.createSelect('db:/example_data/employees');' + 
+	 * 		'/** @type  {JSDataSet} *&#47;' + 
+	 * 		'var result = null;' + 
 	 * 		'if (displayValue == null && realValue == null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // return the complete list' +
-	 * 		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || \' \' || lastname, employeeid from employees", null, 100);' +
+	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);' +
+	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' + 
 	 * 		'} else if (displayValue != null) {' +
 	 * 		'  // TYPE_AHEAD filter call, return a filtered list' +
-	 * 		'  var args = [displayValue + "%", displayValue + "%"]' +
-	 * 		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || \' \' || lastname, employeeid from employees where firstname like ? or lastname like ?", args, 100);' +
+	 * 		'  args = [displayValue + "%", displayValue + "%"]' +
+	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
+	 * 		'  root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));' +
+	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +  
 	 * 		'} else if (realValue != null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
 	 * 		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
 	 * 		'  args = [realValue];' +
-	 * 		'  return databaseManager.getDataSetByQuery("example_data", "select firstname || \' \' || lastname, employeeid from employees where employeeid = ?", args, 1);' +
+	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
+	 * 		'  root.where.add(query.columns.employeeid.eq(args[0]));' + 
+	 * 		'  result = databaseManager.getDataSetByQuery(query,1);' + 
 	 * 		'}' +
+	 * 		'return result;' + 
 	 * 		'}');
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
 	 * vlist.globalMethod = listProvider;

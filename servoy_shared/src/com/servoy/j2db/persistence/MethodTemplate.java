@@ -87,25 +87,30 @@ public class MethodTemplate implements IMethodTemplate
 					ArgumentType.String,
 					"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument(
 					"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode") },
-				"if (displayValue == null && realValue == null)\n"
+				"var args = null;\n"
+					+ "/** @type QBSelect<db:/example_data/employees> */ \n"
+					+ "var query = databaseManager.createSelect('db:/example_data/employees');\n"
+					+ "/** @type  {JSDataSet} */\n"
+					+ "var result = null;\n"
+					+ "if (displayValue == null && realValue == null)\n"
 					+ "{\n// TODO think about caching this result. can be called often!\n"
 					+ "// return the complete list\n"
-					+ "return databaseManager.getDataSetByQuery(\"example_data\",\"select firstname || ' ' || lastname, employeeid from employees\",null,100);\n"
+					+ "query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);\n"
+					+ "result = databaseManager.getDataSetByQuery(query,100);\n"
 					+ "}\n"
 					+ "else if (displayValue != null)\n"
 					+ "{\n"
 					+ "// TYPE_AHEAD filter call, return a filtered list\n"
-					+ "var args = [displayValue + \"%\", displayValue + \"%\"]\n"
-					+ "return databaseManager.getDataSetByQuery(\"example_data\",\"select firstname || ' ' || lastname, employeeid from employees where firstname like ? or lastname like ?\",args,100);\n"
-					+ "}\n"
-					+ "else if (realValue != null)\n"
-					+ "{\n"
+					+ "args = [displayValue + \"%\", displayValue + \"%\"];\n"
+					+ "query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n"
+					+ "root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));\n"
+					+ "result = databaseManager.getDataSetByQuery(query,100);\n" + "}\n" + "else if (realValue != null)\n" + "{\n"
 					+ "// TODO think about caching this result. can be called often!\n"
 					+ "// real object not found in the current list, return 1 row with display,realvalue that will be added to the current list\n"
-					+ "// dont return a complete list in this mode because that will be added to the list that is already there\n"
-					+ "args = [realValue];\n"
-					+ "return databaseManager.getDataSetByQuery(\"example_data\",\"select firstname || ' ' || lastname, employeeid from employees where employeeid = ?\",args,1);\n"
-					+ "}\nreturn null;\n", false));
+					+ "// dont return a complete list in this mode because that will be added to the list that is already there\n" + "args = [realValue];\n"
+					+ "query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n"
+					+ "root.where.add(query.columns.employeeid.eq(args[0]));\n" + "result = databaseManager.getDataSetByQuery(query,1);\n"
+					+ "}\nreturn result;\n", false));
 	}
 
 	private final MethodArgument signature;

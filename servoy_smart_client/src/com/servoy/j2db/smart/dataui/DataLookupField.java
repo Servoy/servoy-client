@@ -147,6 +147,10 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	protected void createCustomListModel(CustomValueList vList)
 	{
+		if (dlm != null && changeListener != null)
+		{
+			dlm.getValueList().removeListDataListener(changeListener);
+		}
 		dlm = new LookupListModel(application, vList);
 
 		if (changeListener == null) changeListener = new LookupListChangeListener(this);
@@ -155,6 +159,10 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	protected void createLookupListModel(LookupValueList vlist)
 	{
+		if (dlm != null && changeListener != null)
+		{
+			dlm.getValueList().removeListDataListener(changeListener);
+		}
 		dlm = new LookupListModel(application, vlist);
 
 		if (dlm.isShowValues() != dlm.isReturnValues())
