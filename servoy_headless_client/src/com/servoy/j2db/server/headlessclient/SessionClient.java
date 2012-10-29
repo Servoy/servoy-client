@@ -1190,7 +1190,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public boolean isValid()
 	{
-		return !isShutDown() && getClientInfo() != null;
+		return !isShutDown() && getClientInfo() != null && isSolutionLoaded();
 	}
 
 	/*
