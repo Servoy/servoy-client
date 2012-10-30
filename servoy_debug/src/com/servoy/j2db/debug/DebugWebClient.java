@@ -458,4 +458,10 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 			changedProperties.clear();
 		}
 	}
+
+	@Override
+	protected int getSolutionTypeFilter()
+	{
+		return super.getSolutionTypeFilter() | SolutionMetaData.MOBILE;
+	}
 }
