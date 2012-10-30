@@ -393,6 +393,14 @@ public class DivWindow extends ModalWindow
 		settings.append(isModal());
 		settings.append(";\n");
 
+		String closeText = WebClientSession.get().getWebClient().getI18NMessage("servoy.webclient.dialogCloseText");
+		if (closeText != null && closeText.length() > 0)
+		{
+			settings.append("settings.dialogCloseText").append("=");
+			settings.append("'" + closeText + "'");
+			settings.append(";\n");
+		}
+
 		settings.append("settings.storeBounds").append("=");
 		settings.append(getStoreBounds());
 		settings.append(";\n");
