@@ -32,6 +32,7 @@ import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Page;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
@@ -109,7 +110,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 				}
 			}));
 
-		add(new ServoyAjaxEventBehavior("onselect", "GetTextCmd")
+		add(new AjaxEventBehavior("onselect")
 		{
 			@Override
 			protected void onEvent(AjaxRequestTarget target)
@@ -122,6 +123,12 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			{
 				CharSequence callbackURL = super.getCallbackUrl(onlyTargetActivePage);
 				return callbackURL.toString() + "&st=' + Servoy.Utils.getSelectedText('" + getMarkupId() + "') + '";
+			}
+
+			@Override
+			protected String findIndicatorId()
+			{
+				return null; // main page defines it and the timer shouldn't show it
 			}
 		});
 
