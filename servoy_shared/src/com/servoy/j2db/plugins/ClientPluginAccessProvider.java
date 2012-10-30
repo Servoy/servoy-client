@@ -596,7 +596,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 							retval = e;
 							if (async) application.handleException(
 								"Exception calling form method '" + methodname + "' with arguments " + Arrays.toString(arguments) + " on form '" + context +
-									"'in async mode on solution " + getSolutionName(), e);
+									"' in async mode on solution " + getSolutionName(), e);
 
 						}
 					}
