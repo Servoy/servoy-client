@@ -285,6 +285,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	/**
 	 * The name of the component. Through this name it can also accessed in methods.
 	 */
+	@ServoyMobile
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);

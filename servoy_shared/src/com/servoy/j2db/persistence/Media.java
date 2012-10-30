@@ -18,6 +18,7 @@ package com.servoy.j2db.persistence;
 
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
@@ -103,6 +104,7 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 	/**
 	 * The name of the Media object.
 	 */
+	@ServoyMobile
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);

@@ -178,6 +178,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The name of the form.
 	 */
+	@ServoyMobile
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
