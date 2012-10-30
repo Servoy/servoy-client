@@ -237,7 +237,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	/**
 	 * The image Media object that should be displayed inside the component.
 	 */
-	@ServoyMobile
 	public int getImageMediaID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
