@@ -791,10 +791,10 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		setDividerLocationInternal(locationPos);
 
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
-		if (requestTarget instanceof AjaxRequestTarget)
+		MainPage page = (MainPage)findPage();
+		if (requestTarget instanceof AjaxRequestTarget && page != null)
 		{
 			dividerSetterBehavior.setEnabled(true);
-			MainPage page = (MainPage)getPage();
 			if (page.getPageContributor().getBehavior("dividerSetter") == dividerSetterBehavior) //$NON-NLS-1$
 			{
 				page.getPageContributor().getStylePropertyChanges().setChanged();
