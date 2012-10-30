@@ -18,6 +18,7 @@
 package com.servoy.j2db.scripting.api;
 
 
+
 /**
  * @author jcompagner
  * @since 7.0
@@ -89,4 +90,37 @@ public interface IJSController
 	// @param modal optional boolean indicating modality for dialogs; default value is false
 	//
 	public void showRecords(IJSFoundSet foundset) throws Exception;
+
+	/**
+	 * Shows the form (makes the form visible)
+	 * This function does not affect the form foundset in any way.
+	 * 
+	 * @sample
+	 * // show the form in the current window/dialog
+	 * %%prefix%%controller.show();
+	 * // show the form in newly created named modal dialog
+	 * var w = application.createWindow("mydialog", JSWindow.MODAL_DIALOG);
+	 * %%prefix%%controller.show(w);
+	 * // show the form in an existing window/dialog
+	 * var w = application.getWindow("mydialog"); // use null name for main app. window
+	 * %%prefix%%controller.show(w);
+	 * // or %%prefix%%controller.show("mydialog");
+	 * //show the form in the main window
+	 * //%%prefix%%controller.show(null);
+	 * 
+	 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
+	 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
+	 *
+	 */
+	// Deprecated implementation:
+	// Shows the form (makes the form visible), optionally shown in the specified (modal or not) dialog.
+	// @sample
+	// //show the form in the current window/dialog
+	// %%prefix%%controller.show();
+	// //show the form in the named modal dialog 
+	// //%%prefix%%controller.show('mydialog',true);
+	//
+	// @param dialogName optional the dialog/window name
+	// @param modal optional boolean indicating modality for dialogs; default value is false
+	public void show() throws Exception;
 }

@@ -300,14 +300,15 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		//
 		// @param dialogName optional the dialog/window name
 		// @param modal optional boolean indicating modality for dialogs; default value is false
-		public void js_show() throws ServoyException
+		@JSFunction
+		public void show() throws ServoyException
 		{
 			js_show((JSWindow)null);
 		}
 
 		/**
-		 * @clonedesc js_show()
-		 * @sampleas js_show()
+		 * @clonedesc show()
+		 * @sampleas show()
 		 * 
 		 * @param window the window in which this form should be shown, specified by the name of an existing window
 		 * 
@@ -320,8 +321,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_show()
-		 * @sampleas js_show()
+		 * @clonedesc show()
+		 * @sampleas show()
 		 * 
 		 * @param window the window in which this form should be shown, given as a window object
 		 * 
