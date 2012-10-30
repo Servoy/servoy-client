@@ -46,7 +46,8 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 			initialY: -1,
 			onMove: function() { }, /* called when window is moved */
 			onResize: function() { }, /* called when window is resized */
-			boundEventsDelay: 300 /* if <= 0, then all drag operations on window bounds will update imediately; if > 0 bound events will be sent after this timeout in ms  */
+			boundEventsDelay: 300, /* if <= 0, then all drag operations on window bounds will update imediately; if > 0 bound events will be sent after this timeout in ms  */
+			dialogCloseText: null
 		}, this.settings);
 	},
 	
@@ -103,6 +104,10 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	
 	createDOM: function() {
 		this._super.createDOM.call(this);
+		
+		if (this.settings.dialogCloseText != null && this.settings.dialogCloseText.length > 0) {
+			$(this.caption).children('.w_close').text(this.settings.dialogCloseText)
+		}
 		
 		// tofront for multiple non-modal windows
 		this.classElement.onmousedown = this.caption.onmousedown = this.top.onmousedown = this.topLeft.onmousedown =
