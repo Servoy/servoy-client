@@ -2293,7 +2293,8 @@ public class TemplateGenerator
 				html.append("<div ");
 			}
 			// we want to wrap only if there is no html content in the label text
-			if (!HtmlUtils.hasUsefulHtmlContent(label.getText())) html.append(" style=\"white-space: nowrap; min-width:" + label.getSize().width + "px;\" ");
+			if (label.getText() != null && !HtmlUtils.hasUsefulHtmlContent(label.getText())) html.append(" style=\"white-space: nowrap; min-width:" +
+				label.getSize().width + "px;\" ");
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
 			html.append(getCSSClassParameter("label"));
