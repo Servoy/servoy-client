@@ -1356,6 +1356,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					Debug.error(iae);
 				}
+				Object oldVal = null;
 				if (currentEditingState instanceof FindState)
 				{
 					if (displayData instanceof IScriptableProvider && ((IScriptableProvider)displayData).getScriptObject() instanceof IFormatScriptComponent &&
@@ -1363,6 +1364,20 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					{
 						((FindState)currentEditingState).setFormat(dataProviderID,
 							((IFormatScriptComponent)((IScriptableProvider)displayData).getScriptObject()).getComponentFormat().parsedFormat);
+					}
+					try
+					{
+						oldVal = currentEditingState.getValue(dataProviderID);
+					}
+					catch (IllegalArgumentException iae)
+					{
+						Debug.error("Error getting the previous value", iae); //$NON-NLS-1$
+						oldVal = null;
+					}
+					if (!Utils.equalObjects(oldVal, obj))
+					{
+						// call notifyLastNewValue changed so that the onChangeEvent will be fired and called when attached.
+						displayData.notifyLastNewValueWasChange(oldVal, obj);
 					}
 					currentEditingState.setValue(dataProviderID, obj);
 				}
@@ -1376,7 +1391,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					try
 					{
 						adjusting = true;
-						Object oldVal = null;
 						try
 						{
 							oldVal = currentEditingState.getValue(dataProviderID);
