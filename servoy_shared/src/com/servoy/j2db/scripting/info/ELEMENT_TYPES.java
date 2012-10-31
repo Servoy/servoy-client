@@ -282,7 +282,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a LIST_BOX element
 	 * }
 	 */
-	public static final String LIST_BOX = IRuntimeComponent.LIST_BOX;
+	public static final String LIST_BOX = IRuntimeComponent.LISTBOX;
 
 	/**
 	 * Constant representing a spinner element.
