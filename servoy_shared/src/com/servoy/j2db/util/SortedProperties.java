@@ -13,14 +13,14 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -28,36 +28,37 @@ import net.jcip.annotations.ThreadSafe;
 public class SortedProperties extends Properties
 {
 	@Override
-	public synchronized Enumeration keys()//return a sorted list
+	public synchronized Enumeration<Object> keys()//return a sorted list
 	{
-		ArrayList newList = new ArrayList();
-		Enumeration enumeration = super.keys();
-		while (enumeration.hasMoreElements())
-		{
-			String element = (String)enumeration.nextElement();
-			newList.add(element);
-		}
-
-		final Object[] array = newList.toArray();
-
-		Arrays.sort(array);
-
-		return new Enumeration()
-		{
-			int index = 0;
-
-			public boolean hasMoreElements()
-			{
-				return (index < array.length);
-			}
-
-			public Object nextElement()
-			{
-				Object obj = array[index];
-				index++;
-				return obj;
-			}
-		};
+//		ArrayList newList = new ArrayList();
+//		Enumeration enumeration = super.keys();
+//		while (enumeration.hasMoreElements())
+//		{
+//			String element = (String)enumeration.nextElement();
+//			newList.add(element);
+//		}
+//
+//		final Object[] array = newList.toArray();
+//
+//		Arrays.sort(array);
+//
+//		return new Enumeration()
+//		{
+//			int index = 0;
+//
+//			public boolean hasMoreElements()
+//			{
+//				return (index < array.length);
+//			}
+//
+//			public Object nextElement()
+//			{
+//				Object obj = array[index];
+//				index++;
+//				return obj;
+//			}
+//		};
+		return Collections.enumeration(new TreeSet<Object>(super.keySet()));
 	}
 
 	public synchronized String toFileString()
