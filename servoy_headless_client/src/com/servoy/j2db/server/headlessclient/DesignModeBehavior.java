@@ -209,7 +209,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		// and TemplateGenerator.isButton(GraphicalComponent label)
 		return IRuntimeComponent.PASSWORD.equals(type) || IRuntimeComponent.TEXT_AREA.equals(type) || IRuntimeComponent.COMBOBOX.equals(type) ||
 			IRuntimeComponent.TYPE_AHEAD.equals(type) || IRuntimeComponent.TEXT_FIELD.equals(type) || (IRuntimeComponent.HTML_AREA.equals(type) && editable) ||
-			(IRuntimeComponent.LIST_BOX.equals(type)) || (IRuntimeComponent.MULTISELECT_LISTBOX.equals(type)) || IRuntimeComponent.BUTTON.equals(type);
+			(IRuntimeComponent.LISTBOX.equals(type)) || (IRuntimeComponent.MULTISELECT_LISTBOX.equals(type)) || IRuntimeComponent.BUTTON.equals(type);
 	}
 
 	/**
