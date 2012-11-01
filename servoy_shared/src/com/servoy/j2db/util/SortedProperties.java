@@ -30,34 +30,6 @@ public class SortedProperties extends Properties
 	@Override
 	public synchronized Enumeration<Object> keys()//return a sorted list
 	{
-//		ArrayList newList = new ArrayList();
-//		Enumeration enumeration = super.keys();
-//		while (enumeration.hasMoreElements())
-//		{
-//			String element = (String)enumeration.nextElement();
-//			newList.add(element);
-//		}
-//
-//		final Object[] array = newList.toArray();
-//
-//		Arrays.sort(array);
-//
-//		return new Enumeration()
-//		{
-//			int index = 0;
-//
-//			public boolean hasMoreElements()
-//			{
-//				return (index < array.length);
-//			}
-//
-//			public Object nextElement()
-//			{
-//				Object obj = array[index];
-//				index++;
-//				return obj;
-//			}
-//		};
 		return Collections.enumeration(new TreeSet<Object>(super.keySet()));
 	}
 
