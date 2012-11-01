@@ -51,7 +51,12 @@ public class AnnotationManager
 
 	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation> annotationClass)
 	{
-		return getCachedAnnotation(method, annotationClass).getLeft().booleanValue();
+		return getCachedAnnotation(method, annotationClass, false).getLeft().booleanValue();
+	}
+
+	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation> annotationClass, boolean isMobileContext)
+	{
+		return getCachedAnnotation(method, annotationClass, isMobileContext).getLeft().booleanValue();
 	}
 
 	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation>[] annotationClasses)
@@ -126,16 +131,23 @@ public class AnnotationManager
 	@SuppressWarnings("unchecked")
 	public <T extends Annotation> T getAnnotation(Method method, Class<T> annotationClass)
 	{
-		return (T)getCachedAnnotation(method, annotationClass).getRight();
+		return (T)getCachedAnnotation(method, annotationClass, false).getRight();
 	}
 
-	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? extends Annotation> annotationClass)
+	@SuppressWarnings("unchecked")
+	public <T extends Annotation> T getAnnotation(Method method, Class<T> annotationClass, boolean isMobileContext)
+	{
+		return (T)getCachedAnnotation(method, annotationClass, isMobileContext).getRight();
+	}
+
+	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? extends Annotation> annotationClass, boolean isMobileContext)
 	{
 		Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
 		Pair<Boolean, Annotation> pair = annotationCache.get(key);
 		if (pair == null)
 		{
 			Annotation annotation = method.getAnnotation(annotationClass);
+			if (isMobileContext) annotation = method.getDeclaringClass().getAnnotation(annotationClass);
 			for (Class< ? > cls = method.getDeclaringClass(); annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
 			{
 				// check if the method is part of an interface that has the annotation
@@ -145,7 +157,7 @@ public class AnnotationManager
 					try
 					{
 						annotation = intf.getMethod(method.getName(), method.getParameterTypes()).getAnnotation(annotationClass);
-						if (annotation == null) annotation = intf.getAnnotation(annotationClass);
+						if (annotation == null && isMobileContext) annotation = intf.getAnnotation(annotationClass);
 					}
 					catch (SecurityException e)
 					{
