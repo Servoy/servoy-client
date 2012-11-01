@@ -632,7 +632,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	/**
-	 * Creates a new JSField object on the form with the displayType of LIST_BOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
+	 * Creates a new JSField object on the form with the displayType of LISTBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
@@ -645,7 +645,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @param width the width of the JSField object in pixels
 	 * @param height the height of the JSField object in pixels
 	 * 
-	 * @return a new JSField object on the form with the displayType of LIST_BOX
+	 * @return a new JSField object on the form with the displayType of LISTBOX
 	 */
 	@JSFunction
 	public JSField newListBox(Object dataprovider, int x, int y, int width, int height)

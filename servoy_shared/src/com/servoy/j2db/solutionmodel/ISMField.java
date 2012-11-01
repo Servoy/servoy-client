@@ -144,7 +144,19 @@ public interface ISMField extends ISMComponent
 	 * var list = form.newField('my_table_list', JSField.LIST_BOX, 10, 280, 100, 50);
 	 * list.valuelist = vlist;
 	 */
+	@Deprecated
 	public static final int LIST_BOX = Field.LIST_BOX;
+	/**
+	 * Constant for specifying the display type of a JSField. Sets the display type of the
+	 * field to list box. The field will show a selection list with single choice selection.
+	 * 
+	 * @sample
+	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
+	 * vlist.customValues = "one\ntwo\nthree\nfour";
+	 * var list = form.newField('my_table_list', JSField.LISTBOX, 10, 280, 100, 50);
+	 * list.valuelist = vlist;
+	 */
+	public static final int LISTBOX = Field.LIST_BOX;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
 	 * field to list box. The field will show a selection list with multiple choice selection.
