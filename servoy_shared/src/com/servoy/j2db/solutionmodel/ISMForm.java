@@ -419,7 +419,7 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public ISMField newComboBox(Object dataprovider, int x, int y, int width, int height);
 
 	/**
-	 * Creates a new ISMField object on the form with the displayType of LIST_BOX - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
+	 * Creates a new ISMField object on the form with the displayType of LISTBOX - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
@@ -432,7 +432,7 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	 * @param width the width of the ISMField object in pixels
 	 * @param height the height of the ISMField object in pixels
 	 * 
-	 * @return a new ISMField object on the form with the displayType of LIST_BOX
+	 * @return a new ISMField object on the form with the displayType of LISTBOX
 	 */
 	public ISMField newListBox(Object dataprovider, int x, int y, int width, int height);
 

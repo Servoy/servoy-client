@@ -282,7 +282,21 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 *      // element is a LIST_BOX element
 	 * }
 	 */
+	@Deprecated
 	public static final String LIST_BOX = IRuntimeComponent.LISTBOX;
+
+	/**
+	 * Constant representing a listbox element.
+	 *
+	 * @sample
+	 * //the return value for an element of the ListBox type, as returned by the following code
+	 * var etype = elements.elementName.getElementType();
+	 * if (etype == ELEMENT_TYPES.LISTBOX)
+	 * {
+	 *      // element is a LISTBOX element
+	 * }
+	 */
+	public static final String LISTBOX = IRuntimeComponent.LISTBOX;
 
 	/**
 	 * Constant representing a spinner element.
