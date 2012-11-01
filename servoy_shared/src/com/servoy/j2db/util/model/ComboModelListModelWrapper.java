@@ -88,7 +88,11 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 			{
 				Object obj = getRealElementAt(selected.intValue());
 				int newRow = newModel.realValueIndexOf(obj);
-				if (newRow >= 0) newSelectedSet.add(Integer.valueOf(newRow));
+				if (newRow >= 0)
+				{
+					if (newRow > 0 && hideFirstValue && newModel.getAllowEmptySelection()) newRow--;
+					newSelectedSet.add(Integer.valueOf(newRow));
+				}
 			}
 		}
 		int prevSize = getSize();
