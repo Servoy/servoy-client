@@ -258,7 +258,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		lst = strippedText.getJavascriptScripts();
 		for (int i = 0; i < lst.size(); i++)
 		{
-			response.renderJavascript(lst.get(i), "js_" + getMarkupId()); //$NON-NLS-1$
+			response.renderJavascript(lst.get(i), "js_" + getMarkupId() + lst.get(i).hashCode()); //$NON-NLS-1$
 		}
 		lst = strippedText.getLinkTags();
 		for (int i = 0; i < lst.size(); i++)
