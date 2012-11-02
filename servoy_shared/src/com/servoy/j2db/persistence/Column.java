@@ -878,18 +878,20 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 	public void setFlags(int f)
 	{
-		int newFlags;
-		if (dbPK && (f & PK_COLUMN) == 0)
+		// dbPK dictates the value of the PK_COLUMN flag and can disable USER_ROWID_COLUMN
+		int colIdentFlags;
+		if ((f & IDENT_COLUMNS) == USER_ROWID_COLUMN && !dbPK)
 		{
-			// if defined as PK do not override
-			newFlags = PK_COLUMN | (f & ~USER_ROWID_COLUMN);
+			colIdentFlags = USER_ROWID_COLUMN; // only set user row ident if it is not already pk
 		}
 		else
 		{
-			newFlags = f;
+			colIdentFlags = dbPK ? PK_COLUMN : NORMAL_COLUMN;
 		}
+		// use computed identity flags combined with other flags from columnInfo
+		int newFlags = (f & NON_IDENT_COLUMNS) | colIdentFlags;
 
-		if ((newFlags & IDENT_COLUMNS) != 0)
+		if ((newFlags & IDENT_COLUMNS) != NORMAL_COLUMN)
 		{
 			table.addRowIdentColumn(this);
 			if (!existInDB) allowNull = false;
@@ -910,7 +912,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 		}
 		else
 		{
-			dbPK = ((newFlags & PK_COLUMN) != 0);
+//			dbPK = ((newFlags & PK_COLUMN) != 0);
 			this.flags = newFlags;
 		}
 	}
@@ -930,6 +932,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 	public void setDatabasePK(boolean pk)
 	{
+		dbPK = pk;
 		if (columnInfo == null)
 		{
 			if (pk)
@@ -941,8 +944,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 			{
 				table.removeRowIdentColumn(this);
 			}
+			if (flags != -1) setFlags(getFlags());
 		}
-		dbPK = pk;
+		else
+		{
+			// hmm, this is strange; update flags as well
+			Debug.trace("The database PK member was changed after columninfo was assigned to it");
+			setFlags(getFlags());
+		}
 	}
 
 	public boolean isDatabasePK()
@@ -1003,7 +1012,12 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 		String oldDataProviderID = getDataProviderID();
 
-		ColumnInfo oldColumnInfo = columnInfo;
+		if (!ci.isStoredPersistently() && getColumnType().getScale() > 0 && ci.getCompatibleColumnTypes() == null) // if this is a default in-memory column info, it's type should be compatible with the actual column type
+		{
+			// if table definition has a scale, add it to the compatible list, because the default type won't store scale.
+			ci.addCompatibleColumnType(getColumnType());
+		}
+
 		columnInfo = ci;
 		if (sequenceType != ColumnInfo.NO_SEQUENCE_SELECTED) //delegate
 		{
@@ -1013,30 +1027,18 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 				setDatabaseSequenceName(databaseSequenceName);
 			}
 		}
-		if (flags != -1)
-		{
-			setFlags(flags);
-		}
 		if (dataProviderID != null)
 		{
 			setDataProviderID(dataProviderID);
 		}
-		if (oldColumnInfo == null) // for new columns (which have not yet column info)
+		if (flags != -1)
 		{
-			int colIdentFlags = dbPK ? PK_COLUMN : 0;
-			if ((ci.getFlags() & IDENT_COLUMNS) == USER_ROWID_COLUMN && !dbPK)
-			{
-				colIdentFlags = USER_ROWID_COLUMN; // only set user row ident if it is not already pk
-			}
-			// use identity flags from column combined with other flags from columnInfo
-			int ciNonidentFlags = ci.getFlags() & NON_IDENT_COLUMNS;
-			setFlags(ciNonidentFlags | colIdentFlags);
+			setFlags(flags); // use the flags (meant for the use-case when you want to create a column marked as UUID - before actually creating it in DB, see commit for revision 4340)
 		}
-
-		if (!ci.isStoredPersistently() && getColumnType().getScale() > 0 && ci.getCompatibleColumnTypes() == null) // if this is a default in-memory column info, it's type should be compatible with the actual column type
+		else
 		{
-			// if table definition has a scale, add it to the compatible list, because the default type won't store scale.
-			ci.addCompatibleColumnType(getColumnType());
+			// re-apply column-info flags to column to adjust them if necessary as setFlags() allows
+			setFlags(ci.getFlags());
 		}
 
 		// The database default value only gets set once, via the column itself and never via the column info.
