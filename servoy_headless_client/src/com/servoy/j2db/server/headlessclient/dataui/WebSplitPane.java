@@ -35,7 +35,6 @@ import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -56,6 +55,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.server.headlessclient.PageContributor;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
@@ -569,8 +569,20 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		getStylePropertyChanges().setRendered();
 	}
 
-	private StringBuilder getDividerLocationJSSetter(String dim, String pos)
+	public StringBuilder getDividerLocationJSSetter()
 	{
+		String dim, pos;
+		if (orient == TabPanel.SPLIT_HORIZONTAL)
+		{
+			dim = "Width"; //$NON-NLS-1$
+			pos = "left"; //$NON-NLS-1$
+		}
+		else
+		{
+			dim = "Height"; //$NON-NLS-1$
+			pos = "top"; //$NON-NLS-1$
+		}
+
 		StringBuilder resizeScript = new StringBuilder("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
@@ -610,7 +622,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			pos = "top"; //$NON-NLS-1$
 		}
 
-		StringBuilder resizeScript = getDividerLocationJSSetter(dim, pos);
+		StringBuilder resizeScript = getDividerLocationJSSetter();
 		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ 
 		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -783,8 +795,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		sizeChanged = true;
 	}
 
-	private final DividerSetterBehavior dividerSetterBehavior = new DividerSetterBehavior();
-
 	public void setRuntimeDividerLocation(double locationPos)
 	{
 		if (locationPos < 0) return;
@@ -794,16 +804,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		MainPage page = (MainPage)findPage();
 		if (requestTarget instanceof AjaxRequestTarget && page != null)
 		{
-			dividerSetterBehavior.setEnabled(true);
-			if (page.getPageContributor().getBehavior("dividerSetter") == dividerSetterBehavior) //$NON-NLS-1$
-			{
-				page.getPageContributor().getStylePropertyChanges().setChanged();
-			}
-			else
-			{
-				page.getPageContributor().addBehavior("dividerSetter", dividerSetterBehavior); //$NON-NLS-1$
-			}
-
+			((PageContributor)page.getPageContributor()).addSplitPaneToUpdatedDivider(this);
 		}
 		else sizeChanged = true;
 	}
@@ -992,44 +993,5 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
-	}
-
-	private class DividerSetterBehavior extends AbstractBehavior
-	{
-		boolean isEnabled;
-
-		@Override
-		public void renderHead(IHeaderResponse response)
-		{
-			if (isEnabled)
-			{
-				String dim, pos;
-				if (orient == TabPanel.SPLIT_HORIZONTAL)
-				{
-					dim = "Width"; //$NON-NLS-1$
-					pos = "left"; //$NON-NLS-1$
-				}
-				else
-				{
-					dim = "Height"; //$NON-NLS-1$
-					pos = "top"; //$NON-NLS-1$
-				}
-
-				StringBuilder dividerLocationJSSetter = getDividerLocationJSSetter(dim, pos);
-				response.renderJavascript(dividerLocationJSSetter.toString(), null);
-			}
-		}
-
-		@Override
-		public void onRendered(Component component)
-		{
-			super.onRendered(component);
-			isEnabled = false;
-		}
-
-		void setEnabled(boolean enabled)
-		{
-			this.isEnabled = enabled;
-		}
 	}
 }
