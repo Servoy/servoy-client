@@ -44,6 +44,7 @@ import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBeh
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
+import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -80,6 +81,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	private boolean isResizing = false;
 
 	private final IApplication application;
+
+	private final ArrayList<WebSplitPane> splitPanesToUpdateDivider = new ArrayList<WebSplitPane>();
 
 	public PageContributor(final IApplication application, String id)
 	{
@@ -238,6 +241,15 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			stringBuffer.append("]);"); //$NON-NLS-1$
 			response.renderOnLoadJavascript(stringBuffer.toString());
 			tabIndexChanges.clear();
+		}
+
+		if (splitPanesToUpdateDivider.size() > 0)
+		{
+			for (WebSplitPane splitPane : splitPanesToUpdateDivider)
+			{
+				response.renderOnLoadJavascript((new StringBuilder("(function() {").append(splitPane.getDividerLocationJSSetter().append("}).call();"))).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			splitPanesToUpdateDivider.clear();
 		}
 
 		// Enable this for Firebug debugging under IE/Safari/etc.
@@ -533,5 +545,11 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	public AbstractAjaxBehavior getEventCallback()
 	{
 		return eventCallbackBehavior;
+	}
+
+	public void addSplitPaneToUpdatedDivider(WebSplitPane splitPane)
+	{
+		if (splitPanesToUpdateDivider.indexOf(splitPane) == -1) splitPanesToUpdateDivider.add(splitPane);
+		getStylePropertyChanges().setChanged();
 	}
 }
