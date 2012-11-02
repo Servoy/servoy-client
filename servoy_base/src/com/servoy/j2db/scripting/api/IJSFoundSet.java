@@ -104,4 +104,27 @@ public interface IJSFoundSet
 	 * @return int index of new record.
 	 */
 	public int js_newRecord() throws Exception;
+
+	/**
+	 * Create a new record on top of the foundset and change selection to it. Returns -1 if the record can't be made.
+	 *
+	 * @sample
+	 * // foreign key data is only filled in for equals (=) relation items 
+	 * var idx = %%prefix%%foundset.newRecord(false); // add as last record
+	 * // %%prefix%%foundset.newRecord(); // adds as first record
+	 * // %%prefix%%foundset.newRecord(2); //adds as second record
+	 * if (idx >= 0) // returned index is -1 in case of failure 
+	 * {
+	 * 	%%prefix%%foundset.some_column = "some text";
+	 * 	application.output("added on position " + idx);
+	 * 	// when adding at the end of the foundset, the returned index
+	 * 	// corresponds with the size of the foundset
+	 * }
+	 * 
+	 * @param index the index on which place the record should go
+	 * @param changeSelection wheter or not the selection should change.
+	 *
+	 * @return int index of new record.
+	 */
+	public int js_newRecord(Number index, Boolean changeSelection) throws Exception;
 }

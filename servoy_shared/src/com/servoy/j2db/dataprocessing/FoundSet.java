@@ -2690,7 +2690,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return int index of new record.
 	 */
-	public int js_newRecord(Number index) throws ServoyException
+	public int js_newRecord(Number index) throws Exception
 	{
 		return js_newRecord(index, Boolean.TRUE);
 	}
@@ -2705,7 +2705,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return int index of new record.
 	 */
-	public int js_newRecord(Number index, Boolean changeSelection) throws ServoyException
+	public int js_newRecord(Number index, Boolean changeSelection) throws Exception
 	{
 		int _index = getNumberAsInt(index, 1);
 		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
@@ -2765,7 +2765,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @return int index of new record.
 	 */
-	public int js_newRecord() throws ServoyException
+	public int js_newRecord() throws Exception
 	{
 		return js_newRecord(Integer.valueOf(1), Boolean.TRUE);
 	}

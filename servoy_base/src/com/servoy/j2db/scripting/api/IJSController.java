@@ -17,12 +17,14 @@
 
 package com.servoy.j2db.scripting.api;
 
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
 
 
 /**
  * @author jcompagner
  * @since 7.0
  */
+@ServoyMobile
 public interface IJSController
 {
 	/**
