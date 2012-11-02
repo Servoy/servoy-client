@@ -918,8 +918,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 				else if (arguments[i] instanceof DbIdentValue && ((DbIdentValue)arguments[i]).getPkValue() == null)
 				{
-					Debug.log("Custom query: " + sql_query + //$NON-NLS-1$
-						" not executed because the arguments have a database ident value that is null, from a not yet saved record"); //$NON-NLS-1$
+					application.reportJSError("Custom query: " + sql_query + //$NON-NLS-1$
+						" not executed because the arguments have a database ident value that is null, from a not yet saved record", null); //$NON-NLS-1$
 					return false;
 				}
 			}
@@ -934,7 +934,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
 			{
-				Debug.log("Custom query: " + select + " not executed because no columns are selected"); //$NON-NLS-1$ //$NON-NLS-2$
+				application.reportJSError("Custom query: " + select + " not executed because no columns are selected", null);
 				return false;
 			}
 
@@ -955,14 +955,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			{
 				if (!placeholder.isSet())
 				{
-					Debug.log("Custom query: " + select + //$NON-NLS-1$
-						" not executed because not all arguments have been set: " + placeholder.getKey()); //$NON-NLS-1$
+					application.reportJSError("Custom query: " + select + //$NON-NLS-1$
+						" not executed because not all arguments have been set: " + placeholder.getKey(), null); //$NON-NLS-1$
 					return false;
 				}
 				if (placeholder.getValue() instanceof DbIdentValue && ((DbIdentValue)placeholder.getValue()).getPkValue() == null)
 				{
-					Debug.log("Custom query: " + select + //$NON-NLS-1$
-						" not executed because the arguments have a database ident value that is null, from a not yet saved record"); //$NON-NLS-1$
+					application.reportJSError("Custom query: " + select + //$NON-NLS-1$
+						" not executed because the arguments have a database ident value that is null, from a not yet saved record", null); //$NON-NLS-1$
 					return false;
 				}
 
