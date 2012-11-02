@@ -1980,7 +1980,7 @@ if (typeof(Servoy.Utils) == "undefined")
 				}
 			} 
 			child.style.top = top + "px";
-			child.style.visibility = 'visible';
+			child.style.visibility = 'inherit';
 		  }		  
 		},
 		
