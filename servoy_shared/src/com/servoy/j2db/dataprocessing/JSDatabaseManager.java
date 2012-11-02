@@ -934,7 +934,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
 			{
-				application.reportJSError("Custom query: " + select + " not executed because no columns are selected", null);
+				application.reportJSError("Custom query: " + select + " not executed because no columns are specified to be selected", null);
 				return false;
 			}
 
