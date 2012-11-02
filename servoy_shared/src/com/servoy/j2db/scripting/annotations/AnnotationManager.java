@@ -156,8 +156,12 @@ public class AnnotationManager
 				{
 					try
 					{
-						annotation = intf.getMethod(method.getName(), method.getParameterTypes()).getAnnotation(annotationClass);
-						if (annotation == null && parentClassCheckForMobile) annotation = intf.getAnnotation(annotationClass);
+						Method m = intf.getMethod(method.getName(), method.getParameterTypes());
+						if (m != null)
+						{
+							annotation = m.getAnnotation(annotationClass);
+							if (annotation == null && parentClassCheckForMobile) annotation = intf.getAnnotation(annotationClass);
+						}
 					}
 					catch (SecurityException e)
 					{
@@ -165,6 +169,7 @@ public class AnnotationManager
 					catch (NoSuchMethodException e)
 					{
 					}
+					if (annotation != null) break;
 				}
 			}
 			annotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
@@ -203,6 +208,7 @@ public class AnnotationManager
 				for (Class< ? > intf : interfaces)
 				{
 					annotation = intf.getAnnotation(annotationClass);
+					if (annotation != null) break;
 				}
 			}
 			classAnnotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
