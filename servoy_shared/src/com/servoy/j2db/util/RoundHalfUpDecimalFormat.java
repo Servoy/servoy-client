@@ -49,7 +49,8 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 
 	public RoundHalfUpDecimalFormat(String format, Locale locale)
 	{
-		super(format, getDecimalFormatSymbols(locale));
+		super(checkPattern(format, locale), getDecimalFormatSymbols(locale));
+		format = checkPattern(format, locale);
 		if (format.endsWith("-")) //$NON-NLS-1$
 		{
 			applyPattern(format.substring(0, format.length() - 1));
@@ -146,6 +147,20 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 		else
 		{
 			return super.parse(source, pos);
+		}
+	}
+
+	private static String checkPattern(String format, Locale locale)
+	{
+		try
+		{
+			new DecimalFormat(format, getDecimalFormatSymbols(locale));
+			return format;
+		}
+		catch (Exception ex)
+		{
+			Debug.error("Invalid number pattern : '" + format + "', continue using default pattern ...", ex); //$NON-NLS-1$ //$NON-NLS-2$
+			return new DecimalFormat().toPattern();
 		}
 	}
 }
