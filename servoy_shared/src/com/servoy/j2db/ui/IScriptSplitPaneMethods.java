@@ -28,7 +28,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeSplitPane;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeSplitPane", extendsComponent = "RuntimeComponent")
-public interface IScriptSplitPaneMethods extends IRuntimeSplitPane
+public interface IScriptSplitPaneMethods extends IRuntimeSplitPane, IScriptTabPaneAlikeMethods
 {
 
 	/**
