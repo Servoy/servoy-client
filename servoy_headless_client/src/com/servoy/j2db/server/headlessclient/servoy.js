@@ -745,6 +745,10 @@ if (typeof(Servoy.TableView) == "undefined")
 					el.style.fontSize = fontSize;
 					el.style.fontFamily = fontFamily;
 					
+					if(el.tagName && el.tagName.toLowerCase() == "td" && el.getAttribute('style')=='')
+					{
+						YAHOO.util.Dom.setStyle(YAHOO.util.Dom.get(el.id), 'display', 'none');
+					}						
 					 
 					if(el.tagName && el.tagName.toLowerCase() != "td")
 					{
