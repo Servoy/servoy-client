@@ -1420,13 +1420,18 @@ public class Utils
 		return getAsInteger(o.toString(), throwOnException);
 	}
 
+	public static byte[] getURLContent(String url)
+	{
+		return getURLContent(url, null);
+	}
+
 	public static byte[] getURLContent(String url, IServiceProvider serviceProvider)
 	{
 		ByteArrayOutputStream sb = new ByteArrayOutputStream();
 		try
 		{
 			URL u;
-			if (url.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+			if (serviceProvider != null && url.startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
 			{
 				u = new URL(null, url, new MediaURLStreamHandler(serviceProvider));
 			}
