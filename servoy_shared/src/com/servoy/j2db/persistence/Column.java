@@ -878,6 +878,13 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 
 	public void setFlags(int f)
 	{
+		if (f < 0)
+		{
+			// -1 value is only for internal class use; all external setFlags calls should have f >= 0
+			Debug.error("Set flags called with " + f + ". This is not a valid value for column flags."); //$NON-NLS-1$//$NON-NLS-2$
+			return;
+		}
+
 		// dbPK dictates the value of the PK_COLUMN flag and can disable USER_ROWID_COLUMN
 		int colIdentFlags;
 		if ((f & IDENT_COLUMNS) == USER_ROWID_COLUMN && !dbPK)
@@ -933,24 +940,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	public void setDatabasePK(boolean pk)
 	{
 		dbPK = pk;
-		if (columnInfo == null)
+		if (columnInfo != null || flags != -1)
 		{
-			if (pk)
-			{
-				table.addRowIdentColumn(this);
-				if (!existInDB) allowNull = false;
-			}
-			else
-			{
-				table.removeRowIdentColumn(this);
-			}
-			if (flags != -1) setFlags(getFlags());
-		}
-		else
-		{
-			// hmm, this is strange; update flags as well
-			Debug.trace("The database PK member was changed after columninfo was assigned to it");
-			setFlags(getFlags());
+			setFlags(getFlags()); // update flags to reflect new dbPK status
+			if (columnInfo != null) Debug.trace("The database PK member was changed after columninfo was assigned to it.");
 		}
 	}
 
