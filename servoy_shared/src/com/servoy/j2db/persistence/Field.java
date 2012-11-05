@@ -121,6 +121,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * The format that should be applied when displaying the data in the component.
 	 * Some examples are "#%", "dd-MM-yyyy", "MM-dd-yyyy", etc.
+	 * This property is applicable only for types: TEXT_FIELD, COMBOBOX, TYPE_AHEAD, CALLENDAR and SPINNER.
 	 */
 	public String getFormat()
 	{
