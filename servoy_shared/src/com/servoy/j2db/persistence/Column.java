@@ -898,15 +898,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 		// use computed identity flags combined with other flags from columnInfo
 		int newFlags = (f & NON_IDENT_COLUMNS) | colIdentFlags;
 
-		if ((newFlags & IDENT_COLUMNS) != NORMAL_COLUMN)
-		{
-			table.addRowIdentColumn(this);
-			if (!existInDB) allowNull = false;
-		}
-		else
-		{
-			table.removeRowIdentColumn(this);
-		}
+		updateTableIdentColumns(newFlags);
 
 		if (columnInfo != null)
 		{
@@ -921,6 +913,19 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 		{
 //			dbPK = ((newFlags & PK_COLUMN) != 0);
 			this.flags = newFlags;
+		}
+	}
+
+	protected void updateTableIdentColumns(int newFlags)
+	{
+		if ((newFlags & IDENT_COLUMNS) != NORMAL_COLUMN)
+		{
+			table.addRowIdentColumn(this);
+			if (!existInDB) allowNull = false;
+		}
+		else
+		{
+			table.removeRowIdentColumn(this);
 		}
 	}
 
@@ -940,9 +945,13 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	public void setDatabasePK(boolean pk)
 	{
 		dbPK = pk;
-		if (columnInfo != null || flags != -1)
+		if (columnInfo == null && flags == -1)
 		{
-			setFlags(getFlags()); // update flags to reflect new dbPK status
+			updateTableIdentColumns(dbPK ? PK_COLUMN : NORMAL_COLUMN);
+		}
+		else
+		{
+			setFlags(getFlags()); // update flags/table ident columns to reflect new dbPK status
 			if (columnInfo != null) Debug.trace("The database PK member was changed after columninfo was assigned to it.");
 		}
 	}
