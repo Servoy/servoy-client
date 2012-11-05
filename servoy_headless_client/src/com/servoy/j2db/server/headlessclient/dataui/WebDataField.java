@@ -917,7 +917,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	public void requestFocusToComponent()
 	{
-		if (isEditable() && !isReadOnly() && isEnabled())
+		if (!isReadOnly() && isEnabled())
 		{
 			// is the current main container always the right one?
 			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
@@ -1010,16 +1010,13 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	protected void toggleFocusBehavior()
 	{
 		List<FocusIfInvalidAttributeModifier> list = this.getBehaviors(FocusIfInvalidAttributeModifier.class);
-		if (!isEditable() || isReadOnly() || !isEnabled())
+		if (isReadOnly() || !isEnabled())
 		{
-			if (list != null && list.size() > 0) remove(focusIfInvalidAttributeModifier);
+			if (list.size() > 0) remove(focusIfInvalidAttributeModifier);
 		}
 		else
 		{
-			if (list != null && list.size() == 0)
-			{
-				add(focusIfInvalidAttributeModifier);
-			}
+			if (list.size() == 0) add(focusIfInvalidAttributeModifier);
 		}
 	}
 
