@@ -16,19 +16,15 @@
  */
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.IScriptExecuter;
-import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.IScriptableProvider;
 
 /**
  * Interface to which split pane components need to conform, to be handled in the same way for swing(rich client) or wicket(webclient) UI
  * 
  * @author gboros
  */
-public interface ISplitPane extends IComponent, IScriptableProvider, IDisplayRelatedData
+public interface ISplitPane extends ITabPanel
 {
-	IFormLookupPanel createFormLookupPanel(String name, String relationName, String formName);
 
 	void setLeftForm(IFormLookupPanel flp);
 
@@ -39,10 +35,6 @@ public interface ISplitPane extends IComponent, IScriptableProvider, IDisplayRel
 	IFormLookupPanel getRightForm();
 
 	void setOnDividerChangeMethodCmd(String onDividerChangeMethodCmd);
-
-	void addScriptExecuter(IScriptExecuter el);
-
-	int getAbsoluteFormLocationY();
 
 	boolean setForm(boolean bLeftForm, Object form, Object relation);
 
@@ -69,6 +61,4 @@ public interface ISplitPane extends IComponent, IScriptableProvider, IDisplayRel
 	int getFormMinSize(boolean bLeftForm);
 
 	void setFormMinSize(boolean bLeftForm, int minSize);
-
-	void setReadOnly(boolean b);
 }

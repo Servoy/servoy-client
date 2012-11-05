@@ -44,6 +44,7 @@ import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -993,5 +994,223 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setTabLayoutPolicy(int)
+	 */
+	public void setTabLayoutPolicy(int scroll_tab_layout)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#addTab(java.lang.String, int, com.servoy.j2db.ui.IFormLookupPanel, java.lang.String)
+	 */
+	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tooltip)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setTabForegroundAt(int, java.awt.Color)
+	 */
+	public void setTabForegroundAt(int index, Color fg)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setTabBackgroundAt(int, java.awt.Color)
+	 */
+	public void setTabBackgroundAt(int index, Color bg)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setTabEnabledAt(int, boolean)
+	 */
+	public void setTabEnabledAt(int index, boolean enabled)
+	{
+		IFormLookupPanel form = index == 0 ? getLeftForm() : index == 1 ? getRightForm() : null;
+		if (form instanceof WebTabFormLookup) ((WebTabFormLookup)form).getWebForm().setEnabled(enabled);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setOnTabChangeMethodCmd(java.lang.String, java.lang.Object[])
+	 */
+	public void setOnTabChangeMethodCmd(String onTabChangeMethodCmd, Object[] onTabChangeArgs)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#removeTabAt(int)
+	 */
+	public boolean removeTabAt(int index)
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#removeAllTabs()
+	 */
+	public boolean removeAllTabs()
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#addTab(com.servoy.j2db.IForm, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.dataprocessing.RelatedFoundSet, int)
+	 */
+	public boolean addTab(IForm formController, String formName, String tabname, String tabText, String tooltip, String iconURL, String fg, String bg,
+		String relationName, RelatedFoundSet relatedFs, int tabIndex)
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setTabTextAt(int, java.lang.String)
+	 */
+	public void setTabTextAt(int i, String text)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#getTabTextAt(int)
+	 */
+	public String getTabTextAt(int i)
+	{
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setMnemonicAt(int, int)
+	 */
+	public void setMnemonicAt(int i, int mnemonic)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#getMnemonicAt(int)
+	 */
+	public int getMnemonicAt(int i)
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#getTabNameAt(int)
+	 */
+	public String getTabNameAt(int i)
+	{
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#getTabFormNameAt(int)
+	 */
+	public String getTabFormNameAt(int i)
+	{
+		IFormLookupPanel form = i == 0 ? getLeftForm() : i == 1 ? getRightForm() : null;
+		if (form != null) form.getFormName();
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setTabIndex(int)
+	 */
+	public void setTabIndex(int index)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setTabIndex(java.lang.String)
+	 */
+	public void setTabIndex(String name)
+	{
+		// IGNORE
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#isTabEnabledAt(int)
+	 */
+	public boolean isTabEnabledAt(int index)
+	{
+		IFormLookupPanel form = index == 0 ? getLeftForm() : index == 1 ? getRightForm() : null;
+		if (form instanceof WebTabFormLookup) return ((WebTabFormLookup)form).getWebForm().isEnabled();
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#getTabIndex()
+	 */
+	public int getTabIndex()
+	{
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#getMaxTabIndex()
+	 */
+	public int getMaxTabIndex()
+	{
+		return 1;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ITabPanel#setHorizontalAlignment(int)
+	 */
+	public void setHorizontalAlignment(int alignment)
+	{
+		// IGNORE
 	}
 }
