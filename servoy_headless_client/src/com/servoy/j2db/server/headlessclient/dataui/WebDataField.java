@@ -170,7 +170,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 //	private String completeFormat;
 //	private String editFormat;
 //	protected String displayFormat;
-
+	FocusIfInvalidAttributeModifier focusIfInvalidAttributeModifier;
 	protected IConverter converter;
 	protected IValueList list;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
@@ -218,7 +218,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
 				}
 			}));
-		add(new FocusIfInvalidAttributeModifier(this));
+		focusIfInvalidAttributeModifier = new FocusIfInvalidAttributeModifier(this);
+		add(focusIfInvalidAttributeModifier);
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
 		add(new ConsumeEnterAttributeModifier(this, eventExecutor));
@@ -916,11 +917,14 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	public void requestFocusToComponent()
 	{
-		// is the current main container always the right one?
-		IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
-		if (currentContainer instanceof MainPage)
+		if (isEditable() && !isReadOnly() && isEnabled())
 		{
-			((MainPage)currentContainer).componentToFocus(this);
+			// is the current main container always the right one?
+			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
+			if (currentContainer instanceof MainPage)
+			{
+				((MainPage)currentContainer).componentToFocus(this);
+			}
 		}
 	}
 
@@ -1000,6 +1004,23 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		editState = b;
 		editable = b;
+		toggleFocusBehavior();
+	}
+
+	protected void toggleFocusBehavior()
+	{
+		List<FocusIfInvalidAttributeModifier> list = this.getBehaviors(FocusIfInvalidAttributeModifier.class);
+		if (!isEditable() || isReadOnly() || !isEnabled())
+		{
+			if (list != null && list.size() > 0) remove(focusIfInvalidAttributeModifier);
+		}
+		else
+		{
+			if (list != null && list.size() == 0)
+			{
+				add(focusIfInvalidAttributeModifier);
+			}
+		}
 	}
 
 
@@ -1193,6 +1214,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		if (accessible || !b)
 		{
+
 			super.setEnabled(b);
 			getStylePropertyChanges().setChanged();
 			if (labels != null)
@@ -1203,6 +1225,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					label.setComponentEnabled(b);
 				}
 			}
+			toggleFocusBehavior();
 		}
 	}
 
