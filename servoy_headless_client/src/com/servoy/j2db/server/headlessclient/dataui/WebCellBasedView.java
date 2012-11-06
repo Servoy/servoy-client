@@ -4551,6 +4551,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private boolean shouldFillAllHorizontalSpace()
 	{
+		if (isListViewMode()) return false;
+
 		boolean shouldFillAllHorizSpace = false;
 		if (cellview instanceof ISupportScrollbars)
 		{
