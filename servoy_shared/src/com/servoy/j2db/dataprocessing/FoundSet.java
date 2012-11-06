@@ -1041,14 +1041,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return false;
 	}
 
-	protected boolean checkLoadRecordsAllowed(boolean allowRelated)
+	protected boolean checkLoadRecordsAllowed(boolean allowRelated, boolean allowInFind)
 	{
-		if (isInFindMode())
-		{
-			Debug.log("couldn't load new records on a foundset that is in find mode"); //$NON-NLS-1$
-			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that is in find mode", null); //$NON-NLS-1$
-			return false;
-		}
 		if (sheet.getTable() == null)
 		{
 			throw new IllegalStateException("couldn't load dataset on a foundset that has no table"); //$NON-NLS-1$
@@ -1057,6 +1051,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (!allowRelated && relationName != null) // on related foundset, only allow loadRecords without arguments
 		{
 			throw new IllegalStateException("Can't load data/records in a related foundset: " + relationName); //$NON-NLS-1$
+		}
+
+		if (isInFindMode() && allowInFind)
+		{
+			pksAndRecords.setPks(null, 0);
+			setSelectedIndex(-1);
+			clearInternalState(true); // goes out of find mode
+		}
+
+		if (isInFindMode())
+		{
+			Debug.log("couldn't load new records on a foundset that is in find mode"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that is in find mode", null); //$NON-NLS-1$
+			return false;
 		}
 
 		if (isInitialized())
@@ -1094,7 +1102,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			return cancelFind();
 		}
-		if (!checkLoadRecordsAllowed(true))
+		if (!checkLoadRecordsAllowed(true, false))
 		{
 			return false;
 		}
@@ -1117,7 +1125,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords(IDataSet dataset) throws ServoyException
 	{
-		return checkLoadRecordsAllowed(false) && loadExternalPKList(dataset);
+		return checkLoadRecordsAllowed(false, false) && loadExternalPKList(dataset);
 	}
 
 	/** 
@@ -1153,7 +1161,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords(FoundSet foundset)
 	{
-		return checkLoadRecordsAllowed(false) && copyFrom(foundset);
+		return checkLoadRecordsAllowed(false, false) && copyFrom(foundset);
 	}
 
 	/** 
@@ -1183,7 +1191,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords(String queryString, Object[] argumentsArray) throws ServoyException
 	{
-		return checkLoadRecordsAllowed(false) && loadByQuery(queryString, argumentsArray);
+		return checkLoadRecordsAllowed(false, false) && loadByQuery(queryString, argumentsArray);
 	}
 
 	/**
@@ -1259,7 +1267,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	protected boolean loadRecordsBySinglePK(Object pk) throws ServoyException
 	{
-		if (!checkLoadRecordsAllowed(false))
+		if (!checkLoadRecordsAllowed(false, false))
 		{
 			return false;
 		}
@@ -1274,7 +1282,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+	 * Loads records into form foundset based on a query builder object (also known as 'Form by query').
+	 * When the founset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
 	 * 
 	 * @sample
 	 * %%prefix%%foundset.loadRecords(qbselect);
@@ -1284,7 +1293,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords(QBSelect querybuilder) throws ServoyException
 	{
-		return checkLoadRecordsAllowed(false) && loadByQuery(querybuilder);
+		return checkLoadRecordsAllowed(false, true) && loadByQuery(querybuilder);
 	}
 
 	/** 
@@ -1603,6 +1612,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get the query that the foundset is currently using.
+	 * When the founset is in find mode, the find conditions are included in the resulting query.
+	 * Note that foundset filters are included and table filters are not included in the query.
 	 *
 	 * @sample
 	 * var q = foundset.getQuery()
@@ -1614,9 +1625,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	@JSFunction
 	public QBSelect getQuery()
 	{
+		QuerySelect query;
+		try
+		{
+			query = getCurrentStateQuery(true, true);
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			throw new RuntimeException(e.getMessage());
+		}
 		return new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
-			getFoundSetManager().getApplication().getScriptEngine().getSolutionScope(), getDataSource(), null,
-			getPksAndRecords().getQuerySelectForModification());
+			getFoundSetManager().getApplication().getScriptEngine().getSolutionScope(), getDataSource(), null, query);
 	}
 
 	private boolean loadByQuery(QuerySelect sqlSelect) throws ServoyException
@@ -4502,6 +4522,26 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
+	 * Get the query for the current state.
+	 * When in find mode, include the findState conditions
+	 * 
+	 * @param reduceSearch
+	 * @return
+	 * @throws ServoyException
+	 */
+	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
+	{
+		QuerySelect currentQuery = pksAndRecords.getQuerySelectForReading();
+		if (isInFindMode())
+		{
+			// Generate findstate query
+			return fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), currentQuery, pksAndRecords.getCachedRecords(), reduceSearch, omittedPKs,
+				lastSortColumns, true);
+		}
+		return clone ? AbstractBaseQuery.deepClone(currentQuery) : currentQuery;
+	}
+
+	/**
 	 * Execute the find sql, returns the number of records found, returns -1 when the call was blocked by a trigger
 	 * @param clearLastResult
 	 * @param reduceSearch
@@ -4545,8 +4585,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			QuerySelect findSqlSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getQuerySelectForReading(),
-				pksAndRecords.getCachedRecords(), reduceSearch, omittedPKs, lastSortColumns, true);
+			QuerySelect findSqlSelect = getCurrentStateQuery(reduceSearch, false);
 
 			if (returnInvalidRangeConditions != null)
 			{
