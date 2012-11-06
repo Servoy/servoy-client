@@ -1573,6 +1573,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Returns the internal SQL which defines the specified (related)foundset.
 	 * Optionally, the foundset and table filter params can be excluded in the sql (includeFilters=false).
 	 * Make sure to set the applicable filters when the sql is used in a loadRecords() call.
+	 * When the founset is in find mode, the find conditions are included in the resulting query.
 	 *
 	 * @sample var sql = databaseManager.getSQL(foundset)
 	 *
@@ -1634,6 +1635,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Returns the internal SQL parameters, as an array, that are used to define the specified (related)foundset.
+	 * When the founset is in find mode, the arguments for the find conditions are included in the result.
 	 *
 	 * @sample var sqlParameterArray = databaseManager.getSQLParameters(foundset,false)
 	 *
@@ -1682,10 +1684,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return js_getSQLParameters(foundset, true);
 	}
 
-	private QuerySet getQuerySet(FoundSet fs, boolean includeFilters) throws RepositoryException, RemoteException
+	private QuerySet getQuerySet(FoundSet fs, boolean includeFilters) throws RemoteException, ServoyException
 	{
 		String serverName = fs.getSQLSheet().getServerName();
-		QuerySelect sqlSelect = fs.getPksAndRecords().getQuerySelectForReading();
+		QuerySelect sqlSelect = fs.getCurrentStateQuery(true, false);
 		ArrayList<TableFilter> tableFilterParams;
 		if (includeFilters)
 		{
