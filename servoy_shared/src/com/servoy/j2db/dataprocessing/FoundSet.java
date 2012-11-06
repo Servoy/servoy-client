@@ -534,8 +534,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		//move to correct position if we know
 		if (selectedIndex != -1 || !selectRecord(selectedPK))
 		{
-			//move to front if unknown
-			setSelectedIndex((pks != null && pks.getRowCount() > 0 && selectedIndex == -1) ? 0 : selectedIndex);
+			if (pks != null && pks.getRowCount() > 0 && selectedIndex == -1)
+			{
+				Object[] selected = (getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
+				if (!selectRecord(selected))
+				{
+					setSelectedIndex(selectedIndex);
+				}
+			}
+			else setSelectedIndex(0);
 		}
 	}
 
