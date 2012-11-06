@@ -1129,6 +1129,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Copies foundset data from another foundset.
+	 * This will alter the foundset state to the state of the foundset that is given.
+	 * If you really just want to use the given foundset on the form itself, then you need to use controller.loadRecords(foundset)
+	 * that will change the instance of the foundset that is used for this form. Not just update an existing form.
+	 * 
+	 * If you copy over a relation into this foundset, then this foundset will not be a related foundset, it will not automatically update its state 
+	 * of records are updated or added that belong to that relation. It will only be a snapshot of that related foundsets state.
 	 * 
 	 * @sample
 	 * //Copies foundset data from another foundset
