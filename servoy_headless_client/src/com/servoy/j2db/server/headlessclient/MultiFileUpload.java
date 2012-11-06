@@ -18,9 +18,14 @@ package com.servoy.j2db.server.headlessclient;
 
 import java.util.Collection;
 
+import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Response;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.MultiFileUploadField;
+import org.apache.wicket.markup.html.internal.HeaderResponse;
+import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -33,14 +38,48 @@ import com.servoy.j2db.IApplication;
 public class MultiFileUpload extends MultiFileUploadField
 {
 
-	/**
-	 * @param id
-	 * @param model
-	 */
+	private static final ResourceReference JS = new JavascriptResourceReference(MultiFileUpload.class, "MultiFileUpload.js");
+
 	public MultiFileUpload(String id, IModel<Collection<FileUpload>> model, IApplication application)
 	{
 		super(id, model);
 		add(new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload"))));
+	}
+
+	@Override
+	public void renderHead(final IHeaderResponse response)
+	{
+		response.renderJavascriptReference(JS); // overwrites the MultiFileUploadField.js completely (can't be extended using prototypes because it assigns it's methods in the constructor)
+
+		// the HeaderResponse dummy is a hack to be able to intercept the object creation and replace some of the code in parent JS (it is using private fields)
+		super.renderHead(new HeaderResponse()
+		{
+			@Override
+			public void renderJavascriptReference(ResourceReference reference)
+			{
+				response.renderJavascriptReference(reference);
+			}
+
+			@Override
+			public void renderOnDomReadyJavascript(String javascript)
+			{
+				int splitIdx = javascript.lastIndexOf(".addElement("); //$NON-NLS-1$
+				if (splitIdx >= 0)
+				{
+					String constructorCall = javascript.substring(0, splitIdx);
+					String functionCall = javascript.substring(splitIdx);
+					response.renderOnDomReadyJavascript("var o = " + constructorCall + "; MultipleFileUploadInterceptor(o)" + functionCall);
+				}
+				else response.renderOnDomReadyJavascript(javascript);
+			}
+
+			@Override
+			protected Response getRealResponse()
+			{
+				// not interested
+				return null;
+			}
+		});
 	}
 
 }

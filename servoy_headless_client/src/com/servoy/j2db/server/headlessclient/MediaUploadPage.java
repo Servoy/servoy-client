@@ -21,8 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.wicket.IPageMap;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -33,6 +37,12 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.servlet.MultipartServletWebRequest;
+import org.apache.wicket.util.upload.DiskFileItem;
+import org.apache.wicket.util.upload.DiskFileItemFactory;
+import org.apache.wicket.util.upload.FileItem;
+import org.apache.wicket.util.upload.FileUploadException;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
@@ -165,6 +175,67 @@ public class MediaUploadPage extends WebPage
 					container.getHeaderResponse().renderOnLoadJavascript("window.parent.triggerAjaxUpdate();");
 				}
 			}
+
+			@Override
+			protected boolean handleMultiPart()
+			{
+				// Change the request to a multipart web request that is able to work with multiple file uploads for the same field nmae
+				// so parameters are parsed out correctly as well
+				try
+				{
+					final WebRequest req = ((WebRequest)getRequest());
+					MultipartServletWebRequest multipart;
+					try
+					{
+						multipart = new MultipartServletWebRequest(req.getHttpServletRequest(), getMaxSize(), new DiskFileItemFactory()
+						{
+							private final HashSet<String> fieldNames = new HashSet<String>();
+
+							@Override
+							public FileItem createItem(String fieldName, String contentType, boolean isFormField, String fileName)
+							{
+								String adjustedFieldName = fieldName;
+								int i = 1;
+								while (fieldNames.contains(adjustedFieldName))
+								{
+									adjustedFieldName = fieldName + "_additionalFile_" + (i++);
+								}
+								fieldNames.add(adjustedFieldName);
+								return new DiskFileItem(adjustedFieldName, contentType, isFormField, fileName, getSizeThreshold(), getRepository());
+							}
+
+						});
+					}
+					catch (FileUploadException e)
+					{
+						throw new WicketRuntimeException(e);
+					}
+					multipart.setRequestParameters(req.getRequestParameters());
+
+					getRequestCycle().setRequest(multipart);
+					return true;
+				}
+				catch (WicketRuntimeException wre)
+				{
+					if (wre.getCause() == null || !(wre.getCause() instanceof FileUploadException))
+					{
+						throw wre;
+					}
+
+					FileUploadException e = (FileUploadException)wre.getCause();
+
+					// Create model with exception and maximum size values
+					final Map<String, Object> model = new HashMap<String, Object>();
+					model.put("exception", e);
+					model.put("maxSize", getMaxSize());
+
+					onFileUploadException((FileUploadException)wre.getCause(), model);
+
+					// don't process the form if there is a FileUploadException
+					return false;
+				}
+			}
+
 		};
 		if (multiSelect)
 		{
