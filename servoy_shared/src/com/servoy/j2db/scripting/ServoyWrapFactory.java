@@ -116,6 +116,19 @@ public final class ServoyWrapFactory extends WrapFactory
 			throw new IllegalArgumentException(
 				"Bad practice: FormController cant be wrapped to javascript (for example not usable as argument in Scheduler plugin)"); //$NON-NLS-1$
 		}
+		// if it is a none primitive array
+		if (obj.getClass().isArray() && !obj.getClass().getComponentType().isPrimitive())
+		{
+			// then convert the array to a NativeArray, first convert all the elements of the array itself.
+			Object[] source = (Object[])obj;
+			Object[] array = new Object[source.length];
+			for (int i = 0; i < source.length; i++)
+			{
+				Object src = source[i];
+				array[i] = wrap(cx, scope, src, src != null ? src.getClass() : null);
+			}
+			return cx.newArray(scope, array);
+		}
 		return super.wrap(cx, scope, obj, staticType);
 	}
 }
