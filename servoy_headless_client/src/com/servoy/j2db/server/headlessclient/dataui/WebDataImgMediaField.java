@@ -538,7 +538,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 
 	public void setActionCmd(String id, Object[] args)
 	{
-		eventExecutor.setActionCmd(id, args);
+//		eventExecutor.setActionCmd(id, args);
 		imgd.setActionCommand(id, args);
 	}
 
