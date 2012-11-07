@@ -55,6 +55,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportInputSelection;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.ITagResolver;
@@ -67,7 +68,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @SuppressWarnings("nls")
-public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges
+public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection
 {
 	public static final String htmlTextStartTags = "<html><body>";
 	public static final String htmlTextEndTags = "</body></html>";
@@ -759,5 +760,23 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 			}
 		}
 		return inputId;
+	}
+
+	public void selectAll()
+	{
+	}
+
+	public void replaceSelectedText(String s)
+	{
+		Page page = findPage();
+		if (page instanceof MainPage)
+		{
+			((MainPage)page).getPageContributor().addDynamicJavaScript("Servoy.HTMLEdit.htmlEditor.execCommand('inserthtml', '" + s + "');");
+		}
+	}
+
+	public String getSelectedText()
+	{
+		return null;
 	}
 }
