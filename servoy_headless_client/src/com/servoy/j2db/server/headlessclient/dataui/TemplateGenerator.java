@@ -1811,6 +1811,10 @@ public class TemplateGenerator
 		styleObj.setProperty("display", "none");
 		styleObj.setProperty("position", "absolute;left:0px;top:0px");
 
+		// blocker body
+		styleObj = css.addStyle(".blocker");
+		styleObj.setProperty("cursor", "progress");
+
 		// disable outline on focused div's (makes scrollbars appear in FF when mouse is clicked inside some div's)
 		styleObj = css.addStyle("div:focus");
 		styleObj.setProperty("outline", "none");

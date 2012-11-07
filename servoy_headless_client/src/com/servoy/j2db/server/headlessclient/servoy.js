@@ -1741,7 +1741,7 @@ function onAjaxError()
 
 function onABC() {
 	wicketShow('blocker');
-	$('body').css('cursor','wait');
+	$('body').addClass('blocker');
 	var e=wicketGet('blocker');
 	if (e != null) e.focus();
 	onAjaxCall();
@@ -1749,7 +1749,7 @@ function onABC() {
 
 function hideBlocker()
 {
-	$('body').css('cursor','default'); 
+	$('body').removeClass('blocker'); 
 	return wicketHide('blocker');
 }
 
