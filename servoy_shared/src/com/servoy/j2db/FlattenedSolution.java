@@ -1882,7 +1882,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 				}
 			}
-			Style s = loadStyleForForm(f);
+			Style s = loadStyleForForm(this, f);
 			if (s != null)
 			{
 				synchronized (all_styles)
@@ -1894,15 +1894,20 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	public static Style loadStyleForForm(Form f)
+	/**
+	 * Load style for form, look for extend forms in flattenedSolution when possible
+	 * @param flattenedSolution may be null, fallback to f.getSolution() plus repo load
+	 * @param f
+	 */
+	public static Style loadStyleForForm(FlattenedSolution flattenedSolution, Form form)
 	{
 		try
 		{
-			String style_name = f.getStyleName();
-			if (!(f instanceof FlattenedForm))
+			String style_name = form.getStyleName();
+			if (!(form instanceof FlattenedForm))
 			{
 				Form extendedForm;
-				int extended_form_id = f.getExtendsID();
+				int extended_form_id = form.getExtendsID();
 
 				List<RootObjectReference> modulesMetaData = null;
 
@@ -1917,17 +1922,17 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					// and that form is a solution modal form. the f.getSolution() doesn't have to find it.
 					// because f.getSolution() is the copy solution thats inside the FlattenedSolution.
 					// that one doesn't have any other forms. But normally all forms should be flattened. 
-					extendedForm = f.getSolution().getForm(extended_form_id);
-					if (extendedForm == null) // check for module form
+					extendedForm = flattenedSolution == null ? form.getSolution().getForm(extended_form_id) : flattenedSolution.getForm(extended_form_id);
+					if (flattenedSolution == null && extendedForm == null) // check for module form
 					{
 						if (modulesMetaData == null)
 						{
-							modulesMetaData = f.getSolution().getRepository().getActiveSolutionModuleMetaDatas(f.getSolution().getID());
+							modulesMetaData = form.getSolution().getRepository().getActiveSolutionModuleMetaDatas(form.getSolution().getID());
 						}
 
 						for (RootObjectReference moduleMetaData : modulesMetaData)
 						{
-							Solution module = (Solution)f.getSolution().getRepository().getActiveRootObject(moduleMetaData.getMetaData().getRootObjectId());
+							Solution module = (Solution)form.getSolution().getRepository().getActiveRootObject(moduleMetaData.getMetaData().getRootObjectId());
 							extendedForm = module.getForm(extended_form_id);
 							if (extendedForm != null)
 							{
@@ -1951,7 +1956,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 			if (style_name == null) return null;
 
-			Style s = (Style)f.getSolution().getRepository().getActiveRootObject(style_name, IRepository.STYLES);//preload the style at the server
+			Style s = (Style)form.getSolution().getRepository().getActiveRootObject(style_name, IRepository.STYLES);//preload the style at the server
 			return s;
 		}
 		catch (Exception e)

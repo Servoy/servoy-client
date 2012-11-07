@@ -487,21 +487,13 @@ public class ComponentFactory
 
 	private static Style getStyleForForm(IServiceProvider sp, Form form)
 	{
-		Style repos_style = null;
-		if (sp != null)
+		if (sp != null && sp.getFlattenedSolution() != null)
 		{
-			if (sp.getFlattenedSolution() != null)
-			{
-				@SuppressWarnings("unchecked")
-				Map<String, String> overridenStyles = (Map<String, String>)sp.getRuntimeProperties().get(IServiceProvider.RT_OVERRIDESTYLE_CACHE);
-				repos_style = sp.getFlattenedSolution().getStyleForForm(form, overridenStyles);
-			}
+			@SuppressWarnings("unchecked")
+			Map<String, String> overridenStyles = (Map<String, String>)sp.getRuntimeProperties().get(IServiceProvider.RT_OVERRIDESTYLE_CACHE);
+			return sp.getFlattenedSolution().getStyleForForm(form, overridenStyles);
 		}
-		else
-		{
-			repos_style = FlattenedSolution.loadStyleForForm(form);
-		}
-		return repos_style;
+		return FlattenedSolution.loadStyleForForm(null, form);
 	}
 
 	public static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponent(IServiceProvider sp, AbstractBase bc, Form form)
