@@ -1741,7 +1741,7 @@ function onAjaxError()
 
 function onABC() {
 	wicketShow('blocker');
-	$('body').css('cursor','wait');
+	$('body').css('cursor','progress');
 	var e=wicketGet('blocker');
 	if (e != null) e.focus();
 	onAjaxCall();
