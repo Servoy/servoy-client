@@ -2751,6 +2751,8 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 {
 	Servoy.HTMLEdit = 
 	{
+		htmlEditor : null ,
+		
 		attach: function (wrapperId,editorId)
 		{
 			var Dom = YAHOO.util.Dom,
@@ -2760,7 +2762,7 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		        animate: false,
 		        dompath: true //we have to use true here
 		    };
-		
+		    
 		    var myEditor = new YAHOO.widget.Editor(editorId, myConfig);
 		    myEditor.on('toolbarLoaded', function() {
 		        var codeConfig = {
@@ -2828,6 +2830,8 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		    	setTimeout(function() {myEditor.set('disabled',true);}, 1000);
 		    }
 		    myEditor.render();
+		    
+		    Servoy.HTMLEdit.htmlEditor = myEditor;
 		}
 	};
 }
