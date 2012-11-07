@@ -182,7 +182,7 @@ public class DivWindow extends ModalWindow
 	private ResizeCallback resizeCallback = null;
 	private MoveCallback moveCallback = null;
 	private int boundEventsDelay = 300;
-	private final Rectangle bounds = new Rectangle();
+	private final Rectangle bounds = new Rectangle(-1, -1, -1, -1); // initially unknown bounds; -1 in order for setBounds(getBounds()) to not have any undesired effect when bounds are not known
 
 	/**
 	 * Creates a new div window.
@@ -460,10 +460,10 @@ public class DivWindow extends ModalWindow
 		target.appendJavascript(getActionJavascript(".setPosition", ((x >= 0) ? ("'" + x + "px'") : "winObj.window.style.left") + "," +
 			((y >= 0) ? ("'" + y + "px'") : "winObj.window.style.top") + "," + ((width >= 0) ? ("'" + width + "px'") : "winObj.window.style.width") + "," +
 			((height >= 0) ? ("'" + height + "px'") : "winObj.content.style.height")));
-		bounds.x = x;
-		bounds.y = y;
-		bounds.width = width;
-		bounds.height = height;
+		if (x >= 0) bounds.x = x;
+		if (y >= 0) bounds.y = y;
+		if (width >= 0) bounds.width = width;
+		if (height >= 0) bounds.height = height;
 	}
 
 	public void saveBounds(AjaxRequestTarget target)
