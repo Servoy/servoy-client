@@ -1373,14 +1373,17 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 					Integer val = new Integer(Utils.getAsInteger(row[1]));
 					try
 					{
+						boolean matched = false;
 						if (row[0] instanceof UUID)
 						{
 							sp.put(row[0], val);
+							matched = true;
 						}
 						else if (row[0].toString().indexOf('-') > 0)
 						{
 							UUID uuid = UUID.fromString(row[0].toString());
 							sp.put(uuid, val);
+							matched = true;
 						}
 						else
 						{
@@ -1388,20 +1391,28 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 							if (datasource.indexOf('.') != -1)
 							{
 								String[] server_table = datasource.split("\\.");
-								IServer server = application.getSolution().getServer(server_table[0]);
-								if (server != null)
+								if (server_table.length == 2)
 								{
-									ITable table = server.getTable(server_table[1]);
-									if (table != null)
+									IServer server = application.getSolution().getServer(server_table[0]);
+									if (server != null)
 									{
-										Iterator it = table.getRowIdentColumnNames();
-										if (it.hasNext())
+										ITable table = server.getTable(server_table[1]);
+										if (table != null)
 										{
-											sp.put(Utils.getDotQualitfied(table.getServerName(), table.getName(), it.next()), val);
+											Iterator<String> it = table.getRowIdentColumnNames();
+											if (it.hasNext())
+											{
+												sp.put(Utils.getDotQualitfied(table.getServerName(), table.getName(), it.next()), val);
+												matched = true;
+											}
 										}
 									}
 								}
 							}
+						}
+						if (!matched)
+						{
+							Debug.error("security.setSecuritySettings: could not apply security settings for '" + row[0] + "'");
 						}
 					}
 					catch (Exception e)
