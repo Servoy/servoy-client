@@ -31,8 +31,6 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
-import com.servoy.j2db.util.Debug;
-
 /**
  * A div window that can be modal or non-modal. Based on wicket ModalWindow.
  * You should not use both DivWindow and ModalWindow at the same time in the same page as the mask will not behave correctly.
@@ -459,8 +457,6 @@ public class DivWindow extends ModalWindow
 
 	public void setBounds(AjaxRequestTarget target, int x, int y, int width, int height)
 	{
-		Debug.error("setbounds called: " + x + "," + y + "," + width + "," + height, new RuntimeException("setbounds called: " + x + "," + y + "," + width +
-			"," + height));
 		target.appendJavascript(getActionJavascript(".setPosition", ((x >= 0) ? ("'" + x + "px'") : "winObj.window.style.left") + "," +
 			((y >= 0) ? ("'" + y + "px'") : "winObj.window.style.top") + "," + ((width >= 0) ? ("'" + width + "px'") : "winObj.window.style.width") + "," +
 			((height >= 0) ? ("'" + height + "px'") : "winObj.content.style.height")));
