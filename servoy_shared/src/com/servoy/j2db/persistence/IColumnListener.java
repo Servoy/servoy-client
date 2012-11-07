@@ -13,8 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
+
+import java.util.Collection;
 
 
 /**
@@ -38,9 +40,9 @@ public interface IColumnListener
 	void iColumnRemoved(IColumn column);
 
 	/**
-	 * Method iColumnChanged.
+	 * Method iColumnsChanged.
 	 * 
-	 * @param column
+	 * @param columns
 	 */
-	void iColumnChanged(IColumn column);
+	void iColumnsChanged(Collection<IColumn> columns);
 }

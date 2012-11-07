@@ -552,9 +552,9 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	protected void fireIColumnCreated(IColumn column)
 	{
 		if (tableListeners == null) return;
-		for (int i = 0; i < tableListeners.size(); i++)
+		for (IColumnListener columnListener : tableListeners)
 		{
-			(tableListeners.get(i)).iColumnCreated(column);
+			columnListener.iColumnCreated(column);
 		}
 	}
 
@@ -562,18 +562,23 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	protected void fireIColumnRemoved(IColumn column)
 	{
 		if (tableListeners == null) return;
-		for (int i = 0; i < tableListeners.size(); i++)
+		for (IColumnListener columnListener : tableListeners)
 		{
-			(tableListeners.get(i)).iColumnRemoved(column);
+			columnListener.iColumnRemoved(column);
 		}
 	}
 
 	public void fireIColumnChanged(IColumn column)
 	{
-		if (tableListeners == null) return;
-		for (int i = 0; i < tableListeners.size(); i++)
+		fireIColumnsChanged(Collections.singletonList(column));
+	}
+
+	public void fireIColumnsChanged(Collection<IColumn> cols)
+	{
+		if (tableListeners == null || cols == null || cols.size() == 0) return;
+		for (IColumnListener columnListener : tableListeners)
 		{
-			(tableListeners.get(i)).iColumnChanged(column);
+			columnListener.iColumnsChanged(cols);
 		}
 	}
 
