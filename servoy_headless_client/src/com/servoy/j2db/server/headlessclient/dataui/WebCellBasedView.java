@@ -4903,7 +4903,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
 					sb.append(hasBottomBuffer).append(");"); //$NON-NLS-1$
 
-					target.appendJavascript(sb.toString());
+					target.appendJavascript(sb.toString().replaceAll("visibility: hidden;", "visibility: inherit;")); //replace any hidden components with it's parent visibility behavior
 				}
 			}
 		}
