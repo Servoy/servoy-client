@@ -149,8 +149,22 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			{
 				if (localCopy != null)
 				{
-					((WebFormManager)application.getFormManager()).showDelayedFormInDialog(localCopy.type, localCopy.formName, localCopy.r, localCopy.title,
-						localCopy.resizeble, localCopy.showTextToolbar, localCopy.closeAll, localCopy.modal, localCopy.dialogName);
+					if (((WebClient)application).getEventDispatcher() != null)
+					{
+						((WebClient)application).getEventDispatcher().addEvent(new Runnable()
+						{
+							public void run()
+							{
+								((WebFormManager)application.getFormManager()).showDelayedFormInDialog(localCopy.type, localCopy.formName, localCopy.r,
+									localCopy.title, localCopy.resizeble, localCopy.showTextToolbar, localCopy.closeAll, localCopy.modal, localCopy.dialogName);
+							}
+						});
+					}
+					else
+					{
+						((WebFormManager)application.getFormManager()).showDelayedFormInDialog(localCopy.type, localCopy.formName, localCopy.r,
+							localCopy.title, localCopy.resizeble, localCopy.showTextToolbar, localCopy.closeAll, localCopy.modal, localCopy.dialogName);
+					}
 					localCopy = null;
 					WebEventExecutor.generateResponse(target, findPage());
 				}
