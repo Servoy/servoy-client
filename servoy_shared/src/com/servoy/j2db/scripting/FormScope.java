@@ -333,17 +333,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		}
 
 		/**
-		 * Used by FormScope.get(name,start) to search for methods in extended scope if id didn't find the method in the current scope
-		 * @param name
-		 * @param start
-		 * @return
-		 */
-		public Object getExtended(String name, Scriptable start)
-		{
-			return super.get(name, start);
-		}
-
-		/**
 		 * @see com.servoy.j2db.scripting.LazyCompilationScope#getFunctionSuper(com.servoy.j2db.persistence.IScriptProvider)
 		 */
 		@Override
