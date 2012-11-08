@@ -781,8 +781,12 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * Loads a (related) foundset into the form.
+		 * Loads a (related) foundset into the form. 
 		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
+		 * 
+		 * This will really update the foundset instance itself of the form, so now existing foundst is altered just the new foundset is shown.
+		 * This is different then doing foundset.loadRecords(foundset) because that just alteres the current foundset and doesn't do anything with the foundset
+		 * that is given. 
 		 * 
 		 * @sample
 		 * //to load a (related)foundset into the form.
