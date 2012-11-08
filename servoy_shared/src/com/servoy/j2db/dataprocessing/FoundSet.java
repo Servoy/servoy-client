@@ -1611,7 +1611,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get the query that the foundset is currently using.
-	 * When the founset is in find mode, the find conditions are included in the resulting query.
+	 * When the founset is in find mode, the find conditions are included in the resulting query. 
+	 * So the query that would be used when just calling search() (or search(true,true)) is returned.
 	 * Note that foundset filters are included and table filters are not included in the query.
 	 *
 	 * @sample
