@@ -211,7 +211,6 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 				link.add(TooltipAttributeModifier.INSTANCE);
 
 				String text = holder.getText();
-				String separator = "&nbsp;"; //$NON-NLS-1$				
 				if (holder.getDisplayedMnemonic() > 0)
 				{
 					final String mnemonic = Character.toString((char)holder.getDisplayedMnemonic());
@@ -229,9 +228,12 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 					}
 				}
 
-				text = separator + text; //add a separetor between icon and label
 				Label label = new Label("linktext", new Model<String>(text)); //$NON-NLS-1$
 				label.setEscapeModelStrings(false);
+				if (holder.getIcon() != null)
+				{
+					label.add(new SimpleAttributeModifier("class", "accordionlinkmargin"));
+				}
 				link.add(label);
 				ServoyTabIcon icon = new ServoyTabIcon("icon", holder, scriptable); //$NON-NLS-1$
 				if (holder.getIcon() != null)
