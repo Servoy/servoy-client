@@ -87,7 +87,7 @@ import com.servoy.j2db.util.Utils;
  * 
  */
 public abstract class WebBaseButton extends Button implements IButton, IResourceListener, IProviderStylePropertyChanges, ILinkListener, IAjaxIndicatorAware,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider, IAnchoredComponent
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider, IAnchoredComponent, IHeaderJSChangeContributor
 {
 	private int mediaOptions;
 //	private int rotation;
@@ -305,10 +305,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (WebBaseButton.getImageDisplayURL(this) != null)
-		{
-			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
-		}
+		String onLoad = getOnLoad();
+		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
+		String onDOMReady = getOnDOMReady();
+		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
 	}
 
 	/**
@@ -1404,5 +1404,21 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	public void setAnchors(int arg)
 	{
 		this.anchors = arg;
+	}
+
+	public String getOnLoad()
+	{
+		String onLoad = null;
+		if (WebBaseButton.getImageDisplayURL(this) != null)
+		{
+			onLoad = "Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+
+		return onLoad;
+	}
+
+	public String getOnDOMReady()
+	{
+		return null;
 	}
 }

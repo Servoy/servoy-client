@@ -98,7 +98,8 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * @author jcompagner
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
-	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider
+	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider,
+	IHeaderJSChangeContributor
 {
 	/**
 	 * @author jcompagner
@@ -430,22 +431,10 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public void renderHead(final HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-
-		if (eventExecutor.getValidationEnabled())
-		{
-			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Validation.detachDisplayEditFormat('" + getMarkupId() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
-			testFormats(new ITestFormatsCallback()
-			{
-				public void differentEditAndDisplay(String displayValue, String editValue)
-				{
-					container.getHeaderResponse().renderOnDomReadyJavascript(
-						"Servoy.Validation.attachDisplayEditFormat('" + getMarkupId() + "', '" + displayValue + "','" + editValue + "')"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				}
-			}, false);
-		}
-		container.getHeaderResponse().renderOnDomReadyJavascript(
-			"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
-
+		String onLoad = getOnLoad();
+		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
+		String onDOMReady = getOnDOMReady();
+		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
 	}
 
 	@SuppressWarnings("nls")
@@ -1373,5 +1362,39 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnLoad()
+	 */
+	public String getOnLoad()
+	{
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnDOMReady()
+	 */
+	public String getOnDOMReady()
+	{
+		final StringBuilder onDOMReady = new StringBuilder();
+		if (eventExecutor.getValidationEnabled())
+		{
+			onDOMReady.append("Servoy.Validation.detachDisplayEditFormat('" + getMarkupId() + "');"); //$NON-NLS-1$ //$NON-NLS-2$
+			testFormats(new ITestFormatsCallback()
+			{
+				public void differentEditAndDisplay(String displayValue, String editValue)
+				{
+					onDOMReady.append("Servoy.Validation.attachDisplayEditFormat('" + getMarkupId() + "', '" + displayValue + "','" + editValue + "');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				}
+			}, false);
+		}
+		onDOMReady.append("$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		return onDOMReady.toString();
 	}
 }
