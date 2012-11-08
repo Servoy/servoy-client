@@ -4840,7 +4840,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (scrollDiff != 0)
 			{
 				Collection<ListItem< ? >> newRows = null;
-				StringBuffer rowsBuffer = null;
+				StringBuilder[] rowsBuffer = null;
 				int newRowsCount = 0, rowsToRemove = 0;
 				int viewStartIdx = table.getStartIndex();
 				int viewSize = table.getViewSize();
@@ -4896,14 +4896,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					StringBuffer sb = new StringBuffer();
 					sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
 					sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
-					sb.append(rowsBuffer.toString()).append("',"); //$NON-NLS-1$
+					sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
 					sb.append(newRowsCount).append(","); //$NON-NLS-1$
 					sb.append(rowsToRemove).append(","); //$NON-NLS-1$
 					sb.append(scrollDiff).append(", "); //$NON-NLS-1$
 					sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
 					sb.append(hasBottomBuffer).append(");"); //$NON-NLS-1$
 
-					target.appendJavascript(sb.toString().replaceAll("visibility: hidden;", "visibility: inherit;")); //replace any hidden components with it's parent visibility behavior
+					if (rowsBuffer[0].length() > 0)
+					{
+						sb.append('\n').append(rowsBuffer[0]);
+					}
+
+					target.appendJavascript(sb.toString());
 				}
 			}
 		}
@@ -4995,16 +5000,39 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			return rows;
 		}
 
-		private StringBuffer renderRows(Response response, Collection<ListItem< ? >> rows)
+		private StringBuilder[] renderRows(Response response, Collection<ListItem< ? >> rows)
 		{
-			StringBuffer output = new StringBuffer();
+			StringBuilder headerJS = new StringBuilder();
+			StringBuilder body = new StringBuilder();
 			Iterator<ListItem< ? >> rowsIte = rows.iterator();
+			ListItem< ? > listItem;
 			while (rowsIte.hasNext())
 			{
-				output.append(renderComponent(response, rowsIte.next()));
+				listItem = rowsIte.next();
+				headerJS.append(getHeaderJS(listItem));
+				body.append(renderComponent(response, listItem));
 			}
 
-			return output;
+			return new StringBuilder[] { headerJS, body };
+		}
+
+		private StringBuilder getHeaderJS(ListItem< ? > listItem)
+		{
+			final StringBuilder listItemHeaderJS = new StringBuilder();
+			listItem.visitChildren(IHeaderJSChangeContributor.class, new IVisitor<Component>()
+			{
+				public Object component(Component component)
+				{
+					String onDOMReady = ((IHeaderJSChangeContributor)component).getOnDOMReady();
+					if (onDOMReady != null) listItemHeaderJS.append(onDOMReady).append('\n');
+					String onLoad = ((IHeaderJSChangeContributor)component).getOnLoad();
+					if (onLoad != null) listItemHeaderJS.append(onLoad).append('\n');
+
+					return IVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
+
+			return listItemHeaderJS;
 		}
 
 		private CharSequence renderComponent(Response response, Component component)

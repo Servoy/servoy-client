@@ -80,7 +80,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, IProviderStylePropertyChanges, ISupportSecuritySettings,
 	IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent,
-	ISupportSimulateBoundsProvider
+	ISupportSimulateBoundsProvider, IHeaderJSChangeContributor
 {
 	private static final long serialVersionUID = 1L;
 
@@ -161,10 +161,10 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (hasHtmlOrImage())
-		{
-			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ")");
-		}
+		String onLoad = getOnLoad();
+		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
+		String onDOMReady = getOnDOMReady();
+		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
 	}
 
 	protected CharSequence getBodyText()
@@ -1069,5 +1069,31 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSContributor#getOnLoad()
+	 */
+	public String getOnLoad()
+	{
+		String onLoad = null;
+		if (hasHtmlOrImage())
+		{
+			onLoad = "Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+
+		return onLoad;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSContributor#getOnDOMReady()
+	 */
+	public String getOnDOMReady()
+	{
+		return null;
 	}
 }
