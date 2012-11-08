@@ -2095,7 +2095,7 @@ public class TemplateGenerator
 			{
 				cssClass = "tabcontainer " + cssClass;
 			}
-			html.append(getCSSClassParameter("webform"));
+			html.append(getCSSClassParameter(cssClass));
 			html.append("></div>");
 
 		}
