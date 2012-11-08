@@ -180,6 +180,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 					this.form = copyForm;
 				}
 			}
+			else if (this.form instanceof FlattenedForm)
+			{
+				this.form = application.getFlattenedSolution().getFlattenedForm(this.form, true);
+			}
 		}
 
 

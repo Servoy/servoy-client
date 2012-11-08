@@ -356,68 +356,44 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 	@Override
 	public void remove(ScriptVariable var)
 	{
-		ScriptVariable scriptVariable = var;
-		String variablesForm = ((Form)scriptVariable.getParent()).getName();
-		String currentForm = getFormController().getForm().getName();
-		//look into matched scope
-		if (variablesForm.equals(currentForm))
+		ScriptVariable newVar = null;
+		for (ScriptVariable loopVar : Utils.iterate(getScriptLookup().getScriptVariables(false)))
 		{
-			//replace with override parent base
-			ScriptVariable baseVariable = getOverrideParent(scriptVariable, (Form)var.getParent());
-			super.remove(scriptVariable);
-			if (baseVariable != null)
+			if (loopVar.getName().equals(var.getName()))
 			{
-				super.put(baseVariable);
+				newVar = loopVar;
+				break;
 			}
+		}
+		if (newVar == null)
+		{
+			super.remove(var);
 		}
 		else
 		{
-			ScriptVariable baseVariable = getOverrideParent(scriptVariable, (Form)var.getParent());
-			if (baseVariable == null)
+			Form form = getFormController().getForm();
+			Form deletedVarForm = (Form)var.getParent();
+			Form newVarForm = (Form)newVar.getParent();
+
+			while (form != null)
 			{
-				Iterator<ScriptVariable> it = getScriptLookup().getScriptVariables(false);
-
-				if (!it.hasNext())
-				{ //current form does not redefine ("override") the variable  -> remove it since it has no inherited var
-					super.remove(scriptVariable);
+				// when the deleted form var is found first in the hiearchy
+				if (form.getName().equals(deletedVarForm.getName()))
+				{
+					// then remove this var, and put the new one in.
+					super.remove(var);
+					put(newVar);
+					break;
 				}
-				else
-				{ //look into the current form variable's 
-					boolean foundInVars = false;
-					for (ScriptVariable loopVar : Utils.iterate(getScriptLookup().getScriptVariables(false)))
-					{
-						if (loopVar.getName().equals(var.getName())) foundInVars = true;
-					}
-					if (!foundInVars) super.remove(scriptVariable);
+				else if (form.getName().equals(newVarForm.getName()))
+				{
+					// else if the newVarForm is still found first (then it is already the current one)
+					return;
 				}
-
-
+				form = form.getExtendsForm();
 			}
 		}
 
-	}
-
-	/**
-	 *  Similar to getOverrideParrent(ScriptMethod method, Form currentForm) but for script Variables
-	 * @param var
-	 * @param currentForm
-	 * @return
-	 */
-	private ScriptVariable getOverrideParent(ScriptVariable var, Form currentForm)
-	{
-		Form parrentForm = currentForm.getExtendsForm();
-
-		if (parrentForm != null)
-		{
-			ScriptVariable baseVariable = parrentForm.getScriptVariable(var.getName());
-			if (baseVariable == null && parrentForm.getExtendsForm() != null)
-			{
-				baseVariable = getOverrideParent(var, parrentForm);
-			}
-
-			return baseVariable;
-		}
-		return null;
 	}
 
 	/*
