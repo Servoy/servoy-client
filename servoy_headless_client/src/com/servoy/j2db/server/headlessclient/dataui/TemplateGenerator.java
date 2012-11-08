@@ -1800,6 +1800,10 @@ public class TemplateGenerator
 		styleObj.setProperty("height", "100%");
 		styleObj.setProperty("position", "relative");
 
+		//accordion link margin for image custom
+		styleObj = css.addStyle(".accordionlinkmargin");
+		styleObj.setProperty("margin", "5px");
+
 		// tooltip stuff
 		styleObj = css.addStyle("#mktipmsg");
 		styleObj.setProperty("padding", "2px");
