@@ -2089,12 +2089,13 @@ public class TemplateGenerator
 		{
 			html.append("\t<div servoy:id='webform' ").append(style.toString());
 			String cssClass = "webform";
-			if (tabPanel.getBorderType() == null &&
+			if (styleObj.containsKey(CSS.Attribute.BORDER_STYLE.toString()) && !"none".equals(styleObj.getProperty(CSS.Attribute.BORDER_STYLE.toString())) &&
+				!"hidden".equals(styleObj.getProperty(CSS.Attribute.BORDER_STYLE.toString())) &&
 				!(tabPanel.getTabOrientation() == TabPanel.HIDE || (tabPanel.getTabOrientation() == TabPanel.DEFAULT && tabPanel.hasOneTab())))
 			{
 				cssClass = "tabcontainer " + cssClass;
 			}
-			html.append(getCSSClassParameter(cssClass));
+			html.append(getCSSClassParameter("webform"));
 			html.append("></div>");
 
 		}
