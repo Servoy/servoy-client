@@ -726,30 +726,25 @@ if (typeof(Servoy.TableView) == "undefined")
 						if (bgcolor.indexOf("rgba") != -1 && el.tagName.toLowerCase() == "td")
 						{
 							// do not apply semi transparent color, has to be applied only once (on element)
-							el.setAttribute('style',styleAttrVal+'background-color:transparent;');
+							el.setAttribute('style',styleAttrVal+';background-color:transparent;');
 						}
 						else
 						{
-							el.setAttribute('style',styleAttrVal+bgcolor);
+							el.setAttribute('style',styleAttrVal+';' +bgcolor);
 						}
 					}
 					if(fgcolor == ''){
 					    el.style.color = fgcolor;
 					}else{
 						var styleAttrVal = el.getAttribute('style');
-						el.setAttribute('style',styleAttrVal+fgcolor);
+						el.setAttribute('style',styleAttrVal+';'+fgcolor);
 					}
 										 
 					el.style.fontStyle = fontStyle;
 					el.style.fontWeight = fontWeight;
 					el.style.fontSize = fontSize;
 					el.style.fontFamily = fontFamily;
-					
-					if(el.tagName && el.tagName.toLowerCase() == "td" && el.getAttribute('style')=='')
-					{
-						YAHOO.util.Dom.setStyle(YAHOO.util.Dom.get(el.id), 'display', 'none');
-					}						
-					 
+ 
 					if(el.tagName && el.tagName.toLowerCase() != "td")
 					{
 						var bStyleTop = " ";
