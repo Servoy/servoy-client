@@ -230,6 +230,10 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 				Label label = new Label("linktext", new Model<String>(text)); //$NON-NLS-1$
 				label.setEscapeModelStrings(false);
+				if (holder.getIcon() != null)
+				{
+					label.add(new SimpleAttributeModifier("class", "accordionlinkmargin"));
+				}
 				link.add(label);
 				ServoyTabIcon icon = new ServoyTabIcon("icon", holder, scriptable); //$NON-NLS-1$
 				if (holder.getIcon() != null)
