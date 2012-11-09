@@ -952,7 +952,6 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 		else
 		{
 			setFlags(getFlags()); // update flags/table ident columns to reflect new dbPK status
-			if (columnInfo != null) Debug.trace("The database PK member was changed after columninfo was assigned to it.");
 		}
 	}
 

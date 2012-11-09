@@ -10,6 +10,11 @@ function MultipleFileUploadInterceptor(multiSelector)
 	{
 		if(element.tagName.toLowerCase() == 'input' && element.type.toLowerCase() == 'file') {
 			element.multiple = "multiple";
+			if (Wicket.Browser.isOpera()) {
+				// in Opera 12.02, changing 'multiple' this way does not update the field
+				element.type = 'button';
+				element.type = 'file';
+			}
 		}
 		oldAddElement.call(this, element);
 	}.bind(multiSelector);
