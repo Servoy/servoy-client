@@ -1642,7 +1642,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		int withIndex = lowerCaseSql.indexOf("with"); //$NON-NLS-1$
 		int selectIndex = lowerCaseSql.indexOf("select"); //$NON-NLS-1$
 		int callIndex = lowerCaseSql.indexOf("call"); //$NON-NLS-1$
-		if ((selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) || (withIndex != -1 && withIndex < 4))
+		int declareIndex = lowerCaseSql.indexOf("declare"); //$NON-NLS-1$
+		if ((declareIndex != -1 && declareIndex < 4) || (selectIndex != -1 && selectIndex < 4) || (callIndex != -1 && callIndex < 4) ||
+			(withIndex != -1 && withIndex < 4))
 		{
 			IDataServer ds = application.getDataServer();
 			String transaction_id = getTransactionID(serverName);
