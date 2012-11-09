@@ -24,6 +24,7 @@ import java.util.List;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 
+
 /**
  * This class filters out, in Developer only, things which should not be allowed, as (currently) improper usage
  * of import hooks (for instance, pre-import hooks need special attention as their objects cannot be used 
@@ -34,6 +35,14 @@ import com.servoy.j2db.persistence.SolutionMetaData;
  */
 public class DeveloperFlattenedSolution extends FlattenedSolution
 {
+	private final boolean filterImportHooks;
+
+	public DeveloperFlattenedSolution(boolean filterImportHooks)
+	{
+		super();
+		this.filterImportHooks = filterImportHooks;
+	}
+
 	private Solution[] filterModules(String mainSolution, Solution[] modulez)
 	{
 		List<Solution> filteredModules = new ArrayList<Solution>();
@@ -48,6 +57,6 @@ public class DeveloperFlattenedSolution extends FlattenedSolution
 	@Override
 	protected void setSolutionAndModules(String mainSolutionName, Solution[] mods) throws RemoteException
 	{
-		super.setSolutionAndModules(mainSolutionName, filterModules(mainSolutionName, mods));
+		super.setSolutionAndModules(mainSolutionName, (filterImportHooks ? filterModules(mainSolutionName, mods) : mods));
 	}
 }
