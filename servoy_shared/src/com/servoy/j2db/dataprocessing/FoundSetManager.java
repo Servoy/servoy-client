@@ -115,10 +115,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public final int chunkSize;
 	public final int initialRelatedChunkSize;
 
+	public final boolean copyFiltersInLoadRecords;
+
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
 	// tracking info used for logging
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
+
 
 	public FoundSetManager(IServiceProvider app, IFoundSetFactory factory)
 	{
@@ -131,6 +134,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip //$NON-NLS-1$
 		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip //$NON-NLS-1$
 		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip//$NON-NLS-1$
+
+		copyFiltersInLoadRecords = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.copyFiltersInLoadRecords", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private Runnable createFlushAction(final String dataSource)
