@@ -1689,6 +1689,9 @@ public class TemplateGenerator
 		styleObj = css.addStyle("div.webform");//$NON-NLS-1$ 
 		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 
+		styleObj = css.addStyle("div.opaquecontainer");//$NON-NLS-1$ 
+		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
+
 		//default tab stuff
 		styleObj = css.addStyle("div.tabs div");
 		styleObj.setProperty("display", "inline");
@@ -1979,7 +1982,9 @@ public class TemplateGenerator
 //		html.append("<table cellpadding=0 cellspacing=0 ");
 		html.append("<div ");
 		html.append(getWicketIDParameter(form, tabPanel));
-		html.append(getCSSClassParameter("tabpanel"));
+		String tabPanelCssClass = "tabpanel";
+		if (!tabPanel.getTransparent()) tabPanelCssClass = "opaquecontainer " + tabPanelCssClass;
+		html.append(getCSSClassParameter(tabPanelCssClass));
 		html.append(">\n");
 
 //		int yoffset = 0;
