@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.html.CSS;
 import javax.swing.text.html.CSS.Attribute;
@@ -3250,7 +3251,8 @@ public class TemplateGenerator
 		if (insetsMargin == null && defaultPadding != null) insetsMargin = defaultPadding;
 
 		BorderAndPadding bp = new BorderAndPadding(insetsBorder, insetsMargin);
-		styleObj.setProperty("padding", (designBorder instanceof EmptyBorder) ? createInsetsText(bp.getSum()) : createInsetsText(bp.getPadding()));
+		styleObj.setProperty("padding", (designBorder instanceof EmptyBorder && !(designBorder instanceof MatteBorder)) ? createInsetsText(bp.getSum())
+			: createInsetsText(bp.getPadding()));
 		return bp;
 	}
 
