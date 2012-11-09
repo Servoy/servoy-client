@@ -1581,7 +1581,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			throw new RepositoryException("Cannot load foundset with query based on another table (" + getDataSource() + " != " + query.getDataSource() + ')'); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		QuerySelect sqlSelect = ((QBSelect)query).build();
+		QuerySelect sqlSelect = ((QBSelect)query).build(); // makes a clone
 
 		if (sqlSelect.getColumns() == null)
 		{
@@ -1608,7 +1608,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				getSQLSheet().getTable().getRowIdentColumns(), (Object[][])dynamicPKplaceholder.getValue())));
 		}
 
-		return loadByQuery(sqlSelect);
+		return loadByQuery(addFilterConditions(sqlSelect, foundSetFilters));
 	}
 
 	/**
@@ -5925,14 +5925,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireSelectionAdjusting();
 
 		omittedPKs = null;
-		creationSqlSelect = AbstractBaseQuery.deepClone(fs.creationSqlSelect);
-		if (fs.foundSetFilters != null)
+
+		List<TableFilter> myOwnFilters = null;
+		// look for filters in this foundset that have not been appplied to the other foundset
+		if (foundSetFilters != null)
 		{
-			foundSetFilters = new ArrayList<TableFilter>(fs.foundSetFilters);
+			for (TableFilter filter : foundSetFilters)
+			{
+				if (fs.foundSetFilters == null || !fs.foundSetFilters.contains(filter))
+				{
+					if (myOwnFilters == null) myOwnFilters = new ArrayList<TableFilter>(foundSetFilters.size());
+					myOwnFilters.add(filter);
+				}
+			}
 		}
 		sheet = fs.sheet;
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(fs.pksAndRecords.getPks()), fs.pksAndRecords.getDbIndexLastPk(),
-			fs.pksAndRecords.getQuerySelectForModification());
+			addFilterConditions(fs.pksAndRecords.getQuerySelectForModification(), myOwnFilters));
 		initialized = fs.initialized;
 
 		clearInternalState(true);
@@ -5962,6 +5971,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		else setSelectedIndex(fs.getSelectedIndex());
 
+		if (myOwnFilters != null)
+		{
+			// my own filters have been added, have to refresh
+			refresh();
+		}
 		return true;
 	}
 
@@ -6050,16 +6064,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		synchronized (pksAndRecords)
 		{
 			creationSqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
-			if (foundSetFilters != null)
+			addFilterConditions(creationSqlSelect, foundSetFilters);
+		}
+	}
+
+	private QuerySelect addFilterConditions(QuerySelect select, List<TableFilter> filters)
+	{
+		if (filters != null)
+		{
+			for (TableFilter tf : filters)
 			{
-				for (TableFilter tf : foundSetFilters)
-				{
-					creationSqlSelect.addCondition(SQLGenerator.CONDITION_FILTER,
-						SQLGenerator.createTableFilterCondition(creationSqlSelect.getTable(), sheet.getTable(), tf));
-				}
+				select.addCondition(SQLGenerator.CONDITION_FILTER, SQLGenerator.createTableFilterCondition(select.getTable(), sheet.getTable(), tf));
 			}
 		}
-
+		return select;
 	}
 
 	public boolean hadMoreRows()
