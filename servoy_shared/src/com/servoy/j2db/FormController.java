@@ -76,6 +76,7 @@ import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
@@ -144,7 +145,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	{
 		private IApplication application = null;
 		private Form form = null;
-		private Form flattenedForm;
 
 		public RuntimeSupportScriptProviders(IApplication application, Form form)
 		{
@@ -154,30 +154,17 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		public Iterator<ScriptVariable> getScriptVariables(boolean b)
 		{
-			return getFlattenedForm().getScriptVariables(b);
+			return form.getScriptVariables(b);
 		}
 
 		public Iterator< ? extends IScriptProvider> getScriptMethods(boolean sort)
 		{
-			return getFlattenedForm().getScriptMethods(sort);
+			return form.getScriptMethods(sort);
 		}
 
 		public ScriptMethod getScriptMethod(int methodId)
 		{
-			return getFlattenedForm().getScriptMethod(methodId);
-		}
-
-
-		/**
-		 * @return
-		 */
-		public Form getFlattenedForm()
-		{
-			if (flattenedForm == null)
-			{
-				flattenedForm = application.getFlattenedSolution().getFlattenedForm(form, true);
-			}
-			return flattenedForm;
+			return form.getScriptMethod(methodId);
 		}
 
 		/**
@@ -187,8 +174,33 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 */
 		public void updateProviderwithCopy(Form originalForm, Form copyForm)
 		{
-			flattenedForm = null;
-			if (this.form.getName().equals(originalForm.getName())) this.form = copyForm;
+			if (this.form.getName().equals(originalForm.getName()))
+			{
+				if (this.form instanceof FlattenedForm)
+				{
+					this.form = application.getFlattenedSolution().getFlattenedForm(copyForm, true);
+				}
+				else
+				{
+					this.form = copyForm;
+				}
+			}
+			else if (this.form instanceof FlattenedForm)
+			{
+				this.form = application.getFlattenedSolution().getFlattenedForm(this.form, true);
+			}
+		}
+
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			return "RSSP[" + form.getName() + "]";
 		}
 
 	}

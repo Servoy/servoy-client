@@ -263,7 +263,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 	@Override
 	public String toString()
 	{
-		return "LazyCompilationScope parent '" + (getParentScope() == this ? "this" : getParentScope()) + "', scriptLookup: " + scriptLookup; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		return "LazyCompilationScope[parent:" + (getParentScope() == this ? "this" : getParentScope()) + ", scriptLookup:" + scriptLookup + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 	}
 
 	@Override

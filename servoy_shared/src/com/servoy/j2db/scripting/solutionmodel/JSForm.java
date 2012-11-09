@@ -4659,6 +4659,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		for (FormController formController : controllers)
 		{
 			FormScope formScope = formController.getFormScope();
+			formScope.updateProviderswithCopy(form, form);
 			formScope.remove(var);
 		}
 	}
