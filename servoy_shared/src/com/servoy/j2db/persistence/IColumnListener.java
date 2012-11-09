@@ -42,7 +42,7 @@ public interface IColumnListener
 	/**
 	 * Method iColumnsChanged.
 	 * 
-	 * @param columns
+	 * @param columns the changed columns. All of them are part of the same table.
 	 */
 	void iColumnsChanged(Collection<IColumn> columns);
 }
