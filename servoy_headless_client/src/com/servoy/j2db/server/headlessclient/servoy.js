@@ -1915,7 +1915,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		},
 		
 		setLabelChildHeight: function(elemid, valign)
-		{			
+		{
 			setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign);},50);
 		},
 		
@@ -1923,12 +1923,11 @@ if (typeof(Servoy.Utils) == "undefined")
 		{
 		  var elem = document.getElementById(elemid);
 		  var child = document.getElementById(elemid + "_lb");
-		  var childImg = document.getElementById(elemid + "_img");
 		  var paddTop;
 		  var paddBottom;
 		  var ua = window.navigator.userAgent
-	      var msie = ua.indexOf("MSIE ");	  
-		  
+	      var msie = ua.indexOf("MSIE ");
+
       	  if (msie > 0) // IE
       	  {
       	  	paddTop = elem.currentStyle.paddingTop.replace("px","");
@@ -1944,7 +1943,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		  {
 			var elemHeight =  elem.clientHeight;
 			var childHeight = child.clientHeight;
-			
+	
 			var top; 
 	
 			if(valign == 1)			// ISupportTextSetup.TOP
@@ -1967,12 +1966,6 @@ if (typeof(Servoy.Utils) == "undefined")
 			else					// ISupportTextSetup.CENTER
 			{
 				top = Math.floor((elemHeight - childHeight)/2);
-				
-				// images on large label have special handling for vertical align
-				if(childImg)
-				{
-					top = Math.floor((childHeight - childImg.clientHeight)/2);
-				}
 				
 				// buttons have special bottom padding set with element height;
 				// for IE 8.0 we need to use that for having right top position
