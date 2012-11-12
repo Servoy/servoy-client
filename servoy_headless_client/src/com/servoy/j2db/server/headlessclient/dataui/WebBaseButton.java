@@ -1148,15 +1148,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 			else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		else
-		{
-			instrumentedBodyText.append(" top: 0px;");
-			// if it is both anchored to north and south then also anchor the span to the bottom.
-			if ((anchors & IAnchorConstants.NORTH) > 0 && (anchors & IAnchorConstants.SOUTH) > 0)
-			{
-				instrumentedBodyText.append(" bottom: 0px;");
-			}
-		}
 
 		// Full height.
 		if (!hasHtmlOrImage) instrumentedBodyText.append(" overflow: hidden;");
