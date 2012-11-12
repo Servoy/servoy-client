@@ -903,7 +903,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			designMode = true;
 		}
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
-		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, margin, cssid,
+		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(this, bodyText, halign, valign, hasHtmlOrImage, border, margin, cssid,
 			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored(),
 			anchor));
 	}

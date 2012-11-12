@@ -927,8 +927,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		replaceComponentTagBody(
 			markupStream,
 			openTag,
-			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size == null ? 0 : size.height, true, designMode ? null : cursor, false, anchor));
+			instrumentBodyText(this, bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(),
+				getImageDisplayURL(this), size == null ? 0 : size.height, true, designMode ? null : cursor, false, anchor));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1071,8 +1071,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	}
 
 	@SuppressWarnings("nls")
-	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
-		String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors)
+	protected static String instrumentBodyText(Component component, CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border,
+		Insets margin, String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored,
+		int anchors)
 	{
 		boolean isElementAnchored = anchors != IAnchorConstants.DEFAULT;
 		Insets padding = null;
@@ -1121,8 +1122,9 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		// position the <span> in the <button>. However, for centering vertically we drop this absolute positioning and
 		// rely on the fact that by default the <button> tag vertically centers its content.
 		StringBuffer instrumentedBodyText = new StringBuffer();
+		String displayMode = component instanceof WebDataHtmlView ? "inline" : "block";
 		// how is it possible that span receives focus when you click on it? i guess weird behavior from ie; give focus to component if that happens
-		instrumentedBodyText.append("<span onfocus='this.parentNode.focus()' style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: block; overflow: hidden;"); //$NON-NLS-1$
+		instrumentedBodyText.append("<span onfocus='this.parentNode.focus()' style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: " + displayMode + "; overflow: hidden;"); //$NON-NLS-1$
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
