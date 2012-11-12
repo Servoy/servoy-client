@@ -1923,7 +1923,6 @@ if (typeof(Servoy.Utils) == "undefined")
 		{
 		  var elem = document.getElementById(elemid);
 		  var child = document.getElementById(elemid + "_lb");
-		  var childImg = document.getElementById(elemid + "_img");
 		  var paddTop;
 		  var paddBottom;
 		  var ua = window.navigator.userAgent
@@ -1967,12 +1966,6 @@ if (typeof(Servoy.Utils) == "undefined")
 			else					// ISupportTextSetup.CENTER
 			{
 				top = Math.floor((elemHeight - childHeight)/2);
-				
-				// images on large label have special handling for vertical align
-				if(childImg)
-				{
-					top = Math.floor((childHeight - childImg.clientHeight)/2);
-				}
 				
 				// buttons have special bottom padding set with element height;
 				// for IE 8.0 we need to use that for having right top position
