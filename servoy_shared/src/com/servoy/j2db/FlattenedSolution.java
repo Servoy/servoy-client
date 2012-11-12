@@ -624,7 +624,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	private void setSolutionAndModules(String mainSolutionName, Solution[] mods) throws RemoteException
+	protected void setSolutionAndModules(String mainSolutionName, Solution[] mods) throws RemoteException
 	{
 		Map<String, Solution> modulesMap = new HashMap<String, Solution>(); //name -> solution
 
