@@ -326,6 +326,8 @@ public class JSI18N
 	 * So that you can have multiple default values and multiple values per locale for one key.
 	 * // NOTE: this function is only working on runtime clients when the i18n values are read from the database
 	 * 
+	 * @deprecated
+	 * 
 	 * @sample
 	 * // Puts i18n in filter mode - this allows you to have multiple default/per locale
 	 * // values for one key and to use one of them based on the filter parameters.
@@ -347,6 +349,7 @@ public class JSI18N
 	 *
 	 * @param value The filter value.  
 	 */
+	@Deprecated
 	public void js_setI18NMessagesFilter(String columnName, String value)
 	{
 		js_setI18NMessagesFilter(columnName, value == null ? null : new String[] { value });
@@ -358,12 +361,15 @@ public class JSI18N
 	 * You can use filter fall back by setting the filter value as an array of strings.
 	 * // NOTE: this function is only working on runtime clients when the i18n values are read from the database
 	 *
+	 * @deprecated
+	 * 
 	 * @sampleas js_setI18NMessagesFilter(String, String)
 	 *
 	 * @param columnName The column name that is the filter column in the i18n table.
 	 *
 	 * @param value The filter value.  
 	 */
+	@Deprecated
 	public void js_setI18NMessagesFilter(String columnName, String[] value)
 	{
 		application.setI18NMessagesFilter(columnName, value);
