@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.QueryColumn;
@@ -247,6 +248,31 @@ public class MetaDataUtils
 	{
 		// parse dataset
 		BufferedDataSet dataSet = MetaDataUtils.deserializeTableMetaDataContents(json);
+
+		// check if all columns exist
+		List<String> missingColumns = null;
+		for (String colname : dataSet.getColumnNames())
+		{
+			if (table.getColumn(colname) == null)
+			{
+				if (missingColumns == null)
+				{
+					missingColumns = new ArrayList<String>();
+				}
+				missingColumns.add(colname);
+			}
+		}
+		if (missingColumns != null)
+		{
+			StringBuilder message = new StringBuilder("Missing columns from meta data for table '").append(table.getName()).append("'").append(" in server '").append(
+				table.getServerName()).append("' : ");
+			for (String name : missingColumns)
+			{
+				message.append('\'').append(name).append("' ");
+			}
+			throw new RepositoryException(message.toString());
+		}
+
 
 		// delete existing data
 		ApplicationServerSingleton.get().getDataServer().performUpdates(ApplicationServerSingleton.get().getClientId(),
