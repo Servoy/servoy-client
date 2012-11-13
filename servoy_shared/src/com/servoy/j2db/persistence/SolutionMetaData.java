@@ -107,6 +107,16 @@ public class SolutionMetaData extends RootObjectMetaData
 		fileVersion = arg;
 	}
 
+	public static boolean isServoyMobileSolution(IRootObject root)
+	{
+		boolean isServoyMobileSolution = false;
+		if (root instanceof Solution)
+		{
+			isServoyMobileSolution = ((Solution)root).getSolutionType() == SolutionMetaData.MOBILE;
+		}
+		return isServoyMobileSolution;
+	}
+
 	public static boolean isPreImportHook(IRootObject root)
 	{
 		if (root instanceof Solution)
