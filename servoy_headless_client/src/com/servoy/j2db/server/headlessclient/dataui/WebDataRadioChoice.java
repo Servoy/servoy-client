@@ -39,6 +39,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.value.AttributeMap;
+import org.apache.wicket.util.value.IValueMap;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -586,7 +588,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		setSuffix("</div>"); //$NON-NLS-1$
 	}
 
-
 	public void requestFocusToComponent()
 	{
 		// is the current container always the right one...
@@ -978,5 +979,14 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	@Override
+	protected IValueMap getAdditionalAttributes(int index, Object choice)
+	{
+		AttributeMap attributes = new AttributeMap();
+		attributes.add("onfocus", "Servoy.Utils.transferFocus(this.id,'focus')");
+		attributes.add("onblur", "Servoy.Utils.transferFocus(this.id,'blur')");
+		return attributes;
 	}
 }

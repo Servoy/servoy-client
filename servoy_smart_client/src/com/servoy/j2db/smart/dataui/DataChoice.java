@@ -1115,6 +1115,11 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		}
 	}
 
+	public int getChoiceType()
+	{
+		return choiceType;
+	}
+
 	public String getSelectedRelationName()
 	{
 		if (relationName == null && list != null)
@@ -1426,12 +1431,6 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	{
 		if (!list.isValueListChanging() && e.getIndex0() == -1 && e.getIndex1() == -1 && editProvider != null && !editProvider.isAdjusting())
 		{
-			// Check if focus event is already done or not..
-			if (eventExecutor.hasEnterCmds() && eventExecutor.mustFireFocusGainedCommand())
-			{
-				eventExecutor.skipNextFocusGain();
-				eventExecutor.fireEnterCommands(false, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-			}
 			editProvider.commitData();
 		}
 		else if (previousValue != null && list.isValueListChanging() && !(editProvider != null && editProvider.isAdjusting()))

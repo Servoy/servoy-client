@@ -30,6 +30,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -223,6 +224,16 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 			return;
 		}
 
+		if (component instanceof DataChoice)
+		{
+			if (e.getOppositeComponent() != null && e.getOppositeComponent().getParent() == null && ((DataChoice)component).getChoiceType() == Field.LIST_BOX ||
+				((DataChoice)component).getChoiceType() == Field.MULTISELECT_LISTBOX)
+			{
+				// for listbox only trigger if we really entered the field
+				return;
+			}
+		}
+
 		fireEnterCommands(true, component, MODIFIERS_UNSPECIFIED);
 
 		// only if the component still has focus set the skip on true.
@@ -262,6 +273,15 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 			return;
 		}
 		skipFireFocusLostCommand = true;
+		if (component instanceof DataChoice)
+		{
+			if (e.getOppositeComponent() != null && e.getOppositeComponent().getParent() == null && ((DataChoice)component).getChoiceType() == Field.LIST_BOX ||
+				((DataChoice)component).getChoiceType() == Field.MULTISELECT_LISTBOX)
+			{
+				// for listbox only trigger if we really left the field
+				return;
+			}
+		}
 		fireLeaveCommands(component, true, IEventExecutor.MODIFIERS_UNSPECIFIED);
 	}
 
