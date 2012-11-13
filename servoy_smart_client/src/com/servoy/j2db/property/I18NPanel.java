@@ -690,6 +690,14 @@ public class I18NPanel extends JPanel implements DocumentListener
 		if ("".equals(serverName)) serverName = null; //$NON-NLS-1$
 		if ("".equals(tableName)) tableName = null; //$NON-NLS-1$
 
+		String filterName = null;
+		String[] filterValue = null;
+		if (application instanceof IMessagesCallback)
+		{
+			filterName = ((IMessagesCallback)application).getI18NColumnNameFilter();
+			filterValue = ((IMessagesCallback)application).getI18NColumnValueFilter();
+		}
+
 		if (serverName == null || tableName == null)
 		{
 			Properties settings = application.getSettings();
@@ -727,11 +735,11 @@ public class I18NPanel extends JPanel implements DocumentListener
 			try
 			{
 				TreeMap<String, MessageEntry> repositoryMessages = I18NUtil.loadSortedMessagesFromRepository(repository, dataServer, application.getClientID(),
-					serverName, tableName);
+					serverName, tableName, filterName, filterValue);
 				TreeMap<String, MessageEntry> messages = new TreeMap<String, I18NUtil.MessageEntry>(repositoryMessages);
 				adjustMessagesMap(newKey, referenceValue, localeValue, messages);
 				I18NUtil.writeMessagesToRepository(serverName, tableName, repository, dataServer, application.getClientID(), messages, false, false,
-					repositoryMessages);
+					repositoryMessages, filterName, filterValue);
 				operationPerformed = true;
 			}
 			catch (Exception e)
