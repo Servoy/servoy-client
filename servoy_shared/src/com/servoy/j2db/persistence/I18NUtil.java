@@ -37,6 +37,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Utility class for loading/saving i18n texts in the repository
@@ -180,14 +181,11 @@ public class I18NUtil
 						Column filterColumn = i18NTable.getColumn(filterName);
 						if (filterColumn != null && filterValue != null && filterValue.length > 0)
 						{
-							QueryColumn[] newInsertColumns = new QueryColumn[insertColumns.length + 1];
-							System.arraycopy(insertColumns, 0, newInsertColumns, 0, insertColumns.length);
-							newInsertColumns[newInsertColumns.length - 1] = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
-								filterColumn.getType(), filterColumn.getLength());
-
-							Object[] newInsertColumnValues = new Object[insertColumnValues.length + 1];
-							System.arraycopy(insertColumnValues, 0, newInsertColumnValues, 0, insertColumnValues.length);
-							newInsertColumnValues[newInsertColumnValues.length - 1] = filterValue[0];
+							Utils.arrayAdd(
+								insertColumns,
+								new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
+									filterColumn.getLength()), true);
+							Utils.arrayAdd(insertColumnValues, filterValue[0], true);
 						}
 
 						insert.setColumnValues(insertColumns, insertColumnValues);
