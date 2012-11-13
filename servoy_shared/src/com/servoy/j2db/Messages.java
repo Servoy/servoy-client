@@ -30,8 +30,10 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
+import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
@@ -93,14 +95,14 @@ public class Messages
 	 * 
 	 * @exclude
 	 */
-	public static void loadInternal(IMessagesCallback callback)
+	public static void loadInternal(IMessagesCallback callback, IFoundSetManagerInternal fm)
 	{
 		localeJarMessages = ResourceBundle.getBundle(BUNDLE_NAME);
-		localeServerMessages = loadMessagesFromServer(null, callback);
+		localeServerMessages = loadMessagesFromServer(null, callback, fm);
 		if (callback.getSolution() != null)
 		{
 			invalidConnection = false;
-			localeSolutionMessages = loadMessagesFromServer(callback.getSolution(), callback);
+			localeSolutionMessages = loadMessagesFromServer(callback.getSolution(), callback, fm);
 		}
 		else
 		{
@@ -115,7 +117,7 @@ public class Messages
 	 * 
 	 * @exclude
 	 */
-	private static Properties loadMessagesFromServer(Solution solution, IMessagesCallback callback)
+	private static Properties loadMessagesFromServer(Solution solution, IMessagesCallback callback, IFoundSetManagerInternal fm)
 	{
 		Properties properties = new Properties();
 		// only called by the smart client, where the default is set
@@ -213,7 +215,7 @@ public class Messages
 		{
 			loadMessagesFromDatabaseInternal(solution != null ? solution.getI18nDataSource() : null, callback.getClientID(), callback.getSettings(),
 				callback.getDataServer(), callback.getRepository(), properties, language, ALL_LOCALES, null, null, callback.getI18NColumnNameFilter(),
-				callback.getI18NColumnValueFilter());
+				callback.getI18NColumnValueFilter(), fm);
 		}
 		return properties;
 	}
@@ -224,7 +226,7 @@ public class Messages
 	 * @exclude
 	 */
 	public static void loadMessagesFromDatabaseInternal(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
-		IRepository repository, Properties properties, Locale language)
+		IRepository repository, Properties properties, Locale language, IFoundSetManagerInternal fm)
 	{
 		if (Messages.customMessageLoader != null)
 		{
@@ -233,12 +235,12 @@ public class Messages
 		else if (dataServer != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
-				null, null, null, null);
+				null, null, null, null, fm);
 		}
 		else if (ApplicationServerSingleton.get() != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
-				ApplicationServerSingleton.get().getLocalRepository(), properties, null, language, ALL_LOCALES, null, null, null, null);
+				ApplicationServerSingleton.get().getLocalRepository(), properties, null, language, ALL_LOCALES, null, null, null, null, fm);
 		}
 	}
 
@@ -280,7 +282,7 @@ public class Messages
 	 */
 	public static void loadMessagesFromDatabaseInternal(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
 		IRepository repository, Properties properties, Locale language, int loadingType, String searchKey, String searchText, String columnNameFilter,
-		String[] columnValueFilter)
+		String[] columnValueFilter, IFoundSetManagerInternal fm)
 	{
 		if (Messages.customMessageLoader != null)
 		{
@@ -289,19 +291,19 @@ public class Messages
 		else if (dataServer != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
-				searchKey, searchText, columnNameFilter, columnValueFilter);
+				searchKey, searchText, columnNameFilter, columnValueFilter, fm);
 		}
 		else if (ApplicationServerSingleton.get() != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
 				ApplicationServerSingleton.get().getLocalRepository(), properties, null, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
-				columnValueFilter);
+				columnValueFilter, fm);
 		}
 	}
 
 	public static void loadMessagesFromDatabase(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer, IRepository repository,
 		Properties defaultProperties, Properties localeProperties, Locale language, String searchKey, String searchText, String columnNameFilter,
-		String[] columnValueFilter)
+		String[] columnValueFilter, IFoundSetManagerInternal fm)
 	{
 		if (Messages.customMessageLoader != null)
 		{
@@ -310,13 +312,13 @@ public class Messages
 		else if (dataServer != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, defaultProperties, localeProperties,
-				language, ALL_LOCALES, searchKey, searchText, columnNameFilter, columnValueFilter);
+				language, ALL_LOCALES, searchKey, searchText, columnNameFilter, columnValueFilter, fm);
 		}
 		else if (ApplicationServerSingleton.get() != null)
 		{
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
 				ApplicationServerSingleton.get().getLocalRepository(), defaultProperties, localeProperties, language, ALL_LOCALES, searchKey, searchText,
-				columnNameFilter, columnValueFilter);
+				columnNameFilter, columnValueFilter, fm);
 		}
 	}
 
@@ -327,7 +329,7 @@ public class Messages
 	 */
 	public static void loadMessagesFromDatabaseRepositoryInternal(String i18nDatasource, String clientId, Properties settings, IDataServer dataServer,
 		IRepository repository, Properties properties, Properties localeProperties, Locale language, int loadingType, String searchKey, String searchText,
-		String columnNameFilter, String[] columnValueFilter)
+		String columnNameFilter, String[] columnValueFilter, IFoundSetManagerInternal fm)
 	{
 		noConnection = false;
 		String[] names = getServerTableNames(i18nDatasource, settings);
@@ -367,13 +369,13 @@ public class Messages
 			}
 
 			loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, localeProperties, language, loadingType, searchKey,
-				searchText, filterColumn, null);
+				searchText, filterColumn, null, fm);
 			if (columnValueFilter != null)
 			{
 				for (int i = columnValueFilter.length - 1; i >= 0; i--)
 				{
 					loadMessagesFromDatabaseRepositorySinglefilter(server, table, clientId, dataServer, properties, localeProperties, language, loadingType,
-						searchKey, searchText, filterColumn, columnValueFilter[i]);
+						searchKey, searchText, filterColumn, columnValueFilter[i], fm);
 				}
 			}
 		}
@@ -387,7 +389,7 @@ public class Messages
 
 	private static void loadMessagesFromDatabaseRepositorySinglefilter(IServer server, Table table, String clientId, IDataServer dataServer,
 		Properties properties, Properties localeProperties, Locale language, int loadingType, String searchKey, String searchText, Column filterColumn,
-		String singleColumnValueFilter) throws RemoteException, ServoyException
+		String singleColumnValueFilter, IFoundSetManagerInternal fm) throws RemoteException, ServoyException
 	{
 
 		Debug.trace("Loading messages from DB: Server: " + server.getName() + " Table: " + table.getName() + " Language: " + language); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -443,7 +445,10 @@ public class Messages
 				sql.addCondition(condMessages, new SetCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn[] { msgKey }, subselect, true));
 			}
 			if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
-			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql, null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
+
+			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql,
+				fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(server.getName(), sql) : null, false, 0, Integer.MAX_VALUE,
+				IDataServer.MESSAGES_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = set.getRow(i);
@@ -457,19 +462,19 @@ public class Messages
 		if (loadingType == ALL_LOCALES || loadingType == SPECIFIED_LANGUAGE)
 		{
 			fillLocaleMessages(clientId, dataServer, table, server.getName(), filterColumn, singleColumnValueFilter, searchKey, searchText, language,
-				localeProperties != null ? localeProperties : properties, SPECIFIED_LANGUAGE);
+				localeProperties != null ? localeProperties : properties, SPECIFIED_LANGUAGE, fm);
 		}
 
 		if (loadingType == ALL_LOCALES || loadingType == SPECIFIED_LOCALE)
 		{
 			fillLocaleMessages(clientId, dataServer, table, server.getName(), filterColumn, singleColumnValueFilter, searchKey, searchText, language,
-				localeProperties != null ? localeProperties : properties, SPECIFIED_LOCALE);
+				localeProperties != null ? localeProperties : properties, SPECIFIED_LOCALE, fm);
 		}
 	}
 
 	private static void fillLocaleMessages(String clientId, IDataServer dataServer, Table table, String serverName, Column filterColumn,
-		Object columnValueFilter, String searchKey, String searchText, Locale language, Properties properties, int loadingType) throws ServoyException,
-		RemoteException
+		Object columnValueFilter, String searchKey, String searchText, Locale language, Properties properties, int loadingType, IFoundSetManagerInternal fm)
+		throws ServoyException, RemoteException
 	{
 		QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 		QuerySelect sql = new QuerySelect(messagesTable);
@@ -517,7 +522,9 @@ public class Messages
 		}
 
 		if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
-		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
+		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql,
+			fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(serverName, sql) : null, false, 0, Integer.MAX_VALUE,
+			IDataServer.MESSAGES_QUERY);
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
 			Object[] row = set.getRow(i);
@@ -622,7 +629,8 @@ public class Messages
 		}
 	}
 
-	public static boolean deleteKey(String key, String i18nDatasource, String clientId, Properties settings, IDataServer dataServer, IRepository repository)
+	public static boolean deleteKey(String key, String i18nDatasource, String clientId, Properties settings, IDataServer dataServer, IRepository repository,
+		IFoundSetManagerInternal fm)
 	{
 		String[] names = getServerTableNames(i18nDatasource, settings);
 		String serverName = names[0];
@@ -647,7 +655,8 @@ public class Messages
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, key));
 
-				ISQLStatement sqlStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, delete);
+				ISQLStatement sqlStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, null, delete,
+					fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(serverName, delete) : null);
 
 				dataServer.performUpdates(clientId, new ISQLStatement[] { sqlStatement });
 			}

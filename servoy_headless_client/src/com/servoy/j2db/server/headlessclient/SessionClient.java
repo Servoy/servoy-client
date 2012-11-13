@@ -917,10 +917,10 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		Properties properties = new Properties();
 		Messages.loadMessagesFromDatabaseInternal(null, getClientInfo().getClientId(), getSettings(), getDataServer(), getRepository(), properties, locale,
-			Messages.ALL_LOCALES, null, null, columnname, value);
+			Messages.ALL_LOCALES, null, null, columnname, value, getFoundSetManager());
 		Solution solution = getSolution();
 		Messages.loadMessagesFromDatabaseInternal(solution != null ? solution.getI18nDataSource() : null, getClientInfo().getClientId(), getSettings(),
-			getDataServer(), getRepository(), properties, locale, Messages.ALL_LOCALES, null, null, columnname, value);
+			getDataServer(), getRepository(), properties, locale, Messages.ALL_LOCALES, null, null, columnname, value, getFoundSetManager());
 		synchronized (messages)
 		{
 			messages.put(locale, properties);
@@ -1072,11 +1072,11 @@ public class SessionClient extends ClientState implements ISessionClient
 				properties = new Properties();
 				Messages.invalidConnection = false;
 				Messages.loadMessagesFromDatabaseInternal(null, ApplicationServerSingleton.get().getClientId(), getSettings(), getDataServer(),
-					getRepository(), properties, loc);
+					getRepository(), properties, loc, getFoundSetManager());
 				if (getSolution() != null) //must be sure that solution is loaded, app might retrieve system messages, before solution loaded!
 				{
 					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), ApplicationServerSingleton.get().getClientId(), getSettings(),
-						getDataServer(), getRepository(), properties, loc);
+						getDataServer(), getRepository(), properties, loc, getFoundSetManager());
 					messages.put(loc, properties);
 				}
 			}

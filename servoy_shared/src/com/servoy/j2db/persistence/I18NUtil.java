@@ -22,8 +22,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.ISQLActionTypes;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.SQLStatement;
@@ -87,19 +89,20 @@ public class I18NUtil
 	}
 
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
-		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, String filterName, String[] filterValue) throws Exception
+		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, String filterName, String[] filterValue, FoundSetManager fm)
+		throws Exception
 	{
 		writeMessagesToRepository(i18NServerName, i18NTableName, repository, dataServer, clientID, messages, noUpdates, noRemoves, null, filterName,
-			filterValue);
+			filterValue, fm);
 	}
 
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
 		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, TreeMap<String, MessageEntry> remoteMessages, String filterName,
-		String[] filterValue) throws Exception
+		String[] filterValue, IFoundSetManagerInternal fm) throws Exception
 	{
 		// get remote messages snapshot
 		if (remoteMessages == null) remoteMessages = loadSortedMessagesFromRepository(repository, dataServer, clientID, i18NServerName, i18NTableName,
-			filterName, filterValue);
+			filterName, filterValue, fm);
 
 		if (remoteMessages != null)
 		{
@@ -192,7 +195,7 @@ public class I18NUtil
 
 						insert.setColumnValues(insertColumns, insertColumnValues);
 
-						updateStatements.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, insert));
+						updateStatements.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, null, insert, null));
 					}
 					else if (!remoteMessages.get(key).getValue().equals(value) && !noUpdates) // update
 					{
@@ -214,7 +217,8 @@ public class I18NUtil
 							}
 						}
 
-						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, update));
+						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, null, update,
+							fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(i18NServerName, update) : null));
 					}
 				}
 
@@ -250,7 +254,8 @@ public class I18NUtil
 								}
 							}
 
-							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, delete));
+							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, null, delete,
+								fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(i18NServerName, delete) : null));
 
 						}
 					}
@@ -266,7 +271,7 @@ public class I18NUtil
 	}
 
 	public static TreeMap<String, MessageEntry> loadSortedMessagesFromRepository(IRepository repository, IDataServer dataServer, String clientID,
-		String i18NServerName, String i18NTableName, String filterName, String[] filterValue) throws Exception
+		String i18NServerName, String i18NTableName, String filterName, String[] filterValue, IFoundSetManagerInternal fm) throws Exception
 	{
 		TreeMap<String, MessageEntry> sortedMessages = new TreeMap<String, MessageEntry>();
 
@@ -302,7 +307,9 @@ public class I18NUtil
 				sql.addSort(new QuerySort(msgLang, true));
 				sql.addSort(new QuerySort(msgKey, true));
 
-				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql, null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
+				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql,
+					fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(i18NServerName, sql) : null, false, 0, Integer.MAX_VALUE,
+					IDataServer.MESSAGES_QUERY);
 				int rowCount = set.getRowCount();
 				if (rowCount > 0)
 				{

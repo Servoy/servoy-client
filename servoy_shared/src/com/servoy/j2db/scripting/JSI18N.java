@@ -324,7 +324,8 @@ public class JSI18N
 	/**
 	 * Call this if you want to add a filter for a column (created by you) in the i18n table.
 	 * So that you can have multiple default values and multiple values per locale for one key.
-	 *
+	 * // NOTE: this function is only working on runtime clients when the i18n values are read from the database
+	 * 
 	 * @sample
 	 * // Puts i18n in filter mode - this allows you to have multiple default/per locale
 	 * // values for one key and to use one of them based on the filter parameters.
@@ -342,7 +343,6 @@ public class JSI18N
 	 * i18n.setI18NMessagesFilter('message_variant', filterValue)
 	 * 
 	 * // ATTENTION: if you use setI18NMessagesFilter(...) it is not recommended to use the i18n Dialog (especially before the filter is applied through JS).
-	 *
 	 * @param columnName The column name that is the filter column in the i18n table.
 	 *
 	 * @param value The filter value.  
@@ -356,6 +356,7 @@ public class JSI18N
 	 * Call this if you want to add a filter for a column (created by you) in the i18n table.
 	 * So that you can have multiple default values and multiple values per locale for one key.
 	 * You can use filter fall back by setting the filter value as an array of strings.
+	 * // NOTE: this function is only working on runtime clients when the i18n values are read from the database
 	 *
 	 * @sampleas js_setI18NMessagesFilter(String, String)
 	 *

@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 import com.servoy.j2db.MessagesResourceBundle;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 
 /**
  * Callback interface for messages loading specific for a client, loaded in the server, see {@link MessagesResourceBundle}.
@@ -28,5 +29,5 @@ import com.servoy.j2db.MessagesResourceBundle;
  */
 public interface IApplicationServerMessagesLoader
 {
-	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, String[] i18nColunmValue);
+	void loadMessages(Properties messages, Locale locale, int solutionId, String i18nColumnName, String[] i18nColunmValue, IFoundSetManagerInternal fm);
 }

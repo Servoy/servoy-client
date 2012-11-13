@@ -25,6 +25,7 @@ import java.util.TreeMap;
 
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.util.StringComparator;
@@ -127,7 +128,7 @@ public class I18NMessagesModel
 		}
 	}
 
-	public Collection<I18NMessagesModelEntry> getMessages(String searchKey, String filterColumn, String[] filterValue)
+	public Collection<I18NMessagesModelEntry> getMessages(String searchKey, String filterColumn, String[] filterValue, IFoundSetManagerInternal fm)
 	{
 		TreeMap<String, I18NMessagesModelEntry> tm = new TreeMap<String, I18NMessagesModelEntry>(StringComparator.INSTANCE);
 		if (defaultMap != null)
@@ -157,14 +158,14 @@ public class I18NMessagesModel
 		Properties messageDefault = new Properties();
 		Properties messageLocale = new Properties();
 		Messages.loadMessagesFromDatabase(null, clientId, settings, dataServer, repository, messageDefault, messageLocale, language, searchKey, searchKey,
-			null, null);
+			null, null, fm);
 
 		addKeys(tm, messageDefault, messageLocale);
 
 		messageDefault.clear();
 		messageLocale.clear();
 		Messages.loadMessagesFromDatabase(i18nDatasource != null ? i18nDatasource : solution != null ? solution.getI18nDataSource() : null, clientId, settings,
-			dataServer, repository, messageDefault, messageLocale, language, searchKey, searchKey, filterColumn, filterValue);
+			dataServer, repository, messageDefault, messageLocale, language, searchKey, searchKey, filterColumn, filterValue, fm);
 
 		addKeys(tm, messageDefault, messageLocale);
 

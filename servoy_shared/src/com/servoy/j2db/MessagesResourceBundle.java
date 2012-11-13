@@ -107,10 +107,11 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 				{
 					sol = (Solution)application.getRepository().getActiveRootObject(solutionId);
 					Messages.loadMessagesFromDatabaseInternal(null, application.getClientID(), application.getSettings(), application.getDataServer(),
-						application.getRepository(), messages, locale, Messages.ALL_LOCALES, null, null, i18nColumnName, i18nColunmValue);
+						application.getRepository(), messages, locale, Messages.ALL_LOCALES, null, null, i18nColumnName, i18nColunmValue,
+						application.getFoundSetManager());
 					Messages.loadMessagesFromDatabaseInternal(sol != null ? sol.getI18nDataSource() : null, application.getClientID(),
 						application.getSettings(), application.getDataServer(), application.getRepository(), messages, locale, Messages.ALL_LOCALES, null,
-						null, i18nColumnName, i18nColunmValue);
+						null, i18nColumnName, i18nColunmValue, application.getFoundSetManager());
 				}
 				catch (Exception e)
 				{
@@ -120,7 +121,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 			else if (applicationServerLoader != null)
 			{
 				// we are on the server load from the server.
-				applicationServerLoader.loadMessages(messages, locale, solutionId, i18nColumnName, i18nColunmValue);
+				applicationServerLoader.loadMessages(messages, locale, solutionId, i18nColumnName, i18nColunmValue, null);
 			}
 		}
 		return messages;

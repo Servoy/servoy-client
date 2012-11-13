@@ -140,7 +140,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 			Solution appSolution = application.getSolution();
 			if (option == JOptionPane.YES_OPTION &&
 				Messages.deleteKey(i18nKey, appSolution != null ? appSolution.getI18nDataSource() : null, application.getClientID(), application.getSettings(),
-					application.getDataServer(), application.getRepository()))
+					application.getDataServer(), application.getRepository(), application.getFoundSetManager()))
 			{
 				messageModel.removeRow(row);
 				if (i18nKey.equals(I18NPanel.this.key.getText()))
@@ -462,7 +462,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 					if (application instanceof IMessagesCallback)
 					{
 						// TODO just a cast to IMessageCallback.. IApplication could inherited it but then debugger panel must also have those methods
-						Messages.loadInternal((IMessagesCallback)application);
+						Messages.loadInternal((IMessagesCallback)application, application.getFoundSetManager());
 					}
 					boolean modelChanged = false;
 					for (int i = 0; i < messageModel.getRowCount(); i++)
@@ -735,11 +735,11 @@ public class I18NPanel extends JPanel implements DocumentListener
 			try
 			{
 				TreeMap<String, MessageEntry> repositoryMessages = I18NUtil.loadSortedMessagesFromRepository(repository, dataServer, application.getClientID(),
-					serverName, tableName, filterName, filterValue);
+					serverName, tableName, filterName, filterValue, application.getFoundSetManager());
 				TreeMap<String, MessageEntry> messages = new TreeMap<String, I18NUtil.MessageEntry>(repositoryMessages);
 				adjustMessagesMap(newKey, referenceValue, localeValue, messages);
 				I18NUtil.writeMessagesToRepository(serverName, tableName, repository, dataServer, application.getClientID(), messages, false, false,
-					repositoryMessages, filterName, filterValue);
+					repositoryMessages, filterName, filterValue, application.getFoundSetManager());
 				operationPerformed = true;
 			}
 			catch (Exception e)
@@ -779,7 +779,7 @@ public class I18NPanel extends JPanel implements DocumentListener
 				filterValue = ((IMessagesCallback)application).getI18NColumnValueFilter();
 			}
 
-			Collection<I18NMessagesModelEntry> messages = i18NMessagesModel.getMessages(searchKey, filterColumn, filterValue);
+			Collection<I18NMessagesModelEntry> messages = i18NMessagesModel.getMessages(searchKey, filterColumn, filterValue, application.getFoundSetManager());
 
 			Object selLang = "<unknown>";
 			if (languagesCombo.getSelectedItem() != null) selLang = ((Object[])languagesCombo.getSelectedItem())[1];

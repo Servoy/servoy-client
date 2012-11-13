@@ -3615,7 +3615,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		if (!old.equals(locale))
 		{
 			Locale.setDefault(locale);
-			Messages.loadInternal(this);
+			Messages.loadInternal(this, getFoundSetManager());
 			J2DBGlobals.firePropertyChange(this, "locale", old, locale);
 		}
 	}
@@ -3700,7 +3700,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Override
 	protected void refreshI18NMessages()
 	{
-		Messages.loadInternal(this);
+		Messages.loadInternal(this, getFoundSetManager());
 	}
 
 	@Override
