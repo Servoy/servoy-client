@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.SQLStatement;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
@@ -86,16 +87,19 @@ public class I18NUtil
 	}
 
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
-		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves) throws Exception
+		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, String filterName, String[] filterValue) throws Exception
 	{
-		writeMessagesToRepository(i18NServerName, i18NTableName, repository, dataServer, clientID, messages, noUpdates, noRemoves, null);
+		writeMessagesToRepository(i18NServerName, i18NTableName, repository, dataServer, clientID, messages, noUpdates, noRemoves, null, filterName,
+			filterValue);
 	}
 
 	public static void writeMessagesToRepository(String i18NServerName, String i18NTableName, IRepository repository, IDataServer dataServer, String clientID,
-		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, TreeMap<String, MessageEntry> remoteMessages) throws Exception
+		TreeMap<String, MessageEntry> messages, boolean noUpdates, boolean noRemoves, TreeMap<String, MessageEntry> remoteMessages, String filterName,
+		String[] filterValue) throws Exception
 	{
 		// get remote messages snapshot
-		if (remoteMessages == null) remoteMessages = loadSortedMessagesFromRepository(repository, dataServer, clientID, i18NServerName, i18NTableName);
+		if (remoteMessages == null) remoteMessages = loadSortedMessagesFromRepository(repository, dataServer, clientID, i18NServerName, i18NTableName,
+			filterName, filterValue);
 
 		if (remoteMessages != null)
 		{
@@ -143,18 +147,51 @@ public class I18NUtil
 					if (!remoteMessages.containsKey(key)) // insert
 					{
 						QueryInsert insert = new QueryInsert(messagesTable);
+						QueryColumn[] insertColumns = null;
+						Object[] insertColumnValues = null;
 						if (logIdIsServoyManaged)
 						{
 							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), -1);
-							if (lang == null) insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgVal }, new Object[] { messageId, messageKey, value });
-							else insert.setColumnValues(new QueryColumn[] { pkCol, msgKey, msgLang, msgVal },
-								new Object[] { messageId, messageKey, lang, value });
+							if (lang == null)
+							{
+								insertColumns = new QueryColumn[] { pkCol, msgKey, msgVal };
+								insertColumnValues = new Object[] { messageId, messageKey, value };
+							}
+							else
+							{
+								insertColumns = new QueryColumn[] { pkCol, msgKey, msgLang, msgVal };
+								insertColumnValues = new Object[] { messageId, messageKey, lang, value };
+							}
 						}
 						else
 						{
-							if (lang == null) insert.setColumnValues(new QueryColumn[] { msgKey, msgVal }, new Object[] { messageKey, value });
-							else insert.setColumnValues(new QueryColumn[] { msgKey, msgLang, msgVal }, new Object[] { messageKey, lang, value });
+							if (lang == null)
+							{
+								insertColumns = new QueryColumn[] { msgKey, msgVal };
+								insertColumnValues = new Object[] { messageKey, value };
+							}
+							else
+							{
+								insertColumns = new QueryColumn[] { msgKey, msgLang, msgVal };
+								insertColumnValues = new Object[] { messageKey, lang, value };
+							}
 						}
+
+						Column filterColumn = i18NTable.getColumn(filterName);
+						if (filterColumn != null && filterValue != null && filterValue.length > 0)
+						{
+							QueryColumn[] newInsertColumns = new QueryColumn[insertColumns.length + 1];
+							System.arraycopy(insertColumns, 0, newInsertColumns, 0, insertColumns.length);
+							newInsertColumns[newInsertColumns.length - 1] = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
+								filterColumn.getType(), filterColumn.getLength());
+
+							Object[] newInsertColumnValues = new Object[insertColumnValues.length + 1];
+							System.arraycopy(insertColumnValues, 0, newInsertColumnValues, 0, insertColumnValues.length);
+							newInsertColumnValues[newInsertColumnValues.length - 1] = filterValue[0];
+						}
+
+						insert.setColumnValues(insertColumns, insertColumnValues);
+
 						updateStatements.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, insert));
 					}
 					else if (!remoteMessages.get(key).getValue().equals(value) && !noUpdates) // update
@@ -163,6 +200,19 @@ public class I18NUtil
 						update.addValue(msgVal, value);
 						update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
 						update.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, lang));
+
+						if (filterName != null)
+						{
+							Column filterColumn = i18NTable.getColumn(filterName);
+							if (filterColumn != null && filterValue != null && filterValue.length > 0)
+							{
+								QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
+									filterColumn.getType(), filterColumn.getLength());
+								CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0],
+									null));
+								update.addCondition("FILTER", cc); //$NON-NLS-1$
+							}
+						}
 
 						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, update));
 					}
@@ -187,6 +237,19 @@ public class I18NUtil
 							delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, messageKey));
 							delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, lang));
 
+							if (filterName != null)
+							{
+								Column filterColumn = i18NTable.getColumn(filterName);
+								if (filterColumn != null && filterValue != null && filterValue.length > 0)
+								{
+									QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
+										filterColumn.getType(), filterColumn.getLength());
+									CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(
+										filterValue[0], null));
+									delete.addCondition(cc);
+								}
+							}
+
 							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, delete));
 
 						}
@@ -203,7 +266,7 @@ public class I18NUtil
 	}
 
 	public static TreeMap<String, MessageEntry> loadSortedMessagesFromRepository(IRepository repository, IDataServer dataServer, String clientID,
-		String i18NServerName, String i18NTableName) throws Exception
+		String i18NServerName, String i18NTableName, String filterName, String[] filterValue) throws Exception
 	{
 		TreeMap<String, MessageEntry> sortedMessages = new TreeMap<String, MessageEntry>();
 
@@ -223,6 +286,18 @@ public class I18NUtil
 				sql.addColumn(msgLang);
 				sql.addColumn(msgKey);
 				sql.addColumn(msgVal);
+
+				if (filterName != null)
+				{
+					Column filterColumn = i18NTable.getColumn(filterName);
+					if (filterColumn != null && filterValue != null && filterValue.length > 0)
+					{
+						QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
+							filterColumn.getLength());
+						CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0], null));
+						sql.addCondition("FILTER", cc); //$NON-NLS-1$
+					}
+				}
 
 				sql.addSort(new QuerySort(msgLang, true));
 				sql.addSort(new QuerySort(msgKey, true));
