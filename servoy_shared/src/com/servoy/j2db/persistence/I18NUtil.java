@@ -181,11 +181,9 @@ public class I18NUtil
 						Column filterColumn = i18NTable.getColumn(filterName);
 						if (filterColumn != null && filterValue != null && filterValue.length > 0)
 						{
-							Utils.arrayAdd(
-								insertColumns,
-								new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-									filterColumn.getLength()), true);
-							Utils.arrayAdd(insertColumnValues, filterValue[0], true);
+							insertColumns = Utils.arrayAdd(insertColumns, new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(),
+								filterColumn.getType(), filterColumn.getLength()), true);
+							insertColumnValues = Utils.arrayAdd(insertColumnValues, filterValue[0], true);
 						}
 
 						insert.setColumnValues(insertColumns, insertColumnValues);
