@@ -30,7 +30,6 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -446,9 +445,8 @@ public class Messages
 			}
 			if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
 
-			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql,
-				fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(server.getName(), sql) : null, false, 0, Integer.MAX_VALUE,
-				IDataServer.MESSAGES_QUERY);
+			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql, fm != null ? fm.getTableFilterParams(server.getName(), sql) : null,
+				false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = set.getRow(i);
@@ -522,9 +520,8 @@ public class Messages
 		}
 
 		if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
-		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql,
-			fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(serverName, sql) : null, false, 0, Integer.MAX_VALUE,
-			IDataServer.MESSAGES_QUERY);
+		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, fm != null ? fm.getTableFilterParams(serverName, sql) : null, false, 0,
+			Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
 			Object[] row = set.getRow(i);
@@ -655,8 +652,8 @@ public class Messages
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, key));
 
-				ISQLStatement sqlStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, null, delete,
-					fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(serverName, delete) : null);
+				ISQLStatement sqlStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, null, delete, fm != null
+					? fm.getTableFilterParams(serverName, delete) : null);
 
 				dataServer.performUpdates(clientId, new ISQLStatement[] { sqlStatement });
 			}

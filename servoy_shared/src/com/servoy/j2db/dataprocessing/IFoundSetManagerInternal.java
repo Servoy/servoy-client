@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
 
@@ -135,4 +137,12 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public List<SortColumn> getDefaultPKSortColumns(String dataSource) throws ServoyException;
 
+
+	public boolean addTableFilterParam(String filterName, String serverName, ITable table, String dataprovider, String operator, Object value);
+
+	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
+
+	public Object[][] getTableFilterParams(String serverName, String filterName);
+
+	public boolean removeTableFilterParam(String serverName, String filterName);
 }

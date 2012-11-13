@@ -215,8 +215,8 @@ public class I18NUtil
 							}
 						}
 
-						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, null, update,
-							fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(i18NServerName, update) : null));
+						updateStatements.add(new SQLStatement(ISQLActionTypes.UPDATE_ACTION, i18NServerName, i18NTableName, null, null, update, fm != null
+							? fm.getTableFilterParams(i18NServerName, update) : null));
 					}
 				}
 
@@ -252,8 +252,8 @@ public class I18NUtil
 								}
 							}
 
-							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, null, delete,
-								fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(i18NServerName, delete) : null));
+							updateStatements.add(new SQLStatement(ISQLActionTypes.DELETE_ACTION, i18NServerName, i18NTableName, null, null, delete, fm != null
+								? fm.getTableFilterParams(i18NServerName, delete) : null));
 
 						}
 					}
@@ -305,9 +305,8 @@ public class I18NUtil
 				sql.addSort(new QuerySort(msgLang, true));
 				sql.addSort(new QuerySort(msgKey, true));
 
-				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql,
-					fm instanceof FoundSetManager ? ((FoundSetManager)fm).getTableFilterParams(i18NServerName, sql) : null, false, 0, Integer.MAX_VALUE,
-					IDataServer.MESSAGES_QUERY);
+				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql, fm != null ? fm.getTableFilterParams(i18NServerName, sql) : null,
+					false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 				int rowCount = set.getRowCount();
 				if (rowCount > 0)
 				{
