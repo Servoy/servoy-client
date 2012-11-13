@@ -35,8 +35,10 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
@@ -128,6 +130,16 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		updatePrefix();
 		this.scriptable = scriptable;
 		scriptable.setList(list);
+
+		add(new AbstractBehavior()
+		{
+			@Override
+			public void renderHead(IHeaderResponse response)
+			{
+				response.renderOnLoadJavascript("Servoy.Utils.attachChoiceEvents('" + getMarkupId() + "')");
+			}
+		});
+
 	}
 
 	@Override

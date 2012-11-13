@@ -378,30 +378,25 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 					boolean hasFocus = false, hasBlur = false;
 					if (component instanceof IFieldComponent && ((IFieldComponent)component).getEventExecutor() != null)
 					{
-						// Skip RadioChoice and CheckboxChoice, they are inside <div>s and does not really 
-						// make sense to fire on blur/focus gain.
-						if (!(component instanceof WebDataRadioChoice || component instanceof WebDataCheckBoxChoice))
+						targetComponent = component;
+						if (component instanceof WebBaseSelectBox)
 						{
-							targetComponent = component;
-							if (component instanceof WebBaseSelectBox)
-							{
-								Component[] cs = ((WebBaseSelectBox)component).getFocusChildren();
-								if (cs != null && cs.length == 1) targetComponent = cs[0];
-							}
-
-							// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
-							if (((IFieldComponent)component).getEventExecutor().hasEnterCmds() ||
-								component.findParent(WebCellBasedView.class) != null ||
-								(((IFieldComponent)component).getScriptObject() instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)((IFieldComponent)component).getScriptObject()).getRenderEventExecutor().hasRenderCallback()))
-							{
-								hasFocus = true;
-							}
-							// Always trigger event on focus lost:
-							// 1) check for new selected index, record validation may have failed preventing a index changed
-							// 2) prevent focus gained to be called when field validation failed
-							// 3) general ondata change
-							hasBlur = true;
+							Component[] cs = ((WebBaseSelectBox)component).getFocusChildren();
+							if (cs != null && cs.length == 1) targetComponent = cs[0];
 						}
+
+						// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
+						if (((IFieldComponent)component).getEventExecutor().hasEnterCmds() ||
+							component.findParent(WebCellBasedView.class) != null ||
+							(((IFieldComponent)component).getScriptObject() instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)((IFieldComponent)component).getScriptObject()).getRenderEventExecutor().hasRenderCallback()))
+						{
+							hasFocus = true;
+						}
+						// Always trigger event on focus lost:
+						// 1) check for new selected index, record validation may have failed preventing a index changed
+						// 2) prevent focus gained to be called when field validation failed
+						// 3) general ondata change
+						hasBlur = true;
 					}
 					else if (component instanceof WebBaseLabel)
 					{
@@ -417,17 +412,23 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 							AbstractAjaxBehavior eventCallback = mainPage.getPageContributor().getEventCallback();
 							if (eventCallback != null)
 							{
+								String callback = eventCallback.getCallbackUrl().toString();
+								if (component instanceof WebDataRadioChoice || component instanceof WebDataCheckBoxChoice)
+								{
+									// is updated via ServoyChoiceComponentUpdatingBehavior, this is just for events
+									callback += "&nopostdata=true";
+								}
 								if (hasFocus)
 								{
 									StringBuilder js = new StringBuilder();
-									js.append("eventCallback(this,'focus','").append(eventCallback.getCallbackUrl()).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
+									js.append("eventCallback(this,'focus','").append(callback).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
 									targetComponent.add(new EventCallbackModifier("onfocus", true, new Model<String>(js.toString()))); //$NON-NLS-1$
 									targetComponent.add(new EventCallbackModifier("onmousedown", true, new Model<String>("focusMousedownCallback(event)"))); //$NON-NLS-1$ //$NON-NLS-2$
 								}
 								if (hasBlur)
 								{
 									StringBuilder js = new StringBuilder();
-									js.append("postEventCallback(this,'blur','").append(eventCallback.getCallbackUrl()).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
+									js.append("postEventCallback(this,'blur','").append(callback).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
 									targetComponent.add(new EventCallbackModifier("onblur", true, new Model<String>(js.toString()))); //$NON-NLS-1$
 								}
 							}
