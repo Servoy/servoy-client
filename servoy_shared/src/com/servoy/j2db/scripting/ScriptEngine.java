@@ -610,7 +610,16 @@ public class ScriptEngine implements IScriptSupport
 				if (!Utils.stringSafeEquals(userUidBefore, userUidAfter))
 				{
 					// user was authenticated or logged out
-					application.handleClientUserUidChanged(userUidBefore, userUidAfter);
+					// Use invokeLater because the event that triggered this method may be followed by using code that still needs to run with the old solution (SVY-3335).
+					final String uidBefore = userUidBefore;
+					final String uidAfter = userUidAfter;
+					application.invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							application.handleClientUserUidChanged(uidBefore, uidAfter);
+						}
+					});
 				}
 			}
 		}
