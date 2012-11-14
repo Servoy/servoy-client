@@ -194,7 +194,7 @@ public class QBJoins extends QBScope implements IQueryBuilderJoins
 	 * 	foundset.loadRecords(query)
 	 * 
 	 * @param dataSource data source
-	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * @param joinType join type, one of JSRelation.LEFT_OUTER_JOIN, JSRelation.INNER_JOIN, JSRelation.RIGHT_OUTER_JOIN, JSRelation.FULL_JOIN
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType) throws RepositoryException

@@ -30,11 +30,17 @@ import com.servoy.j2db.query.ISQLJoin;
 public interface ISMRelation extends ISMHasUUID
 {
 	/**
-	 * Constant for set/get the joinType of a JSRelation. It is also used in solutionModel.newRelation(...).
+	 * Constant for the joinType of a JSRelation. It is also used in solutionModel.newRelation(...) and in the QueryBuilder.
 	 *
 	 * @sample 
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.joinType = JSRelation.LEFT_OUTER_JOIN;
+	 * 
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
+	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
+	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
 	 */
 	public static final int INNER_JOIN = ISQLJoin.INNER_JOIN;
 
@@ -42,6 +48,23 @@ public interface ISMRelation extends ISMHasUUID
 	 * @sameas INNER_JOIN
 	 */
 	public static final int LEFT_OUTER_JOIN = ISQLJoin.LEFT_OUTER_JOIN;
+
+	/**
+	 * Constant for the joinType of a Query Builder join.
+	 *
+	 * @sample 
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
+	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.RIGHT_OUTER_JOIN, 'odetail')
+	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
+	 */
+	public static final int RIGHT_OUTER_JOIN = ISQLJoin.RIGHT_OUTER_JOIN;
+
+	/**
+	 * @sameas RIGHT_OUTER_JOIN
+	 */
+	public static final int FULL_JOIN = ISQLJoin.FULL_JOIN;
 
 	/**
 	 * Returns an array of JSRelationItem objects representing the relation criteria defined for this relation.
