@@ -1124,7 +1124,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		StringBuffer instrumentedBodyText = new StringBuffer();
 		String displayMode = component instanceof WebDataHtmlView ? "inline" : "block";
 		// how is it possible that span receives focus when you click on it? i guess weird behavior from ie; give focus to component if that happens
-		instrumentedBodyText.append("<span onfocus='this.parentNode.focus()' style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: " + displayMode + "; overflow: hidden;"); //$NON-NLS-1$
+		instrumentedBodyText.append("<span onfocus='this.parentNode.focus()' style='" + (bodyCursor == null ? "" : "cursor: " + (bodyCursor.getType() == Cursor.HAND_CURSOR ? "pointer" : "default") + "; ") + "display: " + displayMode + ";"); //$NON-NLS-1$
 		int top = 0;
 		int bottom = 0;
 		int left = 0;
