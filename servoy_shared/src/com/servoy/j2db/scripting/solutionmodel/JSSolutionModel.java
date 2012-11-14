@@ -54,6 +54,7 @@ import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.solutionmodel.ISMComponent;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMMethod;
+import com.servoy.j2db.solutionmodel.ISMRelation;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -1363,6 +1364,10 @@ public class JSSolutionModel implements ISolutionModel
 		if (name == null || primaryDataSource == null || foreignDataSource == null)
 		{
 			return null;
+		}
+		if (joinType != ISMRelation.INNER_JOIN && joinType != ISMRelation.LEFT_OUTER_JOIN)
+		{
+			throw new IllegalArgumentException("JoinType has to be one of JSRelation.INNER_JOIN, JSRelation.LEFT_OUTER_JOIN: " + joinType);
 		}
 		try
 		{
