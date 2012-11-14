@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.xhtmlrenderer.css.constants.CSSName;
+import org.xhtmlrenderer.css.constants.IdentValue;
 import org.xhtmlrenderer.css.newmatch.CascadedStyle;
 import org.xhtmlrenderer.css.parser.PropertyValue;
 import org.xhtmlrenderer.css.sheet.PropertyDeclaration;
@@ -62,7 +63,10 @@ public class ServoyStyleRule implements IStyleRule
 		CSSName cssName = CSSName.getByPropertyName(attributeName);
 		if (cssName != null)
 		{
-			return cascadedStyle.hasProperty(cssName);
+			if (cascadedStyle.hasProperty(cssName))
+			{
+				return getCssValue(cascadedStyle.propertyByName(cssName).getValue()) != null;
+			}
 		}
 		return false;
 	}
@@ -117,7 +121,10 @@ public class ServoyStyleRule implements IStyleRule
 			}
 			else
 			{
-				return value.getCssText();
+				if (!IdentValue.FS_INITIAL_VALUE.asString().equals(value.getCssText()))
+				{
+					return value.getCssText();
+				}
 			}
 		}
 		return null;
