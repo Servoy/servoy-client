@@ -13,13 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
 
-import java.util.StringTokenizer;
-
-import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 
 
@@ -28,102 +25,11 @@ import com.servoy.j2db.J2DBGlobals;
  * 
  * @author jblok
  */
-public class Text
+public class Text extends TagParser
 {
-	public static String TAGCHAR = "%"; //$NON-NLS-1$
 
 	public static String processTags(String s, ITagResolver resolver)
 	{
-		if (s == null)
-		{
-			return null;
-		}
-
-		StringBuffer retval = new StringBuffer();
-		StringTokenizer tk = new StringTokenizer(s, TAGCHAR, true);
-		boolean changed = false;
-		while (tk.hasMoreTokens())
-		{
-			String token1 = getNextToken(tk);
-			if (token1 != null && token1.equals(TAGCHAR))
-			{
-				String token2 = getNextToken(tk);
-				if (token2 != null && token2.equals(TAGCHAR))
-				{
-					changed = true;
-					String macro = getNextToken(tk);
-					if (TAGCHAR.equals(macro))
-					{
-						do
-						{
-							retval.append(token1);
-							token1 = token2;
-							token2 = macro;
-							macro = getNextToken(tk);
-						}
-						while (TAGCHAR.equals(macro));
-					}
-					String percent1 = getNextToken(tk);
-					String percent2 = getNextToken(tk);
-					if (macro != null && TAGCHAR.equals(percent1) && TAGCHAR.equals(percent2))
-					{
-						String string = null;
-						String trimmed = macro.trim();
-						if (trimmed.startsWith("i18n:")) //$NON-NLS-1$
-						{
-							IServiceProvider provider = J2DBGlobals.getServiceProvider();
-							if (provider != null)
-							{
-								string = provider.getI18NMessageIfPrefixed(trimmed);
-							}
-							else
-							{
-								Debug.error("Error converting the i18n message '" + trimmed + "' of the tag text: '" + s + "' because the service provider wasn't set!"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-								string = trimmed;
-							}
-						}
-						else if (resolver != null)
-						{
-							string = resolver.getStringValue(trimmed);
-						}
-
-						if (string != null)
-						{
-							retval.append(string);
-						}
-					}
-					else
-					{
-						retval.append(token1);
-						retval.append(token2);
-						if (macro != null) retval.append(macro);
-						if (percent1 != null) retval.append(percent1);
-						if (percent2 != null) retval.append(percent2);
-					}
-				}
-				else
-				{
-					retval.append(token1);
-					if (token2 != null) retval.append(token2);
-				}
-			}
-			else
-			{
-				retval.append(token1);
-			}
-		}
-		return changed ? retval.toString() : s;
-	}
-
-	private static String getNextToken(StringTokenizer tk)
-	{
-		if (tk.hasMoreTokens())
-		{
-			return tk.nextToken();
-		}
-		else
-		{
-			return null;
-		}
+		return processTags(s, resolver, J2DBGlobals.getServiceProvider());
 	}
 }

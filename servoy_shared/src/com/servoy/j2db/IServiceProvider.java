@@ -31,13 +31,14 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.util.I18NProvider;
 
 /**
  * Interface for minimal service provider.
  * 
  * @author jblok
  */
-public interface IServiceProvider extends IEventDelegator
+public interface IServiceProvider extends IEventDelegator, I18NProvider
 {
 	public static final String RT_OVERRIDESTYLE_CACHE = "overridestylecache";
 	public static final String RT_VALUELIST_CACHE = "valuelistcache";
@@ -238,36 +239,4 @@ public interface IServiceProvider extends IEventDelegator
 	 */
 	public void setTimeZone(TimeZone timeZone);
 
-	/**
-	 * get a i18n message for the given key
-	 * 
-	 * @param i18nKey
-	 * @return a String for the given key.
-	 */
-	public String getI18NMessage(String i18nKey);
-
-	/**
-	 * get a i18n message for the given key and array
-	 * 
-	 * @param i18nKey
-	 * @param array
-	 * @return a String for the given key.
-	 */
-	public String getI18NMessage(String i18nKey, Object[] array);
-
-	/**
-	 * get a i18n message for the given key if the key is prefixed with i18n. If it is not prefixed the key it self is returned
-	 * 
-	 * @param i18nKey
-	 * @return a String for the given key or the key itself
-	 */
-	public String getI18NMessageIfPrefixed(String i18nKey);
-
-	/**
-	 * set an i18n message client side
-	 * 
-	 * @param i18nKey
-	 * @param value
-	 */
-	void setI18NMessage(String i18nKey, String value);
 }

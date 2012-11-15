@@ -336,6 +336,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 * 
 	 * The default value of this flag is "false", that is merging of data is disabled by default.
 	 */
+	@ServoyMobile
 	public boolean getDisplaysTags()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS).booleanValue();
