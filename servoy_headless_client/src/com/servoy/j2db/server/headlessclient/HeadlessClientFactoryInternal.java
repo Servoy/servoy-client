@@ -164,6 +164,7 @@ public class HeadlessClientFactoryInternal
 		sc.loadSolution(importHookModule.getName());
 		if (loadException[0] != null)
 		{
+			sc.shutDown(true);
 			throw new RepositoryException(loadException[0]);
 		}
 		return sc;

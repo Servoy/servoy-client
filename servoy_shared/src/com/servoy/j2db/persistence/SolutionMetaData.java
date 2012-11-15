@@ -127,7 +127,7 @@ public class SolutionMetaData extends RootObjectMetaData
 		return false;
 	}
 
-	private static boolean isPreImportHook(String name)
+	public static boolean isPreImportHook(String name)
 	{
 		return name.toLowerCase().startsWith(BEFORE_IMPORT_PREFIX);
 	}
