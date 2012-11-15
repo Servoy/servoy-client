@@ -44,7 +44,7 @@ public class ServoyStyleRule implements IStyleRule
 
 	public int getAttributeCount()
 	{
-		return cascadedStyle.countAssigned();
+		return getAttributeNames().size();
 	}
 
 	public List<String> getAttributeNames()
@@ -53,7 +53,7 @@ public class ServoyStyleRule implements IStyleRule
 		for (java.util.Iterator i = cascadedStyle.getCascadedPropertyDeclarations(); i.hasNext();)
 		{
 			PropertyDeclaration pd = (PropertyDeclaration)i.next();
-			names.add(pd.getPropertyName());
+			if (getCssValue(pd.getValue()) != null) names.add(pd.getPropertyName());
 		}
 		return names;
 	}
