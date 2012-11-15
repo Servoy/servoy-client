@@ -4334,7 +4334,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						StringBuilder bstyle = new StringBuilder(""), bwidth = new StringBuilder(""), bcolor = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						splitBorderStyle(selectedBorder, bstyle, bwidth, bcolor);
 
-						if (!isSelected && (getRowOddStyle().getAttributeCount() == 0) && (getRowEvenStyle().getAttributeCount() == 0))
+						if (!isSelected && (getRowOddStyle().getAttributeCount() == 0) && (getRowEvenStyle().getAttributeCount() == 0) && !isListViewMode())
 						{
 							//backgroundcolor and color are sent as final inline string
 							sab.append("Servoy.TableView.setRowStyle('"). //$NON-NLS-1$
