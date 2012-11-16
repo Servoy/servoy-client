@@ -391,13 +391,13 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		MarkupContainer parent = getParent();
 		while (parent != null)
 		{
-			if (parent instanceof ITabPanel)
-			{
-				currentTabPanel = (ITabPanel)parent;
-			}
-			else if (parent instanceof WebSplitPane)
+			if (parent instanceof WebSplitPane)
 			{
 				currentSplitPane = (WebSplitPane)parent;
+			}
+			else if (parent instanceof ITabPanel)
+			{
+				currentTabPanel = (ITabPanel)parent;
 			}
 			else if (parent instanceof IServoyAwareBean && parent instanceof IComponent)
 			{
