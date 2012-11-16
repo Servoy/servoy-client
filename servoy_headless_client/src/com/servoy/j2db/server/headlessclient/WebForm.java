@@ -413,7 +413,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					{
 						index = ((WebTabPanel)currentTabPanel).getTabIndex(current);
 					}
-					else
+					else if (currentTabPanel instanceof WebAccordionPanel)
 					{
 						index = ((WebAccordionPanel)currentTabPanel).getTabIndex(current);
 					}
