@@ -35,12 +35,11 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.convert.IConverter;
 
@@ -84,7 +83,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
 	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent,
-	ISupportSimulateBoundsProvider
+	ISupportSimulateBoundsProvider, IHeaderJSChangeContributor
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -130,16 +129,16 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		updatePrefix();
 		this.scriptable = scriptable;
 		scriptable.setList(list);
+	}
 
-		add(new AbstractBehavior()
-		{
-			@Override
-			public void renderHead(IHeaderResponse response)
-			{
-				response.renderOnLoadJavascript("Servoy.Utils.attachChoiceEvents('" + getMarkupId() + "')");
-			}
-		});
-
+	@Override
+	public void renderHead(final HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		String onLoad = getOnLoad();
+		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
+		String onDOMReady = getOnDOMReady();
+		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
 	}
 
 	@Override
@@ -1024,5 +1023,25 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnLoad()
+	 */
+	public String getOnLoad()
+	{
+		return "Servoy.Utils.attachChoiceEvents('" + getMarkupId() + "');"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnDOMReady()
+	 */
+	public String getOnDOMReady()
+	{
+		return null;
 	}
 }
