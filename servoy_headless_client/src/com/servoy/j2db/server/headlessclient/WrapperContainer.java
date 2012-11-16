@@ -118,24 +118,23 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				if (width != null) changes.put("width", width); //$NON-NLS-1$ 
 				Object height = componentChanges.remove("height"); //$NON-NLS-1$
 				if (height != null) changes.put("height", height); //$NON-NLS-1$ 
+
+				changed = changes.size() > 0;
 			}
 
-			boolean visibilityChanged = false;
 			if (wrappedComponent.isVisible())
 			{
 				if ("none".equals(changes.get("display"))) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					changes.remove("display"); //$NON-NLS-1$
-					visibilityChanged = true;
+					changed = true;
 				}
 			}
 			else
 			{
 				changes.put("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
-				visibilityChanged = true;
+				changed = true;
 			}
-
-			changed = (changes.size() > 0 && !(changes.size() == 1 && changes.contains("display"))) || visibilityChanged; //$NON-NLS-1$
 		}
 
 		/**
@@ -183,11 +182,6 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 			{
 				((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().setRendered();
 			}
-
-			// remove all changes but the "display" as it needed for visibility flip
-			Object displayChange = changes.get("display"); //$NON-NLS-1$
-			changes.clear();
-			if (displayChange != null) changes.put("display", displayChange); //$NON-NLS-1$
 		}
 
 		/**
