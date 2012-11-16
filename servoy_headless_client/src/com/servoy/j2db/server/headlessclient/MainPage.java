@@ -275,20 +275,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			return generateCallbackScript("wicketAjaxGet('" + getCallbackUrl(onlyTargetActivePage) + "&ignoremp=true'");
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.apache.wicket.behavior.AbstractAjaxBehavior#getCallbackUrl(boolean)
-		 */
-		@Override
-		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
-		{
-			if (getComponent() == null)
-			{
-				throw new IllegalArgumentException("Behavior must be bound to a component to create the URL"); //$NON-NLS-1$
-			}
-			return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
-		}
 	}
 
 
@@ -419,20 +405,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					return !client.getFlattenedSolution().isInDesign(null) && ((getController() != null && getController().isFormVisible()) || closingAsWindow);
 				}
 
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see org.apache.wicket.behavior.AbstractAjaxBehavior#getCallbackUrl(boolean)
-				 */
-				@Override
-				public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
-				{
-					if (getComponent() == null)
-					{
-						throw new IllegalArgumentException("Behavior must be bound to a component to create the URL"); //$NON-NLS-1$
-					}
-					return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
-				}
 			});
 
 		}
