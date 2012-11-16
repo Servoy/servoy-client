@@ -238,7 +238,7 @@ public class StaticContentSpecLoader
 	private static final TypedProperty<String> PROPERTY_I18NTABLENAME = new TypedProperty<String>("i18nTableName"); //$NON-NLS-1$;
 	private static final TypedProperty<String> PROPERTY_I18NSERVERNAME = new TypedProperty<String>("i18nServerName"); //$NON-NLS-1$;
 	private static final TypedProperty<Boolean> PROPERTY_MUSTAUTHENTICATE = new TypedProperty<Boolean>("mustAuthenticate"); //$NON-NLS-1$;
-	private static final TypedProperty<Integer> PROPERTY_SOLUTIONTYPE = new TypedProperty<Integer>("solutionType"); //$NON-NLS-1$;
+	public static final TypedProperty<Integer> PROPERTY_SOLUTIONTYPE = new TypedProperty<Integer>("solutionType"); //$NON-NLS-1$;
 	private static final TypedProperty<String> PROPERTY_PROTECTIONPASSWORD = new TypedProperty<String>("protectionPassword"); //$NON-NLS-1$;
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
