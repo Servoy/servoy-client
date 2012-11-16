@@ -25,11 +25,11 @@ import com.servoy.j2db.J2DBGlobals;
  * 
  * @author jblok
  */
-public class Text extends TagParser
+public class Text
 {
 
 	public static String processTags(String s, ITagResolver resolver)
 	{
-		return processTags(s, resolver, J2DBGlobals.getServiceProvider());
+		return TagParser.processTags(s, resolver, J2DBGlobals.getServiceProvider());
 	}
 }
