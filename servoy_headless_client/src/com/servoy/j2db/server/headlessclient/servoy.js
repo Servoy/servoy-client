@@ -1923,6 +1923,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		{
 		  var elem = document.getElementById(elemid);
 		  var child = document.getElementById(elemid + "_lb");
+		  var childImg = document.getElementById(elemid + "_img");
 		  var paddTop;
 		  var paddBottom;
 		  var ua = window.navigator.userAgent
@@ -1936,20 +1937,20 @@ if (typeof(Servoy.Utils) == "undefined")
       	  else // other browsers 
       	  {
 		 	paddTop = parseInt(window.getComputedStyle(elem, null).paddingTop.replace("px","")); 
-		  	paddBottom = parseInt(window.getComputedStyle(elem, null).paddingBottom.replace("px","")); 
+		 	paddBottom = parseInt(window.getComputedStyle(elem, null).paddingBottom.replace("px","")); 
 		  }
 		  
 		  if(elem && child)
 		  {
 			var elemHeight =  elem.clientHeight;
 			var childHeight = child.clientHeight;
+			var childImgHeight = childImg.clientHeight
 			
-			var top; 
-	
-			if(valign == 1)			// ISupportTextSetup.TOP
+			var top;
+			if (valign == 1) 		// ISupportTextSetup.TOP
 			{
 				top = paddTop;
-			}
+			} 
 			else if(valign == 3)	// ISupportTextSetup.BOTTOM
 			{
 				// buttons have special bottom padding set with the element height, for handling rendering issues,
@@ -1961,11 +1962,13 @@ if (typeof(Servoy.Utils) == "undefined")
 				else
 				{
 					top = elemHeight - childHeight - paddBottom;
+					if (top < childImgHeight) top = paddTop;	//case when a large image is anchored NORTH-SOUTH
 				}
 			}
-			else					// ISupportTextSetup.CENTER
+			else					//ISupportTextSetup.DEFAULT or ISupportTextSetup.CENTER
 			{
-				top = Math.floor((elemHeight - childHeight)/2);
+				top = Math.floor((elemHeight - childHeight)/2);				
+				if (top < childImgHeight) top = paddTop;	//case when a large image is anchored NORTH-SOUTH
 				
 				// buttons have special bottom padding set with element height;
 				// for IE 8.0 we need to use that for having right top position
