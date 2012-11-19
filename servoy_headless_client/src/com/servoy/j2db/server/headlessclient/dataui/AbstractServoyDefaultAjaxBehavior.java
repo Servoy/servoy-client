@@ -35,9 +35,6 @@ public abstract class AbstractServoyDefaultAjaxBehavior extends AbstractDefaultA
 
 	private boolean designMode;
 
-	/**
-	 * 
-	 */
 	public AbstractServoyDefaultAjaxBehavior()
 	{
 		super();
