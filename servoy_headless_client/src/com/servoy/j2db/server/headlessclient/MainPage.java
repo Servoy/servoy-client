@@ -98,6 +98,7 @@ import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.DivDialogAction;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.JSChangeAction;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
+import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyLastVersionAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
 import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
@@ -250,7 +251,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	 * This behavior is useful when a request to one page generates changes to another page's content that should show quickly (rather then waiting for timer request on the latter).
 	 * By calling through javascript the 'triggerAjaxUpdate', a request will be generated on the modified page.
 	 */
-	private class TriggerUpdateAjaxBehavior extends AbstractServoyDefaultAjaxBehavior
+	private class TriggerUpdateAjaxBehavior extends AbstractServoyLastVersionAjaxBehavior
 	{
 
 		@Override
@@ -261,7 +262,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		}
 
 		@Override
-		protected void respond(AjaxRequestTarget target)
+		protected void execute(AjaxRequestTarget target)
 		{
 			if (main != null)
 			{
@@ -344,13 +345,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			{
 				private static final long serialVersionUID = 1L;
 
-				/**
-				 * @see wicket.ajax.AbstractAjaxTimerBehavior#onTimer(wicket.ajax.AjaxRequestTarget)
-				 */
 				@Override
 				protected void onTimer(AjaxRequestTarget target)
 				{
-					WebEventExecutor.generateResponse(target, MainPage.this);
+					if (String.valueOf(MainPage.this.getCurrentVersionNumber()).equals(RequestCycle.get().getRequest().getParameter("pvs")))
+					{
+						WebEventExecutor.generateResponse(target, MainPage.this);
+					}
 				}
 
 				@Override
@@ -362,16 +363,12 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					response.renderJavascript("function restartTimer() {" + jsTimerScript + "}", "restartTimer"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 
-
 				@Override
 				protected CharSequence getPreconditionScript()
 				{
 					return "onAjaxCall(); if(Servoy.DD.isDragging) Servoy.DD.isRestartTimerNeeded=true; return !Servoy.DD.isDragging && !Servoy.redirectingOnSolutionClose;"; //$NON-NLS-1$
 				}
 
-				/**
-				 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#getFailureScript()
-				 */
 				@Override
 				protected CharSequence getFailureScript()
 				{
@@ -383,21 +380,25 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				{
 					return generateCallbackScript("wicketAjaxGet('" //$NON-NLS-1$
 						+
-						getCallbackUrl(onlyTargetActivePage()) + "&ignoremp=true'"); //$NON-NLS-1$
+						getCallbackUrl(onlyTargetActivePage()) + "&ignoremp=true&pvs=" + MainPage.this.getCurrentVersionNumber() + "'"); //$NON-NLS-1$
 				}
 
-				/**
-				 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#findIndicatorId()
-				 */
+				@Override
+				public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
+				{
+					if (getComponent() == null)
+					{
+						throw new IllegalArgumentException("Behavior must be bound to a component to create the URL"); //$NON-NLS-1$
+					}
+					return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
+				}
+
 				@Override
 				protected String findIndicatorId()
 				{
 					return null; // main page defines it and the timer shouldnt show it
 				}
 
-				/**
-				 * @see org.apache.wicket.behavior.AbstractBehavior#isEnabled(org.apache.wicket.Component)
-				 */
 				@Override
 				public boolean isEnabled(Component component)
 				{
