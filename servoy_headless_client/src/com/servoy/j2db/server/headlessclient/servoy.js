@@ -1944,7 +1944,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		  {
 			var elemHeight =  elem.clientHeight;
 			var childHeight = child.clientHeight;
-			var childImgHeight = childImg.clientHeight
+			if (childImg) var childImgHeight = childImg.clientHeight;
 			
 			var top;
 			if (valign == 1) 		// ISupportTextSetup.TOP
@@ -1968,7 +1968,7 @@ if (typeof(Servoy.Utils) == "undefined")
 			else					//ISupportTextSetup.DEFAULT or ISupportTextSetup.CENTER
 			{
 				top = Math.floor((elemHeight - childHeight)/2);				
-				if (top < childImgHeight) top = paddTop;	//case when a large image is anchored NORTH-SOUTH
+				if (top < childImgHeight/2) top = paddTop;	//case when a large image is anchored NORTH-SOUTH
 				
 				// buttons have special bottom padding set with element height;
 				// for IE 8.0 we need to use that for having right top position
