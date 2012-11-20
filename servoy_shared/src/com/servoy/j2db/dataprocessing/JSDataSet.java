@@ -1289,7 +1289,15 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				int index = iindex.intValue();
 				if (index > 0 && index <= array.length)
 				{
-					return array[index - 1];
+					Context cx = Context.enter();
+					try
+					{
+						return array[index - 1] != null ? cx.getWrapFactory().wrap(cx, this, array[index - 1], array[index - 1].getClass()) : null;
+					}
+					finally
+					{
+						Context.exit();
+					}
 				}
 			}
 		}
@@ -1355,7 +1363,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					Context cx = Context.enter();
 					try
 					{
-						Scriptable arrayScriptable = ScriptRuntime.newArrayLiteral(array, null, cx, this);
+						Scriptable arrayScriptable = (Scriptable)cx.getWrapFactory().wrap(cx, start, array, Object[].class);
 						if (columnameMap == null)
 						{
 							makeColumnMap();
@@ -1364,7 +1372,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 						while (iterator.hasNext())
 						{
 							Entry<String, Integer> entry = iterator.next();
-							arrayScriptable.put(entry.getKey(), arrayScriptable, array[entry.getValue().intValue() - 1]);
+							arrayScriptable.put(entry.getKey(), arrayScriptable,
+									array[entry.getValue().intValue() - 1] != null ? cx.getWrapFactory().wrap(cx, start, array[entry.getValue().intValue() - 1], array[entry.getValue().intValue() - 1].getClass()):null);
 						}
 						return arrayScriptable;
 					}
