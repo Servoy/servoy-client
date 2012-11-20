@@ -328,7 +328,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				if (lockedByMyself(rowData))
 				{
-					Debug.error("the row with pk: " + rowData.getPKHashKey() +
+					Debug.error("the row with pk: " + rowData.getPKHashKey() + " from  datasource " + sheet.getServerName() + "/" + sheet.getTable().getName() +
 						" was updating by another client when this client had a lock on it, this shouldn't be possible, the other client should have tried to get the lock first.");
 				}
 				try
