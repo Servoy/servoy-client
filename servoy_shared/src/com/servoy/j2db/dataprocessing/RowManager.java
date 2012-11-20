@@ -319,50 +319,53 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		Row rowData = cachedRow.getLeft();
 		if (rowData != null && action != ISQLActionTypes.INSERT_ACTION) // in case of rawSQL insert & notify, insertColumnDataOrChangedColumns is null, so the row corresponding to the pk was taken from DB and cached 
 		{
-			if (rowData.hasListeners())
+			if (action == ISQLActionTypes.DELETE_ACTION)
 			{
-				if (action == ISQLActionTypes.DELETE_ACTION)
+				fireNotifyChange(null, rowData, null, RowEvent.DELETE);
+			}
+			else if (rowData.hasListeners() && action == ISQLActionTypes.UPDATE_ACTION && !lockedByMyself(rowData))
+			{
+				try
 				{
-					fireNotifyChange(null, rowData, null, RowEvent.DELETE);
-				}
-				else if (action == ISQLActionTypes.UPDATE_ACTION && !lockedByMyself(rowData))
-				{
-					try
+					adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
+					boolean found = rollbackFromDB(rowData, false, Row.ROLLBACK_MODE.UPDATE_CHANGES);
+					int eventType = RowEvent.UPDATE;
+					if (!found && rowData.existInDB())
 					{
-						adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
-						boolean found = rollbackFromDB(rowData, false, Row.ROLLBACK_MODE.UPDATE_CHANGES);
-						int eventType = RowEvent.UPDATE;
-						if (!found && rowData.existInDB())
+						// row was not found, check if the pk was updated
+						eventType = RowEvent.DELETE;
+						if (insertColumnDataOrChangedColumns != null)
 						{
-							// row was not found, check if the pk was updated
-							eventType = RowEvent.DELETE;
-							if (insertColumnDataOrChangedColumns != null)
+							List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
+							for (Object changedColumnName : insertColumnDataOrChangedColumns)
 							{
-								List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
-								for (Object changedColumnName : insertColumnDataOrChangedColumns)
+								if (pkdps.contains(changedColumnName))
 								{
-									if (pkdps.contains(changedColumnName))
-									{
-										eventType = RowEvent.PK_UPDATED;
-										break;
-									}
+									eventType = RowEvent.PK_UPDATED;
+									break;
 								}
 							}
 						}
-						fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
 					}
-					catch (Exception e)
-					{
-						Debug.error(e);//what can we do here
-					}
-					finally
-					{
-						adjustingForChangeByOtherPKHashKey.remove();
-					}
+					fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);//what can we do here
+				}
+				finally
+				{
+					adjustingForChangeByOtherPKHashKey.remove();
 				}
 				return true;
 			}
-			//the row is in memory but not longer referenced from any record
+			else
+			{
+				//the row is in memory but not longer referenced from any record
+				// do remove it so that it will be re queried when needed
+				removeRowReferences(pkHashKey, null);
+				pkRowMap.remove(pkHashKey);
+			}
 			return false;
 		}
 
@@ -1119,8 +1122,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 */
 	Blob getBlob(Row row, int columnIndex) throws Exception
 	{
-		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(),
-			sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
+		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(), sheet.getTable().getCatalog(),
+			sheet.getTable().getSchema()));
 
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);
