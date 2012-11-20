@@ -319,13 +319,13 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		Row rowData = cachedRow.getLeft();
 		if (rowData != null && action != ISQLActionTypes.INSERT_ACTION) // in case of rawSQL insert & notify, insertColumnDataOrChangedColumns is null, so the row corresponding to the pk was taken from DB and cached 
 		{
-			if (rowData.hasListeners())
+			if (action == ISQLActionTypes.DELETE_ACTION)
 			{
-				if (action == ISQLActionTypes.DELETE_ACTION)
-				{
-					fireNotifyChange(null, rowData, null, RowEvent.DELETE);
-				}
-				else if (action == ISQLActionTypes.UPDATE_ACTION && !lockedByMyself(rowData))
+				fireNotifyChange(null, rowData, null, RowEvent.DELETE);
+			}
+			else if (rowData.hasListeners() && action == ISQLActionTypes.UPDATE_ACTION)
+			{
+				if (!lockedByMyself(rowData))
 				{
 					try
 					{
@@ -359,10 +359,16 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					{
 						adjustingForChangeByOtherPKHashKey.remove();
 					}
+					return true;
 				}
-				return true;
 			}
-			//the row is in memory but not longer referenced from any record
+			else
+			{
+				//the row is in memory but not longer referenced from any record
+				// do remove it so that it will be re queried when needed
+				removeRowReferences(pkHashKey, null);
+				pkRowMap.remove(pkHashKey);
+			}
 			return false;
 		}
 
@@ -1119,8 +1125,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 */
 	Blob getBlob(Row row, int columnIndex) throws Exception
 	{
-		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(),
-			sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
+		QuerySelect blobSelect = new QuerySelect(new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(), sheet.getTable().getCatalog(),
+			sheet.getTable().getSchema()));
 
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);
