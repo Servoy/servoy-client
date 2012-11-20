@@ -323,41 +323,44 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				fireNotifyChange(null, rowData, null, RowEvent.DELETE);
 			}
-			else if (rowData.hasListeners() && action == ISQLActionTypes.UPDATE_ACTION && !lockedByMyself(rowData))
+			else if (rowData.hasListeners() && action == ISQLActionTypes.UPDATE_ACTION)
 			{
-				try
+				if (!lockedByMyself(rowData))
 				{
-					adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
-					boolean found = rollbackFromDB(rowData, false, Row.ROLLBACK_MODE.UPDATE_CHANGES);
-					int eventType = RowEvent.UPDATE;
-					if (!found && rowData.existInDB())
+					try
 					{
-						// row was not found, check if the pk was updated
-						eventType = RowEvent.DELETE;
-						if (insertColumnDataOrChangedColumns != null)
+						adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
+						boolean found = rollbackFromDB(rowData, false, Row.ROLLBACK_MODE.UPDATE_CHANGES);
+						int eventType = RowEvent.UPDATE;
+						if (!found && rowData.existInDB())
 						{
-							List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
-							for (Object changedColumnName : insertColumnDataOrChangedColumns)
+							// row was not found, check if the pk was updated
+							eventType = RowEvent.DELETE;
+							if (insertColumnDataOrChangedColumns != null)
 							{
-								if (pkdps.contains(changedColumnName))
+								List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
+								for (Object changedColumnName : insertColumnDataOrChangedColumns)
 								{
-									eventType = RowEvent.PK_UPDATED;
-									break;
+									if (pkdps.contains(changedColumnName))
+									{
+										eventType = RowEvent.PK_UPDATED;
+										break;
+									}
 								}
 							}
 						}
+						fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
 					}
-					fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
+					catch (Exception e)
+					{
+						Debug.error(e);//what can we do here
+					}
+					finally
+					{
+						adjustingForChangeByOtherPKHashKey.remove();
+					}
+					return true;
 				}
-				catch (Exception e)
-				{
-					Debug.error(e);//what can we do here
-				}
-				finally
-				{
-					adjustingForChangeByOtherPKHashKey.remove();
-				}
-				return true;
 			}
 			else
 			{
