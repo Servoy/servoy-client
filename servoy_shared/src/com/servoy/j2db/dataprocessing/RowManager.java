@@ -309,6 +309,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	private final ThreadLocal<String> adjustingForChangeByOtherPKHashKey = new ThreadLocal<String>();
 
 	//return true if i had row and did update
+	@SuppressWarnings("nls")
 	boolean changeByOther(String pkHashKey, int action, Object[] insertColumnDataOrChangedColumns, Row insertedRow)
 	{
 		Pair<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> cachedRow;
@@ -323,49 +324,51 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				fireNotifyChange(null, rowData, null, RowEvent.DELETE);
 			}
-			else if (rowData.hasListeners() && action == ISQLActionTypes.UPDATE_ACTION)
+			if (rowData.hasListeners() && action == ISQLActionTypes.UPDATE_ACTION)
 			{
-				if (!lockedByMyself(rowData))
+				if (lockedByMyself(rowData))
 				{
-					try
+					Debug.error("the row with pk: " + rowData.getPKHashKey() +
+						" was updating by another client when this client had a lock on it, this shouldn't be possible, the other client should have tried to get the lock first.");
+				}
+				try
+				{
+					adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
+					boolean found = rollbackFromDB(rowData, false, Row.ROLLBACK_MODE.UPDATE_CHANGES);
+					int eventType = RowEvent.UPDATE;
+					if (!found && rowData.existInDB())
 					{
-						adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
-						boolean found = rollbackFromDB(rowData, false, Row.ROLLBACK_MODE.UPDATE_CHANGES);
-						int eventType = RowEvent.UPDATE;
-						if (!found && rowData.existInDB())
+						// row was not found, check if the pk was updated
+						eventType = RowEvent.DELETE;
+						if (insertColumnDataOrChangedColumns != null)
 						{
-							// row was not found, check if the pk was updated
-							eventType = RowEvent.DELETE;
-							if (insertColumnDataOrChangedColumns != null)
+							List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
+							for (Object changedColumnName : insertColumnDataOrChangedColumns)
 							{
-								List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
-								for (Object changedColumnName : insertColumnDataOrChangedColumns)
+								if (pkdps.contains(changedColumnName))
 								{
-									if (pkdps.contains(changedColumnName))
-									{
-										eventType = RowEvent.PK_UPDATED;
-										break;
-									}
+									eventType = RowEvent.PK_UPDATED;
+									break;
 								}
 							}
 						}
-						fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
 					}
-					catch (Exception e)
-					{
-						Debug.error(e);//what can we do here
-					}
-					finally
-					{
-						adjustingForChangeByOtherPKHashKey.remove();
-					}
-					return true;
+					fireNotifyChange(null, rowData, insertColumnDataOrChangedColumns, eventType);
 				}
+				catch (Exception e)
+				{
+					Debug.error(e);//what can we do here
+				}
+				finally
+				{
+					adjustingForChangeByOtherPKHashKey.remove();
+				}
+				return true;
 			}
 			else
 			{
-				//the row is in memory but not longer referenced from any record
-				// do remove it so that it will be re queried when needed
+				// the row is in memory but not longer referenced from any record or it was deleted.
+				// do remove it so that it will be re queried when needed (when it was not deleted)
 				removeRowReferences(pkHashKey, null);
 				pkRowMap.remove(pkHashKey);
 			}
