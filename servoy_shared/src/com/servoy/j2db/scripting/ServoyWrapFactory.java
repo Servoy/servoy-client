@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -73,45 +74,60 @@ public final class ServoyWrapFactory extends WrapFactory
 		{
 			return new NativeJavaObject(scope, obj, ScriptObjectRegistry.getJavaMembers(obj.getClass(), null));
 		}
-		if (obj instanceof JSConvertedMap< ? , ? > && cx != null)
-		{
-			Scriptable newObject = null;
-			JSConvertedMap< ? , ? > map = (JSConvertedMap< ? , ? >)obj;
-			if (map.getConstructorName() != null)
-			{
-				newObject = cx.newObject(scope, map.getConstructorName());
-			}
-			else
-			{
-				newObject = cx.newObject(scope);
-			}
-			Iterator< ? > iterator = map.entrySet().iterator();
-			while (iterator.hasNext())
-			{
-				Map.Entry< ? , ? > next = (Entry< ? , ? >)iterator.next();
-				Object key = next.getKey();
-				Object value = next.getValue();
-				if (value != null)
-				{
-					value = wrap(cx, newObject, value, value.getClass());
-				}
 
-				if (key instanceof Integer)
+		if (cx != null)
+		{
+			if (obj instanceof JSConvertedMap< ? , ? >)
+			{
+				Scriptable newObject = null;
+				JSConvertedMap< ? , ? > map = (JSConvertedMap< ? , ? >)obj;
+				if (map.getConstructorName() != null)
 				{
-					newObject.put(((Integer)key).intValue(), newObject, value);
-				}
-				else if (key instanceof String)
-				{
-					newObject.put((String)key, newObject, value);
+					newObject = cx.newObject(scope, map.getConstructorName());
 				}
 				else
 				{
-					Debug.error("Try to create a JSConvertedMap->NativeObject with a key that isnt a string or integer:" + key + " for value: " + value); //$NON-NLS-1$ //$NON-NLS-2$
+					newObject = cx.newObject(scope);
 				}
-			}
-			return newObject;
+				Iterator< ? > iterator = map.entrySet().iterator();
+				while (iterator.hasNext())
+				{
+					Map.Entry< ? , ? > next = (Entry< ? , ? >)iterator.next();
+					Object key = next.getKey();
+					Object value = next.getValue();
+					if (value != null)
+					{
+						value = wrap(cx, newObject, value, value.getClass());
+					}
 
+					if (key instanceof Integer)
+					{
+						newObject.put(((Integer)key).intValue(), newObject, value);
+					}
+					else if (key instanceof String)
+					{
+						newObject.put((String)key, newObject, value);
+					}
+					else
+					{
+						Debug.error("Try to create a JSConvertedMap->NativeObject with a key that isnt a string or integer:" + key + " for value: " + value); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+				}
+				return newObject;
+			}
+
+			if (obj instanceof JSConvertedList< ? >)
+			{
+				JSConvertedList< ? > list = (JSConvertedList< ? >)obj;
+				NativeArray newArray = (NativeArray)cx.newArray(scope, list.size());
+				for (Object value : list)
+				{
+					newArray.add(value == null ? null : wrap(cx, newArray, value, value.getClass()));
+				}
+				return newArray;
+			}
 		}
+
 		if (obj instanceof IDataSet)
 		{
 			return new JSDataSet(application, (IDataSet)obj);

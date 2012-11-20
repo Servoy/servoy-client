@@ -47,7 +47,7 @@ public class JSONConverter
 	{
 		if (serializerWrapper == null)
 		{
-			serializerWrapper = new JSONSerializerWrapper(new NativeObjectSerializer(true, true), false, true);
+			serializerWrapper = new JSONSerializerWrapper(true);
 		}
 		return serializerWrapper;
 	}

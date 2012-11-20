@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.jabsorb.JSONSerializer;
 import org.jabsorb.serializer.MarshallException;
-import org.jabsorb.serializer.Serializer;
 import org.jabsorb.serializer.SerializerState;
 import org.jabsorb.serializer.UnmarshallException;
 import org.jabsorb.serializer.impl.ArraySerializer;
@@ -29,7 +28,6 @@ import org.jabsorb.serializer.impl.BeanSerializer;
 import org.jabsorb.serializer.impl.BooleanSerializer;
 import org.jabsorb.serializer.impl.DateSerializer;
 import org.jabsorb.serializer.impl.DictionarySerializer;
-import org.jabsorb.serializer.impl.ListSerializer;
 import org.jabsorb.serializer.impl.MapSerializer;
 import org.jabsorb.serializer.impl.NumberSerializer;
 import org.jabsorb.serializer.impl.PrimitiveSerializer;
@@ -40,6 +38,7 @@ import org.jabsorb.serializer.impl.StringSerializer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.dataprocessing.IDatabaseManager;
@@ -56,26 +55,12 @@ import com.servoy.j2db.util.Debug;
 public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 {
 	private JSONSerializer serializer;
-	private final Serializer defaultSerializer;
-	private final boolean handleListsAsArrays;
 	private final boolean handleByteArrays;
 
 	ThreadLocal<IDatabaseManager> currentDBMGR = new ThreadLocal<IDatabaseManager>();
 
-	public JSONSerializerWrapper(Serializer defaultSerializer)
+	public JSONSerializerWrapper(boolean handleByteArrays)
 	{
-		this(defaultSerializer, false, false);
-	}
-
-	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleListsAsArrays)
-	{
-		this(defaultSerializer, handleListsAsArrays, false);
-	}
-
-	public JSONSerializerWrapper(Serializer defaultSerializer, boolean handleListsAsArrays, boolean handleByteArrays)
-	{
-		this.defaultSerializer = defaultSerializer;
-		this.handleListsAsArrays = handleListsAsArrays;
 		this.handleByteArrays = handleByteArrays;
 	}
 
@@ -157,16 +142,15 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 				@Override
 				public Object unmarshall(SerializerState state, Class clazz, Object json) throws UnmarshallException
 				{
-					if ((clazz == null || clazz == Object.class) && defaultSerializer != null && defaultSerializer.getSerializableClasses() != null &&
-						defaultSerializer.getSerializableClasses().length > 0 && json instanceof JSONObject && !((JSONObject)json).has("javaClass"))
+					if ((clazz == null || clazz == Object.class) && json instanceof JSONObject && !((JSONObject)json).has("javaClass"))
 					{
-						// default serializer when there is no class hint
-						clazz = defaultSerializer.getSerializableClasses()[0];
+						// NativeObjectSerializer when there is no class hint
+						clazz = NativeObject.class;
 					}
 					if (clazz == null && json instanceof JSONArray)
 					{
-						// default object array when there is no class hint
-						clazz = Object[].class;
+						// default native array when there is no class hint
+						clazz = NativeArray.class;
 					}
 					if ((clazz == null || clazz == Object.class) && json instanceof Boolean)
 					{
@@ -202,10 +186,7 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 				serializer.registerSerializer(new DictionarySerializer());
 				serializer.registerSerializer(new MapSerializer());
 				serializer.registerSerializer(new SetSerializer());
-				if (!handleListsAsArrays)
-				{
-					serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
-				}
+//				serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
 				serializer.registerSerializer(new DateSerializer());
 				serializer.registerSerializer(handleByteArrays ? new StringByteArraySerializer() : new StringSerializer()); // handle byte arrays as base64 encoded?
 				serializer.registerSerializer(new NumberSerializer());
@@ -214,10 +195,8 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 
 				serializer.registerSerializer(new QueryBuilderSerializer(this));
 
-				if (defaultSerializer != null)
-				{
-					serializer.registerSerializer(defaultSerializer);
-				}
+				serializer.registerSerializer(new NativeObjectSerializer());
+				serializer.registerSerializer(new NullForUndefinedSerializer());
 			}
 			catch (Exception e)
 			{
