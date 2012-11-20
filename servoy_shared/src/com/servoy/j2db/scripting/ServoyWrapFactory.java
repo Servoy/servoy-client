@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -66,7 +67,7 @@ public final class ServoyWrapFactory extends WrapFactory
 		}
 		if (obj instanceof Date)
 		{
-			return cx.newObject(scope, "Date", new Object[] { new Double(((Date)obj).getTime()) });
+			return cx.newObject(scope, "Date", new Object[] { new Double(NativeDate.convertToUTCMillisFromJava(((Date)obj).getTime())) });
 		}
 		if (obj instanceof DbIdentValue || obj instanceof UUID)
 		{
