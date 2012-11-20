@@ -2710,7 +2710,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Returns true if a transaction is committed; rollback if commit fails. 
 	 * 
-	 * @param saveFirst save edited records to the database first (default true)\
+	 * @param saveFirst save edited records to the database first (default true)
 	 * @param revertSavedRecords if a commit fails and a rollback is done, the when given false the records are not reverted to the database state (and are in edited records again)
 	 * 
 	 * @sampleas js_startTransaction()
