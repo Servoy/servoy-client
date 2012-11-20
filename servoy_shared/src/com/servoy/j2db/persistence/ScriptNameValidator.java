@@ -110,7 +110,7 @@ public class ScriptNameValidator implements IValidateName
 		}
 		if (obj instanceof Media)
 		{
-			throw new RepositoryException("The name '" + nameToCheck + "' already exists as media"); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new RepositoryException("The name '" + nameToCheck + "' already exists as media in " + ((Media)obj).getRootObject().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (obj instanceof ValueList)
 		{
