@@ -18,7 +18,6 @@ package com.servoy.j2db.scripting;
 
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -85,10 +84,6 @@ public abstract class DefaultScope implements Scriptable
 		}
 
 		Object o = allVars.get(name);
-		if (o instanceof Date)
-		{
-			return new Date(((Date)o).getTime());//make copy so changes are seen (date is mutable and would bypass equals)
-		}
 
 		if (o == null && !has(name, start)) return Scriptable.NOT_FOUND;
 

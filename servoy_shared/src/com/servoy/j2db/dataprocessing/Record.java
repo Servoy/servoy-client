@@ -430,10 +430,6 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		Object mobj = jsFunctions.get(name);
 		if (mobj != null) return mobj;
 		Object o = getValue(name);
-		if (o instanceof Date)
-		{
-			return new Date(((Date)o).getTime());//make copy so changes are seen (date is mutable and would bypass equals)
-		}
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
 		{
 			Context context = Context.getCurrentContext();
