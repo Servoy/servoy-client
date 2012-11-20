@@ -312,34 +312,37 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		Row rowData = cachedRow.getLeft();
 		if (rowData != null)
 		{
-			if (rowData.hasListeners())
+			if (action == ISQLActionTypes.DELETE_ACTION)
 			{
-				if (action == ISQLActionTypes.DELETE_ACTION)
-				{
-					fireNotifyChange(null, rowData, null, TableModelEvent.DELETE);
-				}
-				else
-				{
-					if (!lockedByMyself(rowData))
-					{
-						try
-						{
-							adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
-							rollbackFromDB(rowData, true, false);
-						}
-						catch (Exception e)
-						{
-							Debug.error(e);//what can we do here
-						}
-						finally
-						{
-							adjustingForChangeByOtherPKHashKey.remove();
-						}
-					}
-				}
-				return true;
+				fireNotifyChange(null, rowData, null, TableModelEvent.DELETE);
 			}
-			//the row is in memory but not longer referenced from any record
+			else if (rowData.hasListeners())
+			{
+				if (!lockedByMyself(rowData))
+				{
+					try
+					{
+						adjustingForChangeByOtherPKHashKey.set(rowData.getPKHashKey());
+						rollbackFromDB(rowData, true, false);
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);//what can we do here
+					}
+					finally
+					{
+						adjustingForChangeByOtherPKHashKey.remove();
+					}
+					return true;
+				}
+			}
+			else
+			{
+				//the row is in memory but not longer referenced from any record
+				// do remove it so that it will be re queried when needed
+				removeRowReferences(pkHashKey, null);
+				pkRowMap.remove(pkHashKey);
+			}
 			return false;
 		}
 
