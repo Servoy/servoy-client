@@ -1372,8 +1372,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 						while (iterator.hasNext())
 						{
 							Entry<String, Integer> entry = iterator.next();
+							Object object = array[entry.getValue().intValue() - 1];
 							arrayScriptable.put(entry.getKey(), arrayScriptable,
-									array[entry.getValue().intValue() - 1] != null ? cx.getWrapFactory().wrap(cx, start, array[entry.getValue().intValue() - 1], array[entry.getValue().intValue() - 1].getClass()):null);
+									object != null ? cx.getWrapFactory().wrap(cx, start, object, object.getClass()):null);
 						}
 						return arrayScriptable;
 					}
