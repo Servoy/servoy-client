@@ -99,7 +99,13 @@ public class Log4JHTMLTableLayout extends Layout
 			buffer.append(event.getLevel());
 			buffer.append("</font>");
 		}
-		else if (event.getLevel().isGreaterOrEqual(Level.WARN))
+		else if (event.getLevel().equals(Level.WARN))
+		{
+			buffer.append("<font color=\"#FC9206\"><strong>");
+			buffer.append(event.getLevel());
+			buffer.append("</strong></font>");
+		}
+		else if (event.getLevel().isGreaterOrEqual(Level.ERROR))
 		{
 			buffer.append("<font color=\"#993300\"><strong>");
 			buffer.append(event.getLevel());
