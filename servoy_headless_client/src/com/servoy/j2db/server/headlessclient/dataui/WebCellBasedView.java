@@ -351,11 +351,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				// if size is changed, reset scroll
 				if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint)
 				{
-					WebCellBasedView.this.isScrollFirstShow = true;
-					WebCellBasedView.this.hasTopBuffer = false;
-					WebCellBasedView.this.hasBottomBuffer = true;
-					WebCellBasedView.this.currentScrollTop = 0;
-					WebCellBasedView.this.topPhHeight = 0;
+					resetScrollParams();
 				}
 
 				bodyWidthHint = newBodyWidthHint;
@@ -2908,6 +2904,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			((SortableCellViewHeader)header).setResizeImage(R_ARROW_OFF);
 		}
+
+		if (isScrollMode()) resetScrollParams();
 	}
 
 	private boolean isSelectionByCellAction;
@@ -4913,6 +4911,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					target.appendJavascript(sb.toString());
 				}
+				else target.appendJavascript("Servoy.TableView.isAppendingRows = false;"); //$NON-NLS-1$
 			}
 		}
 
@@ -5100,6 +5099,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			return s;
 		}
+	}
+
+	private void resetScrollParams()
+	{
+		WebCellBasedView.this.isScrollFirstShow = true;
+		WebCellBasedView.this.hasTopBuffer = false;
+		WebCellBasedView.this.hasBottomBuffer = true;
+		WebCellBasedView.this.currentScrollTop = 0;
+		WebCellBasedView.this.topPhHeight = 0;
 	}
 }
 
