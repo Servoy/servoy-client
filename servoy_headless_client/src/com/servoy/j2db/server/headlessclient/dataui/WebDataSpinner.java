@@ -28,6 +28,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
 import org.wicketstuff.minis.spinner.Spinner;
@@ -366,6 +367,15 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		public boolean isEnabled(Component component)
 		{
 			return shouldShowExtraComponents();
+		}
+
+		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			// spinner component overwrites onblur, add it as listener
+			response.renderOnDomReadyJavascript("var spinner = wicketGet('" + WebDataSpinner.this.field.getMarkupId() +
+				"');Wicket.Event.add(spinner,'blur',spinner.onblur);");
+			super.renderHead(response);
 		}
 
 	}
