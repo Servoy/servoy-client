@@ -992,7 +992,10 @@ if (typeof(Servoy.TableView) == "undefined")
 			var secondRow = $('#' + rowContainerBodyId).children('tr').eq(1);
 			var rowHeight = secondRow.height();
 
-			return Servoy.TableView.isAppendingRows ? scrollDiff / rowHeight : 0;
+			var nrRows = scrollDiff / rowHeight;
+			var nrRowAbs = Math.ceil(Math.abs(nrRows));
+			nrRows = nrRows < 0 ? -nrRowAbs : nrRowAbs;
+			return Servoy.TableView.isAppendingRows ? nrRows : 0;
 		},
 		
 		scrollToTop: function(rowContainerBodyId)
