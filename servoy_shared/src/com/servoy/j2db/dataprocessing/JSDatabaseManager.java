@@ -3581,6 +3581,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Create a QueryBuilder object for a datasource.
 	 * @sample
 	 * 
+	 * /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
 	 * var q = databaseManager.createSelect('db:/example_data/book_nodes')
 	 * q.result.addPk()
 	 * q.where.add(q.columns.label_text.not.isin(null))
