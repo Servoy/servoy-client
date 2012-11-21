@@ -226,8 +226,8 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 
 		if (component instanceof DataChoice)
 		{
-			if (e.getOppositeComponent() != null && e.getOppositeComponent().getParent() == null && ((DataChoice)component).getChoiceType() == Field.LIST_BOX ||
-				((DataChoice)component).getChoiceType() == Field.MULTISELECT_LISTBOX)
+			if (e.getOppositeComponent() != null && e.getOppositeComponent().getParent() == null &&
+				(((DataChoice)component).getChoiceType() == Field.LIST_BOX || ((DataChoice)component).getChoiceType() == Field.MULTISELECT_LISTBOX))
 			{
 				// for listbox only trigger if we really entered the field
 				return;
@@ -275,8 +275,8 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 		skipFireFocusLostCommand = true;
 		if (component instanceof DataChoice)
 		{
-			if (e.getOppositeComponent() != null && e.getOppositeComponent().getParent() == null && ((DataChoice)component).getChoiceType() == Field.LIST_BOX ||
-				((DataChoice)component).getChoiceType() == Field.MULTISELECT_LISTBOX)
+			if (e.getOppositeComponent() != null && e.getOppositeComponent().getParent() == null &&
+				(((DataChoice)component).getChoiceType() == Field.LIST_BOX || ((DataChoice)component).getChoiceType() == Field.MULTISELECT_LISTBOX))
 			{
 				// for listbox only trigger if we really left the field
 				return;
