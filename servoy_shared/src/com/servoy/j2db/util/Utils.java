@@ -1588,7 +1588,7 @@ public class Utils
 		String result = null;
 		try
 		{
-			result = Base64.encodeBase64String(data).trim();
+			result = new String(Base64.encodeBase64(data)).trim();
 		}
 		catch (Exception e)
 		{
