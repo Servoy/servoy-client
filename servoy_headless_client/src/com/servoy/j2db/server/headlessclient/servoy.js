@@ -1917,12 +1917,12 @@ if (typeof(Servoy.Utils) == "undefined")
 			}		
 		},
 		
-		setLabelChildHeight: function(elemid, valign)
+		setLabelChildHeight: function(elemid, valign, anchors)
 		{			
-			setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign);},50);
+			setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign, anchors);},50);
 		},
 		
-		setLabelChildHeightEx: function(elemid, valign) 
+		setLabelChildHeightEx: function(elemid, valign, anchors) 
 		{
 		  var elem = document.getElementById(elemid);
 		  var child = document.getElementById(elemid + "_lb");
@@ -1965,13 +1965,17 @@ if (typeof(Servoy.Utils) == "undefined")
 				else
 				{
 					top = elemHeight - childHeight - paddBottom;
-					if (top < childImgHeight) top = paddTop;	//case when a large image is anchored NORTH-SOUTH
+					
+					//case when a large image is anchored NORTH-SOUTH
+					if ((anchors & 1) > 0 && (anchors & 4) > 0 && top < childImgHeight) top = paddTop;	
 				}
 			}
-			else					//ISupportTextSetup.DEFAULT or ISupportTextSetup.CENTER
+			else //ISupportTextSetup.DEFAULT or ISupportTextSetup.CENTER
 			{
-				top = Math.floor((elemHeight - childHeight)/2);				
-				if (top < childImgHeight/2) top = paddTop;	//case when a large image is anchored NORTH-SOUTH
+				top = Math.floor((elemHeight - childHeight)/2);	
+				
+				//case when a large image is anchored NORTH-SOUTH
+				if ((anchors & 1) > 0 && (anchors & 4) > 0 && top < childImgHeight/2) top = paddTop;	
 				
 				// buttons have special bottom padding set with element height;
 				// for IE 8.0 we need to use that for having right top position

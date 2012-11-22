@@ -1148,7 +1148,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (cssid == null)
 		{
 			if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-			else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$			
 		}
 
 		// Full height.
@@ -1196,7 +1196,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
-				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
+				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ", " + anchors +
 					"); $(this).css('display','');\"" : "";
 				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
 					"\" style=\"vertical-align: middle;" + (isElementAnchored ? "display:none" : "") + "\"").append(onLoadCall).append("/>&nbsp;").append(
@@ -1213,7 +1213,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText.append(isElementAnchored ? " style=\"display:none\"" : ""); // hide it until setLabelChildHeight is calculated
 			instrumentedBodyText.append(" src=\"");
 			instrumentedBodyText.append(imgURL);
-			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
+			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ", " + anchors +
 				"); $(this).css('display','');\"" : "";
 			instrumentedBodyText.append("\" align=\"middle\"").append(onLoadCall).append("/>");
 		}
@@ -1404,7 +1404,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		String onLoad = null;
 		if (WebBaseButton.getImageDisplayURL(this) != null)
 		{
-			onLoad = "Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			onLoad = "Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ", " + anchors + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 
 		return onLoad;
