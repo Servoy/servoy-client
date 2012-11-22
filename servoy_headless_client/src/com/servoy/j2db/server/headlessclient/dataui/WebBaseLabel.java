@@ -1138,7 +1138,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		String onLoad = null;
 		if (hasHtmlOrImage())
 		{
-			onLoad = "Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			onLoad = "Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ", " + anchors + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 
 		return onLoad;
