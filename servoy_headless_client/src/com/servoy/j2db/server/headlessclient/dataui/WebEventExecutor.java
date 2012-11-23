@@ -224,16 +224,8 @@ public class WebEventExecutor extends BaseEventExecutor
 							@Override
 							public CharSequence postDecorateScript(CharSequence script)
 							{
-								if (component instanceof ILabel)
-								{
-									return "var actionParam = Servoy.Utils.getActionParams(event); Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" +
-										component.getMarkupId() + "')) { " + script + "}; Servoy.Utils.clickTimerRunning = false; return false; });";
-								}
-								else
-								{
-									return "var actionParam = Servoy.Utils.getActionParams(event); if (testDoubleClickId('" + component.getMarkupId() +
-										"')) { " + script + "};";
-								}
+								return "var actionParam = Servoy.Utils.getActionParams(event); Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" +
+									component.getMarkupId() + "')) { " + script + "}; Servoy.Utils.clickTimerRunning = false; return false; });";
 							}
 						};
 					}
