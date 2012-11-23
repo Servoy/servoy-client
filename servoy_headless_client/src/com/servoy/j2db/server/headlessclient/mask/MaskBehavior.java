@@ -39,12 +39,25 @@ public class MaskBehavior extends AbstractBehavior
 	private final TextField< ? > textField;
 	private final String displayFormat;
 	private final String placeHolder;
+	private final String allowedCharacters;
 
-	@SuppressWarnings("nls")
 	public MaskBehavior(String displayFormat, String editFormat, TextField< ? > textField)
+	{
+		this(displayFormat, editFormat, textField, null);
+	}
+
+	/**
+	 * @param displayFormat2
+	 * @param placeHolder2
+	 * @param webDataField
+	 * @param allowedCharacters
+	 */
+	@SuppressWarnings("nls")
+	public MaskBehavior(String displayFormat, String editFormat, TextField< ? > textField, String allowedCharacters)
 	{
 		this.textField = textField;
 		this.displayFormat = displayFormat;
+		this.allowedCharacters = allowedCharacters;
 		this.placeHolder = editFormat == null || editFormat.trim().equals("") ? " " : editFormat;
 	}
 
@@ -57,11 +70,16 @@ public class MaskBehavior extends AbstractBehavior
 	{
 		super.renderHead(response);
 
-		String js = "jQuery(function($){$(\"#" + textField.getMarkupId() + "\").mask(\"" + displayFormat.replace("\"", "\\\"") + "\",{placeholder:\"" +
-			placeHolder.replace("\"", "\\\"") + "\"});});";
-		response.renderOnDomReadyJavascript(js);
-
-
+		if (allowedCharacters != null)
+		{
+			response.renderOnDomReadyJavascript("jQuery(function($){$(\"#" + textField.getMarkupId() + "\").mask(\"" + displayFormat.replace("\"", "\\\"") +
+				"\",{placeholder:\"" + placeHolder.replace("\"", "\\\"") + "\", allowedCharacters:\"" + allowedCharacters.replace("\"", "\\\"") + "\"});});");
+		}
+		else
+		{
+			response.renderOnDomReadyJavascript("jQuery(function($){$(\"#" + textField.getMarkupId() + "\").mask(\"" + displayFormat.replace("\"", "\\\"") +
+				"\",{placeholder:\"" + placeHolder.replace("\"", "\\\"") + "\"});});");
+		}
 	}
 
 	/**

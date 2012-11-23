@@ -78,6 +78,7 @@ import javax.swing.text.Document;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -96,7 +97,6 @@ import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ITagResolver;
@@ -1079,17 +1079,17 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	private int dataType;
 
-	public void installFormat(int dataType, String formatString)
+	public void installFormat(ComponentFormat componentFormat)
 	{
-		this.dataType = dataType;
+		this.dataType = componentFormat.uiType;
 		if (isEditable())
 		{
 			FormattedComboBoxEditor ed = (FormattedComboBoxEditor)getEditor();
-			ed.setFormat(dataType, formatString);
+			ed.setFormat(componentFormat);
 		}
-		if (formatString != null && formatString.length() != 0)
+		if (!componentFormat.parsedFormat.isEmpty())
 		{
-			String displayFormat = FormatParser.parseFormatString(formatString, null, null).getDisplayFormat();
+			String displayFormat = componentFormat.parsedFormat.getDisplayFormat();
 			try
 			{
 				switch (Column.mapToDefaultType(dataType))
@@ -1913,9 +1913,9 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			editor.setClientProperty(key, value);
 		}
 
-		public void setFormat(int type, String format)
+		public void setFormat(ComponentFormat componentFormat)
 		{
-			editor.installFormat(type, format);
+			editor.installFormat(componentFormat);
 		}
 
 		public void setHorizontalAlignment(int a)

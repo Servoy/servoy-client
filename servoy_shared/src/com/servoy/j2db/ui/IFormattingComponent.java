@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.ui;
 
+import com.servoy.j2db.component.ComponentFormat;
+
 
 /**
  * Interface for component that need to be notified when the format has been set on the scriptable object.
@@ -28,5 +30,5 @@ package com.servoy.j2db.ui;
  */
 public interface IFormattingComponent
 {
-	void installFormat(int dataType, String format);
+	void installFormat(ComponentFormat componentFormat);
 }

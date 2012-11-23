@@ -169,7 +169,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	/*
 	 * format---------------------------------------------------
 	 */
-	public void installFormat(int type, String format)
+	public void installFormat(ComponentFormat componentFormat)
 	{
 		converter = null;
 	}

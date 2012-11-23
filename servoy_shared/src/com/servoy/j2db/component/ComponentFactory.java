@@ -968,7 +968,6 @@ public class ComponentFactory
 		{
 			application = J2DBGlobals.getServiceProvider();
 		}
-		String displayFormat = format == null ? null : format.getDisplayFormat();
 		IValueList list = null;
 		if (valuelist != null &&
 			(valuelist.getValueListType() == ValueList.CUSTOM_VALUES || (valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES)))//reuse,those are static,OTHERS not!

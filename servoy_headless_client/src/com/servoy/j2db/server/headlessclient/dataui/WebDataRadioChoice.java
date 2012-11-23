@@ -155,7 +155,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	/*
 	 * format---------------------------------------------------
 	 */
-	public void installFormat(int type, String format)
+	public void installFormat(ComponentFormat componentFormat)
 	{
 		converter = null;
 	}

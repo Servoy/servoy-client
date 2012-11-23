@@ -115,7 +115,7 @@ final class FormatConverter implements IConverter
 	 */
 	private Object convertString(String value, Format formatter) throws ParseException
 	{
-		if (format.getDisplayFormat().equals(value)) return null;
+		if (format.getDisplayFormat() != null && format.getDisplayFormat().equals(value)) return null;
 
 		String str = value;
 		if (format.isMask())

@@ -32,38 +32,51 @@ public class FormatParser
 {
 	public static ParsedFormat parseFormatProperty(String formatProperty)
 	{
-		String uiConverterName = null;
-		Map<String, String> uiConverterProperties = null;
-		String formatString = null;
-
 		if (formatProperty != null && formatProperty.startsWith("{") && formatProperty.endsWith("}"))
 		{
 			// json
 			try
 			{
 				Map<String, Object> props = new JSONWrapperMap<Object>(new ServoyJSONObject(formatProperty, false, true, false));
-				if (props != null)
+
+				String uiConverterName = null;
+				Map<String, String> uiConverterProperties = null;
+				Map<String, Object> converterInfo = (Map<String, Object>)props.get("converter");
+				if (converterInfo != null)
 				{
-					formatString = (String)props.get("format");
-					Map<String, Object> converterInfo = (Map<String, Object>)props.get("converter");
-					if (converterInfo != null)
-					{
-						uiConverterName = (String)converterInfo.get("name");
-						uiConverterProperties = (Map<String, String>)converterInfo.get("properties");
-					}
+					uiConverterName = (String)converterInfo.get("name");
+					uiConverterProperties = (Map<String, String>)converterInfo.get("properties");
 				}
+
+				String formatString = (String)props.get("format");
+				if (formatString != null)
+				{
+					return parseFormatString(formatString, uiConverterName, uiConverterProperties);
+				}
+
+				// all in json
+				boolean allUpperCase = Boolean.TRUE.equals(props.get("allUpperCase"));
+				boolean allLowerCase = Boolean.TRUE.equals(props.get("allLowerCase"));
+				boolean numberValidator = Boolean.TRUE.equals(props.get("numberValidator"));
+				boolean raw = Boolean.TRUE.equals(props.get("raw"));
+				boolean mask = Boolean.TRUE.equals(props.get("mask"));
+				String editOrPlaceholder = (String)props.get("editOrPlaceholder");
+				String displayFormat = (String)props.get("displayFormat");
+				String ml = (String)props.get("maxLength");
+				Integer maxLength = ml == null ? null : Integer.valueOf(ml);
+				String allowedCharacters = (String)props.get("allowedCharacters");
+
+				return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
+					uiConverterProperties, allowedCharacters);
 			}
 			catch (JSONException e)
 			{
 				Debug.error("Could not parse format properties: '" + formatProperty + "'", e);
 			}
 		}
-		else
+
 		// plain format string
-		{
-			formatString = formatProperty;
-		}
-		return parseFormatString(formatString, uiConverterName, uiConverterProperties);
+		return parseFormatString(formatProperty, null, null);
 	}
 
 	/**
@@ -75,7 +88,7 @@ public class FormatParser
 	 *  
 	 * @param format
 	 */
-	public static ParsedFormat parseFormatString(String fmtString, String uiConverterName, Map<String, String> uiConverterProperties)
+	private static ParsedFormat parseFormatString(String fmtString, String uiConverterName, Map<String, String> uiConverterProperties)
 	{
 		String formatString = fmtString == null || fmtString.length() == 0 ? null : fmtString;
 		boolean allLowerCase = false;
@@ -85,13 +98,17 @@ public class FormatParser
 		boolean raw = false;
 		boolean mask = false;
 
-		String displayFormat = formatString;
+		String displayFormat = null;
 		String editOrPlaceholder = null;
 
 		if (formatString != null)
 		{
 			int index = formatString.indexOf("|");
-			if (index != -1)
+			if (index == -1)
+			{
+				displayFormat = formatString;
+			}
+			else
 			{
 				displayFormat = formatString.substring(0, index);
 				editOrPlaceholder = formatString.substring(index + 1);
@@ -153,14 +170,12 @@ public class FormatParser
 						}
 					}
 					else editOrPlaceholder = trim(editOrPlaceholder);
-
-					if (editOrPlaceholder.equals("")) editOrPlaceholder = null;
 				}
 			}
 		}
 
-		return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, formatString,
-			uiConverterName, uiConverterProperties == null ? null : Collections.unmodifiableMap(uiConverterProperties));
+		return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
+			uiConverterProperties == null ? null : Collections.unmodifiableMap(uiConverterProperties), null);
 	}
 
 	/**
@@ -193,12 +208,12 @@ public class FormatParser
 		private final String displayFormat;
 		private final Integer maxLength;
 
-		private final String formatString;
 		private final String uiConverterName;
 		private final Map<String, String> uiConverterProperties;
+		private final String allowedCharacters;
 
-		private ParsedFormat(boolean allUpperCase, boolean allLowerCase, boolean numberValidator, boolean raw, boolean mask, String editOrPlaceholder,
-			String displayFormat, Integer maxLength, String formatString, String uiConverterName, Map<String, String> uiConverterProperties)
+		public ParsedFormat(boolean allUpperCase, boolean allLowerCase, boolean numberValidator, boolean raw, boolean mask, String editOrPlaceholder,
+			String displayFormat, Integer maxLength, String uiConverterName, Map<String, String> uiConverterProperties, String allowedCharacters)
 		{
 			this.allUpperCase = allUpperCase;
 			this.allLowerCase = allLowerCase;
@@ -206,42 +221,52 @@ public class FormatParser
 			this.raw = raw;
 			this.mask = mask;
 
-			this.editOrPlaceholder = editOrPlaceholder;
-			this.displayFormat = displayFormat;
+			this.editOrPlaceholder = editOrPlaceholder == null || editOrPlaceholder.length() == 0 ? null : editOrPlaceholder;
+			this.displayFormat = displayFormat == null || displayFormat.length() == 0 ? null : displayFormat;
 			this.maxLength = maxLength;
 
-			this.formatString = formatString;
 			this.uiConverterName = uiConverterName;
 			this.uiConverterProperties = uiConverterProperties; // constructor is private, all callers should wrap with unmodifiable map
+			this.allowedCharacters = allowedCharacters == null || allowedCharacters.length() == 0 ? null : allowedCharacters;
 		}
 
 		public String toFormatProperty()
 		{
-			if (uiConverterName == null)
+			if (uiConverterName == null && allowedCharacters == null)
 			{
-				// plain format string
-				return formatString;
+				// old style
+				return toSimpleFormatProperty();
 			}
 
 			// create json string
 			try
 			{
 				ServoyJSONObject json = new ServoyJSONObject(false, false);
-				if (formatString != null)
+
+				if (allUpperCase) json.put("allUpperCase", Boolean.TRUE);
+				if (allLowerCase) json.put("allLowerCase", Boolean.TRUE);
+				if (numberValidator) json.put("numberValidator", Boolean.TRUE);
+				if (raw) json.put("raw", Boolean.TRUE);
+				if (mask) json.put("mask", Boolean.TRUE);
+				if (editOrPlaceholder != null) json.put("editOrPlaceholder", editOrPlaceholder);
+				if (displayFormat != null) json.put("displayFormat", displayFormat);
+				if (maxLength != null) json.put("maxLength", maxLength);
+				if (allowedCharacters != null) json.put("allowedCharacters", allowedCharacters);
+
+				if (uiConverterName != null)
 				{
-					json.put("format", formatString);
-				}
-				ServoyJSONObject conv = new ServoyJSONObject(false, false);
-				json.put("converter", conv);
-				conv.put("name", uiConverterName);
-				if (uiConverterProperties != null)
-				{
-					ServoyJSONObject props = new ServoyJSONObject(false, false);
-					for (Entry<String, String> entry : uiConverterProperties.entrySet())
+					ServoyJSONObject conv = new ServoyJSONObject(false, false);
+					json.put("converter", conv);
+					conv.put("name", uiConverterName);
+					if (uiConverterProperties != null)
 					{
-						props.put(entry.getKey(), entry.getValue());
+						ServoyJSONObject props = new ServoyJSONObject(false, false);
+						for (Entry<String, String> entry : uiConverterProperties.entrySet())
+						{
+							props.put(entry.getKey(), entry.getValue());
+						}
+						conv.put("properties", props);
 					}
-					conv.put("properties", props);
 				}
 				return json.toString(false);
 			}
@@ -250,6 +275,30 @@ public class FormatParser
 				Debug.error(e);
 				return null;
 			}
+		}
+
+		/**
+		 * @return
+		 */
+		private String toSimpleFormatProperty()
+		{
+			if (allUpperCase) return "|U";
+			if (allLowerCase) return "|L";
+			if (numberValidator) return "|#";
+
+			StringBuilder sb = new StringBuilder();
+
+			if (displayFormat != null)
+			{
+				sb.append(displayFormat);
+				if (editOrPlaceholder != null) sb.append('|').append(editOrPlaceholder);
+				if (mask) sb.append("|mask");
+				if (raw) sb.append("|raw");
+			}
+
+			if (maxLength != null) sb.append("|#(").append(maxLength.intValue()).append(')');
+
+			return sb.toString();
 		}
 
 		/**
@@ -309,7 +358,12 @@ public class FormatParser
 		 */
 		public String getFormatString()
 		{
-			return formatString;
+			return toFormatProperty();
+		}
+
+		public boolean isEmpty()
+		{
+			return !allUpperCase && !allLowerCase && !numberValidator && displayFormat == null && maxLength == null;
 		}
 
 		public char getPlaceHolderCharacter()
@@ -392,8 +446,17 @@ public class FormatParser
 
 		public ParsedFormat getCopy(String newUIConverterName, Map<String, String> newUIConverterProperties)
 		{
-			return new ParsedFormat(this.allUpperCase, this.allLowerCase, this.numberValidator, this.raw, this.mask, null, null, this.maxLength, null,
-				newUIConverterName, newUIConverterProperties == null ? null : Collections.unmodifiableMap(newUIConverterProperties));
+			return new ParsedFormat(this.allUpperCase, this.allLowerCase, this.numberValidator, this.raw, this.mask, this.editOrPlaceholder,
+				this.displayFormat, this.maxLength, newUIConverterName, newUIConverterProperties == null ? null
+					: Collections.unmodifiableMap(newUIConverterProperties), allowedCharacters);
+		}
+
+		/**
+		 * @return
+		 */
+		public String getAllowedCharacters()
+		{
+			return allowedCharacters;
 		}
 	}
 }

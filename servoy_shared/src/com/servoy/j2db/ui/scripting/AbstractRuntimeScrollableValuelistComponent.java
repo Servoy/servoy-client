@@ -62,7 +62,7 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 		this.componentFormat = componentFormat;
 		if (componentFormat != null && getComponent() instanceof IFormattingComponent)
 		{
-			((IFormattingComponent)getComponent()).installFormat(componentFormat.uiType, componentFormat.parsedFormat.getFormatString());
+			((IFormattingComponent)getComponent()).installFormat(componentFormat);
 		}
 	}
 

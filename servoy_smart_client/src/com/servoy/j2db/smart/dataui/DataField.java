@@ -70,6 +70,7 @@ import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -92,7 +93,6 @@ import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
@@ -1345,21 +1345,20 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	public String getFormat()
 	{
-		return fp == null ? null : fp.getFormatString();
+		return fp == null ? null : fp.getEditFormat();
 	}
 
 	protected ParsedFormat fp;
 
-	public void installFormat(int dataType, String format)
+	public void installFormat(ComponentFormat componentFormat)
 	{
-		this.dataType = dataType;
-		this.displayFormat = format;
-		this.editFormat = format;
+		fp = componentFormat.parsedFormat;
+		this.dataType = componentFormat.uiType;
+		this.displayFormat = null;
+		this.editFormat = null;
 		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
-		if (format != null && format.length() != 0 && (list == null || (!list.hasRealValues() && !emptyCustom)))
+		if (!fp.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
-			fp = FormatParser.parseFormatString(format, null, null);
-
 			displayFormat = fp.getDisplayFormat();
 			editFormat = fp.getEditFormat();
 
@@ -1406,23 +1405,21 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 						switch (Column.mapToDefaultType(dataType))
 						{
 							case IColumnTypes.NUMBER :
-								if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
-
 								displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
 								editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()), maxLength);
 								setFormatterFactory(new EditingFixedDefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
 								break;
+
 							case IColumnTypes.INTEGER :
-								if (editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
-
 								displayFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(displayFormat, application.getLocale()));// example: $#,###.##
 								editFormatter = new NullNumberFormatter(new RoundHalfUpDecimalFormat(editFormat, application.getLocale()), maxLength);
 								setFormatterFactory(new EditingFixedDefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter, editFormatter));
 								break;
+
 							case IColumnTypes.DATETIME :
 								boolean mask = fp.isMask();
 								char placeHolder = fp.getPlaceHolderCharacter();
-								if (mask || editFormat.equals("raw") || editFormat.equals("")) editFormat = displayFormat; //$NON-NLS-1$//$NON-NLS-2$
+								if (mask) editFormat = displayFormat;
 
 								displayFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(displayFormat, false));
 								editFormatter = new NullDateFormatter(new StateFullSimpleDateFormat(editFormat, Boolean.TRUE.equals(UIUtils.getUIProperty(this,
@@ -1438,6 +1435,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 								}
 								setFormatterFactory(new EditingFixedDefaultFormatterFactory(displayFormatter, displayFormatter, editFormatter)); // example: MM/dd/yyyy
 								break;
+
 							default :
 								displayFormatter = new ValueListMaskFormatter(displayFormat, true);
 								editFormatter = new ValueListMaskFormatter(displayFormat, false);
@@ -1448,7 +1446,11 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 									((ServoyMaskFormatter)displayFormatter).setValueContainsLiteralCharacters(false);
 								}
 
-
+								if (fp.getAllowedCharacters() != null)
+								{
+									((ServoyMaskFormatter)editFormatter).setValidCharacters(fp.getAllowedCharacters());
+									((ServoyMaskFormatter)displayFormatter).setValidCharacters(fp.getAllowedCharacters());
+								}
 								if (editFormat != null)
 								{
 									if (editFormat.length() == 1)

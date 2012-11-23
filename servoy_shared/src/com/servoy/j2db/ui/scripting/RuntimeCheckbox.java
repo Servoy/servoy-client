@@ -50,7 +50,7 @@ public class RuntimeCheckbox extends AbstractRuntimeValuelistComponent<IFieldCom
 		this.componentFormat = componentFormat;
 		if (componentFormat != null && getComponent() instanceof IFormattingComponent)
 		{
-			((IFormattingComponent)getComponent()).installFormat(componentFormat.uiType, componentFormat.parsedFormat.getFormatString());
+			((IFormattingComponent)getComponent()).installFormat(componentFormat);
 		}
 	}
 

@@ -166,7 +166,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	private final WebEventExecutor eventExecutor;
 	private String inputId;
 
-	protected ParsedFormat parsedFormat = FormatParser.parseFormatString(null, null, null);
+	protected ParsedFormat parsedFormat = FormatParser.parseFormatProperty(null);
 
 //	private String completeFormat;
 //	private String editFormat;
@@ -737,9 +737,9 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	}
 
 	@SuppressWarnings("nls")
-	public void installFormat(int type, String format)
+	public void installFormat(com.servoy.j2db.component.ComponentFormat componentFormat)
 	{
-		int mappedType = Column.mapToDefaultType(type);
+		int mappedType = Column.mapToDefaultType(componentFormat.uiType);
 		// only add type validators the first time (not when format is set through script)
 		if (this.dataType == 0)
 		{
@@ -768,13 +768,13 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				setType(String.class);
 			}
 		}
-		this.dataType = type;
+		this.dataType = componentFormat.uiType;
 
 		getStylePropertyChanges().setChanged();
 		converter = null;
 		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
-		parsedFormat = FormatParser.parseFormatString(format, null, null);
-		if (format != null && format.length() != 0 && (list == null || (!list.hasRealValues() && !emptyCustom)))
+		parsedFormat = componentFormat.parsedFormat;
+		if (!componentFormat.parsedFormat.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
 			if (formatAttributeModifier != null) remove(formatAttributeModifier);
 			if (parsedFormat.isAllUpperCase())
@@ -808,7 +808,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				String placeHolder = null;
 				if (parsedFormat.getPlaceHolderString() != null) placeHolder = parsedFormat.getPlaceHolderString();
 				else if (parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(parsedFormat.getPlaceHolderCharacter());
-				formatAttributeModifier = new MaskBehavior(parsedFormat.getDisplayFormat(), placeHolder, this);
+				formatAttributeModifier = new MaskBehavior(parsedFormat.getDisplayFormat(), placeHolder, this, parsedFormat.getAllowedCharacters());
 			}
 			if (formatAttributeModifier != null) add(formatAttributeModifier);
 

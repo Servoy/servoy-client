@@ -38,6 +38,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
@@ -326,9 +327,9 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	/*
 	 * format---------------------------------------------------
 	 */
-	public void installFormat(int type, String format)
+	public void installFormat(ComponentFormat componentFormat)
 	{
-		((IFormatScriptComponent)field.getScriptObject()).setComponentFormat(((IFormatScriptComponent)getScriptObject()).getComponentFormat());
+		((IFormatScriptComponent)field.getScriptObject()).setComponentFormat(componentFormat);
 	}
 
 	public boolean isEditable()

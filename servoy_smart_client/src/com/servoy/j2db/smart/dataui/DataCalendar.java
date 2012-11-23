@@ -49,6 +49,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -63,6 +64,7 @@ import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
+import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
@@ -141,16 +143,21 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		enclosedComponent.setName(name);
 	}
 
-	public void installFormat(int dataType, String format)
+	public void installFormat(ComponentFormat componentFormat)
 	{
 		// calendar field always works with dates (even if it is attached to a dataprovider of another type
 		// - for example it could work with a text column that has a Date <-> String converter)
-		if (format == null || format.length() == 0)
+		ComponentFormat cf;
+		if (componentFormat.parsedFormat.isEmpty())
 		{
 			// use default locale short date/time format
-			format = new SimpleDateFormat().toPattern();
+			cf = new ComponentFormat(FormatParser.parseFormatProperty(new SimpleDateFormat().toPattern()), Types.DATE, componentFormat.uiType);
 		}
-		enclosedComponent.installFormat(Types.DATE, format);
+		else
+		{
+			cf = new ComponentFormat(componentFormat.parsedFormat, Types.DATE, componentFormat.uiType);
+		}
+		enclosedComponent.installFormat(cf);
 	}
 
 	public void setMargin(Insets i)

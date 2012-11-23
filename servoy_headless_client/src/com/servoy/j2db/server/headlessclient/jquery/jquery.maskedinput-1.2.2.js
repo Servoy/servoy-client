@@ -94,7 +94,12 @@
                 }
                 else {
 					if (!skipNextMask && defs[c]) {
-						tests.push(new RegExp(defs[c]));
+						if (c == '*' && settings.allowedCharacters) {
+							tests.push(new RegExp('[' + settings.allowedCharacters + ']'));
+						}
+						else {
+							tests.push(new RegExp(defs[c]));
+						}
 						if(firstNonMaskPos==null)
 							firstNonMaskPos =  tests.length - 1;
 					} else {

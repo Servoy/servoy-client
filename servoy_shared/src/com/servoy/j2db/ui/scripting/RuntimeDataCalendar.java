@@ -69,10 +69,8 @@ public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> i
 	{
 		if (!Utils.safeEquals(formatString, getFormat()))
 		{
-			setComponentFormat(new ComponentFormat(FormatParser.parseFormatString(application.getI18NMessageIfPrefixed(formatString), componentFormat == null
-				? null : componentFormat.parsedFormat.getUIConverterName(),
-				componentFormat == null ? null : componentFormat.parsedFormat.getUIConverterProperties()), componentFormat == null ? IColumnTypes.TEXT
-				: componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
+			setComponentFormat(new ComponentFormat(FormatParser.parseFormatProperty(application.getI18NMessageIfPrefixed(formatString)),
+				componentFormat == null ? IColumnTypes.TEXT : componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
 			getChangesRecorder().setChanged();
 
 			RenderEventExecutor renderEventExecutor = getRenderEventExecutor();
@@ -95,7 +93,7 @@ public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> i
 		this.componentFormat = componentFormat;
 		if (componentFormat != null && getComponent() instanceof IFormattingComponent)
 		{
-			((IFormattingComponent)getComponent()).installFormat(componentFormat.uiType, componentFormat.parsedFormat.getFormatString());
+			((IFormattingComponent)getComponent()).installFormat(componentFormat);
 		}
 	}
 

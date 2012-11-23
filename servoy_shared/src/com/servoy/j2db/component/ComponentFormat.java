@@ -146,7 +146,7 @@ public class ComponentFormat
 	{
 		if ("converter".equals(formatProperty)) //$NON-NLS-1$
 		{
-			return new ComponentFormat(FormatParser.parseFormatString(null, null, null), IColumnTypes.TEXT, IColumnTypes.TEXT);
+			return new ComponentFormat(FormatParser.parseFormatProperty(null), IColumnTypes.TEXT, IColumnTypes.TEXT);
 		}
 
 		int uiType = dpType;
@@ -168,7 +168,7 @@ public class ComponentFormat
 		}
 
 		String formatString;
-		if (parsedFormat.getFormatString() == null)
+		if (parsedFormat.isEmpty())
 		{
 			formatString = TagResolver.getDefaultFormatForType(application.getSettings(), uiType);
 		}
@@ -176,8 +176,7 @@ public class ComponentFormat
 		{
 			formatString = application.getI18NMessageIfPrefixed(parsedFormat.getFormatString());
 		}
-		return new ComponentFormat(FormatParser.parseFormatString(formatString, parsedFormat.getUIConverterName(), parsedFormat.getUIConverterProperties()),
-			dpType, uiType);
+		return new ComponentFormat(FormatParser.parseFormatProperty(formatString), dpType, uiType);
 	}
 
 	public static Object applyUIConverterToObject(Object component, Object value, String dataProviderID, IFoundSetManagerInternal foundsetManager)

@@ -60,6 +60,7 @@ import sun.java2d.SunGraphics2D;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -85,7 +86,6 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
-import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
@@ -191,19 +191,14 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		return enclosedComponent;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ui.IFormattingComponent#installFormat(int, java.lang.String)
-	 */
-	public void installFormat(int dataType, String formatString)
+	public void installFormat(ComponentFormat componentFormat)
 	{
-		if (formatString != null && formatString.length() != 0)
+		if (!componentFormat.parsedFormat.isEmpty())
 		{
-			String displayFormat = FormatParser.parseFormatString(formatString, null, null).getDisplayFormat();
+			String displayFormat = componentFormat.parsedFormat.getDisplayFormat();
 			try
 			{
-				switch (Column.mapToDefaultType(dataType))
+				switch (Column.mapToDefaultType(componentFormat.uiType))
 				{
 					case IColumnTypes.NUMBER :
 						format = new RoundHalfUpDecimalFormat(displayFormat, application.getLocale());

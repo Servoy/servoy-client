@@ -822,15 +822,12 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	/*
 	 * format---------------------------------------------------
 	 */
-	public void installFormat(int type, String format)
+	public void installFormat(ComponentFormat componentFormat)
 	{
 		converter = null;
-		if (format != null && format.length() != 0)
+		if (!componentFormat.parsedFormat.isEmpty() && getScriptObject().getComponentFormat().parsedFormat.hasEditFormat())
 		{
-			if (getScriptObject().getComponentFormat().parsedFormat.hasEditFormat())
-			{
 				Debug.log("WARNING Display and Edit formats are not used in browser comboboxes. Such browser controls do not support editing"); //$NON-NLS-1$
-			}
 		}
 	}
 
