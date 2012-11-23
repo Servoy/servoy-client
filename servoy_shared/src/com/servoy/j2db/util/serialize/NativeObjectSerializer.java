@@ -37,7 +37,6 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
-import com.servoy.j2db.scripting.JSList;
 import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.util.Utils;
 
@@ -230,11 +229,10 @@ public class NativeObjectSerializer extends AbstractSerializer
 		return no;
 	}
 
-
 	public Object unmarshallJSONArray(SerializerState state, JSONArray jso) throws UnmarshallException
 	{
 		int length = jso.length();
-		JSList<Object> no = new JSList<Object>(length);
+		Object[] array = new Object[length];
 		for (int i = 0; i < length; i++)
 		{
 			Object jsonValue;
@@ -247,10 +245,10 @@ public class NativeObjectSerializer extends AbstractSerializer
 				throw new UnmarshallException("JSONException: " + e.getMessage(), e); //$NON-NLS-1$
 			}
 
-			no.add(getUnmarshalled(state, jsonValue));
+			array[i] = getUnmarshalled(state, jsonValue);
 		}
 
-		return no;
+		return array;
 	}
 
 	private Object getUnmarshalled(SerializerState state, Object jsonValue) throws UnmarshallException

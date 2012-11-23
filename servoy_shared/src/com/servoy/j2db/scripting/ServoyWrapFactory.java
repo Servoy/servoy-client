@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 
 import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -114,17 +113,6 @@ public final class ServoyWrapFactory extends WrapFactory
 					}
 				}
 				return newObject;
-			}
-
-			if (obj instanceof JSConvertedList< ? >)
-			{
-				JSConvertedList< ? > list = (JSConvertedList< ? >)obj;
-				NativeArray newArray = (NativeArray)cx.newArray(scope, list.size());
-				for (Object value : list)
-				{
-					newArray.add(value == null ? null : wrap(cx, newArray, value, value.getClass()));
-				}
-				return newArray;
 			}
 		}
 
