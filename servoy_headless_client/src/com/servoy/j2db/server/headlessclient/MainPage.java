@@ -1736,6 +1736,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		{
 			// there is a modal div window opened; it is the one that should become the new current container
 			formManager.setCurrentContainer(formManager.getMainContainer(mpmn), mpmn);
+			// also refresh it
+			((MainPage)formManager.getMainContainer(mpmn)).triggerBrowserRequestIfNeeded();
 		}
 		else
 		{
