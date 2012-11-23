@@ -59,6 +59,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Pair;
@@ -389,6 +390,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			else
 			{
 				drd.setRecord(null, true);//clear
+			}
+			if (drd instanceof EnablePanel)
+			{
+				//if you have a tabpanel disabled at designtime the the ui comonents of the tabppanel apper enabled (they should be disabled)
+				boolean enabled = ((EnablePanel)drd).isEnabled();
+				((EnablePanel)drd).setEnabled(enabled);
 			}
 		}
 		// check if destroyed.
