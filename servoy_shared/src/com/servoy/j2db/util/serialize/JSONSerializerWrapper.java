@@ -28,6 +28,7 @@ import org.jabsorb.serializer.impl.BeanSerializer;
 import org.jabsorb.serializer.impl.BooleanSerializer;
 import org.jabsorb.serializer.impl.DateSerializer;
 import org.jabsorb.serializer.impl.DictionarySerializer;
+import org.jabsorb.serializer.impl.ListSerializer;
 import org.jabsorb.serializer.impl.MapSerializer;
 import org.jabsorb.serializer.impl.NumberSerializer;
 import org.jabsorb.serializer.impl.PrimitiveSerializer;
@@ -186,7 +187,7 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 				serializer.registerSerializer(new DictionarySerializer());
 				serializer.registerSerializer(new MapSerializer());
 				serializer.registerSerializer(new SetSerializer());
-//				serializer.registerSerializer(new ListSerializer()); // is handled by NativeObjectSerializer
+				serializer.registerSerializer(new ListSerializer());
 				serializer.registerSerializer(new DateSerializer());
 				serializer.registerSerializer(handleByteArrays ? new StringByteArraySerializer() : new StringSerializer()); // handle byte arrays as base64 encoded?
 				serializer.registerSerializer(new NumberSerializer());
