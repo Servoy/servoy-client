@@ -24,10 +24,6 @@ function layoutOneElement(elementInfo)
 				imageURL = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
 				imageURL = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);		
 				imgEl.src = imageURL;
-				var imageOnLoad = imgEl.onload;
-				imageOnLoad = imageURL.replace(/w=[\d]+/, "w=" + element.clientWidth);
-				imageOnLoad = imageURL.replace(/h=[\d]+/, "h=" + element.clientHeight);		
-				imgEl.onload = imageOnLoad;
 			},0);
 		}
 	}
