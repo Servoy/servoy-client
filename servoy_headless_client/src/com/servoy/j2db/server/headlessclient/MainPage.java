@@ -218,7 +218,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 		public void put(String name, ServoyDivDialog divDialog)
 		{
-			divDialogsMap.put(name, divDialog);
+			ServoyDivDialog oldDivDialog = divDialogsMap.put(name, divDialog);
+			if (oldDivDialog != null) dialogsOrderedByOpenSequence.remove(oldDivDialog);
 			dialogsOrderedByOpenSequence.add(divDialog);
 		}
 
@@ -683,7 +684,11 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			public void onClose(AjaxRequestTarget target)
 			{
 				divDialogRepeater.remove(divDialog);
-				divDialogs.remove(divDialog.getPageMapName());
+				String divDialogPageMapName = divDialog.getPageMapName();
+				if (divDialogs.get(divDialogPageMapName) == divDialog)
+				{
+					divDialogs.remove(divDialogPageMapName);
+				}
 				if (divDialogs.size() == 0)
 				{
 					divDialogsParent.setVisible(false);
@@ -1225,6 +1230,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	public void setTitle(String name)
 	{
+		touch();
 		Solution solution = this.client.getSolution();
 		String titleString = ""; //$NON-NLS-1$
 		String solutionTitle = solution.getTitleText();
