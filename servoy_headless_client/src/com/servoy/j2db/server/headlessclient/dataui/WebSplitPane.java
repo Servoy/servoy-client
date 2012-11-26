@@ -1137,7 +1137,8 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	 */
 	public String getTabNameAt(int i)
 	{
-		return null;
+		IFormLookupPanel form = i == 0 ? getLeftForm() : i == 1 ? getRightForm() : null;
+		return form != null ? form.getName() : null;
 	}
 
 	/*
@@ -1148,8 +1149,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public String getTabFormNameAt(int i)
 	{
 		IFormLookupPanel form = i == 0 ? getLeftForm() : i == 1 ? getRightForm() : null;
-		if (form != null) form.getFormName();
-		return null;
+		return form != null ? form.getFormName() : null;
 	}
 
 	/*

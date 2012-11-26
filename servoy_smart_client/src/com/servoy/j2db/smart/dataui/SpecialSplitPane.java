@@ -773,8 +773,8 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	 */
 	public String getTabNameAt(int i)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		IFormLookupPanel form = i == 0 ? getLeftForm() : i == 1 ? getRightForm() : null;
+		return form != null ? form.getName() : null;
 	}
 
 	/*
@@ -785,8 +785,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 	public String getTabFormNameAt(int i)
 	{
 		IFormLookupPanel form = i == 0 ? getLeftForm() : i == 1 ? getRightForm() : null;
-		if (form != null) form.getFormName();
-		return null;
+		return form != null ? form.getFormName() : null;
 	}
 
 	/*
