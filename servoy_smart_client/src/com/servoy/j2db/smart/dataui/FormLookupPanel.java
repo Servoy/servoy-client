@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
+import com.servoy.j2db.util.ITabPaneAlike;
 
 public class FormLookupPanel extends EnablePanel implements IFormLookupPanel
 {
@@ -133,6 +134,10 @@ public class FormLookupPanel extends EnablePanel implements IFormLookupPanel
 				fp.setReadOnly(fm.isFormReadOnly(formName));
 
 				Container con = getParent();
+				if (con != null && (con instanceof ITabPaneAlike))
+				{// reaply the isEnabled state of the tabpannel to its child tabs (tabs are added after enabled state is set)
+					this.setEnabled(con.isEnabled());
+				}
 				while (con != null)
 				{
 					if (con instanceof IFormUIInternal)
