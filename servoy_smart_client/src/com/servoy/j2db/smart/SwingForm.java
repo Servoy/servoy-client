@@ -500,8 +500,10 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				}
 				else if (currentSplitPane != null)
 				{
-					boolean isLeftForm = currentLookupPanel != null && currentLookupPanel.equals(currentSplitPane.getLeftForm());
-					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), null, new Integer(isLeftForm ? 1 : 2) });
+					int idx = currentLookupPanel != null && currentLookupPanel.equals(currentSplitPane.getLeftForm()) ? 0 : 1;
+					set.addRow(0,
+						new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(idx), new Integer(
+							idx + 1) });
 				}
 				else
 				{

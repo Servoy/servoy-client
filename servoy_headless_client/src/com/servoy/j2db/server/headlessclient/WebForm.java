@@ -431,10 +431,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				}
 				else if (currentSplitPane != null)
 				{
-					boolean isLeftForm = currentSplitPane.getLeftForm() != null &&
-						current.equals(((WebTabFormLookup)currentSplitPane.getLeftForm()).getWebForm());
+					int idx = currentSplitPane.getLeftForm() != null && current.equals(((WebTabFormLookup)currentSplitPane.getLeftForm()).getWebForm()) ? 0 : 1;
 					current = (WebForm)parent;
-					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), null, new Integer(isLeftForm ? 1 : 2) });
+					set.addRow(0,
+						new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(idx), new Integer(
+							idx + 1) });
 				}
 				current = (WebForm)parent;
 				currentTabPanel = null;
