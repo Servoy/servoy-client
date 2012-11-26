@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.persistence.LiteralDataprovider;
+
 /**
  * Solution relation item.
  * 
@@ -26,6 +28,15 @@ package com.servoy.j2db.solutionmodel;
  */
 public interface ISMRelationItem extends ISMHasUUID
 {
+	/** 
+	 * Constant for using literals in solution model in relations.
+	 * Strings must be passed as quoted value to make a distinction between string '5' and number 5.
+	 * 
+	 * @sample
+	 * relation.newRelationItem(JSRelationItem.LITERAL_PREFIX + "'hello'",'=', 'mytextfield');
+	 */
+	public static final String LITERAL_PREFIX = LiteralDataprovider.LITERAL_PREFIX;
+
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getForeignColumnName()

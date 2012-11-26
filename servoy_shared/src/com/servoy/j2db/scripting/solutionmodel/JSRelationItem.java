@@ -21,6 +21,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RelationItem;
+import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -30,7 +31,7 @@ import com.servoy.j2db.solutionmodel.ISMRelationItem;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptType, ISMRelationItem
+public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptType, IConstantsObject, ISMRelationItem
 {
 	static
 	{
