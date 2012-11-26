@@ -814,7 +814,7 @@ public class RepositoryHelper
 	{
 		String bgcolor = (String)values.get("background"); //$NON-NLS-1$
 		String transparent = (String)values.get("transparent"); //$NON-NLS-1$
-		if (bgcolor != null)
+		if (bgcolor != null && !"".equals(bgcolor)) //$NON-NLS-1$
 		{
 			retval.append("\t"); //$NON-NLS-1$
 			retval.append("background-color: "); //$NON-NLS-1$

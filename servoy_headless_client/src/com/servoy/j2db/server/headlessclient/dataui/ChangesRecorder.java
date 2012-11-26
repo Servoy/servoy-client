@@ -294,11 +294,6 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 
 	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)
 	{
-		if (properties != null)
-		{
-			properties.put("offsetWidth", getSizeString(width)); //$NON-NLS-1$ 
-			properties.put("offsetHeight", getSizeString(height)); //$NON-NLS-1$ 
-		}
 		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, isButton, valign);
 		int realWidth = width;
 		int realheight = height;
