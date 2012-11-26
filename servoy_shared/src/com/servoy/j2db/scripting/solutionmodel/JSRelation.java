@@ -33,6 +33,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -128,6 +129,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @sample 
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('another_parent_table_id', '=', 'another_child_table_parent_id');
+	 * // for literals use a prefix
+	 * relation.newRelationItem(JSRelationItem.LITERAL_PREFIX + "'hello'",'=', 'mytextfield');
 	 *
 	 * @param dataprovider The name of the primary dataprovider. 
 	 *
@@ -140,6 +143,21 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	@JSFunction
 	public JSRelationItem newRelationItem(String dataprovider, String operator, String foreinColumnName)
 	{
+		if (dataprovider == null)
+		{
+			throw new IllegalArgumentException("dataprovider cannot be null"); //$NON-NLS-1$
+		}
+		if (foreinColumnName == null)
+		{
+			throw new IllegalArgumentException("foreinColumnName cannot be null"); //$NON-NLS-1$
+		}
+
+		int validOperator = RelationItem.getValidOperator(operator, RelationItem.RELATION_OPERATORS, null);
+		if (validOperator == -1)
+		{
+			throw new IllegalArgumentException("operator " + operator + " is not a valid relation operator"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+
 		checkModification();
 		try
 		{
@@ -147,6 +165,10 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 			if (ScopesUtils.isVariableScope(dataprovider))
 			{
 				primaryDataProvider = application.getFlattenedSolution().getGlobalDataProvider(dataprovider);
+			}
+			else if (dataprovider.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+			{
+				primaryDataProvider = new LiteralDataprovider(dataprovider);
 			}
 			else
 			{
@@ -158,12 +180,6 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 				throw new IllegalArgumentException("cant create relation item primary dataprovider not found: " + dataprovider); //$NON-NLS-1$
 			}
 
-			int validOperator = RelationItem.getValidOperator(operator, RelationItem.RELATION_OPERATORS, null);
-			if (validOperator == -1)
-			{
-				throw new IllegalArgumentException("operator " + operator + " is not a valid relation operator"); //$NON-NLS-1$//$NON-NLS-2$
-			}
-
 			IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(
 				(Table)application.getFoundSetManager().getTable(relation.getForeignDataSource()), foreinColumnName);
 			if (!(dp instanceof Column))
@@ -173,9 +189,9 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 			RelationItem result = relation.createNewRelationItem(application.getFoundSetManager(), primaryDataProvider, validOperator, (Column)dp);
 			if (result != null) return new JSRelationItem(result, this, isCopy);
-			else return null;
+			return null;
 		}
-		catch (Exception e)
+		catch (RepositoryException e)
 		{
 			throw new RuntimeException(e);
 		}
