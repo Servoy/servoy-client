@@ -2754,6 +2754,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						table.setViewSize(2 * maxRowsPerPage);
 						isScrollFirstShow = false;
 					}
+					else
+					{
+						if (!hasBottomBuffer)
+						{
+							int newRows = table.getList().size() - (table.getStartIndex() + table.getViewSize());
+							if (newRows > 0)
+							{
+								table.setViewSize(table.getViewSize() + newRows);
+							}
+						}
+					}
 				}
 				else
 				{
