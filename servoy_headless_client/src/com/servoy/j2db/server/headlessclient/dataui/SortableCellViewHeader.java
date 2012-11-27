@@ -223,6 +223,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 									}
 								}));
 							}
+							String inlineStyleStr = view.getHeaderMarginStyle();
+							if (inlineStyleStr != null)
+							{
+								applyInlineStyleString(headerText, inlineStyleStr);
+							}
 							headerText.setEscapeModelStrings(false);
 							autoAdd(headerText);
 
@@ -316,10 +321,12 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 
 		final Properties changes = changesRecorder.getChanges();
 		if (changes.size() > 0) applyStyleChanges(headerColumnTable, changes);
-		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
+		if (inlineStyleStr != null) applyInlineStyleString(this, inlineStyleStr);
 
 		inlineStyleStr = view.getHeaderBgImageStyle();
 		if (inlineStyleStr != null) applyInlineStyleString(headerColumnTable, inlineStyleStr);
+
+		//margin is applied to LabelResolverLink on the label (to mimic Label component margin behavior)
 
 		ChangesRecorder textChangesRecorder = new ChangesRecorder();
 		textChangesRecorder.setFont(view.getHeaderFont());
@@ -756,6 +763,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 	@Override
 	protected void onRender(final MarkupStream markupStream)
 	{
+
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
 	}

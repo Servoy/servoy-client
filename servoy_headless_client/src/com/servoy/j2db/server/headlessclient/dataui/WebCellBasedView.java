@@ -3595,6 +3595,31 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					return ss.hasFont(style) ? PersistHelper.createFontString(ss.getFont(style)) : null;
 				case BORDER :
 					return ss.hasBorder(style) ? ComponentFactoryHelper.createBorderString(ss.getBorder(style)) : null;
+				case MARGIN :
+					// !WARNING! : Margin is applied as padding
+					if (ss.hasMargin(style))
+					{
+						TextualStyle marginStyle = new TemplateGenerator.TextualStyle();
+						String marginTop = style.getValue(CSS.Attribute.MARGIN_TOP.toString());
+						if (marginTop != null) marginStyle.setProperty(CSS.Attribute.PADDING_TOP.toString(), marginTop);
+
+						String marginBottom = style.getValue(CSS.Attribute.MARGIN_BOTTOM.toString());
+						if (marginBottom != null) marginStyle.setProperty(CSS.Attribute.PADDING_BOTTOM.toString(), marginBottom);
+
+						String marginLeft = style.getValue(CSS.Attribute.MARGIN_LEFT.toString());
+						if (marginLeft != null) marginStyle.setProperty(CSS.Attribute.PADDING_LEFT.toString(), marginLeft);
+
+						String marginRight = style.getValue(CSS.Attribute.MARGIN_RIGHT.toString());
+						if (marginRight != null) marginStyle.setProperty(CSS.Attribute.PADDING_RIGHT.toString(), marginRight);
+
+						StringBuffer ret = new StringBuffer();
+						//the returned string is style='...' , we nedd to get the ... part
+						String inlineStyle = marginStyle.toString();
+						if (inlineStyle != null) ret.append(inlineStyle.substring(inlineStyle.indexOf('\'') + 1, inlineStyle.length() - 2));
+						return ret.toString();
+					}
+
+
 			}
 		}
 		return null;
@@ -3618,6 +3643,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 		}
 		return null;
+	}
+
+	protected String getHeaderMarginStyle()
+	{
+		return getStyleAttributeString(getHeaderStyle(), ISupportRowStyling.ATTRIBUTE.MARGIN);
 	}
 
 	protected String getHeaderBgImageStyle()

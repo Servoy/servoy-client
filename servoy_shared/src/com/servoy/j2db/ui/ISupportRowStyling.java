@@ -34,7 +34,7 @@ public interface ISupportRowStyling
 
 	enum ATTRIBUTE
 	{
-		BGIMAGE, BGCOLOR, FGCOLOR, FONT, BORDER
+		BGIMAGE, BGCOLOR, FGCOLOR, FONT, BORDER, MARGIN
 	}
 
 	public void setRowStyles(IStyleSheet styleSheet, IStyleRule oddStyle, IStyleRule evenStyle, IStyleRule selectedStyle, IStyleRule headerStyle);
