@@ -397,7 +397,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		{
 			Insets insets = parent.getInsets();
 
-			if (!vector.isEmpty())
+			if (!vector.isEmpty() && currentCard < vector.size())
 			{
 				final Component comp = ((Card)vector.get(currentCard)).comp;
 				comp.setBounds(hgap + insets.left, vgap + insets.top, parent.getWidth() - (hgap * 2 + insets.left + insets.right), parent.getHeight() -
@@ -531,7 +531,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 
 	public void show(Container parent, int newIndex, boolean checkIndex)
 	{
-		if (!vector.isEmpty() && (!checkIndex || (currentCard != newIndex)))
+		if (!vector.isEmpty() && (currentCard < vector.size()) && (!checkIndex || (currentCard != newIndex)))
 		{
 			((Card)vector.get(currentCard)).comp.setVisible(false);
 			currentCard = newIndex;
