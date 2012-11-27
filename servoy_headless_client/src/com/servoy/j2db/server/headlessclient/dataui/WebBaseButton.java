@@ -76,9 +76,11 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -732,6 +734,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public String getToolTipText()
 	{
+		if (tooltip != null && getDefaultModel() instanceof ITagResolver)
+		{
+			return Text.processTags(tooltip, (ITagResolver)getDefaultModel());
+		}
 		return tooltip;
 	}
 
