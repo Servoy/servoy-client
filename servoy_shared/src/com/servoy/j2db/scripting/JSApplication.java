@@ -1775,16 +1775,7 @@ public class JSApplication implements IReturnedTypesProvider
 		if (msg instanceof Object[])
 		{
 			Object[] a = (Object[])msg;
-			StringBuilder buf = new StringBuilder();
-			buf.append('[');
-			for (int i = 0; i < a.length; i++)
-			{
-				if (i > 0) buf.append(", "); //$NON-NLS-1$
-				if (a[i] instanceof Scriptable) buf.append(getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
-				else buf.append(String.valueOf(a[i]));
-			}
-			buf.append(']');
-			application.output(buf.toString(), level);
+			application.output(getArrayString(a), level);
 		}
 		else if (msg instanceof NativeError)
 		{
@@ -1798,6 +1789,25 @@ public class JSApplication implements IReturnedTypesProvider
 		{
 			application.output(msg, level);
 		}
+	}
+
+	/**
+	 * @param a
+	 * @return
+	 */
+	private StringBuilder getArrayString(Object[] a)
+	{
+		StringBuilder buf = new StringBuilder();
+		buf.append('[');
+		for (int i = 0; i < a.length; i++)
+		{
+			if (i > 0) buf.append(", "); //$NON-NLS-1$
+			if (a[i] instanceof Scriptable) buf.append(getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
+			else if (a[i] instanceof Object[]) buf.append(getArrayString((Object[])a[i]));
+			else buf.append(String.valueOf(a[i]));
+		}
+		buf.append(']');
+		return buf;
 	}
 
 	/**
