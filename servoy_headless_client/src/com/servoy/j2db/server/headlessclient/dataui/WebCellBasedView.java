@@ -411,7 +411,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (!Utils.equalObjects(childCompBG, newChildBG))
 				{
 					String sNewChildBG = newChildBG != null ? PersistHelper.createColorString(newChildBG) : ""; //$NON-NLS-1$
-					add(new StyleAppendingModifier(new Model<String>("background-color: " + sNewChildBG))); //$NON-NLS-1$
+					if (!"".equals(sNewChildBG)) add(new StyleAppendingModifier(new Model<String>("background-color: " + sNewChildBG))); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 			else
@@ -952,12 +952,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					if (cellview instanceof Portal)
 					{
-						return color != null ? "background-color: " + color : ""; //$NON-NLS-1$ //$NON-NLS-2$
+						return color != null && !"".equals(color) ? "background-color: " + color : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
 					else
 					{
-						return color != null
-							? "margin-left: 3px;background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+						return color != null && !"".equals(color) //$NON-NLS-1$
+						? "margin-left: 3px;background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 					}
 				}
 			}));
@@ -3872,7 +3872,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		MarkupContainer cellContainer = comp.getParent();
 		String compColorStr = compColor.toString();
-		if (cellContainer instanceof CellContainer)
+		if (cellContainer instanceof CellContainer && compColorStr != null && !"".equals(compColorStr)) //$NON-NLS-1$
 		{
 			cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
 		}

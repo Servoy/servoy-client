@@ -109,10 +109,6 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				if (top != null) changes.put("top", top); //$NON-NLS-1$ 
 
 				// copy over the widths and heights
-				Object offsetWidth = componentChanges.remove("offsetWidth"); //$NON-NLS-1$
-				if (offsetWidth != null) changes.put("offsetWidth", offsetWidth); //$NON-NLS-1$ 
-				Object offsetHeight = componentChanges.remove("offsetHeight"); //$NON-NLS-1$
-				if (offsetHeight != null) changes.put("offsetHeight", offsetHeight); //$NON-NLS-1$ 
 
 				Object width = componentChanges.remove("width"); //$NON-NLS-1$
 				if (width != null) changes.put("width", width); //$NON-NLS-1$ 

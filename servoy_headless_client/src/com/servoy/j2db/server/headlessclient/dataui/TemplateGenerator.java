@@ -723,7 +723,11 @@ public class TemplateGenerator
 									usesImageMedia = true;
 								}
 
-								bgborderstyleObj.setProperty("background-color", styleObj.getProperty("background-color"));
+								String styleObjBgColor = styleObj.getProperty("background-color");
+								if (styleObjBgColor != null && !"".equals(styleObjBgColor))
+								{
+									bgborderstyleObj.setProperty("background-color", styleObjBgColor);
+								}
 								// unless specified, set the font-weight for <th> to normal, as disabled parent component will make the font bold by default and we don't want that
 								if (styleObj.getProperty(CSS.Attribute.FONT_WEIGHT.toString()) == null)
 								{
