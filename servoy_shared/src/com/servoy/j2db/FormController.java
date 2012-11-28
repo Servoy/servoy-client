@@ -4589,7 +4589,13 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public String[] getTabSequence()
 	{
-		return tabSequence.getNamesInTabSequence();
+		String[] tabSequenceNames = tabSequence.getNamesInTabSequence();
+		if (getView() == LOCKED_TABLE_VIEW)
+		{
+			List<String> namesList = view.getTabSeqComponentNames();
+			if (!namesList.isEmpty()) tabSequenceNames = Utils.arrayJoin(tabSequenceNames, namesList.toArray());
+		}
+		return tabSequenceNames;
 	}
 
 	public void foundSetChanged(FoundSetEvent e)

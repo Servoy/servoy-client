@@ -193,4 +193,16 @@ public class WebRecordView extends WebMarkupContainer implements IView
 	public void setEditable(boolean findMode)
 	{
 	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IView#getTabSeqComponentNames()
+	 */
+	public List<String> getTabSeqComponentNames()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
