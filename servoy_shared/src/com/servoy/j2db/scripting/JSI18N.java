@@ -27,19 +27,22 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.api.IJSI18N;
 import com.servoy.j2db.util.StringComparator;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "i18n", scriptingName = "i18n")
-public class JSI18N
+public class JSI18N implements IJSI18N
 {
 	static
 	{
@@ -80,7 +83,8 @@ public class JSI18N
 	 *
 	 * @param country The upper case 2 letter code.
 	 */
-	public void js_setLocale(String language, String country)
+	@JSFunction
+	public void setLocale(String language, String country)
 	{
 		application.setLocale(new Locale(language, country));
 	}
@@ -94,7 +98,8 @@ public class JSI18N
 	 * 
 	 * @return a String representing the current language.
 	 */
-	public String js_getCurrentLanguage()
+	@JSFunction
+	public String getCurrentLanguage()
 	{
 		return application.getLocale().getLanguage();
 	}
@@ -109,7 +114,8 @@ public class JSI18N
 	 * 
 	 * @return a String representing the current country.
 	 */
-	public String js_getCurrentCountry()
+	@JSFunction
+	public String getCurrentCountry()
 	{
 		return application.getLocale().getCountry();
 	}
@@ -122,7 +128,8 @@ public class JSI18N
 	 * 
 	 * @return a String representing the current time zone.
 	 */
-	public String js_getCurrentTimeZone()
+	@JSFunction
+	public String getCurrentTimeZone()
 	{
 		return application.getTimeZone().getID();
 	}
@@ -135,7 +142,8 @@ public class JSI18N
 	 * 
 	 * @return a String representing the default date format.
 	 */
-	public String js_getDefaultDateFormat()
+	@JSFunction
+	public String getDefaultDateFormat()
 	{
 		return TagResolver.getFormatString(Date.class, application.getSettings());
 	}
@@ -148,7 +156,8 @@ public class JSI18N
 	 * 
 	 * @return a String representing the default number format.
 	 */
-	public String js_getDefaultNumberFormat()
+	@JSFunction
+	public String getDefaultNumberFormat()
 	{
 		return TagResolver.getFormatString(Number.class, application.getSettings());
 	}
@@ -169,7 +178,8 @@ public class JSI18N
 	 * 
 	 * @link http://www.ics.uci.edu/pub/ietf/http/related/iso639.txt
 	 */
-	public JSDataSet js_getLanguages()
+	@JSFunction
+	public JSDataSet getLanguages()
 	{
 		Locale[] locales = Locale.getAvailableLocales();
 		TreeMap<String, String> languages = new TreeMap<String, String>(StringComparator.INSTANCE);
@@ -198,7 +208,8 @@ public class JSI18N
 	 * 
 	 * @return an Array with all the timezones.
 	 */
-	public String[] js_getTimeZones()
+	@JSFunction
+	public String[] getTimeZones()
 	{
 		return TimeZone.getAvailableIDs();
 	}
@@ -214,21 +225,23 @@ public class JSI18N
 	 * 
 	 * @return an int representing the time zone's offset from UTC.
 	 */
-	public int js_getTimeZoneOffset(String timeZoneId)
+	@JSFunction
+	public int getTimeZoneOffset(String timeZoneId)
 	{
-		return js_getTimeZoneOffset(timeZoneId, null);
+		return getTimeZoneOffset(timeZoneId, null);
 	}
 
 	/**
-	 * @clonedesc js_getTimeZoneOffset(String)
-	 * @sampleas js_getTimeZoneOffset(String)
+	 * @clonedesc getTimeZoneOffset(String)
+	 * @sampleas getTimeZoneOffset(String)
 	 * 
 	 * @param timeZoneId The time zone to get the offset for.
 	 * @param date The date in the time zone (default current date). Needed in case daylight saving time/GMT offset changes are used in the time zone.
 	 * 
 	 * @return an int representing the time zone's offset from UTC.
 	 */
-	public int js_getTimeZoneOffset(String timeZoneId, Date date)
+	@JSFunction
+	public int getTimeZoneOffset(String timeZoneId, Date date)
 	{
 		TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
 		if (timeZone != null)
@@ -250,7 +263,8 @@ public class JSI18N
 	 *
 	 * @return a String that is the message for the message key.
 	 */
-	public String js_getI18NMessage(String i18nKey)
+	@JSFunction
+	public String getI18NMessage(String i18nKey)
 	{
 		return application.getI18NMessage(i18nKey);
 	}
@@ -270,7 +284,8 @@ public class JSI18N
 	 * 
 	 * @return a String that is the message for the message key.
 	 */
-	public String js_getI18NMessage(String i18nKey, Object[] dynamicValues)
+	@JSFunction
+	public String getI18NMessage(String i18nKey, Object[] dynamicValues)
 	{
 		return application.getI18NMessage(i18nKey, dynamicValues);
 	}
@@ -283,7 +298,8 @@ public class JSI18N
 	 *
 	 * @return a String array containing the available countries.
 	 */
-	public String[] js_getCountries()
+	@JSFunction
+	public String[] getCountries()
 	{
 		Locale[] locales = Locale.getAvailableLocales();
 		ArrayList<String> countries = new ArrayList<String>();
@@ -316,7 +332,8 @@ public class JSI18N
 	 *
 	 * @param value They value for the message key.
 	 */
-	public void js_setI18NMessage(String i18nKey, String value)
+	@JSFunction
+	public void setI18NMessage(String i18nKey, String value)
 	{
 		application.setI18NMessage(i18nKey, value);
 	}
@@ -388,7 +405,8 @@ public class JSI18N
 	 * 
 	 * @return a JSDataSet with all the system messages.
 	 */
-	public JSDataSet js_getSystemMessages()
+	@JSFunction
+	public JSDataSet getSystemMessages()
 	{
 		Locale locale = application.getLocale();
 
@@ -451,7 +469,8 @@ public class JSI18N
 	 * // This will set the default time zone to Central European Time
 	 * i18n.setTimeZone("Europe/Amsterdam");
 	 */
-	public void js_setTimeZone(String timezone)
+	@JSFunction
+	public void setTimeZone(String timezone)
 	{
 		TimeZone zone = TimeZone.getTimeZone(timezone);
 		if (zone != null) application.setTimeZone(zone);
@@ -464,7 +483,8 @@ public class JSI18N
 	 * //Get the list of available time zones 
 	 * var timezones = i18n.getAvailableTimeZoneIDs();
 	 */
-	public String[] js_getAvailableTimeZoneIDs()
+	@JSFunction
+	public String[] getAvailableTimeZoneIDs()
 	{
 		return TimeZone.getAvailableIDs();
 	}
