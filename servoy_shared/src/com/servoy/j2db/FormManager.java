@@ -39,6 +39,9 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
@@ -63,6 +66,7 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.api.IJSHistory;
 import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -1167,7 +1171,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	protected abstract boolean isShowingPrintPreview();
 
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "History", scriptingName = "history")
-	public static class HistoryProvider
+	public static class HistoryProvider implements IJSHistory
 	{
 		private volatile IApplication application;
 
@@ -1192,13 +1196,15 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 *
 		 * @sample history.clear();
 		 */
-		public void js_clear()
+		@JSFunction
+		public void clear()
 		{
 			IMainContainer container = getCurrentContainer();
 			container.getHistory().clear();
 		}
 
-		public void js_setButtonsEnabled(boolean b)
+		@JSSetter
+		public void setButtonsEnabled(boolean b)
 		{
 			IMainContainer container = getCurrentContainer();
 			container.getHistory().setButtonsEnabled(b);
@@ -1211,7 +1217,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * history.buttonsEnabled = true;
 		 * var status = history.buttonsEnabled;
 		 */
-		public boolean js_getButtonsEnabled()
+		@JSGetter
+		public boolean getButtonsEnabled()
 		{
 			IMainContainer container = getCurrentContainer();
 			return container.getHistory().getButtonsEnabled();
@@ -1224,7 +1231,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * @param i the absolute index
 		 * @return the formName
 		 */
-		public String js_getFormName(int i)
+		@JSFunction
+		public String getFormName(int i)
 		{
 			IMainContainer container = getCurrentContainer();
 			return container.getHistory().getFormName(i - 1); // js offset 1
@@ -1236,7 +1244,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * @sample history.go(-3);
 		 * @param i the relative index
 		 */
-		public void js_go(int i)
+		@JSFunction
+		public void go(int i)
 		{
 			IMainContainer container = getCurrentContainer();
 			container.getHistory().go(i);
@@ -1247,7 +1256,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 *
 		 * @sample history.back();
 		 */
-		public void js_back()
+		@JSFunction
+		public void back()
 		{
 			// TODO printpreview must be in this container...
 			if (((FormManager)application.getFormManager()).isShowingPrintPreview())
@@ -1256,7 +1266,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 			else
 			{
-				js_go(-1);
+				go(-1);
 			}
 		}
 
@@ -1265,9 +1275,10 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 *
 		 * @sample history.forward();
 		 */
-		public void js_forward()
+		@JSFunction
+		public void forward()
 		{
-			js_go(1);
+			go(1);
 		}
 
 		/**
@@ -1276,7 +1287,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * @sample var size = history.size();
 		 * @return the size
 		 */
-		public int js_size()
+		@JSFunction
+		public int size()
 		{
 			IMainContainer container = getCurrentContainer();
 			return container.getHistory().getLength();
@@ -1288,7 +1300,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * @sample var abs_index = history.getCurrentIndex();
 		 * @return the current absolute index
 		 */
-		public int js_getCurrentIndex()
+		@JSFunction
+		public int getCurrentIndex()
 		{
 			IMainContainer container = getCurrentContainer();
 			return container.getHistory().getIndex() + 1; // js offset 1
@@ -1303,7 +1316,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * 
 		 * @return true if successful
 		 */
-		public boolean js_removeIndex(int index)
+		@JSFunction
+		public boolean removeIndex(int index)
 		{
 			IMainContainer container = getCurrentContainer();
 			return container.getHistory().removeIndex(index - 1); // js offset 1
@@ -1323,7 +1337,8 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		 * 
 		 * @return true if successful
 		 */
-		public boolean js_removeForm(String formName)
+		@JSFunction
+		public boolean removeForm(String formName)
 		{
 			IMainContainer container = getCurrentContainer();
 			return container.getHistory().removeForm(formName);
