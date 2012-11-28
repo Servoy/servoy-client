@@ -466,6 +466,26 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 		 * Current offset.
 		 */
 		private int curOffset;
+		private Point clickPoint;
+
+		// cannot use mouseClicked callback as the must also track mouse events that
+		// are repost from EditListUI, and that is ignoring reposting mouseClicked events
+		// so, we try to figure out if it is a click from mousePressed & mouseReleased
+
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			clickPoint = e.getPoint();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e)
+		{
+			if (clickPoint.equals(e.getPoint())) // it is a mouse click
+			{
+				handleMouseClick(e);
+			}
+		}
 
 		/**
 		 * Called for a mouse click event. If the component is read-only (ie a browser) then the clicked event is used to drive an attempt to follow the
@@ -474,8 +494,7 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 		 * @param e the mouse event
 		 * @see MouseListener#mouseClicked
 		 */
-		@Override
-		public void mouseClicked(MouseEvent e)
+		private void handleMouseClick(MouseEvent e)
 		{
 			JEditorPane editor = (JEditorPane)e.getSource();
 

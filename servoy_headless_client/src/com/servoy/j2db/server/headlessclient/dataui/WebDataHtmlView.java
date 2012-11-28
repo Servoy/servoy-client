@@ -137,7 +137,9 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 				asb.append(getMarkupId());
 				asb.append("')) { ");
 			}
-			asb.append("wicketAjaxGet('");
+
+			asb.append("document.getElementById('").append(getMarkupId()).append("').focus();");
+			asb.append("window.setTimeout(function() { wicketAjaxGet('");
 			asb.append(inlineScriptExecutor.getCallbackUrl());
 			if (browserVar)
 			{
@@ -151,7 +153,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 				ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
 				asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
 			}
-			asb.append("');");
+			asb.append("');}, 0);");
 			if (testDoubleClick)
 			{
 				asb.append("} ");
