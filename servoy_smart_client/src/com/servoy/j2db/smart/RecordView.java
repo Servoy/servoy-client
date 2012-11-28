@@ -386,4 +386,15 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 			scrollRectToVisible(scrollPosition);
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IView#getTabSeqComponentNames()
+	 */
+	public List<String> getTabSeqComponentNames()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

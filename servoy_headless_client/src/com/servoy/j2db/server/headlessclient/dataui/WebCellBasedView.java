@@ -3447,6 +3447,33 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
+	public List<String> getTabSeqComponentNames()
+	{
+		//elementTabIndexes is not sorted. We have to sort the indexes of the tabs first.
+		HashMap<Integer, IPersist> elIndexes = new HashMap<Integer, IPersist>();
+		List<String> tabSeqNames = new ArrayList<String>();
+		for (IPersist key : elementTabIndexes.keySet())
+		{
+			elIndexes.put(elementTabIndexes.get(key), key);
+		}
+		ArrayList<Integer> indexes = new ArrayList<Integer>(elIndexes.keySet());
+
+		Collections.sort(indexes);
+		for (int i : indexes)
+		{
+			IPersist key = elIndexes.get(i);
+			if (key instanceof ISupportName)
+			{
+				String name = ((ISupportName)key).getName();
+				if (name != null)
+				{
+					tabSeqNames.add(name);
+				}
+			}
+		}
+		return tabSeqNames;
+	}
+
 	private boolean componentIdentifiesColumn(Component rowIdComponent, Component value)
 	{
 		if (rowIdComponent == value)
