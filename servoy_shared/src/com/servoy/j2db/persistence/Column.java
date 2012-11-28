@@ -170,7 +170,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 			case Types4.NVARCHAR : //nvarchar fix for 'odbc-bridge' and 'inet driver'
 			case -10 ://ntext fix for 'odbc-bridge' and 'inet driver'
 			case -11 ://UID text fix M$ driver -sql server
-			case Types.OTHER : // Postgres native "uuid" data type is mapped to Types.OTHERS in JDBC
+			case Types.JAVA_OBJECT : //postgres uuid
 				return TEXT;
 
 			case Types.FLOAT :
@@ -196,6 +196,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 			case Types.NULL :
 				return MEDIA;
 
+			case Types.OTHER :
 			default :
 				return atype;
 		}
