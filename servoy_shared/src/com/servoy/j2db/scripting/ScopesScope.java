@@ -17,6 +17,8 @@
 package com.servoy.j2db.scripting;
 
 
+import java.util.Stack;
+
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
@@ -74,10 +76,13 @@ public class ScopesScope extends DefaultScope
 		else if (object instanceof GlobalScope && !((GlobalScope)object).isInitialized())
 		{
 			application.reportJSError("Scope '" + name +
-				"' was accessed while not fully created yet, check for scope variables recursively referring to each other", null);
+				"' was accessed while not fully created yet, check for scope variables recursively referring to each other, scope stack:" +
+				globalScopeCreateStack.toString(), null);
 		}
 		return object;
 	}
+
+	private final Stack<String> globalScopeCreateStack = new Stack<String>();
 
 	/**
 	 * Get or create global scope.
@@ -97,7 +102,9 @@ public class ScopesScope extends DefaultScope
 		{
 			gs = new GlobalScope(getParentScope(), scopeName, scriptEngine, application);
 			allVars.put(scopeName, gs);
+			globalScopeCreateStack.push(scopeName);
 			gs.createVars();
+			globalScopeCreateStack.pop();
 			gs.getModificationSubject().addModificationListener(delegateModificationSubject);
 		}
 		return gs;
