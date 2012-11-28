@@ -145,6 +145,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private IRecordInternal currentEditingState;
 	private DataAdapterList dal;
 	private final TableView table;
+	private String name;
 
 	private Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
@@ -177,6 +178,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		this.table = table;
 		this.dataProviderID = dataProviderID;
 		this.renderer = renderer;
+		this.name = name;
 		if (renderer != null)
 		{
 			componentBgColor = renderer.getBackground();
@@ -1687,6 +1689,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	public Component getRenderer()
 	{
 		return renderer;
+	}
+
+	public String getName()
+	{
+		return name;
 	}
 
 	private void onEditorChanged()

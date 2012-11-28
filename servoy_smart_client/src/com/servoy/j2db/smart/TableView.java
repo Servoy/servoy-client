@@ -1764,6 +1764,11 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		tableTabSequenceHandler.setNewTabSequence(list);
 	}
 
+	public List<String> getTabSeqComponentNames()
+	{
+		return tableTabSequenceHandler.getTabSequence();
+	}
+
 	@Override
 	public void setEditable(boolean editable)
 	{
