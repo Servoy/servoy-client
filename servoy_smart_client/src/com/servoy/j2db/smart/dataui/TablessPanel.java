@@ -84,7 +84,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 		int count = getTabCount();
 		setTitleAt(count, text);
 		// if component with same name is already present in FixedCardLayout will be removed, so name must be unique
-		add(flp, ((IFormLookupPanel)flp).getFormName() + "_" + System.currentTimeMillis());
+		add(flp, ((IFormLookupPanel)flp).getFormName() + "_" + System.nanoTime());
 
 		// By the time a tab is added, the opacity may have been already set.
 		// So just make sure its propagated to the new tab.

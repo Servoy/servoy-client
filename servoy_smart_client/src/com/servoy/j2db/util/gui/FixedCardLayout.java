@@ -22,14 +22,10 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager2;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Vector;
 
 /**
  * Wanted extend Cardlayout, but to much is protected...
@@ -42,11 +38,11 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 	private static final long serialVersionUID = -4328196481005934313L;
 
 	/*
-	 * This creates a Vector to store associated pairs of components and their names.
+	 * This creates an ArrayList to store associated pairs of components and their names.
 	 * 
-	 * @see java.util.Vector
+	 * @see java.util.ArrayList
 	 */
-	Vector vector = new Vector();
+	ArrayList componentList = new ArrayList();
 
 	/*
 	 * A pair of Component and String that represents its name.
@@ -99,13 +95,13 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 	 * @serialField tab Hashtable deprectated, for forward compatibility only
 	 * @serialField hgap int
 	 * @serialField vgap int
-	 * @serialField vector Vector
+	 * @serialField componentList ArrayList
 	 * @serialField currentCard int
 	 */
 	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("tab", Hashtable.class), //$NON-NLS-1$
 	new ObjectStreamField("hgap", Integer.TYPE), //$NON-NLS-1$
 	new ObjectStreamField("vgap", Integer.TYPE), //$NON-NLS-1$
-	new ObjectStreamField("vector", Vector.class), //$NON-NLS-1$
+	new ObjectStreamField("componentList", ArrayList.class), //$NON-NLS-1$
 	new ObjectStreamField("currentCard", Integer.TYPE) }; //$NON-NLS-1$
 
 	/**
@@ -213,19 +209,19 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 	{
 		synchronized (comp.getTreeLock())
 		{
-			if (!vector.isEmpty())
+			if (!componentList.isEmpty())
 			{
 				comp.setVisible(false);
 			}
-			for (int i = 0; i < vector.size(); i++)
+			for (int i = 0; i < componentList.size(); i++)
 			{
-				if (((Card)vector.get(i)).name.equals(name))
+				if (((Card)componentList.get(i)).name.equals(name))
 				{
-					vector.remove(i);
+					componentList.remove(i);
 					break;
 				}
 			}
-			vector.add(new Card(name, comp));
+			componentList.add(new Card(name, comp));
 		}
 	}
 
@@ -242,11 +238,11 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (comp.getTreeLock())
 		{
 			int i = 0;
-			for (; i < vector.size(); i++)
+			for (; i < componentList.size(); i++)
 			{
-				if (((Card)vector.get(i)).comp == comp)
+				if (((Card)componentList.get(i)).comp == comp)
 				{
-					vector.remove(i);
+					componentList.remove(i);
 					//## second fix,place panels in same condition as added
 					//addendum: alsways as invisible...becouse they can still have a parent (setting back visible is expensive and generates bugs on mac).
 					comp.setVisible(false);
@@ -254,7 +250,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 				}
 			}
 
-			if (vector.isEmpty())
+			if (componentList.isEmpty())
 			{
 				currentCard = 0;
 			}
@@ -263,11 +259,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 				if (currentCard > 0 && currentCard >= i)
 				{
 					currentCard--;//%= vector.size(); //## first fix,keep index correct
-//					((Card)vector.get(currentCard)).comp.setVisible(true);
-//					((Card)vector.get(currentCard)).comp.invalidate();
-					layoutContainer(((Card)vector.get(currentCard)).comp.getParent());
-					// If this call is enabled then formpanels in tabs are going wrong when used in main or tab. 
-					//((Card)vector.get(currentCard)).comp.getParent().validate();
+					layoutContainer(((Card)componentList.get(currentCard)).comp.getParent());
 				}
 			}
 		}
@@ -286,13 +278,13 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			Insets insets = parent.getInsets();
-			int ncomponents = vector.size();
+			int ncomponents = componentList.size();
 			int w = 0;
 			int h = 0;
 
 			for (int i = 0; i < ncomponents; i++)
 			{
-				Component comp = ((Card)vector.get(i)).comp;
+				Component comp = ((Card)componentList.get(i)).comp;
 				if (comp.isVisible())
 				{
 					Dimension d = comp.getPreferredSize();
@@ -323,13 +315,13 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			Insets insets = parent.getInsets();
-			int ncomponents = vector.size();
+			int ncomponents = componentList.size();
 			int w = 0;
 			int h = 0;
 
 			for (int i = 0; i < ncomponents; i++)
 			{
-				Component comp = ((Card)vector.get(i)).comp;
+				Component comp = ((Card)componentList.get(i)).comp;
 				Dimension d = comp.getMinimumSize();
 				if (d.width > w)
 				{
@@ -397,9 +389,9 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		{
 			Insets insets = parent.getInsets();
 
-			if (!vector.isEmpty() && currentCard < vector.size())
+			if (!componentList.isEmpty())
 			{
-				final Component comp = ((Card)vector.get(currentCard)).comp;
+				final Component comp = ((Card)componentList.get(currentCard)).comp;
 				comp.setBounds(hgap + insets.left, vgap + insets.top, parent.getWidth() - (hgap * 2 + insets.left + insets.right), parent.getHeight() -
 					(vgap * 2 + insets.top + insets.bottom));
 				if (!comp.isVisible())
@@ -447,7 +439,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			checkLayout(parent);
-			show(parent, (currentCard + 1) % vector.size(), true);
+			show(parent, (currentCard + 1) % componentList.size(), true);
 		}
 	}
 
@@ -462,7 +454,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			checkLayout(parent);
-			int newIndex = (currentCard + vector.size() - 1) % vector.size();
+			int newIndex = (currentCard + componentList.size() - 1) % componentList.size();
 			show(parent, newIndex, true);
 		}
 	}
@@ -478,7 +470,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		synchronized (parent.getTreeLock())
 		{
 			checkLayout(parent);
-			show(parent, vector.size() - 1, true);
+			show(parent, componentList.size() - 1, true);
 		}
 	}
 
@@ -496,12 +488,12 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		{
 			checkLayout(parent);
 
-			if (((Card)vector.get(currentCard)).name.equals(name)) return;
+			if (((Card)componentList.get(currentCard)).name.equals(name)) return;
 
-			int ncomponents = vector.size();
+			int ncomponents = componentList.size();
 			for (int i = 0; i < ncomponents; i++)
 			{
-				Card card = (Card)vector.get(i);
+				Card card = (Card)componentList.get(i);
 				if (card.name.equals(name))
 				{
 					show(parent, i, true);
@@ -509,31 +501,13 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 				}
 			}
 		}
-
-//		int count = 0;
-//		int ncomponents = vector.size();
-//		for (int i = 0; i < ncomponents; i++)
-//		{
-//			Card card = (Card) vector.get(i);
-//System.err.print(card);				
-//			if ( ((Card) vector.get(i)).comp.isVisible() )
-//			{
-//				count++;
-//System.err.print(" visble");				
-//			}
-//System.err.println(" ");
-//		}
-//		if (count > 3)
-//		{
-//			throw new IllegalStateException("more than 1 card visible");
-//		}
 	}
 
 	public void show(Container parent, int newIndex, boolean checkIndex)
 	{
-		if (!vector.isEmpty() && (currentCard < vector.size()) && (!checkIndex || (currentCard != newIndex)))
+		if (!componentList.isEmpty() && (!checkIndex || (currentCard != newIndex)))
 		{
-			((Card)vector.get(currentCard)).comp.setVisible(false);
+			((Card)componentList.get(currentCard)).comp.setVisible(false);
 			currentCard = newIndex;
 			parent.validate();
 		}
@@ -550,61 +524,4 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		return getClass().getName() + "[hgap=" + hgap + ",vgap=" + vgap + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
-	/**
-	 * Reads serializable fields from stream.
-	 */
-	private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException
-	{
-		ObjectInputStream.GetField f = s.readFields();
-
-		hgap = f.get("hgap", 0); //$NON-NLS-1$
-		vgap = f.get("vgap", 0); //$NON-NLS-1$
-
-		if (f.defaulted("vector")) //$NON-NLS-1$
-		{
-			//  pre-1.4 stream
-			Hashtable tab = (Hashtable)f.get("tab", null); //$NON-NLS-1$
-			vector = new Vector();
-			if (tab != null && !tab.isEmpty())
-			{
-				for (Enumeration e = tab.keys(); e.hasMoreElements();)
-				{
-					String key = (String)e.nextElement();
-					Component comp = (Component)tab.get(key);
-					vector.add(new Card(key, comp));
-					if (comp.isVisible())
-					{
-						currentCard = vector.size() - 1;
-					}
-				}
-			}
-		}
-		else
-		{
-			vector = (Vector)f.get("vector", null); //$NON-NLS-1$
-			currentCard = f.get("currentCard", 0); //$NON-NLS-1$
-		}
-	}
-
-	/**
-	 * Writes serializable fields to stream.
-	 */
-	private void writeObject(ObjectOutputStream s) throws IOException
-	{
-		Hashtable tab = new Hashtable();
-		int ncomponents = vector.size();
-		for (int i = 0; i < ncomponents; i++)
-		{
-			Card card = (Card)vector.get(i);
-			tab.put(card.name, card.comp);
-		}
-
-		ObjectOutputStream.PutField f = s.putFields();
-		f.put("hgap", hgap); //$NON-NLS-1$
-		f.put("vgap", vgap); //$NON-NLS-1$
-		f.put("vector", vector); //$NON-NLS-1$
-		f.put("currentCard", currentCard); //$NON-NLS-1$
-		f.put("tab", tab); //$NON-NLS-1$
-		s.writeFields();
-	}
 }
