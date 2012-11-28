@@ -22,34 +22,26 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager2;
-import java.io.ObjectStreamField;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Wanted extend Cardlayout, but to much is protected...
  * 
  * @author jblok
  */
-public class FixedCardLayout implements LayoutManager2, Serializable
+public class FixedCardLayout implements LayoutManager2
 {
-
-	private static final long serialVersionUID = -4328196481005934313L;
-
 	/*
 	 * This creates an ArrayList to store associated pairs of components and their names.
-	 * 
-	 * @see java.util.ArrayList
 	 */
-	ArrayList componentList = new ArrayList();
+	List<Card> componentList = new ArrayList<Card>();
 
 	/*
 	 * A pair of Component and String that represents its name.
 	 */
-	class Card implements Serializable
+	class Card
 	{
-		static final long serialVersionUID = 6640330810709497518L;
 		public String name;
 		public Component comp;
 
@@ -90,19 +82,6 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 	 * @see setVgap()
 	 */
 	int vgap;
-
-	/**
-	 * @serialField tab Hashtable deprectated, for forward compatibility only
-	 * @serialField hgap int
-	 * @serialField vgap int
-	 * @serialField componentList ArrayList
-	 * @serialField currentCard int
-	 */
-	private static final ObjectStreamField[] serialPersistentFields = { new ObjectStreamField("tab", Hashtable.class), //$NON-NLS-1$
-	new ObjectStreamField("hgap", Integer.TYPE), //$NON-NLS-1$
-	new ObjectStreamField("vgap", Integer.TYPE), //$NON-NLS-1$
-	new ObjectStreamField("componentList", ArrayList.class), //$NON-NLS-1$
-	new ObjectStreamField("currentCard", Integer.TYPE) }; //$NON-NLS-1$
 
 	/**
 	 * Creates a new card layout with gaps of size zero.
@@ -215,7 +194,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 			}
 			for (int i = 0; i < componentList.size(); i++)
 			{
-				if (((Card)componentList.get(i)).name.equals(name))
+				if (componentList.get(i).name.equals(name))
 				{
 					componentList.remove(i);
 					break;
@@ -240,7 +219,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 			int i = 0;
 			for (; i < componentList.size(); i++)
 			{
-				if (((Card)componentList.get(i)).comp == comp)
+				if (componentList.get(i).comp == comp)
 				{
 					componentList.remove(i);
 					//## second fix,place panels in same condition as added
@@ -259,7 +238,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 				if (currentCard > 0 && currentCard >= i)
 				{
 					currentCard--;//%= vector.size(); //## first fix,keep index correct
-					layoutContainer(((Card)componentList.get(currentCard)).comp.getParent());
+					layoutContainer(componentList.get(currentCard).comp.getParent());
 				}
 			}
 		}
@@ -284,7 +263,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 
 			for (int i = 0; i < ncomponents; i++)
 			{
-				Component comp = ((Card)componentList.get(i)).comp;
+				Component comp = componentList.get(i).comp;
 				if (comp.isVisible())
 				{
 					Dimension d = comp.getPreferredSize();
@@ -321,7 +300,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 
 			for (int i = 0; i < ncomponents; i++)
 			{
-				Component comp = ((Card)componentList.get(i)).comp;
+				Component comp = componentList.get(i).comp;
 				Dimension d = comp.getMinimumSize();
 				if (d.width > w)
 				{
@@ -391,7 +370,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 
 			if (!componentList.isEmpty())
 			{
-				final Component comp = ((Card)componentList.get(currentCard)).comp;
+				final Component comp = componentList.get(currentCard).comp;
 				comp.setBounds(hgap + insets.left, vgap + insets.top, parent.getWidth() - (hgap * 2 + insets.left + insets.right), parent.getHeight() -
 					(vgap * 2 + insets.top + insets.bottom));
 				if (!comp.isVisible())
@@ -488,12 +467,12 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 		{
 			checkLayout(parent);
 
-			if (((Card)componentList.get(currentCard)).name.equals(name)) return;
+			if (componentList.get(currentCard).name.equals(name)) return;
 
 			int ncomponents = componentList.size();
 			for (int i = 0; i < ncomponents; i++)
 			{
-				Card card = (Card)componentList.get(i);
+				Card card = componentList.get(i);
 				if (card.name.equals(name))
 				{
 					show(parent, i, true);
@@ -507,7 +486,7 @@ public class FixedCardLayout implements LayoutManager2, Serializable
 	{
 		if (!componentList.isEmpty() && (!checkIndex || (currentCard != newIndex)))
 		{
-			((Card)componentList.get(currentCard)).comp.setVisible(false);
+			componentList.get(currentCard).comp.setVisible(false);
 			currentCard = newIndex;
 			parent.validate();
 		}
