@@ -143,6 +143,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		if (style != null) f.setStyleName(style.getName());
 		addChild(f);
 		if (getFirstFormID() <= 0) setFirstFormID(f.getID());
+		if (getSolutionType() == SolutionMetaData.MOBILE)
+		{
+			f.setNavigatorID(Form.NAVIGATOR_NONE);
+		}
 		return f;
 	}
 
