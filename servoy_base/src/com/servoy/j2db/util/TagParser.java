@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.util;
 
+import java.util.ArrayList;
+
 
 /**
  * This class will resolve the %%i18n.keys%% by default, even without tag resolver
@@ -25,8 +27,6 @@ package com.servoy.j2db.util;
 public class TagParser
 {
 	public static final String TAGCHAR = "%"; //$NON-NLS-1$
-	// this is a pattern for String.split that is equivalent to StringTokenizer with delimiters included
-	private static final String SPLIT_PATTERN = "(?=(?!^)" + TAGCHAR + ")|(?<=" + TAGCHAR + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 	public static String processTags(String s, ITagResolver resolver, I18NProvider i18nProvider)
 	{
@@ -36,7 +36,7 @@ public class TagParser
 		}
 
 		StringBuilder retval = new StringBuilder();
-		String[] splitResult = s.split(SPLIT_PATTERN);
+		String[] splitResult = split(s, TAGCHAR.charAt(0));
 		int[] splitIdx = { 0 };
 		boolean changed = false;
 		while (splitIdx[0] < splitResult.length)
@@ -108,6 +108,31 @@ public class TagParser
 			}
 		}
 		return changed ? retval.toString() : s;
+	}
+
+	private static String[] split(String s, char tag)
+	{
+		ArrayList<String> result = new ArrayList<String>();
+		char currentChar;
+		int startIdx = -1;
+
+		for (int i = 0; i < s.length(); i++)
+		{
+			currentChar = s.charAt(i);
+			if (currentChar == tag)
+			{
+				if (startIdx + 1 < i)
+				{
+					result.add(s.substring(startIdx + 1, i));
+				}
+				result.add(new Character(currentChar).toString());
+				startIdx = i;
+			}
+		}
+
+		if (startIdx + 1 < s.length()) result.add(s.substring(startIdx + 1));
+
+		return result.toArray(new String[result.size()]);
 	}
 
 	private static String getNextToken(String[] splitResult, int[] splitIdx)
