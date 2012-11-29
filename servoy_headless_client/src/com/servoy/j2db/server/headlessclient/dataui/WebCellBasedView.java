@@ -957,7 +957,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					else
 					{
 						return color != null && !"".equals(color)
-							? "margin-left: 3px;background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+							? "background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 					}
 				}
 			}));
