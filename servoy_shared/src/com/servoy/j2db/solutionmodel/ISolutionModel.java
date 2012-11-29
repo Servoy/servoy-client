@@ -17,7 +17,10 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSolutionModel;
 
 
 /**
@@ -27,7 +30,7 @@ import com.servoy.j2db.persistence.BaseComponent;
  *
  * @since 6.1
  */
-public interface ISolutionModel
+public interface ISolutionModel extends IBaseSolutionModel
 {
 	/**
 	 * Creates a new ISMForm Object.
@@ -171,7 +174,7 @@ public interface ISolutionModel
 	 * 
 	 * @return a ISMForm
 	 */
-	public ISMForm cloneForm(String newName, ISMForm ISMForm);
+	public ISMForm cloneForm(String newName, IBaseSMForm ISMForm);
 
 	/**
 	 * Makes an exact copy of the given component (ISMComponent/JSField/JSLabel) and gives it a new name.
@@ -188,7 +191,7 @@ public interface ISolutionModel
 	 *
 	 * @return the exact copy of the given component
 	 */
-	public <T extends BaseComponent> ISMComponent cloneComponent(String newName, ISMComponent component);
+	public ISMComponent cloneComponent(String newName, IBaseSMComponent component);
 
 
 	/**
@@ -212,115 +215,7 @@ public interface ISolutionModel
 	 * 
 	 * @return the exact copy of the given component
 	 */
-	public <T extends BaseComponent> ISMComponent cloneComponent(String newName, ISMComponent component, ISMForm newParentForm);
-
-	/**
-	 * Removes the specified form during the persistent connected client session.
-	 * 
-	 * NOTE: Make sure you call history.remove first in your Servoy method (script). 
-	 *
-	 * @sample
-	 * //first remove it from the current history, to destroy any active form instance
-	 * var success = history.removeForm('myForm')
-	 * //removes the named form from this session, please make sure you called history.remove() first
-	 * if(success)
-	 * {
-	 * 	solutionModel.removeForm('myForm')
-	 * }
-	 *
-	 * @param name the specified name of the form to remove
-	 * 
-	 * @return true is form has been removed, false if form could not be removed
-	 */
-	public boolean removeForm(String name);
-
-	/**
-	 * Removes the relation specified by name.
-	 * 
-	 * @sample
-	 * var success = solutionModel.removeRelation('myRelation');
-	 * if (success) { application.output("Relation has been removed");}
-	 * else {application.output("Relation could not be removed");}
-	 * 
-	 * @param name the name of the relation to be removed
-	 * 
-	 * @return true if the removal was successful, false otherwise
-	 */
-	public boolean removeRelation(String name);
-
-	/**
-	 * Removes the specified global method.
-	 * 
-	 * @sample
-	 * var m1 = solutionModel.newGlobalMethod('globals', 'function myglobalmethod1(){application.output("Global Method 1");}');
-	 * var m2 = solutionModel.newGlobalMethod('globals', 'function myglobalmethod2(){application.output("Global Method 2");}');
-	 * 
-	 * var success = solutionModel.removeGlobalMethod('globals', 'myglobalmethod1');
-	 * if (success == false) application.output('!!! myglobalmethod1 could not be removed !!!');
-	 * 
-	 * var list = solutionModel.getGlobalMethods('globals');
-	 * for (var i = 0; i < list.length; i++) { 
-	 * 	application.output(list[i].code);
-	 * }
-	 * 
-	 * @param scopeName the scope in which the method is declared
-	 * @param name the name of the global method to be removed
-	 * @return true if the removal was successful, false otherwise
-	 */
-	public boolean removeGlobalMethod(String scopeName, String name);
-
-	/**
-	 * Removes the specified global variable.
-	 * 
-	 * @sample
-	 * var v1 = solutionModel.newGlobalVariable('globals', 'globalVar1', ISMVariable.INTEGER);
-	 * var v2 = solutionModel.newGlobalVariable('globals', 'globalVar2', ISMVariable.TEXT);
-	 * 
-	 * var success = solutionModel.removeGlobalVariable('globals', 'globalVar1');
-	 * if (success == false) application.output('!!! globalVar1 could not be removed !!!');
-	 * 
-	 * var list = solutionModel.getGlobalVariables('globals');
-	 * for (var i = 0; i < list.length; i++) {
-	 * 	application.output(list[i].name + '[ ' + list[i].variableType + ']: ' + list[i].variableType);
-	 * }
-	 * 
-	 * @param scopeName the scope in which the variable is declared
-	 * @param name the name of the global variable to be removed 
-	 * @return true if the removal was successful, false otherwise
-	 */
-	public boolean removeGlobalVariable(String scopeName, String name);
-
-	/**
-	 * Removes the media item specified by name.
-	 * 
-	 * @sample
-	 * var bytes1 = plugins.file.readFile('D:/Imgs/image1.png');
-	 * var image1 = solutionModel.newMedia('image1.png', bytes1);
-	 * var bytes2 = plugins.file.readFile('D:/Imgs/image2.jpg');
-	 * var image2 = solutionModel.newMedia('image2.jpg',bytes2);
-	 * var bytes3 = plugins.file.readFile('D:/Imgs/image3.jpg');
-	 * var image3 = solutionModel.newMedia('image3.jpg',bytes3);
-	 * 
-	 * var f = solutionModel.newForm("newForm",currentcontroller.getDataSource(),null,false,500,350);
-	 * var l = f.newLabel('', 20, 70, 300, 200);
-	 * l.imageMedia = image1;
-	 * l.borderType =  solutionModel.createLineBorder(4,'#ff0000');
-	 * forms["newForm"].controller.show();
-	 * 
-	 * var status = solutionModel.removeMedia('image1.jpg');
-	 * if (status) application.output("image1.png has been removed");
-	 * else application.output("image1.png has not been removed");
-	 * 
-	 * var mediaList = solutionModel.getMediaList();
-	 * for (var i = 0; i < mediaList.length; i++) {
-	 * 	application.output(mediaList[i].getName() + ":" + mediaList[i].mimeType);
-	 * }
-	 * 
-	 * @param name the name of the media item to be removed
-	 * 
-	 * @return true if the removal was successful, false otherwise
-	 */
-	public boolean removeMedia(String name);
+	public ISMComponent cloneComponent(String newName, IBaseSMComponent component, IBaseSMForm newParentForm);
 
 	/**
 	 * Removes the specified style.
@@ -336,33 +231,6 @@ public interface ISolutionModel
 	 * @return true if the removal was successful, false otherwise
 	 */
 	public boolean removeStyle(String name);
-
-	/**
-	 * Removes the specified valuelist.
-	 * 
-	 * @sample
-	 * var vlName = "customValueList";
-	 * var vl = solutionModel.newValueList(vlName,ISMValueList.CUSTOM_VALUES);
-	 * vl.customValues = "customvalue1\ncustomvalue2";
-	 * 
-	 * var status = solutionModel.removeValueList(vlName);
-	 * if (status) application.output("Removal has been done.");
-	 * else application.output("ValueList not removed.");
-	 * 
-	 * var vls = solutionModel.getValueLists();
-	 * if (vls != null) {
-	 * 	for (var i = 0; i < vls.length; i++) {
-	 * 		application.output(vls[i]);
-	 * 	}
-	 * 	application.output("");
-	 * }
-	 * 
-	 * 
-	 * @param name name of the valuelist to be removed
-	 * 
-	 * @return true if the removal was successful, false otherwise
-	 */
-	public boolean removeValueList(String name);
 
 	/**
 	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.
@@ -473,6 +341,37 @@ public interface ISolutionModel
 	public ISMMedia getMedia(String name);
 
 	/**
+	 * Removes the media item specified by name.
+	 * 
+	 * @sample
+	 * var bytes1 = plugins.file.readFile('D:/Imgs/image1.png');
+	 * var image1 = solutionModel.newMedia('image1.png', bytes1);
+	 * var bytes2 = plugins.file.readFile('D:/Imgs/image2.jpg');
+	 * var image2 = solutionModel.newMedia('image2.jpg',bytes2);
+	 * var bytes3 = plugins.file.readFile('D:/Imgs/image3.jpg');
+	 * var image3 = solutionModel.newMedia('image3.jpg',bytes3);
+	 * 
+	 * var f = solutionModel.newForm("newForm",currentcontroller.getDataSource(),null,false,500,350);
+	 * var l = f.newLabel('', 20, 70, 300, 200);
+	 * l.imageMedia = image1;
+	 * forms["newForm"].controller.show();
+	 * 
+	 * var status = solutionModel.removeMedia('image1.jpg');
+	 * if (status) application.output("image1.png has been removed");
+	 * else application.output("image1.png has not been removed");
+	 * 
+	 * var mediaList = solutionModel.getMediaList();
+	 * for (var i = 0; i < mediaList.length; i++) {
+	 * 	application.output(mediaList[i].getName() + ":" + mediaList[i].mimeType);
+	 * }
+	 * 
+	 * @param name the name of the media item to be removed
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean removeMedia(String name);
+
+	/**
 	 * Creates a new media object that can be assigned to a label or a button.
 	 *
 	 * @sample
@@ -539,9 +438,9 @@ public interface ISolutionModel
 	 * Creates a new valuelist with the specified name and number type.
 	 *
 	 * @sample
-	 * var vl1 = solutionModel.newValueList("customText",ISMValueList.CUSTOM_VALUES);
+	 * var vl1 = solutionModel.newValueList("customText",IBaseSMValueList.CUSTOM_VALUES);
 	 * vl1.customValues = "customvalue1\ncustomvalue2";
-	 * var vl2 = solutionModel.newValueList("customid",ISMValueList.CUSTOM_VALUES);
+	 * var vl2 = solutionModel.newValueList("customid",IBaseSMValueList.CUSTOM_VALUES);
 	 * vl2.customValues = "customvalue1|1\ncustomvalue2|2";
 	 * var form = solutionModel.newForm("customValueListForm",controller.getDataSource(),null,true,300,300);
 	 * var combo1 = form.newComboBox("scopes.globals.text",10,10,120,20);
@@ -560,10 +459,10 @@ public interface ISolutionModel
 	/**
 	 * Creates a new global variable with the specified name and number type.
 	 * 
-	 * NOTE: The global variable number type is based on the value assigned from the SolutionModel-ISMVariable node; for example: ISMVariable.INTEGER.
+	 * NOTE: The global variable number type is based on the value assigned from the SolutionModel-ISMVariable node; for example: IBaseSMVariable.INTEGER.
 	 *
 	 * @sample 
-	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', ISMVariable.INTEGER); 
+	 * var myGlobalVariable = solutionModel.newGlobalVariable('globals', 'newGlobalVariable', IBaseSMVariable.INTEGER); 
 	 * myGlobalVariable.defaultValue = 12;
 	 *	//myGlobalVariable.defaultValue = "{a:'First letter',b:'Second letter'}"
 	 *
@@ -589,18 +488,6 @@ public interface ISolutionModel
 	 * @return a ISMVariable 
 	 */
 	public ISMVariable getGlobalVariable(String scopeName, String name);
-
-	/**
-	 * Gets an array of all scope names used.
-	 * 
-	 * @sample
-	 * var scopeNames = solutionModel.getScopeNames();
-	 * for (var name in scopeNames)
-	 * 	application.output(name);
-	 * 
-	 * @return an array of String scope names
-	 */
-	public String[] getScopeNames();
 
 	/**
 	 * Gets an array of all global variables.
@@ -671,7 +558,7 @@ public interface ISolutionModel
 	 * 
 	 * @return a ISMMethod
 	 */
-	public ISMMethod wrapMethodWithArguments(ISMMethod method, Object... args);
+	public ISMMethod wrapMethodWithArguments(IBaseSMMethod method, Object... args);
 
 	/**
 	 * The list of all global methods.
@@ -698,7 +585,7 @@ public interface ISolutionModel
 	 * Creates a new ISMRelation Object with a specified name; includes the primary datasource, foreign datasource and the type of join for the new relation.
 	 *
 	 * @sample 
-	 * var rel = solutionModel.newRelation('myRelation', myPrimaryDataSource, myForeignDataSource, ISMRelation.INNER_JOIN);
+	 * var rel = solutionModel.newRelation('myRelation', myPrimaryDataSource, myForeignDataSource, IBaseSMRelation.INNER_JOIN);
 	 * application.output(rel.getRelationItems()); 
 	 *
 	 * @param name the specified name of the new relation
@@ -707,7 +594,7 @@ public interface ISolutionModel
 	 *
 	 * @param foreignDataSource the specified name of the foreign datasource
 	 *
-	 * @param joinType the type of join for the new relation; ISMRelation.INNER_JOIN, ISMRelation.LEFT_OUTER_JOIN
+	 * @param joinType the type of join for the new relation; IBaseSMRelation.INNER_JOIN, IBaseSMRelation.LEFT_OUTER_JOIN
 	 * 
 	 * @return a ISMRelation object
 	 */

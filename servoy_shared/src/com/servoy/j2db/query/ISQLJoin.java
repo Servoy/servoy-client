@@ -13,8 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
+
+import com.servoy.j2db.persistence.constants.IJoinConstants;
 
 /** Interface for joins in queries.
  * @author rgansevles
@@ -23,19 +25,17 @@ package com.servoy.j2db.query;
 public interface ISQLJoin extends IQueryElement
 {
 	// join types
-	public static final int INNER_JOIN = 0;
-	public static final int LEFT_OUTER_JOIN = 1;
-	public static final int RIGHT_OUTER_JOIN = 2;
-	public static final int FULL_JOIN = 3;
+	public static final int INNER_JOIN = IJoinConstants.INNER_JOIN;
+	public static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
+	public static final int RIGHT_OUTER_JOIN = IJoinConstants.RIGHT_OUTER_JOIN;
+	public static final int FULL_JOIN = IJoinConstants.FULL_JOIN;
 
 	public static final int[] ALL_JOIN_TYPES = { INNER_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_JOIN };
 
-	public static final String[] JOIN_TYPES_NAMES =
-	{
-		"inner join", //$NON-NLS-1$
-		"left outer join", //$NON-NLS-1$
-		"right outer join", //$NON-NLS-1$
-		"full join" //$NON-NLS-1$
+	public static final String[] JOIN_TYPES_NAMES = { "inner join", //$NON-NLS-1$
+	"left outer join", //$NON-NLS-1$
+	"right outer join", //$NON-NLS-1$
+	"full join" //$NON-NLS-1$
 	};
 
 	public abstract String getName();

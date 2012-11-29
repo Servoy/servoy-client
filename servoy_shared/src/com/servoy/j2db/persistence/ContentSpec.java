@@ -25,14 +25,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.servoy.j2db.persistence.constants.IContentSpecConstantsBase;
+
 /**
  * The <code>ContentSpec</code> class is a inmem representation of the servoy_content_spec table which can be accessed in core.
  */
 public class ContentSpec
 {
-	public static final Integer MINUS_ONE = new Integer(-1);
-	public static final Integer ZERO = new Integer(0);
-	public static final Object JAVA_DEFAULT_VALUE = new Object();
+	public static final Integer MINUS_ONE = IContentSpecConstantsBase.MINUS_ONE;
+	public static final Integer ZERO = IContentSpecConstantsBase.ZERO;
+	public static final Object JAVA_DEFAULT_VALUE = IContentSpecConstantsBase.JAVA_DEFAULT_VALUE;
 
 	public ContentSpec()
 	{

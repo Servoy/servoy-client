@@ -31,8 +31,9 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.constants.IValueListConstants;
 import com.servoy.j2db.scripting.IConstantsObject;
-import com.servoy.j2db.solutionmodel.ISMMethod;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.solutionmodel.ISMValueList;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
@@ -679,13 +680,13 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	}
 
 	@JSSetter
-	public void setGlobalMethod(ISMMethod method)
+	public void setGlobalMethod(IBaseSMMethod method)
 	{
 		checkModification();
 		if (method == null)
 		{
 			valuelist.setCustomValues(null);
-			valuelist.setValueListType(ValueList.CUSTOM_VALUES);
+			valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
 		}
 		else
 		{
@@ -693,7 +694,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 			if (scriptMethod.getParent() instanceof Solution)
 			{
 				valuelist.setCustomValues(scriptMethod.getUUID().toString());
-				valuelist.setValueListType(ValueList.GLOBAL_METHOD_VALUES);
+				valuelist.setValueListType(IValueListConstants.GLOBAL_METHOD_VALUES);
 			}
 			else
 			{
@@ -734,15 +735,15 @@ public class JSValueList implements IConstantsObject, ISMValueList
 		String typeString = "";
 		switch (type)
 		{
-			case ValueList.CUSTOM_VALUES :
+			case IValueListConstants.CUSTOM_VALUES :
 				typeString = "Custom";
 				break;
-			case ValueList.GLOBAL_METHOD_VALUES :
+			case IValueListConstants.GLOBAL_METHOD_VALUES :
 				ScriptMethod globalMethod = application.getFlattenedSolution().getScriptMethod(valuelist.getCustomValues());
 				typeString = "GlobalMethod:" + globalMethod != null ? globalMethod.getPrefixedName() : valuelist.getCustomValues();
 				break;
-			case ValueList.TABLE_VALUES :
-				typeString = valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES ? "Table:" + valuelist.getDataSource() : "Related:" +
+			case IValueListConstants.TABLE_VALUES :
+				typeString = valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES ? "Table:" + valuelist.getDataSource() : "Related:" +
 					valuelist.getRelationName();
 		}
 		return "JSValueList[name:" + valuelist.getName() + ',' + typeString + ']';

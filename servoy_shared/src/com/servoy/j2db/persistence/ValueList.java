@@ -23,6 +23,8 @@ import java.util.List;
 
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.constants.IValueListConstants;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -33,20 +35,8 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class ValueList extends AbstractBase implements ISupportUpdateableName, ISupportContentEquals, ICloneable
+public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ICloneable
 {
-	public static final int CUSTOM_VALUES = 0;
-	public static final int DATABASE_VALUES = 1;
-
-	//type of database Values
-	public static final int TABLE_VALUES = 2;
-	public static final int RELATED_VALUES = 3;
-
-	public static final int GLOBAL_METHOD_VALUES = 4;
-
-	public static final int EMPTY_VALUE_ALWAYS = 0;
-	public static final int EMPTY_VALUE_NEVER = 1;
-	public static final int EMPTY_VALUE_ONCREATION_ONLY = 2; //TODO:not impl yet
 
 	/**
 	 * Constructor I

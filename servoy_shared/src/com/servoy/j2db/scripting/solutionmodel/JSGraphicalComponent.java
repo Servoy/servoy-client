@@ -26,6 +26,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.solutionmodel.ISMGraphicalComponent;
 import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.solutionmodel.ISMMethod;
@@ -576,7 +577,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	@JSSetter
-	public void setOnAction(ISMMethod method)
+	public void setOnAction(IBaseSMMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, (JSMethod)method);
 	}

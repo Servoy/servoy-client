@@ -30,7 +30,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.solutionmodel.ISMForm;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.solutionmodel.ISMTab;
 import com.servoy.j2db.util.Debug;
@@ -81,7 +81,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 	}
 
 	@JSSetter
-	public void setContainsForm(ISMForm form)
+	public void setContainsForm(IBaseSMForm form)
 	{
 		checkModification();
 		if (form == null)

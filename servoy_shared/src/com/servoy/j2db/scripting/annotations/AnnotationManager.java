@@ -19,8 +19,6 @@ package com.servoy.j2db.scripting.annotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,12 +49,12 @@ public class AnnotationManager
 
 	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation> annotationClass)
 	{
-		return getCachedAnnotation(method, annotationClass, false).getLeft().booleanValue();
+		return getCachedAnnotation(method, annotationClass, null).getLeft().booleanValue();
 	}
 
-	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation> annotationClass, boolean parentClassCheckForMobile)
+	public boolean isMobileAnnotationPresent(Method method)
 	{
-		return getCachedAnnotation(method, annotationClass, parentClassCheckForMobile).getLeft().booleanValue();
+		return getCachedAnnotation(method, ServoyMobile.class, ServoyMobileFilterOut.class).getLeft().booleanValue();
 	}
 
 	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation>[] annotationClasses)
@@ -131,46 +129,23 @@ public class AnnotationManager
 	@SuppressWarnings("unchecked")
 	public <T extends Annotation> T getAnnotation(Method method, Class<T> annotationClass)
 	{
-		return (T)getCachedAnnotation(method, annotationClass, false).getRight();
+		return (T)getCachedAnnotation(method, annotationClass, null).getRight();
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends Annotation> T getAnnotation(Method method, Class<T> annotationClass, boolean parentClassCheckForMobile)
-	{
-		return (T)getCachedAnnotation(method, annotationClass, parentClassCheckForMobile).getRight();
-	}
-
-	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? extends Annotation> annotationClass, boolean parentClassCheckForMobile)
+	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? extends Annotation> annotationClass,
+		Class< ? extends Annotation> stopAnnotation)
 	{
 		Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
 		Pair<Boolean, Annotation> pair = annotationCache.get(key);
 		if (pair == null)
 		{
-			Annotation annotation = method.getAnnotation(annotationClass);
-			if (parentClassCheckForMobile) annotation = method.getDeclaringClass().getAnnotation(annotationClass);
+			Annotation annotation = null;
 			for (Class< ? > cls = method.getDeclaringClass(); annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
 			{
 				// check if the method is part of an interface that has the annotation
-				List<Class< ? >> interfaces = getFlattenedListOfInterfaces(cls);
-				for (Class< ? > intf : interfaces)
-				{
-					try
-					{
-						Method m = intf.getMethod(method.getName(), method.getParameterTypes());
-						if (m != null)
-						{
-							annotation = m.getAnnotation(annotationClass);
-							if (annotation == null && parentClassCheckForMobile) annotation = intf.getAnnotation(annotationClass);
-						}
-					}
-					catch (SecurityException e)
-					{
-					}
-					catch (NoSuchMethodException e)
-					{
-					}
-					if (annotation != null) break;
-				}
+				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(cls, method, annotationClass, stopAnnotation, false);
+				annotation = x.getRight();
+				if (x.getLeft().booleanValue()) break; // stop encountered
 			}
 			annotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
 		}
@@ -178,38 +153,82 @@ public class AnnotationManager
 		return pair;
 	}
 
-	private List<Class< ? >> getFlattenedListOfInterfaces(Class< ? > cls)
+	private Pair<Boolean, Annotation> getAnnotationFromInterfaces(Class< ? > cls, Method method, Class< ? extends Annotation> searchedAnnotation,
+		Class< ? extends Annotation> stopAnnotation, boolean stopAlreadyEncountered)
 	{
-		List<Class< ? >> listOfInterfaces = new ArrayList<Class< ? >>();
-		for (Class< ? > anInterface : cls.getInterfaces())
+		Annotation a = null;
+		boolean stopped = false;
+		boolean stopEncountered = false;
+
+		if (method != null)
 		{
-			listOfInterfaces.add(anInterface);
-			listOfInterfaces.addAll(getFlattenedListOfInterfaces(anInterface));
+			Method m = null;
+			try
+			{
+				m = (method.getDeclaringClass() == cls) ? method : cls.getMethod(method.getName(), method.getParameterTypes());
+			}
+			catch (SecurityException e)
+			{
+			}
+			catch (NoSuchMethodException e)
+			{
+			}
+
+			if (m != null)
+			{
+				if (stopAlreadyEncountered) stopped = true;
+				else
+				{
+					a = m.getAnnotation(searchedAnnotation);
+					if (a == null && stopAnnotation != null) a = cls.getAnnotation(searchedAnnotation); // this assumes that only start+stop annotations can be set at class level as well as method level
+					if (a == null && stopAnnotation != null && (m.getAnnotation(stopAnnotation) != null)) stopped = true;
+				}
+			}
+			else if (stopAnnotation != null) stopEncountered = stopAlreadyEncountered || (cls.getAnnotation(stopAnnotation) != null);
 		}
-		return listOfInterfaces;
+		else
+		{
+			a = cls.getAnnotation(searchedAnnotation);
+			if (a == null && stopAnnotation != null) stopped = (cls.getAnnotation(stopAnnotation) != null);
+		}
+
+		if (a == null && !stopped)
+		{
+			for (Class< ? > anInterface : cls.getInterfaces())
+			{
+				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(anInterface, method, searchedAnnotation, stopAnnotation, stopEncountered);
+				a = x.getRight();
+				stopped = x.getLeft().booleanValue();
+				if (a != null) break;
+			}
+		}
+		return new Pair<Boolean, Annotation>(Boolean.valueOf(stopped), a);
 	}
 
 	public boolean isAnnotationPresent(Class< ? > cls, Class< ? extends Annotation> annotationClass)
 	{
-		return getCachedAnnotation(cls, annotationClass).getLeft().booleanValue();
+		return getCachedAnnotation(cls, annotationClass, null).getLeft().booleanValue();
 	}
 
-	private Pair<Boolean, Annotation> getCachedAnnotation(Class< ? > targetClass, Class< ? extends Annotation> annotationClass)
+	public boolean isMobileAnnotationPresent(Class< ? > cls)
+	{
+		return getCachedAnnotation(cls, ServoyMobile.class, ServoyMobileFilterOut.class).getLeft().booleanValue();
+	}
+
+	private Pair<Boolean, Annotation> getCachedAnnotation(Class< ? > targetClass, Class< ? extends Annotation> annotationClass,
+		Class< ? extends Annotation> stopAnnotation)
 	{
 		Pair<Class< ? >, Class< ? >> key = new Pair<Class< ? >, Class< ? >>(targetClass, annotationClass);
 		Pair<Boolean, Annotation> pair = classAnnotationCache.get(key);
 		if (pair == null)
 		{
 			Class< ? > clz = targetClass;
-			Annotation annotation = clz.getAnnotation(annotationClass);
+			Annotation annotation = null;
 			for (; annotation == null && (clz != Object.class && clz != null); clz = clz.getSuperclass())
 			{
-				List<Class< ? >> interfaces = getFlattenedListOfInterfaces(clz);
-				for (Class< ? > intf : interfaces)
-				{
-					annotation = intf.getAnnotation(annotationClass);
-					if (annotation != null) break;
-				}
+				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(clz, null, annotationClass, stopAnnotation, false);
+				annotation = x.getRight();
+				if (x.getLeft().booleanValue()) break; // stop encountered
 			}
 			classAnnotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
 		}

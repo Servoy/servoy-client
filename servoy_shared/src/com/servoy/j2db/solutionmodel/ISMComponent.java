@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
+
 
 /**
  * Solution model base component interface.
@@ -25,7 +27,7 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMComponent extends ISMHasUUID, ISMHasDesignTimeProperty
+public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesignTimeProperty
 {
 
 	/**
@@ -156,38 +158,6 @@ public interface ISMComponent extends ISMHasUUID, ISMHasDesignTimeProperty
 	public void setFormIndex(int arg);
 
 	/**
-	 * The x coordinate of the component on the form.
-	 * 
-	 * @sample
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * application.output('original location: ' + field.x + ', ' + field.y);
-	 * field.x = 90;
-	 * field.y = 90;
-	 * application.output('changed location: ' + field.x + ', ' + field.y);
-	 */
-	public int getX();
-
-	/**
-	 * The y coordinate of the component on the form.
-	 * 
-	 * @sampleas getX()
-	 */
-	public int getY();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getName()
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
-	 * var label = form.newLabel('Label', 10, 10, 150, 150);
-	 * label.name = 'myLabel'; // Give a name to the component.
-	 * forms['someForm'].controller.show()
-	 * // Now use the name to access the component.
-	 * forms['someForm'].elements['myLabel'].text = 'Updated text';
-	 */
-	public String getName();
-
-	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintable()
 	 * 
 	 * @sample
@@ -198,64 +168,6 @@ public interface ISMComponent extends ISMHasUUID, ISMHasDesignTimeProperty
 	 * forms['printForm'].controller.showPrintPreview()
 	 */
 	public boolean getPrintable();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getEnabled()
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * field.enabled = false;
-	 */
-	public boolean getEnabled();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getVisible()
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * field.visible = false;
-	 */
-	public boolean getVisible();
-
-	/**
-	 * The width in pixels of the component.
-	 * 
-	 * @sample
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * application.output('original width: ' + field.width);
-	 * application.output('original height: ' + field.height);
-	 * field.width = 200;
-	 * field.height = 100;
-	 * application.output('modified width: ' + field.width);
-	 * application.output('modified height: ' + field.height);
-	 */
-	public int getWidth();
-
-	/**
-	 * The height in pixels of the component.
-	 * 
-	 * @sampleas getWidth()
-	 */
-	public int getHeight();
-
-	/**
-	 * A String representing a group ID for this component. If several
-	 * components have the same group ID then they belong to the same
-	 * group of components. Using the group itself, all components can
-	 * be disabled/enabled or made invisible/visible.
-	 * The group id should be a javascript compatible identifier to allow access of the group in scripting.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 400, 300);
-	 * var label = form.newLabel('Green', 10, 10, 100, 20);
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
-	 * label.groupID = 'someGroup';
-	 * field.groupID = 'someGroup';	
-	 * forms['someForm'].elements.someGroup.enabled = false;
-	 */
-	public String getGroupID();
 
 	public void setBackground(String arg);
 
@@ -273,22 +185,6 @@ public interface ISMComponent extends ISMHasUUID, ISMHasDesignTimeProperty
 
 	public void setAnchors(int arg);
 
-	public void setX(int x);
-
-	public void setY(int y);
-
-	public void setName(String arg);
-
 	public void setPrintable(boolean arg);
-
-	public void setEnabled(boolean arg);
-
-	public void setVisible(boolean arg);
-
-	public void setWidth(int width);
-
-	public void setHeight(int height);
-
-	public void setGroupID(String arg);
 
 }

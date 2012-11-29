@@ -91,6 +91,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
+import com.servoy.j2db.persistence.constants.IFormConstants;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.CreationalPrototype;
@@ -2223,10 +2224,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	 * _____________________________________________________________ Declaration of attributes
 	 */
 
-	//see IForm for more
-	public static final int TABLE_VIEW = 2;
-	public static final int LOCKED_TABLE_VIEW = 3;
-	public static final int LOCKED_LIST_VIEW = 4;
+	//see IFormConstants for more
+	public static final int TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE;
+	public static final int LOCKED_TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE_LOCKED;
+	public static final int LOCKED_LIST_VIEW = IFormConstants.VIEW_TYPE_LIST_LOCKED;
 
 	public static final int FORM_EDITOR = Part.BODY;
 	public static final int FORM_RENDERER = 0;

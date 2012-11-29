@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import com.servoy.j2db.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;

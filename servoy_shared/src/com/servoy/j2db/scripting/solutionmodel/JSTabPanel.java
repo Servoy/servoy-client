@@ -35,7 +35,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.solutionmodel.ISMForm;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.solutionmodel.ISMTabPanel;
 
@@ -90,7 +90,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * @return A JSTab instance representing the newly created and added tab.
 	 */
 	@JSFunction
-	public JSTab newTab(String name, String text, ISMForm form)
+	public JSTab newTab(String name, String text, IBaseSMForm form)
 	{
 		return newTab(name, text, form, null);
 	}
@@ -127,7 +127,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * @return A JSTab instance representing the newly created and added tab.
 	 */
 	@JSFunction
-	public JSTab newTab(String name, String text, ISMForm form, Object relation)
+	public JSTab newTab(String name, String text, IBaseSMForm form, Object relation)
 	{
 		String relationName = null;
 		if (relation instanceof RelatedFoundSet)

@@ -134,6 +134,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.constants.IValueListConstants;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.api.IJSEvent.EventType;
@@ -2464,7 +2465,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (idVl != null && (list = idVl.getValueList()) != null)
 			{
 				ValueList valuelist = application.getFlattenedSolution().getValueList(list.getName());
-				if (valuelist != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
+				if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 				{
 					((ISupportValueList)c).setValueList(list);
 				}

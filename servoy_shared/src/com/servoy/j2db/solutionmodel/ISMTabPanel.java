@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMTabPanel;
+
 
 /**
  * Solution tab panel object.
@@ -25,7 +28,7 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMTabPanel extends ISMComponent
+public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 {
 
 	/**
@@ -56,7 +59,7 @@ public interface ISMTabPanel extends ISMComponent
 	 *
 	 * @return A JSTab instance representing the newly created and added tab.
 	 */
-	public ISMTab newTab(String name, String text, ISMForm form);
+	public ISMTab newTab(String name, String text, IBaseSMForm form);
 
 	/**
 	 * Adds a new tab with the text label and JSForm and JSRelation (can be null for unrelated).
@@ -89,7 +92,7 @@ public interface ISMTabPanel extends ISMComponent
 	 *                          
 	 * @return A JSTab instance representing the newly created and added tab.
 	 */
-	public ISMTab newTab(String name, String text, ISMForm form, Object relation);
+	public ISMTab newTab(String name, String text, IBaseSMForm form, Object relation);
 
 	/**
 	 * Returns a JSTab instance representing the tab which has the specified name.
@@ -107,20 +110,6 @@ public interface ISMTabPanel extends ISMComponent
 	public ISMTab getTab(String name);
 
 	/**
-	 * Removes the tab with the specified name from the tab panel.
-	 *  
-	 * @param name the name of the tab to be removed
-	 * 
-	 * @sample
-	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
-	 * tabPanel.newTab('tab1', 'Child Two', childOne);
-	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
-	 * tabPanel.removeTab('tab1');
-	 * 
-	 */
-	public void removeTab(String name);
-
-	/**
 	 * Returns an array of JSTab instances holding the tabs of the tab panel.
 	 *
 	 * @sample
@@ -134,32 +123,6 @@ public interface ISMTabPanel extends ISMComponent
 	 * @return An array of JSTab instances representing all tabs of this tabpanel.
 	 */
 	public ISMTab[] getTabs();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getScrollTabs()
-	 * 
-	 * @sample
-	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 200, 200);
-	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
-	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
-	 * tabPanel.scrollTabs = true;
-	 */
-	public boolean getScrollTabs();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getTabOrientation()
-	 * 
-	 * @sample
-	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
-	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
-	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
-	 * // The SM_ALIGNMENT constants TOP, RIGHT, BOTTOM and LEFT can be used to put the
-	 * // tabs into the needed position. Use SM_DEFAULTS.NONE to hide the tabs.
-	 * // The SM_ALIGNMENT constants SPLIT_HORIZONTAL, SPLIT_VERTICAL can be used to create a split pane
-	 * // where the first tab will be left component and the second tab will the right component. 
-	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;  
-	 */
-	public int getTabOrientation();
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getTabSeq()
@@ -179,14 +142,6 @@ public interface ISMTabPanel extends ISMComponent
 	 * tabPanel.onChange = onChangeMethod;
 	 */
 	public ISMMethod getOnChange();
-
-	public void setScrollTabs(boolean arg);
-
-	/**
-	 * sets the tab orientation, use one of the ALIGNMENT constants: SM_ALIGNMENT.TOP,BOTTOM,LEFT,RIGHT
-	 * or use SM_DEFAULTS.NONE to hide the tabs.
-	 */
-	public void setTabOrientation(int arg);
 
 	public void setTabSeq(int arg);
 

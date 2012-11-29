@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
+
 
 /**
  * Solution model base interface for graphical components.
@@ -25,29 +27,8 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMGraphicalComponent extends ISMComponent
+public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMComponent
 {
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDataProviderID()
-	 * 
-	 * @sample
-	 * // Normally the dataprovider is specified when a component is created.
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
-	 * // But it can be modified later if needed.
-	 * field.dataProviderID = 'parent_table_id';
-	 */
-	public String getDataProviderID();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDisplaysTags()
-	 * 
-	 * @sample
-	 * var label = form.newLabel('You are viewing record no. %%parent_table_id%%. You are running on server %%serverURL%%.', 
-	 *					10, 10, 600, 100);
-	 * label.displaysTags = true;
-	 */
-	public boolean getDisplaysTags();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
@@ -72,18 +53,6 @@ public interface ISMGraphicalComponent extends ISMComponent
 	 * label.imageMedia = ballImage;
 	 */
 	public ISMMedia getImageMedia();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getLabelFor()
-	 * 
-	 * @sample
-	 * var labelOne = form.newLabel('Label One', 10, 10, 100, 20);
-	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 120, 10, 100, 20);
-	 * fieldOne.name = 'fieldOne';
-	 * labelOne.labelFor = 'fieldOne';
-	 * labelOne.mnemonic = 'O';
-	 */
-	public String getLabelFor();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMargin()
@@ -264,17 +233,11 @@ public interface ISMGraphicalComponent extends ISMComponent
 	 */
 	public int getVerticalAlignment();
 
-	public void setDataProviderID(String arg);
-
 	public void setFormat(String arg);
-
-	public void setDisplaysTags(boolean arg);
 
 	public void setHorizontalAlignment(int arg);
 
 	public void setImageMedia(ISMMedia media);
-
-	public void setLabelFor(String arg);
 
 	public void setMargin(String margin);
 
@@ -294,13 +257,9 @@ public interface ISMGraphicalComponent extends ISMComponent
 
 	public void setTabSeq(int i);
 
-	public void setText(String arg);
-
 	public void setToolTipText(String arg);
 
 	public void setVerticalAlignment(int arg);
-
-	public void setOnAction(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnActionMethodID()

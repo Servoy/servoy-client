@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMButton;
+
 /**
  * Solution model button object.
  * 
@@ -24,7 +26,7 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMButton extends ISMGraphicalComponent
+public interface ISMButton extends IBaseSMButton, ISMGraphicalComponent
 {
 
 }

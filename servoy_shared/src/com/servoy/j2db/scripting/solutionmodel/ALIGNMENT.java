@@ -16,112 +16,16 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
-import javax.swing.SwingConstants;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.ContentSpec;
+import com.servoy.j2db.persistence.constants.IAlignmentSMConstants;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class ALIGNMENT implements IPrefixedConstantsObject
+public class ALIGNMENT implements IAlignmentSMConstants, IPrefixedConstantsObject
 {
-
-	/**
-	 * Constant used for setting horizontal and vertical alignment. DEFAULT value makes the alignment behave as if it was not changed before.
-	 * 
-	 * @sample
-	 * var hLabel = myJSForm.getLabel('label_name');
-	 * if (hLabel.horizontalAlignment == SM_ALIGNMENT.LEFT) hLabel.horizontalAlignment = SM_ALIGNMENT.DEFAULT;
-	 */
-	public static final int DEFAULT = ContentSpec.MINUS_ONE.intValue();
-
-	/**
-	 * Constant used for setting horizontal and vertical alignment
-	 * for components. If used for horizontal alignment,
-	 * then the text of the component will be horizontally centered.
-	 * Similarly, if used for vertical alignment, then the text
-	 * of the component will be vertically centered.
-	 * 
-	 * @sample
-	 * var hCenteredLabel = form.newLabel('CENTER', 10, 40, 300, 20);
-	 * hCenteredLabel.horizontalAlignment = SM_ALIGNMENT.CENTER;
-	 * var vCenterAlignedLabel = form.newLabel('CENTER', 460, 10, 50, 300);
-	 * vCenterAlignedLabel.verticalAlignment = SM_ALIGNMENT.CENTER
-	 */
-	public static final int CENTER = SwingConstants.CENTER;
-
-	/**
-	 * Constant used for setting vertical alignment for components.
-	 * It makes the text inside the component be top aligned vertically.
-	 * 
-	 * @sample
-	 * var topAlignedLabel = form.newLabel('TOP', 400, 10, 50, 300);
-	 * topAlignedLabel.verticalAlignment = SM_ALIGNMENT.TOP;
-	 */
-
-	public static final int TOP = SwingConstants.TOP;
-
-	/**
-	 * Constant used for setting horizontal alignment for components.
-	 * It makes the text inside the component be left aligned horizontally.
-	 * 
-	 * @sample
-	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
-	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
-	 */
-
-	public static final int LEFT = SwingConstants.LEFT;
-
-	/**
-	 * Constant used for setting vertical alignment for components.
-	 * It makes the text inside the component be bottom aligned vertically.
-	 * 
-	 * @sample
-	 * var bottomAlignedLabel = form.newLabel('BOTTOM', 520, 10, 50, 300);
-	 * bottomAlignedLabel.verticalAlignment = SM_ALIGNMENT.BOTTOM;
-	 */
-	public static final int BOTTOM = SwingConstants.BOTTOM;
-
-	/**
-	 * Constant used for setting horizontal alignment for components.
-	 * It makes the text inside the component be right aligned vertically.
-	 * 
-	 * @sample
-	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
-	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
-	 */
-	public static final int RIGHT = SwingConstants.RIGHT;
-
-
-	/**
-	 * Constant used for creating horizontal split pane from tab panel, by setting its tabOrientation.
-	 * 
-	 * @sample
-	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
-	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_HORIZONTAL;
-	 */
-	public static final int SPLIT_HORIZONTAL = -2;
-
-	/**
-	 * Constant used for creating vertical split pane from tab panel, by setting its tabOrientation.
-	 * 
-	 * @sample
-	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
-	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
-	 */
-	public static final int SPLIT_VERTICAL = -3;
-
-	/**
-	 * Constant used for creating accordion panel from tab panel, by setting its tabOrientation.
-	 * 
-	 * @sample
-	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
-	 * accordion.tabOrientation = SM_ALIGNMENT.ACCORDION_PANEL;
-	 */
-	public static final int ACCORDION_PANEL = -3;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

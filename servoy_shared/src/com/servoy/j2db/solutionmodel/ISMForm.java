@@ -14,10 +14,9 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.FormEncapsulation;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 
 /**
  * Solution model form object.
@@ -26,111 +25,8 @@ import com.servoy.j2db.persistence.FormEncapsulation;
  *
  * @since 6.1
  */
-public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
+public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUUID
 {
-	/**
-	 * The constants to set or get the view property of a JSForm. 
-	 * They are as follows: JSForm.LIST_VIEW, JSForm.LOCKED_LIST_VIEW, JSForm.LOCKED_RECORD_VIEW, JSForm.LOCKED_TABLE_VIEW, JSForm.RECORD_VIEW.
-	 *
-	 * @sample 
-	 * var myListViewForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
-	 * myListViewForm.view = JSForm.LIST_VIEW;
-	 * 
-	 * var myLockedListViewForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);	
-	 * myLockedListViewForm.view = JSForm.LOCKED_LIST_VIEW;
-	 * 
-	 * var myLockedRecordViewForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedRecordViewForm.view = JSForm.LOCKED_RECORD_VIEW;
-	 * 
-	 * var myLockedTableViewForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedTableViewForm.view = JSForm.LOCKED_TABLE_VIEW;
-	 * 
-	 * var myRecordViewForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
-	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
-	 */
-	public static final int LIST_VIEW = IForm.LIST_VIEW;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int RECORD_VIEW = IForm.RECORD_VIEW;
-
-	//	public static final int TABLE_VIEW = FormController.TABLE_VIEW;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int LOCKED_TABLE_VIEW = FormController.LOCKED_TABLE_VIEW;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int LOCKED_LIST_VIEW = FormController.LOCKED_LIST_VIEW;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
-	public static final int LOCKED_RECORD_VIEW = IForm.LOCKED_RECORD_VIEW;
-
-
-	/**
-	 * The constants to set or get the encapsulation property of a JSForm. 
-	 * They are as follows: JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION, JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION, JSForm.HIDE_ELEMENTS_ENCAPSULATION
-	 *
-	 * @sample 
-	 * var myDefaultForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
-	 * myDefaultForm.encapsulation = JSForm.DEFAULT_ENCAPSULATION;
-	 * 
-	 * var myPrivateForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);
-	 * myPrivateForm.encapsulation = JSForm.PRIVATE_ENCAPSULATION;
-	 * 
-	 * var myModulePrivateForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
-	 * myModulePrivateForm.encapsulation = JSForm.MODULE_PRIVATE_ENCAPSULATION;
-	 * 
-	 * var myHideDataprovidersForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
-	 * myHideDataprovidersForm.encapsulation = JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION;
-	 * 
-	 * var myHideFoundsetForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
-	 * myHideFoundsetForm.encapsulation = JSForm.HIDE_FOUNDSET_ENCAPSULATION;
-	 * 
-	 * var myHideControllerForm = solutionModel.newForm('newForm6', myDatasource, myStyleName, false, 800, 600);
-	 * myHideControllerForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
-	 * 
-	 * var myHideElementsForm = solutionModel.newForm('newForm7', myDatasource, myStyleName, false, 800, 600);
-	 * myHideElementsForm.encapsulation = JSForm.HIDE_ELEMENTS_ENCAPSULATION;
-	 */
-	public static final int DEFAULT_ENCAPSULATION = FormEncapsulation.DEFAULT;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int PRIVATE_ENCAPSULATION = FormEncapsulation.PRIVATE;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int MODULE_PRIVATE_ENCAPSULATION = FormEncapsulation.MODULE_PRIVATE;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_DATAPROVIDERS_ENCAPSULATION = FormEncapsulation.HIDE_DATAPROVIDERS;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_FOUNDSET_ENCAPSULATION = FormEncapsulation.HIDE_FOUNDSET;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_CONTROLLER_ENCAPSULATION = FormEncapsulation.HIDE_CONTROLLER;
-
-	/**
-	 * @sameas DEFAULT_ENCAPSULATION
-	 */
-	public static final int HIDE_ELEMENTS_ENCAPSULATION = FormEncapsulation.HIDE_ELEMENTS;
-
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#NAMED_FOUNDSET_EMPTY
@@ -835,31 +731,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public ISMTabPanel getTabPanel(String name);
 
 	/**
-	 * Removes a ISMTabPanel that has the given name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX','db:/server1/parent_table',null,false,800,600);
-	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_text', ISMField.TEXT_FIELD,10,10,100,20); 
-	 * var parentToChild = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
-	 * parentToChild.newRelationItem('parent_table_id','=','child_table_id');
-	 * var childTwo = solutionModel.newForm('childTwo','db:/server1/another_table',null,false,400,300);
-	 * childTwo.newField('columnDataProvider', ISMField.TEXT_FIELD,10,10,100,100);
-	 * var tabPanel = form.newTabPanel('jst',10,10,620,460);
-	 * tabPanel.newTab('tab1','Child One',childOne,parentToChild);
-	 * tabPanel.newTab('tab2','Child Two',childTwo);
-	 * var method = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jst') == true)\n application.output('TabPanel has been removed ok');\n else\n application.output('TabPanel could not be deleted');\n forms['newFormX'].controller.recreateUI();\n}");
-	 * var removerButton = form.newButton('Click here to remove the tab panel',450,500,250,50,method);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show(); 
-	 *
-	 * @param name the specified name of the ISMTabPanel to be removed
-	 * 
-	 * @return true is the ISMTabPanel has been successfully removed, false otherwise
-	 */
-	public boolean removeTabPanel(String name);
-
-	/**
 	 * Returns all ISMTabPanels of this form (optionally the ones from the parent form), including the ones without a name.
 	 *
 	 * @sample 
@@ -1239,24 +1110,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public ISMField getField(String name);
 
 	/**
-	 * Removes a ISMField that has the given name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
-	 * var ISMField = form.newField(scopes.globals.myGlobalVariable,ISMField.TEXT_FIELD,100,300,200,50);
-	 * ISMField.name = 'jsf';
-	 * var method = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jsf') == true) application.output('Field has been removed ok'); else application.output('Field could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove the field',450,500,250,50,method);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 *
-	 * @param name the specified name of the ISMField to remove 
-	 * 
-	 * @return true is the ISMField has been successfully removed; false otherwise
-	 */
-	public boolean removeField(String name);
-
-	/**
 	 * Returns all ISMField objects of this form, including the ones without a name.
 	 *
 	 * @sample 
@@ -1305,24 +1158,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	 * @return a ISMButton object 
 	 */
 	public ISMButton getButton(String name);
-
-	/**
-	 * Removes a ISMButton that has the specified name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
-	 * var b1 = form.newButton('This is button1',100,100,200,50,null);
-	 * b1.name = 'b1';
-	 * var method = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX'); if (form.removeButton('b1') == true) application.output('Button has been removed ok'); else application.output('Button could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var b2 = form.newButton('Click here to remove button1',100,230,200,50,method);
-	 * b2.name = 'b2';
-	 * forms['newFormX'].controller.show();
-	 *
-	 * @param name the specified name of the ISMButton to be removed 
-	 * 
-	 * @return true if the ISMButton has been removed; false otherwise
-	 */
-	public boolean removeButton(String name);
 
 	/**
 	 * Returns all ISMButtons of this form, including the ones without a name.
@@ -1454,42 +1289,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public ISMComponent getComponent(String name);
 
 	/**
-	 * Removes a component (ISMLabel, ISMButton, ISMField, ISMPortal, ISMBean, ISMTabPanel) that has the given name. It is the same as calling "if(!removeLabel(name) &amp;&amp; !removeButton(name) ....)".
-	 * Returns true if removal was successful, false otherwise.  
-	 *
-	 * @sample
-	 * var form = solutionModel.newForm('newFormX','db:/server1/parent_table',null,true,1000,750);
-	 * var ISMButton = form.newButton('ISMButton to delete',100,100,200,50,null);
-	 * ISMButton.name = 'jsb';
-	 * var ISMLabel = form.newLabel('ISMLabel to delete',100,200,200,50,null);
-	 * ISMLabel.name = 'jsl';
-	 * ISMLabel.transparent = false;
-	 * ISMLabel.background = 'green';
-	 * var ISMField = form.newField('scopes.globals.myGlobalVariable',ISMField.TEXT_FIELD,100,300,200,50);
-	 * ISMField.name = 'jsf';
-	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
-	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
-	 * var ISMPortal = form.newPortal('jsp',relation,100,400,300,300);
-	 * ISMPortal.newField('child_table_id',ISMField.TEXT_FIELD,200,200,120);
-	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_id', ISMField.TEXT_FIELD,10,10,100,20);
-	 * var childTwo = solutionModel.newForm('childTwo','server1','other_table',null,false,400,300);
-	 * childTwo.newField('some_table_id', ISMField.TEXT_FIELD,10,10,100,100); 
-	 * var ISMTabPanel = form.newTabPanel('jst',450,30,620,460);
-	 * ISMTabPanel.newTab('tab1','Child One',childOne,relation);
-	 * ISMTabPanel.newTab('tab2','Child Two',childTwo);
-	 * var method = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if ((form.removeComponent('jsb') == true) && (form.removeComponent('jsl') == true) && (form.removeComponent('jsf') == true) && (form.removeComponent('jsp') == true) & (form.removeComponent('jst') == true)) application.output('Components removed ok'); else application.output('Some component(s) could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove form components',450,500,250,50,method);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 *
-	 * @param name the specified name of the component to be deleted
-	 * 
-	 * @return true if component has been successfully deleted; false otherwise
-	 */
-	public boolean removeComponent(String name);
-
-	/**
 	 * Returns a array of all the ISMComponents that a form has; they are of type ISMField,ISMLabel,ISMButton,ISMPortal,ISMBean or ISMTabPanel.
 	 *
 	 * @sample
@@ -1529,26 +1328,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	 * @return a ISMLabel object (or null if the label with the specified name does not exist)
 	 */
 	public ISMLabel getLabel(String name);
-
-	/**
-	 * Removes a ISMLabel that has the given name. Returns true if removal successful, false otherwise  
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,1000,750);
-	 * var ISMLabel = form.newLabel('ISMLabel to delete',100,200,200,50,null);
-	 * ISMLabel.name = 'jsl';
-	 * ISMLabel.transparent = false;
-	 * ISMLabel.background = 'green';
-	 * var method = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX'); if (form.removeComponent('jsl') == true) application.output('Label has been removed'); else application.output('Label could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove the green label',450,500,250,50,method);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 * 
-	 * @param name the specified name of the ISMLabel to be removed
-	 * 
-	 * @return true if the ISMLabel with the given name has successfully been removed; false otherwise
-	 */
-	public boolean removeLabel(String name);
 
 	/**
 	 * Returns all ISMLabels of this form (optionally including it super forms labels), including the ones without a name.
@@ -1624,17 +1403,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public String getInitialSort();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getName()
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
-	 * var formName = form.name;
-	 * application.output(formName);
-	 * 
-	 */
-	public String getName();
-
-	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getNavigatorID()
 	 *
 	 * @sample 
@@ -1670,17 +1438,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	 * forms['newForm1'].controller.show();
 	 */
 	public int getScrollbars();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getServerName()
-	 * 
-	 * @sample 
-	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
-	 * form.serverName = 'anotherServerName';
-	 * var theServerName = form.getServerName();
-	 * application.output(theServerName);
-	 */
-	public String getServerName();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getShowInMenu()
@@ -1721,31 +1478,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	 * 
 	 */
 	public String getStyleName();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getTableName()
-	 * 
-	 * @sample
-	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * aForm.tableName = 'anotherTableOfMine'
-	 * if (forms['newForm1'].controller.find())
-	 * {
-	 * 	columnTextDataProvider = '=aSearchedValue'
-	 * 	columnNumberDataProvider = '>10';
-	 * 	forms['newForm1'].controller.search()
-	 * }
-	 */
-	public String getTableName();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getDataSource()
-	 * 
-	 * @sample
-	 * var myForm = solutionModel.newForm('newForm', 'db:/a_server/a_table', 'aStyleName', false, 800, 600)
-	 * myForm.dataSource = 'db:/anotherServerName/anotherTableName'
-	 * 
-	 */
-	public String getDataSource();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getTitleText()
@@ -1836,27 +1568,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	 */
 	public String getNamedFoundSet();
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
-	 *
-	 * @sample 
-	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * myForm.view = JSForm.RECORD_VIEW;
-	 * forms['newForm1'].controller.show();
-	 */
-	public int getView();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
-	 * 
-	 * @sample
-	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * forms['newForm1'].controller.show();
-	 * myForm.width = 120;
-	 * forms['newForm1'].controller.recreateUI();
-	 */
-	public int getWidth();
-
 	public void setBorderType(String b);
 
 	public void setDefaultPageFormat(String string);
@@ -1871,17 +1582,11 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 
 	public void setScrollbars(int i);
 
-	public void setServerName(String arg);
-
 	public void setShowInMenu(boolean arg);
 
 	public void setStyleClass(String arg);
 
 	public void setStyleName(String arg);
-
-	public void setTableName(String arg);
-
-	public void setDataSource(String arg);
 
 	public void setTitleText(String string);
 
@@ -1893,10 +1598,6 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 	public void setSelectionMode(int arg);
 
 	public void setNamedFoundSet(Object arg);
-
-	public void setView(int arg);
-
-	public void setWidth(int width);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDeleteAllRecordsCmdMethodID()
@@ -2142,19 +1843,11 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 
 	public void setOnDrop(ISMMethod method);
 
-	public void setOnElementFocusGained(ISMMethod method);
-
-	public void setOnElementFocusLost(ISMMethod method);
-
 	public void setOnDuplicateRecordCmd(ISMMethod method);
 
 	public void setOnFindCmd(ISMMethod method);
 
-	public void setOnHide(ISMMethod method);
-
 	public void setOnInvertRecordsCmd(ISMMethod method);
-
-	public void setOnLoad(ISMMethod method);
 
 	public void setOnNewRecordCmd(ISMMethod method);
 
@@ -2166,80 +1859,14 @@ public interface ISMForm extends ISMHasDesignTimeProperty, ISMHasUUID
 
 	public void setOnPrintPreviewCmd(ISMMethod method);
 
-	public void setOnRecordEditStart(ISMMethod method);
-
-	public void setOnRecordEditStop(ISMMethod method);
-
-	public void setOnRecordSelection(ISMMethod method);
-
 	public void setOnSearchCmd(ISMMethod method);
 
 	public void setOnShowAllRecordsCmd(ISMMethod method);
-
-	public void setOnShow(ISMMethod method);
 
 	public void setOnShowOmittedRecordsCmd(ISMMethod method);
 
 	public void setOnSortCmd(ISMMethod method);
 
-	public void setOnUnLoad(ISMMethod method);
-
 	public void setOnRender(ISMMethod method);
 
-	public void setOnResize(ISMMethod method);
-
-	/**
-	 * Get or set the encapsulation level for the form.
-	 * 
-	 * Encapsulation is one of constants JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION,
-	 * JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION or JSForm.HIDE_ELEMENTS_ENCAPSULATION
-	 *
-	 * @sample 
-	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
-	 */
-	public int getEncapsulation();
-
-	public void setEncapsulation(int arg);
-
-	/**
-	 * Removes a form JSVariable - based on the name of the variable object.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
-	 * var variable = form.newVariable('myVar', JSVariable.TEXT);
-	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
-	 * //variable.defaultValue = "{a:'First letter',b:'Second letter'}"
-	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 *
-	 * variable = form.removeVariable('myVar');
-	 * application.sleep(4000);
-	 * forms['newForm1'].controller.recreateUI();
-	 *
-	 * @param name the specified name of the variable
-	 * 
-	 * @return true if removed, false otherwise (ex: no var with that name)
-	 */
-	public boolean removeVariable(String name);
-
-	/**
-	 * Removes a  form JSMethod - based on the specified code. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', null, null, true, 800, 600);
-	 * var hello = form.newMethod('function aMethod(event){application.output("Hello world!");}');
-	 * var removeMethod = form.newMethod('function removeMethod(event){ \
-	 *									solutionModel.getForm(event.getFormName()).removeMethod("aMethod"); \
-	 *									forms[event.getFormName()].controller.recreateUI();\
-	 *									}');
-	 * var button1 = form.newButton('Call method!',50,50,120,30,hello);
-	 * var button2 = form.newButton('Remove Mehtod!',200,50,120,30,removeMethod);
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param name the specified name of the method
-	 * 
-	 * @return true if method was removed successfully , false otherwise
-	 */
-	public boolean removeMethod(String name);
 }

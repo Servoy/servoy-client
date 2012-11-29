@@ -29,9 +29,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;

@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMField;
 
 /**
  * Solution model field component.
@@ -26,181 +26,8 @@ import com.servoy.j2db.persistence.Field;
  *
  * @since 6.1
  */
-public interface ISMField extends ISMComponent
+public interface ISMField extends IBaseSMField, ISMComponent
 {
-
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to text field. The field will show regular text on a single line.
-	 * 
-	 * @sample
-	 * var tfield = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 460, 100, 20);
-	 */
-	public static final int TEXT_FIELD = Field.TEXT_FIELD;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to text area. The field will show text on multiple lines.
-	 * 
-	 * @sample
-	 * var tarea = form.newField('my_table_text', JSField.TEXT_AREA, 10, 400, 100, 50);
-	 */
-	public static final int TEXT_AREA = Field.TEXT_AREA;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to combobox. 
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var cmb = form.newField('my_table_options', JSField.COMBOBOX, 10, 100, 100, 20);
-	 * cmb.valuelist = vlist;
-	 */
-	public static final int COMBOBOX = Field.COMBOBOX;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to radio buttons. The field will show a radio button, or a list of them if 
-	 * the valuelist property is also set.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var radio = form.newField('my_table_options', JSField.RADIOS, 10, 280, 100, 50);
-	 * radio.valuelist = vlist;
-	 */
-	public static final int RADIOS = Field.RADIOS;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to checkbox. The field will show a checkbox, or a list of checkboxes if the valuelist
-	 * property is also set.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var chk = form.newField('my_table_options', JSField.CHECKS, 10, 40, 100, 50);
-	 * chk.valuelist = vlist;
-	 */
-	public static final int CHECKS = Field.CHECKS;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the 
-	 * field to calendar. The field will show a formatted date and will have a button which
-	 * pops up a calendar for date selection.
-	 *
-	 * @sample 
-	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
-	 */
-	public static final int CALENDAR = Field.CALENDAR;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * fiels to password. The field will allow the user to enter passwords, masking the typed
-	 * characters.
-	 * 
-	 * @sample
-	 * 	var pwd = form.newField('my_table_text', JSField.PASSWORD, 10, 250, 100, 20);
-	 */
-	public static final int PASSWORD = Field.PASSWORD;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the 
-	 * field to RTF area. The field will display formatted RTF content.
-	 * 
-	 * @sample
-	 * 	var rtf = form.newField('my_table_rtf', JSField.RTF_AREA, 10, 340, 100, 50);
-	 */
-	public static final int RTF_AREA = Field.RTF_AREA;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to HTML area. The field will display formatted HTML content.
-	 * 
-	 * @sample
-	 * var html = form.newField('my_table_html', JSField.HTML_AREA, 10, 130, 100, 50);
-	 */
-	public static final int HTML_AREA = Field.HTML_AREA;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to image. The field will display images.
-	 * 
-	 * @sample
-	 * var img = form.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 190, 100, 50);
-	 */
-	public static final int IMAGE_MEDIA = Field.IMAGE_MEDIA;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to type ahead. The field will show regular text, but will have type ahead 
-	 * capabilities.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var tahead = form.newField('my_table_text', JSField.TYPE_AHEAD, 10, 490, 100, 20);
-	 * tahead.valuelist = vlist;
-	 */
-	public static final int TYPE_AHEAD = Field.TYPE_AHEAD;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to list box. The field will show a selection list with single choice selection.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var list = form.newField('my_table_list', JSField.LIST_BOX, 10, 280, 100, 50);
-	 * list.valuelist = vlist;
-	 */
-	@Deprecated
-	public static final int LIST_BOX = Field.LIST_BOX;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to list box. The field will show a selection list with single choice selection.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var list = form.newField('my_table_list', JSField.LISTBOX, 10, 280, 100, 50);
-	 * list.valuelist = vlist;
-	 */
-	public static final int LISTBOX = Field.LIST_BOX;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to list box. The field will show a selection list with multiple choice selection.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var list = form.newField('my_table_options', JSField.MULTISELECT_LISTBOX, 10, 280, 100, 50);
-	 * list.valuelist = vlist;
-	 */
-	public static final int MULTISELECT_LISTBOX = Field.MULTISELECT_LISTBOX;
-	/**
-	 * Constant for specifying the display type of a JSField. Sets the display type of the
-	 * field to spinner. The field will show a spinner.
-	 * 
-	 * @sample
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * var spinner = form.newField('my_spinner', JSField.SPINNER, 10, 460, 100, 20);
-	 * spinner.valuelist = vlist;
-	 */
-	public static final int SPINNER = Field.SPINNER;
-
-	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
-	 */
-	public String getDataProviderID();
-
-	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
-	 */
-	public boolean getDisplaysTags();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getDisplayType()
-	 *
-	 * @sample 
-	 * // The display type is specified when the field is created.
-	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
-	 * // But it can be changed if needed.
-	 * cal.dataProviderID = 'my_table_text';
-	 * cal.displayType = JSField.TEXT_FIELD;
-	 */
-	public int getDisplayType();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getEditable()
@@ -314,16 +141,10 @@ public interface ISMField extends ISMComponent
 
 	public void setToolTipText(String arg);
 
-	public void setValuelist(ISMValueList valuelist);
-
-	public void setOnAction(ISMMethod method);
-
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnAction()
 	 */
 	public ISMMethod getOnAction();
-
-	public void setOnDataChange(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnDataChangeMethodID()
@@ -354,8 +175,6 @@ public interface ISMField extends ISMComponent
 	 */
 	public ISMMethod getOnRightClick();
 
-	public void setOnFocusGained(ISMMethod method);
-
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusGainedMethodID()
 	 * 
@@ -369,8 +188,6 @@ public interface ISMField extends ISMComponent
 	 * forms['someForm'].controller.show()
 	 */
 	public ISMMethod getOnFocusGained();
-
-	public void setOnFocusLost(ISMMethod method);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusLostMethodID()

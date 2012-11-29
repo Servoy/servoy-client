@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
+
 
 /**
  * Solution model scripting method.
@@ -25,40 +27,8 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMMethod extends ISMHasUUID
+public interface ISMMethod extends IBaseSMMethod, ISMHasUUID
 {
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
-	 * 
-	 * @sample
-	 * var method = form.newMethod('function original() { application.output("Original function."); }');
-	 * application.output('original method name: ' + method.getName());
-	 * application.output('original method code: ' + method.code);
-	 * method.code = 'function changed() { application.output("This is another function."); }';
-	 * method.showInMenu = false;
-	 * var button = form.newButton('Click me!', 10, 10, 100, 30, method);
-	 */
-	public String getCode();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getName()
-	 * 
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
-	 * 
-	 * @return A String holding the name of this method.
-	 */
-	public String getName();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
-	 * 
-	 * @sample 
-	 * var methods = solutionModel.getGlobalMethods(); 
-	 * for (var x in methods) 
-	 * 	application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
-	 */
-	public String getScopeName();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
@@ -67,28 +37,6 @@ public interface ISMMethod extends ISMHasUUID
 	 */
 	public boolean getShowInMenu();
 
-	public void setCode(String content);
-
-	/**
-	 * Gets the argument array for this method if that is set for the specific action this method is taken from.
-	 * Will return null by default. This is only for reading, you can't alter the arguments through this array, 
-	 * for that you need to create a new object through solutionModel.wrapMethodWithArguments(..) and assign it again.
-	 * 
-	 * @sample 
-	 * var frm = solutionModel.getForm("myForm");
-	 * var button = frm.getButton("button");
-	 * // get the arguments from the button.
-	 * // NOTE: string arguments will be returned with quotes (comp.onAction.getArguments()[0] == '\'foo\' evals to true)
-	 * var arguments = button.onAction.getArguments();
-	 * if (arguments && arguments.length > 1 && arguments[1] == 10) { 
-	 * 	// change the value and assign it back to the onAction.
-	 * 	arguments[1] = 50;
-	 * 	button.onAction = solutionModel.wrapMethodWithArguments(button.onAction,arguments);
-	 * }
-	 * 
-	 * @return Array of the arguments, null if not specified.
-	 */
-	public Object[] getArguments();
-
 	public void setShowInMenu(boolean arg);
+
 }

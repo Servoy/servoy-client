@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMLabel;
+
 /**
  * Solution model label component.
  * 
@@ -24,6 +26,6 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMLabel extends ISMGraphicalComponent
+public interface ISMLabel extends IBaseSMLabel, ISMGraphicalComponent
 {
 }

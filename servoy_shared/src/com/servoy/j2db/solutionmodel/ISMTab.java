@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMTab;
+
 
 /**
  * Solution model tab object.
@@ -25,7 +27,7 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMTab extends ISMHasUUID
+public interface ISMTab extends IBaseSMTab, ISMHasUUID
 {
 
 	/**
@@ -38,8 +40,6 @@ public interface ISMTab extends ISMHasUUID
 	 * firstTab.containsForm = anotherChildForm;
 	 */
 	public ISMForm getContainsForm();
-
-	public void setContainsForm(ISMForm form);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getForeground()
@@ -64,76 +64,6 @@ public interface ISMTab extends ISMHasUUID
 	public ISMMedia getImageMedia();
 
 	public void setImageMedia(ISMMedia media);
-
-	/**
-	 * The X coordinate of the tab. This influences the order in which the tabs are displayed. 
-	 * The tabs are displayed in increasing order of the X coordinate. If two tabs have the 
-	 * same X coordinate, then they are displayed in increasing order of the Y coordinate.
-	 * 
-	 * @sample
-	 * // Create two tabs, then make the second one be displayed to the left of the first
-	 * // by setting their X coordinates in the needed order.
-	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
-	 * firstTab.x = 10;
-	 * var secondTab = tabs.newTab('secondTab', 'Another Child Form', anotherChildForm);
-	 * secondTab.x = 0;
-	 */
-	public int getX();
-
-	public void setX(int x);
-
-	/**
-	 * The Y coordinate of the tab. Together with the X coordinate, this influences the order 
-	 * in which the tabs are displayed. The tabs are displayed in increasing order of the X coordinate,
-	 * and if two tabs have the same X coordinate, then they are displayed in increasing order 
-	 * of the Y coordinate.
-	 * 
-	 * @sample
-	 * // Create two tabs, then make the second one be displayed to the left of the first
-	 * // by setting their X to the same value and Y coordinates in the needed order. 
-	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
-	 * firstTab.x = 0;
-	 * firstTab.y = 10;
-	 * var secondTab = tabs.newTab('secondTab', 'Another Child Form', anotherChildForm);
-	 * secondTab.x = 0;
-	 * secondTab.y = 0;
-	 */
-	public int getY();
-
-	public void setY(int y);
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getName()
-	 * 
-	 * @sample
-	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
-	 * firstTab.name = 'firstTabRenamed';
-	 */
-	public String getName();
-
-	public void setName(String arg);
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getRelationName()
-	 * 
-	 * @sample
-	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm);
-	 * firstTab.relationName = 'parent_table_to_child_table';
-	 */
-	public String getRelationName();
-
-	public void setRelationName(String arg);
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getText()
-	 * 
-	 * @sample
-	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
-	 * firstTab.text = 'Better Title';
-	 */
-	public String getText();
-
-	public void setText(String arg);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getToolTipText()

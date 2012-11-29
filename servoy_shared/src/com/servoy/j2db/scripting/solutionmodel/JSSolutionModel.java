@@ -34,7 +34,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
@@ -51,9 +50,10 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.solutionmodel.ISMComponent;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.solutionmodel.ISMForm;
-import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.solutionmodel.ISMRelation;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -297,7 +297,7 @@ public class JSSolutionModel implements ISolutionModel
 	 * @return a JSForm
 	 */
 	@JSFunction
-	public JSForm cloneForm(String newName, ISMForm jsForm)
+	public JSForm cloneForm(String newName, IBaseSMForm jsForm)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), newName, fs.getSolutionCopy());
@@ -321,7 +321,7 @@ public class JSSolutionModel implements ISolutionModel
 	 * @return the exact copy of the given component
 	 */
 	@JSFunction
-	public <T extends BaseComponent> JSComponent< ? > cloneComponent(String newName, ISMComponent component)
+	public JSComponent< ? > cloneComponent(String newName, IBaseSMComponent component)
 	{
 		return cloneComponent(newName, component, null);
 	}
@@ -349,21 +349,21 @@ public class JSSolutionModel implements ISolutionModel
 	 * @return the exact copy of the given component
 	 */
 	@JSFunction
-	public <T extends BaseComponent> JSComponent< ? > cloneComponent(String newName, ISMComponent component, ISMForm newParentForm)
+	public JSComponent< ? > cloneComponent(String newName, IBaseSMComponent component, IBaseSMForm newParentForm)
 	{
-		if (component == null || !(((JSBase<T>)component).getBaseComponent(false).getParent() instanceof Form))
+		if (component == null || !(((JSBase)component).getBaseComponent(false).getParent() instanceof Form))
 		{
 			throw new RuntimeException("only components of a form can be cloned");
 		}
 		JSForm parent = (JSForm)newParentForm;
 		if (parent == null)
 		{
-			parent = (JSForm)((JSBase<T>)component).getJSParent();
+			parent = (JSForm)((JSBase)component).getJSParent();
 		}
 		parent.checkModification();
 		Form form = parent.getSupportChild();
 		FlattenedSolution fs = application.getFlattenedSolution();
-		fs.clonePersist(((JSBase<T>)component).getBaseComponent(false), newName, form);
+		fs.clonePersist(((JSBase)component).getBaseComponent(false), newName, form);
 		return parent.getComponent(newName);
 	}
 
@@ -1231,7 +1231,7 @@ public class JSSolutionModel implements ISolutionModel
 	 * @return a JSMethod
 	 */
 	@JSFunction
-	public JSMethod wrapMethodWithArguments(ISMMethod method, Object... args)
+	public JSMethod wrapMethodWithArguments(IBaseSMMethod method, Object... args)
 	{
 		if (method == null || args == null || args.length == 0)
 		{

@@ -22,6 +22,7 @@ import java.awt.print.PrinterJob;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.constants.IFormConstants;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ServoyException;
@@ -52,17 +53,17 @@ public interface IForm
 	/**
 	 * Constant for method setView(...) to show in recordview.
 	 */
-	public static final int RECORD_VIEW = 0;
+	public static final int RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD;
 
 	/**
 	 * Constant for locked record view.
 	 */
-	public static final int LOCKED_RECORD_VIEW = 5;
+	public static final int LOCKED_RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD_LOCKED;
 
 	/**
 	 * Constant for method setView(...) to show in listview.
 	 */
-	public static final int LIST_VIEW = 1;
+	public static final int LIST_VIEW = IFormConstants.VIEW_TYPE_LIST;
 
 	/**
 	 * Eval a javascript

@@ -59,6 +59,7 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.Debug;
@@ -3944,7 +3945,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return null;
 	}
 
-	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, ISMMethod method)
+	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IBaseSMMethod method)
 	{
 		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
 		persist.putInstanceMethodArguments(methodProperty.getPropertyName(),
@@ -3954,14 +3955,14 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(TypedProperty<Integer> methodProperty, ISMMethod method)
+	protected void setEventHandler(TypedProperty<Integer> methodProperty, IBaseSMMethod method)
 	{
 		checkModification();
 		setEventHandler(application, form, methodProperty, method);
 	}
 
 
-	static int getMethodId(IApplication application, AbstractBase base, ISMMethod method, TypedProperty<Integer> methodProperty)
+	static int getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<Integer> methodProperty)
 	{
 		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return -1;
 		if (method == null || method == DEFAULTS.COMMAND_DEFAULT) return 0;
@@ -4122,7 +4123,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnElementFocusGained(ISMMethod method)
+	public void setOnElementFocusGained(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, method);
 	}
@@ -4139,7 +4140,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnElementFocusLost(ISMMethod method)
+	public void setOnElementFocusLost(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID, method);
 	}
@@ -4193,7 +4194,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnHide(ISMMethod method)
+	public void setOnHide(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, method);
 	}
@@ -4229,7 +4230,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnLoad(ISMMethod method)
+	public void setOnLoad(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, method);
 	}
@@ -4344,7 +4345,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnRecordEditStart(ISMMethod method)
+	public void setOnRecordEditStart(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, method);
 	}
@@ -4361,7 +4362,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnRecordEditStop(ISMMethod method)
+	public void setOnRecordEditStop(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, method);
 	}
@@ -4378,7 +4379,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnRecordSelection(ISMMethod method)
+	public void setOnRecordSelection(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, method);
 	}
@@ -4431,7 +4432,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnShow(ISMMethod method)
+	public void setOnShow(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, method);
 	}
@@ -4483,7 +4484,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnUnLoad(ISMMethod method)
+	public void setOnUnLoad(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, method);
 	}
@@ -4501,7 +4502,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSSetter
-	public void setOnResize(ISMMethod method)
+	public void setOnResize(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, method);
 	}

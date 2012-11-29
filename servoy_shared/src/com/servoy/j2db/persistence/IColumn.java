@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.j2db.persistence.IColumnTypes;
+
 
 /**
  * Tagging interface on dataprovider for use in ColumnWrapper with isAggregate test function

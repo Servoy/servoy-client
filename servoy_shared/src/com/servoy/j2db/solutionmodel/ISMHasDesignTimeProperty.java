@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMHasDesignTimeProperty;
+
 
 /**
  * Base interface for solution model components with deisign time property support.
@@ -24,33 +26,7 @@ package com.servoy.j2db.solutionmodel;
  * @author rgansevles
  *
  */
-public interface ISMHasDesignTimeProperty
+public interface ISMHasDesignTimeProperty extends IBaseSMHasDesignTimeProperty
 {
 
-	/** Get a design-time property of an element.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm('orders')
-	 * var fld = frm.getField('fld')
-	 * var prop = fld.getDesignTimeProperty('myprop')	
-	 */
-	public Object getDesignTimeProperty(String key);
-
-	/** Set a design-time property of an element.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm('orders')
-	 * var fld = frm.getField('fld')
-	 * fld.putDesignTimeProperty('myprop', 'strawberry')	
-	 */
-	public Object putDesignTimeProperty(String key, Object value);
-
-	/** Clear a design-time property of an element.
-	 *
-	 * @sample 
-	 * var frm = solutionModel.getForm('orders')
-	 * var fld = frm.getField('fld')
-	 * fld.removeDesignTimeProperty('myprop')
-	 */
-	public Object removeDesignTimeProperty(String key);
 }

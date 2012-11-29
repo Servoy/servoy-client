@@ -17,48 +17,15 @@
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.constants.IDefaultSMConstants;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class DEFAULTS implements IPrefixedConstantsObject
+public class DEFAULTS implements IDefaultSMConstants, IPrefixedConstantsObject
 {
-	/**
-	 * Constant used in various places to set properties to their default value.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
-	 * form.navigator = SM_DEFAULTS.DEFAULT; // Show the default navigator on the form.
-	 */
-	public static final int DEFAULT = 0;
-
-	/**
-	 * Constant used in various places to set properties to "none".
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
-	 * form.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form.
-	 */
-	public static final int NONE = -1;
-
-	/**
-	 * Constant used to remove a component from the tab sequence.
-	 * 
-	 * @sample
-	 * // Create three fields. Based on how they are placed, by default they will come one
-	 * // after another in the tab sequence.
-	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * var fieldTwo = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
-	 * var fieldThree = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 70, 100, 20);
-	 * // Set the third field come before the first in the tab sequence, and remove the 
-	 * // second field from the tab sequence.
-	 * fieldOne.tabSeq = 2;
-	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
-	 * fieldThree.tabSeq = 1;
-	 */
-	public static final int IGNORE = -2;
 
 	/**
 	 * Constants used for setting commands to "default".
@@ -70,22 +37,12 @@ public class DEFAULTS implements IPrefixedConstantsObject
 	public static final JSMethod COMMAND_DEFAULT = new JSMethod();
 
 	/**
-	 * Constant used for setting commands to "none".
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
-	 * form.onFindCmd = SM_DEFAULTS.COMMAND_NONE; // This disables the find on the form.
-	 */
-	public static final JSMethod COMMAND_NONE = null;
-
-	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
 	 */
 	public String getPrefix()
 	{
 		return "SM_DEFAULTS"; //$NON-NLS-1$
 	}
-
 
 	/**
 	 * @see java.lang.Object#toString()

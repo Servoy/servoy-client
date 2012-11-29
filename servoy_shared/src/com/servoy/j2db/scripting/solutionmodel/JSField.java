@@ -27,9 +27,10 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMValueList;
 import com.servoy.j2db.solutionmodel.ISMField;
 import com.servoy.j2db.solutionmodel.ISMMethod;
-import com.servoy.j2db.solutionmodel.ISMValueList;
 import com.servoy.j2db.util.PersistHelper;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
@@ -297,7 +298,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	@JSSetter
-	public void setValuelist(ISMValueList valuelist)
+	public void setValuelist(IBaseSMValueList valuelist)
 	{
 		if (valuelist == null)
 		{
@@ -411,7 +412,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	@JSSetter
-	public void setOnAction(ISMMethod method)
+	public void setOnAction(IBaseSMMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, (JSMethod)method);
 	}
@@ -433,7 +434,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	@JSSetter
-	public void setOnDataChange(ISMMethod method)
+	public void setOnDataChange(IBaseSMMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, (JSMethod)method);
 	}
@@ -490,7 +491,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	@JSSetter
-	public void setOnFocusGained(ISMMethod method)
+	public void setOnFocusGained(IBaseSMMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID, (JSMethod)method);
 	}
@@ -507,7 +508,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	@JSSetter
-	public void setOnFocusLost(ISMMethod method)
+	public void setOnFocusLost(IBaseSMMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID, (JSMethod)method);
 	}

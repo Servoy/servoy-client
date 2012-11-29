@@ -23,6 +23,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * @author jcompagner
+ * @deprecated
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 @Deprecated

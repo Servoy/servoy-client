@@ -56,6 +56,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.constants.IValueListConstants;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
@@ -1702,7 +1703,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
 	{
 		ValueList vl = getFlattenedSolution().getValueList(name);
-		if (vl != null && vl.getValueListType() == ValueList.CUSTOM_VALUES)
+		if (vl != null && vl.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 		{
 			// TODO should getValueListItems not specify type and format??					
 			IValueList valuelist = ComponentFactory.getRealValueList(this, vl, false, Types.OTHER, null, null);

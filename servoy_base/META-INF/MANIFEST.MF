@@ -5,6 +5,9 @@ Bundle-SymbolicName: servoy_base;singleton:=true
 Bundle-Version: 7.0.0.2001
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Servoy
-Export-Package: com.servoy.j2db.scripting.annotations,
+Export-Package: com.servoy.j2db.persistence,
+ com.servoy.j2db.persistence.constants,
+ com.servoy.j2db.scripting.annotations,
  com.servoy.j2db.scripting.api,
+ com.servoy.j2db.scripting.api.solutionmodel,
  com.servoy.j2db.util

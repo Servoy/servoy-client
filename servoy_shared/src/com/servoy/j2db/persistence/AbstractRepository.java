@@ -498,14 +498,14 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		AbstractRootObject rootObject = null;
 		switch (metaData.getObjectTypeId())
 		{
-			case SOLUTIONS :
+			case IRepository.SOLUTIONS :
 				SolutionMetaData smd = (SolutionMetaData)metaData;
 				rootObject = new Solution(this, smd);
 				break;
-			case STYLES :
+			case IRepository.STYLES :
 				rootObject = new Style(this, metaData);
 				break;
-			case TEMPLATES :
+			case IRepository.TEMPLATES :
 				rootObject = new Template(this, metaData);
 				break;
 			default :
@@ -643,7 +643,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	{
 		switch (objectTypeId)
 		{
-			case SOLUTIONS :
+			case IRepository.SOLUTIONS :
 				return new SolutionMetaData(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 			default :
 				return new RootObjectMetaData(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);

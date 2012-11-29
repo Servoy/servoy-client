@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Insets;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.constants.IFieldConstants;
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
@@ -34,20 +35,20 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/*
 	 * displayTypes
 	 */
-	public static final int TEXT_FIELD = 0;
-	public static final int TEXT_AREA = 1;
-	public static final int COMBOBOX = 2;
-	public static final int RADIOS = 3;
-	public static final int CHECKS = 4;
-	public static final int CALENDAR = 5;
-	public static final int PASSWORD = 6;
-	public static final int RTF_AREA = 7;
-	public static final int HTML_AREA = 8;
-	public static final int IMAGE_MEDIA = 9;
-	public static final int TYPE_AHEAD = 10;
-	public static final int LIST_BOX = 11;
-	public static final int MULTISELECT_LISTBOX = 12;
-	public static final int SPINNER = 13;
+	public static final int TEXT_FIELD = IFieldConstants.TEXT_FIELD;
+	public static final int TEXT_AREA = IFieldConstants.TEXT_AREA;
+	public static final int COMBOBOX = IFieldConstants.COMBOBOX;
+	public static final int RADIOS = IFieldConstants.RADIOS;
+	public static final int CHECKS = IFieldConstants.CHECKS;
+	public static final int CALENDAR = IFieldConstants.CALENDAR;
+	public static final int PASSWORD = IFieldConstants.PASSWORD;
+	public static final int RTF_AREA = IFieldConstants.RTF_AREA;
+	public static final int HTML_AREA = IFieldConstants.HTML_AREA;
+	public static final int IMAGE_MEDIA = IFieldConstants.IMAGE_MEDIA;
+	public static final int TYPE_AHEAD = IFieldConstants.TYPE_AHEAD;
+	public static final int LIST_BOX = IFieldConstants.LIST_BOX;
+	public static final int MULTISELECT_LISTBOX = IFieldConstants.MULTISELECT_LISTBOX;
+	public static final int SPINNER = IFieldConstants.SPINNER;
 
 //	list (to have a jlist alike)
 //	color_picker

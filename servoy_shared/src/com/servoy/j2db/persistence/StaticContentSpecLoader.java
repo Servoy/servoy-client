@@ -21,205 +21,230 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.util.HashMap;
 
+
 /**
  * @author jblok
  */
-public class StaticContentSpecLoader
+public class StaticContentSpecLoader implements IContentSpecConstants
 {
 	public static final int PROTECTION_PASSWORD = 281;
 
-	public static final TypedProperty<Boolean> PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS = new TypedProperty<Boolean>("allowBreakAcrossPageBounds"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_ALLOWCREATIONRELATEDRECORDS = new TypedProperty<Boolean>("allowCreationRelatedRecords"); //$NON-NLS-1$
+	public static final TypedProperty<Boolean> PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS = new TypedProperty<Boolean>(
+		IContentSpecConstants.PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS);
+	public static final TypedProperty<Boolean> PROPERTY_ALLOWCREATIONRELATEDRECORDS = new TypedProperty<Boolean>(
+		IContentSpecConstants.PROPERTY_ALLOWCREATIONRELATEDRECORDS);
 	public static final TypedProperty<Boolean> PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS = new TypedProperty<Boolean>(
-		"allowParentDeleteWhenHavingRelatedRecords"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_CLOSEONTABS = new TypedProperty<Boolean>("closeOnTabs"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_DELETERELATEDRECORDS = new TypedProperty<Boolean>("deleteRelatedRecords"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_DISCARDREMAINDERAFTERBREAK = new TypedProperty<Boolean>("discardRemainderAfterBreak"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_DISPLAYSTAGS = new TypedProperty<Boolean>("displaysTags"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_DUPLICATERELATEDRECORDS = new TypedProperty<Boolean>("duplicateRelatedRecords"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_EDITABLE = new TypedProperty<Boolean>("editable"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_ENABLED = new TypedProperty<Boolean>("enabled"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_EXISTSINDB = new TypedProperty<Boolean>("existsInDB"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_LOCKED = new TypedProperty<Boolean>("locked"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_MULTILINE = new TypedProperty<Boolean>("multiLine"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_PAGEBREAKBEFORE = new TypedProperty<Boolean>("pageBreakBefore"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_PRINTABLE = new TypedProperty<Boolean>("printable"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_REORDERABLE = new TypedProperty<Boolean>("reorderable"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_RESIZEBLE = new TypedProperty<Boolean>("resizeble"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_RESIZABLE = new TypedProperty<Boolean>("resizable"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_RESTARTPAGENUMBER = new TypedProperty<Boolean>("restartPageNumber"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SCROLLTABS = new TypedProperty<Boolean>("scrollTabs"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SELECTONENTER = new TypedProperty<Boolean>("selectOnEnter"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SHOWCLICK = new TypedProperty<Boolean>("showClick"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SHOWFOCUS = new TypedProperty<Boolean>("showFocus"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SHOWHORIZONTALLINES = new TypedProperty<Boolean>("showHorizontalLines"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SHOWINMENU = new TypedProperty<Boolean>("showInMenu"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SHOWVERTICALLINES = new TypedProperty<Boolean>("showVerticalLines"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SINKWHENLAST = new TypedProperty<Boolean>("sinkWhenLast"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_SORTABLE = new TypedProperty<Boolean>("sortable"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_TRANSPARENT = new TypedProperty<Boolean>("transparent"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_USENEWFORMINSTANCE = new TypedProperty<Boolean>("useNewFormInstance"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_USERTF = new TypedProperty<Boolean>("useRTF"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_USESUI = new TypedProperty<Boolean>("usesUI"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_USETABLEFILTER = new TypedProperty<Boolean>("useTableFilter"); //$NON-NLS-1$
-	public static final TypedProperty<Boolean> PROPERTY_VISIBLE = new TypedProperty<Boolean>("visible"); //$NON-NLS-1$
-	public static final TypedProperty<Dimension> PROPERTY_INTERCELLSPACING = new TypedProperty<Dimension>("intercellSpacing"); //$NON-NLS-1$
-	public static final TypedProperty<Insets> PROPERTY_MARGIN = new TypedProperty<Insets>("margin"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_SELECTIONMODE = new TypedProperty<Integer>("selectionMode"); //$NON-NLS-1$ //
-	public static final TypedProperty<Integer> PROPERTY_ENCAPSULATION = new TypedProperty<Integer>("encapsulation"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ADDEMPTYVALUE = new TypedProperty<Integer>("addEmptyValue"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ANCHORS = new TypedProperty<Integer>("anchors"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_BLOBID = new TypedProperty<Integer>("blobId"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_CONTAINSFORMID = new TypedProperty<Integer>("containsFormID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_DISPLAYTYPE = new TypedProperty<Integer>("displayType"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_EXTENDSFORMID = new TypedProperty<Integer>("extendsFormID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_EXTENDSID = new TypedProperty<Integer>("extendsID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_FALLBACKVALUELISTID = new TypedProperty<Integer>("fallbackValueListID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_FIRSTFORMID = new TypedProperty<Integer>("firstFormID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_FORMINDEX = new TypedProperty<Integer>("formIndex"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_HEIGHT = new TypedProperty<Integer>("height"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_HORIZONTALALIGNMENT = new TypedProperty<Integer>("horizontalAlignment"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_IMAGEMEDIAID = new TypedProperty<Integer>("imageMediaID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_JOINTYPE = new TypedProperty<Integer>("joinType"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_LINENUMBEROFFSET = new TypedProperty<Integer>("lineNumberOffset"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_LINESIZE = new TypedProperty<Integer>("lineSize"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_LOGINFORMID = new TypedProperty<Integer>("loginFormID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_MEDIAOPTIONS = new TypedProperty<Integer>("mediaOptions"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_NAVIGATORID = new TypedProperty<Integer>("navigatorID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONACTIONMETHODID = new TypedProperty<Integer>("onActionMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERCREATEMETHODID = new TypedProperty<Integer>("onAfterCreateMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERDELETEMETHODID = new TypedProperty<Integer>("onAfterDeleteMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERFINDMETHODID = new TypedProperty<Integer>("onAfterFindMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERINSERTMETHODID = new TypedProperty<Integer>("onAfterInsertMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERSEARCHMETHODID = new TypedProperty<Integer>("onAfterSearchMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERUPDATEMETHODID = new TypedProperty<Integer>("onAfterUpdateMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONCLOSEMETHODID = new TypedProperty<Integer>("onCloseMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONCREATEMETHODID = new TypedProperty<Integer>("onCreateMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDATABROADCASTMETHODID = new TypedProperty<Integer>("onDataBroadcastMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDATACHANGEMETHODID = new TypedProperty<Integer>("onDataChangeMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDELETEALLRECORDSCMDMETHODID = new TypedProperty<Integer>("onDeleteAllRecordsCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDELETEMETHODID = new TypedProperty<Integer>("onDeleteMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDELETERECORDCMDMETHODID = new TypedProperty<Integer>("onDeleteRecordCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDOUBLECLICKMETHODID = new TypedProperty<Integer>("onDoubleClickMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDRAGENDMETHODID = new TypedProperty<Integer>("onDragEndMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDRAGMETHODID = new TypedProperty<Integer>("onDragMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDRAGOVERMETHODID = new TypedProperty<Integer>("onDragOverMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDROPMETHODID = new TypedProperty<Integer>("onDropMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONDUPLICATERECORDCMDMETHODID = new TypedProperty<Integer>("onDuplicateRecordCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONELEMENTFOCUSGAINEDMETHODID = new TypedProperty<Integer>("onElementFocusGainedMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONELEMENTFOCUSLOSTMETHODID = new TypedProperty<Integer>("onElementFocusLostMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONERRORMETHODID = new TypedProperty<Integer>("onErrorMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONFINDCMDMETHODID = new TypedProperty<Integer>("onFindCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONFINDMETHODID = new TypedProperty<Integer>("onFindMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONFOCUSGAINEDMETHODID = new TypedProperty<Integer>("onFocusGainedMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONFOCUSLOSTMETHODID = new TypedProperty<Integer>("onFocusLostMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONHIDEMETHODID = new TypedProperty<Integer>("onHideMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONINITMETHODID = new TypedProperty<Integer>("onInitMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONINSERTMETHODID = new TypedProperty<Integer>("onInsertMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONINVERTRECORDSCMDMETHODID = new TypedProperty<Integer>("onInvertRecordsCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONLOADMETHODID = new TypedProperty<Integer>("onLoadMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONNEWRECORDCMDMETHODID = new TypedProperty<Integer>("onNewRecordCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONNEXTRECORDCMDMETHODID = new TypedProperty<Integer>("onNextRecordCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONOMITRECORDCMDMETHODID = new TypedProperty<Integer>("onOmitRecordCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONOPENMETHODID = new TypedProperty<Integer>("onOpenMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONPREVIOUSRECORDCMDMETHODID = new TypedProperty<Integer>("onPreviousRecordCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONPRINTPREVIEWCMDMETHODID = new TypedProperty<Integer>("onPrintPreviewCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONRECORDEDITSTARTMETHODID = new TypedProperty<Integer>("onRecordEditStartMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONRECORDEDITSTOPMETHODID = new TypedProperty<Integer>("onRecordEditStopMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONRECORDSELECTIONMETHODID = new TypedProperty<Integer>("onRecordSelectionMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONRENDERMETHODID = new TypedProperty<Integer>("onRenderMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONRESIZEMETHODID = new TypedProperty<Integer>("onResizeMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONRIGHTCLICKMETHODID = new TypedProperty<Integer>("onRightClickMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONSEARCHCMDMETHODID = new TypedProperty<Integer>("onSearchCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONSEARCHMETHODID = new TypedProperty<Integer>("onSearchMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONSHOWALLRECORDSCMDMETHODID = new TypedProperty<Integer>("onShowAllRecordsCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONSHOWMETHODID = new TypedProperty<Integer>("onShowMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID = new TypedProperty<Integer>("onShowOmittedRecordsCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONSORTCMDMETHODID = new TypedProperty<Integer>("onSortCmdMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONTABCHANGEMETHODID = new TypedProperty<Integer>("onTabChangeMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONCHANGEMETHODID = new TypedProperty<Integer>("onChangeMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONUNLOADMETHODID = new TypedProperty<Integer>("onUnLoadMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ONUPDATEMETHODID = new TypedProperty<Integer>("onUpdateMethodID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_OPERATOR = new TypedProperty<Integer>("operator"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_PAGEBREAKAFTEROCCURRENCE = new TypedProperty<Integer>("pageBreakAfterOccurrence"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_PAPERPRINTSCALE = new TypedProperty<Integer>("paperPrintScale"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_PARTTYPE = new TypedProperty<Integer>("partType"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_PRINTSLIDING = new TypedProperty<Integer>("printSliding"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_RESOURCETYPE = new TypedProperty<Integer>("resourceType"); //$NON-NLS-1$;
-	public static final TypedProperty<Integer> PROPERTY_RETURNDATAPROVIDERS = new TypedProperty<Integer>("returnDataProviders"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ROLLOVERCURSOR = new TypedProperty<Integer>("rolloverCursor"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ROLLOVERIMAGEMEDIAID = new TypedProperty<Integer>("rolloverImageMediaID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ROTATION = new TypedProperty<Integer>("rotation"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ROUNDEDRADIUS = new TypedProperty<Integer>("roundedRadius"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_ROWHEIGHT = new TypedProperty<Integer>("rowHeight"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_SCROLLBARS = new TypedProperty<Integer>("scrollbars"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_SEQUENCE = new TypedProperty<Integer>("sequence"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_SHAPETYPE = new TypedProperty<Integer>("shapeType"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_SHOWDATAPROVIDERS = new TypedProperty<Integer>("showDataProviders"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_TABORIENTATION = new TypedProperty<Integer>("tabOrientation"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_TABSEQ = new TypedProperty<Integer>("tabSeq"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_TEXTORIENTATION = new TypedProperty<Integer>("textOrientation"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_TYPE = new TypedProperty<Integer>("type"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_VALUELISTID = new TypedProperty<Integer>("valuelistID"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_VALUELISTTYPE = new TypedProperty<Integer>("valueListType"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_VARIABLETYPE = new TypedProperty<Integer>("variableType"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_VERTICALALIGNMENT = new TypedProperty<Integer>("verticalAlignment"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_VIEW = new TypedProperty<Integer>("view"); //$NON-NLS-1$
-	public static final TypedProperty<java.awt.Color> PROPERTY_BACKGROUND = new TypedProperty<java.awt.Color>("background"); //$NON-NLS-1$
-	public static final TypedProperty<java.awt.Color> PROPERTY_FOREGROUND = new TypedProperty<java.awt.Color>("foreground"); //$NON-NLS-1$
-	public static final TypedProperty<java.awt.Color> PROPERTY_SELECTEDTABCOLOR = new TypedProperty<java.awt.Color>("selectedTabColor"); //$NON-NLS-1$
-	public static final TypedProperty<java.awt.Dimension> PROPERTY_SIZE = new TypedProperty<java.awt.Dimension>("size"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_WIDTH = new TypedProperty<Integer>("width"); //$NON-NLS-1$
-	public static final TypedProperty<java.awt.Point> PROPERTY_LOCATION = new TypedProperty<java.awt.Point>("location"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_ALIASES = new TypedProperty<String>("aliases"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_BEANCLASSNAME = new TypedProperty<String>("beanClassName"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_BEANXML = new TypedProperty<String>("beanXML"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_BORDERTYPE = new TypedProperty<String>("borderType"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_COMMENT = new TypedProperty<String>("comment"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_CONTENT = new TypedProperty<String>("content"); //$NON-NLS-1$;
-	public static final TypedProperty<String> PROPERTY_CSSTEXT = new TypedProperty<String>("CSSText"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_CUSTOMPROPERTIES = new TypedProperty<String>("customProperties"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_CUSTOMVALUES = new TypedProperty<String>("customValues"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID1 = new TypedProperty<String>("dataProviderID1"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID2 = new TypedProperty<String>("dataProviderID2"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID3 = new TypedProperty<String>("dataProviderID3"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID = new TypedProperty<String>("dataProviderID"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DATAPROVIDERIDTOAGGREGATE = new TypedProperty<String>("dataProviderIDToAggregate"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DATASOURCE = new TypedProperty<String>("dataSource"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DECLARATION = new TypedProperty<String>("declaration"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DEFAULTPAGEFORMAT = new TypedProperty<String>("defaultPageFormat"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_DEFAULTVALUE = new TypedProperty<String>("defaultValue"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_FONTTYPE = new TypedProperty<String>("fontType"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_FOREIGNCOLUMNNAME = new TypedProperty<String>("foreignColumnName"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_FOREIGNDATASOURCE = new TypedProperty<String>("foreignDataSource"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_FORMAT = new TypedProperty<String>("format"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_GROUPBYDATAPROVIDERIDS = new TypedProperty<String>("groupbyDataProviderIDs"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_GROUPID = new TypedProperty<String>("groupID"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_I18NDATASOURCE = new TypedProperty<String>("i18nDataSource"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_INITIALSORT = new TypedProperty<String>("initialSort"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_LABELFOR = new TypedProperty<String>("labelFor"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_METHODCODE = new TypedProperty<String>("methodCode"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_MIMETYPE = new TypedProperty<String>("mimeType"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_MNEMONIC = new TypedProperty<String>("mnemonic"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_MODULESNAMES = new TypedProperty<String>("modulesNames"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_NAMEDFOUNDSET = new TypedProperty<String>("namedFoundSet"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_NAME = new TypedProperty<String>("name"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_PARAMETERS = new TypedProperty<String>("parameters"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_POINTS = new TypedProperty<String>("points"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_PRIMARYDATAPROVIDERID = new TypedProperty<String>("primaryDataProviderID"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_PRIMARYDATASOURCE = new TypedProperty<String>("primaryDataSource"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_RELATIONNAME = new TypedProperty<String>("relationName"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_ROWBGCOLORCALCULATION = new TypedProperty<String>("rowBGColorCalculation"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_SCOPENAME = new TypedProperty<String>("scopeName"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_SEPARATOR = new TypedProperty<String>("separator"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_SORTOPTIONS = new TypedProperty<String>("sortOptions"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_STYLECLASS = new TypedProperty<String>("styleClass"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_STYLENAME = new TypedProperty<String>("styleName"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_TEXT = new TypedProperty<String>("text"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_TITLETEXT = new TypedProperty<String>("titleText"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_TOOLTIPTEXT = new TypedProperty<String>("toolTipText"); //$NON-NLS-1$
-	public static final TypedProperty<String> PROPERTY_PLACEHOLDERTEXT = new TypedProperty<String>("placeholderText"); //$NON-NLS-1$
-	public static final TypedProperty<Integer> PROPERTY_TEXTROTATION = new TypedProperty<Integer>("textRotation"); //$NON-NLS-1$
+		IContentSpecConstants.PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS);
+	public static final TypedProperty<Boolean> PROPERTY_CLOSEONTABS = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_CLOSEONTABS);
+	public static final TypedProperty<Boolean> PROPERTY_DELETERELATEDRECORDS = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_DELETERELATEDRECORDS);
+	public static final TypedProperty<Boolean> PROPERTY_DISCARDREMAINDERAFTERBREAK = new TypedProperty<Boolean>(
+		IContentSpecConstants.PROPERTY_DISCARDREMAINDERAFTERBREAK);
+	public static final TypedProperty<Boolean> PROPERTY_DISPLAYSTAGS = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_DISPLAYSTAGS);
+	public static final TypedProperty<Boolean> PROPERTY_DUPLICATERELATEDRECORDS = new TypedProperty<Boolean>(
+		IContentSpecConstants.PROPERTY_DUPLICATERELATEDRECORDS);
+	public static final TypedProperty<Boolean> PROPERTY_EDITABLE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_EDITABLE);
+	public static final TypedProperty<Boolean> PROPERTY_ENABLED = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_ENABLED);
+	public static final TypedProperty<Boolean> PROPERTY_EXISTSINDB = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_EXISTSINDB);
+	public static final TypedProperty<Boolean> PROPERTY_LOCKED = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_LOCKED);
+	public static final TypedProperty<Boolean> PROPERTY_MULTILINE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_MULTILINE);
+	public static final TypedProperty<Boolean> PROPERTY_PAGEBREAKBEFORE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_PAGEBREAKBEFORE);
+	public static final TypedProperty<Boolean> PROPERTY_PRINTABLE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_PRINTABLE);
+	public static final TypedProperty<Boolean> PROPERTY_REORDERABLE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_REORDERABLE);
+	public static final TypedProperty<Boolean> PROPERTY_RESIZEBLE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_RESIZEBLE);
+	public static final TypedProperty<Boolean> PROPERTY_RESIZABLE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_RESIZABLE);
+	public static final TypedProperty<Boolean> PROPERTY_RESTARTPAGENUMBER = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_RESTARTPAGENUMBER);
+	public static final TypedProperty<Boolean> PROPERTY_SCROLLTABS = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SCROLLTABS);
+	public static final TypedProperty<Boolean> PROPERTY_SELECTONENTER = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SELECTONENTER);
+	public static final TypedProperty<Boolean> PROPERTY_SHOWCLICK = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SHOWCLICK);
+	public static final TypedProperty<Boolean> PROPERTY_SHOWFOCUS = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SHOWFOCUS);
+	public static final TypedProperty<Boolean> PROPERTY_SHOWHORIZONTALLINES = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SHOWHORIZONTALLINES);
+	public static final TypedProperty<Boolean> PROPERTY_SHOWINMENU = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SHOWINMENU);
+	public static final TypedProperty<Boolean> PROPERTY_SHOWVERTICALLINES = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SHOWVERTICALLINES);
+	public static final TypedProperty<Boolean> PROPERTY_SINKWHENLAST = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SINKWHENLAST);
+	public static final TypedProperty<Boolean> PROPERTY_SORTABLE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_SORTABLE);
+	public static final TypedProperty<Boolean> PROPERTY_TRANSPARENT = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_TRANSPARENT);
+	public static final TypedProperty<Boolean> PROPERTY_USENEWFORMINSTANCE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_USENEWFORMINSTANCE);
+	public static final TypedProperty<Boolean> PROPERTY_USERTF = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_USERTF);
+	public static final TypedProperty<Boolean> PROPERTY_USESUI = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_USESUI);
+	public static final TypedProperty<Boolean> PROPERTY_USETABLEFILTER = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_USETABLEFILTER);
+	public static final TypedProperty<Boolean> PROPERTY_VISIBLE = new TypedProperty<Boolean>(IContentSpecConstants.PROPERTY_VISIBLE);
+	public static final TypedProperty<Dimension> PROPERTY_INTERCELLSPACING = new TypedProperty<Dimension>(IContentSpecConstants.PROPERTY_INTERCELLSPACING);
+	public static final TypedProperty<Insets> PROPERTY_MARGIN = new TypedProperty<Insets>(IContentSpecConstants.PROPERTY_MARGIN);
+	public static final TypedProperty<Integer> PROPERTY_SELECTIONMODE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_SELECTIONMODE); //
+	public static final TypedProperty<Integer> PROPERTY_ENCAPSULATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ENCAPSULATION);
+	public static final TypedProperty<Integer> PROPERTY_ADDEMPTYVALUE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ADDEMPTYVALUE);
+	public static final TypedProperty<Integer> PROPERTY_ANCHORS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ANCHORS);
+	public static final TypedProperty<Integer> PROPERTY_BLOBID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_BLOBID);
+	public static final TypedProperty<Integer> PROPERTY_CONTAINSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_CONTAINSFORMID);
+	public static final TypedProperty<Integer> PROPERTY_DISPLAYTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_DISPLAYTYPE);
+	public static final TypedProperty<Integer> PROPERTY_EXTENDSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSFORMID);
+	public static final TypedProperty<Integer> PROPERTY_EXTENDSID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSID);
+	public static final TypedProperty<Integer> PROPERTY_FALLBACKVALUELISTID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_FALLBACKVALUELISTID);
+	public static final TypedProperty<Integer> PROPERTY_FIRSTFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_FIRSTFORMID);
+	public static final TypedProperty<Integer> PROPERTY_FORMINDEX = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_FORMINDEX);
+	public static final TypedProperty<Integer> PROPERTY_HEIGHT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_HEIGHT);
+	public static final TypedProperty<Integer> PROPERTY_HORIZONTALALIGNMENT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_HORIZONTALALIGNMENT);
+	public static final TypedProperty<Integer> PROPERTY_IMAGEMEDIAID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_IMAGEMEDIAID);
+	public static final TypedProperty<Integer> PROPERTY_JOINTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_JOINTYPE);
+	public static final TypedProperty<Integer> PROPERTY_LINENUMBEROFFSET = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LINENUMBEROFFSET);
+	public static final TypedProperty<Integer> PROPERTY_LINESIZE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LINESIZE);
+	public static final TypedProperty<Integer> PROPERTY_LOGINFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LOGINFORMID);
+	public static final TypedProperty<Integer> PROPERTY_MEDIAOPTIONS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_MEDIAOPTIONS);
+	public static final TypedProperty<Integer> PROPERTY_NAVIGATORID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_NAVIGATORID);
+	public static final TypedProperty<Integer> PROPERTY_ONACTIONMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONACTIONMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERCREATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONAFTERCREATEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERDELETEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONAFTERDELETEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERFINDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONAFTERFINDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERINSERTMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONAFTERINSERTMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERSEARCHMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONAFTERSEARCHMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONAFTERUPDATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONAFTERUPDATEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONCLOSEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCLOSEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONCREATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCREATEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDATABROADCASTMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONDATABROADCASTMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDATACHANGEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDATACHANGEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDELETEALLRECORDSCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONDELETEALLRECORDSCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDELETEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDELETEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDELETERECORDCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONDELETERECORDCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDOUBLECLICKMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDOUBLECLICKMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDRAGENDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDRAGENDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDRAGMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDRAGMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDRAGOVERMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDRAGOVERMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDROPMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDROPMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONDUPLICATERECORDCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONDUPLICATERECORDCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONELEMENTFOCUSGAINEDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONELEMENTFOCUSLOSTMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONELEMENTFOCUSLOSTMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONERRORMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONERRORMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONFINDCMDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONFINDCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONFINDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONFINDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONFOCUSGAINEDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONFOCUSGAINEDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONFOCUSLOSTMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONFOCUSLOSTMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONHIDEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONHIDEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONINITMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONINITMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONINSERTMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONINSERTMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONINVERTRECORDSCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONINVERTRECORDSCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONLOADMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONLOADMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONNEWRECORDCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONNEWRECORDCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONNEXTRECORDCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONNEXTRECORDCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONOMITRECORDCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONOMITRECORDCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONOPENMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONOPENMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONPREVIOUSRECORDCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONPREVIOUSRECORDCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONPRINTPREVIEWCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONRECORDEDITSTARTMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONRECORDEDITSTARTMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONRECORDEDITSTOPMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONRECORDEDITSTOPMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONRECORDSELECTIONMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONRECORDSELECTIONMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONRENDERMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRENDERMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONRESIZEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRESIZEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONRIGHTCLICKMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRIGHTCLICKMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONSEARCHCMDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONSEARCHCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONSEARCHMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONSEARCHMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONSHOWALLRECORDSCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONSHOWALLRECORDSCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONSHOWMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONSHOWMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONSORTCMDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONSORTCMDMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONTABCHANGEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONTABCHANGEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONCHANGEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCHANGEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONUNLOADMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONUNLOADMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONUPDATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONUPDATEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_OPERATOR = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_OPERATOR);
+	public static final TypedProperty<Integer> PROPERTY_PAGEBREAKAFTEROCCURRENCE = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_PAGEBREAKAFTEROCCURRENCE);
+	public static final TypedProperty<Integer> PROPERTY_PAPERPRINTSCALE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_PAPERPRINTSCALE);
+	public static final TypedProperty<Integer> PROPERTY_PARTTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_PARTTYPE);
+	public static final TypedProperty<Integer> PROPERTY_PRINTSLIDING = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_PRINTSLIDING);
+	public static final TypedProperty<Integer> PROPERTY_RESOURCETYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_RESOURCETYPE);
+	public static final TypedProperty<Integer> PROPERTY_RETURNDATAPROVIDERS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_RETURNDATAPROVIDERS);
+	public static final TypedProperty<Integer> PROPERTY_ROLLOVERCURSOR = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROLLOVERCURSOR);
+	public static final TypedProperty<Integer> PROPERTY_ROLLOVERIMAGEMEDIAID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID);
+	public static final TypedProperty<Integer> PROPERTY_ROTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROTATION);
+	public static final TypedProperty<Integer> PROPERTY_ROUNDEDRADIUS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROUNDEDRADIUS);
+	public static final TypedProperty<Integer> PROPERTY_ROWHEIGHT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROWHEIGHT);
+	public static final TypedProperty<Integer> PROPERTY_SCROLLBARS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_SCROLLBARS);
+	public static final TypedProperty<Integer> PROPERTY_SEQUENCE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_SEQUENCE);
+	public static final TypedProperty<Integer> PROPERTY_SHAPETYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_SHAPETYPE);
+	public static final TypedProperty<Integer> PROPERTY_SHOWDATAPROVIDERS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_SHOWDATAPROVIDERS);
+	public static final TypedProperty<Integer> PROPERTY_TABORIENTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TABORIENTATION);
+	public static final TypedProperty<Integer> PROPERTY_TABSEQ = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TABSEQ);
+	public static final TypedProperty<Integer> PROPERTY_TEXTORIENTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TEXTORIENTATION);
+	public static final TypedProperty<Integer> PROPERTY_TYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TYPE);
+	public static final TypedProperty<Integer> PROPERTY_VALUELISTID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VALUELISTID);
+	public static final TypedProperty<Integer> PROPERTY_VALUELISTTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VALUELISTTYPE);
+	public static final TypedProperty<Integer> PROPERTY_VARIABLETYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VARIABLETYPE);
+	public static final TypedProperty<Integer> PROPERTY_VERTICALALIGNMENT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VERTICALALIGNMENT);
+	public static final TypedProperty<Integer> PROPERTY_VIEW = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VIEW);
+	public static final TypedProperty<java.awt.Color> PROPERTY_BACKGROUND = new TypedProperty<java.awt.Color>(IContentSpecConstants.PROPERTY_BACKGROUND);
+	public static final TypedProperty<java.awt.Color> PROPERTY_FOREGROUND = new TypedProperty<java.awt.Color>(IContentSpecConstants.PROPERTY_FOREGROUND);
+	public static final TypedProperty<java.awt.Color> PROPERTY_SELECTEDTABCOLOR = new TypedProperty<java.awt.Color>(
+		IContentSpecConstants.PROPERTY_SELECTEDTABCOLOR);
+	public static final TypedProperty<java.awt.Dimension> PROPERTY_SIZE = new TypedProperty<java.awt.Dimension>(IContentSpecConstants.PROPERTY_SIZE);
+	public static final TypedProperty<Integer> PROPERTY_WIDTH = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_WIDTH);
+	public static final TypedProperty<java.awt.Point> PROPERTY_LOCATION = new TypedProperty<java.awt.Point>(IContentSpecConstants.PROPERTY_LOCATION);
+	public static final TypedProperty<String> PROPERTY_ALIASES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ALIASES);
+	public static final TypedProperty<String> PROPERTY_BEANCLASSNAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_BEANCLASSNAME);
+	public static final TypedProperty<String> PROPERTY_BEANXML = new TypedProperty<String>(IContentSpecConstants.PROPERTY_BEANXML);
+	public static final TypedProperty<String> PROPERTY_BORDERTYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_BORDERTYPE);
+	public static final TypedProperty<String> PROPERTY_COMMENT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_COMMENT);
+	public static final TypedProperty<String> PROPERTY_CONTENT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CONTENT);
+	public static final TypedProperty<String> PROPERTY_CSSTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CSSTEXT);
+	public static final TypedProperty<String> PROPERTY_CUSTOMPROPERTIES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CUSTOMPROPERTIES);
+	public static final TypedProperty<String> PROPERTY_CUSTOMVALUES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CUSTOMVALUES);
+	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID1 = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATAPROVIDERID1);
+	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID2 = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATAPROVIDERID2);
+	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID3 = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATAPROVIDERID3);
+	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATAPROVIDERID);
+	public static final TypedProperty<String> PROPERTY_DATAPROVIDERIDTOAGGREGATE = new TypedProperty<String>(
+		IContentSpecConstants.PROPERTY_DATAPROVIDERIDTOAGGREGATE);
+	public static final TypedProperty<String> PROPERTY_DATASOURCE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATASOURCE);
+	public static final TypedProperty<String> PROPERTY_DECLARATION = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DECLARATION);
+	public static final TypedProperty<String> PROPERTY_DEFAULTPAGEFORMAT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DEFAULTPAGEFORMAT);
+	public static final TypedProperty<String> PROPERTY_DEFAULTVALUE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DEFAULTVALUE);
+	public static final TypedProperty<String> PROPERTY_FONTTYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FONTTYPE);
+	public static final TypedProperty<String> PROPERTY_FOREIGNCOLUMNNAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FOREIGNCOLUMNNAME);
+	public static final TypedProperty<String> PROPERTY_FOREIGNDATASOURCE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FOREIGNDATASOURCE);
+	public static final TypedProperty<String> PROPERTY_FORMAT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FORMAT);
+	public static final TypedProperty<String> PROPERTY_GROUPBYDATAPROVIDERIDS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_GROUPBYDATAPROVIDERIDS);
+	public static final TypedProperty<String> PROPERTY_GROUPID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_GROUPID);
+	public static final TypedProperty<String> PROPERTY_I18NDATASOURCE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_I18NDATASOURCE);
+	public static final TypedProperty<String> PROPERTY_INITIALSORT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_INITIALSORT);
+	public static final TypedProperty<String> PROPERTY_LABELFOR = new TypedProperty<String>(IContentSpecConstants.PROPERTY_LABELFOR);
+	public static final TypedProperty<String> PROPERTY_METHODCODE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_METHODCODE);
+	public static final TypedProperty<String> PROPERTY_MIMETYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_MIMETYPE);
+	public static final TypedProperty<String> PROPERTY_MNEMONIC = new TypedProperty<String>(IContentSpecConstants.PROPERTY_MNEMONIC);
+	public static final TypedProperty<String> PROPERTY_MODULESNAMES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_MODULESNAMES);
+	public static final TypedProperty<String> PROPERTY_NAMEDFOUNDSET = new TypedProperty<String>(IContentSpecConstants.PROPERTY_NAMEDFOUNDSET);
+	public static final TypedProperty<String> PROPERTY_NAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_NAME);
+	public static final TypedProperty<String> PROPERTY_PARAMETERS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PARAMETERS);
+	public static final TypedProperty<String> PROPERTY_POINTS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_POINTS);
+	public static final TypedProperty<String> PROPERTY_PRIMARYDATAPROVIDERID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PRIMARYDATAPROVIDERID);
+	public static final TypedProperty<String> PROPERTY_PRIMARYDATASOURCE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PRIMARYDATASOURCE);
+	public static final TypedProperty<String> PROPERTY_RELATIONNAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_RELATIONNAME);
+	public static final TypedProperty<String> PROPERTY_ROWBGCOLORCALCULATION = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ROWBGCOLORCALCULATION);
+	public static final TypedProperty<String> PROPERTY_SCOPENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SCOPENAME);
+	public static final TypedProperty<String> PROPERTY_SEPARATOR = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SEPARATOR);
+	public static final TypedProperty<String> PROPERTY_SORTOPTIONS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SORTOPTIONS);
+	public static final TypedProperty<String> PROPERTY_STYLECLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLECLASS);
+	public static final TypedProperty<String> PROPERTY_STYLENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLENAME);
+	public static final TypedProperty<String> PROPERTY_TEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TEXT);
+	public static final TypedProperty<String> PROPERTY_TITLETEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TITLETEXT);
+	public static final TypedProperty<String> PROPERTY_TOOLTIPTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TOOLTIPTEXT);
+	public static final TypedProperty<String> PROPERTY_PLACEHOLDERTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_PLACEHOLDERTEXT);
+	public static final TypedProperty<Integer> PROPERTY_TEXTROTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TEXTROTATION);
 
 	// deprecated or metadata properties
 	private static final TypedProperty<String> PROPERTY_SERVERNAME = new TypedProperty<String>("serverName"); //$NON-NLS-1$;
@@ -240,6 +265,7 @@ public class StaticContentSpecLoader
 	private static final TypedProperty<Boolean> PROPERTY_MUSTAUTHENTICATE = new TypedProperty<Boolean>("mustAuthenticate"); //$NON-NLS-1$;
 	public static final TypedProperty<Integer> PROPERTY_SOLUTIONTYPE = new TypedProperty<Integer>("solutionType"); //$NON-NLS-1$;
 	private static final TypedProperty<String> PROPERTY_PROTECTIONPASSWORD = new TypedProperty<String>("protectionPassword"); //$NON-NLS-1$;
+
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
 
@@ -324,8 +350,10 @@ public class StaticContentSpecLoader
 			cs.new Element(56, IRepository.GRAPHICALCOMPONENTS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
 			cs.new Element(57, IRepository.GRAPHICALCOMPONENTS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
 			cs.new Element(58, IRepository.GRAPHICALCOMPONENTS, PROPERTY_TEXT.getPropertyName(), IRepository.STRING);
-			cs.new Element(59, IRepository.GRAPHICALCOMPONENTS, PROPERTY_VERTICALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
-			cs.new Element(60, IRepository.GRAPHICALCOMPONENTS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
+			cs.new Element(59, IRepository.GRAPHICALCOMPONENTS, PROPERTY_VERTICALALIGNMENT.getPropertyName(), IRepository.INTEGER,
+				ContentSpec.MINUS_ONE);
+			cs.new Element(60, IRepository.GRAPHICALCOMPONENTS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER,
+				ContentSpec.MINUS_ONE);
 			cs.new Element(61, IRepository.GRAPHICALCOMPONENTS, PROPERTY_BORDERTYPE.getPropertyName(), IRepository.BORDER);
 			cs.new Element(62, IRepository.GRAPHICALCOMPONENTS, PROPERTY_TRANSPARENT.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(63, IRepository.GRAPHICALCOMPONENTS, PROPERTY_IMAGEMEDIAID.getPropertyName(), IRepository.ELEMENTS);
@@ -437,7 +465,8 @@ public class StaticContentSpecLoader
 			cs.new Element(166, IRepository.VALUELISTS, PROPERTY_SEPARATOR.getPropertyName(), IRepository.STRING);
 			cs.new Element(167, IRepository.VALUELISTS, PROPERTY_SORTOPTIONS.getPropertyName(), IRepository.STRING);
 			cs.new Element(168, IRepository.SCRIPTVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
-			cs.new Element(169, IRepository.SCRIPTVARIABLES, PROPERTY_VARIABLETYPE.getPropertyName(), IRepository.INTEGER, Integer.valueOf(IColumnTypes.TEXT));
+			cs.new Element(169, IRepository.SCRIPTVARIABLES, PROPERTY_VARIABLETYPE.getPropertyName(), IRepository.INTEGER,
+				Integer.valueOf(IColumnTypes.TEXT));
 			cs.new Element(170, IRepository.AGGREGATEVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(171, IRepository.AGGREGATEVARIABLES, PROPERTY_TYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(172, IRepository.AGGREGATEVARIABLES, PROPERTY_DATAPROVIDERIDTOAGGREGATE.getPropertyName(), IRepository.STRING);
@@ -607,7 +636,8 @@ public class StaticContentSpecLoader
 		{
 			cs.new Element(282, IRepository.FORMS, PROPERTY_ALIASES.getPropertyName(), IRepository.STRING);
 			cs.new Element(283, IRepository.TABPANELS, PROPERTY_CLOSEONTABS.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(284, IRepository.RELATIONS, PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(284, IRepository.RELATIONS, PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS.getPropertyName(),
+				IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(285, IRepository.TABLENODES, PROPERTY_ONINSERTMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(286, IRepository.TABLENODES, PROPERTY_ONUPDATEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(287, IRepository.TABLENODES, PROPERTY_ONDELETEMETHODID.getPropertyName(), IRepository.ELEMENTS);
@@ -767,7 +797,8 @@ public class StaticContentSpecLoader
 			cs.new Element(393, IRepository.TABLENODES, PROPERTY_ONAFTERFINDMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(394, IRepository.TABLENODES, PROPERTY_ONSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(395, IRepository.TABLENODES, PROPERTY_ONAFTERSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(396, IRepository.TABPANELS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
+			cs.new Element(396, IRepository.TABPANELS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER,
+				ContentSpec.MINUS_ONE);
 			cs.new Element(397, IRepository.SCRIPTVARIABLES, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(398, IRepository.METHODS, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(399, IRepository.FORMS, PROPERTY_SELECTIONMODE.getPropertyName(), IRepository.INTEGER);
@@ -808,4 +839,5 @@ public class StaticContentSpecLoader
 			return "Property(" + name + ')'; //$NON-NLS-1$
 		}
 	}
+
 }
