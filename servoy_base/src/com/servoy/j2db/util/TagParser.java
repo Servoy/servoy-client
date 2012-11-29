@@ -125,7 +125,7 @@ public class TagParser
 				{
 					result.add(s.substring(startIdx + 1, i));
 				}
-				result.add(new Character(currentChar).toString());
+				result.add(Character.toString(currentChar));
 				startIdx = i;
 			}
 		}
