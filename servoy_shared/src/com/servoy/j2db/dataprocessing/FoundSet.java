@@ -52,6 +52,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
@@ -64,7 +65,6 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -2547,19 +2547,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param comparator record comparator function
 	 */
-	public void js_sort(final Function comparator)
+	@JSFunction
+	public void sort(Object comparator)
 	{
-		if (comparator != null)
+		if (comparator instanceof Function)
 		{
+			final Function func = (Function)comparator;
 			final IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
-			final Scriptable recordComparatorScope = comparator.getParentScope();
+			final Scriptable recordComparatorScope = func.getParentScope();
 			sort(new Comparator<Object[]>()
 			{
 				public int compare(Object[] o1, Object[] o2)
 				{
 					try
 					{
-						Object compareResult = scriptEngine.executeFunction(comparator, recordComparatorScope, recordComparatorScope,
+						Object compareResult = scriptEngine.executeFunction(func, recordComparatorScope, recordComparatorScope,
 							new Object[] { getRecord(o1), getRecord(o2) }, false, true);
 						return Utils.getAsInteger(compareResult, true);
 					}
@@ -2907,27 +2909,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	@Deprecated
 	public int js_getMaxRecordIndex()
-	{
-		return js_getSize();
-	}
-
-	/**
-	 * Get the number of records in this foundset.
-	 * This is the number of records loaded, note that when looping over a foundset, size() may
-	 * increase as more records are loaded.
-	 * 
-	 * @sample 
-	 * var nrRecords = %%prefix%%foundset.getSize()
-	 * 
-	 * // to loop over foundset, recalculate size for each record
-	 * for (var i = 1; i <= %%prefix%%foundset.getSize(); i++)
-	 * {
-	 * 	var rec = %%prefix%%foundset.getRecord(i);
-	 * }
-	 * 
-	 * @return int current size.
-	 */
-	public int js_getSize()
 	{
 		return getSize();
 	}
@@ -3581,6 +3562,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return fsm.getApplication().getFlattenedSolution().getRelationSequence(name) != null;
 	}
 
+	/**
+	 * Get the number of records in this foundset.
+	 * This is the number of records loaded, note that when looping over a foundset, size() may
+	 * increase as more records are loaded.
+	 * 
+	 * @sample 
+	 * var nrRecords = %%prefix%%foundset.getSize()
+	 * 
+	 * // to loop over foundset, recalculate size for each record
+	 * for (var i = 1; i <= %%prefix%%foundset.getSize(); i++)
+	 * {
+	 * 	var rec = %%prefix%%foundset.getRecord(i);
+	 * }
+	 * 
+	 * @return int current size.
+	 */
+	@JSFunction
 	public int getSize()
 	{
 		return getRawSize();

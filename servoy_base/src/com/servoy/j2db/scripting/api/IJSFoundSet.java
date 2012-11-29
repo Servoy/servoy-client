@@ -74,7 +74,7 @@ public interface IJSFoundSet
 	 * 
 	 * @return int current size.
 	 */
-	public int js_getSize();
+	public int getSize();
 
 
 	/**
@@ -127,4 +127,36 @@ public interface IJSFoundSet
 	 * @return int index of new record.
 	 */
 	public int js_newRecord(Number index, Boolean changeSelection) throws Exception;
+
+
+	/**
+	 * Sorts the foundset based on the given record comparator function.
+	 * The comparator function is called to compare
+	 * two records, that are passed as arguments, and
+	 * it will return -1/0/1 if the first record is less/equal/greater
+	 * then the second record.
+	 * 
+	 * The function based sorting does not work with printing.
+	 * It is just a temporary in-memory sort.
+	 * 
+	 * @sample
+	 * %%prefix%%foundset.sort(mySortFunction);
+	 * 
+	 * function mySortFunction(r1, r2)
+	 * {
+	 *	var o = 0;
+	 *	if(r1.id < r2.id)
+	 *	{
+	 *		o = -1;
+	 *	}
+	 *	else if(r1.id > r2.id)
+	 *	{
+	 *		o = 1;
+	 *	}
+	 *	return o;
+	 * }
+	 *
+	 * @param comparator record comparator function
+	 */
+	public void sort(final Object comparator);
 }
