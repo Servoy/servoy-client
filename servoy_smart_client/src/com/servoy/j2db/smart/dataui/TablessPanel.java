@@ -47,6 +47,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 	private int selectedTab = -1;
 	private ChangeListener listner;
 	private boolean readOnly;
+	private static int counter = 0;
 
 	TablessPanel(IApplication app)
 	{
@@ -84,7 +85,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 		int count = getTabCount();
 		setTitleAt(count, text);
 		// if component with same name is already present in FixedCardLayout will be removed, so name must be unique
-		add(flp, ((IFormLookupPanel)flp).getFormName() + "_" + System.nanoTime());
+		add(flp, ((IFormLookupPanel)flp).getFormName() + "_" + checkCounter());
 
 		// By the time a tab is added, the opacity may have been already set.
 		// So just make sure its propagated to the new tab.
@@ -130,7 +131,7 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 			remove(index);
 		}
 		for (Component c : nextComponents)
-			add(c, ((IFormLookupPanel)c).getFormName() + "_" + System.currentTimeMillis());
+			add(c, ((IFormLookupPanel)c).getFormName() + "_" + checkCounter());
 
 		// By the time a tab is inserted, the opacity may have been already set.
 		// So just make sure its propagated to the new tab.
@@ -445,6 +446,11 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 		{
 			return null;
 		}
+	}
+
+	private int checkCounter()
+	{
+		return counter++;
 	}
 
 	public boolean isTraversalPolicyEnabled()
