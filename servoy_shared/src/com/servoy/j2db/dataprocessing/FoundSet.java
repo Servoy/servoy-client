@@ -4722,7 +4722,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
-			fsm.getApplication().reportJSError("Couldn't do a sort because there where edited records on this foundset", null); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("Couldn't do a sort because there are edited records on this foundset", null); //$NON-NLS-1$
 			return;
 		}
 		lastSortColumns = sortColumns;
@@ -4810,7 +4810,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
-			fsm.getApplication().reportJSError("Couldn't do a sort because there where edited records on this foundset", null); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("Couldn't do a sort because there are edited records on this foundset", null); //$NON-NLS-1$
 			return;
 		}
 
