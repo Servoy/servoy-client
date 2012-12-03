@@ -4684,6 +4684,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
 		boolean executeWhenFieldValidationFailed)
 	{
+		// if the view is still null, then this form is not fully constructed yet, (like onrender even of a listview) ignore it. (SVY-3383)
+		if (view == null) return null;
 		try
 		{
 			return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, allowFoundsetMethods, executeWhenFieldValidationFailed, false);
