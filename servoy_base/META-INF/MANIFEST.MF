@@ -10,4 +10,5 @@ Export-Package: com.servoy.j2db.persistence,
  com.servoy.j2db.scripting.annotations,
  com.servoy.j2db.scripting.api,
  com.servoy.j2db.scripting.api.solutionmodel,
+ com.servoy.j2db.scripting.api.ui,
  com.servoy.j2db.util
