@@ -296,6 +296,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * 
 	 * @return int
 	 */
+	@ServoyMobile
 	public String getGroupID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID);
