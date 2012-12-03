@@ -378,6 +378,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * This feature defers all related foundset data loading to the background - enhancing 
 	 * the visual display of a related foundset.
 	 */
+	@ServoyMobile
 	public int getView()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VIEW).intValue();
@@ -598,6 +599,18 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 			}
 		}
 		return null;
+	}
+
+	public boolean hasPart(int partType)
+	{
+		for (Part part : Utils.iterate(new TypeIterator<Part>(getAllObjectsAsList(), IRepository.PARTS)))
+		{
+			if (part.getPartType() == partType)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/*
