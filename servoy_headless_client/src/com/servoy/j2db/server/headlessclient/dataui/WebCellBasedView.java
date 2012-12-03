@@ -4307,7 +4307,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		if (currentData == null) return null;
 		List<Integer> indexToUpdate;
-		if (!hasOnRender && (bgColorScript != null || (getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0)) &&
+		if (!hasOnRender && (getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0) &&
 			(indexToUpdate = getIndexToUpdate(allCurrentPageRows)) != null)
 		{
 			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
