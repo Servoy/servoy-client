@@ -43,4 +43,6 @@ public interface FormWindow extends IWindowVisibleChangeNotifier
 
 	void setAsCurrentContainer();
 
+	void setTitle(String title);
+
 }
