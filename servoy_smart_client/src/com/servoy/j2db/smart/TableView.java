@@ -84,6 +84,7 @@ import javax.swing.text.html.StyleSheet;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IProvideTabSequence;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.component.ComponentFactory;
@@ -163,7 +164,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class TableView extends FixedJTable implements IView, IDataRenderer, ISupportRowStyling
+public class TableView extends FixedJTable implements IView, IDataRenderer, ISupportRowStyling, IProvideTabSequence
 {
 	private Component[] editorComponents;
 	private Component[] rendererComponents;

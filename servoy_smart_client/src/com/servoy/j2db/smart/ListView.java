@@ -315,15 +315,4 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IView#getTabSeqComponentNames()
-	 */
-	public List<String> getTabSeqComponentNames()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
