@@ -18,7 +18,6 @@ package com.servoy.j2db;
 
 
 import java.awt.Rectangle;
-import java.util.List;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
@@ -54,6 +53,4 @@ public interface IView extends ISupportRowBGColorScript, IDestroyable
 	public Rectangle getVisibleRect();
 
 	public void setVisibleRect(Rectangle scrollPosition);
-
-	public List<String> getTabSeqComponentNames();
 }

@@ -34,7 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
@@ -87,6 +89,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IMainContainer;
+import com.servoy.j2db.IProvideTabSequence;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IView;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -181,7 +184,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 public class WebCellBasedView extends WebMarkupContainer implements IView, IPortalComponent, IDataRenderer, IProviderStylePropertyChanges, TableModelListener,
-	ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq, ISupportRowStyling
+	ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq, ISupportRowStyling, IProvideTabSequence
 {
 //	private static final int SCROLLBAR_SIZE = 17;
 	private static final long serialVersionUID = 1L;
@@ -3450,18 +3453,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public List<String> getTabSeqComponentNames()
 	{
 		//elementTabIndexes is not sorted. We have to sort the indexes of the tabs first.
-		HashMap<Integer, IPersist> elIndexes = new HashMap<Integer, IPersist>();
-		List<String> tabSeqNames = new ArrayList<String>();
+		SortedMap<Integer, IPersist> sortedTabIndexes = new TreeMap<Integer, IPersist>();
 		for (IPersist key : elementTabIndexes.keySet())
 		{
-			elIndexes.put(elementTabIndexes.get(key), key);
+			sortedTabIndexes.put(elementTabIndexes.get(key), key);
 		}
-		ArrayList<Integer> indexes = new ArrayList<Integer>(elIndexes.keySet());
-
-		Collections.sort(indexes);
-		for (int i : indexes)
+		List<String> tabSeqNames = new ArrayList<String>();
+		for (int i : sortedTabIndexes.keySet())
 		{
-			IPersist key = elIndexes.get(i);
+			IPersist key = sortedTabIndexes.get(i);
 			if (key instanceof ISupportName)
 			{
 				String name = ((ISupportName)key).getName();
