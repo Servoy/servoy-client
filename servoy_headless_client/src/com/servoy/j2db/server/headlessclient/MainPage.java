@@ -1299,8 +1299,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, onRootFrame, url.equals(urlFor(serveResourceReference)) ? target == null ||
-			target.equals("_self") ? true : false : false); //$NON-NLS-1$
+		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, onRootFrame, url.equals(urlFor(serveResourceReference).toString())
+			? target == null || target.equals("_self") ? true : false : false); //$NON-NLS-1$
 	}
 
 	/**
