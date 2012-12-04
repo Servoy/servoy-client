@@ -1243,8 +1243,8 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
-		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, closeDialogs, url.equals(urlFor(serveResourceReference)) ? target == null ||
-			target.equals("_self") ? true : false : false); //$NON-NLS-1$
+		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, closeDialogs, url.equals(urlFor(serveResourceReference).toString())
+			? target == null || target.equals("_self") ? true : false : false); //$NON-NLS-1$
 	}
 
 	/**
