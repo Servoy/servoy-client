@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
-import java.sql.Types;
+import com.servoy.j2db.persistence.constants.IColumnTypeConstants;
 
 /**
  * Default types for columns
@@ -25,9 +25,9 @@ import java.sql.Types;
  */
 public interface IColumnTypes
 {
-	public int DATETIME = Types.TIMESTAMP;
-	public int TEXT = Types.VARCHAR;
-	public int NUMBER = Types.DOUBLE;
-	public int INTEGER = Types.INTEGER;
-	public int MEDIA = Types.LONGVARBINARY;
+	public int DATETIME = IColumnTypeConstants.DATETIME;
+	public int TEXT = IColumnTypeConstants.TEXT;
+	public int NUMBER = IColumnTypeConstants.NUMBER;
+	public int INTEGER = IColumnTypeConstants.INTEGER;
+	public int MEDIA = IColumnTypeConstants.MEDIA;
 }

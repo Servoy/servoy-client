@@ -18,7 +18,7 @@
 package com.servoy.j2db.scripting.api.solutionmodel;
 
 
-import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.constants.IColumnTypeConstants;
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
 
 
@@ -41,7 +41,7 @@ public interface IBaseSMVariable
 	 * dateVar.defaultValue = 'now';
 	 * application.output(scopes.globals.gDate); // Prints the current date and time.
 	 */
-	public static final int DATETIME = IColumnTypes.DATETIME;
+	public static final int DATETIME = IColumnTypeConstants.DATETIME;
 	/**
 	 * @clonedesc DATETIME
 	 * 
@@ -50,7 +50,7 @@ public interface IBaseSMVariable
 	 * txtVar.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assign a String as default value.
 	 * application.output(scopes.globals.gText); // Prints 'some text' (without quotes).
 	 */
-	public static final int TEXT = IColumnTypes.TEXT;
+	public static final int TEXT = IColumnTypeConstants.TEXT;
 	/**
 	 * @clonedesc DATETIME
 	 * 
@@ -59,7 +59,7 @@ public interface IBaseSMVariable
 	 * numberVar.defaultValue = 192.334;
 	 * application.output(scopes.globals.gNumber); // Prints 192.334
 	 */
-	public static final int NUMBER = IColumnTypes.NUMBER;
+	public static final int NUMBER = IColumnTypeConstants.NUMBER;
 	/**
 	 * @clonedesc DATETIME
 	 * 
@@ -68,7 +68,7 @@ public interface IBaseSMVariable
 	 * intVar.defaultValue = 997;
 	 * application.output(scopes.globals.gInt); // Prints 997
 	 */
-	public static final int INTEGER = IColumnTypes.INTEGER;
+	public static final int INTEGER = IColumnTypeConstants.INTEGER;
 	/**
 	 * @clonedesc DATETIME
 	 * 
@@ -77,7 +77,7 @@ public interface IBaseSMVariable
 	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';
 	 * application.output(scopes.globals.gMedia); // Prints out the array with four elements.
 	 */
-	public static final int MEDIA = IColumnTypes.MEDIA;
+	public static final int MEDIA = IColumnTypeConstants.MEDIA;
 
 	public String getDefaultValue();
 
