@@ -38,6 +38,8 @@ public interface IContentSpecConstantsBase
 	public static final String PROPERTY_ONACTIONMETHODID = "onActionMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_SIZE = "size"; //$NON-NLS-1$
 	public static final String PROPERTY_TEXT = "text"; //$NON-NLS-1$
+	public static final String PROPERTY_VISIBLE = "visible"; //$NON-NLS-1$
+	public static final String PROPERTY_ENABLED = "enabled"; //$NON-NLS-1$
 
 
 }
