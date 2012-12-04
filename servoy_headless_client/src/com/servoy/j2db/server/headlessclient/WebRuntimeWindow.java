@@ -30,6 +30,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.persistence.Form;
@@ -354,4 +355,9 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		}
 	}
 
+	@Override
+	public IApplication getApplication()
+	{
+		return application;
+	}
 }

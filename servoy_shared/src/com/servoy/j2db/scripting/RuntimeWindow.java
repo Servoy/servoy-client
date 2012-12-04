@@ -273,4 +273,6 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	protected abstract void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior);
 
+	public abstract IApplication getApplication();
+
 }
