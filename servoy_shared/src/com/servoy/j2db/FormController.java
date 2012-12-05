@@ -4593,7 +4593,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		if (view instanceof IProvideTabSequence)
 		{
 			List<String> namesList = ((IProvideTabSequence)view).getTabSeqComponentNames();
-			if (!namesList.isEmpty()) tabSequenceNames = Utils.arrayJoin(tabSequenceNames, namesList.toArray());
+			if (tabSequenceNames.length != 0)
+			{
+				if (!namesList.isEmpty()) tabSequenceNames = Utils.arrayJoin(tabSequenceNames, namesList.toArray());
+			}
+			else return namesList.toArray(new String[namesList.size()]);
 		}
 		return tabSequenceNames;
 	}
