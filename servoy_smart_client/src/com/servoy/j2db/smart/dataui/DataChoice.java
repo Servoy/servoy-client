@@ -133,6 +133,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		this.choiceType = choiceType;
 		list = new ComboModelListModelWrapper(vl, choiceType != Field.SPINNER, (choiceType == Field.MULTISELECT_LISTBOX || choiceType == Field.LIST_BOX));
 		enclosedComponent = new JNavigableEditList();
+		enclosedComponent.getActionMap().put("enter", null);
 		eventExecutor = new EventExecutor(this, enclosedComponent);
 		enclosedComponent.addKeyListener(eventExecutor);
 		enclosedComponent.setModel(createJListModel(list));
