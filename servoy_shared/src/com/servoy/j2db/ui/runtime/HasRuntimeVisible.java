@@ -27,7 +27,7 @@ import org.mozilla.javascript.annotations.JSSetter;
  *
  * @since 6.1
  */
-public interface HasRuntimeVisible
+public interface HasRuntimeVisible extends com.servoy.j2db.scripting.api.ui.HasRuntimeVisible
 {
 	/**
 	 * Gets or sets the visibility of an element; true - visible; false - not visible; ! - the visibility state is inverted (the opposite).
