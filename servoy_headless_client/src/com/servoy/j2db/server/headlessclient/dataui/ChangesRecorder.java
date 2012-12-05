@@ -63,6 +63,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	private static final ConcurrentMap<Integer, String> SIZE_STRINGS = new ConcurrentHashMap<Integer, String>();
 
 	private final Properties changedProperties = new Properties();
+	private final Properties jsProperties = new Properties();
 	private String bgcolor;
 	private Insets defaultBorder;
 	private Insets defaultPadding;
@@ -292,13 +293,16 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		return calculateWebSize(width, height, border, margin, fontSize, properties, false, SwingConstants.CENTER);
 	}
 
+	public String getJSProperty(String key)
+	{
+		return jsProperties.getProperty(key);
+	}
+
 	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)
 	{
-		if (properties != null)
-		{
-			properties.put("offsetWidth", getSizeString(width)); //$NON-NLS-1$ 
-			properties.put("offsetHeight", getSizeString(height)); //$NON-NLS-1$ 
-		}
+		jsProperties.put("offsetWidth", getSizeString(width)); //$NON-NLS-1$ 
+		jsProperties.put("offsetHeight", getSizeString(height)); //$NON-NLS-1$
+
 		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, isButton, valign);
 		int realWidth = width;
 		int realheight = height;

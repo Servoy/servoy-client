@@ -1715,7 +1715,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 						if (columnIdentifier instanceof IProviderStylePropertyChanges)
 						{
-							String width = (String)((IProviderStylePropertyChanges)columnIdentifier).getStylePropertyChanges().getChanges().get("offsetWidth"); //$NON-NLS-1$
+							String width = ((IProviderStylePropertyChanges)columnIdentifier).getStylePropertyChanges().getJSProperty("offsetWidth"); //$NON-NLS-1$
 							if (width != null)
 							{
 								sortableHeader.setWidth(Integer.parseInt(width.substring(0, width.length() - 2)));
@@ -2216,7 +2216,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			columnHeader = elementToColumnHeader.get(columnPersist);
 			if (columnCell instanceof IProviderStylePropertyChanges)
 			{
-				String width = (String)((IProviderStylePropertyChanges)columnCell).getStylePropertyChanges().getChanges().get("offsetWidth"); //$NON-NLS-1$
+				String width = ((IProviderStylePropertyChanges)columnCell).getStylePropertyChanges().getJSProperty("offsetWidth"); //$NON-NLS-1$
 
 				if (columnHeader instanceof SortableCellViewHeader)
 				{

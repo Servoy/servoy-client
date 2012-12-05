@@ -83,6 +83,7 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 	{
 		private Properties changes = new Properties();
 		private boolean changed = false;
+		private final Properties jsProperties = new Properties();
 
 		/**
 		 * @see com.servoy.j2db.ui.IStylePropertyChanges#getChanges()
@@ -91,6 +92,11 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		{
 			createChanges();
 			return changes;
+		}
+
+		public String getJSProperty(String key)
+		{
+			return jsProperties.getProperty(key);
 		}
 
 		/**
@@ -109,6 +115,10 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				if (top != null) changes.put("top", top); //$NON-NLS-1$ 
 
 				// copy over the widths and heights
+				Object offsetWidth = ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().getJSProperty("offsetWidth"); //$NON-NLS-1$
+				if (offsetWidth != null) jsProperties.put("offsetWidth", offsetWidth); //$NON-NLS-1$ 
+				Object offsetHeight = ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().getJSProperty("offsetHeight"); //$NON-NLS-1$
+				if (offsetHeight != null) jsProperties.put("offsetHeight", offsetHeight); //$NON-NLS-1$
 
 				Object width = componentChanges.remove("width"); //$NON-NLS-1$
 				if (width != null) changes.put("width", width); //$NON-NLS-1$ 
