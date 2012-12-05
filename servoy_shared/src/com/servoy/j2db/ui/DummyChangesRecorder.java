@@ -196,4 +196,14 @@ public class DummyChangesRecorder implements IStylePropertyChangesRecorder
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.IStylePropertyChanges#getJSProperty(java.lang.String)
+	 */
+	public String getJSProperty(String key)
+	{
+		return null;
+	}
+
 }

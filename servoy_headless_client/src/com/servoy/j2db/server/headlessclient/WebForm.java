@@ -2074,6 +2074,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			{
 				return null;
 			}
+
+			public String getJSProperty(String key)
+			{
+				return null;
+			}
 		};
 	}
 
