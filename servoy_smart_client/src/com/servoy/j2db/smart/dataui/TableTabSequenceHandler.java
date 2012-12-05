@@ -105,10 +105,13 @@ public class TableTabSequenceHandler
 	public List<String> getTabSequence()
 	{
 		List<String> tabSequence = new ArrayList<String>();
-		for (TableColumn tc : columnTabSequence)
+		if (columnTabSequence != null)
 		{
-			String name = ((CellAdapter)tc).getName();
-			if (name != null) tabSequence.add(name);
+			for (TableColumn tc : columnTabSequence)
+			{
+				String name = ((CellAdapter)tc).getName();
+				if (name != null) tabSequence.add(name);
+			}
 		}
 		return tabSequence;
 	}
