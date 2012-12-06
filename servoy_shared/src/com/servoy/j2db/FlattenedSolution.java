@@ -86,6 +86,7 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.persistence.constants.IValueListConstants;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ISQLCondition;
@@ -2025,18 +2026,21 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (methodNameOrUUID == null) return null;
 		if (methodNameOrUUID.indexOf('-') > 0)
 		{
-			IRepository repository = getRepository();
-			if (repository instanceof AbstractRepository)
+			UUID uuid = null;
+			try
 			{
-				AbstractRepository abstractRepository = (AbstractRepository)repository;
-				try
+				uuid = UUID.fromString(methodNameOrUUID);
+			}
+			catch (IllegalArgumentException e)
+			{
+				// not a uuid
+			}
+			if (uuid != null)
+			{
+				IPersist method = searchPersist(uuid);
+				if (method instanceof ScriptMethod)
 				{
-					return getScriptMethod(abstractRepository.getElementIdForUUIDString(methodNameOrUUID.toString()));
-				}
-				catch (RepositoryException ex)
-				{
-					Debug.log("Cannot get script method for UUID " + methodNameOrUUID, ex);
-					return null;
+					return (ScriptMethod)method;
 				}
 			}
 		}
@@ -2503,14 +2507,14 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		String relationPrefix;
 		switch (valueList.getDatabaseValuesType())
 		{
-			case ValueList.TABLE_VALUES :
+			case IValueListConstants.TABLE_VALUES :
 				// create an internal relation
 				relationSequence = null;
 				relationPrefix = ""; //$NON-NLS-1$
 				destDataSource = valueList.getDataSource();
 				break;
 
-			case ValueList.RELATED_VALUES :
+			case IValueListConstants.RELATED_VALUES :
 				// replace the last relation in the sequence with an internal relation
 				relationSequence = getRelationSequence(valueList.getRelationName());
 				if (relationSequence == null)
