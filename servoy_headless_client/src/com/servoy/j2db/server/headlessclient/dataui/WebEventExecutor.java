@@ -751,6 +751,15 @@ public class WebEventExecutor extends BaseEventExecutor
 					}
 				});
 
+				page.visitChildren(IComponentToRequestAttacher.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
+						((IComponentToRequestAttacher)component).attachComponents(target);
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+
 				String rowSelectionScript, columnResizeScript;
 				for (WebCellBasedView wcbv : tableViewsToRender)
 				{

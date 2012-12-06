@@ -79,7 +79,7 @@ import com.servoy.j2db.util.Utils;
  * @author gboros
  */
 public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer, ISupportSimulateBoundsProvider
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer, ISupportSimulateBoundsProvider, IComponentToRequestAttacher
 {
 	private final IApplication application;
 	private final int orient;
@@ -105,6 +105,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	private final WebMarkupContainer splitter;
 	private final WebMarkupContainer[] splitComponents = new WebMarkupContainer[2];
 	private final WebTabHolder[] webTabs = new WebTabHolder[2];
+	private final boolean[] paneChanged = new boolean[] { false, false };
 
 	private int tabSequenceIndex = ISupportWebTabSeq.DEFAULT;
 	private int leftPanelLastTabIndex = ISupportWebTabSeq.DEFAULT;
@@ -602,13 +603,8 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return resizeScript;
 	}
 
-	@Override
-	public void renderHead(HtmlHeaderContainer container)
+	public String getSplitScripting()
 	{
-		super.renderHead(container);
-		IHeaderResponse headerResponse = container.getHeaderResponse();
-		YUILoader.renderResize(headerResponse);
-
 		String dim, dim_o, pos;
 		if (orient == TabPanel.SPLIT_HORIZONTAL)
 		{
@@ -696,8 +692,16 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			resizeScript.append("splitPanes['").append(splitId).append("']['callback'] = '").append(dividerUpdater.getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resizeScript.append("}\n"); //$NON-NLS-1$			
 		}
+		return resizeScript.toString();
+	}
 
-		headerResponse.renderOnLoadJavascript(resizeScript.toString());
+	@Override
+	public void renderHead(HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		IHeaderResponse headerResponse = container.getHeaderResponse();
+		YUILoader.renderResize(headerResponse);
+		headerResponse.renderOnLoadJavascript(getSplitScripting());
 	}
 
 	public int getAbsoluteFormLocationY()
@@ -934,6 +938,10 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(0);
 			boolean bNotifyVisibleForm = notifyVisibleForm(true, bLeftForm ? 0 : 1, invokeLaterRunnables);
 			Utils.invokeLater(application, invokeLaterRunnables);
+			if (bNotifyVisibleForm)
+			{
+				paneChanged[bLeftForm ? 0 : 1] = true;
+			}
 			return bNotifyVisibleForm;
 		}
 		return false;
@@ -1212,5 +1220,30 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void setHorizontalAlignment(int alignment)
 	{
 		// IGNORE
+	}
+
+	public void attachComponents(AjaxRequestTarget target)
+	{
+		if (!((ChangesRecorder)scriptable.getChangesRecorder()).isChanged())
+		{
+			if (paneChanged[0] || paneChanged[1])
+			{
+				if (paneChanged[0] && paneChanged[1])
+				{
+					target.addComponent(WebSplitPane.this);
+				}
+				else if (paneChanged[0])
+				{
+					target.addComponent(splitComponents[0]);
+				}
+				else
+				{
+					target.addComponent(splitComponents[1]);
+				}
+				target.appendJavascript(getSplitScripting());
+			}
+		}
+		paneChanged[0] = false;
+		paneChanged[1] = false;
 	}
 }
