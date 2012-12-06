@@ -2025,18 +2025,21 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (methodNameOrUUID == null) return null;
 		if (methodNameOrUUID.indexOf('-') > 0)
 		{
-			IRepository repository = getRepository();
-			if (repository instanceof AbstractRepository)
+			UUID uuid = null;
+			try
 			{
-				AbstractRepository abstractRepository = (AbstractRepository)repository;
-				try
+				uuid = UUID.fromString(methodNameOrUUID);
+			}
+			catch (IllegalArgumentException e)
+			{
+				// not a uuid
+			}
+			if (uuid != null)
+			{
+				IPersist method = searchPersist(uuid);
+				if (method instanceof ScriptMethod)
 				{
-					return getScriptMethod(abstractRepository.getElementIdForUUIDString(methodNameOrUUID.toString()));
-				}
-				catch (RepositoryException ex)
-				{
-					Debug.log("Cannot get script method for UUID " + methodNameOrUUID, ex);
-					return null;
+					return (ScriptMethod)method;
 				}
 			}
 		}
