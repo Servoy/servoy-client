@@ -114,6 +114,7 @@ public class InstanceJavaMembers extends JavaMembers
 		{
 			String name = entry.getKey();
 			String newName = null;
+			boolean isReadonlyProperty = false;
 			if (name.startsWith("js_")) //$NON-NLS-1$
 			{
 				newName = name.substring(3);
@@ -130,6 +131,7 @@ public class InstanceJavaMembers extends JavaMembers
 						{
 							if (AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSReadonlyProperty.class))
 							{
+								isReadonlyProperty = true;
 								newName = AnnotationManager.getInstance().getAnnotation(mb.method(), JSReadonlyProperty.class).property();
 								if (newName == null || newName.length() == 0 && (entry.getKey().startsWith("get") || entry.getKey().startsWith("is")))
 								{
@@ -179,7 +181,7 @@ public class InstanceJavaMembers extends JavaMembers
 					}
 				}
 			}
-			if (newName != null && newName.length() > 0 && !newName.equals(name) && !Ident.checkIfKeyword(newName))
+			if (newName != null && newName.length() > 0 && !newName.equals(name) && (!Ident.checkIfKeyword(newName) || isReadonlyProperty))
 			{
 				putNewValueMergeForDuplicates(copy, name, newName);
 			}
