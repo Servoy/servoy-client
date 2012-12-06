@@ -84,7 +84,6 @@ version: 2.9.0
     width: 100%;
 }
 .yui-resize-proxy {
-    border: 1px dashed #000000;
     position: absolute;
     visibility: hidden;
     z-index: 1000;
