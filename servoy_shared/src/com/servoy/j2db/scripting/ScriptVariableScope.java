@@ -34,6 +34,8 @@ import org.mozilla.javascript.debug.Debugger;
 import org.mozilla.javascript.debug.IDebuggerWithWatchPoints;
 import org.mozilla.javascript.xml.XMLObject;
 
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -217,8 +219,15 @@ public class ScriptVariableScope extends LazyCompilationScope
 		}
 		catch (Exception ex)
 		{
-			// ignore, just use it as a string.
-			Debug.log("cant parse variable '" + name + '\'', ex); //$NON-NLS-1$ 
+			IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
+			if (serviceProvider != null)
+			{
+				serviceProvider.reportJSError("cant parse variable '" + name + '\'', ex);
+			}
+			else
+			{
+				Debug.log("cant parse variable '" + name + '\'', ex); //$NON-NLS-1$
+			}
 		}
 		finally
 		{
