@@ -57,12 +57,7 @@ public class RuntimeSplitPane extends AbstractRuntimeTabPaneAlike implements ISc
 
 	public boolean js_setLeftForm(Object form, Object relation)
 	{
-		if (((ISplitPane)getComponent()).setForm(true, form, relation))
-		{
-			getChangesRecorder().setChanged();
-			return true;
-		}
-		return false;
+		return ((ISplitPane)getComponent()).setForm(true, form, relation);
 	}
 
 	public boolean js_setLeftForm(Object form)
@@ -87,12 +82,7 @@ public class RuntimeSplitPane extends AbstractRuntimeTabPaneAlike implements ISc
 
 	public boolean js_setRightForm(Object form, Object relation)
 	{
-		if (((ISplitPane)getComponent()).setForm(false, form, relation))
-		{
-			getChangesRecorder().setChanged();
-			return true;
-		}
-		return false;
+		return ((ISplitPane)getComponent()).setForm(false, form, relation);
 	}
 
 	public boolean js_setRightForm(Object form)
