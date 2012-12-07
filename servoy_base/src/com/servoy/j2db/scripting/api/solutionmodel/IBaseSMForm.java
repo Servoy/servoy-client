@@ -16,6 +16,7 @@ package com.servoy.j2db.scripting.api.solutionmodel;
 
 import com.servoy.j2db.persistence.constants.IFormConstants;
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 
 
 /**
@@ -62,6 +63,7 @@ public interface IBaseSMForm extends IBaseSMHasDesignTimeProperty
 	/**
 	 * @sameas LIST_VIEW
 	 */
+	@ServoyMobileFilterOut
 	public static final int LOCKED_TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE_LOCKED;
 
 	/**

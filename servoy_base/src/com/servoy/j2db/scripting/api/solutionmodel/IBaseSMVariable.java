@@ -79,6 +79,26 @@ public interface IBaseSMVariable
 	 */
 	public static final int MEDIA = IColumnTypeConstants.MEDIA;
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getDefaultValue()
+	 *
+	 * @sample 
+	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
+	 * intVar.defaultValue = 997;
+	 * application.output(scopes.globals.gInt); // Prints 997
+	 * var numberVar = solutionModel.newGlobalVariable('globals', 'gNumber', JSVariable.NUMBER);
+	 * numberVar.defaultValue = 192.334;
+	 * application.output(scopes.globals.gNumber); // Prints 192.334
+	 * var dateVar = solutionModel.newGlobalVariable('globals', 'gDate', JSVariable.DATETIME);
+	 * dateVar.defaultValue = 'now';
+	 * application.output(scopes.globals.gDate); // Prints the current date and time.
+	 * var txtVar = solutionModel.newGlobalVariable('globals', 'gText', JSVariable.TEXT);
+	 * txtVar.defaultValue = '"some text"'; // Use two pairs of quotes if you want to assign a String as default value.
+	 * application.output(scopes.globals.gText); // Prints 'some text' (without quotes).
+	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
+	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';
+	 * application.output(scopes.globals.gMedia); // Prints out the array with four elements.
+	 */
 	public String getDefaultValue();
 
 	/**
@@ -115,8 +135,6 @@ public interface IBaseSMVariable
 	 * application.output(scopes.globals.anotherName);
 	 */
 	public String getName();
-
-	public void setName(String name);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()

@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.api.solutionmodel;
 
 import com.servoy.j2db.persistence.constants.IFieldConstants;
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 
 
 /**
@@ -109,6 +110,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * 	var rtf = form.newField('my_table_rtf', JSField.RTF_AREA, 10, 340, 100, 50);
 	 */
+	@ServoyMobileFilterOut
 	public static final int RTF_AREA = IFieldConstants.RTF_AREA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -117,6 +119,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * var html = form.newField('my_table_html', JSField.HTML_AREA, 10, 130, 100, 50);
 	 */
+	@ServoyMobileFilterOut
 	public static final int HTML_AREA = IFieldConstants.HTML_AREA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -137,6 +140,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var tahead = form.newField('my_table_text', JSField.TYPE_AHEAD, 10, 490, 100, 20);
 	 * tahead.valuelist = vlist;
 	 */
+	@ServoyMobileFilterOut
 	public static final int TYPE_AHEAD = IFieldConstants.TYPE_AHEAD;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -160,6 +164,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var list = form.newField('my_table_list', JSField.LISTBOX, 10, 280, 100, 50);
 	 * list.valuelist = vlist;
 	 */
+	@ServoyMobileFilterOut
 	public static final int LISTBOX = IFieldConstants.LIST_BOX;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -171,6 +176,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var list = form.newField('my_table_options', JSField.MULTISELECT_LISTBOX, 10, 280, 100, 50);
 	 * list.valuelist = vlist;
 	 */
+	@ServoyMobileFilterOut
 	public static final int MULTISELECT_LISTBOX = IFieldConstants.MULTISELECT_LISTBOX;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -182,6 +188,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var spinner = form.newField('my_spinner', JSField.SPINNER, 10, 460, 100, 20);
 	 * spinner.valuelist = vlist;
 	 */
+	@ServoyMobileFilterOut
 	public static final int SPINNER = IFieldConstants.SPINNER;
 
 	/**

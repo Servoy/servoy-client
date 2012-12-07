@@ -18,6 +18,7 @@
 package com.servoy.j2db.solutionmodel;
 
 import com.servoy.j2db.persistence.LiteralDataprovider;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMRelationItem;
 
 /**
@@ -37,6 +38,7 @@ public interface ISMRelationItem extends IBaseSMRelationItem, ISMHasUUID
 	 * @sample
 	 * relation.newRelationItem(JSRelationItem.LITERAL_PREFIX + "'hello'",'=', 'mytextfield');
 	 */
+	@ServoyMobileFilterOut
 	public static final String LITERAL_PREFIX = LiteralDataprovider.LITERAL_PREFIX;
 
 }

@@ -34,36 +34,12 @@ import com.servoy.j2db.util.keyword.Ident;
  * 
  * @author jblok
  */
-public class DataSourceUtils
+public class DataSourceUtils extends DataSourceUtilsBase
 {
-	public static final String DB_DATASOURCE_SCHEME = "db"; //$NON-NLS-1$
-	public static final String DB_DATASOURCE_SCHEME_COLON_SLASH = DB_DATASOURCE_SCHEME + ":/"; //$NON-NLS-1$
-	public static final int DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH = DB_DATASOURCE_SCHEME_COLON_SLASH.length();
 	public static final String INMEM_DATASOURCE_SCHEME_COLON = "mem:"; //$NON-NLS-1$
 
 	private DataSourceUtils()
 	{
-	}
-
-	/**
-	 * Get the server and table name from the datasource (when is is a db datasource)
-	 * 
-	 * @param dataSource the dataSource
-	 * @return the server and table name (or null if not a db datasource)
-	 */
-	public static String[] getDBServernameTablename(String dataSource)
-	{
-		// db:/srv/tab
-		if (dataSource != null && dataSource.startsWith(DB_DATASOURCE_SCHEME_COLON_SLASH))
-		{
-			int slash = dataSource.indexOf('/', DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH);
-			return new String[] {
-				// serverName
-			(slash <= DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH) ? null : dataSource.substring(DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH, slash),
-				// tableName
-			(slash < 0 || slash == dataSource.length() - 1) ? null : dataSource.substring(slash + 1) };
-		}
-		return null;
 	}
 
 	/**
@@ -75,24 +51,10 @@ public class DataSourceUtils
 	 */
 	public static String createDBTableDataSource(String serverName, String tableName)
 	{
-		if (serverName == null && tableName == null)
-		{
-			return null;
-		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(DB_DATASOURCE_SCHEME_COLON_SLASH);
-		if (serverName != null)
-		{
-			sb.append(serverName);
-		}
-		sb.append('/');
-		if (tableName != null)
-		{
-			// when importing from some 3.5 solutions through introspection, name might not be the lower-case name (not sure if it also happens with newer exports);
-			// it will be normalized here - as data sources should point to table name not to table SQL name
-			sb.append(Ident.generateNormalizedName(tableName));
-		}
-		return sb.toString();
+		// when importing from some 3.5 solutions through introspection, name might not be the lower-case name (not sure if it also happens with newer exports);
+		// it will be normalized here - as data sources should point to table name not to table SQL name
+		if (tableName != null) tableName = Ident.generateNormalizedName(tableName);
+		return DataSourceUtilsBase.createDBTableDataSource(serverName, tableName);
 	}
 
 	/**

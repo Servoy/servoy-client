@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence.constants;
 import javax.swing.SwingConstants;
 
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 
 /**
  * Constants used for alignment property.
@@ -52,6 +53,7 @@ public interface IAlignmentSMConstants
 	 * var vCenterAlignedLabel = form.newLabel('CENTER', 460, 10, 50, 300);
 	 * vCenterAlignedLabel.verticalAlignment = SM_ALIGNMENT.CENTER
 	 */
+	@ServoyMobileFilterOut
 	public static final int CENTER = SwingConstants.CENTER;
 
 	/**
@@ -73,7 +75,7 @@ public interface IAlignmentSMConstants
 	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
 	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
 	 */
-
+	@ServoyMobileFilterOut
 	public static final int LEFT = SwingConstants.LEFT;
 
 	/**
@@ -94,8 +96,8 @@ public interface IAlignmentSMConstants
 	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
 	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
 	 */
+	@ServoyMobileFilterOut
 	public static final int RIGHT = SwingConstants.RIGHT;
-
 
 	/**
 	 * Constant used for creating horizontal split pane from tab panel, by setting its tabOrientation.
@@ -104,6 +106,7 @@ public interface IAlignmentSMConstants
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_HORIZONTAL;
 	 */
+	@ServoyMobileFilterOut
 	public static final int SPLIT_HORIZONTAL = -2;
 
 	/**
@@ -113,6 +116,7 @@ public interface IAlignmentSMConstants
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
 	 */
+	@ServoyMobileFilterOut
 	public static final int SPLIT_VERTICAL = -3;
 
 	/**
@@ -122,6 +126,7 @@ public interface IAlignmentSMConstants
 	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
 	 * accordion.tabOrientation = SM_ALIGNMENT.ACCORDION_PANEL;
 	 */
+	@ServoyMobileFilterOut
 	public static final int ACCORDION_PANEL = -3;
 
 }

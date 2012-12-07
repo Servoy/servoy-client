@@ -53,10 +53,14 @@ import com.servoy.j2db.scripting.api.IJSController;
 import com.servoy.j2db.scripting.api.IJSDataSet;
 import com.servoy.j2db.scripting.api.IJSFoundSet;
 import com.servoy.j2db.scripting.api.IJSRecord;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMButton;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMLabel;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.j2db.scripting.solutionmodel.JSButton;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
+import com.servoy.j2db.scripting.solutionmodel.JSLabel;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethods;
@@ -151,6 +155,9 @@ public class JavaToDocumentedJSTypeTranslator
 
 //		javaClassToDocumentedJavaClass.put(ISMMethod.class, JSMethod.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMMethod.class, JSMethod.class);
+
+		javaClassToDocumentedJavaClass.put(IBaseSMButton.class, JSButton.class);
+		javaClassToDocumentedJavaClass.put(IBaseSMLabel.class, JSLabel.class);
 
 //		javaClassToDocumentedJavaClass.put(ISMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
