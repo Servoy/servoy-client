@@ -27,7 +27,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class Ident
 {
-	public final static String[] keywords = new String[] { //Java or JS Related
+	public final static String[] java_js_keywords = new String[] { //Java or JS Related
 	"abstract", //  
 	"double", //  
 	"int", //  
@@ -95,7 +95,9 @@ public class Ident
 	"date", // to prevent Date 
 	"array", // to prevent Array 
 	"arguments", // to prevent an dataprovider with the name arguments 
+	};
 
+	public final static String[] servoy_keywords = new String[] {
 		//Standard j2db DOM things
 	"databaseManager", //  
 	"application", //  
@@ -154,7 +156,12 @@ public class Ident
 
 	public static boolean checkIfKeyword(String name)
 	{
-		return checkName(keywords, name);
+		return checkName(java_js_keywords, name) || checkName(servoy_keywords, name);
+	}
+
+	public static boolean checkIfJavascriptKeyword(String name)
+	{
+		return checkName(java_js_keywords, name);
 	}
 
 	public static boolean checkIfReservedOSWord(String name)
