@@ -5079,30 +5079,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			while (rowsIte.hasNext())
 			{
 				listItem = rowsIte.next();
-				headerJS.append(getHeaderJS(listItem));
 				body.append(renderComponent(response, listItem));
 			}
 
 			return new StringBuilder[] { headerJS, body };
-		}
-
-		private StringBuilder getHeaderJS(ListItem< ? > listItem)
-		{
-			final StringBuilder listItemHeaderJS = new StringBuilder();
-			listItem.visitChildren(IHeaderJSChangeContributor.class, new IVisitor<Component>()
-			{
-				public Object component(Component component)
-				{
-					String onDOMReady = ((IHeaderJSChangeContributor)component).getOnDOMReady();
-					if (onDOMReady != null) listItemHeaderJS.append(onDOMReady).append('\n');
-					String onLoad = ((IHeaderJSChangeContributor)component).getOnLoad();
-					if (onLoad != null) listItemHeaderJS.append(onLoad).append('\n');
-
-					return IVisitor.CONTINUE_TRAVERSAL;
-				}
-			});
-
-			return listItemHeaderJS;
 		}
 
 		private CharSequence renderComponent(Response response, Component component)
@@ -5157,6 +5137,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			// Restore original response
 			RequestCycle.get().setResponse(response);
+			RequestCycle.get().setResponsePage(page);
 
 			String s = stringResponse.getBuffer().toString();
 			s = s.replace("\r", ""); //$NON-NLS-1$ //$NON-NLS-2$
