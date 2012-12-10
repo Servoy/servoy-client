@@ -41,10 +41,15 @@ import com.servoy.j2db.util.IAnchorConstants;
 public class WebAnchoringHelper
 {
 
-	public static Component getWrapperComponent(Component comp, IFormElement obj, int start, Dimension panelSize, boolean leftToRight)
+	public static Component getWrapperComponent(Component comp, IFormElement obj, int start, Dimension panelSize, boolean leftToRight, boolean isInListView)
 	{
 		MarkupContainer compWrapper = new WrapperContainer(ComponentFactory.getWebID(null, obj) + TemplateGenerator.WRAPPER_SUFFIX, comp);
 		Point l = (obj).getLocation();
+		if (isInListView)
+		{
+			// substract left indicator
+			l.x = Math.max(l.x-3, 0);
+		}
 		Dimension s = (obj).getSize();
 		int anchors = 0;
 		if (obj instanceof ISupportAnchors) anchors = ((ISupportAnchors)obj).getAnchors();

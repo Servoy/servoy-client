@@ -226,7 +226,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 						if (isAnchoringEnabled &&
 							(((obj instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean) || ((obj instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)obj))))
 						{
-							panel.add(WebAnchoringHelper.getWrapperComponent(comp, obj, start, panel.getSize(), leftToRight));
+							panel.add(WebAnchoringHelper.getWrapperComponent(comp, obj, start, panel.getSize(), leftToRight, false));
 						}
 						else
 						{

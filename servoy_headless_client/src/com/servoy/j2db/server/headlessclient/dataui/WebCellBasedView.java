@@ -699,7 +699,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 								(((element instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)element)) || (element instanceof Bean) || ((element instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)element))))
 							{
 								listItemChild = WebAnchoringHelper.getWrapperComponent(comp, (IFormElement)element, listStartY, formBodySize,
-									isLeftToRightOrientation);
+									isLeftToRightOrientation, isListViewMode());
 							}
 						}
 						updateRuntimeComponentStyleAttributes(comp);

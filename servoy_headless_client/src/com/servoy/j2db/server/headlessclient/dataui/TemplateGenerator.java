@@ -1047,26 +1047,8 @@ public class TemplateGenerator
 			if (classBasedTextStyle != null) css.put("." + s, classBasedTextStyle);
 		}
 
-		if (form.getView() == IForm.LIST_VIEW || form.getView() == FormController.LOCKED_LIST_VIEW)
-		{
-			setListViewElementsLeftAlignment(classBasedStyle);
-			setListViewElementsLeftAlignment(idBasedStyle);
-		}
 
 		return classBasedStyle;
-	}
-
-	private static void setListViewElementsLeftAlignment(TextualStyle style)
-	{
-		String left = style.getProperty("margin-left");
-		if (left != null)
-		{
-			int px = left.indexOf("px");
-			if (px != -1) left = left.substring(0, px);
-			int val = Integer.parseInt(left) - 3;
-			style.setProperty("margin-left", val + "px");
-		}
-		else style.setProperty("margin-left", "-3px");
 	}
 
 	private static void addAttributeToStyle(TextualStyle style, String attributeKey, Object attributeValue)
@@ -2345,11 +2327,13 @@ public class TemplateGenerator
 			styleObj.setProperty("width", "100%");
 			styleObj.setProperty("height", "100%");
 			styleObj.setProperty("position", "absolute");
-			applyLocationAndSize(label, wrapperStyle, ins, startY, endY, form.getSize().width, enableAnchoring);
+			applyLocationAndSize(label, wrapperStyle, ins, startY, endY, form.getSize().width, enableAnchoring,
+				isListViewBodyElement(form, label.getLocation()) ? new Point(-3, 0) : null);
 		}
 		else
 		{
-			applyLocationAndSize(label, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
+			applyLocationAndSize(label, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring, isListViewBodyElement(form, label.getLocation())
+				? new Point(-3, 0) : null);
 		}
 		if (label.getRolloverCursor() == Cursor.HAND_CURSOR)
 		{
@@ -2806,13 +2790,42 @@ public class TemplateGenerator
 		}
 		else
 		{
-			applyLocationAndSize(field, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
+			applyLocationAndSize(field, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring, isListViewBodyElement(form, field.getLocation())
+				? new Point(-3, 0) : null);
 		}
 	}
 
 	private static boolean isCompositeTextField(int type)
 	{
 		return type == Field.SPINNER || type == Field.CALENDAR;
+	}
+
+	private static boolean isListViewBodyElement(Form form, Point location)
+	{
+		if (form.getView() == IForm.LIST_VIEW || form.getView() == FormController.LOCKED_LIST_VIEW)
+		{
+			int startY = 0;
+			Iterator<Part> parts = form.getParts();
+			while (parts.hasNext())
+			{
+				Part part = parts.next();
+				int endY = part.getHeight();
+				if (part.getPartType() == Part.BODY)
+				{
+					if (location.getY() >= startY && location.getY() <= endY)
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				startY = part.getHeight();
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -2901,13 +2914,22 @@ public class TemplateGenerator
 	{
 		TextualCSS css = styleObj.getTextualCSS();
 		ICSSBoundsHandler handler = css.getCSSBoundsHandler();
-		handler.applyBounds(component, styleObj, ins == null ? new Insets(0, 0, 0, 0) : ins.getSum(), startY, endY, formWidth, enableAnchoring);
+		handler.applyBounds(component, styleObj, ins == null ? new Insets(0, 0, 0, 0) : ins.getSum(), startY, endY, formWidth, enableAnchoring, null);
+	}
+
+	private static void applyLocationAndSize(ISupportBounds component, TextualStyle styleObj, BorderAndPadding ins, int startY, int endY, int formWidth,
+		boolean enableAnchoring, Point locationModifier)
+	{
+		TextualCSS css = styleObj.getTextualCSS();
+		ICSSBoundsHandler handler = css.getCSSBoundsHandler();
+		handler.applyBounds(component, styleObj, ins == null ? new Insets(0, 0, 0, 0) : ins.getSum(), startY, endY, formWidth, enableAnchoring,
+			locationModifier);
 	}
 
 	interface ICSSBoundsHandler
 	{
 		public void applyBounds(ISupportBounds component, TextualStyle styleObj, Insets ins, int partStartY, int partEndY, int partWidth,
-			boolean enableAnchoring);
+			boolean enableAnchoring, Point locationModifier);
 	}
 
 	static class BorderAndPadding
@@ -2960,12 +2982,17 @@ public class TemplateGenerator
 		public static final DefaultCSSBoundsHandler INSTANCE = new DefaultCSSBoundsHandler();
 
 		public void applyBounds(ISupportBounds component, TextualStyle styleObj, Insets ins, int partStartY, int partEndY, int partWidth,
-			boolean enableAnchoring)
+			boolean enableAnchoring, Point locationModifier)
 		{
 			int y = component.getLocation().y;
 //			if (ins != null) y += ins.top;
 			int x = component.getLocation().x;
 //			if (ins != null) x += ins.left;
+			if (locationModifier != null)
+			{
+				y = Math.max(y+locationModifier.y,0);
+				x = Math.max(x+locationModifier.x,0);
+			}
 			int w = component.getSize().width;
 			if (ins != null) w -= (ins.left + ins.right);
 			int h = component.getSize().height;
@@ -3022,7 +3049,7 @@ public class TemplateGenerator
 
 		@Override
 		public void applyBounds(ISupportBounds component, TextualStyle styleObj, Insets ins, int partStartY, int partEndY, int partWidth,
-			boolean enableAnchoring)
+			boolean enableAnchoring, Point locationModifier)
 		{
 			int w = component.getSize().width;
 			if (ins != null) w -= (ins.left + ins.right); //seems not needed??? (it does! table view)
@@ -3044,12 +3071,17 @@ public class TemplateGenerator
 
 		@Override
 		public void applyBounds(ISupportBounds component, TextualStyle styleObj, Insets ins, int partStartY, int partEndY, int partWidth,
-			boolean enableAnchoring)
+			boolean enableAnchoring, Point locationModifier)
 		{
 			int y = component.getLocation().y + offset;
 //			if (ins != null) y += ins.top;
 			int x = component.getLocation().x;
 //			if (ins != null) x += ins.left;
+			if (locationModifier != null)
+			{
+				y = Math.max(y+locationModifier.y,0);
+				x = Math.max(x+locationModifier.x,0);
+			}
 			int w = component.getSize().width;
 			if (ins != null) w -= (ins.left + ins.right);
 			int h = component.getSize().height;
