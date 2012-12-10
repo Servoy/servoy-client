@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WebSession;
+import org.eclipse.swt.widgets.Display;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ClientState;
@@ -487,7 +489,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		final DebugJ2DBClient[] client = new DebugJ2DBClient[1];
 		try
 		{
-			Runnable run = new Runnable()
+			final Runnable run = new Runnable()
 			{
 				public void run()
 				{
@@ -634,7 +636,35 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			}
 			else
 			{
-				SwingUtilities.invokeAndWait(run);
+				// apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
+				final AtomicBoolean awtFinished = new AtomicBoolean(false);
+				final Display display = Display.getCurrent();
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						// do some AWT stuff here
+						run.run();
+						awtFinished.set(true);
+						display.asyncExec(new Runnable()
+						{
+							public void run()
+							{
+								// deliberately empty, this is only to wake up a
+								// potentially waiting SWT-thread below
+							}
+						});
+					}
+				});
+				while (!awtFinished.get())
+				{
+					//https://bugs.eclipse.org/bugs/show_bug.cgi?id=372951#c7
+					if (Utils.isAppleMacOS())
+					{
+						display.readAndDispatch();
+					}
+					display.sleep();
+				}
 			}
 		}
 		catch (Exception ex)
