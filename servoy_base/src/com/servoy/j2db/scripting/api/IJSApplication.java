@@ -26,5 +26,7 @@ import com.servoy.j2db.scripting.annotations.ServoyMobile;
 @ServoyMobile
 public interface IJSApplication
 {
-	public void output(Object output);
+	void output(Object output);
+
+	boolean isInDeveloper();
 }

@@ -414,7 +414,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Boolean (true) if the solution is running in the developer, (false) otherwise
 	 */
-	public boolean js_isInDeveloper()
+	@JSFunction
+	public boolean isInDeveloper()
 	{
 		return application.isInDeveloper();
 	}
