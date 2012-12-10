@@ -635,35 +635,39 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 				run.run();
 			}
 			else
-			{
-				// apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
-				final AtomicBoolean awtFinished = new AtomicBoolean(false);
-				final Display display = Display.getCurrent();
-				SwingUtilities.invokeLater(new Runnable()
+			{ //https://bugs.eclipse.org/bugs/show_bug.cgi?id=372951#c7
+				if (Utils.isAppleMacOS())
 				{
-					public void run()
+					// apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
+					final AtomicBoolean awtFinished = new AtomicBoolean(false);
+					final Display display = Display.getCurrent();
+					SwingUtilities.invokeLater(new Runnable()
 					{
-						// do some AWT stuff here
-						run.run();
-						awtFinished.set(true);
-						display.asyncExec(new Runnable()
+						public void run()
 						{
-							public void run()
+							// do some AWT stuff here
+							run.run();
+							awtFinished.set(true);
+							display.asyncExec(new Runnable()
 							{
-								// deliberately empty, this is only to wake up a
-								// potentially waiting SWT-thread below
-							}
-						});
-					}
-				});
-				while (!awtFinished.get())
-				{
-					//https://bugs.eclipse.org/bugs/show_bug.cgi?id=372951#c7
-					if (Utils.isAppleMacOS())
+								public void run()
+								{
+									// deliberately empty, this is only to wake up a
+									// potentially waiting SWT-thread below
+								}
+							});
+						}
+					});
+					while (!awtFinished.get())
 					{
 						display.readAndDispatch();
+						display.sleep();
 					}
-					display.sleep();
+				}
+				else
+				// non OSX
+				{
+					SwingUtilities.invokeAndWait(run);
 				}
 			}
 		}
