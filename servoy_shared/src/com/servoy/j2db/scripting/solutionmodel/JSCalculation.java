@@ -226,6 +226,29 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 		return scriptCalculation.getUUID();
 	}
 
+	/** 
+	 * Check a flag of the calculation.
+	 * The flags are a bit pattern consisting of 1 or more of the following bits:
+	 *  - JSColumn.UUID_COLUMN
+	 *  
+	 * @sample
+	 * var datasourceNode = solutionModel.getDataSourceNode('db:/example_data/orders')
+	 * var calculation = datasourceNode.getCalculation('mycalculation')
+	 * if (calculation.hasFlag(JSColumn.UUID_COLUMN))
+	 * {
+	 * 	 // calculation was typed as UUID 
+	 * }
+	 * 
+	 * @param flag
+	 * 
+	 * @return boolean whether flag is set.
+	 */
+	@JSFunction
+	public boolean hasFlag(int flag)
+	{
+		return (scriptCalculation.getFlags() & flag) != 0;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

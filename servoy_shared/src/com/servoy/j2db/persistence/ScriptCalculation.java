@@ -87,8 +87,25 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	public int getFlags()
 	{
+		String declaration = getDeclaration();
+		if (declaration != null)
+		{
+			int index = declaration.indexOf("*/");
+			if (index != -1)
+			{
+				int typeIndex = declaration.lastIndexOf("@type", index);
+				if (typeIndex != -1)
+				{
+					if (declaration.substring(typeIndex, declaration.indexOf('\n', typeIndex)).indexOf("{UUID}") != -1)
+					{
+						return Column.NORMAL_COLUMN | Column.UUID_COLUMN;
+					}
+				}
+			}
+		}
 		return Column.NORMAL_COLUMN;
 	}
 
