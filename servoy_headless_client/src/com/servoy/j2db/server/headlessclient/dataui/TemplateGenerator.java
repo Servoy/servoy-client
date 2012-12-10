@@ -2286,6 +2286,7 @@ public class TemplateGenerator
 		if (isButton)
 		{
 			html.append("<button type='submit' ");
+			html.append(" style=\"white-space: nowrap;\" ");
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
 			html.append(getCSSClassParameter("button"));
