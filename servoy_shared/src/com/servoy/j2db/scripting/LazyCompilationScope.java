@@ -63,7 +63,15 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		while (it.hasNext())
 		{
 			IScriptProvider sm = it.next();
-			put(sm, sm, overwriteInitialValue);
+			Iterator< ? > iterator = sm.getParent().getAllObjects();
+			while (iterator.hasNext())
+			{
+				Object o = iterator.next();
+				if (o instanceof IScriptProvider)
+				{
+					put((IScriptProvider)o, o, overwriteInitialValue);
+				}
+			}
 		}
 	}
 
