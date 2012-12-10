@@ -279,7 +279,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 
 	public void removeFormAnchorInfo(FormAnchorInfo fai)
 	{
-		formAnchorInfos.remove(fai);
+		if (formAnchorInfos != null) formAnchorInfos.remove(fai);
 	}
 
 	public void setFormAnchorInfos(SortedSet<FormAnchorInfo> infos, boolean onlyChanged)
