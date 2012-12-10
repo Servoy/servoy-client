@@ -660,8 +660,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 					});
 					while (!awtFinished.get())
 					{
-						display.readAndDispatch();
-						display.sleep();
+						if (!display.readAndDispatch()) display.sleep();
 					}
 				}
 				else
