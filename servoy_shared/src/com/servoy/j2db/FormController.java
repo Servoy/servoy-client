@@ -4773,8 +4773,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
 				if (scriptMethod != null)
 				{
-					application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
-					globalScope = application.getScriptEngine().getScopesScope().getGlobalScopeForFunction(new Integer(id));
+					globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
 				}
 			}
 			else if (nameScope != null)
@@ -5241,14 +5240,18 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				if (!(function instanceof Function))
 				{
 					// try global method
-					GlobalScope globalScope = application.getScriptEngine().getScopesScope().getGlobalScopeForFunction(id);
-					if (globalScope != null)
+					ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id.intValue());
+					if (scriptMethod != null)
 					{
-						scope = globalScope;
-						sName = globalScope.getFunctionName(id);
-						if (sName != null)
+						GlobalScope globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+						if (globalScope != null)
 						{
-							function = globalScope.getFunctionByName(sName);
+							scope = globalScope;
+							sName = globalScope.getFunctionName(id);
+							if (sName != null)
+							{
+								function = globalScope.getFunctionByName(sName);
+							}
 						}
 					}
 				}
