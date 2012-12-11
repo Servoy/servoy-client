@@ -176,19 +176,6 @@ public interface IBaseSolutionModel
 	 */
 	public boolean removeForm(String name);
 
-	/**
-	 * Removes the relation specified by name.
-	 * 
-	 * @sample
-	 * var success = solutionModel.removeRelation('myRelation');
-	 * if (success) { application.output("Relation has been removed");}
-	 * else {application.output("Relation could not be removed");}
-	 * 
-	 * @param name the name of the relation to be removed
-	 * 
-	 * @return true if the removal was successful, false otherwise
-	 */
-	public boolean removeRelation(String name);
 
 	/**
 	 * Removes the specified global method.
@@ -409,27 +396,6 @@ public interface IBaseSolutionModel
 	 * @return a IBaseSMMethod
 	 */
 	public IBaseSMMethod getGlobalMethod(String scopeName, String name);
-
-	/**
-	 * Get a IBaseSMMethod instance with arguments to be assigned to an event.
-	 *
-	 * @sample 
-	 * var str = "John's Bookstore"
-	 * var form = solutionModel.getForm('orders')
-	 * var button = form.getButton('abutton')
-	 * var method = form.getFormMethod('doit') // has 4 arguments: event (fixed), boolean, number and string
-	 * // string arguments have to be quoted, they are interpreted before the method is called
-	 * var quotedString = "'"+utils.stringReplace(str, "'", "\\'")+"'"
-	 * // list all arguments the method has, use nulls for fixed arguments (like event)
-	 * button.onAction = solutionModel.wrapMethodWithArguments(method, [null, true, 42, quotedString])
-	 * 
-	 * @param method IBaseSMMethod to be assigned to an event
-	 * 
-	 * @param args positional arguments
-	 * 
-	 * @return a IBaseSMMethod
-	 */
-	public IBaseSMMethod wrapMethodWithArguments(IBaseSMMethod method, Object... args);
 
 //	/**
 //	 * The list of all global methods.

@@ -19,7 +19,6 @@ package com.servoy.j2db.solutionmodel;
 
 import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMRelationItem;
 
 /**
  * Solution relation item.
@@ -28,7 +27,7 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMRelationItem;
  *
  * @since 6.1
  */
-public interface ISMRelationItem extends IBaseSMRelationItem, ISMHasUUID
+public interface ISMRelationItem extends ISMHasUUID
 {
 
 	/** 
@@ -40,5 +39,38 @@ public interface ISMRelationItem extends IBaseSMRelationItem, ISMHasUUID
 	 */
 	@ServoyMobileFilterOut
 	public static final String LITERAL_PREFIX = LiteralDataprovider.LITERAL_PREFIX;
+
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getForeignColumnName()
+	 * 
+	 * @sample
+	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * var criteria = relation.newRelationItem('parent_table_id', '=', 'child_table_parent_id');
+	 * criteria.primaryDataProviderID = 'parent_table_text';
+	 * criteria.foreignColumnName = 'child_table_text';
+	 * criteria.operator = '<';
+	 */
+	public String getForeignColumnName();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getOperator()
+	 * 
+	 * @sampleas getForeignColumnName()
+	 */
+	public String getOperator();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getPrimaryDataProviderID()
+	 * 
+	 * @sampleas getForeignColumnName()
+	 */
+	public String getPrimaryDataProviderID();
+
+	public void setOperator(String operator);
+
+	public void setForeignColumnName(String arg);
+
+	public void setPrimaryDataProviderID(String arg);
 
 }

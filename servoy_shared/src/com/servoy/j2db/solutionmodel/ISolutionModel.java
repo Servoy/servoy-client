@@ -233,6 +233,20 @@ public interface ISolutionModel extends IBaseSolutionModel
 	public boolean removeStyle(String name);
 
 	/**
+	 * Removes the relation specified by name.
+	 * 
+	 * @sample
+	 * var success = solutionModel.removeRelation('myRelation');
+	 * if (success) { application.output("Relation has been removed");}
+	 * else {application.output("Relation could not be removed");}
+	 * 
+	 * @param name the name of the relation to be removed
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean removeRelation(String name);
+
+	/**
 	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.
 	 * 
 	 * NOTE: Make sure you call history.remove first in your Servoy method (script) or call form.controller.recreateUI() before the script ends.

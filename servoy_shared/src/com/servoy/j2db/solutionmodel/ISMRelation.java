@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.j2db.persistence.constants.IJoinConstants;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMRelation;
 
 
@@ -29,6 +30,130 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMRelation;
  */
 public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 {
+
+	/**
+	 * Constant for the joinType of a JSRelation. It is also used in solutionModel.newRelation(...) and in the QueryBuilder.
+	 *
+	 * @sample 
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * relation.joinType = JSRelation.LEFT_OUTER_JOIN;
+	 * 
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
+	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.INNER_JOIN, 'odetail')
+	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
+	 */
+	public static final int INNER_JOIN = IJoinConstants.INNER_JOIN;
+
+	/**
+	 * @sameas INNER_JOIN
+	 */
+	public static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
+
+	/**
+	 * Constant for the joinType of a Query Builder join.
+	 *
+	 * @sample 
+	 *  /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * 	var query = databaseManager.createSelect('db:/example_data/orders')
+	 *  /** @type {QBJoin<db:/example_data/order_details>} *&#47;
+	 * 	var join = query.joins.add('db:/example_data/order_details', JSRelation.RIGHT_OUTER_JOIN, 'odetail')
+	 * 	join.on.add(join.columns.orderid.eq(query.columns.orderid))
+	 */
+	public static final int RIGHT_OUTER_JOIN = IJoinConstants.RIGHT_OUTER_JOIN;
+
+	/**
+	 * @sameas RIGHT_OUTER_JOIN
+	 */
+	public static final int FULL_JOIN = IJoinConstants.FULL_JOIN;
+
+	/**
+	 * Removes the desired relation item from the specified relation.
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('myRelation', 'db:/myServer/parentTable', 'db:/myServer/childTable', JSRelation.INNER_JOIN);
+	 * relation.newRelationItem('someColumn1', '=', 'someColumn2');
+	 * relation.newRelationItem('anotherColumn', '=', 'someOtherColumn');
+	 * relation.removeRelationItem('someColumn1', '=', 'someColumn2');
+	 * var criteria = relation.getRelationItems();
+	 * for (var i = 0; i < criteria.length; i++) {
+	 * 	var item = criteria[i];
+	 * 	application.output('primary column: ' + item.primaryDataProviderID);
+	 * 	application.output('operator: ' + item.operator);
+	 * 	application.output('foreign column: ' + item.foreignColumnName);
+	 * }
+	 * 
+	 * @param primaryDataProviderID the primary data provider (column) name
+	 * @param operator the operator 
+	 * @param foreignColumnName the foreign column name
+	 */
+	public void removeRelationItem(String primaryDataProviderID, String operator, String foreignColumnName);
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowCreationRelatedRecords()
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * relation.allowCreationRelatedRecords = true;
+	 */
+	public boolean getAllowCreationRelatedRecords();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowParentDeleteWhenHavingRelatedRecords()
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * relation.allowParentDeleteWhenHavingRelatedRecords = false;
+	 */
+	public boolean getAllowParentDeleteWhenHavingRelatedRecords();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Relation#getDeleteRelatedRecords()
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * relation.deleteRelatedRecords = true;
+	 */
+	public boolean getDeleteRelatedRecords();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Relation#getForeignDataSource()
+	 * 
+	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSRelation#getPrimaryDataSource()
+	 */
+	public String getForeignDataSource();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Relation#getJoinType()
+	 * 
+	 * @sampleas INNER_JOIN
+	 */
+	public int getJoinType();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Relation#getPrimaryDataSource()
+	 * 
+	 * @sample
+	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * relation.primaryDataSource = 'db:/user_data/another_parent_table';
+	 * relation.foreignDataSource = 'db:/user_data/another_child_table';
+	 */
+	public String getPrimaryDataSource();
+
+	public void setAllowCreationRelatedRecords(boolean arg);
+
+	public void setAllowParentDeleteWhenHavingRelatedRecords(boolean arg);
+
+	public void setDeleteRelatedRecords(boolean arg);
+
+	public void setForeignDataSource(String arg);
+
+	public void setJoinType(int joinType);
+
+	public void setName(String name);
+
+	public void setPrimaryDataSource(String arg);
 
 	/**
 	 * Returns an array of JSRelationItem objects representing the relation criteria defined for this relation.
