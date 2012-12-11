@@ -20,14 +20,13 @@ package com.servoy.j2db.persistence.constants;
 import javax.swing.SwingConstants;
 
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
-import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 
 /**
  * Constants used for alignment property.
  * 
  * @author acostescu
  */
-@ServoyMobile
+@ServoyMobile(false)
 public interface IAlignmentSMConstants
 {
 
@@ -38,6 +37,7 @@ public interface IAlignmentSMConstants
 	 * var hLabel = myJSForm.getLabel('label_name');
 	 * if (hLabel.horizontalAlignment == SM_ALIGNMENT.LEFT) hLabel.horizontalAlignment = SM_ALIGNMENT.DEFAULT;
 	 */
+	@ServoyMobile
 	public static final int DEFAULT = IContentSpecConstantsBase.MINUS_ONE.intValue();
 
 	/**
@@ -53,7 +53,6 @@ public interface IAlignmentSMConstants
 	 * var vCenterAlignedLabel = form.newLabel('CENTER', 460, 10, 50, 300);
 	 * vCenterAlignedLabel.verticalAlignment = SM_ALIGNMENT.CENTER
 	 */
-	@ServoyMobileFilterOut
 	public static final int CENTER = SwingConstants.CENTER;
 
 	/**
@@ -64,7 +63,7 @@ public interface IAlignmentSMConstants
 	 * var topAlignedLabel = form.newLabel('TOP', 400, 10, 50, 300);
 	 * topAlignedLabel.verticalAlignment = SM_ALIGNMENT.TOP;
 	 */
-
+	@ServoyMobile
 	public static final int TOP = SwingConstants.TOP;
 
 	/**
@@ -75,7 +74,6 @@ public interface IAlignmentSMConstants
 	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
 	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
 	 */
-	@ServoyMobileFilterOut
 	public static final int LEFT = SwingConstants.LEFT;
 
 	/**
@@ -86,6 +84,7 @@ public interface IAlignmentSMConstants
 	 * var bottomAlignedLabel = form.newLabel('BOTTOM', 520, 10, 50, 300);
 	 * bottomAlignedLabel.verticalAlignment = SM_ALIGNMENT.BOTTOM;
 	 */
+	@ServoyMobile
 	public static final int BOTTOM = SwingConstants.BOTTOM;
 
 	/**
@@ -96,7 +95,6 @@ public interface IAlignmentSMConstants
 	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
 	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
 	 */
-	@ServoyMobileFilterOut
 	public static final int RIGHT = SwingConstants.RIGHT;
 
 	/**
@@ -106,7 +104,6 @@ public interface IAlignmentSMConstants
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_HORIZONTAL;
 	 */
-	@ServoyMobileFilterOut
 	public static final int SPLIT_HORIZONTAL = -2;
 
 	/**
@@ -116,7 +113,6 @@ public interface IAlignmentSMConstants
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
 	 */
-	@ServoyMobileFilterOut
 	public static final int SPLIT_VERTICAL = -3;
 
 	/**
@@ -126,7 +122,6 @@ public interface IAlignmentSMConstants
 	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
 	 * accordion.tabOrientation = SM_ALIGNMENT.ACCORDION_PANEL;
 	 */
-	@ServoyMobileFilterOut
 	public static final int ACCORDION_PANEL = -3;
 
 }

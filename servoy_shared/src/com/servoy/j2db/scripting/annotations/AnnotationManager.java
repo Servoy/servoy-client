@@ -180,7 +180,14 @@ public class AnnotationManager
 				else
 				{
 					a = m.getAnnotation(searchedAnnotation);
-					if (a == null && stopAnnotation != null) a = cls.getAnnotation(searchedAnnotation); // this assumes that only start+stop annotations can be set at class level as well as method level
+					if (a == null && stopAnnotation != null) // this assumes that only start+stop annotations can be set at class level as well as method level (so ServoyMobile annotation)
+					{
+						a = cls.getAnnotation(searchedAnnotation);
+						if (a instanceof ServoyMobile)
+						{
+							if (!((ServoyMobile)a).value()) a = null; // so class level annotation is configured to not auto-include all members
+						}
+					}
 					if (a == null && stopAnnotation != null && (m.getAnnotation(stopAnnotation) != null)) stopped = true;
 				}
 			}

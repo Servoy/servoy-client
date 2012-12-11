@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation that marks functions and properties as available in the mobile client.
+ * It also marks classes as being used in mobile including or not members (see 'value').
  * 
  * @author rgansevles
  */
@@ -33,4 +34,11 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE, ElementType.FIELD })
 public @interface ServoyMobile
 {
+	/**
+	 * Only relevant when used at class level. If true, it will mark all methods/constants in that class be
+	 * marked as used in mobile.<br>
+	 * If it's set to false, the class will be marked as used in mobile, without marking all members - so any method/constant that is for mobile
+	 * must be included independently using this same annotation. 
+	 */
+	boolean value() default true;
 }
