@@ -233,33 +233,6 @@ public interface IBaseSolutionModel
 	public boolean removeGlobalVariable(String scopeName, String name);
 
 	/**
-	 * Removes the specified valuelist.
-	 * 
-	 * @sample
-	 * var vlName = "customValueList";
-	 * var vl = solutionModel.newValueList(vlName,IBaseSMValueList.CUSTOM_VALUES);
-	 * vl.customValues = "customvalue1\ncustomvalue2";
-	 * 
-	 * var status = solutionModel.removeValueList(vlName);
-	 * if (status) application.output("Removal has been done.");
-	 * else application.output("ValueList not removed.");
-	 * 
-	 * var vls = solutionModel.getValueLists();
-	 * if (vls != null) {
-	 * 	for (var i = 0; i < vls.length; i++) {
-	 * 		application.output(vls[i]);
-	 * 	}
-	 * 	application.output("");
-	 * }
-	 * 
-	 * 
-	 * @param name name of the valuelist to be removed
-	 * 
-	 * @return true if the removal was successful, false otherwise
-	 */
-	public boolean removeValueList(String name);
-
-	/**
 	 * Gets the specified form object and returns information about the form (see IBaseSMForm node).
 	 *
 	 * @sample
@@ -341,29 +314,6 @@ public interface IBaseSolutionModel
 //	 * @return an array of IBaseSMValueList objects
 //	 */
 //	public IBaseSMValueList[] getValueLists();
-
-
-	/**
-	 * Creates a new valuelist with the specified name and number type.
-	 *
-	 * @sample
-	 * var vl1 = solutionModel.newValueList("customText",IBaseSMValueList.CUSTOM_VALUES);
-	 * vl1.customValues = "customvalue1\ncustomvalue2";
-	 * var vl2 = solutionModel.newValueList("customid",IBaseSMValueList.CUSTOM_VALUES);
-	 * vl2.customValues = "customvalue1|1\ncustomvalue2|2";
-	 * var form = solutionModel.newForm("customValueListForm",controller.getDataSource(),null,true,300,300);
-	 * var combo1 = form.newComboBox("scopes.globals.text",10,10,120,20);
-	 * combo1.valuelist = vl1;
-	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
-	 * combo2.valuelist = vl2;
-	 *
-	 * @param name the specified name for the valuelist
-	 *
-	 * @param type the specified number type for the valuelist; may be IBaseSMValueList.CUSTOM_VALUES, IBaseSMValueList.DATABASE_VALUES, IBaseSMValueList.EMPTY_VALUE_ALWAYS, IBaseSMValueList.EMPTY_VALUE_NEVER
-	 * 
-	 * @return a IBaseSMValueList object
-	 */
-	public IBaseSMValueList newValueList(String name, int type);
 
 	/**
 	 * Creates a new global variable with the specified name and number type.

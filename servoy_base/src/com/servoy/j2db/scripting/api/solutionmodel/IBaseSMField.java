@@ -31,6 +31,7 @@ import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
  * @since 7.0
  */
 @ServoyMobile
+// TODO ac filter-out unsupported field types from servoy mobile
 public interface IBaseSMField extends IBaseSMComponent
 {
 
