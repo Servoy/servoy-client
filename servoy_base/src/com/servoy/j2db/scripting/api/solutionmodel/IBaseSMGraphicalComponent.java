@@ -31,10 +31,37 @@ import com.servoy.j2db.scripting.annotations.ServoyMobile;
 @ServoyMobile
 public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 {
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDataProviderID()
+	 * 
+	 * @sample
+	 * // Normally the dataprovider is specified when a component is created.
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
+	 * // But it can be modified later if needed.
+	 * field.dataProviderID = 'parent_table_id';
+	 */
 	public String getDataProviderID();
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDisplaysTags()
+	 * 
+	 * @sample
+	 * var label = form.newLabel('You are viewing record no. %%parent_table_id%%. You are running on server %%serverURL%%.', 
+	 *					10, 10, 600, 100);
+	 * label.displaysTags = true;
+	 */
 	public boolean getDisplaysTags();
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getText()
+	 * 
+	 * @sample
+	 * // In general the text is specified when creating the component.
+	 * var label = form.newLabel('Initial text', 10, 10, 100, 20);
+	 * // But it can be changed later if needed.
+	 * label.text = 'Changed text';
+	 */
 	public String getText();
 
 	public void setDataProviderID(String arg);
@@ -45,6 +72,20 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 
 	public void setOnAction(IBaseSMMethod method);
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnActionMethodID()
+	 * 
+	 * @sample
+	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
+	 * var onClickMethod = form.newMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
+	 * var onDoubleClickMethod = form.newMethod('function onDoubleClick(event) { application.output("I was double-clicked at " + event.getTimestamp()); }');
+	 * var onRightClickMethod = form.newMethod('function onRightClick(event) { application.output("I was right-clicked at " + event.getTimestamp()); }');
+	 * // At creation the button has the 'doNothing' method as onClick handler, but we'll change that later.
+	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, doNothingMethod);
+	 * btn.onAction = onClickMethod;
+	 * btn.onDoubleClick = onDoubleClickMethod;
+	 * btn.onRightClick = onRightClickMethod;
+	 */
 	public IBaseSMMethod getOnAction();
 
 }
