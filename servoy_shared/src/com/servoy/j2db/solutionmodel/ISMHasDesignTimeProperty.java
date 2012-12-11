@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMHasDesignTimeProperty;
 
 
 /**
@@ -26,7 +25,7 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMHasDesignTimeProperty;
  * @author rgansevles
  *
  */
-public interface ISMHasDesignTimeProperty extends IBaseSMHasDesignTimeProperty
+public interface ISMHasDesignTimeProperty
 {
 
 }

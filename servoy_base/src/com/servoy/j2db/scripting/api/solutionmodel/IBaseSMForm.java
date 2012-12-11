@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
  * @since 7.0
  */
 @ServoyMobile
-public interface IBaseSMForm extends IBaseSMHasDesignTimeProperty
+public interface IBaseSMForm
 {
 
 	/**

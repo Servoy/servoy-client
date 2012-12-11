@@ -29,7 +29,7 @@ import com.servoy.j2db.scripting.annotations.ServoyMobile;
  * @since 7.0
  */
 @ServoyMobile
-public interface IBaseSMComponent extends IBaseSMHasDesignTimeProperty
+public interface IBaseSMComponent
 {
 
 	/**
