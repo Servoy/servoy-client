@@ -652,7 +652,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		{
 			if (comp instanceof SwingForm)
 			{
-				((SwingForm)comp).getController().setReadOnly(b);
+				FormManager formManager = (FormManager)((SwingForm)comp).getController().getApplication().getFormManager();
+				if (!formManager.isFormReadOnly(((SwingForm)comp).getController().getName()))
+				{
+					((SwingForm)comp).getController().setReadOnly(b);
+				}
 			}
 			else
 			{
