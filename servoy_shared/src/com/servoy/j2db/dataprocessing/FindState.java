@@ -35,6 +35,9 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.scripting.api.IJSDataSet;
+import com.servoy.j2db.scripting.api.IJSFoundSet;
+import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.IDelegate;
@@ -47,7 +50,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class FindState implements Scriptable, IRecordInternal, Serializable
+public class FindState implements Scriptable, IRecordInternal, Serializable, IJSRecord
 {
 	private final Map<String, Object> columndata;//actual find columndata
 	private final IFoundSetInternal parent;
@@ -717,6 +720,46 @@ public class FindState implements Scriptable, IRecordInternal, Serializable
 	public boolean isRelatedFoundSetLoaded(String relationName, String restName)
 	{
 		return true;//return true to prevent async loading.
+	}
+
+	public IJSDataSet getChangedData()
+	{
+		return null;
+	}
+
+	public String getDataSource()
+	{
+		return parent.getDataSource();
+	}
+
+	public Exception getException()
+	{
+		return null;
+	}
+
+	public IJSFoundSet getFoundset()
+	{
+		return (IJSFoundSet)parent;
+	}
+
+	public Object[] getPKs()
+	{
+		return null;
+	}
+
+	public boolean hasChangedData()
+	{
+		return false;
+	}
+
+	public boolean isNew()
+	{
+		return false;
+	}
+
+	public void revertChanges()
+	{
+
 	}
 
 	/**
