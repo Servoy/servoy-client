@@ -150,23 +150,6 @@ public class ScopesScope extends DefaultScope
 		return gs.get(baseName);
 	}
 
-	/**
-	 * @param id
-	 * @return
-	 */
-	public GlobalScope getGlobalScopeForFunction(Integer id)
-	{
-		for (Object gs : allVars.values())
-		{
-			if (gs instanceof GlobalScope && ((GlobalScope)gs).getFunctionName(id) != null)
-			{
-				return (GlobalScope)gs;
-			}
-		}
-		return null;
-	}
-
-
 	public Object executeGlobalFunction(String scopeName, String methodName, Object[] args, boolean focusEvent, boolean throwException) throws Exception
 	{
 		GlobalScope gs = getGlobalScope(scopeName);
