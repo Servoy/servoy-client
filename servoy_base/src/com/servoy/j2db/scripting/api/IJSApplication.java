@@ -29,4 +29,8 @@ public interface IJSApplication
 	void output(Object output);
 
 	boolean isInDeveloper();
+
+	public void setValueListItems(String name, Object[] displayValues);
+
+	public void setValueListItems(String name, Object[] displayValues, Object[] realValues);
 }

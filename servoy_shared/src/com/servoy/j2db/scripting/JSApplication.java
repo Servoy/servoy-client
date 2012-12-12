@@ -598,7 +598,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param name Name of the valuelist
 	 * @param displayValues Display values array 
 	 */
-	public void js_setValueListItems(String name, Object[] displayValues)
+	@JSFunction
+	public void setValueListItems(String name, Object[] displayValues)
 	{
 		js_setValueListItems(name, displayValues, null, Boolean.FALSE);
 	}
@@ -626,7 +627,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param displayValues Display values array
 	 * @param realValues Real values array
 	 */
-	public void js_setValueListItems(String name, Object[] displayValues, Object[] realValues)
+	@JSFunction
+	public void setValueListItems(String name, Object[] displayValues, Object[] realValues)
 	{
 		js_setValueListItems(name, displayValues, realValues, Boolean.FALSE);
 	}
