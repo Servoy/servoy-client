@@ -30,6 +30,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
 import com.servoy.j2db.util.SortedList;
@@ -148,7 +149,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getServerName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 
@@ -322,7 +323,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 */
 	public String getTableName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[1];
 	}
 
@@ -1146,7 +1147,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnLoadMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID).intValue();
@@ -1173,7 +1173,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnUnLoadMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID).intValue();
@@ -1211,7 +1210,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnHideMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
@@ -1232,7 +1230,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnRecordEditStopMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID).intValue();
@@ -1249,7 +1246,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnRecordSelectionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID).intValue();
@@ -1268,7 +1264,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnShowMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID).intValue();
@@ -1354,7 +1349,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnRecordEditStartMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID).intValue();
@@ -1929,7 +1923,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * When set, the form is transparent.
 	 */
-	@ServoyMobile
 	public boolean getTransparent()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
@@ -2107,7 +2100,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnElementFocusGainedMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID).intValue();
@@ -2134,7 +2126,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnElementFocusLostMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID).intValue();
@@ -2158,7 +2149,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnResizeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID).intValue();

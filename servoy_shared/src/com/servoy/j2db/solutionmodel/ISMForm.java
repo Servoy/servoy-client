@@ -16,7 +16,10 @@ package com.servoy.j2db.solutionmodel;
 
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.constants.IFormConstants;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 
 /**
  * Solution model form object.
@@ -27,6 +30,108 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
  */
 public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUUID
 {
+
+	/**
+	 * The constants to set or get the view property of a JSForm. 
+	 * They are as follows: JSForm.LIST_VIEW, JSForm.LOCKED_LIST_VIEW, JSForm.LOCKED_RECORD_VIEW, JSForm.LOCKED_TABLE_VIEW, JSForm.RECORD_VIEW.
+	 *
+	 * @sample 
+	 * var myListViewForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
+	 * myListViewForm.view = JSForm.LIST_VIEW;
+	 * 
+	 * var myLockedListViewForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);	
+	 * myLockedListViewForm.view = JSForm.LOCKED_LIST_VIEW;
+	 * 
+	 * var myLockedRecordViewForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
+	 * myLockedRecordViewForm.view = JSForm.LOCKED_RECORD_VIEW;
+	 * 
+	 * var myLockedTableViewForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
+	 * myLockedTableViewForm.view = JSForm.LOCKED_TABLE_VIEW;
+	 * 
+	 * var myRecordViewForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
+	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
+	 */
+	public static final int LIST_VIEW = IFormConstants.VIEW_TYPE_LIST;
+
+	/**5
+	 * @sameas LIST_VIEW
+	 */
+	public static final int RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD;
+
+	//	public static final int TABLE_VIEW = FormController.TABLE_VIEW;
+
+	/**
+	 * @sameas LIST_VIEW
+	 */
+	public static final int LOCKED_TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE_LOCKED;
+
+	/**
+	 * @sameas LIST_VIEW
+	 */
+	public static final int LOCKED_LIST_VIEW = IFormConstants.VIEW_TYPE_LIST_LOCKED;
+
+	/**
+	 * @sameas LIST_VIEW
+	 */
+	public static final int LOCKED_RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD_LOCKED;
+	
+	/**
+	 * The constants to set or get the encapsulation property of a JSForm. 
+	 * They are as follows: JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION, JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION, JSForm.HIDE_ELEMENTS_ENCAPSULATION
+	 *
+	 * @sample 
+	 * var myDefaultForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
+	 * myDefaultForm.encapsulation = JSForm.DEFAULT_ENCAPSULATION;
+	 * 
+	 * var myPrivateForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);
+	 * myPrivateForm.encapsulation = JSForm.PRIVATE_ENCAPSULATION;
+	 * 
+	 * var myModulePrivateForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
+	 * myModulePrivateForm.encapsulation = JSForm.MODULE_PRIVATE_ENCAPSULATION;
+	 * 
+	 * var myHideDataprovidersForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
+	 * myHideDataprovidersForm.encapsulation = JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION;
+	 * 
+	 * var myHideFoundsetForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
+	 * myHideFoundsetForm.encapsulation = JSForm.HIDE_FOUNDSET_ENCAPSULATION;
+	 * 
+	 * var myHideControllerForm = solutionModel.newForm('newForm6', myDatasource, myStyleName, false, 800, 600);
+	 * myHideControllerForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
+	 * 
+	 * var myHideElementsForm = solutionModel.newForm('newForm7', myDatasource, myStyleName, false, 800, 600);
+	 * myHideElementsForm.encapsulation = JSForm.HIDE_ELEMENTS_ENCAPSULATION;
+	 */
+	public static final int DEFAULT_ENCAPSULATION = IFormConstants.DEFAULT;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int PRIVATE_ENCAPSULATION = IFormConstants.PRIVATE;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int MODULE_PRIVATE_ENCAPSULATION = IFormConstants.MODULE_PRIVATE;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_DATAPROVIDERS_ENCAPSULATION = IFormConstants.HIDE_DATAPROVIDERS;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_FOUNDSET_ENCAPSULATION = IFormConstants.HIDE_FOUNDSET;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_CONTROLLER_ENCAPSULATION = IFormConstants.HIDE_CONTROLLER;
+
+	/**
+	 * @sameas DEFAULT_ENCAPSULATION
+	 */
+	public static final int HIDE_ELEMENTS_ENCAPSULATION = IFormConstants.HIDE_ELEMENTS;
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#NAMED_FOUNDSET_EMPTY
@@ -1869,4 +1974,62 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	public void setOnRender(ISMMethod method);
 
+	public void setOnElementFocusGained(IBaseSMMethod method);
+
+	public void setOnElementFocusLost(IBaseSMMethod method);
+
+	public void setOnHide(IBaseSMMethod method);
+
+	public void setOnLoad(IBaseSMMethod method);
+
+	public void setOnRecordEditStart(IBaseSMMethod method);
+
+	public void setOnRecordEditStop(IBaseSMMethod method);
+
+	public void setOnRecordSelection(IBaseSMMethod method);
+
+	public void setOnShow(IBaseSMMethod method);
+
+	public void setOnUnLoad(IBaseSMMethod method);
+
+	public void setOnResize(IBaseSMMethod method);
+
+	/**
+	 * Get or set the encapsulation level for the form.
+	 * 
+	 * Encapsulation is one of constants JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION,
+	 * JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION or JSForm.HIDE_ELEMENTS_ENCAPSULATION
+	 *
+	 * @sample 
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
+	 */
+	public int getEncapsulation();
+
+	public void setEncapsulation(int arg);
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
+	 * 
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * forms['newForm1'].controller.show();
+	 * myForm.width = 120;
+	 * forms['newForm1'].controller.recreateUI();
+	 */
+	public int getWidth();
+
+	public void setWidth(int width);
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
+	 *
+	 * @sample 
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.view = JSForm.RECORD_VIEW;
+	 * forms['newForm1'].controller.show();
+	 */
+	public int getView();
+
+	public void setView(int arg);
 }
