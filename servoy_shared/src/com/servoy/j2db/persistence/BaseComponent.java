@@ -386,6 +386,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * the class name for a component, the prefix is dropped however. Thus the
 	 * field or the label will have its styleClass property set to 'fancy' only.
 	 */
+	@ServoyMobile
 	public String getStyleClass()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);

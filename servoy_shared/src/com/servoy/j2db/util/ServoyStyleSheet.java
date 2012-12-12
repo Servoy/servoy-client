@@ -66,7 +66,7 @@ public class ServoyStyleSheet implements IStyleSheet
 		{
 			try
 			{
-				styleSheet = parser.parseStylesheet(null, 0, new StringReader(cssContent));
+				styleSheet = parser.parseStylesheet("servoy stylesheet" /* to fix NPE in parsing */, 0, new StringReader(cssContent));
 			}
 			catch (IOException e)
 			{

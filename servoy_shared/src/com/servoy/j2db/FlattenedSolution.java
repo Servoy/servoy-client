@@ -1787,7 +1787,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			user_created_styles.remove(name);
 		}
-		else
+		else if (!deletedStyles.contains(name))
 		{
 			deletedStyles.add(name);
 		}

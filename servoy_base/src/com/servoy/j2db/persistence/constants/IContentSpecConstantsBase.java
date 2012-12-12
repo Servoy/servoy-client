@@ -32,6 +32,7 @@ public interface IContentSpecConstantsBase
 
 	public static final String PROPERTY_CUSTOMPROPERTIES = "customProperties"; //$NON-NLS-1$
 	public static final String PROPERTY_DATAPROVIDERID = "dataProviderID"; //$NON-NLS-1$
+	public static final String PROPERTY_STYLECLASS = "styleClass"; //$NON-NLS-1$
 	public static final String PROPERTY_DATASOURCE = "dataSource"; //$NON-NLS-1$
 	public static final String PROPERTY_DISPLAYTYPE = "displayType"; //$NON-NLS-1$
 	public static final String PROPERTY_LOCATION = "location"; //$NON-NLS-1$

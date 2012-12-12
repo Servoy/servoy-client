@@ -32,6 +32,7 @@ import org.apache.wicket.Session;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IDebugWebClient;
@@ -42,6 +43,7 @@ import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.headlessclient.WebClient;
@@ -152,6 +154,56 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	public void setCurrent(SolutionMetaData sol)
 	{
 		solution = sol;
+	}
+
+	public static void installServoyMobileInternalStyle(FlattenedSolution flattenedSolution)
+	{
+		if (flattenedSolution == null) return;
+
+		SolutionMetaData mainSolutionMetaData = flattenedSolution.getMainSolutionMetaData();
+		if (mainSolutionMetaData != null && mainSolutionMetaData.getSolutionType() == SolutionMetaData.MOBILE)
+		{
+			// Add a built-in style for mobile schemes
+			// TODO: improve
+			if (flattenedSolution.getStyle("_servoy_mobile") == null)
+			{
+				String servoyMobileStyle = //
+
+				"label, label.a, button, button.a, field, field.a, header, header.a, footer, footer.a {"//
+//					+ "background-color: #262F36;" //
+					+ "}"//
+
+					+ "label.b, button.b, field.b, header.b, footer.b {"//
+//					+ "background-color: #5B95C5;" //
+					+ "}" //
+
+					+ "label.c, button.c, field.c, header.c, footer.c {" //
+//					+ "background-color: #D6DFE6;"//
+					+ "}"//
+
+					+ "label.d, button.d, field.d, header.d, footer.d {" //
+//					+ "background-color: #BEC7CE;" //
+					+ "}"//
+
+					+ "label.e, button.e, field.e, header.e, footer.e {" //
+//					+ "background-color: #E8E69A;" //
+					+ "}" //
+
+				;
+				flattenedSolution.createStyle("_servoy_mobile", servoyMobileStyle);
+			}
+		}
+		else
+		{
+			flattenedSolution.removeStyle("_servoy_mobile");
+		}
+	}
+
+	@Override
+	protected void solutionLoaded(Solution s)
+	{
+		super.solutionLoaded(s);
+		installServoyMobileInternalStyle(solutionRoot);
 	}
 
 	private Form form;

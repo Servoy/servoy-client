@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
 
@@ -440,6 +441,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	/**
 	 * The Cascading Style Sheet (CSS) class name applied to the part. 
 	 */
+	@ServoyMobile
 	public String getStyleClass()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
