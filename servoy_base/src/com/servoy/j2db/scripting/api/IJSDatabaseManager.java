@@ -92,7 +92,7 @@ public interface IJSDatabaseManager
 	 * 
 	 * @return false if the current edited record could not be saved.
 	 */
-	public boolean setAutoSave(boolean autoSave);
+//	public boolean setAutoSave(boolean autoSave);
 
 	/**
 	 * Returns true or false if autosave is enabled or disabled.
@@ -109,5 +109,5 @@ public interface IJSDatabaseManager
 	 * 
 	 * @return true if autosave if enabled.
 	 */
-	public boolean getAutoSave();
+//	public boolean getAutoSave();
 }
