@@ -18,6 +18,7 @@
 package com.servoy.j2db.ui;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
 
 /**
@@ -27,6 +28,7 @@ import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable", publicName = "Renderable")
+@ServoyMobileFilterOut
 public interface IScriptRenderMethodsWithFormat extends IScriptRenderMethods, HasRuntimeFormat
 {
 	/**
