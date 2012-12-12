@@ -141,6 +141,17 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	 */
 	public String getPrimaryDataSource();
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Relation#getName()
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * relation.name = 'anotherName';
+	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
+	 * firstTab.relationName = relation.name;
+	 */
+	public String getName();
+
 	public void setAllowCreationRelatedRecords(boolean arg);
 
 	public void setAllowParentDeleteWhenHavingRelatedRecords(boolean arg);
