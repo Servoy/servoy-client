@@ -22,6 +22,7 @@ import java.util.Arrays;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSBaseEvent;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 
 /**
  * JSDNDEvent, used as argument to drag and drop callbacks.
@@ -29,6 +30,7 @@ import com.servoy.j2db.scripting.JSBaseEvent;
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyMobileFilterOut
 public class JSDNDEvent extends JSBaseEvent
 {
 	/**
