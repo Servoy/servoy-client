@@ -197,10 +197,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 */
 	public String getDataProviderID();
 
-	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
-	 */
-	public boolean getDisplaysTags();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getDisplayType()
@@ -227,8 +223,6 @@ public interface IBaseSMField extends IBaseSMComponent
 
 	public void setDataProviderID(String arg);
 
-	public void setDisplaysTags(boolean arg);
-
 	public void setDisplayType(int arg);
 
 	public void setValuelist(IBaseSMValueList valuelist);
@@ -253,30 +247,4 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * forms['someForm'].controller.show();
 	 */
 	public IBaseSMMethod getOnDataChange();
-
-	public void setOnFocusGained(IBaseSMMethod method);
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusGainedMethodID()
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
-	 * var onFocusLostMethod = form.newMethod('function onFocusLost(event) { application.output("Focus lost at " + event.getTimestamp()); }');
-	 * var onFocusGainedMethod = form.newMethod('function onFocusGained(event) { application.output("Focus gained at " + event.getTimestamp()); }');
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * field.onFocusGained = onFocusGainedMethod;
-	 * field.onFocusLost = onFocusLostMethod;
-	 * forms['someForm'].controller.show()
-	 */
-	public IBaseSMMethod getOnFocusGained();
-
-	public void setOnFocusLost(IBaseSMMethod method);
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusLostMethodID()
-	 * 
-	 * @sampleas getOnFocusGained()
-	 */
-	public IBaseSMMethod getOnFocusLost();
-
 }

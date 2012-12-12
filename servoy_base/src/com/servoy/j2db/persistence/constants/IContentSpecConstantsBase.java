@@ -42,6 +42,7 @@ public interface IContentSpecConstantsBase
 	public static final String PROPERTY_ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String PROPERTY_DISPLAY_TAGS = "displaysTags"; //$NON-NLS-1$
 	public static final String PROPERTY_NAME = "name"; //$NON-NLS-1$
-
+	public static final String PROPERTY_ONDATACHANGEMETHODID = "onDataChangeMethodID"; //$NON-NLS-1$
+	public static final String PROPERTY_VALUELISTID = "valuelistID"; //$NON-NLS-1$
 
 }

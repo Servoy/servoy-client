@@ -228,7 +228,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnFocusLostMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID).intValue();
