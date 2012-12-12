@@ -34,6 +34,7 @@ import java.util.StringTokenizer;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FilteredIterator;
 import com.servoy.j2db.util.IFilter;
@@ -203,7 +204,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	private static List<String> getTableDataSources(IRepository repository, String dataSource) throws RepositoryException
 	{
 		if (dataSource == null) return null;
-		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 		List<String> dataSources = new ArrayList<String>();
 
 		if (repository == null || stn == null) // inmem or rep == null
@@ -723,6 +724,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 
 	 * To enforce a default Servoy user name and password login dialog; if set a login dialog is required, if unchecked no login dialog is required.
 	 */
+	@ServoyMobile
 	public boolean getMustAuthenticate()
 	{
 		return getSolutionMetaData().getMustAuthenticate();
@@ -1001,6 +1003,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 
 	 * NOTE: If the Login form is specified, then the firstForm is the first form that will load next after the loginForm.
 	 */
+	@ServoyMobile
 	public int getFirstFormID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID).intValue();
@@ -1017,7 +1020,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnCloseMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID).intValue();
@@ -1111,7 +1113,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * //by default error report means logging the error, in smart client an error dialog will also show up
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnErrorMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID).intValue();
@@ -1157,6 +1158,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The i18n database server connection and database table that stores the i18n keys for a solution.
 	 */
+	@ServoyMobile
 	public String getI18nDataSource()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_I18NDATASOURCE);
@@ -1169,7 +1171,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public String getI18nServerName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getI18nDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getI18nDataSource());
 		return stn == null ? null : stn[0];
 	}
 
@@ -1180,7 +1182,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public String getI18nTableName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getI18nDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getI18nDataSource());
 		return stn == null ? null : stn[1];
 	}
 
@@ -1192,6 +1194,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The type of a solution; can be "Normal" (non-module), "Module", "Web client only", "Smart client only" .
 	 */
+	@ServoyMobile
 	public int getSolutionType()
 	{
 		return getSolutionMetaData().getSolutionType();
@@ -1206,6 +1209,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The list of modules that have been added to a solution.
 	 */
+	@ServoyMobile
 	public String getModulesNames()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MODULESNAMES);

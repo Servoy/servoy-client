@@ -154,7 +154,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnDataChangeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID).intValue();

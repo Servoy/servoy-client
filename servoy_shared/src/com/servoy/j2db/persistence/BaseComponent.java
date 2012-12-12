@@ -369,7 +369,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	 * The default value is "false", that is the components 
 	 * are not transparent.
 	 */
-	@ServoyMobile
 	public boolean getTransparent()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();

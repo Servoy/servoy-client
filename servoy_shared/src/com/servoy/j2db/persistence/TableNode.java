@@ -24,8 +24,8 @@ import java.util.Map;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -151,7 +151,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getTableName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[1];
 	}
 
@@ -162,7 +162,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 	public String getServerName()
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(getDataSource());
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(getDataSource());
 		return stn == null ? null : stn[0];
 	}
 
@@ -177,7 +177,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 			{
 				return null;
 			}
-			String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+			String[] stn = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 			if (stn != null)
 			{
 				try
@@ -245,7 +245,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return boolean to indicate success
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnInsertMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID).intValue();
@@ -280,7 +279,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return boolean to indicate success
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnUpdateMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID).intValue();
@@ -315,7 +313,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return boolean to indicate success
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnDeleteMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID).intValue();
@@ -334,7 +331,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is inserted
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnAfterInsertMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID).intValue();
@@ -353,7 +349,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is updated
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnAfterUpdateMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID).intValue();
@@ -372,7 +367,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is deleted
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnAfterDeleteMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID).intValue();
@@ -397,7 +391,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return true so that the record can be created
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnCreateMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID).intValue();
@@ -422,7 +415,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return true so that it will go into find mode.
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnFindMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDMETHODID).intValue();
@@ -442,7 +434,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 */
-	@ServoyMobile
 	public int getOnAfterFindMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID).intValue();
@@ -469,7 +460,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return true so that the search will go on.
 	 * return true
 	 */
-	@ServoyMobile
 	public int getOnSearchMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID).intValue();
@@ -488,7 +478,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 */
-	@ServoyMobile
 	public int getOnAfterSearchMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID).intValue();
@@ -507,7 +496,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is created
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
 	public int getOnAfterCreateMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID).intValue();
