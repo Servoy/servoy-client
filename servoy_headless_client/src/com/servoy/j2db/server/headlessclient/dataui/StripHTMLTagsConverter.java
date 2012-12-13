@@ -43,6 +43,7 @@ import org.apache.wicket.util.value.IValueMap;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
+import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -263,6 +264,14 @@ public class StripHTMLTagsConverter implements IConverter
 						me = (XmlTag)parser.nextTag();
 					}
 					continue;
+				}
+
+				if (currentTagName.equals("img") && component instanceof ILabel)
+				{
+					ILabel label = (ILabel)component;
+					String onload = "Servoy.Utils.setLabelChildHeight('" + component.getMarkupId() + "', " + label.getVerticalAlignment() + ");";
+					onload = me.getAttributes().containsKey("onload") ? me.getAttributes().getString("onload") + ";" + onload : onload;
+					me.getAttributes().put("onload", onload);
 				}
 
 				boolean ignoreOnclick = false;
