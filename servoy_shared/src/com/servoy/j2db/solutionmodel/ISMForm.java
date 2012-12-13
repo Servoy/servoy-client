@@ -17,7 +17,6 @@ package com.servoy.j2db.solutionmodel;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.constants.IFormConstants;
-import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 
@@ -74,7 +73,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sameas LIST_VIEW
 	 */
 	public static final int LOCKED_RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD_LOCKED;
-	
+
 	/**
 	 * The constants to set or get the encapsulation property of a JSForm. 
 	 * They are as follows: JSForm.DEFAULT_ENCAPSULATION, JSForm.PRIVATE_ENCAPSULATION, JSForm.MODULE_PRIVATE_ENCAPSULATION, JSForm.HIDE_DATAPROVIDERS_ENCAPSULATION, JSForm.HIDE_FOUNDSET_ENCAPSULATION, JSForm.HIDE_CONTROLLER_ENCAPSULATION, JSForm.HIDE_ELEMENTS_ENCAPSULATION

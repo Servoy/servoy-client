@@ -375,6 +375,7 @@ public interface IBaseSMForm
 	 * 
 	 * @return a IBaseSMTabPanel object	
 	 */
+	@ServoyMobileFilterOut
 	public IBaseSMTabPanel newTabPanel(String name, int x, int y, int width, int height);
 
 	/**
