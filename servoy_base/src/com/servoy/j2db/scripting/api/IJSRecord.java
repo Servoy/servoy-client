@@ -66,7 +66,7 @@ public interface IJSRecord
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.revertChanges();
 	 */
-	public void revertChanges();
+//	public void revertChanges();
 
 	/**
 	 * Returns a JSDataSet with outstanding (not saved) changed data of this record.
@@ -84,7 +84,7 @@ public interface IJSRecord
 	 * 
 	 * @return a JSDataSet with the changed data of this record.
 	 */
-	public IJSDataSet getChangedData();
+//	public IJSDataSet getChangedData();
 
 	/**
 	 * Returns true if the current record has outstanding/changed data.
@@ -94,7 +94,7 @@ public interface IJSRecord
 	 * 
 	 * @return true if the current record has outstanding/changed data.
 	 */
-	public boolean hasChangedData();
+//	public boolean hasChangedData();
 
 	/**
 	 * Returns last occurred exception on this record (or null).
@@ -104,7 +104,7 @@ public interface IJSRecord
 	 * 
 	 * @return The occurred exception.
 	 */
-	public Exception getException();
+//	public Exception getException();
 
 	/**
 	 * Returns the records datasource string.
