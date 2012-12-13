@@ -605,9 +605,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * @clonedesc js_setValueListItems(String,Object[])
+	 * @clonedesc setValueListItems(String,Object[])
 	 * 
-	 * @sampleas js_setValueListItems(String,Object[])
+	 * @sampleas setValueListItems(String,Object[])
 	 * 
 	 * @param name Name of the valuelist
 	 * @param displayValues Display values array
@@ -619,9 +619,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * @clonedesc js_setValueListItems(String,Object[])
+	 * @clonedesc setValueListItems(String,Object[])
 	 * 
-	 * @sampleas js_setValueListItems(String,Object[])
+	 * @sampleas setValueListItems(String,Object[])
 	 * 
 	 * @param name Name of the valuelist
 	 * @param displayValues Display values array
@@ -634,9 +634,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * @clonedesc js_setValueListItems(String,Object[])
+	 * @clonedesc setValueListItems(String,Object[])
 	 * 
-	 * @sampleas js_setValueListItems(String,Object[])
+	 * @sampleas setValueListItems(String,Object[])
 	 * 
 	 * @param name Name of the valuelist
 	 * @param dataset Dataset with display/real values
@@ -647,9 +647,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * @clonedesc js_setValueListItems(String,Object[])
+	 * @clonedesc setValueListItems(String,Object[])
 	 * 
-	 * @sampleas js_setValueListItems(String,Object[])
+	 * @sampleas setValueListItems(String,Object[])
 	 * 
 	 * @param name Name of the valuelist
 	 * @param dataset Dataset with display/real values
@@ -677,9 +677,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * @clonedesc js_setValueListItems(String,Object[])
+	 * @clonedesc setValueListItems(String,Object[])
 	 * 
-	 * @sampleas js_setValueListItems(String,Object[])
+	 * @sampleas setValueListItems(String,Object[])
 	 * 
 	 * @param name
 	 * @param displayValues Display values array
