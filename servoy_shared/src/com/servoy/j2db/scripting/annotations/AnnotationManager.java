@@ -182,7 +182,8 @@ public class AnnotationManager
 				else
 				{
 					a = m.getAnnotation(searchedAnnotation);
-					if (a == null && stopAnnotation != null) // this assumes that only start+stop annotations can be set at class level as well as method level (so ServoyMobile annotation)
+					if (a == null && stopAnnotation != null && (m.getAnnotation(stopAnnotation) != null)) stopped = true;
+					if (a == null && stopAnnotation != null && !stopped) // this assumes that only start+stop annotations can be set at class level as well as method level (so ServoyMobile annotation)
 					{
 						a = cls.getAnnotation(searchedAnnotation);
 						if (a instanceof ServoyMobile)
@@ -190,7 +191,6 @@ public class AnnotationManager
 							if (!((ServoyMobile)a).value()) a = null; // so class level annotation is configured to not auto-include all members
 						}
 					}
-					if (a == null && stopAnnotation != null && (m.getAnnotation(stopAnnotation) != null)) stopped = true;
 				}
 			}
 			else if (stopAnnotation != null) stopEncountered = stopAlreadyEncountered || (cls.getAnnotation(stopAnnotation) != null);
@@ -302,7 +302,8 @@ public class AnnotationManager
 				else
 				{
 					a = f.getAnnotation(searchedAnnotation);
-					if (a == null && stopAnnotation != null)
+					if (a == null && stopAnnotation != null && (f.getAnnotation(stopAnnotation) != null)) stopped = true;
+					if (a == null && stopAnnotation != null && !stopped)
 					{
 						a = cls.getAnnotation(searchedAnnotation);
 						if (a instanceof ServoyMobile)
@@ -310,7 +311,6 @@ public class AnnotationManager
 							if (!((ServoyMobile)a).value()) a = null; // so class level annotation is configured to not auto-include all members
 						}
 					}
-					if (a == null && stopAnnotation != null && (f.getAnnotation(stopAnnotation) != null)) stopped = true;
 				}
 			}
 			else if (stopAnnotation != null) stopEncountered = stopAlreadyEncountered || (cls.getAnnotation(stopAnnotation) != null);
