@@ -30,33 +30,6 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUUID
 {
 
-	/**
-	 * The constants to set or get the view property of a JSForm. 
-	 * They are as follows: JSForm.LIST_VIEW, JSForm.LOCKED_LIST_VIEW, JSForm.LOCKED_RECORD_VIEW, JSForm.LOCKED_TABLE_VIEW, JSForm.RECORD_VIEW.
-	 *
-	 * @sample 
-	 * var myListViewForm = solutionModel.newForm('newForm1', myDatasource, myStyleName, false, 800, 600);
-	 * myListViewForm.view = JSForm.LIST_VIEW;
-	 * 
-	 * var myLockedListViewForm = solutionModel.newForm('newForm2', myDatasource, myStyleName, false, 800, 600);	
-	 * myLockedListViewForm.view = JSForm.LOCKED_LIST_VIEW;
-	 * 
-	 * var myLockedRecordViewForm = solutionModel.newForm('newForm3', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedRecordViewForm.view = JSForm.LOCKED_RECORD_VIEW;
-	 * 
-	 * var myLockedTableViewForm = solutionModel.newForm('newForm4', myDatasource, myStyleName, false, 800, 600);
-	 * myLockedTableViewForm.view = JSForm.LOCKED_TABLE_VIEW;
-	 * 
-	 * var myRecordViewForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
-	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
-	 */
-	public static final int LIST_VIEW = IFormConstants.VIEW_TYPE_LIST;
-
-	/**5
-	 * @sameas LIST_VIEW
-	 */
-	public static final int RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD;
-
 	//	public static final int TABLE_VIEW = FormController.TABLE_VIEW;
 
 	/**
@@ -2020,15 +1993,4 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	public void setWidth(int width);
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
-	 *
-	 * @sample 
-	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * myForm.view = JSForm.RECORD_VIEW;
-	 * forms['newForm1'].controller.show();
-	 */
-	public int getView();
-
-	public void setView(int arg);
 }

@@ -24,20 +24,12 @@ import com.servoy.j2db.scripting.annotations.ServoyMobile;
  * @author acostescu
  */
 @ServoyMobile
-public interface IBaseSHInsetList
+public interface IBaseSHInsetList extends IBaseSHList
 {
 
 	public String getRelationName();
 
 	public void setRelationName(String relationName);
-
-	public String getDataSource();
-
-	public void setDataSource(String dataSource);
-
-	public String getCountDataProviderID();
-
-	public void setCountDataProviderID(String countDataProviderID);
 
 	public String getHeaderText();
 
@@ -46,29 +38,5 @@ public interface IBaseSHInsetList
 	public String getHeaderDataProviderID();
 
 	public void setHeaderDataProviderID(String headerDataProviderID);
-
-	public String getText();
-
-	public void setText(String text);
-
-	public String getTextDataProviderID();
-
-	public void setTextDataProviderID(String textDataPRoviderID);
-
-	public String getSubtext();
-
-	public void setSubtext(String subtext);
-
-	public String getSubtextDataProviderID();
-
-	public void setSubtextDataProviderID(String subtextDataProviderID);
-
-	public String getDataIconType();
-
-	public void setDataIconType(String dataIconType);
-
-	public String getDataIconDataProviderID();
-
-	public void setDataIconDataProviderID(String dataIconDataProviderID);
 
 }

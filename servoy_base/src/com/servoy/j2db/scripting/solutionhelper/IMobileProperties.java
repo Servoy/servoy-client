@@ -44,6 +44,8 @@ public interface IMobileProperties
 	public final static MobileProperty<Boolean> FOOTER_ITEM = new MobileProperty<Boolean>("footeritem", Boolean.FALSE);
 	public final static MobileProperty<Boolean> FORM_TAB_PANEL = new MobileProperty<Boolean>("formtabpanel", Boolean.FALSE);
 	public final static MobileProperty<Boolean> LIST_TAB_PANEL = new MobileProperty<Boolean>("list", Boolean.FALSE);
+	public final static MobileProperty<String> LIST_ITEM_FORM_CONTAINER = new MobileProperty<String>("listitemFormContainer", null);
+	public final static MobileProperty<String> LIST_ITEM_FORM_TAB = new MobileProperty<String>("listitemFormTab", null);
 	public final static MobileProperty<Boolean> LIST_ITEM_BUTTON = new MobileProperty<Boolean>("listitemButton", Boolean.FALSE);
 	public final static MobileProperty<Boolean> LIST_ITEM_SUBTEXT = new MobileProperty<Boolean>("listitemSubtext", Boolean.FALSE);
 	public final static MobileProperty<Boolean> LIST_ITEM_COUNT = new MobileProperty<Boolean>("listitemCount", Boolean.FALSE);

@@ -45,5 +45,6 @@ public interface IContentSpecConstantsBase
 	public static final String PROPERTY_NAME = "name"; //$NON-NLS-1$
 	public static final String PROPERTY_ONDATACHANGEMETHODID = "onDataChangeMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_VALUELISTID = "valuelistID"; //$NON-NLS-1$
+	public static final String PROPERTY_VIEW = "view"; //$NON-NLS-1$
 
 }

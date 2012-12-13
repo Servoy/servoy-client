@@ -159,7 +159,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_VALUELISTTYPE = "valueListType"; //$NON-NLS-1$
 	public static final String PROPERTY_VARIABLETYPE = "variableType"; //$NON-NLS-1$
 	public static final String PROPERTY_VERTICALALIGNMENT = "verticalAlignment"; //$NON-NLS-1$
-	public static final String PROPERTY_VIEW = "view"; //$NON-NLS-1$
 	public static final String PROPERTY_BACKGROUND = "background"; //$NON-NLS-1$
 	public static final String PROPERTY_FOREGROUND = "foreground"; //$NON-NLS-1$
 	public static final String PROPERTY_SELECTEDTABCOLOR = "selectedTabColor"; //$NON-NLS-1$
