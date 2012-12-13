@@ -86,7 +86,7 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IResourceListener, IProviderStylePropertyChanges, IDoubleClickListener, IRightClickListener,
-	ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider
+	ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, IHeaderJSChangeContributor
 {
 	private static final long serialVersionUID = 1L;
 
@@ -167,10 +167,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (WebBaseButton.getImageDisplayURL(this) != null)
-		{
-			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
+		String onLoad = getOnLoad();
+		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
+		String onDOMReady = getOnDOMReady();
+		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
 	}
 
 	protected CharSequence getBodyText()
@@ -1126,5 +1126,31 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSContributor#getOnLoad()
+	 */
+	public String getOnLoad()
+	{
+		String onLoad = null;
+		if (hasHtmlOrImage())
+		{
+			onLoad = "Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+
+		return onLoad;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSContributor#getOnDOMReady()
+	 */
+	public String getOnDOMReady()
+	{
+		return null;
 	}
 }
