@@ -95,66 +95,6 @@ public interface IBaseSolutionModel
 	 */
 	public IBaseSMForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height);
 
-	/**
-	 * Makes an exact copy of the given form and gives it the new name.
-	 *
-	 * @sample 
-	 * // get an existing form
-	 * var form = solutionModel.getForm("existingForm")
-	 * // make a clone/copy from it
-	 * var clone = solutionModel.cloneForm("clonedForm", form)
-	 * // add a new label to the clone
-	 * clone.newLabel("added label",50,50,80,20);
-	 * // show it
-	 * forms["clonedForm"].controller.show();
-	 *
-	 * @param newName the new name for the form clone
-	 *
-	 * @param IBaseSMForm the form to be cloned 
-	 * 
-	 * @return a IBaseSMForm
-	 */
-	public IBaseSMForm cloneForm(String newName, IBaseSMForm form);
-
-	/**
-	 * Makes an exact copy of the given component (IBaseSMComponent/JSField/JSLabel) and gives it a new name.
-	 *
-	 * @sample
-	 * // get an existing field to clone.
-	 * var field = solutionModel.getForm("formWithField").getField("fieldName");
-	 * // make a clone/copy of the field
-	 * var clone = solutionModel.cloneComponent("clonedField",field);
-	 * 
-	 * @param newName the new name of the cloned component
-	 *
-	 * @param component the component to clone
-	 *
-	 * @return the exact copy of the given component
-	 */
-	public IBaseSMComponent cloneComponent(String newName, IBaseSMComponent component);
-
-	/**
-	 * Makes an exact copy of the given component (IBaseSMComponent/JSField/JSLabel), gives it a new name and moves it to a new parent form, specified as a parameter.
-	 *
-	 * @sample
-	 * // get an existing field to clone.
-	 * var field = solutionModel.getForm("formWithField").getField("fieldName");
-	 * // get the target form for the copied/cloned field
-	 * var form = solutionModel.getForm("targetForm");
-	 * // make a clone/copy of the field and re parent it to the target form.
-	 * var clone = solutionModel.cloneComponent("clonedField",field,form);
-	 * // show it
-	 * forms["targetForm"].controller.show();
-	 * 
-	 * @param newName the new name of the cloned component
-	 *
-	 * @param component the component to clone
-	 *
-	 * @param newParentForm the new parent form 
-	 * 
-	 * @return the exact copy of the given component
-	 */
-	public IBaseSMComponent cloneComponent(String newName, IBaseSMComponent component, IBaseSMForm newParentForm);
 
 	/**
 	 * Removes the specified form during the persistent connected client session.
@@ -233,47 +173,47 @@ public interface IBaseSolutionModel
 	 */
 	public IBaseSMForm getForm(String name);
 
-//	/**
-//	 * Get an array of forms, that are all based on datasource/servername.
-//	 *
-//	 * @sample
-//	 * var forms = solutionModel.getForms(datasource)
-//	 * for (var i in forms)
-//	 * 	application.output(forms[i].name)
-//	 *
-//	 * @param datasource the datasource or servername 
-//	 * 
-//	 * @return an array of IBaseSMForm type elements
-//	 */
-//	public IBaseSMForm[] getForms(String datasource);
-//
-//	/**
-//	 * Get an array of forms, that are all based on datasource/servername and tablename.
-//	 *
-//	 * @sample
-//	 * var forms = solutionModel.getForms(datasource,tablename)
-//	 * for (var i in forms)
-//	 * 	application.output(forms[i].name)
-//	 *
-//	 * @param server the datasource or servername 
-//	 * 
-//	 * @param tablename the tablename
-//	 * 
-//	 * @return an array of IBaseSMForm type elements
-//	 */
-//	public IBaseSMForm[] getForms(String server, String tablename);
-//
-//	/**
-//	 * Get an array of all forms.
-//	 *
-//	 * @sample
-//	 * var forms = solutionModel.getForms()
-//	 * for (var i in forms)
-//	 * 	application.output(forms[i].name)
-//	 *
-//	 * @return an array of IBaseSMForm type elements
-//	 */
-//	public IBaseSMForm[] getForms();
+	/**
+	 * Get an array of forms, that are all based on datasource/servername.
+	 *
+	 * @sample
+	 * var forms = solutionModel.getForms(datasource)
+	 * for (var i in forms)
+	 * 	application.output(forms[i].name)
+	 *
+	 * @param datasource the datasource or servername 
+	 * 
+	 * @return an array of IBaseSMForm type elements
+	 */
+	public IBaseSMForm[] getForms(String datasource);
+
+	/**
+	 * Get an array of forms, that are all based on datasource/servername and tablename.
+	 *
+	 * @sample
+	 * var forms = solutionModel.getForms(datasource,tablename)
+	 * for (var i in forms)
+	 * 	application.output(forms[i].name)
+	 *
+	 * @param server the datasource or servername 
+	 * 
+	 * @param tablename the tablename
+	 * 
+	 * @return an array of IBaseSMForm type elements
+	 */
+	public IBaseSMForm[] getForms(String server, String tablename);
+
+	/**
+	 * Get an array of all forms.
+	 *
+	 * @sample
+	 * var forms = solutionModel.getForms()
+	 * for (var i in forms)
+	 * 	application.output(forms[i].name)
+	 *
+	 * @return an array of IBaseSMForm type elements
+	 */
+	public IBaseSMForm[] getForms();
 
 	/**
 	 * Gets an existing valuelist by the specified name and returns a IBaseSMValueList Object that can be assigned to a field.
@@ -289,18 +229,18 @@ public interface IBaseSolutionModel
 	 */
 	public IBaseSMValueList getValueList(String name);
 
-//	/**
-//	 * Gets an array of all valuelists for the currently active solution.
-//	 *
-//	 * @sample 
-//	 * var valueLists = solutionModel.getValueLists();
-//	 * if (valueLists != null && valueLists.length != 0)
-//	 * 	for (var i in valueLists)
-//	 * 		application.output(valueLists[i].name); 
-//	 * 
-//	 * @return an array of IBaseSMValueList objects
-//	 */
-//	public IBaseSMValueList[] getValueLists();
+	/**
+	 * Gets an array of all valuelists for the currently active solution.
+	 *
+	 * @sample 
+	 * var valueLists = solutionModel.getValueLists();
+	 * if (valueLists != null && valueLists.length != 0)
+	 * 	for (var i in valueLists)
+	 * 		application.output(valueLists[i].name); 
+	 * 
+	 * @return an array of IBaseSMValueList objects
+	 */
+	public IBaseSMValueList[] getValueLists();
 
 	/**
 	 * Creates a new global variable with the specified name and number type.
@@ -347,27 +287,27 @@ public interface IBaseSolutionModel
 	 */
 	public String[] getScopeNames();
 
-//	/**
-//	 * Gets an array of all global variables.
-//	 * 
-//	 * @sample
-//	 * var globalVariables = solutionModel.getGlobalVariables('globals');
-//	 * for (var i in globalVariables)
-//	 * 	application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
-//	 * 
-//	 * @return an array of IBaseSMVariable type elements
-//	 * 
-//	 */
-//	public IBaseSMVariable[] getGlobalVariables();
-//
-//	/**
-//	 * @clonedesc getGlobalVariables()
-//	 * @sampleas getGlobalVariables()
-//	 * @param scopeName limit to global vars of specified scope name
-//	 * 
-//	 * @return an array of IBaseSMVariable type elements
-//	 */
-//	public IBaseSMVariable[] getGlobalVariables(String scopeName);
+	/**
+	 * Gets an array of all global variables.
+	 * 
+	 * @sample
+	 * var globalVariables = solutionModel.getGlobalVariables('globals');
+	 * for (var i in globalVariables)
+	 * 	application.output(globalVariables[i].name + " has the default value of " + globalVariables[i].defaultValue);
+	 * 
+	 * @return an array of IBaseSMVariable type elements
+	 * 
+	 */
+	public IBaseSMVariable[] getGlobalVariables();
+
+	/**
+	 * @clonedesc getGlobalVariables()
+	 * @sampleas getGlobalVariables()
+	 * @param scopeName limit to global vars of specified scope name
+	 * 
+	 * @return an array of IBaseSMVariable type elements
+	 */
+	public IBaseSMVariable[] getGlobalVariables(String scopeName);
 
 
 	/**
@@ -397,25 +337,25 @@ public interface IBaseSolutionModel
 	 */
 	public IBaseSMMethod getGlobalMethod(String scopeName, String name);
 
-//	/**
-//	 * The list of all global methods.
-//	 * 
-//	 * @sample
-//	 * var methods = solutionModel.getGlobalMethods('globals'); 
-//	 * for (var x in methods) 
-//	 * 	application.output(methods[x].getName());
-//	 * 
-//	 * @return an array of IBaseSMMethod type elements
-//	 * 
-//	 */
-//	public IBaseSMMethod[] getGlobalMethods();
-//
-//	/**
-//	 * @clonedesc getGlobalMethods()
-//	 * @sampleas getGlobalMethods()
-//	 * @param scopeName limit to global methods of specified scope name
-//	 * @return an array of IBaseSMMethod type elements
-//	 */
-//	public IBaseSMMethod[] getGlobalMethods(String scopeName);
+	/**
+	 * The list of all global methods.
+	 * 
+	 * @sample
+	 * var methods = solutionModel.getGlobalMethods('globals'); 
+	 * for (var x in methods) 
+	 * 	application.output(methods[x].getName());
+	 * 
+	 * @return an array of IBaseSMMethod type elements
+	 * 
+	 */
+	public IBaseSMMethod[] getGlobalMethods();
+
+	/**
+	 * @clonedesc getGlobalMethods()
+	 * @sampleas getGlobalMethods()
+	 * @param scopeName limit to global methods of specified scope name
+	 * @return an array of IBaseSMMethod type elements
+	 */
+	public IBaseSMMethod[] getGlobalMethods(String scopeName);
 
 }
