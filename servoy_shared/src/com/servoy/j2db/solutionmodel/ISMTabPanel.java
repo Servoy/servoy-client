@@ -145,4 +145,38 @@ public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 
 	public void setTabSeq(int arg);
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getScrollTabs()
+	 * 
+	 * @sample
+	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 200, 200);
+	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
+	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
+	 * tabPanel.scrollTabs = true;
+	 */
+	public boolean getScrollTabs();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getTabOrientation()
+	 * 
+	 * @sample
+	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
+	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
+	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
+	 * // The SM_ALIGNMENT constants TOP, RIGHT, BOTTOM and LEFT can be used to put the
+	 * // tabs into the needed position. Use SM_DEFAULTS.NONE to hide the tabs.
+	 * // The SM_ALIGNMENT constants SPLIT_HORIZONTAL, SPLIT_VERTICAL can be used to create a split pane
+	 * // where the first tab will be left component and the second tab will the right component. 
+	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;  
+	 */
+	public int getTabOrientation();
+
+	public void setScrollTabs(boolean arg);
+
+	/**
+	 * sets the tab orientation, use one of the ALIGNMENT constants: SM_ALIGNMENT.TOP,BOTTOM,LEFT,RIGHT
+	 * or use SM_DEFAULTS.NONE to hide the tabs.
+	 */
+	public void setTabOrientation(int arg);
+
 }
