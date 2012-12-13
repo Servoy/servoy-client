@@ -19,14 +19,11 @@ package com.servoy.j2db.persistence.constants;
 
 import javax.swing.SwingConstants;
 
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
-
 /**
  * Constants used for alignment property.
  * 
  * @author acostescu
  */
-@ServoyMobile(false)
 public interface IAlignmentSMConstants
 {
 
@@ -37,7 +34,6 @@ public interface IAlignmentSMConstants
 	 * var hLabel = myJSForm.getLabel('label_name');
 	 * if (hLabel.horizontalAlignment == SM_ALIGNMENT.LEFT) hLabel.horizontalAlignment = SM_ALIGNMENT.DEFAULT;
 	 */
-	@ServoyMobile
 	public static final int DEFAULT = IContentSpecConstantsBase.MINUS_ONE.intValue();
 
 	/**
@@ -63,7 +59,6 @@ public interface IAlignmentSMConstants
 	 * var topAlignedLabel = form.newLabel('TOP', 400, 10, 50, 300);
 	 * topAlignedLabel.verticalAlignment = SM_ALIGNMENT.TOP;
 	 */
-	@ServoyMobile
 	public static final int TOP = SwingConstants.TOP;
 
 	/**
@@ -84,7 +79,6 @@ public interface IAlignmentSMConstants
 	 * var bottomAlignedLabel = form.newLabel('BOTTOM', 520, 10, 50, 300);
 	 * bottomAlignedLabel.verticalAlignment = SM_ALIGNMENT.BOTTOM;
 	 */
-	@ServoyMobile
 	public static final int BOTTOM = SwingConstants.BOTTOM;
 
 	/**

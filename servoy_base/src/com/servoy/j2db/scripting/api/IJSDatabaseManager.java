@@ -110,4 +110,39 @@ public interface IJSDatabaseManager
 	 * @return true if autosave if enabled.
 	 */
 //	public boolean getAutoSave();
+
+	/**
+	 * Returns the table name from the datasource, or null if not a database datasource.
+	 *
+	 * @sample var tablename = databaseManager.getDataSourceTableName(datasource);
+	 *
+	 * @param dataSource The datasource string to get the tablename from.
+	 * 
+	 * @return The tablename of the datasource.
+	 */
+	public String getDataSourceTableName(String dataSource);
+
+	/**
+	 * Returns the server name from the datasource, or null if not a database datasource.
+	 *
+	 * @sample var servername = databaseManager.getDataSourceServerName(datasource);
+	 *
+	 * @param dataSource The datasource string to get the server name from.
+	 * 
+	 * @return The servername of the datasource.
+	 */
+	public String getDataSourceServerName(String dataSource);
+
+	/**
+	 * Returns the datasource corresponding to the given server/table.
+	 *
+	 * @sample var datasource = databaseManager.getDataSource('example_data', 'categories');
+	 *
+	 * @param serverName The name of the table's server.
+	 * @param tableName The table's name.
+	 * 
+	 * @return The datasource of the given table/server.
+	 */
+	public String getDataSource(String serverName, String tableName);
+
 }

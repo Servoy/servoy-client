@@ -94,6 +94,8 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample 
 	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
 	 */
+	// to be included in mobile in future versions
+	@ServoyMobileFilterOut
 	public static final int CALENDAR = IFieldConstants.CALENDAR;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -129,6 +131,8 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * var img = form.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 190, 100, 50);
 	 */
+	// to be included in mobile in future versions
+	@ServoyMobileFilterOut
 	public static final int IMAGE_MEDIA = IFieldConstants.IMAGE_MEDIA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the

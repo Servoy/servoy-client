@@ -15,11 +15,14 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.scripting;
+package com.servoy.j2db.scripting.solutionhelper;
+
+import com.servoy.j2db.scripting.annotations.ServoyMobile;
 
 /**
  * @author acostescu
  */
+@ServoyMobile
 public interface IPredefinedIconConstants
 {
 

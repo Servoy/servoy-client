@@ -47,7 +47,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	 * 
 	 * @param serverName the serverName
 	 * @param tableName the tableName
-	 * @return the table name
+	 * @return the datasource
 	 */
 	public static String createDBTableDataSource(String serverName, String tableName)
 	{

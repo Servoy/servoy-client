@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.persistence.constants;
 
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
-import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 
 
@@ -27,7 +25,6 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
  * 
  * @author acostescu
  */
-@ServoyMobile
 public interface IDefaultSMConstants
 {
 
@@ -64,7 +61,6 @@ public interface IDefaultSMConstants
 	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
 	 * fieldThree.tabSeq = 1;
 	 */
-	@ServoyMobileFilterOut
 	public static final int IGNORE = -2;
 
 //	/**

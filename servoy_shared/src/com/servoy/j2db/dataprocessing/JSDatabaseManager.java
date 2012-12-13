@@ -41,6 +41,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
@@ -50,7 +51,6 @@ import com.servoy.j2db.persistence.QueryString;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
@@ -95,6 +95,7 @@ import com.servoy.j2db.scripting.api.IJSRecord;
 import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.scripting.info.SQL_ACTION_TYPES;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -242,7 +243,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value) throws ServoyException
 	{
-		String[] ds = DataSourceUtils.getDBServernameTablename(datasource);
+		String[] ds = DataSourceUtilsBase.getDBServernameTablename(datasource);
 		if (ds == null) throw new RuntimeException("Datasource is invalid:  " + datasource); //$NON-NLS-1$
 		return addTableFilterParamInternal(ds[0], ds[1], dataprovider, operator, value, null);
 	}
@@ -273,7 +274,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	private boolean addTableFilterParam5args(String datasourceOrServerName, String dataproviderOrTablename, String operatorOrDataprovider,
 		Object valueOrOperator, Object filterNameOrValue) throws ServoyException
 	{
-		String[] ds = DataSourceUtils.getDBServernameTablename(datasourceOrServerName);
+		String[] ds = DataSourceUtilsBase.getDBServernameTablename(datasourceOrServerName);
 		if (ds == null)
 		{
 			// datasourceOrServerName=serverName, dataproviderOrTablename=tableName, operatorOrDataprovider=dataprovider, valueOrOperator=operator, filterNameOrValue=value
@@ -1894,9 +1895,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return The servername of the datasource.
 	 */
-	public String js_getDataSourceServerName(String dataSource)
+	@JSFunction
+	public String getDataSourceServerName(String dataSource)
 	{
-		String[] retval = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] retval = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 		if (retval == null) return null;
 		return retval[0];
 	}
@@ -1910,11 +1912,28 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return The tablename of the datasource.
 	 */
-	public String js_getDataSourceTableName(String dataSource)
+	@JSFunction
+	public String getDataSourceTableName(String dataSource)
 	{
-		String[] retval = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] retval = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 		if (retval == null) return null;
 		return retval[1];
+	}
+
+	/**
+	 * Returns the datasource corresponding to the given server/table.
+	 *
+	 * @sample var datasource = databaseManager.getDataSource('example_data', 'categories');
+	 *
+	 * @param serverName The name of the table's server.
+	 * @param tableName The table's name.
+	 * 
+	 * @return The datasource of the given table/server.
+	 */
+	@JSFunction
+	public String getDataSource(String serverName, String tableName)
+	{
+		return DataSourceUtils.createDBTableDataSource(serverName, tableName);
 	}
 
 	/**
@@ -2019,7 +2038,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		String tableName = null;
 		if (dataSource != null)
 		{
-			String[] server_table = DataSourceUtils.getDBServernameTablename(dataSource);
+			String[] server_table = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 			if (server_table != null)
 			{
 				serverName = server_table[0];
@@ -2509,10 +2528,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public Object js_getNextSequence(String dataSource, String columnName) throws ServoyException
 	{
 		checkAuthorized();
-		String serverName = js_getDataSourceServerName(dataSource);
+		String serverName = getDataSourceServerName(dataSource);
 		if (serverName != null)
 		{
-			String tableName = js_getDataSourceTableName(dataSource);
+			String tableName = getDataSourceTableName(dataSource);
 			if (tableName != null) return js_getNextSequence(serverName, tableName, columnName);
 		}
 		return null;
