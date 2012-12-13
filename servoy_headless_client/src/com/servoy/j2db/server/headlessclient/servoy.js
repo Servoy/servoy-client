@@ -1953,8 +1953,9 @@ if (typeof(Servoy.Validation) == "undefined")
 			else {
 			   return true;
 			}
-
-			if ((key==null) || (key==0) || (key==8) ||  (key==9) || (key==13) || (key==27) ) {
+			
+			if ((key==null) || (key==0) || (key==8) ||  (key==9) || (key==13) || (key==27) 
+					|| (e.ctrlKey && key==97) || (e.ctrlKey && key==99) || (e.ctrlKey && key==118) || (e.ctrlKey && key==120)) { //added CTRL-A, X, C and V
 			   return true;
 			}
 
