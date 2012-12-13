@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
  *
  * @since 7.0
  */
-@ServoyMobile(false)
+@ServoyMobile
 // TODO ac filter-out unsupported field types from servoy mobile
 public interface IBaseSMField extends IBaseSMComponent
 {
@@ -42,7 +42,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * var tfield = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 460, 100, 20);
 	 */
-	@ServoyMobile
 	public static final int TEXT_FIELD = IFieldConstants.TEXT_FIELD;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -51,7 +50,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * var tarea = form.newField('my_table_text', JSField.TEXT_AREA, 10, 400, 100, 50);
 	 */
-	@ServoyMobile
 	public static final int TEXT_AREA = IFieldConstants.TEXT_AREA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -63,7 +61,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var cmb = form.newField('my_table_options', JSField.COMBOBOX, 10, 100, 100, 20);
 	 * cmb.valuelist = vlist;
 	 */
-	@ServoyMobile
 	public static final int COMBOBOX = IFieldConstants.COMBOBOX;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -76,7 +73,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var radio = form.newField('my_table_options', JSField.RADIOS, 10, 280, 100, 50);
 	 * radio.valuelist = vlist;
 	 */
-	@ServoyMobile
 	public static final int RADIOS = IFieldConstants.RADIOS;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -89,7 +85,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var chk = form.newField('my_table_options', JSField.CHECKS, 10, 40, 100, 50);
 	 * chk.valuelist = vlist;
 	 */
-	@ServoyMobile
 	public static final int CHECKS = IFieldConstants.CHECKS;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the 
@@ -99,7 +94,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample 
 	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
 	 */
-	@ServoyMobile
 	public static final int CALENDAR = IFieldConstants.CALENDAR;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -109,7 +103,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * 	var pwd = form.newField('my_table_text', JSField.PASSWORD, 10, 250, 100, 20);
 	 */
-	@ServoyMobile
 	public static final int PASSWORD = IFieldConstants.PASSWORD;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the 
@@ -136,7 +129,6 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * var img = form.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 190, 100, 50);
 	 */
-	@ServoyMobile
 	public static final int IMAGE_MEDIA = IFieldConstants.IMAGE_MEDIA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
