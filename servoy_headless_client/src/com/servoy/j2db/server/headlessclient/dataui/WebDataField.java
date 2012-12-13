@@ -98,7 +98,8 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * @author jcompagner
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
-	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider
+	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider,
+	IHeaderJSChangeContributor
 {
 	/**
 	 * @author jcompagner
@@ -430,6 +431,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public void renderHead(final HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
+		String onLoad = getOnLoad();
+		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
 		String onDOMReady = getOnDOMReady();
 		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
 	}
@@ -1361,6 +1364,21 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		return findParent(ISupportSimulateBounds.class);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnLoad()
+	 */
+	public String getOnLoad()
+	{
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnDOMReady()
+	 */
 	public String getOnDOMReady()
 	{
 		final StringBuilder onDOMReady = new StringBuilder();

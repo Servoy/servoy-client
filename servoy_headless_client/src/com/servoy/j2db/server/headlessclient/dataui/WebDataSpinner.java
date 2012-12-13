@@ -49,7 +49,7 @@ import com.servoy.j2db.ui.scripting.RuntimeSpinner;
  * and to comboBox - because it can change values based on a valuelist.
  * @author acostescu
  */
-public class WebDataSpinner extends WebDataCompositeTextField implements ISupportValueList, IDisplayRelatedData
+public class WebDataSpinner extends WebDataCompositeTextField implements ISupportValueList, IDisplayRelatedData, IHeaderJSChangeContributor
 {
 
 	private static final long serialVersionUID = 1L;
@@ -374,10 +374,27 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
+		String onLoad = getOnLoad();
+		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
 		String onDOMReady = getOnDOMReady();
 		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnLoad()
+	 */
+	public String getOnLoad()
+	{
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnDOMReady()
+	 */
 	public String getOnDOMReady()
 	{
 		final StringBuilder onDOMReady = new StringBuilder();
