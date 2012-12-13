@@ -231,24 +231,6 @@ public interface IBaseSMForm
 	public IBaseSMField newComboBox(Object dataprovider, int x, int y, int width, int height);
 
 	/**
-	 * Creates a new IBaseSMField object on the form with the displayType of LISTBOX - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'myServer', 'myTable', null, true, 800, 600);
-	 * var list = form.newListBox(myDataProvider, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
-	 * @param y the vertical "y" position of the IBaseSMField object in pixels
-	 * @param width the width of the IBaseSMField object in pixels
-	 * @param height the height of the IBaseSMField object in pixels
-	 * 
-	 * @return a new IBaseSMField object on the form with the displayType of LISTBOX
-	 */
-	public IBaseSMField newListBox(Object dataprovider, int x, int y, int width, int height);
-
-	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
 	 * 
 	 * @sample	
@@ -303,25 +285,6 @@ public interface IBaseSMForm
 	 * @return a new IBaseSMField object on the form with the displayType of CALENDAR
 	 */
 	public IBaseSMField newCalendar(Object dataprovider, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMField object on the form with the displayType of IMAGE_MEDIA - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var myMediaVar = form.newVariable("media", IBaseSMVariable.MEDIA);
-	 * var imageMedia = form.newImageMedia(myMediaVar,100,100,200,200)
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
-	 * @param y the vertical "y" position of the IBaseSMField object in pixels
-	 * @param width the width of the IBaseSMField object in pixels
-	 * @param height the height of the IBaseSMField object in pixels
-	 * 
-	 * @return a new IBaseSMField object on the form with the displayType of IMAGE_MEDIA
-	 */
-	public IBaseSMField newImageMedia(Object dataprovider, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of PASSWORD - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.

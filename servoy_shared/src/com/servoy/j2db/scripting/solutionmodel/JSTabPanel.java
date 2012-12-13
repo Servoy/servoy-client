@@ -35,6 +35,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.solutionmodel.ISMTabPanel;
@@ -42,6 +43,7 @@ import com.servoy.j2db.solutionmodel.ISMTabPanel;
 /**
  * @author jcompagner
  */
+@ServoyMobileFilterOut
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPanel>, ISMTabPanel
 {
