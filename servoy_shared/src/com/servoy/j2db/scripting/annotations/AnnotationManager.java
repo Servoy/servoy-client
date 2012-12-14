@@ -39,7 +39,6 @@ public class AnnotationManager
 	private final Map<Pair<Field, Class< ? >>, Pair<Boolean, Annotation>> fieldAnnotationCache = new ConcurrentHashMap<Pair<Field, Class< ? >>, Pair<Boolean, Annotation>>();
 	private final Map<Pair<Class< ? >, Class< ? >>, Pair<Boolean, Annotation>> classAnnotationCache = new ConcurrentHashMap<Pair<Class< ? >, Class< ? >>, Pair<Boolean, Annotation>>();
 
-
 	private AnnotationManager()
 	{
 	}
@@ -49,17 +48,17 @@ public class AnnotationManager
 		return INSTANCE;
 	}
 
-	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation> annotationClass)
+	public boolean isAnnotationPresent(Method method, Class< ? > originalClass, Class< ? extends Annotation> annotationClass)
 	{
-		return getCachedAnnotation(method, annotationClass, null).getLeft().booleanValue();
+		return getCachedAnnotation(method, originalClass, annotationClass, null).getLeft().booleanValue();
 	}
 
-	public boolean isMobileAnnotationPresent(Method method)
+	public boolean isMobileAnnotationPresent(Method method, Class< ? > originalClass)
 	{
-		return getCachedAnnotation(method, ServoyMobile.class, ServoyMobileFilterOut.class).getLeft().booleanValue();
+		return getCachedAnnotation(method, originalClass, ServoyMobile.class, ServoyMobileFilterOut.class).getLeft().booleanValue();
 	}
 
-	public boolean isAnnotationPresent(Method method, Class< ? extends Annotation>[] annotationClasses)
+	public boolean isAnnotationPresent(Method method, Class< ? > originalClass, Class< ? extends Annotation>[] annotationClasses)
 	{
 		boolean allTested = true;
 		for (Class< ? extends Annotation> annotationClass : annotationClasses)
@@ -86,7 +85,7 @@ public class AnnotationManager
 
 		boolean found = false;
 
-		for (Class< ? > cls = method.getDeclaringClass(); (cls != Object.class && cls != null); cls = cls.getSuperclass())
+		for (Class< ? > cls = originalClass; (cls != Object.class && cls != null); cls = cls.getSuperclass())
 		{
 			// check if the method is part of an interface that has the annotation
 			Class< ? >[] interfaces = cls.getInterfaces();
@@ -129,12 +128,12 @@ public class AnnotationManager
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends Annotation> T getAnnotation(Method method, Class<T> annotationClass)
+	public <T extends Annotation> T getAnnotation(Method method, Class< ? > originalClass, Class<T> annotationClass)
 	{
-		return (T)getCachedAnnotation(method, annotationClass, null).getRight();
+		return (T)getCachedAnnotation(method, originalClass, annotationClass, null).getRight();
 	}
 
-	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? extends Annotation> annotationClass,
+	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? > originalClass, Class< ? extends Annotation> annotationClass,
 		Class< ? extends Annotation> stopAnnotation)
 	{
 		Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
@@ -142,7 +141,7 @@ public class AnnotationManager
 		if (pair == null)
 		{
 			Annotation annotation = null;
-			for (Class< ? > cls = method.getDeclaringClass(); annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
+			for (Class< ? > cls = originalClass; annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
 			{
 				// check if the method is part of an interface that has the annotation
 				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(cls, method, annotationClass, stopAnnotation, false);

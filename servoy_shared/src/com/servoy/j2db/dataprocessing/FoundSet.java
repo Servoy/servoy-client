@@ -136,7 +136,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					name = m.getName().substring(11);
 				}
-				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSFunction.class))
+				else if (AnnotationManager.getInstance().isAnnotationPresent(m, FoundSet.class, JSFunction.class))
 				{
 					name = m.getName();
 				}

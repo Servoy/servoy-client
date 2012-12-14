@@ -228,9 +228,9 @@ public class ScriptObjectRegistry
 						 * @see com.servoy.j2db.scripting.InstanceJavaMembers#isJsMethod(java.lang.String)
 						 */
 						@Override
-						protected boolean isJsMethod(Method method)
+						protected boolean isJsMethod(Method method, Class< ? > originalClass)
 						{
-							return super.isJsMethod(method) && !"js_isServoyException".equals(method.getName());
+							return super.isJsMethod(method, originalClass) && !"js_isServoyException".equals(method.getName());
 						}
 
 					};

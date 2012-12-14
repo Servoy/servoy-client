@@ -85,7 +85,7 @@ public class InstanceJavaMembers extends JavaMembers
 		List<Method> lst = new ArrayList<Method>(discoverAccessibleMethods.length);
 		for (Method discoverAccessibleMethod : discoverAccessibleMethods)
 		{
-			if (isJsMethod(discoverAccessibleMethod))
+			if (isJsMethod(discoverAccessibleMethod, clazz))
 			{
 				lst.add(discoverAccessibleMethod);
 			}
@@ -93,11 +93,11 @@ public class InstanceJavaMembers extends JavaMembers
 		return lst.toArray(new Method[lst.size()]);
 	}
 
-	protected boolean isJsMethod(Method method)
+	protected boolean isJsMethod(Method method, Class< ? > originalClass)
 	{
 		return method.getName().startsWith("js_") ||
 			method.getName().startsWith("jsFunction_") ||
-			AnnotationManager.getInstance().isAnnotationPresent(method,
+			AnnotationManager.getInstance().isAnnotationPresent(method, originalClass,
 				new Class[] { JSReadonlyProperty.class, JSFunction.class, JSGetter.class, JSSetter.class });
 	}
 
@@ -128,9 +128,9 @@ public class InstanceJavaMembers extends JavaMembers
 						MemberBox mb = ((NativeJavaMethod)member).getMethods()[0];
 						if (mb.isMethod())
 						{
-							if (AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSReadonlyProperty.class))
+							if (AnnotationManager.getInstance().isAnnotationPresent(mb.method(), cl, JSReadonlyProperty.class))
 							{
-								newName = AnnotationManager.getInstance().getAnnotation(mb.method(), JSReadonlyProperty.class).property();
+								newName = AnnotationManager.getInstance().getAnnotation(mb.method(), cl, JSReadonlyProperty.class).property();
 								if (newName == null || newName.length() == 0 && (entry.getKey().startsWith("get") || entry.getKey().startsWith("is")))
 								{
 									newName = entry.getKey().substring(entry.getKey().startsWith("get") ? 3 : 2);
@@ -154,21 +154,21 @@ public class InstanceJavaMembers extends JavaMembers
 									}
 								}
 							}
-							else if (AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSGetter.class))
+							else if (AnnotationManager.getInstance().isAnnotationPresent(mb.method(), cl, JSGetter.class))
 							{
-								newName = AnnotationManager.getInstance().getAnnotation(mb.method(), JSGetter.class).value();
+								newName = AnnotationManager.getInstance().getAnnotation(mb.method(), cl, JSGetter.class).value();
 							}
-							else if (AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSSetter.class))
+							else if (AnnotationManager.getInstance().isAnnotationPresent(mb.method(), cl, JSSetter.class))
 							{
-								newName = AnnotationManager.getInstance().getAnnotation(mb.method(), JSSetter.class).value();
+								newName = AnnotationManager.getInstance().getAnnotation(mb.method(), cl, JSSetter.class).value();
 							}
 						}
 					}
 					for (MemberBox mb : ((NativeJavaMethod)member).getMethods())
 					{
-						if (mb.isMethod() && AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSFunction.class))
+						if (mb.isMethod() && AnnotationManager.getInstance().isAnnotationPresent(mb.method(), cl, JSFunction.class))
 						{
-							String funcName = AnnotationManager.getInstance().getAnnotation(mb.method(), JSFunction.class).value();
+							String funcName = AnnotationManager.getInstance().getAnnotation(mb.method(), cl, JSFunction.class).value();
 							if (funcName == null || funcName.length() == 0)
 							{
 								funcName = entry.getKey();
@@ -214,7 +214,7 @@ public class InstanceJavaMembers extends JavaMembers
 				if (member instanceof NativeJavaMethod && ((NativeJavaMethod)member).getMethods().length == 1)
 				{
 					MemberBox mb = ((NativeJavaMethod)member).getMethods()[0];
-					if (mb.isMethod() && AnnotationManager.getInstance().isAnnotationPresent(mb.method(), JSReadonlyProperty.class))
+					if (mb.isMethod() && AnnotationManager.getInstance().isAnnotationPresent(mb.method(), mb.getDeclaringClass(), JSReadonlyProperty.class))
 					{
 						// make bean property
 						Object oldValue = copy.put(name, new BeanProperty(mb, null, null));

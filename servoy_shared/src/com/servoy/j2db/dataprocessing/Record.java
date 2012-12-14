@@ -81,8 +81,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 				{
 					name = m.getName().substring(3);
 				}
-				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSFunction.class) ||
-					AnnotationManager.getInstance().isAnnotationPresent(m, JSReadonlyProperty.class))
+				else if (AnnotationManager.getInstance().isAnnotationPresent(m, Record.class, JSFunction.class) ||
+					AnnotationManager.getInstance().isAnnotationPresent(m, Record.class, JSReadonlyProperty.class))
 				{
 					name = m.getName();
 				}

@@ -78,7 +78,7 @@ public class QBFactory implements IQueryBuilderFactory
 		{
 			for (Method method : clazz.getMethods())
 			{
-				if (AnnotationManager.getInstance().isAnnotationPresent(method, JSFunction.class))
+				if (AnnotationManager.getInstance().isAnnotationPresent(method, clazz, JSFunction.class))
 				{
 					String name = method.getName();
 					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);

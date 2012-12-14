@@ -82,7 +82,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				{
 					name = m.getName().substring(3);
 				}
-				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSFunction.class))
+				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSDataSet.class, JSFunction.class))
 				{
 					name = m.getName();
 				}
@@ -1373,8 +1373,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 						{
 							Entry<String, Integer> entry = iterator.next();
 							Object object = array[entry.getValue().intValue() - 1];
-							arrayScriptable.put(entry.getKey(), arrayScriptable,
-									object != null ? cx.getWrapFactory().wrap(cx, start, object, object.getClass()):null);
+							arrayScriptable.put(entry.getKey(), arrayScriptable, object != null
+								? cx.getWrapFactory().wrap(cx, start, object, object.getClass()) : null);
 						}
 						return arrayScriptable;
 					}
