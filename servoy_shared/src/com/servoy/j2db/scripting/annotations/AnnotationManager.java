@@ -108,7 +108,13 @@ public class AnnotationManager
 			Method m = null;
 			try
 			{
+				// the declaring class check that follows is only a small optimisation
 				m = (method.getDeclaringClass() == cls) ? method : cls.getMethod(method.getName(), method.getParameterTypes());
+
+				// in case a stop annotation is also involved, make sure methods are checked in order;
+				// for example interface A extends B extends C, both B and C have method x(), when you do A.class.getMethod(...x info...)
+				// you will randomly get either the one from B or C (I think depending on how it was compiled - not sure about that though)
+				if (stopAnnotation != null && m.getDeclaringClass() != cls) m = null;
 			}
 			catch (SecurityException e)
 			{
