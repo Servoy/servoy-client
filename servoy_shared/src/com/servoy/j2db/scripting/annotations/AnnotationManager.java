@@ -60,70 +60,12 @@ public class AnnotationManager
 
 	public boolean isAnnotationPresent(Method method, Class< ? > originalClass, Class< ? extends Annotation>[] annotationClasses)
 	{
-		boolean allTested = true;
-		for (Class< ? extends Annotation> annotationClass : annotationClasses)
-		{
-			Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
-			Pair<Boolean, Annotation> pair = methodAnnotationCache.get(key);
-			if (pair != null)
-			{
-				if (pair.getLeft().booleanValue()) return true;
-				continue;
-			}
-			else
-			{
-				allTested = false;
-			}
-			Annotation annotation = method.getAnnotation(annotationClass);
-			if (annotation != null)
-			{
-				methodAnnotationCache.put(key, pair = new Pair<Boolean, Annotation>(Boolean.TRUE, annotation));
-				return true;
-			}
-		}
-		if (allTested) return false;
-
 		boolean found = false;
-
-		for (Class< ? > cls = originalClass; (cls != Object.class && cls != null); cls = cls.getSuperclass())
-		{
-			// check if the method is part of an interface that has the annotation
-			Class< ? >[] interfaces = cls.getInterfaces();
-			for (Class< ? > interface1 : interfaces)
-			{
-				try
-				{
-					Method interfaceMethod = interface1.getMethod(method.getName(), method.getParameterTypes());
-					for (Class< ? extends Annotation> annotationClass : annotationClasses)
-					{
-						Annotation annotation = interfaceMethod.getAnnotation(annotationClass);
-						if (annotation != null)
-						{
-							Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
-							methodAnnotationCache.put(key, new Pair<Boolean, Annotation>(Boolean.TRUE, annotation));
-							found = true;
-						}
-					}
-				}
-				catch (SecurityException e)
-				{
-				}
-				catch (NoSuchMethodException e)
-				{
-				}
-			}
-		}
-
 		for (Class< ? extends Annotation> annotationClass : annotationClasses)
 		{
-			Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
-			Pair<Boolean, Annotation> pair = methodAnnotationCache.get(key);
-			if (pair == null)
-			{
-				methodAnnotationCache.put(key, new Pair<Boolean, Annotation>(Boolean.FALSE, null));
-			}
+			found = (getAnnotation(method, originalClass, annotationClass) != null);
+			if (found) break;
 		}
-
 		return found;
 	}
 
