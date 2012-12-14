@@ -2018,7 +2018,7 @@ public class JSApplication implements IReturnedTypesProvider
 
 	/**
 	 * Show the form specified by the parameter, that can be a name (is case sensitive!) or a form object.
-	 * This will show the form in the active/currently focussed window. So when called from a form in a dialog the dialog will show the form. 
+	 * This will show the form in the active/currently focused window. So when called from a form in a dialog the dialog will show the form. 
 	 *
 	 * @sample application.showForm('MyForm');
 	 * 
@@ -2208,7 +2208,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * This gets the currently focussed active window, this can be the main application window or a modal dialog.
+	 * This gets the currently focused active window, this can be the main application window or a modal dialog.
 	 * For a webclient getWindow() can return the main window that is not really the main for the current tab in the browser
 	 * that can return a the previous tab that a user could have opened. For this this method is better suited because this 
 	 * will give you the actual tab in the browser. Another call would be form.controller.getWindow() of a form that you know in which window it resides.
