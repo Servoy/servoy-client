@@ -170,23 +170,33 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 				String servoyMobileStyle = //
 
 				"label, label.a, button, button.a, field, field.a, header, header.a, footer, footer.a {"//
-//					+ "background-color: #262F36;" //
+					+ "color: #FFFFFF;" //
+					+ "background-color: #414141;" //
+					+ "font-weight:bold;" //
 					+ "}"//
 
 					+ "label.b, button.b, field.b, header.b, footer.b {"//
-//					+ "background-color: #5B95C5;" //
+					+ "color: #FFFFFF;" //
+					+ "background-color: #4C83B1;" //
+					+ "font-weight:bold;" //
 					+ "}" //
 
 					+ "label.c, button.c, field.c, header.c, footer.c {" //
-//					+ "background-color: #D6DFE6;"//
+					+ "color: #363636;" //
+					+ "background-color: #F5F5F5;"//
+					+ "font-weight:bold;" //
 					+ "}"//
 
 					+ "label.d, button.d, field.d, header.d, footer.d {" //
-//					+ "background-color: #BEC7CE;" //
+					+ "color: #363636;" //
+					+ "background-color: #FFFFFF;" //
+					+ "font-weight:bold;" //
 					+ "}"//
 
 					+ "label.e, button.e, field.e, header.e, footer.e {" //
-//					+ "background-color: #E8E69A;" //
+					+ "color: #363636;" //
+					+ "background-color: #FBE274;" //
+					+ "font-weight:bold;" //
 					+ "}" //
 
 				;
