@@ -803,4 +803,14 @@ public interface IBaseSMForm
 
 	public void setOnShow(IBaseSMMethod method);
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnLoadMethodID()
+	 * 
+	 * @sample
+	 * form.onLoad = form.newMethod('function onLoad(event) { application.output("onLoad intercepted on " + event.getFormName()); }');
+	 * form.onUnLoad = form.newMethod('function onUnLoad(event) { application.output("onUnLoad intercepted on " + event.getFormName()); }');
+	 */
+	public IBaseSMMethod getOnLoad();
+
+	public void setOnLoad(IBaseSMMethod method);
 }
