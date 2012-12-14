@@ -2024,6 +2024,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Show the form specified by the parameter, that can be a name (is case sensitive!) or a form object.
+	 * This will show the form in the active/currently focussed window. So when called from a form in a dialog the dialog will show the form. 
 	 *
 	 * @sample application.showForm('MyForm');
 	 * 
@@ -2050,7 +2051,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		if (f != null)
 		{
-			((FormManager)application.getFormManager()).showFormInMainPanel(f);
+			((FormManager)application.getFormManager()).showFormInCurrentContainer(f);
 		}
 	}
 
@@ -2194,7 +2195,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Get the main application window.
+	 * Get the main application window. This is the window that is created first for this client. 
+	 * In a smart client this is always just the first started window where the solution is loaded in.
+	 * In a webclient when users (so not the developer through a createWindow() call) create there own tabs after
+	 * they already created a client, loaded a solution. This doesn't have to be the main window that you expect.
+	 * This is because there are then 2 main windows, the first tab that was used to load the solution first and then the second.
+	 * Please use getActiveWindow() for that or controller.getWindow() of a form that you know is in the right window. 
 	 * 
 	 * @sample
 	 * // close and dispose window resources
@@ -2205,6 +2211,19 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public JSWindow js_getWindow()
 	{
 		return js_getWindow(null);
+	}
+
+	/**
+	 * This gets the currently focussed active window, this can be the main application window or a modal dialog.
+	 * For a webclient getWindow() can return the main window that is not really the main for the current tab in the browser
+	 * that can return a the previous tab that a user could have opened. For this this method is better suited because this 
+	 * will give you the actual tab in the browser. Another call would be form.controller.getWindow() of a form that you know in which window it resides.
+	 * 
+	 * @return the current active/focussed window.
+	 */
+	public JSWindow js_getActiveWindow()
+	{
+		return application.getRuntimeWindowManager().getCurrentWindow().getJSWindow();
 	}
 
 	/**

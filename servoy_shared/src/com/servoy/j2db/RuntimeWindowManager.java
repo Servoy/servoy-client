@@ -115,7 +115,14 @@ public abstract class RuntimeWindowManager
 
 	public RuntimeWindow getCurrentWindow()
 	{
-		return getWindow(currentWindowName);
+		RuntimeWindow window = getWindow(currentWindowName);
+		if (window == null && currentWindowName != null)
+		{
+			// the current window shouldn't be null, this could be a new tab in the web, create it
+			window = createWindowInternal(currentWindowName, JSWindow.WINDOW, null);
+			windows.put(currentWindowName, window);
+		}
+		return window;
 	}
 
 	/**
