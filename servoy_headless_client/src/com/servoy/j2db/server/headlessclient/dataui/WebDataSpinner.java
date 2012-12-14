@@ -28,7 +28,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
 import org.wicketstuff.minis.spinner.Spinner;
@@ -49,7 +49,7 @@ import com.servoy.j2db.ui.scripting.RuntimeSpinner;
  * and to comboBox - because it can change values based on a valuelist.
  * @author acostescu
  */
-public class WebDataSpinner extends WebDataCompositeTextField implements ISupportValueList, IDisplayRelatedData, IHeaderJSChangeContributor
+public class WebDataSpinner extends WebDataCompositeTextField implements ISupportValueList, IDisplayRelatedData
 {
 
 	private static final long serialVersionUID = 1L;
@@ -368,39 +368,16 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		{
 			return shouldShowExtraComponents();
 		}
+
+		@Override
+		public void renderHead(IHeaderResponse response)
+		{
+			// spinner component overwrites onblur, add it as listener
+			response.renderOnDomReadyJavascript("var spinner = wicketGet('" + WebDataSpinner.this.field.getMarkupId() +
+				"');Wicket.Event.add(spinner,'blur',spinner.onblur);");
+			super.renderHead(response);
+		}
+
 	}
 
-	@Override
-	public void renderHead(HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		String onLoad = getOnLoad();
-		if (onLoad != null) container.getHeaderResponse().renderOnLoadJavascript(onLoad);
-		String onDOMReady = getOnDOMReady();
-		if (onDOMReady != null) container.getHeaderResponse().renderOnDomReadyJavascript(onDOMReady);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnLoad()
-	 */
-	public String getOnLoad()
-	{
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.headlessclient.dataui.IHeaderJSChangeContributor#getOnDOMReady()
-	 */
-	public String getOnDOMReady()
-	{
-		final StringBuilder onDOMReady = new StringBuilder();
-		// spinner component overwrites onblur, add it as listener
-		onDOMReady.append("var spinner = wicketGet('").append(field.getMarkupId()).append("');Wicket.Event.add(spinner,'blur',spinner.onblur);"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		return onDOMReady.toString();
-	}
 }

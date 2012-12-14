@@ -74,6 +74,7 @@ import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.parser.filter.HtmlHeaderSectionHandler;
 import org.apache.wicket.markup.resolver.IComponentResolver;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -5079,33 +5080,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			while (rowsIte.hasNext())
 			{
 				listItem = rowsIte.next();
-				headerJS.append(getHeaderJS(listItem));
-				body.append(renderComponent(response, listItem));
+				body.append(renderComponent(response, listItem, headerJS));
 			}
 
 			return new StringBuilder[] { headerJS, body };
 		}
 
-		private StringBuilder getHeaderJS(ListItem< ? > listItem)
-		{
-			final StringBuilder listItemHeaderJS = new StringBuilder();
-			listItem.visitChildren(IHeaderJSChangeContributor.class, new IVisitor<Component>()
-			{
-				public Object component(Component component)
-				{
-					String onDOMReady = ((IHeaderJSChangeContributor)component).getOnDOMReady();
-					if (onDOMReady != null) listItemHeaderJS.append(onDOMReady).append('\n');
-					String onLoad = ((IHeaderJSChangeContributor)component).getOnLoad();
-					if (onLoad != null) listItemHeaderJS.append(onLoad).append('\n');
-
-					return IVisitor.CONTINUE_TRAVERSAL;
-				}
-			});
-
-			return listItemHeaderJS;
-		}
-
-		private CharSequence renderComponent(Response response, Component component)
+		private CharSequence renderComponent(Response response, Component component, StringBuilder headerJS)
 		{
 			StringResponse stringResponse = new StringResponse();
 
@@ -5127,6 +5108,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			try
 			{
 				component.prepareForRender();
+				respondHeaderContribution(headerJS, component);
 			}
 			catch (RuntimeException e)
 			{
@@ -5166,6 +5148,37 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			s = s.replace("\'", "\\\'"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			return s;
+		}
+	}
+
+	private ScrollResponseHeaderContainer header;
+
+	private void respondHeaderContribution(final StringBuilder headerJS, final Component component)
+	{
+		if (header == null)
+		{
+			header = new ScrollResponseHeaderContainer();
+		}
+		header.setOutput(headerJS);
+		component.renderHead(header);
+
+		if (component instanceof MarkupContainer)
+		{
+			((MarkupContainer)component).visitChildren(new Component.IVisitor<Component>()
+			{
+				public Object component(Component c)
+				{
+					if (c.isVisibleInHierarchy())
+					{
+						c.renderHead(header);
+						return CONTINUE_TRAVERSAL;
+					}
+					else
+					{
+						return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+					}
+				}
+			});
 		}
 	}
 
@@ -5246,5 +5259,123 @@ class FoundsetRecordItemModel extends RecordItemModel
 			}
 		}
 		return record;
+	}
+}
+
+class ScrollResponseHeaderContainer extends HtmlHeaderContainer
+{
+	private IHeaderResponse headerResponse;
+	private StringBuilder output;
+
+	public ScrollResponseHeaderContainer()
+	{
+		super(HtmlHeaderSectionHandler.HEADER_ID);
+	}
+
+	void setOutput(StringBuilder output)
+	{
+		this.output = output;
+	}
+
+	@Override
+	public IHeaderResponse getHeaderResponse()
+	{
+		if (headerResponse == null)
+		{
+			headerResponse = new IHeaderResponse()
+			{
+
+				public void renderJavascriptReference(ResourceReference reference)
+				{
+					// IGNORE
+				}
+
+				public void renderJavascriptReference(ResourceReference reference, String id)
+				{
+					// IGNORE
+				}
+
+				public void renderJavascriptReference(String url)
+				{
+					// IGNORE
+				}
+
+				public void renderJavascriptReference(String url, String id)
+				{
+					// IGNORE
+				}
+
+				public void renderJavascript(CharSequence javascript, String id)
+				{
+					// TODO Auto-generated method stub
+				}
+
+				public void renderCSSReference(ResourceReference reference)
+				{
+					// IGNORE
+				}
+
+				public void renderCSSReference(String url)
+				{
+					// IGNORE
+				}
+
+				public void renderCSSReference(ResourceReference reference, String media)
+				{
+					// IGNORE
+				}
+
+				public void renderCSSReference(String url, String media)
+				{
+					// IGNORE
+				}
+
+				public void renderString(CharSequence string)
+				{
+					// TODO Auto-generated method stub
+				}
+
+				public void markRendered(Object object)
+				{
+					// IGNORE 
+				}
+
+				public boolean wasRendered(Object object)
+				{
+					return false;
+				}
+
+				public Response getResponse()
+				{
+					return null;
+				}
+
+				public void renderOnDomReadyJavascript(String javascript)
+				{
+					output.append(javascript);
+				}
+
+				public void renderOnLoadJavascript(String javascript)
+				{
+					output.append(javascript);
+				}
+
+				public void renderOnEventJavascript(String target, String event, String javascript)
+				{
+					// IGNORE
+				}
+
+				public void close()
+				{
+					// IGNORE
+				}
+
+				public boolean isClosed()
+				{
+					return false;
+				}
+			};
+		}
+		return headerResponse;
 	}
 }
