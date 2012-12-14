@@ -1264,6 +1264,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
+	@ServoyMobile
 	public int getOnShowMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID).intValue();

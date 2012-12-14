@@ -792,4 +792,15 @@ public interface IBaseSMForm
 
 	public void setView(int arg);
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowMethodID()
+	 * 
+	 * @sample
+	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
+	 * form.onHide = form.newMethod('function onHide(event) { application.output("onHide blocked on " + event.getFormName()); return false; }');
+	 */
+	public IBaseSMMethod getOnShow();
+
+	public void setOnShow(IBaseSMMethod method);
+
 }
