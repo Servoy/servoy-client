@@ -44,6 +44,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Table;
@@ -58,6 +59,7 @@ import com.servoy.j2db.solutionmodel.ISMRelation;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -124,8 +126,7 @@ public class JSSolutionModel implements ISolutionModel
 	@JSFunction
 	public JSForm newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height)
 	{
-		String dataSource = DataSourceUtils.createDBTableDataSource(serverName, tableName);
-		return newForm(name, dataSource, styleName, show_in_menu, width, height);
+		return newForm(name, DataSourceUtils.createDBTableDataSource(serverName, tableName), styleName, show_in_menu, width, height);
 	}
 
 	/**
@@ -168,6 +169,14 @@ public class JSSolutionModel implements ISolutionModel
 			}
 			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), style, name, dataSource, show_in_menu, new Dimension(width, height));
 			form.createNewPart(Part.BODY, height);
+
+			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
+			{
+				// mobile solution, make the form mobile
+				form.putCustomMobileProperty("mobileform", Boolean.TRUE);
+				form.setStyleName("_servoy_mobile"); // set internal style name
+			}
+
 			((FormManager)application.getFormManager()).addForm(form, false);
 			return new JSForm(application, form, true);
 		}
@@ -1470,7 +1479,7 @@ public class JSSolutionModel implements ISolutionModel
 	{
 		String servername = null;
 		String tablename = null;
-		String[] names = DataSourceUtils.getDBServernameTablename(datasource);
+		String[] names = DataSourceUtilsBase.getDBServernameTablename(datasource);
 		if (names != null && names.length == 2)
 		{
 			servername = names[0];

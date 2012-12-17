@@ -122,6 +122,18 @@ public interface IBaseSMComponent
 	 */
 	public String getGroupID();
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getStyleClass()
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * var style = solutionModel.newStyle('myStyle','field.fancy { background-color: yellow; }');
+	 * form.styleName = 'myStyle'; // First set the style on the form.
+	 * field.styleClass = 'fancy'; // Then set the style class on the field.
+	 */
+	public String getStyleClass();
+
 	public void setX(int x);
 
 	public void setY(int y);
@@ -138,4 +150,5 @@ public interface IBaseSMComponent
 
 	public void setGroupID(String arg);
 
+	public void setStyleClass(String arg);
 }
