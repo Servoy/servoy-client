@@ -51,8 +51,8 @@ public interface IMobileProperties
 	public final static MobileProperty<Boolean> LIST_ITEM_COUNT = new MobileProperty<Boolean>("listitemCount", Boolean.FALSE);
 	public final static MobileProperty<Boolean> LIST_ITEM_IMAGE = new MobileProperty<Boolean>("listitemImage", Boolean.FALSE);
 	public final static MobileProperty<Boolean> LIST_ITEM_HEADER = new MobileProperty<Boolean>("listitemHeader", Boolean.FALSE);
-	public final static MobileProperty<Integer> HEADER_SIZE = new MobileProperty<Integer>("headerSize", Integer.valueOf(4));
-	public final static MobileProperty<Integer> RADIO_STYLE = new MobileProperty<Integer>("radioStyle", Integer.valueOf(0));
+	public final static MobileProperty<Double> HEADER_SIZE = new MobileProperty<Double>("headerSize", Double.valueOf(4));
+	public final static MobileProperty<Double> RADIO_STYLE = new MobileProperty<Double>("radioStyle", Double.valueOf(0));
 	public final static MobileProperty<String> DATA_ICON = new MobileProperty<String>("dataIcon", null);
 
 	<T> void setPropertyValue(MobileProperty<T> property, T value);
