@@ -56,4 +56,28 @@ public interface ITableListener
 	void serverStateChanged(IServerInternal server, int oldState, int newState);
 
 	void tableInitialized(Table t);
+
+
+	public static abstract class TableListener implements ITableListener
+	{
+		public void tablesAdded(IServerInternal server, String[] tableNames)
+		{
+		}
+
+		public void tablesRemoved(IServerInternal server, Table[] tables, boolean deleted)
+		{
+		}
+
+		public void hiddenTableChanged(IServerInternal server, Table table)
+		{
+		}
+
+		public void serverStateChanged(IServerInternal server, int oldState, int newState)
+		{
+		}
+
+		public void tableInitialized(Table t)
+		{
+		}
+	}
 }
