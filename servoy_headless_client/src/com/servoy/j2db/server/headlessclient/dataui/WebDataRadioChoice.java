@@ -577,8 +577,8 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	private void updatePrefix()
 	{
 		StringBuffer prefix = new StringBuffer();
-		prefix.append("<div"); //$NON-NLS-1$
-		if (tabIndex != -1) prefix.append(" tabindex='").append(tabIndex).append("'"); //$NON-NLS-1$//$NON-NLS-2$
+		prefix.append("<div onfocus='parentNode.onfocus()' onblur='parentNode.onblur()'"); //$NON-NLS-1$
+		prefix.append(" tabindex='").append(tabIndex).append("'"); //$NON-NLS-1$//$NON-NLS-2$
 		prefix.append(" class='"); //$NON-NLS-1$
 		if (vScrollPolicy == ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER) prefix.append("inl"); //$NON-NLS-1$
 		else prefix.append("blk"); //$NON-NLS-1$
@@ -985,8 +985,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	protected IValueMap getAdditionalAttributes(int index, Object choice)
 	{
 		AttributeMap attributes = new AttributeMap();
-		attributes.add("onfocus", "Servoy.Utils.transferFocus(this.id,'focus')");
-		attributes.add("onblur", "Servoy.Utils.transferFocus(this.id,'blur')");
+		attributes.add("onclick", "parentNode.focus()"); //$NON-NLS-1$ //$NON-NLS-2$
 		return attributes;
 	}
 }
