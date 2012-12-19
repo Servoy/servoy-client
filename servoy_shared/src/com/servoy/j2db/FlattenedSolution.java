@@ -1732,7 +1732,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			Form form = (Form)persist;
 			if (form.getExtendsID() > 0)
 			{
-				form.setExtendsForm(getForm(form.getExtendsID()));
+				if (form.getExtendsForm() == null || form.getExtendsForm().getID() != form.getExtendsID())
+				{
+					form.setExtendsForm(getForm(form.getExtendsID()));
+				}
 			}
 			else
 			{
