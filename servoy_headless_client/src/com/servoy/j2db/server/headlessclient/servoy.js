@@ -2214,21 +2214,6 @@ if (typeof(Servoy.Utils) == "undefined")
 			  },200);
 		  }
 	  },
-	  transferFocus: function(id,event) 
-	  {
-		  var input = document.getElementById(id);
-		  if (input != null) 
-		  {
-			  if ('focus' == event)
-			  {
-				  input.parentNode.parentNode.onfocus();
-			  }
-			  else
-			  {
-				  input.parentNode.parentNode.onblur();
-			  }
-		  }
-	  },
 	  attachChoiceEvents: function(id) 
 	  {
 		  var choiceElement = document.getElementById(id);
@@ -2238,8 +2223,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		 			var child = children[x];
 		 			var inputs = child.getElementsByTagName('input');
 		 			var inp = inputs[0];
-					Wicket.Event.add(inp, 'focus', function(){Servoy.Utils.transferFocus(inp.id,'focus')});
-					Wicket.Event.add(inp, 'blur',  function(){Servoy.Utils.transferFocus(inp.id,'blur')});
+					Wicket.Event.add(inp, 'click', function(e){e.target.parentNode.focus();});
 		 		}
 			}
 	  }
