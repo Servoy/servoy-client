@@ -176,6 +176,11 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return table;
 	}
 
+	public void clearTable()
+	{
+		table = null;
+	}
+
 	@Override
 	public String toString()
 	{
