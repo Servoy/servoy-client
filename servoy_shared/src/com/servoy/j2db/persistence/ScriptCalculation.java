@@ -108,7 +108,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 		{
 			Debug.error(e);
 		}
-		return getType(); //not stored, use type
+		return Column.mapToDefaultType(getType()); //not stored, use type
 	}
 
 	public String getTypeAsString()
