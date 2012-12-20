@@ -1903,18 +1903,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		super.renderHead(headercontainer);
 		Response response = headercontainer.getHeaderResponse().getResponse();
 		response.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-		response.write(UrlUtils.rewriteToContextRelative("servoy-webclient/formcss/", RequestCycle.get().getRequest()));
-		response.write(formController.getForm().getSolution().getName());
-		response.write("/");
-		response.write(formController.getName());
-		response.write("_t");
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(UrlUtils.rewriteToContextRelative("servoy-webclient/formcss/", RequestCycle.get().getRequest()));
+		sb.append(formController.getForm().getSolution().getName());
+		sb.append("/");
+		sb.append(formController.getName());
+		sb.append("_t");
 		long prevLMT = lastModifiedTime;
 		if (lastModifiedTime == 0 || isUIRecreated())
 		{
 			lastModifiedTime = System.currentTimeMillis();
 		}
-		response.write(Long.toString(lastModifiedTime));
-		response.write("t.css");
+		sb.append(Long.toString(lastModifiedTime));
+		sb.append("t.css");
+		response.write(RequestCycle.get().getOriginalResponse().encodeURL(sb));
 		response.write("\" id=\"formcss_");
 		response.write(formController.getName());
 		response.write(Long.toString(lastModifiedTime));
