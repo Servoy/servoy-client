@@ -1376,12 +1376,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 						Debug.error("Error getting the previous value", iae); //$NON-NLS-1$
 						oldVal = null;
 					}
+					currentEditingState.setValue(dataProviderID, obj);
 					if (!Utils.equalObjects(oldVal, obj))
 					{
 						// call notifyLastNewValue changed so that the onChangeEvent will be fired and called when attached.
 						displayData.notifyLastNewValueWasChange(oldVal, obj);
+						obj = dal.getValueObject(currentEditingState, dataProviderID);
 					}
-					currentEditingState.setValue(dataProviderID, obj);
 				}
 				else
 				{
