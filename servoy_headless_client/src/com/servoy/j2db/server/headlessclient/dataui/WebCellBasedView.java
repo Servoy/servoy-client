@@ -1587,6 +1587,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			if (isListViewMode() && !(cellview instanceof Portal))
 			{
 				int headerHeight = 0;
+				int titleHeaderHeight = 0;
 				Iterator<Part> pIte = form.getParts();
 				while (pIte.hasNext())
 				{
@@ -1599,8 +1600,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						headerHeight = p.getHeight();
 					}
+					else if (p.getPartType() == Part.TITLE_HEADER)
+					{
+						titleHeaderHeight = p.getHeight();
+					}
 				}
-				maxHeight = maxHeight - headerHeight;
+				if (headerHeight != 0)
+				{
+					maxHeight = maxHeight - headerHeight;
+				}
+				else
+				{
+					maxHeight = maxHeight - titleHeaderHeight;
+				}
 			}
 			else
 			{
