@@ -1705,7 +1705,7 @@ public class Utils
 		String result = null;
 		try
 		{
-			result = new String(Base64.encodeBase64(data)).trim();
+			result = Base64.encodeBase64String(data).trim();
 		}
 		catch (Exception e)
 		{
