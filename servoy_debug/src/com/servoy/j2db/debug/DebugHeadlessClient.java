@@ -141,6 +141,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 		super(req, name, pass, method, methodArgs, solution == null ? null : solution.getName());
 		this.solution = solution;
 		this.designerCallBack = designerCallBack;
+		this.designerCallBack.testAndStartDebugger();
 	}
 
 

@@ -803,4 +803,13 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (designerCallback != null) designerCallback.showFormInDesigner(form);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IDesignerCallback#testAndStartDebugger()
+	 */
+	public void testAndStartDebugger()
+	{
+		if (designerCallback != null) designerCallback.testAndStartDebugger();
+	}
 }
