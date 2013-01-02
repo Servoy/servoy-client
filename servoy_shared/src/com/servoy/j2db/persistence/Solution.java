@@ -1004,7 +1004,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The method that is executed when a solution closes. The default is -none-.
 	 * 
-	 * @templatedescription Callback method for when solution is closed, force boolean argument tells if this is a force (not stopable) close or not.
+	 * @templatedescription Callback method for when solution is closed, force boolean argument tells if this is a force (not stoppable) close or not.
 	 * @templatename onSolutionClose
 	 * @templatetype Boolean
 	 * @templateparam Boolean force if false then solution close can be stopped by returning false
