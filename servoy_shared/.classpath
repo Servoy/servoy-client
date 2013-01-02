@@ -30,7 +30,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/apache-mime4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpclient.jar" sourcepath="libsrc/httpclient-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpcore.jar" sourcepath="libsrc/httpcore-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpmime.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpmime.jar" sourcepath="libsrc/httpmime-4.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcifs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-cache.jar"/>
