@@ -737,6 +737,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 				debugHeadlessClient = null;
 			}
 		};
+		testAndStartDebugger();
 		return debugHeadlessClient;
 	}
 
