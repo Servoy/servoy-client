@@ -145,4 +145,36 @@ public interface IJSDatabaseManager
 	 */
 	public String getDataSource(String serverName, String tableName);
 
+
+	/**
+	 * Returns true if the (related)foundset exists and has records.
+	 *
+	 * @sample
+	 * if (%%elementName%%.hasRecords(orders_to_orderitems))
+	 * {
+	 * 	//do work on relatedFoundSet
+	 * }
+	 * //if (%%elementName%%.hasRecords(foundset.getSelectedRecord(),'orders_to_orderitems.orderitems_to_products'))
+	 * //{
+	 * //	//do work on deeper relatedFoundSet
+	 * //}
+	 *
+	 * @param foundset A JSFoundset to test. 
+	 * 
+	 * @return true if the foundset/relation has records.
+	 */
+	public boolean hasRecords(IJSFoundSet foundset);
+
+	/**
+	 * @clonedesc js_hasRecords(IFoundSetInternal)
+	 * 
+	 * @sampleas js_hasRecords(IFoundSetInternal)
+	 * 
+	 * @param record A JSRecord to test.
+	 * @param relationString The relation name.
+	 *
+	 * @return true if the foundset/relation has records.
+	 */
+	public boolean hasRecords(IJSRecord record, String relationString);
+
 }

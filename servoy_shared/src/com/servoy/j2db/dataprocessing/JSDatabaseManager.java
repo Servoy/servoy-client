@@ -3081,7 +3081,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return true if the foundset/relation has records.
 	 */
-	public boolean js_hasRecords(IFoundSetInternal foundset)
+	@JSFunction
+	public boolean hasRecords(IJSFoundSet foundset)
 	{
 		if (foundset != null)
 		{
@@ -3100,9 +3101,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return true if the foundset/relation has records.
 	 */
-	public boolean js_hasRecords(IRecordInternal record, String relationString)
+	@JSFunction
+	public boolean hasRecords(IJSRecord record, String relationString)
 	{
-		return hasRecords(record, relationString);
+		return JSDatabaseManager.hasRecords((IRecordInternal)record, relationString);
 	}
 
 	public static boolean hasRecords(IRecordInternal record, String relationString)

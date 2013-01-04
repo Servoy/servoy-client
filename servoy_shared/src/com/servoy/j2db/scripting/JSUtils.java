@@ -30,6 +30,7 @@ import java.util.StringTokenizer;
 
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -39,6 +40,9 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.api.IJSFoundSet;
+import com.servoy.j2db.scripting.api.IJSRecord;
+import com.servoy.j2db.scripting.api.IJSUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ITagResolver;
@@ -51,7 +55,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Utils", scriptingName = "utils")
-public class JSUtils
+public class JSUtils implements IJSUtils
 {
 	private volatile IApplication application;
 
@@ -66,9 +70,9 @@ public class JSUtils
 	@Deprecated
 	public boolean js_hasChildRecords(Object foundset)
 	{
-		if (foundset instanceof IFoundSetInternal)
+		if (foundset instanceof IFoundSetInternal && foundset instanceof IJSFoundSet)
 		{
-			return js_hasRecords((IFoundSetInternal)foundset);
+			return hasRecords((IJSFoundSet)foundset);
 		}
 		return false;
 	}
@@ -93,8 +97,8 @@ public class JSUtils
 
 	 * @return true if exists 
 	 */
-
-	public boolean js_hasRecords(IFoundSetInternal foundset)//needed for calcs
+	@JSFunction
+	public boolean hasRecords(IJSFoundSet foundset)//needed for calcs
 	{
 		if (foundset != null)
 		{
@@ -113,9 +117,10 @@ public class JSUtils
 	 *
 	 * @return true if the foundset/relation has records.
 	 */
-	public boolean js_hasRecords(IRecordInternal record, String relationString)
+	@JSFunction
+	public boolean hasRecords(IJSRecord record, String relationString)
 	{
-		return JSDatabaseManager.hasRecords(record, relationString);
+		return JSDatabaseManager.hasRecords((IRecordInternal)record, relationString);
 	}
 
 	/**
@@ -264,7 +269,7 @@ public class JSUtils
 		}
 		if (date instanceof Date)
 		{
-			return js_dateFormat((Date)date, format);
+			return js_dateFormat(date, format);
 		}
 		return ""; //$NON-NLS-1$
 	}
@@ -279,7 +284,8 @@ public class JSUtils
 	 * @param format the format to output
 	 * @return the date as text
 	 */
-	public String js_dateFormat(Date date, String format)
+	@JSFunction
+	public String dateFormat(Date date, String format)
 	{
 		if (format != null && date != null)
 		{
