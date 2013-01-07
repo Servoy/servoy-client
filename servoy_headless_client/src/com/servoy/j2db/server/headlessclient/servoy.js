@@ -1140,7 +1140,7 @@ if (typeof(Servoy.DD) == "undefined")
 				dd.onMouseDown = function(e) {
 					// if dd is on a form, and an select/option is clicked from a select on this form
 					// don't consider the form as a drag source - FF/IE issue
-					if(e.target && e.target.tagName && e.target.tagName.toLowerCase() == 'option' || e.target.tagName.toLowerCase() == 'select') return;
+					if(e.target && e.target.tagName && (e.target.tagName.toLowerCase() == 'option' || e.target.tagName.toLowerCase() == 'select')) return;
 					requestFocus(this.id);
 				};									
 
