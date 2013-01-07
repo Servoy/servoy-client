@@ -1211,6 +1211,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatecode
 	 * return true
 	 */
+	@ServoyMobile
 	public int getOnHideMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
@@ -1247,6 +1248,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
+	@ServoyMobile
 	public int getOnRecordSelectionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID).intValue();

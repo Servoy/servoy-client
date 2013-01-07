@@ -813,4 +813,23 @@ public interface IBaseSMForm
 	public IBaseSMMethod getOnLoad();
 
 	public void setOnLoad(IBaseSMMethod method);
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnHideMethodID()
+	 *
+	 * @sampleas getOnShow()
+	 */
+	public IBaseSMMethod getOnHide();
+
+	public void setOnHide(IBaseSMMethod method);
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordSelectionMethodID()
+	 * 
+	 * @sample
+	 * form.onRecordSelection = form.newMethod('function onRecordSelection(event) { application.output("onRecordSelection intercepted on " + event.getFormName()); }');
+	 */
+	public IBaseSMMethod getOnRecordSelection();
+
+	public void setOnRecordSelection(IBaseSMMethod method);
 }

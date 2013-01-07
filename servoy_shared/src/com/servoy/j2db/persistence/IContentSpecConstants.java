@@ -108,11 +108,9 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONFINDMETHODID = "onFindMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONFOCUSGAINEDMETHODID = "onFocusGainedMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONFOCUSLOSTMETHODID = "onFocusLostMethodID"; //$NON-NLS-1$
-	public static final String PROPERTY_ONHIDEMETHODID = "onHideMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONINITMETHODID = "onInitMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONINSERTMETHODID = "onInsertMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONINVERTRECORDSCMDMETHODID = "onInvertRecordsCmdMethodID"; //$NON-NLS-1$
-	public static final String PROPERTY_ONLOADMETHODID = "onLoadMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONNEWRECORDCMDMETHODID = "onNewRecordCmdMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONNEXTRECORDCMDMETHODID = "onNextRecordCmdMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONOMITRECORDCMDMETHODID = "onOmitRecordCmdMethodID"; //$NON-NLS-1$
@@ -121,14 +119,12 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONPRINTPREVIEWCMDMETHODID = "onPrintPreviewCmdMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONRECORDEDITSTARTMETHODID = "onRecordEditStartMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONRECORDEDITSTOPMETHODID = "onRecordEditStopMethodID"; //$NON-NLS-1$
-	public static final String PROPERTY_ONRECORDSELECTIONMETHODID = "onRecordSelectionMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONRENDERMETHODID = "onRenderMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONRESIZEMETHODID = "onResizeMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONRIGHTCLICKMETHODID = "onRightClickMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONSEARCHCMDMETHODID = "onSearchCmdMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONSEARCHMETHODID = "onSearchMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONSHOWALLRECORDSCMDMETHODID = "onShowAllRecordsCmdMethodID"; //$NON-NLS-1$
-	public static final String PROPERTY_ONSHOWMETHODID = "onShowMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID = "onShowOmittedRecordsCmdMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONSORTCMDMETHODID = "onSortCmdMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONTABCHANGEMETHODID = "onTabChangeMethodID"; //$NON-NLS-1$
