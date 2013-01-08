@@ -740,7 +740,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					QueryColumn queryColumn = new QueryColumn(((QueryInsert)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(),
 						c.getScale());
 					ColumnInfo ci = c.getColumnInfo();
-					if (ci != null && ci.isDBIdentity())
+					if (c.isDBIdentity())
 					{
 						dbPKReturnValues.add(c);
 						argsArray.add(row.getDbIdentValue());

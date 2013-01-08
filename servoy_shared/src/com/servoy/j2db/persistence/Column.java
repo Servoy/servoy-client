@@ -1112,6 +1112,14 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 		return sequenceType;
 	}
 
+	/*
+	 * For temp_xxx tables columninfo is not set but identity column may be used
+	 */
+	public boolean isDBIdentity()
+	{
+		return getSequenceType() == ColumnInfo.DATABASE_IDENTITY;
+	}
+
 	private transient int sequenceType = ColumnInfo.NO_SEQUENCE_SELECTED;
 	private transient String databaseSequenceName;
 

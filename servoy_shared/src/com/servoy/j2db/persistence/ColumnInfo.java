@@ -165,11 +165,6 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		return (autoEnterType == SEQUENCE_AUTO_ENTER && autoEnterSubType == DATABASE_SEQUENCE);
 	}
 
-	public boolean isDBIdentity()
-	{
-		return (autoEnterType == SEQUENCE_AUTO_ENTER && autoEnterSubType == DATABASE_IDENTITY);
-	}
-
 	public void setDatabaseDefaultValue(String value)
 	{
 		databaseDefaultValue = value;

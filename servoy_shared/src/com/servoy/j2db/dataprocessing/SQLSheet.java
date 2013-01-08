@@ -199,20 +199,17 @@ public class SQLSheet
 			{
 				Column c = table.getColumn((String)list.get(i));
 				ColumnInfo ci = c.getColumnInfo();
-				if (ci != null)
+				if (c.isDBIdentity())
 				{
-					if (ci.isDBIdentity())
-					{
-						array[i] = ValueFactory.createDbIdentValue();
-					}
-					else if (ci.hasSequence())
-					{
-						array[i] = c.getNewRecordValue(app);
-					}
-					if (ci.hasSystemValue())
-					{
-						array[i] = c.getNewRecordValue(app);
-					}
+					array[i] = ValueFactory.createDbIdentValue();
+				}
+				else if (ci != null && ci.hasSequence())
+				{
+					array[i] = c.getNewRecordValue(app);
+				}
+				if (ci != null && ci.hasSystemValue())
+				{
+					array[i] = c.getNewRecordValue(app);
 				}
 			}
 			catch (Exception ex)
@@ -263,34 +260,37 @@ public class SQLSheet
 			{
 				boolean filled = false;
 				Column c = table.getColumn((String)list.get(i));
-				ColumnInfo ci = c.getColumnInfo();
-				if (ci != null && ci.isDBIdentity())
+				if (c.isDBIdentity())
 				{
 					array[i] = ValueFactory.createDbIdentValue();
 					filled = true;
 				}
-				else if (c.getRowIdentType() != Column.NORMAL_COLUMN && ci != null && ci.hasSequence())
-				{
-					//this is here for safety, it can happen that a form has (unwanted) still a related foundset which is created by relation based on primary key
-					array[i] = c.getNewRecordValue(app);
-					filled = true;
-				}
 				else
 				{
-					if (creationArgs != null && creationArgs.length != 0 && fcols != null) //created via relation, so fill the foreign key with foreign value
+					ColumnInfo ci = c.getColumnInfo();
+					if (c.getRowIdentType() != Column.NORMAL_COLUMN && ci != null && ci.hasSequence())
 					{
-						for (int j = 0; j < fcols.length; j++)
+						//this is here for safety, it can happen that a form has (unwanted) still a related foundset which is created by relation based on primary key
+						array[i] = c.getNewRecordValue(app);
+						filled = true;
+					}
+					else
+					{
+						if (creationArgs != null && creationArgs.length != 0 && fcols != null) //created via relation, so fill the foreign key with foreign value
 						{
-							if (c.equals(fcols[j]) && ((relation.getOperators()[j] & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR))
+							for (int j = 0; j < fcols.length; j++)
 							{
-								// creationArgs is a matrix as wide as the relation keys and 1 deep
-								array[i] = creationArgs[j][0];
-								filled = true;
-								break;
+								if (c.equals(fcols[j]) && ((relation.getOperators()[j] & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR))
+								{
+									// creationArgs is a matrix as wide as the relation keys and 1 deep
+									array[i] = creationArgs[j][0];
+									filled = true;
+									break;
+								}
 							}
 						}
-					}
 
+					}
 				}
 				if (!filled)
 				{
@@ -649,7 +649,7 @@ public class SQLSheet
 				String dataProviderID = (String)list.get(i);
 				Column c = table.getColumn(dataProviderID);
 
-				if (c.getColumnInfo().isDBIdentity())
+				if (c.isDBIdentity())
 				{
 					sheetIdentIndex = new Integer(i);
 				}

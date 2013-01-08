@@ -38,6 +38,7 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IColumn;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
@@ -47,7 +48,6 @@ import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.CompareCondition;
@@ -1598,7 +1598,7 @@ public class SQLGenerator
 				continue;
 			}
 			QueryColumn queryColumn = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-				ci != null && ci.isDBIdentity());
+				column.isDBIdentity());
 
 			if (isBlobColumn(column))
 			{
