@@ -63,7 +63,7 @@ public class NullForUndefinedSerializer extends AbstractSerializer
 	{
 		if (o instanceof org.mozilla.javascript.Undefined)
 		{
-			return null;
+			return JSONObject.NULL;
 		}
 
 		throw new MarshallException("NullForUndefinedSerializer cannot marshall class " + o.getClass());
