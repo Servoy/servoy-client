@@ -3092,9 +3092,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * @clonedesc js_hasRecords(IFoundSetInternal)
+	 * @clonedesc hasRecords(IJSFoundSet)
 	 * 
-	 * @sampleas js_hasRecords(IFoundSetInternal)
+	 * @sampleas hasRecords(IJSFoundSet)
 	 * 
 	 * @param record A JSRecord to test.
 	 * @param relationString The relation name.
