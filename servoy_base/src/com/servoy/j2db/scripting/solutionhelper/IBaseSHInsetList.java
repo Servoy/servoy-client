@@ -39,4 +39,8 @@ public interface IBaseSHInsetList extends IBaseSHList
 
 	public void setHeaderDataProviderID(String headerDataProviderID);
 
+	public String getName();
+
+	public void setName(String name);
+
 }

@@ -18,6 +18,7 @@
 package com.servoy.j2db.scripting.solutionhelper;
 
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMButton;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMField;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
@@ -40,6 +41,25 @@ public class BaseSHList implements IBaseSHList
 	{
 		this.form = listForm;
 		this.solutionHelper = solutionHelper;
+
+		// check for existing relevant components
+		for (IBaseSMComponent c : form.getComponents())
+		{
+			if (c instanceof IBaseSMButton && Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_BUTTON)))
+			{
+				textAndActionAndIconButton = (IBaseSMButton)c;
+			}
+			else if (c instanceof IBaseSMGraphicalComponent &&
+				Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_SUBTEXT)))
+			{
+				subtextComponent = (IBaseSMGraphicalComponent)c;
+			}
+			else if (c instanceof IBaseSMField)
+			{
+				if (Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_COUNT))) countComponent = (IBaseSMField)c;
+				else if (Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_IMAGE))) iconComponent = (IBaseSMField)c;
+			}
+		}
 	}
 
 	public IBaseSMForm getListForm()

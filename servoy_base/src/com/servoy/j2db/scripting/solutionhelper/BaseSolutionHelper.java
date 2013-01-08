@@ -158,6 +158,46 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		return listComponent;
 	}
 
+	public IBaseSHList getListForm(String formName)
+	{
+		IBaseSHList listForm = null;
+		IBaseSMForm f = solutionModel.getForm(formName);
+		if (f != null && f.getView() == IBaseSMForm.LIST_VIEW)
+		{
+			listForm = instantiateList(f, this);
+		}
+		return listForm;
+	}
+
+	public IBaseSHInsetList getInsetList(IBaseSMForm form, String name)
+	{
+		if (form == null || name == null) return null;
+		IBaseSHInsetList insetList = null;
+		IBaseSMTabPanel tabPanel = form.getTabPanel(name);
+		if (tabPanel != null)
+		{
+			IMobileProperties mp = getMobileProperties(tabPanel);
+			if (Boolean.TRUE.equals(mp.getPropertyValue(IMobileProperties.LIST_TAB_PANEL)))
+			{
+				IBaseSMTab[] tabs = tabPanel.getTabs();
+				if (tabs.length == 1)
+				{
+					IBaseSMForm listForm = tabs[0].getContainsForm();
+					if (listForm != null)
+					{
+						mp = getMobileProperties(listForm);
+						if (getStringUUID(form).equals(mp.getPropertyValue(IMobileProperties.LIST_ITEM_FORM_CONTAINER)) &&
+							getStringUUID(tabPanel).equals(mp.getPropertyValue(IMobileProperties.LIST_ITEM_FORM_TAB)))
+						{
+							insetList = instantiateInsetList(form, tabPanel, listForm, this);
+						}
+					}
+				}
+			}
+		}
+		return insetList;
+	}
+
 	protected abstract IBaseSHList instantiateList(IBaseSMForm listForm, BaseSolutionHelper baseSolutionHelper);
 
 }

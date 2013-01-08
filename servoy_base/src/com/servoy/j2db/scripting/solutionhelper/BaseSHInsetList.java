@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.scripting.solutionhelper;
 
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMTabPanel;
@@ -34,6 +35,14 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 	{
 		super(listForm, solutionHelper);
 		this.tabPanel = tabPanel;
+		for (IBaseSMComponent c : form.getComponents())
+		{
+			if (c instanceof IBaseSMGraphicalComponent &&
+				Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_HEADER)))
+			{
+				headerComponent = (IBaseSMGraphicalComponent)c;
+			}
+		}
 	}
 
 	public String getRelationName()
@@ -75,6 +84,16 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 			headerComponent = form.newLabel(null, 0, 0, 0, 0);
 			solutionHelper.getMobileProperties(headerComponent).setPropertyValue(IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
 		}
+	}
+
+	public String getName()
+	{
+		return tabPanel.getName();
+	}
+
+	public void setName(String name)
+	{
+		tabPanel.setName(name);
 	}
 
 }
