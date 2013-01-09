@@ -18,7 +18,6 @@
 package com.servoy.j2db.scripting.solutionhelper;
 
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 
 /**
@@ -28,13 +27,6 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 @ServoyMobile
 public interface IBaseSHList
 {
-
-	public IBaseSMForm getListForm();
-
-	public String getDataSource();
-
-	public void setDataSource(String dataSource);
-
 	public String getCountDataProviderID();
 
 	public void setCountDataProviderID(String countDataProviderID);

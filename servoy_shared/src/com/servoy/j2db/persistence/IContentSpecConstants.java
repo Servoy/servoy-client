@@ -193,7 +193,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_POINTS = "points"; //$NON-NLS-1$
 	public static final String PROPERTY_PRIMARYDATAPROVIDERID = "primaryDataProviderID"; //$NON-NLS-1$
 	public static final String PROPERTY_PRIMARYDATASOURCE = "primaryDataSource"; //$NON-NLS-1$
-	public static final String PROPERTY_RELATIONNAME = "relationName"; //$NON-NLS-1$
 	public static final String PROPERTY_ROWBGCOLORCALCULATION = "rowBGColorCalculation"; //$NON-NLS-1$
 	public static final String PROPERTY_SCOPENAME = "scopeName"; //$NON-NLS-1$
 	public static final String PROPERTY_SEPARATOR = "separator"; //$NON-NLS-1$

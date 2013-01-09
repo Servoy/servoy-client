@@ -18,24 +18,20 @@
 package com.servoy.j2db.scripting.solutionhelper;
 
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMTabPanel;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMPortal;
 
 /**
  * @author acostescu
  */
 public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 {
-
-	private final IBaseSMTabPanel tabPanel;
 	private IBaseSMGraphicalComponent headerComponent;
 
-	public BaseSHInsetList(IBaseSMTabPanel tabPanel, IBaseSMForm listForm, BaseSolutionHelper solutionHelper)
+	public BaseSHInsetList(IBaseSMPortal portal, BaseSolutionHelper solutionHelper)
 	{
-		super(listForm, solutionHelper);
-		this.tabPanel = tabPanel;
-		for (IBaseSMComponent c : form.getComponents())
+		super(portal, solutionHelper);
+		for (IBaseSMComponent c : container.getComponents())
 		{
 			if (c instanceof IBaseSMGraphicalComponent &&
 				Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_HEADER)))
@@ -45,14 +41,19 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 		}
 	}
 
+	protected IBaseSMPortal getPortal()
+	{
+		return (IBaseSMPortal)container;
+	}
+
 	public String getRelationName()
 	{
-		return tabPanel.getTabs()[0].getRelationName();
+		return getPortal().getRelationName();
 	}
 
 	public void setRelationName(String relationName)
 	{
-		tabPanel.getTabs()[0].setRelationName(relationName);
+		getPortal().setRelationName(relationName);
 	}
 
 	public String getHeaderText()
@@ -81,19 +82,18 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 	{
 		if (headerComponent == null)
 		{
-			headerComponent = form.newLabel(null, 0, 0, 0, 0);
+			headerComponent = container.newLabel(null, 0, 0, 0, 0);
 			solutionHelper.getMobileProperties(headerComponent).setPropertyValue(IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
 		}
 	}
 
 	public String getName()
 	{
-		return tabPanel.getName();
+		return getPortal().getName();
 	}
 
 	public void setName(String name)
 	{
-		tabPanel.setName(name);
+		getPortal().setName(name);
 	}
-
 }

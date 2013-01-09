@@ -705,26 +705,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMPortal getPortal(String name);
 
 	/**
-	 * Removes a ISMPortal that has the given name. Returns true if removal was successful, false otherwise. 
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
-	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/myTable','db:/server1/myOtherTable',JSRelation.INNER_JOIN);
-	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
-	 * var ISMPortal = form.newPortal('jsp',relation,100,400,300,300);
-	 * ISMPortal.newField('child_table_id',ISMField.TEXT_FIELD,200,200,120);
-	 * var ISMMethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jsp') == true) application.output('Portal removed ok'); else application.output('Portal could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove the portal',450,500,250,50,method);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 * 
-	 * @param name the specified name of the ISMPortal to be removed
-	 * 
-	 * @return true if the ISMPortal has successfully been removed; false otherwise
-	 */
-	public boolean removePortal(String name);
-
-	/**
 	 * Returns all ISMPortal objects of this form (optionally also the ones from the parent form), including the ones without a name.
 	 *
 	 * @sample 

@@ -19,7 +19,9 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
@@ -35,7 +37,12 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.constants.IFieldConstants;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMButton;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMField;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMLabel;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.solutionmodel.ISMPortal;
 import com.servoy.j2db.util.Utils;
@@ -123,6 +130,11 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	public IBaseSMField newField(Object dataprovider, int type, int x, int y, int width, int height)
+	{
+		return newField(dataprovider, IFieldConstants.TEXT_FIELD, x, width, height);
 	}
 
 	/**
@@ -448,6 +460,11 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		}
 	}
 
+	public IBaseSMButton newButton(String text, int x, int y, int width, int height, Object action)
+	{
+		return newButton(text, x, width, height, action);
+	}
+
 	/**
 	 * Creates a new label on the form, with the given text, place and size.
 	 *
@@ -470,6 +487,12 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 */
 	@JSFunction
 	public JSLabel newLabel(String txt, int x, int width, int height)
+	{
+		return newLabel(txt, x, width, height, null);
+	}
+
+	public IBaseSMLabel newLabel(String txt, int x, @SuppressWarnings("unused")
+	int y, int width, int height)
 	{
 		return newLabel(txt, x, width, height, null);
 	}
@@ -697,6 +720,15 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			}
 		}
 		return labels.toArray(new JSLabel[labels.size()]);
+	}
+
+	public IBaseSMComponent[] getComponents()
+	{
+		List<JSComponent< ? >> lst = new ArrayList<JSComponent< ? >>();
+		lst.addAll(Arrays.asList(getLabels()));
+		lst.addAll(Arrays.asList(getButtons()));
+		lst.addAll(Arrays.asList(getFields()));
+		return lst.toArray(new JSComponent[lst.size()]);
 	}
 
 	/**

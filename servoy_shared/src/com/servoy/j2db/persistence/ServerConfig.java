@@ -399,7 +399,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put(EMPTY_TEMPLATE_NAME, new ServerConfig("new_server", "", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 			"", null, "", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ 
 
-		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
+		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
 			"com.hxtt.sql.dbf.DBFDriver", null, null, true, false, null)); //$NON-NLS-1$ 
 
 		map.put("Filemaker", new ServerConfig("new_filemaker", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 

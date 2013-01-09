@@ -54,6 +54,7 @@ import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.j2db.scripting.solutionhelper.IMobileProperties;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMRelation;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
@@ -173,7 +174,7 @@ public class JSSolutionModel implements ISolutionModel
 			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
 			{
 				// mobile solution, make the form mobile
-				form.putCustomMobileProperty("mobileform", Boolean.TRUE);
+				form.putCustomMobileProperty(IMobileProperties.MOBILE_FORM.propertyName, Boolean.TRUE);
 				form.setStyleName("_servoy_mobile"); // set internal style name
 			}
 

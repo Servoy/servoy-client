@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
  * @since 7.0
  */
 @ServoyMobile
-public interface IBaseSMForm
+public interface IBaseSMForm extends IBaseSMListContainer
 {
 
 	/**
@@ -380,6 +380,86 @@ public interface IBaseSMForm
 	 * @return a IBaseSMLabel object
 	 */
 	public IBaseSMLabel newLabel(String txt, int x, int y, int width, int height);
+
+	/**
+	 * Creates a new ISMPortal object on the form - including the name of the ISMPortal object; the relation the ISMPortal object is based on, the "x" and "y" position of the ISMPortal object in pixels, as well as the width and height of the ISMPortal object in pixels.
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/table1','db:/server2/table2',JSRelation.INNER_JOIN);
+	 * relation.newRelationItem('another_parent_table_id', '=', 'another_child_table_parent_id');
+	 * var portal = form.newPortal('portal',relation,200,200,300,300);
+	 * portal.newField('someColumn',ISMField.TEXT_FIELD,200,200,120);
+	 * forms['newForm1'].controller.show();
+	 * 
+	 * @param name the specified name of the ISMPortal object
+	 * @param relation the relation of the ISMPortal object
+	 * @param x the horizontal "x" position of the ISMPortal object in pixels
+	 * @param y the vertical "y" position of the ISMPortal object in pixels
+	 * @param width the width of the ISMPortal object in pixels
+	 * @param height the height of the ISMPortal object in pixels
+	 * 
+	 * @return a ISMPortal object 
+	 */
+	@ServoyMobileFilterOut
+	public IBaseSMPortal newPortal(String name, Object relation, int x, int y, int width, int height);
+
+	/**
+	 * Returns a ISMPortal that has the given name.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm("myForm");
+	 * var portal = frm.getPortal("myPortal");
+	 * portal.initialSort = 'my_table_text desc';
+	 *
+	 * @param name the specified name of the portal
+	 * 
+	 * @return a ISMPortal object
+	 */
+	@ServoyMobileFilterOut
+	public IBaseSMPortal getPortal(String name);
+
+	/**
+	 * Removes a ISMPortal that has the given name. Returns true if removal was successful, false otherwise. 
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('newFormX',myDatasource,null,true,800,600);
+	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/myTable','db:/server1/myOtherTable',JSRelation.INNER_JOIN);
+	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
+	 * var ISMPortal = form.newPortal('jsp',relation,100,400,300,300);
+	 * ISMPortal.newField('child_table_id',ISMField.TEXT_FIELD,200,200,120);
+	 * var ISMMethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if (form.removeComponent('jsp') == true) application.output('Portal removed ok'); else application.output('Portal could not be deleted'); forms['newFormX'].controller.recreateUI();}");
+	 * var removerButton = form.newButton('Click here to remove the portal',450,500,250,50,method);
+	 * removerButton.name = 'remover';
+	 * forms['newFormX'].controller.show();
+	 * 
+	 * @param name the specified name of the ISMPortal to be removed
+	 * 
+	 * @return true if the ISMPortal has successfully been removed; false otherwise
+	 */
+	@ServoyMobileFilterOut
+	public boolean removePortal(String name);
+
+	/**
+	 * Returns all ISMPortal objects of this form (not including the ones from the parent form), including the ones without a name.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm("myForm");
+	 * var portals = frm.getPortals();
+	 * for (var i in portals)
+	 * {
+	 * 	var p = portals[i];
+	 * 	if (p.name != null)
+	 * 		application.output(p.name);
+	 * 	else
+	 * 		application.output("unnamed portal detected");
+	 * }
+	 * 
+	 * @return an array of all ISMPortal objects on this form
+	 *
+	 */
+	@ServoyMobileFilterOut
+	public IBaseSMPortal[] getPortals();
 
 	/**
 	 * Creates a new IBaseSMTabPanel object on the form - including the name of the IBaseSMTabPanel object, the "x" and "y" position of the IBaseSMTabPanel object in pixels, as well as the width and height of the IBaseSMTabPanel object in pixels.

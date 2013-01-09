@@ -50,5 +50,5 @@ public interface IContentSpecConstantsBase
 	public static final String PROPERTY_ONLOADMETHODID = "onLoadMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONHIDEMETHODID = "onHideMethodID"; //$NON-NLS-1$
 	public static final String PROPERTY_ONRECORDSELECTIONMETHODID = "onRecordSelectionMethodID"; //$NON-NLS-1$
-
+	public static final String PROPERTY_RELATIONNAME = "relationName"; //$NON-NLS-1$
 }

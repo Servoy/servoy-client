@@ -20,8 +20,8 @@ package com.servoy.j2db.scripting.solutionhelper;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMButton;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMField;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
+import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMListContainer;
 import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 
 /**
@@ -29,21 +29,20 @@ import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
  */
 public class BaseSHList implements IBaseSHList
 {
-
-	protected final IBaseSMForm form;
+	protected final IBaseSMListContainer container;
 	protected final BaseSolutionHelper solutionHelper;
 	private IBaseSMButton textAndActionAndIconButton;
 	private IBaseSMGraphicalComponent subtextComponent;
 	private IBaseSMField countComponent;
 	private IBaseSMField iconComponent;
 
-	public BaseSHList(IBaseSMForm listForm, BaseSolutionHelper solutionHelper)
+	public BaseSHList(IBaseSMListContainer container, BaseSolutionHelper solutionHelper)
 	{
-		this.form = listForm;
+		this.container = container;
 		this.solutionHelper = solutionHelper;
 
 		// check for existing relevant components
-		for (IBaseSMComponent c : form.getComponents())
+		for (IBaseSMComponent c : container.getComponents())
 		{
 			if (c instanceof IBaseSMButton && Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_BUTTON)))
 			{
@@ -60,21 +59,6 @@ public class BaseSHList implements IBaseSHList
 				else if (Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_IMAGE))) iconComponent = (IBaseSMField)c;
 			}
 		}
-	}
-
-	public IBaseSMForm getListForm()
-	{
-		return form;
-	}
-
-	public String getDataSource()
-	{
-		return form.getDataSource();
-	}
-
-	public void setDataSource(String dataSource)
-	{
-		form.setDataSource(dataSource);
 	}
 
 	public String getCountDataProviderID()
@@ -169,7 +153,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (textAndActionAndIconButton == null)
 		{
-			textAndActionAndIconButton = form.newButton(null, 0, 0, 0, 0, null);
+			textAndActionAndIconButton = container.newButton(null, 0, 0, 0, 0, null);
 			solutionHelper.getMobileProperties(textAndActionAndIconButton).setPropertyValue(IMobileProperties.LIST_ITEM_BUTTON, Boolean.TRUE);
 		}
 	}
@@ -178,7 +162,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (subtextComponent == null)
 		{
-			subtextComponent = form.newLabel(null, 0, 0, 0, 0);
+			subtextComponent = container.newLabel(null, 0, 0, 0, 0);
 			solutionHelper.getMobileProperties(subtextComponent).setPropertyValue(IMobileProperties.LIST_ITEM_SUBTEXT, Boolean.TRUE);
 		}
 	}
@@ -187,7 +171,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (countComponent == null)
 		{
-			countComponent = form.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 0, 0);
+			countComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 0, 0);
 			solutionHelper.getMobileProperties(countComponent).setPropertyValue(IMobileProperties.LIST_ITEM_COUNT, Boolean.TRUE);
 		}
 	}
@@ -196,7 +180,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (iconComponent == null)
 		{
-			iconComponent = form.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 0, 0);
+			iconComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 0, 0);
 			solutionHelper.getMobileProperties(iconComponent).setPropertyValue(IMobileProperties.LIST_ITEM_IMAGE, Boolean.TRUE);
 		}
 	}
