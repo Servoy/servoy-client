@@ -66,7 +66,7 @@ public interface IJSRecord
 	 * var record= %%prefix%%foundset.getSelectedRecord();
 	 * record.revertChanges();
 	 */
-//	public void revertChanges();
+	public void revertChanges();
 
 	/**
 	 * Returns a JSDataSet with outstanding (not saved) changed data of this record.
