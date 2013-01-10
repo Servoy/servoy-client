@@ -713,7 +713,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public synchronized SessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects,
 		String preferedSolution) throws Exception
 	{
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
+		if (debugHeadlessClient != null && !debugHeadlessClient.isShutDown())
 		{
 			debugHeadlessClient.shutDown(true);
 		}

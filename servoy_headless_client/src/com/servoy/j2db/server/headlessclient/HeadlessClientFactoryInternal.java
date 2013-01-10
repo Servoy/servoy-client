@@ -35,7 +35,6 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
-import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
 
@@ -70,11 +69,6 @@ public class HeadlessClientFactoryInternal
 					// When last entry in solutionOpenMethodArgs in "nodebug" a non-debugging client is created.
 					if (as.isDeveloperStartup() && !nodebug)
 					{
-						IDebugHeadlessClient debugHeadlessClient = as.getDebugClientHandler().getDebugHeadlessClient();
-						if (debugHeadlessClient != null)
-						{
-							debugHeadlessClient.shutDown(true);
-						}
 						sc[0] = as.getDebugClientHandler().createDebugHeadlessClient(req, username, password, null, openArgs, solutionname);
 					}
 					else
