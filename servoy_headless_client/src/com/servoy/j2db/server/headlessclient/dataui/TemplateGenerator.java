@@ -2107,7 +2107,8 @@ public class TemplateGenerator
 	{
 		Color portalBgColor = meta.getBackground();
 		if (portalBgColor == null) portalBgColor = formPartBgColor;
-		createCellBasedView(meta, form, html, css, !meta.getMultiLine(), startY, endY, portalBgColor, sp, -1, false);
+		createCellBasedView(meta, form, html, css, !meta.getMultiLine(), meta.getLocation().y, meta.getLocation().y + meta.getSize().height, portalBgColor, sp,
+			-1, false);
 	}
 
 	private static void createShapeHTML(Shape shape, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
@@ -2990,8 +2991,8 @@ public class TemplateGenerator
 //			if (ins != null) x += ins.left;
 			if (locationModifier != null)
 			{
-				y = Math.max(y+locationModifier.y,0);
-				x = Math.max(x+locationModifier.x,0);
+				y = Math.max(y + locationModifier.y, 0);
+				x = Math.max(x + locationModifier.x, 0);
 			}
 			int w = component.getSize().width;
 			if (ins != null) w -= (ins.left + ins.right);
@@ -3079,8 +3080,8 @@ public class TemplateGenerator
 //			if (ins != null) x += ins.left;
 			if (locationModifier != null)
 			{
-				y = Math.max(y+locationModifier.y,0);
-				x = Math.max(x+locationModifier.x,0);
+				y = Math.max(y + locationModifier.y, 0);
+				x = Math.max(x + locationModifier.x, 0);
 			}
 			int w = component.getSize().width;
 			if (ins != null) w -= (ins.left + ins.right);
