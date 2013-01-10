@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.scripting.JSEvent;
@@ -210,7 +211,21 @@ public final class ProfileData
 
 	public String getArgs()
 	{
-		return Arrays.toString(args);
+		Object[] cleanList = new Object[args.length];
+		// replace "org.mozilla.javascript.Undefined@319d6e87" with "undefined" 
+		for (int i = 0; i < args.length; i++)
+		{
+			Object object = args[i];
+			if (object instanceof Undefined)
+			{
+				cleanList[i] = "undefined";
+			}
+			else
+			{
+				cleanList[i] = object;
+			}
+		}
+		return Arrays.toString(cleanList);
 	}
 
 	public long getOwnTime()
