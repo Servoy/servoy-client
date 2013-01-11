@@ -17,16 +17,20 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import org.apache.wicket.AbortException;
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigation;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigation;
+import org.apache.wicket.markup.repeater.AbstractRepeater;
 
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 
@@ -152,4 +156,32 @@ public class ServoyAjaxPagingNavigator extends AjaxPagingNavigator implements IS
 		}
 	}
 
+	@Override
+	protected void onAjaxEvent(AjaxRequestTarget target)
+	{
+		// update the container (parent) of the pageable, this assumes that
+		// the pageable is a component, and that it is a child of a web
+		// markup container.
+
+		Component container = ((Component)getPageable());
+		// no need for a nullcheck as there is bound to be a non-repeater
+		// somewhere higher in the hierarchy
+		while (container instanceof AbstractRepeater)
+		{
+			container = container.getParent();
+		}
+		// get the proper container to add to the target, for a tableview listview 
+		if (container instanceof WebMarkupContainer)
+		{
+			container = container.getParent();
+		}
+		target.addComponent(container);
+
+		// in case the navigator is not contained by the container, we have
+		// to add it to the response
+		if (((MarkupContainer)container).contains(this, true) == false)
+		{
+			target.addComponent(this);
+		}
+	}
 }
