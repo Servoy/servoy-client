@@ -974,6 +974,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		repaint();
 	}
 
+	public boolean isComponentEnabled()
+	{
+		return accesibleStateHolder.isEnabled();
+	}
+
 	@Override
 	protected void processFocusEvent(FocusEvent e)
 	{
@@ -2062,6 +2067,11 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		public boolean isAccessible()
 		{
 			return accessible;
+		}
+
+		public boolean isEnabled()
+		{
+			return enabled;
 		}
 
 	}

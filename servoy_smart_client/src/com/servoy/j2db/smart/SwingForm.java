@@ -898,7 +898,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			for (Component child : ((Container)parent).getComponents())
 			{
 				if ((child instanceof IScriptableProvider || child instanceof IScriptable || child instanceof ListView || child instanceof TableView) &&
-					child.isEnabled())
+					(child.isEnabled() || (child instanceof DataComboBox && ((DataComboBox)child).isComponentEnabled())))
 				{
 					components.add(child);
 				}
