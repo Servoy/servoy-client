@@ -47,7 +47,7 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 		this.isCopy = isNew;
 	}
 
-	protected final T getBaseComponent(boolean forModification)
+	public final T getBaseComponent(boolean forModification)
 	{
 		if (forModification)
 		{
