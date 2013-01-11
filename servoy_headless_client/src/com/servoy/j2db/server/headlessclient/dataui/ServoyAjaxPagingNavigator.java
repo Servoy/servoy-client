@@ -25,7 +25,6 @@ import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigation
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
@@ -170,12 +169,13 @@ public class ServoyAjaxPagingNavigator extends AjaxPagingNavigator implements IS
 		{
 			container = container.getParent();
 		}
-		// get the proper container to add to the target, for a tableview listview 
-		if (container instanceof WebMarkupContainer)
+
+		Component pageableComp = container;
+		while (!(container instanceof WebCellBasedView))
 		{
 			container = container.getParent();
 		}
-		target.addComponent(container);
+		target.addComponent(container != null ? container : pageableComp);
 
 		// in case the navigator is not contained by the container, we have
 		// to add it to the response
