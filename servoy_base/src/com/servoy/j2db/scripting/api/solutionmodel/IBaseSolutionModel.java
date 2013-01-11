@@ -95,6 +95,24 @@ public interface IBaseSolutionModel
 	 */
 	public IBaseSMForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height);
 
+	/**
+	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.
+	 * 
+	 * NOTE: Make sure you call history.remove first in your Servoy method (script) or call form.controller.recreateUI() before the script ends.
+	 *
+	 * @sample
+	 * // revert the form to the original solution form, removing any changes done to it through the solution model.
+	 * var revertedForm = solutionModel.revertForm('myForm')
+	 * // add a label on a random place.
+	 * revertedForm.newLabel("MyLabel",Math.random()*100,Math.random()*100,80,20);
+	 * // make sure that the ui is up to date.
+	 * forms.myForm.controller.recreateUI();
+	 *
+	 * @param name the specified name of the form to revert
+	 * 
+	 * @return an IBaseSMForm object
+	 */
+	public IBaseSMForm revertForm(String name);
 
 	/**
 	 * Removes the specified form during the persistent connected client session.

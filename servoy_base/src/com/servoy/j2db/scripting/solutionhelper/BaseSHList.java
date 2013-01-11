@@ -61,6 +61,11 @@ public class BaseSHList implements IBaseSHList
 		}
 	}
 
+	protected IBaseSMListContainer getContainer()
+	{
+		return container;
+	}
+
 	public String getCountDataProviderID()
 	{
 		return countComponent != null ? countComponent.getDataProviderID() : null;

@@ -261,7 +261,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 *
 	 * @param name the specified name of the form to revert
 	 * 
-	 * @return a ISMForm object
+	 * @return an ISMForm object
 	 */
 	public ISMForm revertForm(String name);
 

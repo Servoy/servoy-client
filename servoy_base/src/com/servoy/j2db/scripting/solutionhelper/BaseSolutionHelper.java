@@ -142,6 +142,17 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		return listComponent;
 	}
 
+	public IBaseSHList getListForm(String formName)
+	{
+		IBaseSHList listForm = null;
+		IBaseSMForm f = solutionModel.getForm(formName);
+		if (f != null && f.getView() == IBaseSMForm.LIST_VIEW)
+		{
+			listForm = instantiateList(f, this);
+		}
+		return listForm;
+	}
+
 	public IBaseSHInsetList getInsetList(IBaseSMForm form, String name)
 	{
 		if (form == null || name == null) return null;
