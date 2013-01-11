@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.constants.IPartConstants;
 import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
@@ -33,16 +34,16 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID
 {
-	public static final int TITLE_HEADER = 1;
-	public static final int HEADER = 2;
-	public static final int LEADING_GRAND_SUMMARY = 3;//no group by
-	public static final int LEADING_SUBSUMMARY = 4;//group by (n times!)
-	public static final int BODY = 5;
-	public static final int TRAILING_SUBSUMMARY = 6;//group by (n times!)
-	public static final int TRAILING_GRAND_SUMMARY = 7;//no group by
-	public static final int FOOTER = 8;
-	public static final int TITLE_FOOTER = 9;
-	public static final int PART_ARRAY_SIZE = 10;
+	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;
+	public static final int HEADER = IPartConstants.HEADER;
+	public static final int LEADING_GRAND_SUMMARY = IPartConstants.LEADING_GRAND_SUMMARY;
+	public static final int LEADING_SUBSUMMARY = IPartConstants.LEADING_SUBSUMMARY;
+	public static final int BODY = IPartConstants.BODY;
+	public static final int TRAILING_SUBSUMMARY = IPartConstants.TRAILING_SUBSUMMARY;
+	public static final int TRAILING_GRAND_SUMMARY = IPartConstants.TRAILING_GRAND_SUMMARY;
+	public static final int FOOTER = IPartConstants.FOOTER;
+	public static final int TITLE_FOOTER = IPartConstants.TITLE_FOOTER;
+	public static final int PART_ARRAY_SIZE = IPartConstants.PART_ARRAY_SIZE;
 
 	public static boolean rendersOnlyInPrint(int partType)
 	{
