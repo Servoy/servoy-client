@@ -905,6 +905,29 @@ public class Utils
 		return sb.toString();
 	}
 
+	/**
+	 * Escape quotes in a string, handle already escaped quotes
+	 * 
+	 * @param str
+	 * @param quote
+	 */
+	public static String stringEscapeQuote(String str, char quote)
+	{
+		if (str == null || ((str.indexOf('\\') < 0) && str.indexOf(quote) < 0)) return str;
+
+		StringBuilder sb = new StringBuilder(str.length() + 10);
+		for (char c : str.toCharArray())
+		{
+			if (c == '\\' || c == quote)
+			{
+				sb.append('\\');
+			}
+			sb.append(c);
+		}
+
+		return sb.toString();
+	}
+
 	public static String stringJoin(Object[] array, char separator)
 	{
 		if (array == null) return null;
