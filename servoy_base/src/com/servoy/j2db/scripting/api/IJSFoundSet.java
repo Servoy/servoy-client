@@ -159,4 +159,42 @@ public interface IJSFoundSet
 	 * @param comparator record comparator function
 	 */
 	public void sort(final Object comparator);
+
+	/**
+	 * Delete record with the given index.
+	 *
+	 * @sample
+	 * var success = %%prefix%%foundset.deleteRecord(4);
+	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
+	 *
+	 * @param index The index of the record to delete.
+	 * 
+	 * @return boolean true if record could be deleted.
+	 */
+	public boolean js_deleteRecord(Number index) throws Exception;
+
+	/**
+	 * Delete record from foundset.
+	 *
+	 * @sample
+	 * var success = %%prefix%%foundset.deleteRecord(rec);
+	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
+	 *
+	 * @param record The record to delete from the foundset.
+	 * 
+	 * @return boolean true if record could be deleted.
+	 */
+	public boolean js_deleteRecord(IJSRecord record) throws Exception;
+
+	/**
+	 * Delete currently selected record(s).
+	 * If the foundset is in multiselect mode, all selected records are deleted.
+	 *
+	 * @sample
+	 * var success = %%prefix%%foundset.deleteRecord();
+	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
+	 *
+	 * @return boolean true if all records could be deleted.
+	 */
+	public boolean js_deleteRecord() throws Exception;
 }

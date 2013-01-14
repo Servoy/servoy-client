@@ -2374,10 +2374,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return boolean true if record could be deleted.
 	 */
-	public boolean js_deleteRecord(IRecord record) throws ServoyException
+	public boolean js_deleteRecord(IJSRecord record) throws ServoyException
 	{
 		checkInitialized();
-		return deleteRecord(new int[] { getRecordIndex(record) });
+		return deleteRecord(new int[] { getRecordIndex((IRecord)record) });
 	}
 
 	/**

@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+
 /**
  * The Record interface for business objects (table rows)
  * 
