@@ -25,7 +25,6 @@ import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
@@ -395,5 +394,13 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	public void setLineNumberOffset(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_LINENUMBEROFFSET, arg);
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean isEnum()
+	{
+		return getComment() != null && getComment().indexOf("@enum") != -1;
 	}
 }

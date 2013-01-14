@@ -27,11 +27,11 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -306,7 +306,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return null;
 		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(primaryDataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(primaryDataSource);
 		if (stn != null)
 		{
 			return stn[0];
@@ -342,7 +342,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return null;
 		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(foreignDataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(foreignDataSource);
 		if (stn != null)
 		{
 			return stn[0];
@@ -378,7 +378,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return null;
 		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(primaryDataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(primaryDataSource);
 		if (stn != null)
 		{
 			return stn[1];
@@ -409,7 +409,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return null;
 		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(primaryDataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(primaryDataSource);
 		if (stn != null)
 		{
 			return getRootObject().getServer(stn[0]);
@@ -440,7 +440,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return null;
 		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(foreignDataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(foreignDataSource);
 		if (stn != null)
 		{
 			return stn[1];
@@ -600,7 +600,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return null;
 		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(dataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 		if (stn != null)
 		{
 			try
@@ -642,7 +642,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return null;
 		}
-		String[] stn = DataSourceUtils.getDBServernameTablename(foreignDataSource);
+		String[] stn = DataSourceUtilsBase.getDBServernameTablename(foreignDataSource);
 		if (stn != null)
 		{
 			return getRootObject().getServer(stn[0]);
@@ -707,6 +707,10 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				pc = dataProviderHandler.getGlobalDataProvider(pdp);
 				if (pc != null)
 				{
+					p[pos] = pc;
+				}
+				else if (pdp.split("\\.").length > 3) { //$NON-NLS-1$
+					pc = new EnumDataProvider(pdp, 0);
 					p[pos] = pc;
 				}
 				else

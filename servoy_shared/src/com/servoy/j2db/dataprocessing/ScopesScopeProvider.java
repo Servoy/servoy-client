@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import org.mozilla.javascript.Scriptable;
+
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.util.Pair;
@@ -57,7 +59,19 @@ class ScopesScopeProvider implements IGlobalValueEntry
 			GlobalScope globalScope = scopesScope.getGlobalScope(scope.getLeft());
 			if (globalScope != null)
 			{
-				return globalScope.get(scope.getRight());
+				Scriptable scriptable = globalScope;
+				Object value = null;
+				String[] datapath = scope.getRight().split("\\."); //$NON-NLS-1$
+				for (String provider : datapath)
+				{
+					value = scriptable.get(provider, scriptable);
+					if (value instanceof Scriptable)
+					{
+						scriptable = (Scriptable)value;
+					}
+					else break;
+				}
+				return value;
 			}
 		}
 

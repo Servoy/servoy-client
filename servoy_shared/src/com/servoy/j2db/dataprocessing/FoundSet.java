@@ -3382,15 +3382,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
-			if (scope.getLeft() != null)
+			if (ScopesUtils.getVariableScope(dataProviderID).getLeft() != null)
 			{
-				GlobalScope g_scope = fsm.getScriptEngine().getScopesScope().getGlobalScope(scope.getLeft());
-				if (g_scope != null && g_scope.has(scope.getRight(), g_scope))
-				{
-					return g_scope.get(scope.getRight());
-				}
-				return null;
+				return fsm.getScopesScopeProvider().getDataProviderValue(dataProviderID);
 			}
 		}
 		catch (Exception e)

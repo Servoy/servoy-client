@@ -45,6 +45,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -71,6 +72,7 @@ import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.SortedList;
@@ -715,6 +717,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				value = ((LiteralDataprovider)args[i]).getValue();
 			}
+			else if (args[i] instanceof EnumDataProvider)
+			{
+				value = getScopesScopeProvider().getDataProviderValue(args[i].getDataProviderID());
+			}
 			else
 			{
 				String dataProviderID = args[i].getDataProviderID();
@@ -914,7 +920,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (table == null)
 		{
 			// when it is a db:/server/table data source
-			String[] servernameTablename = DataSourceUtils.getDBServernameTablename(dataSource);
+			String[] servernameTablename = DataSourceUtilsBase.getDBServernameTablename(dataSource);
 			if (servernameTablename != null && servernameTablename[0] != null)
 			{
 				try
