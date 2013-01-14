@@ -170,6 +170,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private boolean adjusting = false;
 	private Object lastInvalidValue = NONE;
 
+	private RenderableWrapper renderableWrapper;
+
 	public CellAdapter(IApplication app, final TableView table, final int index, int width, String name, String title, String dataProviderID,
 		Component renderer, Component editor)
 	{
@@ -184,10 +186,27 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			componentBgColor = renderer.getBackground();
 			componentFgColor = renderer.getForeground();
 			componentFont = renderer.getFont();
+
+			if (renderer instanceof IScriptableProvider)
+			{
+				IScriptable scriptable = ((IScriptableProvider)renderer).getScriptObject();
+				if (scriptable instanceof ISupportOnRenderCallback)
+				{
+					IScriptRenderMethods renderable = ((ISupportOnRenderCallback)scriptable).getRenderable();
+					if (renderable instanceof RenderableWrapper) renderableWrapper = (RenderableWrapper)renderable;
+				}
+			}
+
 			renderer.addComponentListener(new ComponentListener()
 			{
 				public void componentShown(ComponentEvent e)
 				{
+					// if visibility change is done onRender, don't change the column
+					if (renderableWrapper != null && renderableWrapper.getProperty(RenderableWrapper.PROPERTY_VISIBLE) != null)
+					{
+						return;
+					}
+
 					int i = table.getColumnModel().getColumnCount();
 					table.getColumnModel().addColumn(CellAdapter.this);
 
@@ -221,6 +240,11 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 				public void componentHidden(ComponentEvent e)
 				{
+					// if visibility change is done onRender, don't change the column
+					if (renderableWrapper != null && renderableWrapper.getProperty(RenderableWrapper.PROPERTY_VISIBLE) != null)
+					{
+						return;
+					}
 					table.getColumnModel().removeColumn(CellAdapter.this);
 				}
 
