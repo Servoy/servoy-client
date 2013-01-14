@@ -274,13 +274,7 @@ public class JSWindow implements IConstantsObject
 
 	public void js_setTitle(final String title)
 	{
-		impl.getApplication().invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				impl.setTitle(title);
-			}
-		});
+		impl.setTitle(title, true);
 	}
 
 	/**
