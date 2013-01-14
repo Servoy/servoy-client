@@ -36,7 +36,6 @@ import javax.swing.RootPaneContainer;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.LAFManager;
@@ -229,14 +228,34 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 //	}
 
 	@Override
-	public void setTitle(String title)
+	public void setTitle(final String title)
+	{
+		setTitle(title, false);
+	}
+
+	@Override
+	public void setTitle(final String title, boolean delayed)
 	{
 		super.setTitle(title);
 		if (isVisible())
 		{
 			if (wrappedWindow instanceof FormWindow)
 			{
-				((FormWindow)wrappedWindow).setTitle(title);
+				if (delayed)
+				{
+					application.invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							// see FormManager showFormInMainPanel, title is set delayed, have to delay here also
+							((FormWindow)wrappedWindow).setTitle(title);
+						}
+					});
+				}
+				else
+				{
+					((FormWindow)wrappedWindow).setTitle(title);
+				}
 			}
 			else if (wrappedWindow instanceof JFrame) // for main app. frame
 			{
@@ -251,13 +270,6 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				});
 			}
 		} // else no use setting title as the tags can't be processed (if there is no form open)
-	}
-
-
-	@Override
-	public IApplication getApplication()
-	{
-		return application;
 	}
 
 	@Override

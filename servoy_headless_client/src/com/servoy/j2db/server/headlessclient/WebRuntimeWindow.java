@@ -30,7 +30,6 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.persistence.Form;
@@ -188,9 +187,32 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	@Override
 	public void setTitle(String title)
 	{
-		MainPage mp = getMainPage();
-		if (mp != null) mp.setTitle(title);
+		setTitle(title, false);
+	}
+
+	@Override
+	public void setTitle(final String title, boolean delayed)
+	{
 		super.setTitle(title);
+		final MainPage mp = getMainPage();
+		if (mp != null)
+		{
+			if (delayed)
+			{
+				application.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						// see FormManager showFormInMainPanel, title is set delayed, have to delay here also
+						mp.setTitle(title);
+					}
+				});
+			}
+			else
+			{
+				mp.setTitle(title);
+			}
+		}
 	}
 
 	@Override
@@ -353,11 +375,5 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		{
 			mp.resetBounds(windowName);
 		}
-	}
-
-	@Override
-	public IApplication getApplication()
-	{
-		return application;
 	}
 }
