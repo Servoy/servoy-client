@@ -169,36 +169,35 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 			{
 				String servoyMobileStyle = //
 
-				"label, label.a, button, button.a, field, field.a, header, header.a, footer, footer.a {"//
+				"label, label.a, button, button.a, field, field.a, header, header.a, footer, footer.a, portal, portal.a {"//
 					+ "color: #FFFFFF;" //
 					+ "background-color: #414141;" //
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.b, button.b, field.b, header.b, footer.b {"//
+					+ "label.b, button.b, field.b, header.b, footer.b, portal.b {"//
 					+ "color: #FFFFFF;" //
 					+ "background-color: #4C83B1;" //
 					+ "font-weight:bold;" //
 					+ "}" //
 
-					+ "label.c, button.c, field.c, header.c, footer.c {" //
+					+ "label.c, button.c, field.c, header.c, footer.c, portal.c {" //
 					+ "color: #363636;" //
 					+ "background-color: #F5F5F5;"//
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.d, button.d, field.d, header.d, footer.d {" //
+					+ "label.d, button.d, field.d, header.d, footer.d, portal.d {" //
 					+ "color: #363636;" //
 					+ "background-color: #FFFFFF;" //
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.e, button.e, field.e, header.e, footer.e {" //
+					+ "label.e, button.e, field.e, header.e, footer.e, portal.e {" //
 					+ "color: #363636;" //
 					+ "background-color: #FBE274;" //
 					+ "font-weight:bold;" //
 					+ "}" //
-
 				;
 				flattenedSolution.createStyle("_servoy_mobile", servoyMobileStyle);
 			}
