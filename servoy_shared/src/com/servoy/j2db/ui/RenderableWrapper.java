@@ -287,6 +287,11 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 		properties.clear();
 	}
 
+	public Object getProperty(String property)
+	{
+		return properties.get(property);
+	}
+
 	public void clearProperty(String property)
 	{
 		properties.remove(property);
