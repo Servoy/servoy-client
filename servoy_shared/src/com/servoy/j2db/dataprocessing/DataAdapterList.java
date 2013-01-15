@@ -807,7 +807,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 	public String getStringValue(String name)
 	{
-		String stringValue = TagResolver.formatObject(getValueObject(currentRecord, name), application.getSettings());
+		String stringValue = TagResolver.formatObject(getValueObject(currentRecord, name), application.getLocale(), application.getSettings());
 		return processValue(stringValue, name, dataProviderLookup);
 	}
 

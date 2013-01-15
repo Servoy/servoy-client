@@ -1600,7 +1600,8 @@ public class ComponentFactory
 				try
 				{
 					IValueList secondLookup = getFallbackValueList(application, field, type, format, valuelist);
-					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup);
+					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup, format != null ? format.getDisplayFormat()
+						: null);
 					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
 				}
 				catch (Exception e1)
@@ -1641,7 +1642,8 @@ public class ComponentFactory
 			{
 				try
 				{
-					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, field, type, format, fallbackValueList));
+					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, field, type, format, fallbackValueList),
+						format != null ? format.getDisplayFormat() : null);
 				}
 				catch (Exception e)
 				{

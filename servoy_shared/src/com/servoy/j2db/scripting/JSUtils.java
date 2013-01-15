@@ -201,12 +201,12 @@ public class JSUtils implements IJSUtils
 			{
 				Scriptable scriptObject = (Scriptable)scriptable;
 				settings = Settings.getInstance();
-				tagResolver = TagResolver.createResolver(scriptObject);
+				tagResolver = TagResolver.createResolver(scriptObject, application.getLocale());
 			}
 
 			if (tagResolver != null && settings != null)
 			{
-				return Text.processTags(TagResolver.formatObject(text, settings), tagResolver);
+				return Text.processTags(TagResolver.formatObject(text, application.getLocale(), settings), tagResolver);
 			}
 			return ""; //$NON-NLS-1$
 		}

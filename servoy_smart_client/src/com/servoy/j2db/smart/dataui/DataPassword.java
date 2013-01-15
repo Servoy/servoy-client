@@ -310,7 +310,7 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 				previousValue = o;
 				if (o != null)
 				{
-					setText(TagResolver.formatObject(o, application.getSettings()));
+					setText(TagResolver.formatObject(o, application.getLocale(), application.getSettings()));
 				}
 				else
 				{

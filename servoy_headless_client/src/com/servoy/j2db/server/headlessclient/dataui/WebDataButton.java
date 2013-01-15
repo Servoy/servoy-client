@@ -142,8 +142,9 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 						}
 						else
 						{
-							bodyText = Text.processTags(TagResolver.formatObject(val, fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null
-								? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)), resolver);
+							bodyText = Text.processTags(TagResolver.formatObject(val, application.getLocale(), fp.parsedFormat,
+								(fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)),
+								resolver);
 						}
 					}
 					catch (ParseException e)
@@ -193,7 +194,7 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 				{
 					try
 					{
-						bodyText = TagResolver.formatObject(modelObject, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
 							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
 					}
 					catch (ParseException e)

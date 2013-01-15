@@ -120,8 +120,9 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 					{
 						try
 						{
-							bodyText = Text.processTags(TagResolver.formatObject(val, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
-								? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)), resolver);
+							bodyText = Text.processTags(TagResolver.formatObject(val, application.getLocale(), cf.parsedFormat,
+								(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
+								resolver);
 						}
 						catch (ParseException e)
 						{
@@ -171,7 +172,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 				{
 					try
 					{
-						bodyText = TagResolver.formatObject(modelObject, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
 							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
 					}
 					catch (ParseException e)

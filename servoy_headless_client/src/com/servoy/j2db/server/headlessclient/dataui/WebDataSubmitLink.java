@@ -169,8 +169,9 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 					{
 						try
 						{
-							bodyText = Text.processTags(TagResolver.formatObject(value, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
-								? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)), resolver);
+							bodyText = Text.processTags(TagResolver.formatObject(value, application.getLocale(), cf.parsedFormat,
+								(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
+								resolver);
 						}
 						catch (ParseException e)
 						{
@@ -211,7 +212,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 				{
 					try
 					{
-						bodyText = TagResolver.formatObject(modelObject, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
 							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
 					}
 					catch (ParseException e)
