@@ -21,8 +21,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Iterator;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
 /**

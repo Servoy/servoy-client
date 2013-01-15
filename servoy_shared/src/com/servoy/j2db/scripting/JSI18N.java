@@ -29,13 +29,13 @@ import java.util.TreeMap;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.api.IJSI18N;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.api.IJSI18N;
 import com.servoy.j2db.util.StringComparator;
 
 /**

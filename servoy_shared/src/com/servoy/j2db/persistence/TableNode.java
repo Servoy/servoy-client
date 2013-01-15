@@ -21,11 +21,11 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.UUID;
 
 /**

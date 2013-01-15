@@ -17,8 +17,8 @@
 
 package com.servoy.j2db.ui;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
 
 /**

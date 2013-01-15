@@ -38,6 +38,7 @@ import javax.swing.text.Document;
 
 import sun.java2d.SunGraphics2D;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
@@ -55,7 +56,6 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 

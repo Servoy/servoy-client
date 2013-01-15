@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledExecutorService;
 
+import com.servoy.base.util.I18NProvider;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -31,7 +32,6 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.util.I18NProvider;
 
 /**
  * Interface for minimal service provider.

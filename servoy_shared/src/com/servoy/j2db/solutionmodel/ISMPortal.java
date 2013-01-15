@@ -19,7 +19,7 @@ package com.servoy.j2db.solutionmodel;
 
 import java.awt.Dimension;
 
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMPortal;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMPortal;
 
 
 /**

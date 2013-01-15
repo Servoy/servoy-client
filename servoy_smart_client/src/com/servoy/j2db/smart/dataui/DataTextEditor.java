@@ -67,6 +67,7 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.View;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -100,7 +101,6 @@ import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;

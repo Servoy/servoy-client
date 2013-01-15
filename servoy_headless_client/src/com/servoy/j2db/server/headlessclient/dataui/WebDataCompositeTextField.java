@@ -34,6 +34,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
@@ -58,7 +59,6 @@ import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.PersistHelper;
 
 /**

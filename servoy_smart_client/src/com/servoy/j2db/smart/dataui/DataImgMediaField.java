@@ -56,6 +56,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.TransferHandler;
 import javax.swing.text.Document;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IScriptExecuter;
@@ -77,7 +78,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.FileChooserUtils;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;

@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -37,13 +38,27 @@ import com.servoy.j2db.util.keyword.Ident;
 public class DataSourceUtils extends DataSourceUtilsBase
 {
 	public static final String INMEM_DATASOURCE_SCHEME_COLON = "mem:"; //$NON-NLS-1$
+	public static final String DB_DATASOURCE_SCHEME = DataSourceUtilsBase.DB_DATASOURCE_SCHEME;
+	public static final String DB_DATASOURCE_SCHEME_COLON_SLASH = DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH;
+	public static final int DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH = DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH;
 
 	private DataSourceUtils()
 	{
 	}
 
 	/**
-	 * Create the a database data source string from server and table
+	 * Get the server and table name from the datasource (when is is a db datasource)
+	 * 
+	 * @param dataSource the dataSource
+	 * @return the server and table name (or null if not a db datasource)
+	 */
+	public static String[] getDBServernameTablename(String dataSource)
+	{
+		return DataSourceUtilsBase.getDBServernameTablename(dataSource);
+	}
+
+	/**
+	 * Create the a database data source string from server and table. Normalizes tableName if needed.
 	 * 
 	 * @param serverName the serverName
 	 * @param tableName the tableName

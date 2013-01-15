@@ -19,7 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import javax.swing.text.Document;
 
-import com.servoy.j2db.util.ITagResolver;
+import com.servoy.base.util.ITagResolver;
 
 /**
  * Convenient interface to tie a implementing jComponent easily to a dataAdapter

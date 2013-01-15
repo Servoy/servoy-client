@@ -45,6 +45,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.text.Document;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
@@ -67,7 +68,6 @@ import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ScopesUtils;
 
 /**

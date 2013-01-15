@@ -38,6 +38,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.mozilla.javascript.Undefined;
 
+import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -54,7 +55,6 @@ import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;

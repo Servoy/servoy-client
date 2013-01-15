@@ -37,6 +37,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPasswordField;
 import javax.swing.TransferHandler;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
@@ -52,7 +53,6 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.LengthDocumentValidator;

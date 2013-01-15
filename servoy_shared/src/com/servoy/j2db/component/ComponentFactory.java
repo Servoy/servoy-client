@@ -62,6 +62,7 @@ import javax.swing.text.html.CSS;
 import org.json.JSONException;
 import org.xhtmlrenderer.css.constants.CSSName;
 
+import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -108,7 +109,6 @@ import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptableProvider;

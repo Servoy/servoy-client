@@ -17,6 +17,8 @@
 package com.servoy.j2db.util;
 
 
+import com.servoy.base.util.ITagResolver;
+import com.servoy.base.util.TagParser;
 import com.servoy.j2db.J2DBGlobals;
 
 

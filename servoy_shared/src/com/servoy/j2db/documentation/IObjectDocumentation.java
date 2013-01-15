@@ -21,7 +21,7 @@ import java.util.SortedSet;
 
 import org.dom4j.Element;
 
-import com.servoy.j2db.util.ITagResolver;
+import com.servoy.base.util.ITagResolver;
 
 
 /**

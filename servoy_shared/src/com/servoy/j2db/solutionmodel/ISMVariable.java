@@ -18,7 +18,7 @@
 package com.servoy.j2db.solutionmodel;
 
 
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMVariable;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMVariable;
 
 
 /**

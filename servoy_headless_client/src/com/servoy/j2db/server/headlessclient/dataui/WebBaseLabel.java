@@ -48,6 +48,7 @@ import org.apache.wicket.markup.html.link.ILinkListener;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
@@ -74,7 +75,6 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;

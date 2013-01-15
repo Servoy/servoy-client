@@ -33,13 +33,13 @@ import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.IConverter;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
 /**

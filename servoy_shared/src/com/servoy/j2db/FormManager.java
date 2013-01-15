@@ -43,6 +43,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.api.IJSHistory;
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.dataprocessing.EditRecordList;
@@ -66,7 +67,6 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.scripting.api.IJSHistory;
 import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;

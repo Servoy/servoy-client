@@ -21,7 +21,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
-import com.servoy.j2db.persistence.constants.IRepositoryConstants;
+import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.j2db.util.UUID;
 
 /**

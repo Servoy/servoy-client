@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -58,7 +59,6 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.Text;
 

@@ -20,7 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.servoy.j2db.util.IDestroyable;
+import com.servoy.base.util.IDestroyable;
 
 /**
  * handles refresh when a lh side of relation is changed, the normal displaysAdapter created for related field does nothing on relation refresh

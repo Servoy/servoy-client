@@ -31,11 +31,11 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 
+import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.Record;
-import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.util.Debug;

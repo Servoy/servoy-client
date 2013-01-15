@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.query;
 
-import com.servoy.j2db.persistence.constants.IJoinConstants;
+import com.servoy.base.persistence.constants.IJoinConstants;
 
 /** Interface for joins in queries.
  * @author rgansevles

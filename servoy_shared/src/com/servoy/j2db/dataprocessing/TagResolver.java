@@ -27,10 +27,10 @@ import javax.swing.JFormattedTextField.AbstractFormatter;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.Settings;
 

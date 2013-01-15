@@ -93,6 +93,7 @@ import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.FormController;
@@ -129,7 +130,6 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.RuntimeGroup;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.smart.dataui.CellAdapter;
 import com.servoy.j2db.smart.dataui.DataComboBox;

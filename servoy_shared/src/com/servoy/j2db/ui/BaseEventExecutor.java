@@ -19,10 +19,10 @@ package com.servoy.j2db.ui;
 
 import java.awt.Point;
 
+import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.util.Utils;
 
 /**

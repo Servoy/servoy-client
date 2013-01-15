@@ -29,6 +29,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.dataprocessing.FindState;
@@ -39,7 +40,6 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.scripting.RuntimeCheckbox;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Utils;
 
 /**

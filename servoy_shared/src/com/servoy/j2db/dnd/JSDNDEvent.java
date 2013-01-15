@@ -19,10 +19,10 @@ package com.servoy.j2db.dnd;
 import java.awt.Event;
 import java.util.Arrays;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSBaseEvent;
-import com.servoy.j2db.scripting.annotations.ServoyMobileFilterOut;
 
 /**
  * JSDNDEvent, used as argument to drag and drop callbacks.

@@ -21,12 +21,12 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.List;
 
+import com.servoy.base.util.IDestroyable;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dnd.IFormDataDragNDrop;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.util.IDestroyable;
 
 /**
  * Form data renderer interface (normally runtime equivalent of a design part)

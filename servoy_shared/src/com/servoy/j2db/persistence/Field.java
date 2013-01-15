@@ -19,9 +19,9 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Insets;
 
+import com.servoy.base.persistence.constants.IFieldConstants;
+import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.constants.IFieldConstants;
-import com.servoy.j2db.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.util.UUID;
 
 /**

@@ -22,6 +22,7 @@ import java.text.ParseException;
 
 import javax.swing.text.Document;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
@@ -31,7 +32,6 @@ import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.Text;
 
 /**

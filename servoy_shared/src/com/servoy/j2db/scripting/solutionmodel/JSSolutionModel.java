@@ -30,6 +30,11 @@ import javax.swing.border.TitledBorder;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMComponent;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMForm;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -51,16 +56,11 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMComponent;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
-import com.servoy.j2db.scripting.solutionhelper.IMobileProperties;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMRelation;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.DataSourceUtilsBase;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;

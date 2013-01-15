@@ -16,8 +16,8 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import com.servoy.base.persistence.constants.IDefaultSMConstants;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.constants.IDefaultSMConstants;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**

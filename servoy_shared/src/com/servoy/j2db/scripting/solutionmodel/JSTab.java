@@ -22,6 +22,7 @@ import java.awt.Point;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.DummyValidator;
@@ -30,7 +31,6 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.solutionmodel.ISMTab;
 import com.servoy.j2db.util.Debug;

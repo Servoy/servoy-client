@@ -23,9 +23,9 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.api.IJSEvent;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.api.IJSEvent;
 
 /**
  * JSBaseEvent base class for js event objects

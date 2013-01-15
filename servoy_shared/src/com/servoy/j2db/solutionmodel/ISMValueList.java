@@ -17,9 +17,9 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.persistence.constants.IValueListConstants;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMValueList;
+import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMValueList;
 
 
 /**

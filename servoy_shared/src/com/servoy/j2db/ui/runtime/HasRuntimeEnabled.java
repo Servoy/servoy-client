@@ -27,7 +27,7 @@ import org.mozilla.javascript.annotations.JSSetter;
  *
  * @since 6.1
  */
-public interface HasRuntimeEnabled extends com.servoy.j2db.scripting.api.ui.HasRuntimeEnabled
+public interface HasRuntimeEnabled extends com.servoy.base.scripting.api.ui.HasRuntimeEnabled
 {
 
 	/**

@@ -26,7 +26,7 @@ import org.mozilla.javascript.annotations.JSFunction;
  *
  * @since 6.1
  */
-public interface HasRuntimeName extends com.servoy.j2db.scripting.api.ui.HasRuntimeName
+public interface HasRuntimeName extends com.servoy.base.scripting.api.ui.HasRuntimeName
 {
 	/**
 	 * Returns the name of an element. (may be null as well)

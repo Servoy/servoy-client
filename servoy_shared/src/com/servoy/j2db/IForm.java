@@ -19,10 +19,10 @@ package com.servoy.j2db;
 
 import java.awt.print.PrinterJob;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.constants.IFormConstants;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.ServoyException;

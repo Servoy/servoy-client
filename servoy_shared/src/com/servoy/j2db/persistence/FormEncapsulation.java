@@ -17,8 +17,8 @@
 
 package com.servoy.j2db.persistence;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.constants.IFormConstants;
 
 /**
  * Interface that specifies the encapsulation flags of the {@link Form#getEncapsulation()}

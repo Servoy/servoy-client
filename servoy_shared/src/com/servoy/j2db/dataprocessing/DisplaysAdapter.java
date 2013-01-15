@@ -29,6 +29,7 @@ import javax.swing.event.TableModelListener;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.base.util.IDestroyable;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ISmartClientApplication;
@@ -42,7 +43,6 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;

@@ -20,13 +20,13 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.solutionmodel.ISMGraphicalComponent;
 import com.servoy.j2db.solutionmodel.ISMMedia;
 import com.servoy.j2db.solutionmodel.ISMMethod;

@@ -20,6 +20,8 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMValueList;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
@@ -27,8 +29,6 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMValueList;
 import com.servoy.j2db.solutionmodel.ISMField;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.PersistHelper;

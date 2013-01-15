@@ -14,11 +14,11 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMForm;
+import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.constants.IFormConstants;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMForm;
-import com.servoy.j2db.scripting.api.solutionmodel.IBaseSMMethod;
 
 /**
  * Solution model form object.

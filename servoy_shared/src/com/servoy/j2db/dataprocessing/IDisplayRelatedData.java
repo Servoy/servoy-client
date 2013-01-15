@@ -19,7 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
 
-import com.servoy.j2db.util.IDestroyable;
+import com.servoy.base.util.IDestroyable;
 
 /**
  * Convenient interface to tie a implementing jComponent easily to a dataAdapter

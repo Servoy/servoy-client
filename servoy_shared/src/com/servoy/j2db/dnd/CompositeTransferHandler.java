@@ -36,8 +36,8 @@ import javax.swing.JComponent;
 import javax.swing.JViewport;
 import javax.swing.TransferHandler;
 
+import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 

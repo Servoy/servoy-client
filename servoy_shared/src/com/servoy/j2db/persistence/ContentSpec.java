@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.servoy.j2db.persistence.constants.IContentSpecConstantsBase;
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 
 /**
  * The <code>ContentSpec</code> class is a inmem representation of the servoy_content_spec table which can be accessed in core.

@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 
 import org.dom4j.Element;
 
-import com.servoy.j2db.util.ITagResolver;
+import com.servoy.base.util.ITagResolver;
 
 /**
  * Function documentation interface.
