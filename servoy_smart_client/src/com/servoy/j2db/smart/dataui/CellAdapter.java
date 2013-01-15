@@ -828,7 +828,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					public String getStringValue(String name)
 					{
-						return TagResolver.formatObject(dal.getValueObject(state, name), dal.getApplication().getSettings());
+						return TagResolver.formatObject(dal.getValueObject(state, name), application.getLocale(), dal.getApplication().getSettings());
 					}
 				});
 				if (data instanceof DbIdentValue)

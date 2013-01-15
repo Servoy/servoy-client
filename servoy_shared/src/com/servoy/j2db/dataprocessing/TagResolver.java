@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.swing.JFormattedTextField.AbstractFormatter;
@@ -30,6 +31,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.ITagResolver;
+import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.Settings;
 
 /**
@@ -53,7 +55,8 @@ public class TagResolver
 		{
 			if (record == null) return null;
 			Object value = record.getValue(dataProviderID);
-			return formatObject(value, (value == null) ? null : record.getParentFoundSet().getFoundSetManager().getApplication().getSettings());
+			return formatObject(value, record.getParentFoundSet().getFoundSetManager().getApplication().getLocale(), (value == null) ? null
+				: record.getParentFoundSet().getFoundSetManager().getApplication().getSettings());
 		}
 	}
 
@@ -61,17 +64,19 @@ public class TagResolver
 	{
 
 		private final Scriptable scriptobj;
+		private final Locale locale;
 
-		public ScriptableTagResolver(Scriptable obj)
+		public ScriptableTagResolver(Scriptable obj, Locale locale)
 		{
 			this.scriptobj = obj;
+			this.locale = locale;
 		}
 
 		public String getStringValue(String dataProviderID)
 		{
 			if (scriptobj == null) return null;
 			Object value = scriptobj.get(dataProviderID, scriptobj);
-			return formatObject(value, (value == null) ? null : Settings.getInstance());
+			return formatObject(value, locale, (value == null) ? null : Settings.getInstance());
 		}
 	}
 
@@ -92,13 +97,13 @@ public class TagResolver
 	 * @param o
 	 * @return resolver
 	 */
-	public static ITagResolver createResolver(Scriptable o)
+	public static ITagResolver createResolver(Scriptable o, Locale locale)
 	{
-		return new ScriptableTagResolver(o);
+		return new ScriptableTagResolver(o, locale);
 	}
 
 
-	public static String formatObject(Object value, ParsedFormat format, AbstractFormatter maskFormatter)
+	public static String formatObject(Object value, Locale locale, ParsedFormat format, AbstractFormatter maskFormatter)
 	{
 		if (format == null || value == null || value == Scriptable.NOT_FOUND)
 		{
@@ -140,13 +145,20 @@ public class TagResolver
 
 		if (value instanceof Number)
 		{
-			return new DecimalFormat(format.getDisplayFormat()).format(value);
+			return new DecimalFormat(format.getDisplayFormat(), RoundHalfUpDecimalFormat.getDecimalFormatSymbols(locale)).format(value);
 		}
 
 		return value.toString();
 	}
 
-	public static String formatObject(Object value, Properties settings)
+	public static String formatObject(Object value, Locale locale, Properties settings)
+	{
+
+		return formatObject(value, null, locale, settings);
+	}
+
+
+	public static String formatObject(Object value, String format, Locale locale, Properties settings)
 	{
 
 		if (value == null || value == Scriptable.NOT_FOUND)
@@ -154,7 +166,7 @@ public class TagResolver
 			return null;
 		}
 
-		String formatString = getFormatString(value.getClass(), settings);
+		String formatString = (format != null) ? format : getFormatString(value.getClass(), settings);
 		if (formatString == null)
 		{
 			return value.toString();
@@ -167,12 +179,11 @@ public class TagResolver
 
 		if (value instanceof Number /* Integer extends Number */)
 		{
-			return new DecimalFormat(formatString).format(value);
+			return new DecimalFormat(formatString, RoundHalfUpDecimalFormat.getDecimalFormatSymbols(locale)).format(value);
 		}
 
 		return value.toString();
 	}
-
 
 	/**
 	 * Get the format string for an object based on the settings.

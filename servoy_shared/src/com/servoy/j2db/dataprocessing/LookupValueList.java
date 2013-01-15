@@ -69,12 +69,14 @@ public class LookupValueList implements IValueList
 	private IRecordInternal parentState;
 	private IFoundSetInternal relatedFoundset;
 	private final IValueList secondLookup;
+	private final String displayFormat;
 
-	public LookupValueList(ValueList list, IServiceProvider application, IValueList fallback) throws Exception
+	public LookupValueList(ValueList list, IServiceProvider application, IValueList fallback, String displayFormat) throws Exception
 	{
 		this.valueList = list;
 		this.application = application;
 		this.secondLookup = fallback;
+		this.displayFormat = displayFormat;
 
 		String dataSource = null;
 		Relation[] relations = null;
@@ -217,7 +219,7 @@ public class LookupValueList implements IValueList
 
 						for (Object[] element : data)
 						{
-							DisplayString obj = CustomValueList.handleDisplayData(valueList, concatShowValues, showValues, element, application);
+							DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, element, application);
 							if (obj != null && !obj.equals("")) //$NON-NLS-1$
 							{
 								alDisplay.add(obj);
@@ -376,7 +378,7 @@ public class LookupValueList implements IValueList
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
 			Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
-			DisplayString obj = CustomValueList.handleDisplayData(valueList, concatShowValues, showValues, row, application);
+			DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
 			if (obj != null && !obj.equals("")) //$NON-NLS-1$
 			{
 				alDisplay.add(obj);
@@ -552,4 +554,8 @@ public class LookupValueList implements IValueList
 		listeners.remove(l);
 	}
 
+	public String getDisplayFormat()
+	{
+		return displayFormat;
+	}
 }

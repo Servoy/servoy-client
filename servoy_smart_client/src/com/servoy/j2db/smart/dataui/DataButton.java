@@ -154,8 +154,8 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 					{
 						ComponentFormat cf = getScriptObject().getComponentFormat();
 						setText(Text.processTags(
-							obj != null ? TagResolver.formatObject(obj, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
-								cf.parsedFormat.getDisplayFormat(), true) : null)) : "", resolver));
+							obj != null ? TagResolver.formatObject(obj, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+								? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)) : "", resolver));
 					}
 					catch (ParseException e)
 					{
@@ -189,8 +189,8 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 					ComponentFormat cf = getScriptObject().getComponentFormat();
 					try
 					{
-						setText(TagResolver.formatObject(obj, cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
-							cf.parsedFormat.getDisplayFormat(), true) : null)));
+						setText(TagResolver.formatObject(obj, application.getLocale(), cf.parsedFormat, (cf.parsedFormat.getDisplayFormat() != null
+							? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)));
 					}
 					catch (ParseException e)
 					{

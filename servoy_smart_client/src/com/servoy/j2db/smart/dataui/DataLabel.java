@@ -166,8 +166,8 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 					try
 					{
 						ComponentFormat fp = getScriptObject().getComponentFormat();
-						txt = Text.processTags(TagResolver.formatObject(obj != null ? obj : "", fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null
-							? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)), resolver);
+						txt = Text.processTags(TagResolver.formatObject(obj != null ? obj : "", application.getLocale(), fp.parsedFormat,
+							(fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)), resolver);
 					}
 					catch (ParseException e)
 					{
@@ -212,8 +212,8 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 					try
 					{
 						ComponentFormat fp = getScriptObject().getComponentFormat();
-						setText(TagResolver.formatObject(obj, fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(
-							fp.parsedFormat.getDisplayFormat(), true) : null)));
+						setText(TagResolver.formatObject(obj, application.getLocale(), fp.parsedFormat, (fp.parsedFormat.getDisplayFormat() != null
+							? new ServoyMaskFormatter(fp.parsedFormat.getDisplayFormat(), true) : null)));
 					}
 					catch (ParseException e)
 					{

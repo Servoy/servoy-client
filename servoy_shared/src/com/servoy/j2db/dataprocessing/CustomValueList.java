@@ -651,7 +651,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		}
 	}
 
-	public static DisplayString handleDisplayData(ValueList vl, boolean concat, int bitset, Object[] row, IServiceProvider application)
+	public static DisplayString handleDisplayData(ValueList vl, String displayFormat, boolean concat, int bitset, Object[] row, IServiceProvider application)
 	{
 		DisplayString showVal = new DisplayString(vl.getSeparator());
 		if ((bitset & 1) != 0)
@@ -695,11 +695,16 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	public static String convertToString(Object obj, IServiceProvider application)
 	{
+		return convertToString(obj, null, application);
+	}
+
+	public static String convertToString(Object obj, String format, IServiceProvider application)
+	{
 		if (obj == null)
 		{
 			return ""; //$NON-NLS-1$
 		}
-		return TagResolver.formatObject(obj, application.getSettings());
+		return TagResolver.formatObject(obj, application.getLocale(), application.getSettings());
 	}
 
 	public String getName()

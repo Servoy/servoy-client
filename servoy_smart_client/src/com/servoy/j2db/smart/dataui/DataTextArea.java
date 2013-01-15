@@ -711,7 +711,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 			{
 				if (resolver != null)
 				{
-					setValueEx(Text.processTags(TagResolver.formatObject(obj != null ? obj : "", application.getSettings()), resolver)); //$NON-NLS-1$
+					setValueEx(Text.processTags(TagResolver.formatObject(obj != null ? obj : "", application.getLocale(), application.getSettings()), resolver)); //$NON-NLS-1$
 					if (tooltip != null)
 					{
 						enclosedComponent.setToolTipText(Text.processTags(tooltip, resolver));
@@ -734,7 +734,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 				}
 				else
 				{
-					setValueEx(TagResolver.formatObject(obj, application.getSettings()));
+					setValueEx(TagResolver.formatObject(obj, application.getLocale(), application.getSettings()));
 				}
 				if (tooltip != null)
 				{
