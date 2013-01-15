@@ -96,6 +96,10 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 
 		c1.setGroupID(gid);
 		c2.setGroupID(gid);
+
+		// mark the label as title
+		if (c1 instanceof IBaseSMLabel) getMobileProperties(c1).setPropertyValue(IMobileProperties.COMPONENT_TITLE, Boolean.TRUE);
+		else if (c2 instanceof IBaseSMLabel) getMobileProperties(c2).setPropertyValue(IMobileProperties.COMPONENT_TITLE, Boolean.TRUE);
 	}
 
 	protected abstract String createNewGroupId();

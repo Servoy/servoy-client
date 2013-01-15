@@ -53,6 +53,7 @@ public interface IMobileProperties
 	public final static MobileProperty<Double> HEADER_SIZE = new MobileProperty<Double>("headerSize", Double.valueOf(4));
 	public final static MobileProperty<Double> RADIO_STYLE = new MobileProperty<Double>("radioStyle", Double.valueOf(0));
 	public final static MobileProperty<String> DATA_ICON = new MobileProperty<String>("dataIcon", null);
+	public final static MobileProperty<Boolean> COMPONENT_TITLE = new MobileProperty<Boolean>("componentTitle", Boolean.FALSE);
 
 	<T> void setPropertyValue(MobileProperty<T> property, T value);
 
