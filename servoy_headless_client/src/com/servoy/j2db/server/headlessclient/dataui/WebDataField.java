@@ -52,7 +52,6 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.validation.IValidationError;
 
-import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IMainContainer;
@@ -63,8 +62,8 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.Column;
-import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
@@ -85,6 +84,7 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
+import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
@@ -880,6 +880,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			// this component is going to update it's contents, without the user changing the
 			// components contents; so remove invalid state if necessary
 			setValueValid(true, null);
+			clearInput();
 		}
 	}
 
