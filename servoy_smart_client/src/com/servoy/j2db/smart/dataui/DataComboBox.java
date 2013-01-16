@@ -393,37 +393,41 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	private void hackDefaultPopupWidthBehavior()
 	{
-		addPopupMenuListener(new PopupMenuListener()
+		// Apple doesn't need this, its already bigger and in java 7 it will not open at all.
+		if (!Utils.isAppleMacOS())
 		{
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			addPopupMenuListener(new PopupMenuListener()
 			{
-				// if not show through our setPopupVisible method.. (but by a mouse click in the ui classes)
-				if (!showingPopup)
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 				{
-					firePopupMenuCanceled();
-					// show the popup again a bit later
-					SwingUtilities.invokeLater(new Runnable()
+					// if not show through our setPopupVisible method.. (but by a mouse click in the ui classes)
+					if (!showingPopup)
 					{
-						public void run()
+						firePopupMenuCanceled();
+						// show the popup again a bit later
+						SwingUtilities.invokeLater(new Runnable()
 						{
-							// first close the one that was just being shown, but only through the ui classes
-							setPopupVisible(false);
-							// then show the popup through our own method so that the size is correct.
-							setPopupVisible(true);
-						}
-					});
+							public void run()
+							{
+								// first close the one that was just being shown, but only through the ui classes
+								setPopupVisible(false);
+								// then show the popup through our own method so that the size is correct.
+								setPopupVisible(true);
+							}
+						});
+					}
 				}
-			}
 
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-			{
-			}
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+				{
+				}
 
-			public void popupMenuCanceled(PopupMenuEvent e)
-			{
-			}
+				public void popupMenuCanceled(PopupMenuEvent e)
+				{
+				}
 
-		});
+			});
+		}
 	}
 
 	/**
