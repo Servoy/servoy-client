@@ -56,7 +56,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
-import com.servoy.base.util.IDestroyable;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
@@ -92,6 +91,7 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
+import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.IStyleRule;

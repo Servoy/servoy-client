@@ -30,7 +30,6 @@ import javax.swing.text.Document;
 
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.base.util.IDestroyable;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.FormController;
@@ -61,6 +60,7 @@ import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 
@@ -747,7 +747,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			{
 				try
 				{
-					if (b instanceof IDestroyable)
+					if (b instanceof com.servoy.j2db.util.IDestroyable)
+					{
+						((com.servoy.j2db.util.IDestroyable)b).destroy();
+					}
+					else if (b instanceof IDestroyable)
 					{
 						((IDestroyable)b).destroy();
 					}

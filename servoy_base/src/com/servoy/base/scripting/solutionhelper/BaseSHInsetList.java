@@ -18,9 +18,9 @@
 package com.servoy.base.scripting.solutionhelper;
 
 import com.servoy.base.persistence.IMobileProperties;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMComponent;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMPortal;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMGraphicalComponent;
+import com.servoy.base.solutionmodel.IBaseSMPortal;
 
 /**
  * @author acostescu

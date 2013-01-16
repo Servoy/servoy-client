@@ -15,26 +15,20 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.scripting.api.solutionmodel;
+package com.servoy.base.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
 
 /**
- * Solution model portal object.
+ * Solution model button object (for mobile as well as other clients).
  * 
  * @author rgansevles
+ * @author acostescu
  *
- * @since 6.1
+ * @since 7.0
  */
-public interface IBaseSMPortal extends IBaseSMComponent, IBaseSMListContainer
+@ServoyMobile
+public interface IBaseSMButton extends IBaseSMGraphicalComponent
 {
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getRelationName()
-	 * 
-	 * @sample
-	 * portal.relationName = 'parent_table_to_child_table';
-	 */
-	public String getRelationName();
-
-	public void setRelationName(String arg);
 
 }

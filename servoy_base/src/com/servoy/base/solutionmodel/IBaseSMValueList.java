@@ -15,12 +15,13 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.scripting.api.solutionmodel;
+package com.servoy.base.solutionmodel;
 
 import com.servoy.base.scripting.annotations.ServoyMobile;
 
+
 /**
- * Solution model label component (for mobile as well as other clients).
+ * Solution model value list object.
  * 
  * @author rgansevles
  * @author acostescu
@@ -28,6 +29,14 @@ import com.servoy.base.scripting.annotations.ServoyMobile;
  * @since 7.0
  */
 @ServoyMobile
-public interface IBaseSMLabel extends IBaseSMGraphicalComponent
+public interface IBaseSMValueList
 {
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.ValueList#getName()
+	 * 
+	 * @sampleas getUseTableFilter()
+	 */
+	public String getName();
+
 }

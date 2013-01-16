@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMButton;
+import com.servoy.base.solutionmodel.IBaseSMButton;
 
 /**
  * Solution model button object.

@@ -22,12 +22,12 @@ import java.util.List;
 
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.persistence.IMobileProperties.MobileProperty;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMButton;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMComponent;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMForm;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMLabel;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMPortal;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSolutionModel;
+import com.servoy.base.solutionmodel.IBaseSMButton;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMForm;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
+import com.servoy.base.solutionmodel.IBaseSMPortal;
+import com.servoy.base.solutionmodel.IBaseSolutionModel;
 
 /**
  * Mobile helper is used as a complementary tool to solution model.

@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
+import com.servoy.base.solutionmodel.IBaseSMGraphicalComponent;
 
 
 /**

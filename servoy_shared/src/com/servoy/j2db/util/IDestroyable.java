@@ -20,10 +20,8 @@ package com.servoy.j2db.util;
  * General interface for objects that need some cleanup.
  * 
  * @author rgansevles
- * @deprecated Please use {@link com.servoy.base.util.IDestroyable} instead.
  */
-@Deprecated
-public interface IDestroyable extends com.servoy.base.util.IDestroyable
+public interface IDestroyable
 {
 	/**
 	 * Cleanup

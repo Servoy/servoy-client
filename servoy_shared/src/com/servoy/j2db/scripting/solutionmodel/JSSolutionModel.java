@@ -31,9 +31,9 @@ import javax.swing.border.TitledBorder;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.persistence.IMobileProperties;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMComponent;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMForm;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMForm;
+import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;

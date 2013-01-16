@@ -18,12 +18,12 @@
 package com.servoy.base.scripting.solutionhelper;
 
 import com.servoy.base.persistence.IMobileProperties;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMButton;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMComponent;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMField;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMGraphicalComponent;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMListContainer;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMButton;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMField;
+import com.servoy.base.solutionmodel.IBaseSMGraphicalComponent;
+import com.servoy.base.solutionmodel.IBaseSMListContainer;
+import com.servoy.base.solutionmodel.IBaseSMMethod;
 
 /**
  * @author acostescu

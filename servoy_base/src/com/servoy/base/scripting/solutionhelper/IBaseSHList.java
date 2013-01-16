@@ -18,7 +18,7 @@
 package com.servoy.base.scripting.solutionhelper;
 
 import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMMethod;
 
 /**
  * Interface for mobile client inset list/list form manipulation.

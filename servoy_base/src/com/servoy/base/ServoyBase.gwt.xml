@@ -6,4 +6,5 @@
     <source path="persistence/constants" />
     <source path="persistence" />
     <source path="util" />
+    <source path="solutionmodel" />
 </module>

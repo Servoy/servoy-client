@@ -18,7 +18,7 @@
 package com.servoy.j2db.solutionmodel;
 
 import com.servoy.base.persistence.constants.IJoinConstants;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMRelation;
+import com.servoy.base.solutionmodel.IBaseSMRelation;
 
 
 /**

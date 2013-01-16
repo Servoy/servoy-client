@@ -17,7 +17,7 @@
 
 package com.servoy.base.persistence.constants;
 
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMMethod;
 
 
 /**

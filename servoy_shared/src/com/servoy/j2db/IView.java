@@ -19,9 +19,9 @@ package com.servoy.j2db;
 
 import java.awt.Rectangle;
 
-import com.servoy.base.util.IDestroyable;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
+import com.servoy.j2db.util.IDestroyable;
 
 /**
  * Helper interface which defines a view

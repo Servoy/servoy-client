@@ -28,10 +28,10 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.constants.IFieldConstants;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMButton;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMComponent;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMField;
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMLabel;
+import com.servoy.base.solutionmodel.IBaseSMButton;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMField;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;

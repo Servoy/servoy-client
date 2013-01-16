@@ -15,19 +15,19 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.scripting.api.solutionmodel;
+package com.servoy.base.solutionmodel;
 
-
+import com.servoy.base.scripting.annotations.ServoyMobile;
 
 /**
- * Solution model relation object (for mobile as well as other clients).
+ * Solution model label component (for mobile as well as other clients).
  * 
  * @author rgansevles
  * @author acostescu
  *
  * @since 7.0
  */
-public interface IBaseSMRelation
+@ServoyMobile
+public interface IBaseSMLabel extends IBaseSMGraphicalComponent
 {
-
 }

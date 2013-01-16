@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.scripting.api.solutionmodel.IBaseSMLabel;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
 
 /**
  * Solution model label component.

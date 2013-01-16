@@ -12,7 +12,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.scripting.api.solutionmodel;
+package com.servoy.base.solutionmodel;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyMobile;

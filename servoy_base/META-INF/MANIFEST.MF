@@ -9,7 +9,6 @@ Export-Package: com.servoy.base.persistence,
  com.servoy.base.persistence.constants,
  com.servoy.base.scripting.annotations,
  com.servoy.base.scripting.api,
- com.servoy.base.scripting.api.solutionmodel,
- com.servoy.base.scripting.api.ui,
  com.servoy.base.scripting.solutionhelper,
+ com.servoy.base.solutionmodel,
  com.servoy.base.util
