@@ -17,7 +17,11 @@
 
 package com.servoy.base.scripting.solutionhelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.persistence.IMobileProperties.MobileProperty;
 import com.servoy.base.scripting.api.solutionmodel.IBaseSMButton;
 import com.servoy.base.scripting.api.solutionmodel.IBaseSMComponent;
 import com.servoy.base.scripting.api.solutionmodel.IBaseSMForm;
@@ -176,4 +180,107 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 
 	protected abstract IBaseSHList instantiateList(IBaseSMForm listForm, BaseSolutionHelper baseSolutionHelper);
 
+	private IBaseSMButton getHeaderButton(IBaseSMForm form, boolean left)
+	{
+		IBaseSMComponent[] components = getAllComponents(form, left ? IMobileProperties.HEADER_LEFT_BUTTON : IMobileProperties.HEADER_RIGHT_BUTTON);
+		if (components != null && components.length > 0 && components[0] instanceof IBaseSMButton)
+		{
+			return (IBaseSMButton)components[0];
+		}
+		return null;
+	}
+
+	public IBaseSMButton getLeftHeaderButton(IBaseSMForm form)
+	{
+		return getHeaderButton(form, true);
+	}
+
+	public IBaseSMButton getRightHeaderButton(IBaseSMForm form)
+	{
+		return getHeaderButton(form, false);
+	}
+
+	public IBaseSMLabel getHeaderLabel(IBaseSMForm form)
+	{
+		IBaseSMComponent[] components = getAllComponents(form, IMobileProperties.HEADER_TEXT);
+		if (components != null && components.length > 0 && components[0] instanceof IBaseSMLabel)
+		{
+			return (IBaseSMLabel)components[0];
+		}
+		return null;
+	}
+
+	public IBaseSMComponent[] getAllFooterComponents(IBaseSMForm form)
+	{
+		return getAllComponents(form, IMobileProperties.FOOTER_ITEM);
+	}
+
+	private IBaseSMComponent[] getAllComponents(IBaseSMForm form, MobileProperty<Boolean> property)
+	{
+		List<IBaseSMComponent> components = new ArrayList<IBaseSMComponent>();
+		if (form != null)
+		{
+			IBaseSMComponent[] formComponents = form.getComponents();
+			if (components != null)
+			{
+				for (IBaseSMComponent component : formComponents)
+				{
+					IMobileProperties mpc = getMobileProperties(component);
+					Boolean headerLabel = mpc.getPropertyValue(property);
+					if (headerLabel != null && headerLabel.booleanValue())
+					{
+						components.add(component);
+					}
+				}
+			}
+		}
+		return components.toArray(new IBaseSMComponent[0]);
+	}
+
+	public IBaseSHInsetList[] getAllInsetLists(IBaseSMForm form)
+	{
+		List<IBaseSHInsetList> insetListList = new ArrayList<IBaseSHInsetList>();
+		if (form != null)
+		{
+			IBaseSMPortal[] portals = form.getPortals();
+			if (portals != null)
+			{
+				for (IBaseSMPortal portal : portals)
+				{
+					IMobileProperties mp = getMobileProperties(portal);
+					if (Boolean.TRUE.equals(mp.getPropertyValue(IMobileProperties.LIST_COMPONENT)))
+					{
+						insetListList.add(instantiateInsetList(portal, this));
+					}
+				}
+			}
+		}
+		return insetListList.toArray(new IBaseSHInsetList[0]);
+	}
+
+	public IBaseSHList[] getAllListForms()
+	{
+		List<IBaseSHList> listFormsList = new ArrayList<IBaseSHList>();
+		IBaseSMForm[] forms = solutionModel.getForms();
+		if (forms != null)
+		{
+			for (IBaseSMForm form : forms)
+			{
+				if (form.getView() == IBaseSMForm.LIST_VIEW)
+				{
+					listFormsList.add(instantiateList(form, this));
+				}
+			}
+		}
+		return listFormsList.toArray(new IBaseSHList[0]);
+	}
+
+	public boolean removeInsetList(IBaseSMForm form, String name)
+	{
+		if (form != null)
+		{
+			return form.removePortal(name);
+		}
+		return false;
+	}
 }
