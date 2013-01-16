@@ -233,71 +233,75 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 
 	private void hackDefaultPopupWidthBehavior()
 	{
-		// workaround to make popup width take into consideration the length of text in all items;
-		// the workaround was provided by Argos (Anuradha)
-		addPopupMenuListener(new PopupMenuListener()
+		// Apple doesn't need this, its already bigger and in java 7 it will not open at all.
+		if (!Utils.isAppleMacOS())
 		{
-			//Popup state to prevent feedback
-			private boolean stateCmb = false;
-			private int defaultWidth = 0;
-
-			//Extend JComboBox's length and reset it
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			// workaround to make popup width take into consideration the length of text in all items;
+			// the workaround was provided by Argos (Anuradha)
+			addPopupMenuListener(new PopupMenuListener()
 			{
-				JComboBox cmb = (JComboBox)e.getSource();
-				if (cmb.getItemCount() > 0)
+				//Popup state to prevent feedback
+				private boolean stateCmb = false;
+				private int defaultWidth = 0;
+
+				//Extend JComboBox's length and reset it
+				public void popupMenuWillBecomeVisible(PopupMenuEvent e)
 				{
-					if (!stateCmb)
+					JComboBox cmb = (JComboBox)e.getSource();
+					if (cmb.getItemCount() > 0)
 					{
-						defaultWidth = cmb.getSize().width;
+						if (!stateCmb)
+						{
+							defaultWidth = cmb.getSize().width;
+						}
+						//Extend JComboBox
+						cmb.setSize(getExtendedWidth(cmb), cmb.getHeight());
+						//If it pops up now JPopupMenu will still be short
+						//Fire popupMenuCanceled...
+						if (!stateCmb)
+						{
+							cmb.firePopupMenuCanceled();
+						}
+						//Reset JComboBox and state
+						stateCmb = false;
+						if (defaultWidth > 0) cmb.setSize(defaultWidth, cmb.getHeight());
 					}
-					//Extend JComboBox
-					cmb.setSize(getExtendedWidth(cmb), cmb.getHeight());
-					//If it pops up now JPopupMenu will still be short
-					//Fire popupMenuCanceled...
-					if (!stateCmb)
+				}
+
+				private int getExtendedWidth(JComboBox cmb)
+				{
+					int width = (int)cmb.getSize().getWidth();
+					for (int i = 0; i < cmb.getItemCount(); i++)
 					{
-						cmb.firePopupMenuCanceled();
+						Object text = cmb.getItemAt(i);
+						if (text == null) continue;
+
+						int textWidth = cmb.getFontMetrics(cmb.getFont()).stringWidth(text.toString());
+						width = Math.max(width, textWidth + 10);//add offset 10
 					}
-					//Reset JComboBox and state
+
+					return width;
+				}
+
+				//Show extended JPopupMenu
+
+				public void popupMenuCanceled(PopupMenuEvent e)
+				{
+					JComboBox cmb = (JComboBox)e.getSource();
+					if (cmb.getItemCount() > 0)
+					{
+						stateCmb = true;
+						//JPopupMenu is long now, so repop
+						cmb.showPopup();
+					}
+				}
+
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+				{
 					stateCmb = false;
-					if (defaultWidth > 0) cmb.setSize(defaultWidth, cmb.getHeight());
 				}
-			}
-
-			private int getExtendedWidth(JComboBox cmb)
-			{
-				int width = (int)cmb.getSize().getWidth();
-				for (int i = 0; i < cmb.getItemCount(); i++)
-				{
-					Object text = cmb.getItemAt(i);
-					if (text == null) continue;
-
-					int textWidth = cmb.getFontMetrics(cmb.getFont()).stringWidth(text.toString());
-					width = Math.max(width, textWidth + 10);//add offset 10
-				}
-
-				return width;
-			}
-
-			//Show extended JPopupMenu
-
-			public void popupMenuCanceled(PopupMenuEvent e)
-			{
-				JComboBox cmb = (JComboBox)e.getSource();
-				if (cmb.getItemCount() > 0)
-				{
-					stateCmb = true;
-					//JPopupMenu is long now, so repop
-					cmb.showPopup();
-				}
-			}
-
-			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-			{
-				stateCmb = false;
-			}
-		});
+			});
+		}
 	}
 
 	/**
