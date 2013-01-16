@@ -880,7 +880,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			// this component is going to update it's contents, without the user changing the
 			// components contents; so remove invalid state if necessary
 			setValueValid(true, null);
-			clearInput();
 		}
 	}
 
