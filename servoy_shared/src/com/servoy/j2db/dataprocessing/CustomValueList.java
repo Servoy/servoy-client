@@ -656,7 +656,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		DisplayString showVal = new DisplayString(vl.getSeparator());
 		if ((bitset & 1) != 0)
 		{
-			String str = convertToString(row[0], application);
+			String str = convertToString(row[0], displayFormat, application);
 			if (concat)
 			{
 				showVal.append(str);
@@ -668,7 +668,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		}
 		if ((bitset & 2) != 0)
 		{
-			String str = convertToString(row[1], application);
+			String str = convertToString(row[1], displayFormat, application);
 			if (concat)
 			{
 				showVal.append(str);
@@ -680,7 +680,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		}
 		if ((bitset & 4) != 0)
 		{
-			String str = convertToString(row[2], application);
+			String str = convertToString(row[2], displayFormat, application);
 			if (concat)
 			{
 				showVal.append(str);
@@ -704,7 +704,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		{
 			return ""; //$NON-NLS-1$
 		}
-		return TagResolver.formatObject(obj, application.getLocale(), application.getSettings());
+		return TagResolver.formatObject(obj, format, application.getLocale(), application.getSettings());
 	}
 
 	public String getName()
