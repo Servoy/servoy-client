@@ -747,11 +747,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			{
 				try
 				{
-					if (b instanceof com.servoy.j2db.util.IDestroyable)
-					{
-						((com.servoy.j2db.util.IDestroyable)b).destroy();
-					}
-					else if (b instanceof IDestroyable)
+					if (b instanceof IDestroyable)
 					{
 						((IDestroyable)b).destroy();
 					}
