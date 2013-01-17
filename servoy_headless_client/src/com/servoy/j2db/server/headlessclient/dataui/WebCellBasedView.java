@@ -142,6 +142,7 @@ import com.servoy.j2db.ui.IScriptBaseMethods;
 import com.servoy.j2db.ui.IScriptReadOnlyMethods;
 import com.servoy.j2db.ui.IScriptTransparentMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
@@ -761,10 +762,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (c instanceof Component)
 					{
 						Component innerComponent = (Component)c;
-						if (!ignoreStyles) WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont);
+						if (!ignoreStyles)
+						{
+							WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont);
+							if (innerComponent instanceof IScriptableProvider &&
+								((IScriptableProvider)innerComponent).getScriptObject() instanceof IScriptTransparentMethods &&
+								((IScriptTransparentMethods)((IScriptableProvider)innerComponent).getScriptObject()).js_isTransparent() && bgColor != null)
+							{
+								// apply the bg color even if transparent
+								if (innerComponent instanceof IProviderStylePropertyChanges &&
+									((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
+								{
+									((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges())).setBgcolor(bgColor);
+								}
+							}
+						}
 						boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
-						if ((updateComponentRenderState(c, isSelected)) && target != null)
+						if (((updateComponentRenderState(c, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null))) &&
+							target != null)
 						{
 							target.addComponent(innerComponent);
 							WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
