@@ -27,13 +27,13 @@
 		</fileset>
 	</path>
 	<property name="bootclasspath" refid="path_bootclasspath"/>
-	<property name="bundleJavacSource" value="1.5"/>
-	<property name="bundleJavacTarget" value="1.5"/>
-	<condition property="bundleBootClasspath" value="${J2SE-1.5}"	>
-		<isset property="J2SE-1.5"/>
+	<property name="bundleJavacSource" value="1.6"/>
+	<property name="bundleJavacTarget" value="1.6"/>
+	<condition property="bundleBootClasspath" value="${JavaSE-1.6}"	>
+		<isset property="JavaSE-1.6"/>
 	</condition>
-	<condition property="bundleBootClasspath" value="${J2SE-1.5}"	>
-		<isset property="J2SE-1.5"/>
+	<condition property="bundleBootClasspath" value="${JavaSE-1.6}"	>
+		<isset property="JavaSE-1.6"/>
 	</condition>
 	<property name="bundleBootClasspath" value="${bootclasspath}"/>
 
@@ -231,13 +231,13 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_headless_client_7.0.0.2005${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_headless_client_7.0.0.2005" log="${compilation.prereq.log}">
-			<include name="C:/Users/Administrator/dev_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="S:/Dev/dev_trunk/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.0.0.2005/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_trunk/servoy_shared/compilation.problem"/>
+			<include name="S:/Dev/dev_trunk/servoy_shared/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_shared_7.0.0.2005/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_trunk/servoy_smart_client/compilation.problem"/>
+			<include name="S:/Dev/dev_trunk/servoy_smart_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_smart_client_7.0.0.2005/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_trunk/servoy_base/compilation.problem"/>
+			<include name="S:/Dev/dev_trunk/servoy_base/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_base_7.0.0.2005/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
@@ -334,7 +334,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="C:/Users/Administrator/dev_trunk/servoy_headless_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="S:/Dev/dev_trunk/servoy_headless_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 

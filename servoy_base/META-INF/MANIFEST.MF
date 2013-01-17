@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Base Plug-in
 Bundle-SymbolicName: servoy_base;singleton:=true
 Bundle-Version: 7.0.0.2005
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Servoy
 Export-Package: com.servoy.base.persistence,
  com.servoy.base.persistence.constants,
