@@ -386,7 +386,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		String currentBeanName = null;
 		WebSplitPane currentSplitPane = null;
 		IDataSet set = new BufferedDataSet(
-			new String[] { "containername", "formname", "tabpanel/splitpane/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		set.addRow(new Object[] { null, current.formController.getName(), null, null, null });
 		MarkupContainer parent = getParent();
 		while (parent != null)
