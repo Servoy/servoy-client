@@ -200,7 +200,18 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	{
 		if (isEditing())
 		{
-			return getCellEditor().stopCellEditing();
+			if (looseFocus)
+			{
+				return getCellEditor().stopCellEditing();
+			}
+			else
+			{
+				DataRenderer dr = ((DataRenderer)getEditorComponent());
+				if (dr != null)
+				{
+					return dr.stopUIEditing(looseFocus);
+				}
+			}
 		}
 		return true;
 	}
