@@ -571,7 +571,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		getStylePropertyChanges().setRendered();
 	}
 
-	public StringBuilder getDividerLocationJSSetter()
+	public StringBuilder getDividerLocationJSSetter(boolean forceLayoutIfAnchored)
 	{
 		String dim, pos;
 		if (orient == TabPanel.SPLIT_HORIZONTAL)
@@ -588,11 +588,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		StringBuilder resizeScript = new StringBuilder("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
-		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
-			"*dividerLocation;}"); //$NON-NLS-1$ 
+		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = (YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim).append( //$NON-NLS-1$ //$NON-NLS-2$
+			"-").append(getDividerSize()).append(")*dividerLocation;}"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("if(newDividerLocation < ").append(leftFormMinSize).append(") { newDividerLocation = ").append(leftFormMinSize).append(";};"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		resizeScript.append("if(dividerLocation != newDividerLocation) { wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
-			"&location=' + newDividerLocation);}"); //$NON-NLS-1$
+			forceLayoutIfAnchored ? "&anchor=true" : "").append("&location=' + newDividerLocation);}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		resizeScript.append("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ 
 		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -619,7 +619,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			pos = "top"; //$NON-NLS-1$
 		}
 
-		StringBuilder resizeScript = getDividerLocationJSSetter();
+		StringBuilder resizeScript = getDividerLocationJSSetter(false);
 		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max").append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ").append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ 
 		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
