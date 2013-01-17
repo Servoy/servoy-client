@@ -126,7 +126,7 @@ public final class ServoyWrapFactory extends WrapFactory
 				"Bad practice: FormController cant be wrapped to javascript (for example not usable as argument in Scheduler plugin)"); //$NON-NLS-1$
 		}
 		// if it is a none primitive array
-		if (obj.getClass().isArray() && !obj.getClass().getComponentType().isPrimitive())
+		if (obj.getClass().isArray() && !obj.getClass().getComponentType().isPrimitive() && obj.getClass().getComponentType() == Object.class)
 		{
 			// then convert the array to a NativeArray, first convert all the elements of the array itself.
 			Object[] source = (Object[])obj;
