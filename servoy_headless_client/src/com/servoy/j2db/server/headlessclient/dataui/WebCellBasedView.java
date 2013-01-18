@@ -1082,8 +1082,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 								((IScriptableProvider)innerComponent).getScriptObject() instanceof IRuntimeComponent &&
 								((IRuntimeComponent)((IScriptableProvider)innerComponent).getScriptObject()).isTransparent() && bgColor != null)
 							{
-								// apply the bg color even if transparent
-								if (innerComponent instanceof IProviderStylePropertyChanges &&
+								IScriptable s = ((IScriptableProvider)innerComponent).getScriptObject();
+								boolean hasOnRender = ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback();
+
+								// apply the bg color even if transparent and does not have  onRender
+								if (innerComponent instanceof IProviderStylePropertyChanges && !hasOnRender &&
 									((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
 								{
 									((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges())).setBgcolor(bgColor);
@@ -1095,7 +1098,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						if (((updateComponentRenderState(c, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null || compBorder != null))) &&
 							target != null)
 						{
-							target.addComponent(innerComponent);
+							target.addComponent(innerComponent.getParent());
 							WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
 							if (!innerComponent.isVisible())
 							{
@@ -3808,7 +3811,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private void applyStyleOnComponent(Component comp, Object bgColor, Object fgColor, Object compFont, Object compBorder)
 	{
-		if (comp instanceof IScriptableProvider)
+		if (comp instanceof IScriptableProvider && !hasOnRender)
 		{
 			IScriptable s = ((IScriptableProvider)comp).getScriptObject();
 
