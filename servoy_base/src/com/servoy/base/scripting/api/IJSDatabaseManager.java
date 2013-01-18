@@ -50,27 +50,6 @@ public interface IJSDatabaseManager
 	 */
 	public boolean saveData() throws Exception;
 
-	/**
-	 * @clonedesc saveData()
-	 * 
-	 * @sampleas saveData()
-	 *  
-	 * @param foundset The JSFoundset to save.
-	
-	 * @return true if the save was done without an error.
-	 */
-	public boolean saveData(IJSFoundSet foundset) throws Exception;
-
-	/**
-	 * @clonedesc saveData()
-	 * 
-	 * @sampleas saveData()
-	 *  
-	 * @param record The JSRecord to save.
-	
-	 * @return true if the save was done without an error.
-	 */
-	public boolean saveData(IJSRecord record) throws Exception;
 
 	/**
 	 * Set autosave, if false then no saves will happen by the ui (not including deletes!). 
