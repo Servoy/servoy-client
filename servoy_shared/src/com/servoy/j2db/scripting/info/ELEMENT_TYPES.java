@@ -281,6 +281,8 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * {
 	 *      // element is a LIST_BOX element
 	 * }
+	 * 
+	 * @deprecated replaced by ELEMENT_TYPES.LISTBOX
 	 */
 	@Deprecated
 	public static final String LIST_BOX = IRuntimeComponent.LISTBOX;

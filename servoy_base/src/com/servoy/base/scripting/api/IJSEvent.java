@@ -126,7 +126,7 @@ public interface IJSEvent
 	/**
 	 * Constant for the SHIFT modifier that can be returned by JSEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
@@ -135,7 +135,7 @@ public interface IJSEvent
 	/**
 	 * Constant for the CTRL modifier that can be returned by JSEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
@@ -144,7 +144,7 @@ public interface IJSEvent
 	/**
 	 * Constant for the META modifier that can be returned by JSEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
@@ -153,7 +153,7 @@ public interface IJSEvent
 	/**
 	 * Constant for the ALT modifier that can be returned by JSEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */

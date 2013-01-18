@@ -90,7 +90,7 @@ public class JSDNDEvent extends JSBaseEvent
 	/**
 	 * Constant for the SHIFT modifier that can be returned by JSDNDEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
 	 */
@@ -99,7 +99,7 @@ public class JSDNDEvent extends JSBaseEvent
 	/**
 	 * Constant for the CTRL modifier that can be returned by JSDNDEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
 	 */
@@ -108,7 +108,7 @@ public class JSDNDEvent extends JSBaseEvent
 	/**
 	 * Constant for the META modifier that can be returned by JSDNDEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
 	 */
@@ -117,7 +117,7 @@ public class JSDNDEvent extends JSBaseEvent
 	/**
 	 * Constant for the ALT modifier that can be returned by JSDNDEvent.getModifiers();
 	 * 
-	 * @sampleas js_getModifiers()
+	 * @sampleas getModifiers()
 	 * 
 	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
 	 */

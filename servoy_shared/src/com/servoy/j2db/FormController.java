@@ -405,8 +405,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -422,8 +422,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -439,8 +439,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @param pkdataset the pkdataset to load before showing the form.
 		 */
@@ -450,8 +450,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -467,8 +467,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -484,8 +484,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -500,8 +500,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -517,8 +517,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -534,8 +534,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
 		 */
@@ -545,8 +545,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -562,8 +562,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -579,8 +579,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @param query the query to load before showing the form.
 		 */
@@ -590,8 +590,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @param query the query to load before showing the form.
 		 * @param argumentsArray the array of arguments for the query
@@ -602,8 +602,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -619,8 +619,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -637,8 +637,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -654,8 +654,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -672,8 +672,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @param UUIDpk the UUIDpk to load before showing the form.
 		 */
@@ -683,8 +683,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -700,8 +700,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
@@ -717,8 +717,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 
 		/**
-		 * @clonedesc js_showRecords(FoundSet)
-		 * @sampleas js_showRecords(FoundSet)
+		 * @clonedesc showRecords(IJSFoundSet)
+		 * @sampleas showRecords(IJSFoundSet)
 		 * 
 		 * @param foundset the foundset to load before showing the form
 		 * @param dialogName the name of the dialog in which to show the form

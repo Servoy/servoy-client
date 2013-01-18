@@ -156,6 +156,8 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * var list = form.newField('my_table_list', JSField.LIST_BOX, 10, 280, 100, 50);
 	 * list.valuelist = vlist;
+	 * 
+	 * @deprecated replaced by JSField.LISTBOX
 	 */
 	@Deprecated
 	public static final int LIST_BOX = IFieldConstants.LIST_BOX;
