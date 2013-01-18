@@ -277,7 +277,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		if ("elements".equals(name) && (object == null || object == Scriptable.NOT_FOUND))
 		{
 			String message = Thread.currentThread().getName() + ": For form " + _fp + " the elements was asked for but that was not set. " +
-				(this == _fp.getFormScope());
+				(_fp == null ? "NULL" : String.valueOf(this == _fp.getFormScope()));
 			Debug.error(message, new RuntimeException());
 			try
 			{
