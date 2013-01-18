@@ -226,8 +226,7 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 				for (IBaseSMComponent component : formComponents)
 				{
 					IMobileProperties mpc = getMobileProperties(component);
-					Boolean headerLabel = mpc.getPropertyValue(property);
-					if (headerLabel != null && headerLabel.booleanValue())
+					if (Boolean.TRUE.equals(mpc.getPropertyValue(property)))
 					{
 						components.add(component);
 					}
