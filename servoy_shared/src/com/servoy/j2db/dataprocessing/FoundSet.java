@@ -6094,8 +6094,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		omittedPKs = null;
 		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
 		BufferedDataSet emptyPks = new BufferedDataSet();
-		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), emptyPks));
-		sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
+		if (sqlSelect != null)
+		{
+			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), emptyPks));
+			sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
+		}
 		pksAndRecords.setPksAndQuery(emptyPks, 0, sqlSelect);
 
 		if (rowManager != null) rowManager.clearAndCheckCache();
