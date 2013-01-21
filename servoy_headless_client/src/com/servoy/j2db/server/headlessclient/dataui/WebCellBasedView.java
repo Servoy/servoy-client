@@ -1034,7 +1034,26 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onBeforeRender()
 		{
-			updateComponentsRenderState(null, Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0);
+			boolean isSelected = Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0;
+			String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
+			if (!isListViewMode())
+			{
+				Object color = WebCellBasedView.this.getListItemBgColor(this, isSelected, false);
+				sColor = (color == null || color instanceof Undefined) ? null : color.toString();
+				Object fgColor = WebCellBasedView.this.getListItemFgColor(this, isSelected, false);
+				sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
+				Object styleFont = WebCellBasedView.this.getListItemFont(this, isSelected);
+				sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
+				Object styleBorder = WebCellBasedView.this.getListItemBorder(this, isSelected);
+				sStyleBorder = (styleBorder == null || styleBorder instanceof Undefined) ? null : styleBorder.toString();
+
+				updateComponentsRenderState(null, sColor, sFgColor, sStyleFont, sStyleBorder, isSelected);
+			}
+			else
+			{
+				updateComponentsRenderState(null, isSelected);
+			}
+
 			super.onBeforeRender();
 			Iterator< ? extends Component> it = iterator();
 			while (it.hasNext())
@@ -2806,7 +2825,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			pagingNavigator.setVisible(!isScrollMode() && showPageNavigator && table.getPageCount() > 1);
 		}
 		selectedIndexes = null;
-		updateRowComponentsRenderState(null);
+
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
