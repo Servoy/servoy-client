@@ -242,10 +242,21 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		valueList.deregister();
 	}
 
+	private boolean editState;
+
 	@Override
 	public void setReadOnly(boolean b)
 	{
-		super.setReadOnly(b);
+		if (b && !editable) return;
+		if (b)
+		{
+			setEditable(false);
+			editState = true;
+		}
+		else
+		{
+			setEditable(editState);
+		}
 		applyReadonlyState();
 	}
 
@@ -253,12 +264,19 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 	public void setEditable(boolean b)
 	{
 		super.setEditable(b);
+		editState = b;
 		applyReadonlyState();
+	}
+
+	@Override
+	public boolean isReadOnly()
+	{
+		return !isEditable();
 	}
 
 	private void applyReadonlyState()
 	{
-		showExtraComponents = editable && !readOnly;
+		showExtraComponents = !isReadOnly();
 	}
 
 	protected class SpinField extends AugmentedTextField
