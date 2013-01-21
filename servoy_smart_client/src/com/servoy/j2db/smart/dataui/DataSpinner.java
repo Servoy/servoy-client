@@ -242,23 +242,18 @@ public class DataSpinner extends DataChoice
 		// spinner always shows vertical scroll bar
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.smart.dataui.DataChoice#setReadOnly(boolean)
-	 */
 	@Override
 	public void setReadOnly(boolean b)
 	{
 		super.setReadOnly(b);
-		if (b)
-		{
-			setComponentEnabled(false);
-		}
-		else
-		{
-			setComponentEnabled(true);
-		}
+		applyScrollBarPolicy();
+	}
+
+	@Override
+	public void setEditable(boolean b)
+	{
+		super.setEditable(b);
+		applyScrollBarPolicy();
 	}
 
 	@Override
@@ -287,22 +282,22 @@ public class DataSpinner extends DataChoice
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.smart.dataui.DataChoice#setComponentEnabled(boolean)
-	 */
 	@Override
 	public void setComponentEnabled(boolean b)
 	{
 		super.setComponentEnabled(b);
-		if (!b)
+		applyScrollBarPolicy();
+	}
+
+	private void applyScrollBarPolicy()
+	{
+		if (isEnabled() && !isReadOnly())
 		{
-			setVerticalScrollBarPolicySpecial(VERTICAL_SCROLLBAR_NEVER);
+			setVerticalScrollBarPolicySpecial(VERTICAL_SCROLLBAR_ALWAYS);
 		}
 		else
 		{
-			setVerticalScrollBarPolicySpecial(VERTICAL_SCROLLBAR_ALWAYS);
+			setVerticalScrollBarPolicySpecial(VERTICAL_SCROLLBAR_NEVER);
 		}
 	}
 

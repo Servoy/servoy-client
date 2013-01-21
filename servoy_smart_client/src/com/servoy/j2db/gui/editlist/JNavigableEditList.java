@@ -111,15 +111,18 @@ public class JNavigableEditList extends JEditList
 
 		public void actionPerformed(ActionEvent e)
 		{
-			IEditListModel mlm = (IEditListModel)getModel();
-			int oldIndex = getSelectedIndex();
-			if (oldIndex < 0) oldIndex = 0;
-			int newIndex = oldIndex;
-			if (moveDown) newIndex++;
-			else newIndex--;
-			if (newIndex < 0) newIndex += mlm.getSize();
-			newIndex %= mlm.getSize();
-			setSelectedIndex(newIndex);
+			if (isEditable())
+			{
+				IEditListModel mlm = (IEditListModel)getModel();
+				int oldIndex = getSelectedIndex();
+				if (oldIndex < 0) oldIndex = 0;
+				int newIndex = oldIndex;
+				if (moveDown) newIndex++;
+				else newIndex--;
+				if (newIndex < 0) newIndex += mlm.getSize();
+				newIndex %= mlm.getSize();
+				setSelectedIndex(newIndex);
+			}
 		}
 	}
 
