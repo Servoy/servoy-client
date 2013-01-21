@@ -92,6 +92,23 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		return mpc.getPropertyValue(IMobileProperties.DATA_ICON);
 	}
 
+	public void setHeaderSize(IBaseSMLabel label, int headerSize)
+	{
+		// only set valid values
+		if (headerSize > 0 && headerSize < 7)
+		{
+			IMobileProperties mpc = getMobileProperties(label);
+			mpc.setPropertyValue(IMobileProperties.HEADER_SIZE, Double.valueOf(headerSize));
+		}
+	}
+
+	public int getHeaderSize(IBaseSMLabel label)
+	{
+		IMobileProperties mpc = getMobileProperties(label);
+		Double headerSize = mpc.getPropertyValue(IMobileProperties.HEADER_SIZE);
+		return headerSize != null ? headerSize.intValue() : 4;
+	}
+
 	public void groupComponents(IBaseSMComponent c1, IBaseSMComponent c2)
 	{
 		String gid = c1.getGroupID();
