@@ -242,23 +242,23 @@ public class WebDataSpinner extends WebDataCompositeTextField implements ISuppor
 		valueList.deregister();
 	}
 
-/*
- * (non-Javadoc)
- * 
- * @see com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField#setReadOnly(boolean)
- */
 	@Override
 	public void setReadOnly(boolean b)
 	{
 		super.setReadOnly(b);
-		if (b)
-		{
-			setComponentEnabled(false);
-		}
-		else
-		{
-			setComponentEnabled(true);
-		}
+		applyReadonlyState();
+	}
+
+	@Override
+	public void setEditable(boolean b)
+	{
+		super.setEditable(b);
+		applyReadonlyState();
+	}
+
+	private void applyReadonlyState()
+	{
+		showExtraComponents = editable && !readOnly;
 	}
 
 	protected class SpinField extends AugmentedTextField

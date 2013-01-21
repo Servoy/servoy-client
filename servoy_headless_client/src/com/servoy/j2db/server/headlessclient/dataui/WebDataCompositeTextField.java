@@ -77,9 +77,9 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	protected final WebDataField field;
 	protected final IApplication application;
-	private boolean readOnly = false;
+	protected boolean readOnly = false;
 	protected boolean showExtraComponents = true;
-	private boolean editable;
+	protected boolean editable;
 	private Insets margin;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
