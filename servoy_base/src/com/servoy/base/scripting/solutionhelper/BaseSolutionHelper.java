@@ -24,6 +24,7 @@ import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.persistence.IMobileProperties.MobileProperty;
 import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMPortal;
@@ -98,15 +99,30 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		if (headerSize > 0 && headerSize < 7)
 		{
 			IMobileProperties mpc = getMobileProperties(label);
-			mpc.setPropertyValue(IMobileProperties.HEADER_SIZE, Double.valueOf(headerSize));
+			mpc.setPropertyValue(IMobileProperties.HEADER_SIZE, Integer.valueOf(headerSize));
 		}
 	}
 
 	public int getHeaderSize(IBaseSMLabel label)
 	{
 		IMobileProperties mpc = getMobileProperties(label);
-		Double headerSize = mpc.getPropertyValue(IMobileProperties.HEADER_SIZE);
+		Number headerSize = mpc.getPropertyValue(IMobileProperties.HEADER_SIZE);
 		return headerSize != null ? headerSize.intValue() : 4;
+	}
+
+	public void setRadioFieldHorizontal(IBaseSMField radioField, boolean horizontal)
+	{
+		if (radioField.getDisplayType() != IBaseSMField.RADIOS) return;
+
+		int radioStyle = (horizontal ? IMobileProperties.RADIO_STYLE_HORIZONTAL : IMobileProperties.RADIO_STYLE_VERTICAL);
+		IMobileProperties mpc = getMobileProperties(radioField);
+		mpc.setPropertyValue(IMobileProperties.RADIO_STYLE, Integer.valueOf(radioStyle));
+	}
+
+	public boolean isRadioFieldHorizontal(IBaseSMField radioField)
+	{
+		IMobileProperties mpc = getMobileProperties(radioField);
+		return mpc.getPropertyValue(IMobileProperties.RADIO_STYLE).intValue() == IMobileProperties.RADIO_STYLE_HORIZONTAL;
 	}
 
 	public void groupComponents(IBaseSMComponent c1, IBaseSMComponent c2)
@@ -243,7 +259,8 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 				for (IBaseSMComponent component : formComponents)
 				{
 					IMobileProperties mpc = getMobileProperties(component);
-					if (Boolean.TRUE.equals(mpc.getPropertyValue(property)))
+					Boolean headerLabel = mpc.getPropertyValue(property);
+					if (headerLabel != null && headerLabel.booleanValue())
 					{
 						components.add(component);
 					}

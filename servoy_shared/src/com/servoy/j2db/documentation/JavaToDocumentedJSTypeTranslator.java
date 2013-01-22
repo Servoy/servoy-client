@@ -36,6 +36,7 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
@@ -60,6 +61,7 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.solutionmodel.JSButton;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
+import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSLabel;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 import com.servoy.j2db.ui.IComponent;
@@ -149,6 +151,8 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(IRecord.class, Record.class);
 
 		javaClassToDocumentedJavaClass.put(IComponent.class, IRuntimeComponent.class);
+
+		javaClassToDocumentedJavaClass.put(IBaseSMField.class, JSField.class);
 
 //		javaClassToDocumentedJavaClass.put(ISMComponent.class, JSComponent.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMComponent.class, JSComponent.class);
