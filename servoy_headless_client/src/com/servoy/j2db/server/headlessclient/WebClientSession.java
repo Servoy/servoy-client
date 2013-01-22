@@ -17,7 +17,6 @@
 package com.servoy.j2db.server.headlessclient;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -137,12 +136,7 @@ public class WebClientSession extends WebSession
 		}
 		else
 		{
-			ArrayList<String> argsArray = new ArrayList<String>();
-			argsArray.add(sd.getName());
-			if (method != null) argsArray.add(method);
-			if (firstArgument != null) argsArray.add(firstArgument);
-
-			webClient.handleArguments(argsArray.toArray(new String[argsArray.size()]), argumentsScope);
+			webClient.handleArguments(new String[] { sd.getName(), method, firstArgument }, argumentsScope);
 		}
 
 		webClient.handleClientUserUidChanged(null, ""); // fake first load
