@@ -94,6 +94,15 @@ public interface IJSController
 	public void showRecords(IJSFoundSet foundset) throws Exception;
 
 	/**
+	 * Get the used datasource.
+	 *
+	 * @sample var dataSource = %%prefix%%controller.getDataSource();
+	 * @return the datasource
+	 */
+	public String getDataSource();
+
+
+	/**
 	 * Shows the form (makes the form visible)
 	 * This function does not affect the form foundset in any way.
 	 * 

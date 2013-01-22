@@ -156,4 +156,21 @@ public interface IJSDatabaseManager
 	 */
 	public boolean hasRecords(IJSRecord record, String relationString);
 
+	/**
+	 * Returns a foundset object for a specified datasource or server and tablename. 
+	 *
+	 * @sample
+	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
+	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
+	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
+	 * var ridx = fs.newRecord()
+	 * var record = fs.getRecord(ridx)
+	 * record.emp_name = 'John'
+	 * databaseManager.saveData()
+	 *
+	 * @param dataSource The datasource to get a JSFoundset for.
+	 * 
+	 * @return A new JSFoundset for that datasource.
+	 */
+	public IJSFoundSet getFoundSet(String dataSource) throws Exception;
 }

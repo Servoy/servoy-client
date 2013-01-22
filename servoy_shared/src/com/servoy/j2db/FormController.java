@@ -1067,7 +1067,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @sample var dataSource = %%prefix%%controller.getDataSource();
 		 * @return the datasource
 		 */
-		public String js_getDataSource()
+		@JSFunction
+		public String getDataSource()
 		{
 			checkDestroyed();
 			return formController.getForm().getDataSource();

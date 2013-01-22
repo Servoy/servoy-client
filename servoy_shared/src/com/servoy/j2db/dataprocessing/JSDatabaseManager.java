@@ -2446,9 +2446,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return A new JSFoundset for that datasource.
 	 */
-	public FoundSet js_getFoundSet(String serverName, String tableName) throws ServoyException
+	public IJSFoundSet js_getFoundSet(String serverName, String tableName) throws ServoyException
 	{
-		return js_getFoundSet(DataSourceUtils.createDBTableDataSource(serverName, tableName));
+		return getFoundSet(DataSourceUtils.createDBTableDataSource(serverName, tableName));
 	}
 
 	/**
@@ -2467,7 +2467,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return A new JSFoundset for that datasource.
 	 */
-	public FoundSet js_getFoundSet(String dataSource) throws ServoyException
+	@JSFunction
+	public IJSFoundSet getFoundSet(String dataSource) throws ServoyException
 	{
 		checkAuthorized();
 		try
