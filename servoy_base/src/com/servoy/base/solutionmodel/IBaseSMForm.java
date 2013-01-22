@@ -52,10 +52,16 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
 	 */
 	@ServoyMobileFilterOut
+	public static final int LIST_VIEW = IFormConstants.VIEW_TYPE_LIST;
+
+	/**
+	 * @sameas LIST_VIEW
+	 */
+	@ServoyMobileFilterOut
 	public static final int LOCKED_TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE_LOCKED;
 
 	/**
-	 * @sameas LOCKED_TABLE_VIEW
+	 * @sameas LIST_VIEW
 	 */
 	@ServoyMobileFilterOut
 	public static final int RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD;

@@ -35,11 +35,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	/**
 	 * @sameas LIST_VIEW
 	 */
-	public static final int LOCKED_TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE_LOCKED;
-
-	/**
-	 * @sameas LIST_VIEW
-	 */
 	public static final int LOCKED_LIST_VIEW = IFormConstants.VIEW_TYPE_LIST_LOCKED;
 
 	/**
