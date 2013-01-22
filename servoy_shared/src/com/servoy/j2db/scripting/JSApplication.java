@@ -2941,6 +2941,8 @@ public class JSApplication implements IReturnedTypesProvider
 	/**
 	 * Updates the UI (painting). If in a script an element changed and the script continues doing 
 	 * things, you can give an number in ms how long this can take.
+	 * Warning: this gives the UI time to paint, but this also means that it will give the ui time to respond to all other events,
+	 * so if a user keeps clicking on other stuff this will also be handled right away inside this call. 
 	 *
 	 * @sample
 	 * application.updateUI(500);
