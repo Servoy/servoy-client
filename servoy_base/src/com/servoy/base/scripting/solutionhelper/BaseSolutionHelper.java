@@ -173,7 +173,7 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 
 		// create form
 		IBaseSMForm listForm = solutionModel.newForm(formName, dataSource, null, false, 100, 380);
-		listForm.setView(IBaseSMForm.LIST_VIEW);
+		listForm.setView(IBaseSMForm.LOCKED_TABLE_VIEW);
 
 		// create list abstraction
 		IBaseSHList listComponent = instantiateList(listForm, this);
@@ -188,7 +188,7 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 	{
 		IBaseSHList listForm = null;
 		IBaseSMForm f = solutionModel.getForm(formName);
-		if (f != null && f.getView() == IBaseSMForm.LIST_VIEW)
+		if (f != null && f.getView() == IBaseSMForm.LOCKED_TABLE_VIEW)
 		{
 			listForm = instantiateList(f, this);
 		}
@@ -298,7 +298,7 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		{
 			for (IBaseSMForm form : forms)
 			{
-				if (form.getView() == IBaseSMForm.LIST_VIEW)
+				if (form.getView() == IBaseSMForm.LOCKED_TABLE_VIEW)
 				{
 					listFormsList.add(instantiateList(form, this));
 				}
