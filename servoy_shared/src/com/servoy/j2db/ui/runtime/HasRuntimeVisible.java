@@ -20,6 +20,8 @@ package com.servoy.j2db.ui.runtime;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
+
 /**
  * Runtime property interface for visibility.
  * 
@@ -27,6 +29,7 @@ import org.mozilla.javascript.annotations.JSSetter;
  *
  * @since 6.1
  */
+@ServoyMobile
 public interface HasRuntimeVisible
 {
 	/**
