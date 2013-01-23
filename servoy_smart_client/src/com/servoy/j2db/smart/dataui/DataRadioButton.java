@@ -570,6 +570,21 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		return Text.processTags(getText(), resolver);
 	}
 
+	/*
+	 * placeholder---------------------------------------------------
+	 */
+	private String placeholderText = null;
+
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
+	}
+
 	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();

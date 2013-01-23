@@ -253,4 +253,16 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * forms['someForm'].controller.show();
 	 */
 	public IBaseSMMethod getOnDataChange();
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Field#getPlaceholderText()
+	 * 
+	 * @sample
+	 * field.placeholderText = 'Search';
+	 */
+	public String getPlaceholderText();
+
+	public void setPlaceholderText(String arg);
+
+
 }

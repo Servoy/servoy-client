@@ -201,7 +201,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_STYLENAME = "styleName"; //$NON-NLS-1$
 	public static final String PROPERTY_TITLETEXT = "titleText"; //$NON-NLS-1$
 	public static final String PROPERTY_TOOLTIPTEXT = "toolTipText"; //$NON-NLS-1$
-	public static final String PROPERTY_PLACEHOLDERTEXT = "placeholderText"; //$NON-NLS-1$
 	public static final String PROPERTY_TEXTROTATION = "textRotation"; //$NON-NLS-1$
 
 }

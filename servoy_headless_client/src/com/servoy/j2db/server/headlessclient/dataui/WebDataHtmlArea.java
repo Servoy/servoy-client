@@ -380,6 +380,23 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		return Text.processTags(titleText, resolver);
 	}
 
+	/*
+	 * placeholder---------------------------------------------------
+	 */
+	private String placeholderText = null;
+
+	@Override
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	@Override
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
+	}
+
 	private String tooltip;
 
 	public void setToolTipText(String tooltip)

@@ -278,6 +278,24 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.Field#getPlaceholderText()
+	 * 
+	 * @sample
+	 * field.placeholderText = 'Search';
+	 */
+	@JSGetter
+	public String getPlaceholderText()
+	{
+		return getBaseComponent(false).getPlaceholderText();
+	}
+
+	@JSSetter
+	public void setPlaceholderText(String arg)
+	{
+		getBaseComponent(true).setPlaceholderText(arg);
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getValuelistID()
 	 * 
 	 * @sample

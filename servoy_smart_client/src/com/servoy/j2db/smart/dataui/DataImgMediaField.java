@@ -1099,6 +1099,18 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		return Text.processTags(titleText, resolver);
 	}
 
+	private String placeholderText = null;
+
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
+	}
+
 	private String tooltip;
 
 	@Override

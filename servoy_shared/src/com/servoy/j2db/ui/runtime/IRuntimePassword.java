@@ -25,6 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *  @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimePassword", extendsComponent = "RuntimeComponent")
-public interface IRuntimePassword extends IRuntimeInputComponent
+public interface IRuntimePassword extends IRuntimeInputComponent, HasRuntimePlaceholder
 {
 }

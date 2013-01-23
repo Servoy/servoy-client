@@ -478,4 +478,23 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
+
+	/**
+	 * The text that is displayed in field when the field doesn't have a text value.
+	 */
+	@ServoyMobile
+	public String getPlaceholderText()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT);
+	}
+
+	/**
+	 * Sets the placeholder text.
+	 * 
+	 * @param arg The text to set
+	 */
+	public void setPlaceholderText(String arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT, arg);
+	}
 }

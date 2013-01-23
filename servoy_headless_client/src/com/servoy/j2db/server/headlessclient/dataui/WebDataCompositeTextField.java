@@ -60,6 +60,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Text;
 
 /**
  * Represents a component based on a text field to which it adds more (sub)components for added functionality.
@@ -416,6 +417,23 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	public String getTitleText()
 	{
 		return field.getTitleText();
+	}
+
+	/*
+	 * placeholder---------------------------------------------------
+	 */
+	private String placeholderText = null;
+
+	@Override
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	@Override
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
 	}
 
 	/*

@@ -31,6 +31,7 @@ import javax.swing.border.Border;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -111,6 +112,24 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 					return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
 				}
 			}));
+
+		add(new AttributeModifier("placeholder", true, new Model<String>() //$NON-NLS-1$
+			{
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public String getObject()
+				{
+					return getPlaceholderText();
+				}
+			})
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				return super.isEnabled(component) && getPlaceholderText() != null;
+			}
+		});
 
 		add(new AjaxEventBehavior("onselect")
 		{
@@ -636,6 +655,21 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
+	}
+
+	/*
+	 * placeholder---------------------------------------------------
+	 */
+	private String placeholderText = null;
+
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
 	}
 
 	private String tooltip;

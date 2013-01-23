@@ -62,7 +62,7 @@ import javax.swing.text.html.CSS;
 import org.json.JSONException;
 import org.xhtmlrenderer.css.constants.CSSName;
 
-import com.servoy.base.persistence.constants.IRepositoryConstants;
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -86,6 +86,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IFormElement;
@@ -108,7 +109,6 @@ import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptableProvider;
@@ -971,7 +971,7 @@ public class ComponentFactory
 		}
 		IValueList list = null;
 		if (valuelist != null &&
-			(valuelist.getValueListType() == ValueList.CUSTOM_VALUES || (valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.TABLE_VALUES)))//reuse,those are static,OTHERS not!
+			(valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES || (valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
 		{
 			WeakHashMap<ValueList, Object> hmValueLists = null;
 			if (application != null)
@@ -1010,7 +1010,7 @@ public class ComponentFactory
 					vl.setDisplayValueType(valuelist.getDisplayValueType());
 					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
 				}
-				if (!useSoftCacheForCustom && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
+				if (!useSoftCacheForCustom && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 				{
 					if (hmValueLists != null) hmValueLists.put(valuelist, list);
 					if (dataprovider != null)
@@ -1022,13 +1022,13 @@ public class ComponentFactory
 				{
 					if (hmValueLists != null) hmValueLists.put(valuelist, new SoftReference<IValueList>(list));
 
-					if (dataprovider != null && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
+					if (dataprovider != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 					{
 						((CustomValueList)list).addDataProvider(dataprovider);
 					}
 				}
 			}
-			else if (valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
+			else if (valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 			{
 				if (application instanceof IApplication && ((IApplication)application).isInDeveloper())
 				{
@@ -1081,8 +1081,8 @@ public class ComponentFactory
 		try
 		{
 			vl = application.getFlattenedSolution().getValueList(field.getValuelistID());
-			if (vl != null /* && application.getApplicationType() == IServiceProvider.DEVELOPER */&& vl.getValueListType() == ValueList.DATABASE_VALUES &&
-				dataProviderLookup != null)
+			if (vl != null /* && application.getApplicationType() == IServiceProvider.DEVELOPER */&&
+				vl.getValueListType() == IValueListConstants.DATABASE_VALUES && dataProviderLookup != null)
 			{
 				IDataProvider dp = dataProviderLookup.getDataProvider(field.getDataProviderID());
 				if (dp != null)
@@ -1112,7 +1112,7 @@ public class ComponentFactory
 					if (p == null && id != null)
 					{
 						ITable t = null;
-						if (vl.getDatabaseValuesType() == ValueList.RELATED_VALUES)
+						if (vl.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES)
 						{
 							String relationName = vl.getRelationName();
 							Relation[] relations = application.getFlattenedSolution().getRelationSequence(relationName);
@@ -1447,6 +1447,7 @@ public class ComponentFactory
 		}
 		fl.setToolTipText(application.getI18NMessageIfPrefixed(field.getToolTipText()));
 		fl.setTitleText(application.getI18NMessageIfPrefixed(field.getText()));
+		fl.setPlaceholderText(application.getI18NMessageIfPrefixed(field.getPlaceholderText()));
 		fl.setDataProviderID(dp == null ? field.getDataProviderID() : dp.getDataProviderID());
 		if (field.getDataProviderID() != null && dataProviderLookup != null)
 		{
@@ -1595,7 +1596,7 @@ public class ComponentFactory
 		else
 		{
 			scriptable = new RuntimeDataLookupField(jsChangeRecorder, application);
-			if (valuelist.getValueListType() == ValueList.DATABASE_VALUES)
+			if (valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES)
 			{
 				try
 				{
@@ -1610,7 +1611,8 @@ public class ComponentFactory
 					return null;
 				}
 			}
-			else if (valuelist.getValueListType() == ValueList.CUSTOM_VALUES || valuelist.getValueListType() == ValueList.GLOBAL_METHOD_VALUES)
+			else if (valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES ||
+				valuelist.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
 			{
 				fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field),
 					(CustomValueList)getRealValueList(application, valuelist, true, type, format, field.getDataProviderID()));
@@ -1638,7 +1640,7 @@ public class ComponentFactory
 		if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 		{
 			ValueList fallbackValueList = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
-			if (fallbackValueList.getValueListType() == ValueList.DATABASE_VALUES)
+			if (fallbackValueList.getValueListType() == IValueListConstants.DATABASE_VALUES)
 			{
 				try
 				{
@@ -2468,8 +2470,8 @@ public class ComponentFactory
 	public static boolean isSingleValue(ValueList valuelist, IValueList list)
 	{
 		return list != null && valuelist != null &&
-			!(valuelist.getValueListType() == ValueList.DATABASE_VALUES && valuelist.getDatabaseValuesType() == ValueList.RELATED_VALUES) &&
-			list.getSize() == 1 && valuelist.getAddEmptyValue() != ValueList.EMPTY_VALUE_ALWAYS;
+			!(valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES) &&
+			list.getSize() == 1 && valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS;
 	}
 
 	public static boolean isButton(GraphicalComponent label)

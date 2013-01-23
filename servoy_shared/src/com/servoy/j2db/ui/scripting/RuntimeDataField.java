@@ -161,4 +161,18 @@ public class RuntimeDataField extends AbstractRuntimeFormattedValuelistComponent
 			getChangesRecorder().setBorder(spec);
 		}
 	}
+
+	public String getPlaceholderText()
+	{
+		return getComponent().getPlaceholderText();
+	}
+
+	public void setPlaceholderText(String placeholder)
+	{
+		if (!Utils.safeEquals(placeholder, getPlaceholderText()))
+		{
+			getComponent().setPlaceholderText(placeholder);
+			getChangesRecorder().setChanged();
+		}
+	}
 }

@@ -827,7 +827,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		converter = null;
 		if (!componentFormat.parsedFormat.isEmpty() && getScriptObject().getComponentFormat().parsedFormat.hasEditFormat())
 		{
-				Debug.log("WARNING Display and Edit formats are not used in browser comboboxes. Such browser controls do not support editing"); //$NON-NLS-1$
+			Debug.log("WARNING Display and Edit formats are not used in browser comboboxes. Such browser controls do not support editing"); //$NON-NLS-1$
 		}
 	}
 
@@ -1037,6 +1037,24 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	{
 		return Text.processTags(titleText, resolver);
 	}
+
+	/*
+	 * placeholder---------------------------------------------------
+	 */
+	private String placeholderText = null;
+
+	@Override
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	@Override
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
+	}
+
 
 	private String tooltip;
 

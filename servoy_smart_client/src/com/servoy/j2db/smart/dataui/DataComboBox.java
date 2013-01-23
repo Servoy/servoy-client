@@ -1784,6 +1784,21 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		return Text.processTags(titleText, resolver);
 	}
 
+	/*
+	 * placeholder---------------------------------------------------
+	 */
+	private String placeholderText = null;
+
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
+	}
+
 	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();

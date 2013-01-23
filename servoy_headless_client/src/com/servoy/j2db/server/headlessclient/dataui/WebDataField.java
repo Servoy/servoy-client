@@ -35,6 +35,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -218,6 +219,25 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
 				}
 			}));
+
+		add(new AttributeModifier("placeholder", true, new Model<String>() //$NON-NLS-1$
+			{
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public String getObject()
+				{
+					return getPlaceholderText();
+				}
+			})
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				return super.isEnabled(component) && getPlaceholderText() != null;
+			}
+		});
+
 		focusIfInvalidAttributeModifier = new FocusIfInvalidAttributeModifier(this);
 		add(focusIfInvalidAttributeModifier);
 		add(StyleAttributeModifierModel.INSTANCE);
@@ -1094,6 +1114,23 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
+	}
+
+	/*
+	 * placeholder---------------------------------------------------
+	 */
+	private String placeholderText = null;
+
+	@Override
+	public String getPlaceholderText()
+	{
+		return Text.processTags(placeholderText, resolver);
+	}
+
+	@Override
+	public void setPlaceholderText(String placeholder)
+	{
+		this.placeholderText = placeholder;
 	}
 
 
