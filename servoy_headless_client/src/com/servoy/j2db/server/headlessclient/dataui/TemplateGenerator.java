@@ -2183,7 +2183,7 @@ public class TemplateGenerator
 	{
 		String styleName = "#";
 		Insets border = null;
-		if (label.getOnActionMethodID() != 0 && !hasHTMLText(label.getText()) && label.getShowClick())
+		if (ComponentFactory.isButton(label) && !hasHTMLText(label.getText()))
 		{
 //			styleName = "input.";
 			border = DEFAULT_BUTTON_BORDER_SIZE;

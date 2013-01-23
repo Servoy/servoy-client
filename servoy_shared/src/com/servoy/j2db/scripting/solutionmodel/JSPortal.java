@@ -34,6 +34,7 @@ import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Field;
@@ -632,7 +633,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && button.getOnActionMethodID() != 0 && button.getShowClick())
+			if (name.equals(button.getName()) && ComponentFactory.isButton(button))
 			{
 				return new JSButton(this, button, application, false);
 			}
@@ -655,7 +656,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
-			if (button.getOnActionMethodID() != 0 && button.getShowClick())
+			if (ComponentFactory.isButton(button))
 			{
 				buttons.add(new JSButton(this, button, application, false));
 			}
@@ -690,10 +691,10 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		Iterator<GraphicalComponent> graphicalComponents = getBaseComponent(false).getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && !(button.getOnActionMethodID() != 0 && button.getShowClick()))
+			GraphicalComponent label = graphicalComponents.next();
+			if (name.equals(label.getName()) && !ComponentFactory.isButton(label))
 			{
-				return new JSLabel(this, button, application, false);
+				return new JSLabel(this, label, application, false);
 			}
 		}
 		return null;
@@ -713,10 +714,10 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		Iterator<GraphicalComponent> graphicalComponents = getBaseComponent(false).getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (!(button.getOnActionMethodID() != 0 && button.getShowClick()))
+			GraphicalComponent label = graphicalComponents.next();
+			if (!ComponentFactory.isButton(label))
 			{
-				labels.add(new JSLabel(this, button, application, false));
+				labels.add(new JSLabel(this, label, application, false));
 			}
 		}
 		return labels.toArray(new JSLabel[labels.size()]);

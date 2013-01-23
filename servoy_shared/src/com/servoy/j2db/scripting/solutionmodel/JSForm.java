@@ -35,6 +35,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -2088,7 +2089,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && button.getOnActionMethodID() != 0 && button.getShowClick())
+			if (name.equals(button.getName()) && ComponentFactory.isButton(button))
 			{
 				return new JSButton(this, button, application, false);
 			}
@@ -2121,7 +2122,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && button.getOnActionMethodID() != 0 && button.getShowClick())
+			if (name.equals(button.getName()) && ComponentFactory.isButton(button))
 			{
 				form.removeChild(button);
 				return true;
@@ -2156,7 +2157,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		while (graphicalComponents.hasNext())
 		{
 			GraphicalComponent button = graphicalComponents.next();
-			if (button.getOnActionMethodID() != 0 && button.getShowClick())
+			if (ComponentFactory.isButton(button))
 			{
 				buttons.add(new JSButton(this, button, application, false));
 			}
@@ -2474,10 +2475,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			Iterator<GraphicalComponent> graphicalComponents = application.getFlattenedSolution().getFlattenedForm(form).getGraphicalComponents();
 			while (graphicalComponents.hasNext())
 			{
-				GraphicalComponent button = graphicalComponents.next();
-				if (name.equals(button.getName()) && !(button.getOnActionMethodID() != 0 && button.getShowClick()))
+				GraphicalComponent label = graphicalComponents.next();
+				if (name.equals(label.getName()) && !ComponentFactory.isButton(label))
 				{
-					return new JSLabel(this, button, application, false);
+					return new JSLabel(this, label, application, false);
 				}
 			}
 		}
@@ -2514,10 +2515,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (name.equals(button.getName()) && !(button.getOnActionMethodID() != 0 && button.getShowClick()))
+			GraphicalComponent label = graphicalComponents.next();
+			if (name.equals(label.getName()) && !ComponentFactory.isButton(label))
 			{
-				form.removeChild(button);
+				form.removeChild(label);
 				return true;
 			}
 		}
@@ -2549,10 +2550,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
-			GraphicalComponent button = graphicalComponents.next();
-			if (!(button.getOnActionMethodID() != 0 && button.getShowClick()))
+			GraphicalComponent label = graphicalComponents.next();
+			if (!ComponentFactory.isButton(label))
 			{
-				labels.add(new JSLabel(this, button, application, false));
+				labels.add(new JSLabel(this, label, application, false));
 			}
 		}
 		return labels.toArray(new JSLabel[labels.size()]);

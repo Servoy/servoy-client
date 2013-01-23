@@ -687,21 +687,9 @@ public class ComponentFactory
 		{
 			lookupName = "tabpanel";
 		}
-		else if (bc instanceof GraphicalComponent &&
-			(((GraphicalComponent)bc).getOnActionMethodID() > 0 || ((GraphicalComponent)bc).getOnActionMethodID() == -1))
+		else if (bc instanceof GraphicalComponent)
 		{
-			if (((GraphicalComponent)bc).getShowClick())
-			{
-				lookupName = "button";
-			}
-			else
-			{
-				lookupName = "label";
-			}
-		}
-		else if (bc instanceof GraphicalComponent && ((GraphicalComponent)bc).getOnActionMethodID() <= 0)
-		{
-			lookupName = "label";
+			lookupName = ComponentFactory.isButton((GraphicalComponent)bc) ? "button" : "label";
 		}
 		else if (bc instanceof Part)
 		{
@@ -1730,7 +1718,7 @@ public class ComponentFactory
 		ILabel l;
 		AbstractRuntimeLabel< ? extends ILabel> scriptable;
 		IStylePropertyChangesRecorder jsChangeRecorder = application.getItemFactory().createChangesRecorder();
-		if (label.getOnActionMethodID() != 0 && label.getShowClick())
+		if (ComponentFactory.isButton(label))
 		{
 			IButton button;
 			if (label.getDataProviderID() == null && !label.getDisplaysTags())
