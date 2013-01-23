@@ -62,8 +62,7 @@ public class FormatParser
 				boolean mask = Boolean.TRUE.equals(props.get("mask"));
 				String editOrPlaceholder = (String)props.get("editOrPlaceholder");
 				String displayFormat = (String)props.get("displayFormat");
-				String ml = (String)props.get("maxLength");
-				Integer maxLength = ml == null ? null : Integer.valueOf(ml);
+				Integer maxLength = (Integer)props.get("maxLength");
 				String allowedCharacters = (String)props.get("allowedCharacters");
 
 				return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
@@ -112,7 +111,8 @@ public class FormatParser
 			{
 				displayFormat = formatString.substring(0, index);
 				editOrPlaceholder = formatString.substring(index + 1);
-				if (displayFormat.length() == 0 && editOrPlaceholder.length() == 1)
+				if (displayFormat.length() == 0 &&
+					(editOrPlaceholder.length() == 1 || editOrPlaceholder.startsWith("U[") || editOrPlaceholder.startsWith("L[") || editOrPlaceholder.startsWith("#[")))
 				{
 					if (editOrPlaceholder.charAt(0) == 'U')
 					{
@@ -125,6 +125,10 @@ public class FormatParser
 					else if (editOrPlaceholder.charAt(0) == '#')
 					{
 						numberValidator = true;
+					}
+					if (editOrPlaceholder.length() > 1)
+					{
+						maxLength = Integer.valueOf(editOrPlaceholder.substring(2, editOrPlaceholder.length() - 1));
 					}
 					displayFormat = null;
 					editOrPlaceholder = null;
@@ -282,9 +286,9 @@ public class FormatParser
 		 */
 		private String toSimpleFormatProperty()
 		{
-			if (allUpperCase) return "|U";
-			if (allLowerCase) return "|L";
-			if (numberValidator) return "|#";
+			if (allUpperCase) return maxLength != null ? "|U[" + maxLength.intValue() + ']' : "|U";
+			if (allLowerCase) return maxLength != null ? "|L[" + maxLength.intValue() + ']' : "|L";
+			if (numberValidator) return maxLength != null ? "|#[" + maxLength.intValue() + ']' : "|#";
 
 			StringBuilder sb = new StringBuilder();
 

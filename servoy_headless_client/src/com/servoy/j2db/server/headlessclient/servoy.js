@@ -2364,7 +2364,7 @@ if (typeof(Servoy.Validation) == "undefined")
 			}
 		},
 		
-		changeCase: function(element,e,upper)
+		changeCase: function(element,e,upper, maxLength)
 		{
 			e = e || window.event;
 			var k = e.keyCode || e.charCode || e.which;
@@ -2388,8 +2388,11 @@ if (typeof(Servoy.Validation) == "undefined")
 				{
 					buffer[caret] = upper?c.toUpperCase():c.toLowerCase();
 				}
-				element.value = buffer.join('');
-				Servoy.Utils.doSetCaretPosition(element,caret+1);
+				var value = buffer.join('');
+				if (!maxLength || value.length <= maxLength) {
+					element.value = buffer.join('');
+					Servoy.Utils.doSetCaretPosition(element,caret+1);
+				}
 				return false;
 			}
 		}

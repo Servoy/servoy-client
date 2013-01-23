@@ -585,6 +585,9 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	 */
 	public void setMaxLength(int maxLength)
 	{
+		// if the format has a max length set and the current one is larger, ignore this one (format length is leading)
+		if (parsedFormat != null && parsedFormat.getMaxLength() != null && parsedFormat.getMaxLength().intValue() < maxLength) return;
+
 		if (maxLengthBehavior != null) remove(maxLengthBehavior);
 		if (maxLength > 0)
 		{
@@ -805,14 +808,21 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		parsedFormat = componentFormat.parsedFormat;
 		if (!componentFormat.parsedFormat.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
+			int maxLength = parsedFormat.getMaxLength() != null ? parsedFormat.getMaxLength().intValue() : 0;
+			if (maxLength > 0)
+			{
+				setMaxLength(parsedFormat.getMaxLength().intValue());
+			}
 			if (formatAttributeModifier != null) remove(formatAttributeModifier);
 			if (parsedFormat.isAllUpperCase())
 			{
-				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,true);");
+				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,true," +
+					maxLength + ");");
 			}
 			else if (parsedFormat.isAllLowerCase())
 			{
-				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false);");
+				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false," +
+					maxLength + ");");
 			}
 			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask())
 			{
@@ -831,7 +841,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 					("return Servoy.Validation.numbersonly(event, true, '" + dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" +
 						dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');").intern());
 			}
-			else if (mappedType == IColumnTypes.TEXT)
+			else if (mappedType == IColumnTypes.TEXT && parsedFormat.getDisplayFormat() != null)
 			{
 				setType(String.class);
 				String placeHolder = null;

@@ -1361,6 +1361,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			displayFormat = fp.getDisplayFormat();
 			editFormat = fp.getEditFormat();
+			if (fp.getMaxLength() != null && fp.getMaxLength().intValue() > 0)
+			{
+				editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(fp.getMaxLength().intValue()));
+			}
 
 			if (fp.isAllLowerCase())
 			{
@@ -1389,10 +1393,20 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				// if there is no display format, but the max length is set, then generate a display format.
 				if (maxLength != -1 && (displayFormat == null || displayFormat.length() == 0))
 				{
-					char[] chars = new char[maxLength];
-					for (int i = 0; i < chars.length; i++)
-						chars[i] = '#';
-					displayFormat = new String(chars);
+					// if this is just a text type textfield then just set those formatters (the max length is already set)
+					if (Column.mapToDefaultType(dataType) == IColumnTypes.TEXT)
+					{
+						TextFormatter display = new TextFormatter();
+						TextFormatter edit = new TextFormatter();
+						setFormatterFactory(new EditingFixedDefaultFormatterFactory(display, display, edit, edit));
+					}
+					else
+					{
+						char[] chars = new char[maxLength];
+						for (int i = 0; i < chars.length; i++)
+							chars[i] = '#';
+						displayFormat = new String(chars);
+					}
 				}
 
 				if (displayFormat != null)
