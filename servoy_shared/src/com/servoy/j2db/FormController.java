@@ -1602,7 +1602,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 */
 		public void jsFunction_setDesignMode(Function onDrag)
 		{
-			jsFunction_setDesignMode(onDrag, null, null, null);
+			jsFunction_setDesignMode(onDrag, null);
 		}
 
 		/**
@@ -1615,7 +1615,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 */
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop)
 		{
-			jsFunction_setDesignMode(onDrag, onDrop, null, null);
+			jsFunction_setDesignMode(onDrag, onDrop, null);
 		}
 
 		/**
@@ -1644,8 +1644,42 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 */
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize)
 		{
+			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, null);
+		}
+
+		/**
+		 * Sets this form in designmode with one or more callback methods. 
+		 *
+		 * @sampleas jsFunction_setDesignMode(boolean)
+		 *
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param onselect org.mozilla.javascript.Function onSelect method reference
+		 * @param onresize org.mozilla.javascript.Function onResize method reference
+		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
+		 */
+		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick)
+		{
+			jsFunction_setDesignMode(onDrag, onDrop, onSelect, onResize, onDblClick, null);
+		}
+
+		/**
+		 * Sets this form in designmode with one or more callback methods. 
+		 *
+		 * @sampleas jsFunction_setDesignMode(boolean)
+		 *
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param onselect org.mozilla.javascript.Function onSelect method reference
+		 * @param onresize org.mozilla.javascript.Function onResize method reference
+		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
+		 * @param onrightclick org.mozilla.javascript.Function onRightClick method reference
+		 */
+		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect, Function onResize, Function onDblClick, Function onRightClick)
+		{
 			checkDestroyed();
-			formController.setDesignMode(new DesignModeCallbacks(new Function[] { onDrag, onDrop, onSelect, onResize }, formController.application));
+			formController.setDesignMode(new DesignModeCallbacks(new Function[] { onDrag, onDrop, onSelect, onResize, onDblClick, onRightClick },
+				formController.application));
 		}
 
 		/**

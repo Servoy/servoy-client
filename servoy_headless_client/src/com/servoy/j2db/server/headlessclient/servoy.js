@@ -2498,14 +2498,30 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		selectedElementId : null,
 		designableElementsArray : null,
 		callbackurl : null,
+		mouseSelectTime : new Date(),
 		
-		selectElement: function(e)
+		mouseSelect: function(e)
+		{
+			Servoy.ClientDesign.selectElement(e, Servoy.ClientDesign.isDblClick());
+		},
+		
+		isDblClick: function()
+		{
+			var now = new Date();
+			var isDblClick = now - Servoy.ClientDesign.mouseSelectTime < 200;
+			Servoy.ClientDesign.mouseSelectTime = now;
+			return isDblClick;
+		},
+		
+		selectElement: function(e, isDblClick)
 		{
 			var elem;
 			if (!e)
 			{
 				e = window.event;
 			}
+			
+			var isRightClick = e.button && e.button == 2;
 			
 			if (e.target)
 			{
@@ -2585,7 +2601,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			
 			if (elem.id)
 			{
-				wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aSelect&xc=' + elem.style.left + '&yc=' + elem.style.top + '&draggableID=' + elem.id);
+				wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aSelect&xc=' + elem.style.left + '&yc=' + elem.style.top + '&draggableID=' + elem.id + '&isDblClick=' + isDblClick + '&isRightClick=' + isRightClick);
 			}
 		},
 		
@@ -2671,11 +2687,12 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 					wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aStart&xc=' + element.style.left + '&yc=' + element.style.top + '&draggableID=' + this.id);
 					Servoy.DD.dragStarted();
 				};
-
+				
 				resize.dd.on('mouseUpEvent', function(ev, targetid)	
 				{
+					var isDblClick = Servoy.ClientDesign.isDblClick();
 					var element = document.getElementById(this.id);
-					var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid
+					var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid + '&isDblClick=' + isDblClick;
 					Servoy.ClientDesign.selectedResizeElement.destroy()
 					Servoy.ClientDesign.selectedResizeElement = null;
 					var parentLeft = wicketAjaxGet(url);
@@ -2707,7 +2724,8 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		{
 			Servoy.ClientDesign.designableElementsArray = array;
 			Servoy.ClientDesign.callbackurl = url;
-			Wicket.Event.add(document.body, "mousedown", Servoy.ClientDesign.selectElement);
+			Wicket.Event.add(document.body, "mousedown", Servoy.ClientDesign.mouseSelect);
+			document.body.oncontextmenu = function(e) { e.preventDefault();}
 			var Dom = YAHOO.util.Dom,Event = YAHOO.util.Event; //to load stuff?
 		},
 		

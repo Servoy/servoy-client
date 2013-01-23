@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import org.mozilla.javascript.Function;
@@ -32,6 +32,8 @@ public class DesignModeCallbacks
 	private final FunctionDefinition ondrop;
 	private final FunctionDefinition onselect;
 	private final FunctionDefinition onresize;
+	private final FunctionDefinition ondblclick;
+	private final FunctionDefinition onrightclick;
 	private final IApplication application;
 
 	/**
@@ -72,6 +74,22 @@ public class DesignModeCallbacks
 		{
 			onresize = null;
 		}
+		if (args.length > 4 && args[4] instanceof Function)
+		{
+			ondblclick = new FunctionDefinition((Function)args[4]);
+		}
+		else
+		{
+			ondblclick = null;
+		}
+		if (args.length > 5 && args[5] instanceof Function)
+		{
+			onrightclick = new FunctionDefinition((Function)args[5]);
+		}
+		else
+		{
+			onrightclick = null;
+		}
 	}
 
 	public Object executeOnDrag(JSEvent event)
@@ -110,4 +128,21 @@ public class DesignModeCallbacks
 		return null;
 	}
 
+	public Object executeOnDblClick(JSEvent event)
+	{
+		if (ondblclick != null)
+		{
+			return ondblclick.executeSync((IClientPluginAccess)application.getPluginAccess(), new Object[] { event });
+		}
+		return null;
+	}
+
+	public Object executeOnRightClick(JSEvent event)
+	{
+		if (onrightclick != null)
+		{
+			return onrightclick.executeSync((IClientPluginAccess)application.getPluginAccess(), new Object[] { event });
+		}
+		return null;
+	}
 }

@@ -2108,6 +2108,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			{
 				callback.executeOnResize(getJSEvent(e, EventType.onDrop));
 			}
+			if (SwingUtilities.isRightMouseButton(e)) callback.executeOnRightClick(getJSEvent(e, EventType.rightClick));
+			else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) callback.executeOnDblClick(getJSEvent(e, EventType.doubleClick));
+
 			dragMode = -1;
 			lastMousePosition = null;
 			lassoPosition = null;

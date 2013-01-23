@@ -64,6 +64,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 	public static final String ACTION_SELECT = "aSelect";
 	public static final String PARAM_RESIZE_HEIGHT = "resizeHeight";
 	public static final String PARAM_RESIZE_WIDTH = "resizeWidth";
+	public static final String PARAM_IS_DBLCLICK = "isDblClick";
+	public static final String PARAM_IS_RIGHTCLICK = "isRightClick";
 
 	private DesignModeCallbacks callback;
 	private FormController controller;
@@ -254,6 +256,15 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 						onSelectComponent = (IComponent)child;
 						target.appendJavascript("Servoy.ClientDesign.attachElement(document.getElementById('" + id + "'));");
 					}
+					if (Boolean.parseBoolean(request.getParameter(PARAM_IS_RIGHTCLICK)))
+					{
+						callback.executeOnRightClick(getJSEvent(EventType.rightClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+					}
+					else if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
+					{
+						callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+					}
+
 					WebEventExecutor.generateResponse(target, getComponent().getPage());
 					return;
 				}
@@ -319,6 +330,11 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 							}
 						}
 						callback.executeOnDrop(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+					}
+
+					if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
+					{
+						callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
 					}
 				}
 			}
