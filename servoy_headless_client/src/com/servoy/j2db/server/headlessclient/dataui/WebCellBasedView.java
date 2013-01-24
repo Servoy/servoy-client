@@ -1092,47 +1092,43 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				Component component = it.next();
 				if (component.isVisibleInHierarchy())
 				{
-					Object c = component instanceof CellContainer ? ((CellContainer)component).iterator().next() : component;
-					if (c instanceof Component)
+					Component innerComponent = CellContainer.getContentsForCell(component);
+					if (!ignoreStyles)
 					{
-						Component innerComponent = (Component)c;
-						if (!ignoreStyles)
+						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
+						if (innerComponent instanceof IScriptableProvider &&
+							((IScriptableProvider)innerComponent).getScriptObject() instanceof IRuntimeComponent &&
+							((IRuntimeComponent)((IScriptableProvider)innerComponent).getScriptObject()).isTransparent())
 						{
-							WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
-							if (innerComponent instanceof IScriptableProvider &&
-								((IScriptableProvider)innerComponent).getScriptObject() instanceof IRuntimeComponent &&
-								((IRuntimeComponent)((IScriptableProvider)innerComponent).getScriptObject()).isTransparent())
+							// apply the bg color even if transparent
+							if (innerComponent instanceof IProviderStylePropertyChanges &&
+								((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
 							{
-								// apply the bg color even if transparent
-								if (innerComponent instanceof IProviderStylePropertyChanges &&
-									((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
-								{
-									((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges())).setBgcolor(bgColor);
-								}
+								((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges())).setBgcolor(bgColor);
 							}
 						}
-						boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
-							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
-						if (((updateComponentRenderState(c, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null || compBorder != null))) &&
-							target != null)
-						{
-							target.addComponent(innerComponent.getParent());
-							WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
-							if (!innerComponent.isVisible())
-							{
-								((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
-							}
-						}
-						else if (innerComponentChanged)
+					}
+					boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
+						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
+					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null || compBorder != null))) &&
+						target != null)
+					{
+						target.addComponent(innerComponent.getParent());
+						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
+						if (!innerComponent.isVisible())
 						{
 							((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
 						}
+					}
+					else if (innerComponentChanged)
+					{
+						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
 					}
 				}
 			}
 		}
 
-		private boolean updateComponentRenderState(Object component, boolean isSelected)
+		private boolean updateComponentRenderState(Component component, boolean isSelected)
 		{
 			if (component instanceof IScriptableProvider && component instanceof IProviderStylePropertyChanges)
 			{
