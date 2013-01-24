@@ -1389,7 +1389,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @deprecated As of release 7.0. Use overload with array arguments for ex: executeProgramInBackground("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "/home/myself/");
+	 * @deprecated As of release 6.1.4. Use overload with array arguments for ex: executeProgramInBackground("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "/home/myself/");
 	 * Execute a program in the background. Specify the cmd as you would do in a console.
 	 *
 	 * @sample
@@ -1447,7 +1447,7 @@ public class JSApplication implements IReturnedTypesProvider
 	}
 
 	/**
-	 * @deprecated As of release 7.0. Use overload with array arguments, for ex: executeProgram("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "/home/myself/");
+	 * @deprecated As of release 6.1.4. Use overload with array arguments, for ex: executeProgram("c:\\Users\\myself\\myapp.exe", ["arg1", "arg2", "arg3"], ["MY_ENV_VAR=something"], "/home/myself/");
 	 * Execute a program and returns output. Specify the cmd as you would do in a console.
 	 *
 	 * @sample
