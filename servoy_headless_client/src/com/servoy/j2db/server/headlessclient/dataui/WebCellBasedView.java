@@ -1110,8 +1110,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 					boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
-					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null || compBorder != null))) &&
-						target != null)
+					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles)) && target != null)
 					{
 						target.addComponent(innerComponent.getParent());
 						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
