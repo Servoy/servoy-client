@@ -382,11 +382,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public static class CellContainer extends WebMarkupContainer
 	{
 		private final Component childComp;
+		public StyleAppendingModifier backgroundModifier = null;
 
 		public CellContainer(Component childComp)
 		{
 			super(childComp.getId() + '_');
 			this.childComp = childComp;
+			backgroundModifier = new StyleAppendingModifier(new Model<String>(""));
 		}
 
 		public static Component getContentsForCell(Component child)
@@ -1095,7 +1097,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
 						if (innerComponent instanceof IScriptableProvider &&
 							((IScriptableProvider)innerComponent).getScriptObject() instanceof IRuntimeComponent &&
-							((IRuntimeComponent)((IScriptableProvider)innerComponent).getScriptObject()).isTransparent() && bgColor != null)
+							((IRuntimeComponent)((IScriptableProvider)innerComponent).getScriptObject()).isTransparent())
 						{
 							// apply the bg color even if transparent
 							if (innerComponent instanceof IProviderStylePropertyChanges &&
@@ -1107,10 +1109,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 					boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
-					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles && (bgColor != null || fgColor != null || compFont != null || compBorder != null))) &&
-						target != null)
+					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles)) && target != null)
 					{
-						target.addComponent(innerComponent);
+						target.addComponent(innerComponent.getParent());
 						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
 						if (!innerComponent.isVisible())
 						{
@@ -2820,7 +2821,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			pagingNavigator.setVisible(!isScrollMode() && showPageNavigator && table.getPageCount() > 1);
 		}
 		selectedIndexes = null;
-
+		updateRowComponentsRenderState(null);
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
@@ -3905,9 +3906,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		MarkupContainer cellContainer = comp.getParent();
 		String compColorStr = compColor.toString();
-		if (cellContainer instanceof CellContainer && compColorStr != null && !"".equals(compColorStr))
+		if (cellContainer instanceof CellContainer)
 		{
-			cellContainer.add(new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr))); //$NON-NLS-1$
+			CellContainer cell = (CellContainer)cellContainer;
+			if (compColorStr != null && !"".equals(compColorStr)) //$NON-NLS-1$)
+			{
+				//remove background color
+				if (cell.getBehaviors().contains(cell.backgroundModifier)) cell.remove(cell.backgroundModifier);
+			}
+			else
+			{
+				//remove update backgroundcolor
+				if (cell.getBehaviors().contains(cell.backgroundModifier)) cell.remove(cell.backgroundModifier);
+				cell.backgroundModifier = new StyleAppendingModifier(new Model<String>("background-color: " + compColorStr));
+				cell.add(cell.backgroundModifier);
+			}
 		}
 	}
 
