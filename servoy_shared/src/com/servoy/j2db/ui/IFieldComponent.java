@@ -32,8 +32,6 @@ public interface IFieldComponent extends ISupportSecuritySettings, IComponent, I
 
 	public void setTitleText(String text);
 
-	public void setPlaceholderText(String placeholder);
-
 	public void setDataProviderID(String dataProviderID);
 
 	public void setOpaque(boolean opaque);
@@ -67,8 +65,6 @@ public interface IFieldComponent extends ISupportSecuritySettings, IComponent, I
 	public List<ILabel> getLabelsFor();
 
 	public String getTitleText();
-
-	public String getPlaceholderText();
 
 	public int getAbsoluteFormLocationY();
 

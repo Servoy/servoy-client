@@ -976,21 +976,6 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	}
 
 
-	/*
-	 * placeholder---------------------------------------------------
-	 */
-	private String placeholderText = null;
-
-	public String getPlaceholderText()
-	{
-		return Text.processTags(placeholderText, resolver);
-	}
-
-	public void setPlaceholderText(String placeholder)
-	{
-		this.placeholderText = placeholder;
-	}
-
 	private String tooltip;
 
 	@Override

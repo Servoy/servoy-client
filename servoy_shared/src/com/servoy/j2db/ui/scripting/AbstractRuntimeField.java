@@ -294,4 +294,20 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		}
 		return retval;
 	}
+
+	private String placeholderText = null;
+
+	public String getPlaceholderText()
+	{
+		return placeholderText;
+	}
+
+	public void setPlaceholderText(String placeholder)
+	{
+		if (!Utils.safeEquals(placeholder, getPlaceholderText()))
+		{
+			this.placeholderText = placeholder;
+			getChangesRecorder().setChanged();
+		}
+	}
 }

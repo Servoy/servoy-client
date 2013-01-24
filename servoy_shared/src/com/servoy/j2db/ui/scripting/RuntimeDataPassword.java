@@ -90,19 +90,4 @@ public class RuntimeDataPassword extends AbstractRuntimeField<IFieldComponent> i
 	{
 		return "password: *******"; //$NON-NLS-1$
 	}
-
-	public String getPlaceholderText()
-	{
-		return getComponent().getPlaceholderText();
-	}
-
-	public void setPlaceholderText(String placeholder)
-	{
-		if (!Utils.safeEquals(placeholder, getPlaceholderText()))
-		{
-			getComponent().setPlaceholderText(placeholder);
-			getChangesRecorder().setChanged();
-		}
-	}
-
 }

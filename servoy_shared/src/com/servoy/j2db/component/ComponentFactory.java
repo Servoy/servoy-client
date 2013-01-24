@@ -1435,7 +1435,6 @@ public class ComponentFactory
 		}
 		fl.setToolTipText(application.getI18NMessageIfPrefixed(field.getToolTipText()));
 		fl.setTitleText(application.getI18NMessageIfPrefixed(field.getText()));
-		fl.setPlaceholderText(application.getI18NMessageIfPrefixed(field.getPlaceholderText()));
 		fl.setDataProviderID(dp == null ? field.getDataProviderID() : dp.getDataProviderID());
 		if (field.getDataProviderID() != null && dataProviderLookup != null)
 		{
@@ -1545,6 +1544,10 @@ public class ComponentFactory
 			}
 		}
 
+		if (fl.getScriptObject() instanceof AbstractRuntimeField)
+		{
+			((AbstractRuntimeField)fl.getScriptObject()).setPlaceholderText(field.getPlaceholderText());
+		}
 		return fl;
 	}
 

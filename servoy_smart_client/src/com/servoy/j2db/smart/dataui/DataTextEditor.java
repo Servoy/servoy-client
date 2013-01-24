@@ -1326,21 +1326,6 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	}
 
 	/*
-	 * placeholder---------------------------------------------------
-	 */
-	private String placeholderText = null;
-
-	public String getPlaceholderText()
-	{
-		return Text.processTags(placeholderText, resolver);
-	}
-
-	public void setPlaceholderText(String placeholder)
-	{
-		this.placeholderText = placeholder;
-	}
-
-	/*
 	 * tooltip---------------------------------------------------
 	 */
 	private String tooltip;

@@ -734,21 +734,6 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 		return Text.processTags(titleText, resolver);
 	}
 
-	/*
-	 * placeholder---------------------------------------------------
-	 */
-	private String placeholderText = null;
-
-	public String getPlaceholderText()
-	{
-		return Text.processTags(placeholderText, resolver);
-	}
-
-	public void setPlaceholderText(String placeholder)
-	{
-		this.placeholderText = placeholder;
-	}
-
 	private String tooltip;
 
 	public void setToolTipText(String tooltip)

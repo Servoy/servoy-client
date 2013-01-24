@@ -291,23 +291,6 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	}
 
 	/*
-	 * placeholder---------------------------------------------------
-	 */
-	private String placeholderText = null;
-
-	@Override
-	public String getPlaceholderText()
-	{
-		return Text.processTags(placeholderText, resolver);
-	}
-
-	@Override
-	public void setPlaceholderText(String placeholder)
-	{
-		this.placeholderText = placeholder;
-	}
-
-	/*
 	 * visible---------------------------------------------------
 	 */
 	@Override

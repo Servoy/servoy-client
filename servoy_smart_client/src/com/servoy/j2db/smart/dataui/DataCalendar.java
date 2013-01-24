@@ -547,20 +547,6 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		return null;
 	}
 
-	public String getPlaceholderText()
-	{
-		if (enclosedComponent != null)
-		{
-			return enclosedComponent.getPlaceholderText();
-		}
-		return null;
-	}
-
-	public void setPlaceholderText(String placeholder)
-	{
-		if (enclosedComponent != null) enclosedComponent.setPlaceholderText(placeholder);
-	}
-
 	public int getAbsoluteFormLocationY()
 	{
 		Container parent = getParent();

@@ -94,7 +94,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
-	public WebDataTextArea(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
+	public WebDataTextArea(final IApplication application, final AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
 		super(id);
 		this.application = application;
@@ -120,14 +120,14 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 				@Override
 				public String getObject()
 				{
-					return getPlaceholderText();
+					return application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText());
 				}
 			})
 		{
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				return super.isEnabled(component) && getPlaceholderText() != null;
+				return super.isEnabled(component) && scriptable.getPlaceholderText() != null;
 			}
 		});
 
@@ -655,21 +655,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	public String getTitleText()
 	{
 		return Text.processTags(titleText, resolver);
-	}
-
-	/*
-	 * placeholder---------------------------------------------------
-	 */
-	private String placeholderText = null;
-
-	public String getPlaceholderText()
-	{
-		return Text.processTags(placeholderText, resolver);
-	}
-
-	public void setPlaceholderText(String placeholder)
-	{
-		this.placeholderText = placeholder;
 	}
 
 	private String tooltip;

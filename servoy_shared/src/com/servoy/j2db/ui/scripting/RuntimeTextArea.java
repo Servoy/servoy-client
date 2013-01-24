@@ -24,7 +24,6 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeTextArea;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Scriptable text area.
@@ -42,19 +41,5 @@ public class RuntimeTextArea extends AbstractRuntimeTextComponent<IFieldComponen
 	public String getElementType()
 	{
 		return IRuntimeComponent.TEXT_AREA;
-	}
-
-	public String getPlaceholderText()
-	{
-		return getComponent().getPlaceholderText();
-	}
-
-	public void setPlaceholderText(String placeholder)
-	{
-		if (!Utils.safeEquals(placeholder, getPlaceholderText()))
-		{
-			getComponent().setPlaceholderText(placeholder);
-			getChangesRecorder().setChanged();
-		}
 	}
 }
