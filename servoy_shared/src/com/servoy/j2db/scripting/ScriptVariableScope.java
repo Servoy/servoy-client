@@ -44,10 +44,10 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.ModificationSubject;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ScopesUtils;
@@ -506,7 +506,7 @@ public class ScriptVariableScope extends LazyCompilationScope
 		return unwrap(getImpl(dataProviderID, this));
 	}
 
-	private Object unwrap(Object obj)
+	public static Object unwrap(Object obj)
 	{
 		Object o = obj;
 		while (o instanceof Wrapper)

@@ -20,6 +20,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScopesScope;
+import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 
@@ -71,6 +72,8 @@ class ScopesScopeProvider implements IGlobalValueEntry
 					}
 					else break;
 				}
+				// have to unwrap because out of scriptables we could get native stuff (like NativeDate)
+				value = ScriptVariableScope.unwrap(value);
 				return value;
 			}
 		}
