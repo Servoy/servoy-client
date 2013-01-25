@@ -305,24 +305,6 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public IBaseSMField newCheck(Object dataprovider, int x, int y, int width, int height);
 
 	/**
-	 * Creates a new IBaseSMField object on the form with the displayType of CALENDAR - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var calendar = form.newCalendar(myDataProvider, 100, 100, 200, 200);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param x the horizontal "x" position of the IBaseSMField object in pixels 
-	 * @param y the vertical "y" position of the IBaseSMField object in pixels
-	 * @param width the width of the IBaseSMField object in pixels
-	 * @param height the height of the IBaseSMField object in pixels
-	 * 
-	 * @return a new IBaseSMField object on the form with the displayType of CALENDAR
-	 */
-	public IBaseSMField newCalendar(Object dataprovider, int x, int y, int width, int height);
-
-	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of PASSWORD - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
 	 * 
 	 * @sample
