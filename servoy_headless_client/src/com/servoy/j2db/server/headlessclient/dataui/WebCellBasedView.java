@@ -1115,7 +1115,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles)) && target != null)
 					{
-						target.addComponent(innerComponent.getParent());
+						target.addComponent(innerComponent.getParent() instanceof CellContainer ? innerComponent.getParent() : innerComponent);
 						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
 						if (!innerComponent.isVisible())
 						{
