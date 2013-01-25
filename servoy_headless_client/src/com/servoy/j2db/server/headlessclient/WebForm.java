@@ -62,6 +62,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
 import org.apache.wicket.util.string.UrlUtils;
@@ -1879,6 +1880,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			formWidth = 0;
 			previousParent = getParent();
 		}
+		//if recreateUI is called on a form in a tabpannel the tabs bar flickers if the background collor isnot the same as the form containing the tab pannel ... So the form in the  tab is shown after rearrageTabsInTabPanel() is done
+		if (isUIRecreated() && getParent() instanceof WebTabPanel)
+		{
+			add(new StyleAppendingModifier(new Model<String>("visibility:hidden")));
+		}
 	}
 
 	/*
@@ -1926,6 +1932,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 		if (isUIRecreated())
 		{
+			if (this.getParent() instanceof WebTabPanel)
+			{
+				String tabPanelId = this.getParent().getMarkupId();
+				//show WebForm after rearrangeTabsInTabPanel() is done
+				String jsCall = " rearrageTabsInTabPanel('" + tabPanelId + "');$('#" + getMarkupId() + "').css('visibility','" +
+					(isVisible() ? "inherit" : "hidden") + "');";
+
+				//"document.getElementById(" + tabPanelId + ").style.visibility = " + (((WebTabPanel)this.getParent()).isVisible() ? "'visible'" : "'hidden'" + ";"); //$NON-NLS-1$ //$NON-NLS-2$
+				// Safari and Konqueror have some problems with the "domready" event, so for those 
+				// browsers we'll use the "load" event. Otherwise use "domready", it reduces the flicker
+				// effect when rearranging the tabs.
+				ClientProperties clp = ((WebClientInfo)Session.get().getClientInfo()).getProperties();
+				if (clp.isBrowserKonqueror() || clp.isBrowserSafari()) headercontainer.getHeaderResponse().renderOnLoadJavascript(jsCall);
+				else headercontainer.getHeaderResponse().renderOnDomReadyJavascript(jsCall);
+			}
 			StringBuffer cssRef = new StringBuffer();
 			cssRef.append("Servoy.Utils.removeFormCssLink('formcss_");
 			cssRef.append(formController.getName());
