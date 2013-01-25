@@ -83,7 +83,7 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 	{
 		if (headerComponent == null)
 		{
-			headerComponent = container.newLabel(null, 0, 0, 0, 0);
+			headerComponent = container.newLabel(null, 0, 0, 50, 30);
 			solutionHelper.getMobileProperties(headerComponent).setPropertyValue(IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
 		}
 	}

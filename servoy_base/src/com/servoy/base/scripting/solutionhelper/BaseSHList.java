@@ -159,7 +159,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (textAndActionAndIconButton == null)
 		{
-			textAndActionAndIconButton = container.newButton(null, 0, 0, 0, 0, null);
+			textAndActionAndIconButton = container.newButton(null, 0, 0, 50, 30, null);
 			solutionHelper.getMobileProperties(textAndActionAndIconButton).setPropertyValue(IMobileProperties.LIST_ITEM_BUTTON, Boolean.TRUE);
 		}
 	}
@@ -168,7 +168,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (subtextComponent == null)
 		{
-			subtextComponent = container.newLabel(null, 0, 0, 0, 0);
+			subtextComponent = container.newLabel(null, 0, 0, 50, 30);
 			solutionHelper.getMobileProperties(subtextComponent).setPropertyValue(IMobileProperties.LIST_ITEM_SUBTEXT, Boolean.TRUE);
 		}
 	}
@@ -177,7 +177,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (countComponent == null)
 		{
-			countComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 0, 0);
+			countComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 50, 30);
 			solutionHelper.getMobileProperties(countComponent).setPropertyValue(IMobileProperties.LIST_ITEM_COUNT, Boolean.TRUE);
 		}
 	}
@@ -186,7 +186,7 @@ public class BaseSHList implements IBaseSHList
 	{
 		if (iconComponent == null)
 		{
-			iconComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 0, 0);
+			iconComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 30, 30);
 			solutionHelper.getMobileProperties(iconComponent).setPropertyValue(IMobileProperties.LIST_ITEM_IMAGE, Boolean.TRUE);
 		}
 	}
