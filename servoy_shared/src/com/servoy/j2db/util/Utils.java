@@ -2345,6 +2345,11 @@ public class Utils
 
 	public static String getTXTFileContent(InputStream f, Charset charset)
 	{
+		return getTXTFileContent(f, charset, true);
+	}
+
+	public static String getTXTFileContent(InputStream f, Charset charset, boolean closeStream)
+	{
 		InputStreamReader isr = null;
 		if (charset != null) isr = new InputStreamReader(f, charset);
 		else isr = new InputStreamReader(f);
@@ -2359,7 +2364,10 @@ public class Utils
 				sb.append('\n');
 			}
 			if (sb.length() > 0) sb.setLength(sb.length() - 1); // remove newline
-			closeReader(br);
+			if (closeStream)
+			{
+				closeReader(br);
+			}
 			return sb.toString();
 		}
 		catch (IOException e)
