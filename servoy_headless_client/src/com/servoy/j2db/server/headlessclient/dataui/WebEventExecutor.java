@@ -763,7 +763,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				String rowSelectionScript, columnResizeScript;
 				for (WebCellBasedView wcbv : tableViewsToRender)
 				{
-					wcbv.updateRowComponentsRenderState(target);
+					wcbv.updateRowSelection(target);
 					rowSelectionScript = wcbv.getRowSelectionScript(false);
 					wcbv.clearSelectionByCellActionFlag();
 					if (rowSelectionScript != null) target.appendJavascript(rowSelectionScript);
