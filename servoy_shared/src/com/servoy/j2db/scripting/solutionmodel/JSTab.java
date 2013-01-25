@@ -75,7 +75,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 		Form form = application.getFlattenedSolution().getForm(getBaseComponent(false).getContainsFormID());
 		if (form != null)
 		{
-			return new JSForm(application, form, false);
+			return application.getScriptEngine().getSolutionModifier().instantiateForm(form, false);
 		}
 		return null;
 	}

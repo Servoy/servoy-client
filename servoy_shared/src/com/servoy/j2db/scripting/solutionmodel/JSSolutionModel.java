@@ -93,6 +93,11 @@ public class JSSolutionModel implements ISolutionModel
 		this.application = application;
 	}
 
+	protected IApplication getApplication()
+	{
+		return application;
+	}
+
 	/**
 	 * Creates a new JSForm Object.
 	 * 
@@ -179,7 +184,7 @@ public class JSSolutionModel implements ISolutionModel
 			}
 
 			((FormManager)application.getFormManager()).addForm(form, false);
-			return new JSForm(application, form, true);
+			return instantiateForm(form, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -220,7 +225,7 @@ public class JSSolutionModel implements ISolutionModel
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			((FormManager)application.getFormManager()).addForm(form, false);
 			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
-			return new JSForm(application, form, true);
+			return instantiateForm(form, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -312,7 +317,12 @@ public class JSSolutionModel implements ISolutionModel
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), newName, fs.getSolutionCopy());
 		((FormManager)application.getFormManager()).addForm(clone, false);
-		return new JSForm(application, clone, true);
+		return instantiateForm(clone, true);
+	}
+
+	protected JSForm instantiateForm(Form form, boolean isNew)
+	{
+		return new JSForm(application, form, isNew);
 	}
 
 	/**
@@ -687,7 +697,7 @@ public class JSSolutionModel implements ISolutionModel
 			form = fs.getForm(name);
 			((FormManager)application.getFormManager()).addForm(form, false);
 			application.getFlattenedSolution().registerChangedForm(form);
-			return new JSForm(application, form, false);
+			return instantiateForm(form, false);
 		}
 		return null;
 	}
@@ -730,7 +740,7 @@ public class JSSolutionModel implements ISolutionModel
 
 		if (form != null)
 		{
-			return new JSForm(application, form, false);
+			return instantiateForm(form, false);
 		}
 		return null;
 	}
@@ -799,7 +809,7 @@ public class JSSolutionModel implements ISolutionModel
 		ArrayList<JSForm> list = new ArrayList<JSForm>();
 		while (forms.hasNext())
 		{
-			list.add(new JSForm(application, forms.next(), false));
+			list.add(instantiateForm(forms.next(), false));
 		}
 		return list.toArray(new JSForm[list.size()]);
 	}

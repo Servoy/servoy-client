@@ -30,6 +30,9 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.solutionhelper.IBaseSMFormInternal;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -72,7 +75,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
+public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IBaseSMFormInternal
 {
 	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)
 	{
@@ -2550,10 +2553,10 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		Iterator<GraphicalComponent> graphicalComponents = form2use.getGraphicalComponents();
 		while (graphicalComponents.hasNext())
 		{
-			GraphicalComponent label = graphicalComponents.next();
-			if (!ComponentFactory.isButton(label))
+			GraphicalComponent gc = graphicalComponents.next();
+			if (!ComponentFactory.isButton(gc))
 			{
-				labels.add(new JSLabel(this, label, application, false));
+				labels.add(new JSLabel(this, gc, application, false));
 			}
 		}
 		return labels.toArray(new JSLabel[labels.size()]);
@@ -2636,7 +2639,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			Form superForm = application.getFlattenedSolution().getForm(extendsFormID);
 			if (superForm != null)
 			{
-				return new JSForm(application, superForm, false);
+				return application.getScriptEngine().getSolutionModifier().instantiateForm(superForm, false);
 			}
 		}
 		return null;
@@ -2737,7 +2740,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		Form f = application.getFlattenedSolution().getForm(form.getNavigatorID());
 		if (f != null)
 		{
-			return new JSForm(application, f, false);
+			return application.getScriptEngine().getSolutionModifier().instantiateForm(f, false);
 		}
 		return null;
 	}
@@ -3880,7 +3883,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 					}
 					if (scriptMethod != null)
 					{
-						scriptParent = new JSForm(application, f, false);
+						scriptParent = application.getScriptEngine().getSolutionModifier().instantiateForm(f, false);
 					}
 				}
 			}
@@ -4675,5 +4678,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			formScope.updateProviderswithCopy(form, form);
 			formScope.reload();
 		}
+	}
+
+	@Override
+	public IBaseSMComponent[] getComponentsInternal(boolean showInternal)
+	{
+		return getComponents();
+	}
+
+	@Override
+	public IBaseSMLabel[] getLabelsInternal(boolean showInternal)
+	{
+		return getLabels();
 	}
 }

@@ -125,6 +125,97 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		return mpc.getPropertyValue(IMobileProperties.RADIO_STYLE).intValue() == IMobileProperties.RADIO_STYLE_HORIZONTAL;
 	}
 
+	protected IBaseSMLabel getTitleForComponent(IBaseSMComponent c, boolean createIfMissing)
+	{
+		IBaseSMLabel titleLabel = null;
+		IBaseSMForm parentForm = getParentForm(c);
+		if (parentForm != null)
+		{
+			String cGroup = c.getGroupID();
+			if (cGroup != null)
+			{
+				IBaseSMLabel[] labels = parentForm.getLabels();
+				for (IBaseSMLabel l : labels)
+				{
+					if (cGroup.equals(l.getGroupID()))
+					{
+						// I guess the following if might as well not be; the location thing is for legacy solutions (before the COMPONENT_TITLE existed)
+						if (Boolean.TRUE.equals(getMobileProperties(l).getPropertyValue(IMobileProperties.COMPONENT_TITLE)) || l.getY() < c.getY() ||
+							(l.getY() == c.getY() && l.getX() < c.getX()))
+						{
+							titleLabel = l;
+							break;
+						}
+					}
+				}
+			}
+
+			if (titleLabel == null && createIfMissing)
+			{
+				if (cGroup == null)
+				{
+					cGroup = createNewGroupId();
+					c.setGroupID(cGroup);
+				}
+				titleLabel = parentForm.newLabel(null, 0, 0, 0, 0);
+				titleLabel.setGroupID(cGroup);
+				getMobileProperties(titleLabel).setPropertyValue(IMobileProperties.COMPONENT_TITLE, Boolean.TRUE);
+			}
+		}
+		return titleLabel;
+	}
+
+	protected abstract IBaseSMFormInternal getParentForm(IBaseSMComponent c);
+
+	public void setTitleDisplaysTags(IBaseSMComponent c, boolean displaysTags)
+	{
+		IBaseSMLabel l = getTitleForComponent(c, true);
+		if (l != null) l.setDisplaysTags(displaysTags);
+	}
+
+	public boolean getTitleDisplaysTags(IBaseSMComponent c)
+	{
+		IBaseSMLabel l = getTitleForComponent(c, false);
+		return l != null ? l.getDisplaysTags() : false;
+	}
+
+	public void setTitleDataProvider(IBaseSMComponent c, String dataProvider)
+	{
+		IBaseSMLabel l = getTitleForComponent(c, true);
+		if (l != null) l.setDataProviderID(dataProvider);
+	}
+
+	public String getTitleDataProvider(IBaseSMComponent c)
+	{
+		IBaseSMLabel l = getTitleForComponent(c, false);
+		return l != null ? l.getDataProviderID() : null;
+	}
+
+	public void setTitleText(IBaseSMComponent c, String titleText)
+	{
+		IBaseSMLabel l = getTitleForComponent(c, true);
+		if (l != null) l.setText(titleText);
+	}
+
+	public String getTitleText(IBaseSMComponent c)
+	{
+		IBaseSMLabel l = getTitleForComponent(c, false);
+		return l != null ? l.getText() : null;
+	}
+
+	public void setTitleVisible(IBaseSMLabel l, boolean titleVisible)
+	{
+		IBaseSMLabel lbl = getTitleForComponent(l, true);
+		if (lbl != null) lbl.setVisible(titleVisible);
+	}
+
+	public boolean isTitleVisible(IBaseSMLabel l)
+	{
+		IBaseSMLabel title = getTitleForComponent(l, false);
+		return title != null ? title.getVisible() : false;
+	}
+
+	@Deprecated
 	public void groupComponents(IBaseSMComponent c1, IBaseSMComponent c2)
 	{
 		String gid = c1.getGroupID();

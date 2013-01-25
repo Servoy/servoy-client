@@ -153,7 +153,7 @@ public class ScriptEngine implements IScriptSupport
 		jsdbm = new JSDatabaseManager(application);
 		i18n = new JSI18N(application);
 		historyProvider = new HistoryProvider(application);
-		solutionModifier = new JSSolutionModel(application);
+		solutionModifier = createSolutionModifier();
 
 		Context cx = Context.enter();
 
@@ -261,6 +261,11 @@ public class ScriptEngine implements IScriptSupport
 		{
 			Context.exit();
 		}
+	}
+
+	protected JSSolutionModel createSolutionModifier()
+	{
+		return new JSSolutionModel(application);
 	}
 
 	@SuppressWarnings("deprecation")
