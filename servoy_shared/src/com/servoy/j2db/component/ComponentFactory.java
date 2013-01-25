@@ -130,6 +130,7 @@ import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.RenderEventExecutor;
+import com.servoy.j2db.ui.runtime.HasRuntimePlaceholder;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.AbstractHTMLSubmitRuntimeLabel;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
@@ -1544,9 +1545,9 @@ public class ComponentFactory
 			}
 		}
 
-		if (fl.getScriptObject() instanceof AbstractRuntimeField)
+		if (fl.getScriptObject() instanceof HasRuntimePlaceholder)
 		{
-			((AbstractRuntimeField)fl.getScriptObject()).setPlaceholderText(field.getPlaceholderText());
+			((HasRuntimePlaceholder)fl.getScriptObject()).setPlaceholderText(field.getPlaceholderText());
 		}
 		return fl;
 	}
