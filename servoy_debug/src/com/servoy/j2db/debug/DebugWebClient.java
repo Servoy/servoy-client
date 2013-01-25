@@ -46,6 +46,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
@@ -271,7 +273,29 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{
-		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
+		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this)
+		{
+			{
+				ScriptObjectRegistry.getJavaMembers(MobileDWCJSSolutionModel.class, getToplevelScope());
+				ScriptObjectRegistry.getJavaMembers(MobileDWCJSForm.class, getToplevelScope());
+			}
+
+			@Override
+			protected JSSolutionModel createSolutionModifier()
+			{
+				JSSolutionModel sm = null;
+				if (SolutionMetaData.isServoyMobileSolution(getSolution()))
+				{
+					sm = new MobileDWCJSSolutionModel(application);
+				}
+				else
+				{
+					sm = new JSSolutionModel(application);
+				}
+				return sm;
+			}
+		};
+
 		if (designerCallBack != null)
 		{
 			designerCallBack.addScriptObjects(this, engine.getSolutionScope());

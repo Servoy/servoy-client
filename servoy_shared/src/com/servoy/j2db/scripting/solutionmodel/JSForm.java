@@ -30,9 +30,6 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
-import com.servoy.base.scripting.solutionhelper.IBaseSMFormInternal;
-import com.servoy.base.solutionmodel.IBaseSMComponent;
-import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -75,7 +72,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IBaseSMFormInternal
+public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 {
 	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)
 	{
@@ -4678,17 +4675,5 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 			formScope.updateProviderswithCopy(form, form);
 			formScope.reload();
 		}
-	}
-
-	@Override
-	public IBaseSMComponent[] getComponentsInternal(boolean showInternal)
-	{
-		return getComponents();
-	}
-
-	@Override
-	public IBaseSMLabel[] getLabelsInternal(boolean showInternal)
-	{
-		return getLabels();
 	}
 }
