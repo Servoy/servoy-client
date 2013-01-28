@@ -127,6 +127,12 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 
 	protected IBaseSMLabel getTitleForComponent(IBaseSMComponent c, boolean createIfMissing)
 	{
+		// fail with exception for setters that are called with unsupported component types (only fields and labels are currently supported)
+		if (createIfMissing && !supportsTitleLabel(c))
+		{
+			throw new RuntimeException("Title labels are only supported for field and label components."); //$NON-NLS-1$
+		}
+
 		IBaseSMLabel titleLabel = null;
 		IBaseSMFormInternal parentForm = getParentForm(c);
 		if (parentForm != null)
@@ -164,6 +170,8 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		}
 		return titleLabel;
 	}
+
+	protected abstract boolean supportsTitleLabel(IBaseSMComponent c);
 
 	protected abstract IBaseSMFormInternal getParentForm(IBaseSMComponent c);
 
