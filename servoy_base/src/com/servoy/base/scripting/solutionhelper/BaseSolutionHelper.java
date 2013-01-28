@@ -128,13 +128,13 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 	protected IBaseSMLabel getTitleForComponent(IBaseSMComponent c, boolean createIfMissing)
 	{
 		IBaseSMLabel titleLabel = null;
-		IBaseSMForm parentForm = getParentForm(c);
+		IBaseSMFormInternal parentForm = getParentForm(c);
 		if (parentForm != null)
 		{
 			String cGroup = c.getGroupID();
 			if (cGroup != null)
 			{
-				IBaseSMLabel[] labels = parentForm.getLabels();
+				IBaseSMLabel[] labels = parentForm.getLabelsInternal(true);
 				for (IBaseSMLabel l : labels)
 				{
 					if (cGroup.equals(l.getGroupID()))
