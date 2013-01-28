@@ -2545,14 +2545,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *	return o;
 	 * }
 	 *
-	 * @param comparator record comparator function
+	 * @param recordComparisonFunction record comparator function
 	 */
 	@JSFunction
-	public void sort(Object comparator)
+	public void sort(Object recordComparisonFunction)
 	{
-		if (comparator instanceof Function)
+		if (recordComparisonFunction instanceof Function)
 		{
-			final Function func = (Function)comparator;
+			final Function func = (Function)recordComparisonFunction;
 			final IExecutingEnviroment scriptEngine = fsm.getApplication().getScriptEngine();
 			final Scriptable recordComparatorScope = func.getParentScope();
 			sort(new Comparator<Object[]>()

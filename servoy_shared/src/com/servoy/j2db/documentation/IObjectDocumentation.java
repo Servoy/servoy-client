@@ -62,4 +62,6 @@ public interface IObjectDocumentation
 	public boolean goesToXML(boolean hideDeprecated);
 
 	public Element toXML(IDocumentationManager docManager, boolean hideDeprecated, boolean pretty);
+
+	public boolean isServoyMobile();
 }

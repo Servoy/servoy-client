@@ -156,9 +156,9 @@ public interface IJSFoundSet
 	 *	return o;
 	 * }
 	 *
-	 * @param comparator record comparator function
+	 * @param recordComparisonFunction record comparator function
 	 */
-	public void sort(final Object comparator);
+	public void sort(final Object recordComparisonFunction);
 
 	/**
 	 * Delete record with the given index.

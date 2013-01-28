@@ -17,6 +17,7 @@
 package com.servoy.j2db.documentation.scripting.docs;
 
 import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -179,6 +180,7 @@ public class Form
 	 * %%prefix%%_super.some_method();
 	 */
 	@JSReadonlyProperty
+	@ServoyMobileFilterOut
 	public FormScope _super()
 	{
 		return null;

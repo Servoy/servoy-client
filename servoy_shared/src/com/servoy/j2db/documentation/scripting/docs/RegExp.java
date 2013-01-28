@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -25,6 +26,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "RegExp", scriptingName = "RegExp")
+@ServoyMobile
 public class RegExp
 {
 	/**

@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -25,6 +27,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "JS Lib")
+@ServoyMobile
 public class JSLib
 {
 	/**
@@ -243,6 +246,7 @@ public class JSLib
 	 * 
 	 * @staticCall
 	 */
+	@ServoyMobileFilterOut
 	public Boolean js_isXMLName(String name)
 	{
 		return null;
