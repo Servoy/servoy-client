@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
@@ -1962,9 +1963,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0);
 		}
 
-		if (enableDragDrop)
+		if (enableDragDrop && !GraphicsEnvironment.isHeadless())
 		{
 			setDragEnabled(true);
+
 			setTransferHandler(FormDataTransferHandler.getInstance());
 
 			new DropTarget(this, (DropTargetListener)FormDataTransferHandler.getInstance());
@@ -2004,10 +2006,12 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	{
 		boolean startDrag = false;
 
+		@Override
 		public void mouseMoved(MouseEvent e)
 		{
 		}
 
+		@Override
 		public void mouseDragged(MouseEvent e)
 		{
 			if (startDrag) exportDrag(SwingUtilities.convertMouseEvent((Component)e.getSource(), e, TableView.this));
