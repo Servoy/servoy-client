@@ -20,6 +20,7 @@ package com.servoy.j2db.smart.dataui;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -182,12 +183,15 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 
 		try
 		{
-			DropTarget dt = getDropTarget();
-			if (dt == null)
+			if (!GraphicsEnvironment.isHeadless())
 			{
-				dt = new DropTarget(this, this);
+				DropTarget dt = getDropTarget();
+				if (dt == null)
+				{
+					dt = new DropTarget(this, this);
+				}
+				dt.addDropTargetListener(editProvider);
 			}
-			dt.addDropTargetListener(editProvider);
 		}
 		catch (Exception e)
 		{
