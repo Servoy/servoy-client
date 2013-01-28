@@ -93,6 +93,7 @@ import com.servoy.j2db.querybuilder.impl.QUERY_COLUMN_TYPES;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.scripting.info.COLUMNTYPE;
 import com.servoy.j2db.scripting.info.SQL_ACTION_TYPES;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -780,7 +781,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				List<Object> row = new ArrayList<Object>();
 				for (String dpname : dpnames)
 				{
-					if (((Scriptable)o).has(dpname, (Scriptable)o)) row.add(((Scriptable)o).get(dpname, (Scriptable)o));
+					if (((Scriptable)o).has(dpname, (Scriptable)o)) row.add(ScriptVariableScope.unwrap(((Scriptable)o).get(dpname, (Scriptable)o)));
 				}
 				if (dpnames.length != row.size() || dpnames.length == 0)
 				{

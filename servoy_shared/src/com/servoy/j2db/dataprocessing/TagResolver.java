@@ -29,6 +29,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
@@ -75,7 +76,7 @@ public class TagResolver
 		public String getStringValue(String dataProviderID)
 		{
 			if (scriptobj == null) return null;
-			Object value = scriptobj.get(dataProviderID, scriptobj);
+			Object value = ScriptVariableScope.unwrap(scriptobj.get(dataProviderID, scriptobj));
 			return formatObject(value, locale, (value == null) ? null : Settings.getInstance());
 		}
 	}

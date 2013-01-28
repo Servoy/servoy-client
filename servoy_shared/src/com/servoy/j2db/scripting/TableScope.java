@@ -241,17 +241,4 @@ public class TableScope extends LazyCompilationScope
 		}
 		super.put(name, start, value);
 	}
-
-	/**
-	 * @param key
-	 * @return
-	 */
-	public Object get(String key)
-	{
-		if ("allrelations".equals(key)) //$NON-NLS-1$
-		{
-			return get(key, this);
-		}
-		return super.get(key, this);
-	}
 }
