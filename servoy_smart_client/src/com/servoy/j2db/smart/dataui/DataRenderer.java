@@ -21,6 +21,7 @@ import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetListener;
@@ -155,41 +156,44 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 
 	public void initDragNDrop(FormController formController, int clientDesignYOffset)
 	{
-		this.yOffset = clientDesignYOffset;
-		Form form = formController.getForm();
-		if (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
+		if (!GraphicsEnvironment.isHeadless())
 		{
-			this.dragNdropController = formController;
-			// remove drag&drop from children as it is handled by the data renderer
-
-			final DragStartTester dragTester = new DragStartTester();
-			addMouseMotionListener(dragTester);
-			addMouseListener(dragTester);
-			addContainerListener(new ContainerListener()
+			this.yOffset = clientDesignYOffset;
+			Form form = formController.getForm();
+			if (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
 			{
-				public void componentAdded(ContainerEvent e)
+				this.dragNdropController = formController;
+				// remove drag&drop from children as it is handled by the data renderer
+
+				final DragStartTester dragTester = new DragStartTester();
+				addMouseMotionListener(dragTester);
+				addMouseListener(dragTester);
+				addContainerListener(new ContainerListener()
 				{
-					Component child = e.getChild();
-					if (child instanceof JComponent)
+					public void componentAdded(ContainerEvent e)
 					{
-						child.addMouseMotionListener(dragTester);
-						child.addMouseListener(dragTester);
-						if (child instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)child).clearTransferHandler();
-						else if (child instanceof DataComboBox) ((DataComboBox)child).disableEditorTransferHandler();
-						else ((JComponent)child).setTransferHandler(null);
+						Component child = e.getChild();
+						if (child instanceof JComponent)
+						{
+							child.addMouseMotionListener(dragTester);
+							child.addMouseListener(dragTester);
+							if (child instanceof ISupportDragNDropTextTransfer) ((ISupportDragNDropTextTransfer)child).clearTransferHandler();
+							else if (child instanceof DataComboBox) ((DataComboBox)child).disableEditorTransferHandler();
+							else ((JComponent)child).setTransferHandler(null);
+						}
 					}
-				}
 
-				public void componentRemoved(ContainerEvent e)
-				{
-					// ignore
-				}
+					public void componentRemoved(ContainerEvent e)
+					{
+						// ignore
+					}
 
-			});
-			// Again, needs to negotiate with the draggable object
-			setTransferHandler(FormDataTransferHandler.getInstance());
+				});
+				// Again, needs to negotiate with the draggable object
+				setTransferHandler(FormDataTransferHandler.getInstance());
 
-			new DropTarget(this, (DropTargetListener)FormDataTransferHandler.getInstance());
+				new DropTarget(this, (DropTargetListener)FormDataTransferHandler.getInstance());
+			}
 		}
 	}
 
@@ -801,10 +805,12 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 	{
 		boolean startDrag = false;
 
+		@Override
 		public void mouseMoved(MouseEvent e)
 		{
 		}
 
+		@Override
 		public void mouseDragged(MouseEvent e)
 		{
 			if (startDrag) exportDrag(SwingUtilities.convertMouseEvent((Component)e.getSource(), e, DataRenderer.this));
