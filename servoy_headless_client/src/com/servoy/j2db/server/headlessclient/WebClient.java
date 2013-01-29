@@ -639,7 +639,14 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			if (RequestCycle.get() != null)
 			{
-				requestEvents.get().add(r);
+				if (getEventDispatcher() != null)
+				{
+					getEventDispatcher().addEvent(r);
+				}
+				else
+				{
+					requestEvents.get().add(r);
+				}
 			}
 			else synchronized (events)
 			{
