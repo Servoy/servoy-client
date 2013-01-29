@@ -997,7 +997,7 @@ public class ComponentFactory
 				{
 					ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 					vl.setDisplayValueType(valuelist.getDisplayValueType());
-					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
+					list.setFallbackValueList(getFallbackValueList(application, dataprovider, type, format, valuelist));
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 				{
@@ -1058,7 +1058,7 @@ public class ComponentFactory
 			{
 				ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 				vl.setDisplayValueType(valuelist.getDisplayValueType());
-				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, format, dataprovider));
+				list.setFallbackValueList(getFallbackValueList(application, dataprovider, type, format, valuelist));
 			}
 		}
 		return list;
@@ -1592,7 +1592,7 @@ public class ComponentFactory
 			{
 				try
 				{
-					IValueList secondLookup = getFallbackValueList(application, field, type, format, valuelist);
+					IValueList secondLookup = getFallbackValueList(application, field.getDataProviderID(), type, format, valuelist);
 					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup, format != null ? format.getDisplayFormat()
 						: null);
 					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
@@ -1626,7 +1626,7 @@ public class ComponentFactory
 	 * @param valuelist
 	 * @return
 	 */
-	private static IValueList getFallbackValueList(IApplication application, Field field, int type, ParsedFormat format, ValueList valuelist)
+	private static IValueList getFallbackValueList(IServiceProvider application, String dataProviderID, int type, ParsedFormat format, ValueList valuelist)
 	{
 		IValueList valueList = null;
 		if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
@@ -1636,8 +1636,8 @@ public class ComponentFactory
 			{
 				try
 				{
-					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, field, type, format, fallbackValueList),
-						format != null ? format.getDisplayFormat() : null);
+					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, dataProviderID, type, format,
+						fallbackValueList), format != null ? format.getDisplayFormat() : null);
 				}
 				catch (Exception e)
 				{
@@ -1646,7 +1646,7 @@ public class ComponentFactory
 			}
 			else
 			{
-				valueList = getRealValueList(application, fallbackValueList, true, type, format, field.getDataProviderID());
+				valueList = getRealValueList(application, fallbackValueList, true, type, format, dataProviderID);
 			}
 		}
 		return valueList;
