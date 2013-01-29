@@ -541,7 +541,12 @@ public class LookupValueList implements IValueList
 		{
 			return secondLookup.getElementAt(index * -1 - 2);
 		}
-		return alDisplay.get(index);
+		Object object = alDisplay.get(index);
+		if (object instanceof DisplayString)
+		{
+			return object.toString();
+		}
+		return object;
 	}
 
 	public void addListDataListener(ListDataListener l)
