@@ -2616,7 +2616,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		checkAuthorized();
 		try
 		{
-			IServer server = application.getRepository().getServer(serverName);
+			IServer server = application.getSolution().getServer(serverName);
 			if (server != null)
 			{
 				return server.getDataModelClonesFrom();
