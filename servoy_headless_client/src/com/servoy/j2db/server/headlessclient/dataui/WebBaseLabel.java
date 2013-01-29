@@ -992,6 +992,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		boolean hasHtmlOrImage = hasHtmlOrImage();
 
 		String cssid = hasHtmlOrImage ? getMarkupId() + "_lb" : null;
+		WebCellBasedView wcbw = findParent(WebCellBasedView.class);
+		String cssclass = hasHtmlOrImage && wcbw != null ? wcbw.getTableLabelCSSClass(getId()) : null;
 		boolean designMode = false;
 		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
 		if (formui != null && formui.isDesignMode())
@@ -1000,7 +1002,8 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		}
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid,
-			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false, anchor)); //$NON-NLS-1$
+			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, false, anchor,
+			cssclass)); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtmlOrImage()
@@ -1016,6 +1019,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+
+		if (hasHtmlOrImage())
+		{
+			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
+			if (wcbw != null) wcbw.addLabelCssClass(getId());
+		}
+
 		if (scriptable instanceof ISupportOnRenderCallback)
 		{
 			boolean isFocused = false;

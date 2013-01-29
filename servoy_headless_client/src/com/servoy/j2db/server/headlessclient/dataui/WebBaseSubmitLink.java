@@ -895,6 +895,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		boolean hasHtmlOrImage = hasHtmlOrImage();
 
 		String cssid = getCSSId();
+		String cssclass = getCSSClass();
 
 		boolean designMode = false;
 		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
@@ -905,7 +906,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, margin, cssid,
 			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size.height, false, designMode ? null : cursor, isAnchored(),
-			anchor));
+			anchor, cssclass));
 	}
 
 	protected boolean isAnchored()
@@ -916,6 +917,12 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	protected String getCSSId()
 	{
 		return hasHtmlOrImage() ? getMarkupId() + "_lb" : null;
+	}
+
+	protected String getCSSClass()
+	{
+		WebCellBasedView wcbw = findParent(WebCellBasedView.class);
+		return hasHtmlOrImage() && wcbw != null ? wcbw.getTableLabelCSSClass(getId()) : null;
 	}
 
 	protected boolean hasHtmlOrImage()
@@ -931,6 +938,13 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+
+		if (hasHtmlOrImage())
+		{
+			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
+			if (wcbw != null) wcbw.addLabelCssClass(getId());
+		}
+
 		if (scriptable instanceof ISupportOnRenderCallback)
 		{
 			boolean isFocused = false;

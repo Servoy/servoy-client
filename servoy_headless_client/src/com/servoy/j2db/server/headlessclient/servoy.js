@@ -1976,9 +1976,38 @@ if (typeof(Servoy.Utils) == "undefined")
 				{
 					top = top - Math.floor(elemHeight/2);
 				}
-			} 
-			child.style.top = top + "px";
-			child.style.visibility = 'inherit';
+			}
+			
+			var ssFound = false;
+			if(child.className)
+			{
+			  var ss = document.styleSheets;
+			  var clsName = "." + child.className;
+			  for (var i=0; i<ss.length; i++)
+			  {
+				  if(ss[i].href != null) continue;
+				  ssFound = true;
+				  var rules = ss[i].cssRules || ss[i].rules;
+	
+				  for (var j=0; j<rules.length; j++)
+				  {
+					  if (rules[j].selectorText == clsName)
+					  {
+						  if(rules[j].style.visibility != 'inherit') rules[j].style.visibility = 'inherit';
+						  var vTop = top + "px";
+						  if(rules[j].style.top != vTop) rules[j].style.top = vTop;
+		                  return;
+					  }
+				  }
+			  }
+			}
+
+			
+			if(!child.className || !ssFound)
+			{
+				child.style.top = top + "px";
+				child.style.visibility = 'inherit';
+			}
 		  }		  
 		},
 		

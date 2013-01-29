@@ -51,6 +51,7 @@ import javax.swing.text.html.CSS;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
@@ -4192,6 +4193,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return jsEvent;
 	}
 
+	private final ArrayList<String> labelsCSSClasses = new ArrayList<String>();
+	private boolean labelsCssRendered;
+
+	public void addLabelCssClass(String cssClass)
+	{
+		if (!isListViewMode() && labelsCSSClasses.indexOf(cssClass) == -1) labelsCSSClasses.add(cssClass);
+	}
+
+	public String getTableLabelCSSClass(String cssClass)
+	{
+		return isListViewMode() ? null : new StringBuilder(getMarkupId()).append("_").append(cssClass).append("_lb").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -4201,6 +4215,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public void renderHead(HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
+
+		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
+		if ((!(requestTarget instanceof AjaxRequestTarget) || !labelsCssRendered) && labelsCSSClasses.size() > 0)
+		{
+			StringBuilder style = new StringBuilder("<style type=\"text/css\">\n"); //$NON-NLS-1$
+			for (String cssClass : labelsCSSClasses)
+			{
+				style.append(".").append(getTableLabelCSSClass(cssClass)).append(" { visibility: hidden; }\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
+			}
+			style.append("</style>"); //$NON-NLS-1$
+			container.getHeaderResponse().renderString(style.toString());
+			labelsCssRendered = true;
+		}
+
 		String columnResizeScript = getColumnResizeScript();
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
 		if (isScrollMode())

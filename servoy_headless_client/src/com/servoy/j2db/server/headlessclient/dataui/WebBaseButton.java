@@ -285,6 +285,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	{
 		super.onBeforeRender();
 
+		if (WebBaseButton.getImageDisplayURL(this) != null)
+		{
+			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
+			if (wcbw != null) wcbw.addLabelCssClass(getId());
+		}
+
 		if (scriptable != null)
 		{
 			boolean isFocused = false;
@@ -924,10 +930,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			designMode = true;
 		}
 
-		String cssId = null;
+		String cssId = null, cssClass = null;
 		if (WebBaseButton.getImageDisplayURL(this) != null)
 		{
 			cssId = getMarkupId() + "_lb"; //$NON-NLS-1$
+			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
+			if (wcbw != null) cssClass = wcbw.getTableLabelCSSClass(getId());
 		}
 
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
@@ -935,7 +943,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			markupStream,
 			openTag,
 			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size == null ? 0 : size.height, true, designMode ? null : cursor, false, anchor));
+				size == null ? 0 : size.height, true, designMode ? null : cursor, false, anchor, cssClass));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1079,7 +1087,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
-		String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors)
+		String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors,
+		String cssClass)
 	{
 		boolean isElementAnchored = anchors != IAnchorConstants.DEFAULT;
 		Insets padding = null;
@@ -1171,17 +1180,25 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			instrumentedBodyText.append(" position: relative;"); //$NON-NLS-1$
 		}
-		if (cssid != null)
-		{
-			instrumentedBodyText.append(" visibility: hidden;"); //$NON-NLS-1$
-		}
+
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
+
+		if (cssClass != null)
+		{
+			instrumentedBodyText.append(" class='"); //$NON-NLS-1$
+			instrumentedBodyText.append(cssClass); //$NON-NLS-1$
+			instrumentedBodyText.append("'"); //$NON-NLS-1$
+		}
+
 		if (cssid != null)
 		{
 			instrumentedBodyText.append(" id='"); //$NON-NLS-1$
-			instrumentedBodyText.append(cssid); //$NON-NLS-1$
+			instrumentedBodyText.append(cssid);
 			instrumentedBodyText.append("'"); //$NON-NLS-1$
+
+			if (cssClass == null) instrumentedBodyText.append(" visibility: hidden;"); //$NON-NLS-1$
 		}
+
 		instrumentedBodyText.append(">"); //$NON-NLS-1$
 
 		if (!Strings.isEmpty(bodyText))
