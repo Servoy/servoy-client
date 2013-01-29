@@ -95,19 +95,16 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScrollbars;
-import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RectShape;
-import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RuntimeProperty;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
@@ -1060,74 +1057,6 @@ public class ComponentFactory
 		return list;
 	}
 
-	private static ValueList getValueList(IApplication application, Field field, IDataProviderLookup dataProviderLookup)
-	{
-		ValueList vl = null;
-		try
-		{
-			vl = application.getFlattenedSolution().getValueList(field.getValuelistID());
-			if (vl != null /* && application.getApplicationType() == IServiceProvider.DEVELOPER */&&
-				vl.getValueListType() == IValueListConstants.DATABASE_VALUES && dataProviderLookup != null)
-			{
-				IDataProvider dp = dataProviderLookup.getDataProvider(field.getDataProviderID());
-				if (dp != null)
-				{
-					int type = IColumnTypes.TEXT;
-					String id = null;
-					int total = vl.getShowDataProviders();
-					if ((total & 7) == 1)
-					{
-						id = vl.getDataProviderID1();
-					}
-					else if ((total & 7) == 2)
-					{
-						id = vl.getDataProviderID2();
-					}
-					else if ((total & 7) == 4)
-					{
-						id = vl.getDataProviderID3();
-					}
-					else
-					{
-						//result must be string is concatenated
-						type = IColumnTypes.TEXT;
-					}
-
-					IDataProvider p = application.getFlattenedSolution().getGlobalDataProvider(id);
-					if (p == null && id != null)
-					{
-						ITable t = null;
-						if (vl.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES)
-						{
-							String relationName = vl.getRelationName();
-							Relation[] relations = application.getFlattenedSolution().getRelationSequence(relationName);
-							if (relations != null) t = relations[relations.length - 1].getForeignTable();
-						}
-						else
-						{
-							t = vl.getTable();
-						}
-
-						if (t != null)
-						{
-							p = application.getFlattenedSolution().getDataProviderForTable((Table)t, id);
-						}
-					}
-
-					if (p != null)
-					{
-						type = Column.mapToDefaultType(p.getDataProviderType());
-					}
-				}
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-		}
-		return vl;
-	}
-
 	public static <T> Map<String, T> parseJSonProperties(String properties) throws IOException
 	{
 		if (properties == null || properties.length() <= 0)
@@ -1158,8 +1087,7 @@ public class ComponentFactory
 	private static IComponent createField(IApplication application, Form form, Field field, IDataProviderLookup dataProviderLookup, IScriptExecuter el,
 		boolean printing)
 	{
-		ValueList valuelist = null;
-		if (field.getValuelistID() > 0) valuelist = getValueList(application, field, dataProviderLookup);
+		ValueList valuelist = application.getFlattenedSolution().getValueList(field.getValuelistID());
 		ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(field.getFormat(), field.getDataProviderID(), dataProviderLookup, application);
 
 		IDataProvider dp = null;
@@ -1560,7 +1488,7 @@ public class ComponentFactory
 	{
 		RuntimeDataField scriptable;
 		IFieldComponent fl;
-		ValueList valuelist = getValueList(application, field, dataProviderLookup);
+		ValueList valuelist = application.getFlattenedSolution().getValueList(field.getValuelistID());
 		if (valuelist == null)
 		{
 			scriptable = new RuntimeDataField(jsChangeRecorder, application);
