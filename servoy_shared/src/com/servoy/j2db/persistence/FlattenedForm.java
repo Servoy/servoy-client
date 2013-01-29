@@ -225,7 +225,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		while (superForm != null)
 		{
 			if (superForm.getID() == form2.getID()) return true;
-			superForm = form1.getExtendsForm();
+			superForm = superForm.getExtendsForm();
 		}
 		return false;
 	}
