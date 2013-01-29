@@ -2003,7 +2003,7 @@ if (typeof(Servoy.Utils) == "undefined")
 			}
 
 			
-			if(!child.className || !ssFound)
+			if(!ssFound)
 			{
 				child.style.top = top + "px";
 				child.style.visibility = 'inherit';
