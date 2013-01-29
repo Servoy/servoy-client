@@ -2589,7 +2589,7 @@ public class JSDatabaseManager
 		checkAuthorized();
 		try
 		{
-			IServer server = application.getRepository().getServer(serverName);
+			IServer server = application.getSolution().getServer(serverName);
 			if (server != null)
 			{
 				return server.getDataModelClonesFrom();
