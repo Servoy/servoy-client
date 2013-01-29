@@ -930,9 +930,7 @@ public class ComponentFactory
 				list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
 				if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 				{
-					ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
-					vl.setDisplayValueType(valuelist.getDisplayValueType());
-					list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
+					list.setFallbackValueList(getFallbackValueList(application, dataprovider, type, format, valuelist));
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == ValueList.CUSTOM_VALUES)
 				{
@@ -991,9 +989,7 @@ public class ComponentFactory
 			list = ValueListFactory.createRealValueList(application, valuelist, type, displayFormat);
 			if (valuelist != null && valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
 			{
-				ValueList vl = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
-				vl.setDisplayValueType(valuelist.getDisplayValueType());
-				list.setFallbackValueList(getRealValueList(application, vl, useSoftCacheForCustom, type, displayFormat, dataprovider));
+				list.setFallbackValueList(getFallbackValueList(application, dataprovider, type, format, valuelist));
 			}
 		}
 		return list;
@@ -1056,22 +1052,7 @@ public class ComponentFactory
 					if (p != null)
 					{
 						type = Column.mapToDefaultType(p.getDataProviderType());
-
-//TODO this check has to be removed here because we are calculation the Display type and 
-// not the Real type.. Should this check be done at another place????						
-//						int dpft = Column.mapToDefaultType(dp.getDataProviderType(dataProviderLookup));
-//						boolean incompat = false;
-//						if (dpft == Column.NUMBER && (dpt != Column.NUMBER || dpt != Column.INTEGER)) incompat = true;
-//						else if (dpft == Column.INTEGER && dpt != Column.INTEGER) incompat = true;
-//						else if (dpft == Column.DATETIME && dpt != Column.DATETIME) incompat = true;
-//						else if (dpft == Column.MEDIA) incompat = true;
-//						
-//						if (incompat)
-//						{
-//							application.reportError("Incompatible valuelist on field","Field "+field.getName()+" ("+field.getDataProviderID()+") has incompatible valuelist "+vl.getName()+"\nvaluelist is returning wrong type for field");
-//						}
 					}
-					vl.setDisplayValueType(type);//store s owe can use it later on
 				}
 			}
 		}
@@ -1552,7 +1533,7 @@ public class ComponentFactory
 			{
 				try
 				{
-					IValueList secondLookup = getFallbackValueList(application, field, type, format, valuelist);
+					IValueList secondLookup = getFallbackValueList(application, field.getDataProviderID(), type, format, valuelist);
 					LookupValueList lookupValueList = new LookupValueList(valuelist, application, secondLookup);
 					fl = application.getItemFactory().createDataLookupField((RuntimeDataLookupField)scriptable, getWebID(form, field), lookupValueList);
 				}
@@ -1584,7 +1565,7 @@ public class ComponentFactory
 	 * @param valuelist
 	 * @return
 	 */
-	private static IValueList getFallbackValueList(IApplication application, Field field, int type, String format, ValueList valuelist)
+	private static IValueList getFallbackValueList(IServiceProvider application, String dataProviderID, int type, String format, ValueList valuelist)
 	{
 		IValueList valueList = null;
 		if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
@@ -1594,7 +1575,8 @@ public class ComponentFactory
 			{
 				try
 				{
-					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, field, type, format, fallbackValueList));
+					valueList = new LookupValueList(fallbackValueList, application, getFallbackValueList(application, dataProviderID, type, format,
+						fallbackValueList));
 				}
 				catch (Exception e)
 				{
@@ -1603,7 +1585,7 @@ public class ComponentFactory
 			}
 			else
 			{
-				valueList = getRealValueList(application, fallbackValueList, true, type, format, field.getDataProviderID());
+				valueList = getRealValueList(application, fallbackValueList, true, type, format, dataProviderID);
 			}
 		}
 		return valueList;

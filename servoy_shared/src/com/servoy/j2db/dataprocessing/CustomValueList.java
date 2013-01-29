@@ -97,6 +97,10 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		public boolean equals(Object obj)
 		{
 			makeString();
+			if (obj instanceof DisplayString)
+			{
+				return completeString.equals(obj.toString());
+			}
 			return completeString.equals(obj);
 		}
 
