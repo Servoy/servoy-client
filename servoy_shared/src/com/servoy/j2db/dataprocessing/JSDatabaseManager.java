@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
@@ -2572,6 +2573,33 @@ public class JSDatabaseManager
 			}
 		}
 		return new String[0];
+	}
+
+	/**
+	 * Retrieves a list with names of all database servers that have property DataModelCloneFrom equal to the server name parameter.
+	 *
+	 * @sample
+	 * 	var serverNames = databaseManager.getDataModelClonesFrom('myServerName');
+	 *
+	 * @param serverName 
+	 */
+	@JSFunction
+	public String[] getDataModelClonesFrom(String serverName) throws ServoyException
+	{
+		checkAuthorized();
+		try
+		{
+			IServer server = application.getRepository().getServer(serverName);
+			if (server != null)
+			{
+				return server.getDataModelClonesFrom();
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return null;
 	}
 
 	/**

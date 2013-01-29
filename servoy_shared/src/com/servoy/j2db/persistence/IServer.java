@@ -64,4 +64,6 @@ public interface IServer extends Remote
 	 * @throws RemoteException
 	 */
 	public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RepositoryException, RemoteException;
+
+	public String[] getDataModelClonesFrom() throws RemoteException;
 }
