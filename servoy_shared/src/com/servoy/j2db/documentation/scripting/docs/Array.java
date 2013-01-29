@@ -216,10 +216,13 @@ public class Array
 	}
 
 	/**
-	 * Runs a function on every item in the array.
+	 * Runs a function (callback) on every item in the array. The callback function is invoked only for indexes of the array which have assigned values.
+	 * The callback function is invoked with three arguments: the element value, the element index, the array being traversed.
 	 *
 	 * @sample
-	 * function printThemOut(params) {	application.output(params);} 
+	 * function printThemOut(element, index, array) {
+	 * 		application.output("a[" + index + "] = " + element);
+	 * }
 	 * var a = ['a', 'b', 'c'];	
 	 * a.forEach(printThemOut);
 	 *
@@ -239,7 +242,7 @@ public class Array
 	 * @param thisObject 
 	 * 
 	 */
-	public void js_forEach(Function callback, Array thisObject)
+	public void js_forEach(Function callback, Object thisObject)
 	{
 	}
 
