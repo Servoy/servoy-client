@@ -543,23 +543,6 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ADDEMPTYVALUE, arg);
 	}
 
-
-	/*
-	 * _____________________________________________________________ Runtime property
-	 */
-
-	private transient int displayValueType = IColumnTypes.TEXT;//type of Column.allDefinedTypes
-
-	public int getDisplayValueType()
-	{
-		return displayValueType;
-	}
-
-	public void setDisplayValueType(int i)
-	{
-		displayValueType = i;
-	}
-
 	/**
 	 * Flag that tells if the name of the valuelist should be applied as a filter on the
 	 * 'valuelist_name' column when retrieving the data from the database.
