@@ -33,6 +33,21 @@ import com.servoy.j2db.util.PersistHelper;
  */
 public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form>
 {
+	public static final Comparator<IFormElement> FORM_INDEX_COMPARATOR = new Comparator<IFormElement>()
+	{
+		public int compare(IFormElement element1, IFormElement element2)
+		{
+			Form form1 = getFormIndexContext(element1);
+			Form form2 = getFormIndexContext(element2);
+			// first sort on the hierarchy, elements of super-forms are sorted before elements of sub-forms
+			if (form1 != form2)
+			{
+				return hasFormInHierarchy(form1, form2) ? 1 : -1;
+			}
+			return element1.getFormIndex() - element2.getFormIndex();
+		}
+	};
+
 	private final FlattenedSolution flattenedSolution;
 	private final Form form;
 
@@ -192,22 +207,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	@Override
 	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
 	{
-		return new FormTypeIterator(getAllObjectsAsList(), new Comparator<IFormElement>()
-		{
-			public int compare(IFormElement element1, IFormElement element2)
-			{
-				Form form1 = (Form)element1.getParent();
-				Form form2 = (Form)element2.getParent();
-				// first sort on the hierarchy, elements of super-forms are sorted before elements of sub-forms
-				if (form1 != form2)
-				{
-					return flattenedSolution.getFormHierarchy(form1).contains(form2) ? 1 : -1;
-				}
-				return element1.getFormIndex() - element2.getFormIndex();
-			}
-		});
+		return new FormTypeIterator(getAllObjectsAsList(), FORM_INDEX_COMPARATOR);
 	}
-
 
 	/**
 	 * Called only in develop time.
@@ -216,5 +217,34 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	{
 		internalClearAllObjects();
 		fill();
+	}
+
+	private static boolean hasFormInHierarchy(Form form1, Form form2)
+	{
+		Form superForm = form1.getExtendsForm();
+		while (superForm != null)
+		{
+			if (superForm.getID() == form2.getID()) return true;
+			superForm = superForm.getExtendsForm();
+		}
+		return false;
+	}
+
+	private static Form getFormIndexContext(IFormElement element)
+	{
+		if (element.getFormIndex() == 0 || element.getExtendsID() <= 0)
+		{
+			return (Form)element.getParent();
+		}
+		IFormElement currentElement = element;
+		while (currentElement != null)
+		{
+			if (((AbstractBase)currentElement).hasProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX.getPropertyName()))
+			{
+				return (Form)currentElement.getParent();
+			}
+			currentElement = (IFormElement)PersistHelper.getSuperPersist(currentElement);
+		}
+		return (Form)element.getParent();
 	}
 }
