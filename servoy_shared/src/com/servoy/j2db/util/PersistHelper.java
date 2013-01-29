@@ -784,6 +784,26 @@ public class PersistHelper
 		return null;
 	}
 
+	/**
+	 * Get highest super persist.
+	 * 
+	 * @param persist
+	 * @return
+	 */
+	public static IPersist getBasePersist(ISupportExtendsID persist)
+	{
+		ISupportExtendsID p = persist;
+		while (true)
+		{
+			ISupportExtendsID superp = (ISupportExtendsID)PersistHelper.getSuperPersist(p);
+			if (superp == null)
+			{
+				return (IPersist)p;
+			}
+			p = superp;
+		}
+	}
+
 	public static IPersist getSuperPersist(final ISupportExtendsID persist)
 	{
 		if (persist instanceof IFlattenedPersistWrapper && ((IFlattenedPersistWrapper)persist).getWrappedPersist() instanceof Form)
