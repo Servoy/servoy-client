@@ -2603,6 +2603,33 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Retrieves a list with names of all database servers that have property DataModelCloneFrom equal to the server name parameter.
+	 *
+	 * @sample
+	 * 	var serverNames = databaseManager.getDataModelClonesFrom('myServerName');
+	 *
+	 * @param serverName 
+	 */
+	@JSFunction
+	public String[] getDataModelClonesFrom(String serverName) throws ServoyException
+	{
+		checkAuthorized();
+		try
+		{
+			IServer server = application.getRepository().getServer(serverName);
+			if (server != null)
+			{
+				return server.getDataModelClonesFrom();
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the database product name as supplied by the driver for a server.
 	 * 
 	 * NOTE: For more detail on named server connections, see the chapter on Database Connections, beginning with the Introduction to database connections in the Servoy Developer User's Guide. 

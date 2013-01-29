@@ -223,4 +223,10 @@ public class ServerProxy implements IServer, Serializable
 		}
 		return ITable.UNKNOWN;
 	}
+
+	@Override
+	public String[] getDataModelClonesFrom() throws RemoteException
+	{
+		return server.getDataModelClonesFrom();
+	}
 }
