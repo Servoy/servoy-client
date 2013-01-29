@@ -354,6 +354,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		});
 
 		add(hiddenBeforeShow);
+		hiddenBeforeShow.setEnabled(false);
 		// set fixed markup id so that element can always be found by markup id
 		container.setOutputMarkupId(true);
 		container.setMarkupId("form_" + ComponentFactory.stripIllegalCSSChars(formController.getName())); // same as in template generator //$NON-NLS-1$
