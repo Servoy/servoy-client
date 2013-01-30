@@ -408,7 +408,7 @@ var radioCheckInputMouseDown;
 
 function eventCallback(el, strEvent, callbackUrl, event)
 {
-	if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
+	if(strEvent != "focus" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 	
 	if (ignoreFocusGained && ignoreFocusGained == el.id)
 	{
@@ -501,7 +501,7 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 	{
 		ignoreFocusGained = null;
 	}
-	if(Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
+	if(strEvent != "focus" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;
 
 	var modifiers;
 	if(strEvent == "focus")
