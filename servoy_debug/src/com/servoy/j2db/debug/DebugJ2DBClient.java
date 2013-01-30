@@ -37,10 +37,12 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -1083,10 +1085,24 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		if (shutDown) return;
 		refreshI18NMessages();
-		List<FormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
-		ArrayList<IPersist> formsToReload = new ArrayList<IPersist>();
-		for (FormController fc : cachedFormControllers)
-			formsToReload.add(fc.getForm());
+
+		Set<IPersist> formsToReload = new HashSet<IPersist>();
+		for (FormController fc : ((FormManager)getFormManager()).getCachedFormControllers())
+		{
+			Form form = fc.getForm();
+			if (form instanceof FlattenedForm)
+			{
+				// find the design-time forms that are in use, un-flatten when needed.
+				for (Form f : getFlattenedSolution().getFormHierarchy(((FlattenedForm)form).getWrappedPersist()))
+				{
+					formsToReload.add(f);
+				}
+			}
+			else
+			{
+				formsToReload.add(form);
+			}
+		}
 		refreshPersists(formsToReload);
 	}
 
