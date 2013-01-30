@@ -1021,7 +1021,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 * @sample var formName = %%prefix%%controller.getName();
 		 * @return the name
 		 */
-		public String js_getName()
+		@JSFunction
+		public String getName()
 		{
 			checkDestroyed();
 			return formController.getName();

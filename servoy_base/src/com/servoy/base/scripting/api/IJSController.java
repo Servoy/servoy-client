@@ -134,4 +134,12 @@ public interface IJSController
 	// @param dialogName optional the dialog/window name
 	// @param modal optional boolean indicating modality for dialogs; default value is false
 	public void show() throws Exception;
+
+	/**
+	 * Get the name of this form.
+	 *
+	 * @sample var formName = %%prefix%%controller.getName();
+	 * @return the name
+	 */
+	public String getName();
 }
