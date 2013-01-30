@@ -3961,11 +3961,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		}
 		else
 		{
-			// if form is in design when set to invisible, end design mode.
-			if (this.designMode != null)
-			{
-				setDesignMode(null);
-			}
 			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
 			isFormVisible = false;
 			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
