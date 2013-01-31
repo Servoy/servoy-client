@@ -252,40 +252,47 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private boolean hasTopBuffer, hasBottomBuffer;
 	private int currentScrollTop;
 	private int topPhHeight;
+	private int scrollableHeaderHeight = -1;
 
 	private boolean isLeftToRightOrientation;
 	private Dimension formBodySize;
 
 	private boolean isListViewMode;
 
-	/***
-	 * This class is used to rerender the odd/even/selected style (with css transparency fallback color) upon creation of the table  (table is created via an ajax call).
-	 * <p>
-	 * It was introduced because renderering IRuntimeComponent does not support duplicate rules needed for fallback colors, it adds the javascript rowselectionscript to be executed 
-	 * just after all the rows components is rendered.
-	 * @author Ovidiu
-	 *
-	 */
-	private final class OddEvenSelectedBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
+	private final class HeaderHeightCalculationBehavior extends AbstractServoyDefaultAjaxBehavior implements IIgnoreDisabledComponentBehavior
 	{
 		@Override
 		public void renderHead(IHeaderResponse response)
 		{
-			String rowSelScritpt = getRowSelectionScript(true);
-			if (rowSelScritpt != null)
+			String top;
+			if (headers != null)
 			{
-				response.renderOnDomReadyJavascript(rowSelScritpt);
+				top = "$('#" + headers.getMarkupId() + "').height()"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
+			else
+			{
+				top = "0"; //$NON-NLS-1$
+			}
+
+			StringBuffer tbodyStyle = new StringBuffer("var tbodyTop=").append(top).append(";if(tbodyTop != null && tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
+			if (scrollableHeaderHeight == -1) tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();"); //$NON-NLS-1$//$NON-NLS-2$
+			tbodyStyle.append("if(tbodyTop != null) wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);"); //$NON-NLS-1$ //$NON-NLS-2$
+			response.renderOnLoadJavascript(tbodyStyle.toString());
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
+		 */
 		@Override
 		protected void respond(AjaxRequestTarget target)
 		{
-			//no implementation . This behavior only needs to add javascript to the head section
+			scrollableHeaderHeight = Integer.parseInt(getComponent().getRequest().getParameter("h")); //$NON-NLS-1$
 		}
 
 	}
-
 
 	/**
 	 * @author jcompagner
@@ -1770,7 +1777,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			add(pagingNavigator = new ServoyAjaxPagingNavigator("navigator", table)); //$NON-NLS-1$
 			add(tableResizeBehavior = new ServoyTableResizeBehavior(startY, endY, cellview));
-			add(new OddEvenSelectedBehavior());
+			if (isScrollMode()) add(new HeaderHeightCalculationBehavior());
 		}
 		else
 		{
@@ -1828,8 +1835,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public String getObject()
 				{
+					int scrollPadding;
+					ClientInfo info = Session.get().getClientInfo();
+					if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer()) scrollPadding = 0;
+					else scrollPadding = 12;
 					return scrollBarDefinitionToOverflowAttribute(scrollbars) +
-						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; display: none;"; //$NON-NLS-1$
+						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; " + (scrollableHeaderHeight == -1 ? "display:none;" : "top:" + scrollableHeaderHeight + "px;") + " padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 				}
 			}));
 			tableContainerBody.add(new SimpleAttributeModifier("class", "rowsContainerBody"));
@@ -4228,35 +4239,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		String columnResizeScript = getColumnResizeScript();
 		if (columnResizeScript != null) container.getHeaderResponse().renderOnDomReadyJavascript(columnResizeScript);
-		if (isScrollMode())
-		{
-			String top, scrollPadding, right = null;
-			if (headers != null)
-			{
-				top = "$('#" + headers.getMarkupId() + "').height() + 'px'";
-			}
-			else
-			{
-				top = "'0px'";
-			}
 
-			ClientInfo info = Session.get().getClientInfo();
-			if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer())
-			{
-				scrollPadding = "'0px'";
-			}
-			else
-			{
-				scrollPadding = "'12px'";
-			}
-
-
-			StringBuffer tbodyStyle = new StringBuffer("$('#").append(tableContainerBody.getMarkupId()).append("').css('top',").append(top).append(");");
-			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').css('padding-right',").append(scrollPadding).append(");");
-			tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();");
-			container.getHeaderResponse().renderOnLoadJavascript(tbodyStyle.toString());
-			//if (table.gets) container.getHeaderResponse().renderOnDomReadyJavascript(getRowSelectionScript(true));
-		}
+		// rerender the odd/even/selected style (with css transparency fallback color) upon creation of the table  (table is created via an ajax call).
+		// It was introduced because renderering IRuntimeComponent does not support duplicate rules needed for fallback colors, it adds the javascript rowselectionscript to be executed 
+		// just after all the rows components is rendered.
+		// @author Ovidiu
+		String rowSelScritpt = getRowSelectionScript(true);
+		if (rowSelScritpt != null) container.getHeaderResponse().renderOnDomReadyJavascript(rowSelScritpt);
 	}
 
 	private Boolean hasOnRender;
@@ -4924,7 +4913,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public boolean isScrollMode()
 	{
-		return isScrollMode;
+		return useAJAX && isScrollMode;
 	}
 
 	private static String getFirstToken(String s)
