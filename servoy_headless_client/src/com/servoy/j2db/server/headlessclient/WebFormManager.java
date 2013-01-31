@@ -37,6 +37,7 @@ import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.smart.SwingForm;
@@ -60,6 +61,24 @@ public class WebFormManager extends FormManager
 		super(app, mainp);
 		int max = Utils.getAsInteger(Settings.getInstance().getProperty("servoy.max.webforms.loaded", "128"), false);
 		maxForms = max == 0 ? 128 : max;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.FormManager#makeSolutionSettings(com.servoy.j2db.persistence.Solution)
+	 */
+	@Override
+	protected void makeSolutionSettings(Solution s)
+	{
+		super.makeSolutionSettings(s);
+		if (getCurrentContainer() instanceof MainPage)
+		{
+			// store the minimum version of the current main container loading
+			// this new solution. So that it can't go past it again when using 
+			// the back button in the browser
+			((MainPage)getCurrentContainer()).storeMinVersion();
+		}
 	}
 
 	/*
