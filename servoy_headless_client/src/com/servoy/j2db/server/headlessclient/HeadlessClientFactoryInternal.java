@@ -35,6 +35,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
 
@@ -82,6 +83,17 @@ public class HeadlessClientFactoryInternal
 				catch (Exception e)
 				{
 					exception[0] = e;
+					if (sc[0] != null)
+					{
+						try
+						{
+							sc[0].shutDown(true);
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+					}
 				}
 			}
 		};
