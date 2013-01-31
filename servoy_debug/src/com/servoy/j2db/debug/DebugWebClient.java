@@ -227,7 +227,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected IEventDispatcher createDispatcher()
 	{
-		return new WicketEventDispatcher()
+		return new WicketEventDispatcher(this)
 		{
 			@Override
 			public void run()

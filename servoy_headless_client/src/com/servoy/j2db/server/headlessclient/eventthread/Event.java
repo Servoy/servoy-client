@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.headlessclient.eventthread;
 
+import java.util.List;
+
 
 /**
  * A default empty event used by the {@link WicketEventDispatcher}
@@ -86,4 +88,10 @@ class Event
 		return runInBackground;
 	}
 
+	/**
+	 * @param requestEvents
+	 */
+	public void setEvents(List<Runnable> requestEvents)
+	{
+	}
 }

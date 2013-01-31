@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.servoy.j2db.server.headlessclient.EventsRunnable;
+import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -42,6 +44,16 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 	private volatile boolean exit = false;
 
 	private volatile Thread scriptThread = null;
+
+	private final WebClient client;
+
+	/**
+	 * 
+	 */
+	public WicketEventDispatcher(WebClient client)
+	{
+		this.client = client;
+	}
 
 	public void run()
 	{
@@ -81,6 +93,9 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 				throw new Exception("State not expected");
 			}
 			stack.remove(event);
+			// store the current request events of the client that are 
+			// created in this thread on this event object. (see addEvent)
+			event.setEvents(client.getRequestEvents());
 			synchronized (events)
 			{
 				events.notifyAll();
@@ -101,6 +116,15 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 		if (scriptThread == Thread.currentThread())
 		{
 			event.execute();
+			// if this event created request events (events in this thread)
+			// then also execute them now.
+			// Maybe we shouldn't do that here but rely on the one below when a real event is finished..
+			// but add event in a script thread shouldn't really happen.
+			List<Runnable> requestEvents = client.getRequestEvents();
+			if (requestEvents.size() > 0)
+			{
+				addEvent(new EventsRunnable(client, requestEvents));
+			}
 		}
 		else
 		{
@@ -119,6 +143,12 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 						Debug.error(e);
 					}
 				}
+			}
+			// now execute all request events that this event did generate.
+			List<Runnable> requestEvents = event.getEvents();
+			if (requestEvents.size() > 0)
+			{
+				addEvent(new EventsRunnable(client, requestEvents));
 			}
 		}
 	}

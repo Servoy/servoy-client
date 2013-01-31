@@ -86,7 +86,6 @@ import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Solution;
@@ -1122,6 +1121,15 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (this.callingContainer == null) this.callingContainer = callingContainer;
 	}
 
+	/**
+	 * @return the callingContainer
+	 */
+	public MainPage getCallingContainer()
+	{
+		return callingContainer;
+	}
+
+
 	public void remove(IComponent c)
 	{
 		webForms.remove(c);
@@ -1258,7 +1266,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			}
 			else
 			{
-				String name2 = Text.processTags(nameString, TagResolver.createResolver((IRecordInternal)new PrototypeState(null)));
+				String name2 = Text.processTags(nameString, TagResolver.createResolver(new PrototypeState(null)));
 				if (name2 != null) nameString = name2;
 			}
 			if (!nameString.trim().equals("")) //$NON-NLS-1$
