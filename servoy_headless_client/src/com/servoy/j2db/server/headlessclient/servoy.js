@@ -2600,7 +2600,17 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				if(tabpanelElem && tabpanelElem.className == 'tabpanel') elem = tabpanelElem;
 			}
 			
-
+			// get enclosing div for a span (button)
+			if(elem.nodeName == 'SPAN')
+			{
+				var auxElem = elem;
+				while(auxElem && auxElem.nodeName != 'DIV')
+				{
+					auxElem = auxElem.parentNode;
+				}
+				if(auxElem && auxElem.nodeName == 'DIV') elem = auxElem;	
+			}
+			
 			if (!elem.id)
 			{
 				elem = elem.parentNode;
