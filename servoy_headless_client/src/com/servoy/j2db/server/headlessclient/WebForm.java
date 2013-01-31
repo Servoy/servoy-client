@@ -2030,6 +2030,11 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		{
 			webContainer.recomputeTabSequence();
 		}
+		//if the form is in a WebAccordionPannel  the Accordion must be rerendered to set the correct jqueryui accordion "ui-.." clases on the div (forms)
+		if (webContainer instanceof WebAccordionPanel)
+		{
+			((WebAccordionPanel)webContainer).getStylePropertyChanges().setChanged();
+		}
 	}
 
 	public boolean isUIRecreated()
