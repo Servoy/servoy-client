@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.headlessclient.eventthread;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.Application;
@@ -54,6 +55,7 @@ final class WicketEvent extends Event
 	private final Thread currentThread;
 	private final Runnable runable;
 	private final IServiceProvider serviceProvider;
+	private List<Runnable> events = Collections.emptyList();
 
 	/**
 	 * @param f
@@ -181,5 +183,19 @@ final class WicketEvent extends Event
 	{
 		cleanup();
 		super.executeInBackground();
+	}
+
+	/**
+	 * @return
+	 */
+	public List<Runnable> getEvents()
+	{
+		return events;
+	}
+
+	@Override
+	public void setEvents(List<Runnable> requestEvents)
+	{
+		events = requestEvents;
 	}
 }

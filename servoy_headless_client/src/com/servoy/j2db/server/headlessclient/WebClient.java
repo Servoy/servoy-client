@@ -538,30 +538,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 		if (runnables != null)
 		{
-			final List<Runnable> toExecute = runnables;
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					for (Runnable runnable : toExecute)
-					{
-						try
-						{
-							runnable.run();
-						}
-						catch (Throwable e)
-						{
-							Debug.error("error executing event " + runnable, e);
-						}
-						synchronized (runnable)
-						{
-							runnable.notifyAll();
-						}
-					}
-					// look if those did add new events in the mean time.
-					executeEvents();
-				}
-			};
+			Runnable run = new EventsRunnable(this, runnables);
 			if (getEventDispatcher() != null)
 			{
 				getEventDispatcher().addEvent(run);
@@ -572,6 +549,24 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			}
 		}
 		return;
+	}
+
+
+	/**
+	 * returns the request/thread local events, clears them when there are events waiting
+	 * So the caller must execute them.
+	 * @return
+	 */
+	public List<Runnable> getRequestEvents()
+	{
+		List<Runnable> lst = requestEvents.get();
+		if (lst.size() > 0)
+		{
+			ArrayList<Runnable> copy = new ArrayList<Runnable>(lst);
+			lst.clear();
+			return copy;
+		}
+		return lst;
 	}
 
 	/**
@@ -814,6 +809,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						}
 					}
 				}
+
 				// close all windows
 				getRuntimeWindowManager().closeFormInWindow(null, true);
 
@@ -867,7 +863,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 							{
 								if ((urlShown || shownInDialog) && rc.getRequestTarget() instanceof AjaxRequestTarget)
 								{
-									CharSequence urlFor = mp.urlFor(SelectSolution.class, null);
+									// if this page is shown in a dialog then try to get the parent so that the page map is not included in the url
+									MainPage page = mp;
+									while ((page.isShowingInDialog() || page.isClosingAsDivPopup()) && page.getCallingContainer() != null)
+									{
+										page = page.getCallingContainer();
+									}
+									CharSequence urlFor = page.urlFor(SelectSolution.class, null);
 									((AjaxRequestTarget)rc.getRequestTarget()).appendJavascript(MainPage.getShowUrlScript(new ShowUrlInfo(urlFor.toString(),
 										"_self", null, 0, true, false)));
 								}
@@ -1128,7 +1130,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	 */
 	protected IEventDispatcher createDispatcher()
 	{
-		return new WicketEventDispatcher();
+		return new WicketEventDispatcher(this);
 	}
 
 }
