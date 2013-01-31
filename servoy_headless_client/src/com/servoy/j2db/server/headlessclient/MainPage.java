@@ -348,7 +348,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				@Override
 				protected void onTimer(AjaxRequestTarget target)
 				{
-					if (String.valueOf(MainPage.this.getCurrentVersionNumber()).equals(RequestCycle.get().getRequest().getParameter("pvs")))
+					if (!client.getFlattenedSolution().isInDesign(null) &&
+						String.valueOf(MainPage.this.getCurrentVersionNumber()).equals(RequestCycle.get().getRequest().getParameter("pvs")))
 					{
 						WebEventExecutor.generateResponse(target, MainPage.this);
 					}
@@ -402,8 +403,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				@Override
 				public boolean isEnabled(Component component)
 				{
-					// data notify is disabled when in design mode
-					return !client.getFlattenedSolution().isInDesign(null) && ((getController() != null && getController().isFormVisible()) || closingAsWindow);
+					return ((getController() != null && getController().isFormVisible()) || closingAsWindow);
 				}
 
 			});
