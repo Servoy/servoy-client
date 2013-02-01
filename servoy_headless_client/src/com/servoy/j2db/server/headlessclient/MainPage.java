@@ -1067,6 +1067,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (storeMinVersion)
 		{
 			minimumVersionNumber = getCurrentVersionNumber();
+			storeMinVersion = false;
 		}
 		// make sure that all IProviderStylePropertyChanges are set to rendered on a full page render.
 		visitChildren(IProviderStylePropertyChanges.class, new IVisitor<Component>()
