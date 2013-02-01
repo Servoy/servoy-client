@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.headlessclient.eventthread;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,7 +57,7 @@ final class WicketEvent extends Event
 	private final Thread currentThread;
 	private final Runnable runable;
 	private final IServiceProvider serviceProvider;
-	private List<Runnable> events = Collections.emptyList();
+	private volatile List<Runnable> events;
 	private final WebClient client;
 
 	/**
@@ -200,11 +201,22 @@ final class WicketEvent extends Event
 	 */
 	public List<Runnable> getEvents()
 	{
-		return events;
+		List<Runnable> retval = events;
+		events = null;
+		return retval == null ? Collections.<Runnable> emptyList() : retval;
 	}
 
 	public void setEvents(List<Runnable> requestEvents)
 	{
-		events = requestEvents;
+		if (events != null)
+		{
+			Debug.error(new IllegalStateException("events set twice!"));
+			events = new ArrayList<Runnable>(events);
+			events.addAll(requestEvents);
+		}
+		else
+		{
+			events = requestEvents;
+		}
 	}
 }
