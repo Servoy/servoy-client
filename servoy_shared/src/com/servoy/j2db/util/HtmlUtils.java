@@ -337,4 +337,182 @@ public class HtmlUtils
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Replaces all urls in a html document to make them absolute
+	 * @param url the url of the document
+	 * @param the html content of the document
+	 * @return the document with absolute urls
+	 */
+	public static String htmlURLAbsEnhancer(String url, String htmldoc)
+	{
+		String currURL = url;
+		int ind_currURL = url.lastIndexOf("/");
+		if (ind_currURL != -1 && ind_currURL > 10)
+		{
+			currURL = url.substring(0, ind_currURL);
+		}
+		String baseURL = url;
+		if (url.length() > 10)
+		{
+			int ind_baseURL = url.indexOf("/", 10);
+			if (ind_baseURL != -1)
+			{
+				baseURL = url.substring(0, ind_baseURL);
+			}
+		}
+		StringBuffer retval = new StringBuffer();
+		String lowerCaseContent = htmldoc.toLowerCase();
+		int index = 0;
+		int old_index = 0;
+		while (index != -1)
+		{
+			boolean image = false;
+			boolean link = false;
+			int formindex = lowerCaseContent.indexOf("<form", index);
+			int aindex = lowerCaseContent.indexOf("<a", index);
+			int imgindex = lowerCaseContent.indexOf("<img", index);
+			int frameindex = lowerCaseContent.indexOf("<frame", index);
+			int metaindex = lowerCaseContent.indexOf("<meta", index);
+			int linkindex = lowerCaseContent.indexOf("<link", index);
+
+			if (aindex != -1 && imgindex != -1)
+			{
+				int i = Math.min(aindex, imgindex);
+				if (i != aindex)
+				{
+					aindex = -1;
+				}
+				else
+				{
+					imgindex = -1;
+				}
+			}
+
+			if (frameindex != -1)
+			{
+				index = frameindex;
+				int newindex = lowerCaseContent.indexOf("src", index);
+				if (newindex == -1)
+				{
+					index++;
+					continue;
+				}
+				else
+				{
+					index = newindex;
+				}
+				link = true;
+			}
+			else if (metaindex != -1)
+			{
+				index = metaindex;
+				int newindex = lowerCaseContent.indexOf(";url", index);
+				if (newindex == -1)
+				{
+					index++;
+					continue;
+				}
+				else
+				{
+					index = newindex;
+				}
+				link = true;
+			}
+			else if (linkindex != -1)
+			{
+				index = linkindex;
+				int newindex = lowerCaseContent.indexOf("href", index);
+				if (newindex == -1)
+				{
+					index++;
+					continue;
+				}
+				else
+				{
+					index = newindex;
+				}
+				link = true;
+			}
+			else if (aindex != -1)
+			{
+				index = aindex;
+				int newindex = lowerCaseContent.indexOf("href", index);
+				if (newindex == -1)
+				{
+					index++;
+					continue;
+				}
+				else
+				{
+					index = newindex;
+				}
+				link = true;
+			}
+			else if (imgindex != -1)
+			{
+				index = imgindex;
+				int newindex = lowerCaseContent.indexOf("src", index);
+				if (newindex == -1)
+				{
+					index++;
+					continue;
+				}
+				else
+				{
+					index = newindex;
+				}
+				image = true;
+			}
+			else if (formindex != -1)
+			{
+				index = formindex;
+				int newindex = lowerCaseContent.indexOf("action", index);
+				if (newindex == -1)
+				{
+					index++;
+					continue;
+				}
+				else
+				{
+					index = newindex;
+				}
+				link = true;
+			}
+			else
+			{
+				break;
+			}
+			if ((index = lowerCaseContent.indexOf("=", index)) == -1) continue;
+
+			index++; //skip '='
+
+			String remaining = htmldoc.substring(index);
+
+			StringTokenizer st = new StringTokenizer(remaining, "\t\n\r\"'>#");
+			String strLink = st.nextToken();
+
+			retval.append(htmldoc.substring(old_index, index));
+			retval.append("\"");
+
+			if (strLink.startsWith("/"))
+			{
+				retval.append(baseURL + strLink);
+			}
+			else if (!strLink.startsWith(baseURL))
+			{
+				retval.append(currURL + "/" + strLink);
+			}
+			else
+			{
+				retval.append(strLink);
+			}
+
+
+			retval.append("\"");
+			old_index = index + 1 + strLink.length() + 1;
+		}
+		retval.append(htmldoc.substring(old_index));
+		return retval.toString();
+	}
 }
