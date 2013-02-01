@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -181,6 +182,11 @@ public class MetaDataUtils
 				else if (Column.mapToDefaultType(columnTypes[i].getSqlType()) == IColumnTypes.MEDIA && val instanceof String)
 				{
 					row[i] = Utils.decodeBASE64((String)val);
+				}
+				else if (Column.mapToDefaultType(columnTypes[i].getSqlType()) == IColumnTypes.DATETIME && val instanceof String)
+				{
+					Date parsed = ServoyJSONObject.parseDate((String)val);
+					row[i] = parsed == null ? val : parsed; // convert when possible, otherwise leave to driver (fails on mysql) 
 				}
 				else
 				{

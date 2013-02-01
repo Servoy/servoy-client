@@ -13,13 +13,16 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SimpleTimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,12 +34,18 @@ public class ServoyJSONObject extends JSONObject
 	protected boolean noQuotes = true;
 	protected boolean newLines = true;
 	protected boolean noBrackets = false;
+	private static final SimpleDateFormat ISO_DATE_FORMAT; // from rhino NativeDate
+	static
+	{
+		ISO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		ISO_DATE_FORMAT.setTimeZone(new SimpleTimeZone(0, "UTC"));
+		ISO_DATE_FORMAT.setLenient(false);
+	}
 
 	public ServoyJSONObject()
 	{
 		super();
 	}
-
 
 	public ServoyJSONObject(boolean noQuotes, boolean newLines)
 	{
@@ -332,12 +341,39 @@ public class ServoyJSONObject extends JSONObject
 			if (newLines && array.length() > 0) sb.append('\n');
 			sb.append(']');
 		}
+		else if (value instanceof Date) // use fixed format as used in rhino NativeDate
+		{
+			synchronized (ISO_DATE_FORMAT)
+			{
+				sb.append(quote(ISO_DATE_FORMAT.format(value)));
+			}
+		}
 		else
 		{
 			sb.append(replaceEmbeddedStringEscapedNewlines(quote(value.toString())));
 		}
 
 		return sb;
+	}
+
+	public static Date parseDate(String s)
+	{
+		if (s != null)
+		{
+			try
+			{
+				synchronized (ISO_DATE_FORMAT)
+				{
+					return ISO_DATE_FORMAT.parse(s);
+				}
+			}
+			catch (java.text.ParseException ex)
+			{
+				Debug.trace(ex);
+			}
+		}
+
+		return null; // cannot parse via iso format
 	}
 
 	/**
