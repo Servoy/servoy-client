@@ -30,6 +30,7 @@ import org.mozilla.javascript.Function;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.server.headlessclient.ServoyRequestCycle;
+import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -56,6 +57,7 @@ final class WicketEvent extends Event
 	private final Runnable runable;
 	private final IServiceProvider serviceProvider;
 	private List<Runnable> events = Collections.emptyList();
+	private final WebClient client;
 
 	/**
 	 * @param f
@@ -66,8 +68,9 @@ final class WicketEvent extends Event
 	 * @param throwException
 	 * @param scriptEngine TODO
 	 */
-	public WicketEvent(Runnable runable)
+	public WicketEvent(WebClient client, Runnable runable)
 	{
+		this.client = client;
 		this.runable = runable;
 		requestCycle = RequestCycle.get();
 		session = Session.get();
@@ -108,6 +111,10 @@ final class WicketEvent extends Event
 		}
 		finally
 		{
+			// store the current request events of the client that are 
+			// created in this thread on this event object. (see addEvent)
+			setEvents(client.getRequestEvents());
+
 			executed = true;
 			cleanup();
 		}
@@ -169,6 +176,9 @@ final class WicketEvent extends Event
 	@Override
 	public void willSuspend()
 	{
+		// store the current request events of the client that are 
+		// created in this thread on this event object. (see addEvent)
+		setEvents(client.getRequestEvents());
 		cleanup();
 		super.willSuspend();
 	}
@@ -193,7 +203,6 @@ final class WicketEvent extends Event
 		return events;
 	}
 
-	@Override
 	public void setEvents(List<Runnable> requestEvents)
 	{
 		events = requestEvents;

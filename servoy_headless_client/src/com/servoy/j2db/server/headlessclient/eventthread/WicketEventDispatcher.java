@@ -93,9 +93,6 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 				throw new Exception("State not expected");
 			}
 			stack.remove(event);
-			// store the current request events of the client that are 
-			// created in this thread on this event object. (see addEvent)
-			event.setEvents(client.getRequestEvents());
 			synchronized (events)
 			{
 				events.notifyAll();
@@ -112,7 +109,7 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 	 */
 	public void addEvent(Runnable runnable)
 	{
-		WicketEvent event = new WicketEvent(runnable);
+		WicketEvent event = new WicketEvent(client, runnable);
 		if (scriptThread == Thread.currentThread())
 		{
 			event.execute();
