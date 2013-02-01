@@ -30,6 +30,7 @@ public interface HasRuntimeLocation extends HasRuntimeLocationGet
 {
 	/**
 	 * Sets the location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen.
+	 * Please note that location should not be altered at runtime when an element is anchored. Use the solutionModel in such a situation.
 	 * 
 	 * NOTE: getLocationX() can be used with getLocationY() to return the current location of an element; then use the X and Y coordinates with the setLocation function to set a new location. For Example:
 	 * 

@@ -29,7 +29,8 @@ import org.mozilla.javascript.annotations.JSFunction;
 public interface HasRuntimeSize extends HasRuntimeSizeGet
 {
 	/**
-	 * Sets the size of the field. It takes as input the width and the height. 
+	 * Sets the size of an element. It takes as input the width and the height. 
+	 * Please note that size should not be altered at runtime when an element is anchored. Use the solutionModel in such a situation.
 	 * 
 	 * NOTE: getWidth() can be used with getHeight() to set the size of an element using the setSize function. For Example: 
 	 * 
