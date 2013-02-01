@@ -456,12 +456,14 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 //		mediaSize = null;
 	}
 
+	private int rotation = 0;
+
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRotation(int)
 	 */
 	public void setRotation(int rotation)
 	{
-		// not needed here
+		this.rotation = rotation;
 	}
 
 	/**
@@ -943,7 +945,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			markupStream,
 			openTag,
 			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size == null ? 0 : size.height, true, designMode ? null : cursor, false, anchor, cssClass));
+				size, true, designMode ? null : cursor, false, anchor, cssClass, rotation));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1087,8 +1089,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
-		String cssid, char mnemonic, String elementID, String imgURL, int height, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors,
-		String cssClass)
+		String cssid, char mnemonic, String elementID, String imgURL, Dimension size, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors,
+		String cssClass, int rotation)
 	{
 		boolean isElementAnchored = anchors != IAnchorConstants.DEFAULT;
 		Insets padding = null;
@@ -1151,34 +1153,65 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			right = padding.right;
 		}
 
-		// Horizontal alignment and anchoring.
-		instrumentedBodyText.append(" left: " + left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-		instrumentedBodyText.append(" right: " + right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (rotation == 0 || size.width >= size.height)
+		{
+			// Horizontal alignment and anchoring.
+			instrumentedBodyText.append(" left: " + left + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" right: " + right + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			// Vertical alignment and anchoring.
+			if (cssid == null)
+			{
+				if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+				else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			// Full height.
+			if (hasHtmlOrImage && valign != ISupportTextSetup.CENTER && cssid == null) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
+			else if ((cssid != null) || (valign != ISupportTextSetup.CENTER)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
+			else if (!isButton && !hasHtmlOrImage && imgURL == null)
+			{
+				int innerHeight = size.height;
+				if (padding != null) innerHeight -= padding.top + padding.bottom;
+				if (borderMargin != null) innerHeight -= borderMargin.top + borderMargin.bottom;
+				instrumentedBodyText.append("line-height: " + innerHeight + "px;");
+			}
+
+			if (isAnchored)
+			{
+				instrumentedBodyText.append(" position: relative;"); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			// this is a special case, invert width and height so that text is fully visible when rotated
+			int innerWidth = size.height;
+			if (padding != null) innerWidth -= padding.top + padding.bottom;
+			if (borderMargin != null) innerWidth -= borderMargin.top + borderMargin.bottom;
+
+			int innerHeight = size.width;
+			if (padding != null) innerHeight -= padding.left + padding.right;
+			if (borderMargin != null) innerHeight -= borderMargin.left + borderMargin.right;
+
+			int rotationOffset = (innerWidth - innerHeight) / 2;
+			instrumentedBodyText.append(" left: -" + rotationOffset + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" top: " + rotationOffset + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
+			instrumentedBodyText.append(" position: absolute;");
+			instrumentedBodyText.append(" height: " + innerHeight + "px;");
+			instrumentedBodyText.append(" width: " + innerWidth + "px;");
+			instrumentedBodyText.append("line-height: " + innerHeight + "px;");
+		}
+
+		if (!hasHtmlOrImage) instrumentedBodyText.append(" overflow: hidden;");
+
 		if (halign == ISupportTextSetup.LEFT) instrumentedBodyText.append(" text-align: left;"); //$NON-NLS-1$
 		else if (halign == ISupportTextSetup.RIGHT) instrumentedBodyText.append(" text-align: right;"); //$NON-NLS-1$
 		else instrumentedBodyText.append(" text-align: center;"); //$NON-NLS-1$
 
-		// Vertical alignment and anchoring.
-		if (cssid == null)
+		if (rotation > 0)
 		{
-			if (valign == ISupportTextSetup.TOP) instrumentedBodyText.append(" top: " + top + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-			else if (valign == ISupportTextSetup.BOTTOM) instrumentedBodyText.append(" bottom: " + bottom + "px;"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		// Full height.
-		if (!hasHtmlOrImage) instrumentedBodyText.append(" overflow: hidden;");
-		if (hasHtmlOrImage && valign != ISupportTextSetup.CENTER && cssid == null) instrumentedBodyText.append(" height: 100%;"); //$NON-NLS-1$
-		else if ((cssid != null) || (valign != ISupportTextSetup.CENTER)) instrumentedBodyText.append(" position: absolute;"); //$NON-NLS-1$
-		else if (!isButton && !hasHtmlOrImage && imgURL == null)
-		{
-			int innerHeight = height;
-			if (padding != null) innerHeight -= padding.top + padding.bottom;
-			if (borderMargin != null) innerHeight -= borderMargin.top + borderMargin.bottom;
-			instrumentedBodyText.append("line-height: " + innerHeight + "px;");
-		}
-		if (isAnchored)
-		{
-			instrumentedBodyText.append(" position: relative;"); //$NON-NLS-1$
+			String rotationCss = "rotate(" + rotation + "deg)";
+			instrumentedBodyText.append(" -ms-transform: " + rotationCss + ";" + " -moz-transform: " + rotationCss + ";" + " -webkit-transform: " + rotationCss + ";" + " -o-transform: " + rotationCss + ";" + " transform: " + rotationCss + ";"); //$NON-NLS-1$
 		}
 
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
@@ -1239,6 +1272,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				"); $(this).css('display','');\"" : "";
 			instrumentedBodyText.append("\" align=\"middle\"").append(onLoadCall).append("/>");
 		}
+
 		instrumentedBodyText.append("</span>"); //$NON-NLS-1$
 
 		if (border instanceof TitledBorder)

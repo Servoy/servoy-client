@@ -2349,16 +2349,6 @@ public class TemplateGenerator
 			}
 			styleObj.setProperty("padding-bottom", bottomPadding + "px");
 		}
-		if (label.getRotation() > 0)
-		{
-			TextualStyle rotationStyle = css.addStyle(styleName + ComponentFactory.getWebID(form, label) + " span");
-			String rotation = "rotate(" + label.getRotation() + "deg)";
-			rotationStyle.setProperty("-ms-transform", rotation);
-			rotationStyle.setProperty("-moz-transform", rotation);
-			rotationStyle.setProperty("-webkit-transform", rotation);
-			rotationStyle.setProperty("-o-transform", rotation);
-			rotationStyle.setProperty("transform", rotation);
-		}
 	}
 
 	public static boolean isFilledText(String text)
@@ -2986,8 +2976,8 @@ public class TemplateGenerator
 //			if (ins != null) x += ins.left;
 			if (locationModifier != null)
 			{
-				y = Math.max(y+locationModifier.y,0);
-				x = Math.max(x+locationModifier.x,0);
+				y = Math.max(y + locationModifier.y, 0);
+				x = Math.max(x + locationModifier.x, 0);
 			}
 			int w = component.getSize().width;
 			if (ins != null) w -= (ins.left + ins.right);
@@ -3075,8 +3065,8 @@ public class TemplateGenerator
 //			if (ins != null) x += ins.left;
 			if (locationModifier != null)
 			{
-				y = Math.max(y+locationModifier.y,0);
-				x = Math.max(x+locationModifier.x,0);
+				y = Math.max(y + locationModifier.y, 0);
+				x = Math.max(x + locationModifier.x, 0);
 			}
 			int w = component.getSize().width;
 			if (ins != null) w -= (ins.left + ins.right);
