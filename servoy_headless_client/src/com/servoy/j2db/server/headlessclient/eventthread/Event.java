@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.headlessclient.eventthread;
 
-import java.util.List;
 
 
 /**
@@ -86,12 +85,5 @@ class Event
 	public boolean isExecutingInBackground()
 	{
 		return runInBackground;
-	}
-
-	/**
-	 * @param requestEvents
-	 */
-	public void setEvents(List<Runnable> requestEvents)
-	{
 	}
 }
