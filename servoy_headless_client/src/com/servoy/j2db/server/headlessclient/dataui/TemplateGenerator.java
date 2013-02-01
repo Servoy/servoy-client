@@ -2354,16 +2354,6 @@ public class TemplateGenerator
 			}
 			styleObj.setProperty("padding-bottom", bottomPadding + "px");
 		}
-		if (label.getRotation() > 0)
-		{
-			TextualStyle rotationStyle = css.addStyle(styleName + ComponentFactory.getWebID(form, label) + " span");
-			String rotation = "rotate(" + label.getRotation() + "deg)";
-			rotationStyle.setProperty("-ms-transform", rotation);
-			rotationStyle.setProperty("-moz-transform", rotation);
-			rotationStyle.setProperty("-webkit-transform", rotation);
-			rotationStyle.setProperty("-o-transform", rotation);
-			rotationStyle.setProperty("transform", rotation);
-		}
 	}
 
 	public static boolean isFilledText(String text)
