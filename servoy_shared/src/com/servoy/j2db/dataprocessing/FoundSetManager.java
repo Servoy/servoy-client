@@ -385,33 +385,28 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
+	/**
+	 * Check if related foundset is loaded, relationName may be multiple-levels deep.
+	 */
 	protected boolean isRelatedFoundSetLoaded(IRecordInternal state, String relationName)
 	{
 		try
 		{
-			Relation r = application.getFlattenedSolution().getRelation(relationName);
-			if (r == null || !r.isValid())
+			IRecordInternal rec = state;
+			Relation[] relationSequence = application.getFlattenedSolution().getRelationSequence(relationName);
+			for (int i = 0; relationSequence != null && i < relationSequence.length; i++)
 			{
-				return false;
-			}
-			RelatedHashedArguments relatedArguments = calculateFKHash(state, r, false);
-			if (relatedArguments == null)
-			{
-				return false;
-			}
-
-			Map<String, SoftReference<RelatedFoundSet>> rfsMap = cachedSubStates.get(relationName);
-			if (rfsMap != null)
-			{
-				SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hash);
-				if (sr != null)
+				IFoundSetInternal rfs = getRelatedFoundSetWhenLoaded(rec, relationSequence[i]);
+				if (rfs == null)
 				{
-					RelatedFoundSet rfs = sr.get();
-					if (rfs != null)
-					{
-						return !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded();
-					}
+					return false;
 				}
+				if (i == relationSequence.length - 1 || rfs.getSize() == 0)
+				{
+					// no more relations to be loaded because rfs is empty, or at end of relation sequence
+					return true;
+				}
+				rec = rfs.getRecord(rfs.getSelectedIndex());
 			}
 		}
 		catch (Exception e)
@@ -419,6 +414,34 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			Debug.error("is related foundset check failed", e); //$NON-NLS-1$
 		}
 		return false;
+	}
+
+	private RelatedFoundSet getRelatedFoundSetWhenLoaded(IRecordInternal state, Relation relation) throws RepositoryException
+	{
+		if (state == null || relation == null || !relation.isValid())
+		{
+			return null;
+		}
+		RelatedHashedArguments relatedArguments = calculateFKHash(state, relation, false);
+		if (relatedArguments == null)
+		{
+			return null;
+		}
+
+		Map<String, SoftReference<RelatedFoundSet>> rfsMap = cachedSubStates.get(relation.getName());
+		if (rfsMap != null)
+		{
+			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hash);
+			if (sr != null)
+			{
+				RelatedFoundSet rfs = sr.get();
+				if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
+				{
+					return rfs;
+				}
+			}
+		}
+		return null;
 	}
 
 	//query for a substate
