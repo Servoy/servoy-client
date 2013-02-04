@@ -16,11 +16,15 @@
  */
 package com.servoy.j2db.debug;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.swing.SwingUtilities;
 
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FormController;
@@ -198,5 +202,51 @@ public class DebugUtils
 		}
 
 		return new List[] { scopesToReload, formsToReload };
+	}
+
+	/**
+	 * This method must be invoked from the swt thread to deal with mac os 10.8 deadlock problems when the awt thread freezes with the stack :
+	 * <p>
+	 * 	<i>at apple.awt.CInputMethod.getNativeLocale(Native Method)
+	 *	at apple.awt.CToolkit.getDefaultKeyboardLocale(CToolkit.java:1044)</i>
+	 * <p>
+	 * //https://bugs.eclipse.org/bugs/show_bug.cgi?id=372951#c7
+	 * apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
+	 * @param run : run must be <b>final</b>
+	 * @throws InvocationTargetException 
+	 */
+	public static void invokeAndWaitWhileDispatchingOnSWT(final Runnable run) throws InterruptedException, InvocationTargetException
+	{
+		// apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
+		final AtomicBoolean awtFinished = new AtomicBoolean(false);
+		if (org.eclipse.swt.widgets.Display.getCurrent() == null)
+		{// called from non SWT thread
+			SwingUtilities.invokeAndWait(run);
+		}
+		else
+		{
+			final org.eclipse.swt.widgets.Display display = org.eclipse.swt.widgets.Display.getDefault();
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					// do some AWT stuff here
+					run.run();
+					awtFinished.set(true);
+					display.asyncExec(new Runnable()
+					{
+						public void run()
+						{
+							// deliberately empty, this is only to wake up a
+							// potentially waiting SWT-thread below
+						}
+					});
+				}
+			});
+			while (!awtFinished.get())
+			{
+				if (!display.readAndDispatch()) display.sleep();
+			}
+		}
 	}
 }
