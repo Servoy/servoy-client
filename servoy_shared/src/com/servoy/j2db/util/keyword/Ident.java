@@ -154,6 +154,55 @@ public class Ident
 	"prn", //
 	};
 
+	private final static String[] mobile_window_reserved_words = new String[] { // words that can't be used in a (mobile) browser
+	"closed", //
+	"defaultStatus", //
+	"document", //
+	"frames", //
+	"history", //
+	"innerHeight", //
+	"innerWidth", //
+	"length", //
+	"location", //
+	"name", //
+	"navigator", //
+	"opener", //
+	"outerHeight", //
+	"outerWidth", //
+	"pageXOffset", //
+	"pageYOffset", //
+	"parent", //
+	"screen", //
+	"screenLeft", //
+	"screenTop", //
+	"screenX", //
+	"screenY", //
+	"self", //
+	"status", //
+	"top", //
+	"Window", //
+	"alert", //
+	"blur", //
+	"clearInterval", //
+	"clearTimeout", //
+	"close", //
+	"confirm", //
+	"createPopup", //
+	"focus", //
+	"moveBy", //
+	"moveTo", //
+	"open", //
+	"print", //
+	"prompt", //
+	"resizeBy", //
+	"resizeTo", //
+	"scroll", //
+	"scrollBy", //
+	"scrollTo", //
+	"setInterval", //
+	"setTimeout" //
+	};
+
 	public static boolean checkIfKeyword(String name)
 	{
 		return checkName(java_js_keywords, name) || checkName(servoy_keywords, name);
@@ -167,6 +216,11 @@ public class Ident
 	public static boolean checkIfReservedOSWord(String name)
 	{
 		return checkName(reserved_os_words, name);
+	}
+
+	public static boolean checkIfReservedBrowserWindowObjectWord(String name)
+	{
+		return checkName(mobile_window_reserved_words, name);
 	}
 
 	private static boolean checkName(String[] names, String name)

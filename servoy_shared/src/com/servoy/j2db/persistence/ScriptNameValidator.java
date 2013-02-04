@@ -64,6 +64,15 @@ public class ScriptNameValidator implements IValidateName
 			throw new RepositoryException("there is a SQL keyword with name " + nameToCheck); //$NON-NLS-1$
 		}
 
+		if (solutionRoot != null && solutionRoot.getSolution().getSolutionType() == SolutionMetaData.MOBILE &&
+			Ident.checkIfReservedBrowserWindowObjectWord(nameToCheck))
+		{
+			if (searchContext.getType() == IRepository.COLUMNS || searchContext.getType() == IRepository.SCRIPTCALCULATIONS ||
+				searchContext.getType() == IRepository.RELATIONS || searchContext.getType() == IRepository.SCRIPTVARIABLES ||
+				searchContext.getType() == IRepository.METHODS) throw new RepositoryException(nameToCheck +
+				" is a reserved window object word in the (mobile)browser"); //$NON-NLS-1$
+		}
+
 		Object obj = findDuplicate(nameToCheck, skip_element_id, searchContext);
 		if (obj == null) return;
 		if (obj instanceof ScriptVariable)

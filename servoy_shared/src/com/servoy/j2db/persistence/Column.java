@@ -1172,7 +1172,7 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 	 */
 	private transient Boolean hasBadName = null;
 
-	public boolean hasBadNaming()
+	public boolean hasBadNaming(boolean isMobile)
 	{
 		if (hasBadName == null)
 		{
@@ -1181,6 +1181,10 @@ public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, I
 			if (Ident.checkIfKeyword(getName()) || SQLKeywords.checkIfKeyword(getName()))
 			{
 				notes.add("'" + getName() + "' is an reserved word!");
+			}
+			if (isMobile && Ident.checkIfReservedBrowserWindowObjectWord(getName()))
+			{
+				notes.add("'" + getName() + "' is an reserved browser window object word!");
 			}
 			if (getName().length() > MAX_SQL_OBJECT_NAME_LENGTH)
 			{
