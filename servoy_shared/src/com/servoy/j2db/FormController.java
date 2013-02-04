@@ -854,6 +854,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		/**
 		 * Loads a single record by primary key, will remove related sort.
 		 * 
+		 * NOTE: This function will return true if the foundset was altered/changed. It is up to the developer to check for the presence of actual data using getSize(). 
+		 * 
 		 * @sample
 		 * %%prefix%%controller.loadRecords(123);
 		 * 
