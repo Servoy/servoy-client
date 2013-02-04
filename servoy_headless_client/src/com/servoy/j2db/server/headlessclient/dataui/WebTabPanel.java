@@ -1451,4 +1451,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	{
 		return findParent(ISupportSimulateBounds.class);
 	}
+
+
+	@Override
+	public void uiRecreated(WebForm form)
+	{
+	}
 }

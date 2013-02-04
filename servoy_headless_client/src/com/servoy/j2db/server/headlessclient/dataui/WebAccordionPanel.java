@@ -1325,4 +1325,10 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		}
 	}
 
+	@Override
+	public void uiRecreated(WebForm form)
+	{//  the Accordion must be rerendered to let it set the correct jqueryui accordion "ui-.." clases on the div (forms)
+		getStylePropertyChanges().setChanged();
+	}
+
 }

@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
+import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormUI;
 
@@ -38,4 +39,6 @@ public interface IWebFormContainer extends IDisplayRelatedData, ISupportWebTabSe
 	IFormUI[] getChildForms();
 
 	int getTabSequenceIndex();
+
+	void uiRecreated(WebForm form);
 }
