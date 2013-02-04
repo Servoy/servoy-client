@@ -409,7 +409,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		return select;
 	}
 
-	public static List<String> getShowDataproviders(ValueList valueList, Table table, String dataProviderID, IFoundSetManagerInternal foundSetManager)
+	public static List<String> getShowDataproviders(ValueList valueList, Table callingTable, String dataProviderID, IFoundSetManagerInternal foundSetManager)
 		throws RepositoryException
 	{
 		if (valueList == null)
@@ -417,15 +417,33 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			return null;
 		}
 
-		// first try fallback value list,
 		FlattenedSolution flattenedSolution = foundSetManager.getApplication().getFlattenedSolution();
+
+		// Find destination table in case dataProviderID is related
+		String[] split = dataProviderID.split("\\.");
+		String dataSource = callingTable.getDataSource();
+		for (int i = 0; i < split.length - 1; i++) // first parts are relation names, last part is column name
+		{
+			Relation relation = flattenedSolution.getRelation(split[i]);
+			if (relation == null || !relation.getPrimaryDataSource().equals(dataSource))
+			{
+				return null;
+			}
+			dataSource = relation.getForeignDataSource();
+		}
+
+		Table table = (Table)foundSetManager.getTable(dataSource);
+		String columnName = split[split.length - 1];
+		String prefix = dataProviderID.substring(0, dataProviderID.length() - columnName.length());
+
+		// first try fallback value list,
 		ValueList usedValueList = flattenedSolution.getValueList(valueList.getFallbackValueListID());
-		Relation valuelistSortRelation = flattenedSolution.getValuelistSortRelation(usedValueList, table, dataProviderID, foundSetManager);
+		Relation valuelistSortRelation = flattenedSolution.getValuelistSortRelation(usedValueList, table, columnName, foundSetManager);
 		if (valuelistSortRelation == null)
 		{
 			// then try regular value list
 			usedValueList = valueList;
-			valuelistSortRelation = flattenedSolution.getValuelistSortRelation(usedValueList, table, dataProviderID, foundSetManager);
+			valuelistSortRelation = flattenedSolution.getValuelistSortRelation(usedValueList, table, columnName, foundSetManager);
 		}
 
 		if (valuelistSortRelation == null)
@@ -437,15 +455,15 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		int showValues = usedValueList.getShowDataProviders();
 		if ((showValues & 1) != 0)
 		{
-			showDataproviders.add(valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID1());
+			showDataproviders.add(prefix + valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID1());
 		}
 		if ((showValues & 2) != 0)
 		{
-			showDataproviders.add(valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID2());
+			showDataproviders.add(prefix + valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID2());
 		}
 		if ((showValues & 4) != 0)
 		{
-			showDataproviders.add(valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID3());
+			showDataproviders.add(prefix + valuelistSortRelation.getName() + '.' + usedValueList.getDataProviderID3());
 		}
 		return showDataproviders;
 	}
