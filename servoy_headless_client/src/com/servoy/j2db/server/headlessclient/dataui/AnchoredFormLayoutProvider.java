@@ -28,6 +28,7 @@ import com.servoy.j2db.util.OrientationApplier;
  * 
  * @author gerzse
  */
+@SuppressWarnings("nls")
 public class AnchoredFormLayoutProvider extends AbstractFormLayoutProvider
 {
 	public AnchoredFormLayoutProvider(IServiceProvider sp, Solution solution, Form f, String formInstanceName)
@@ -38,13 +39,13 @@ public class AnchoredFormLayoutProvider extends AbstractFormLayoutProvider
 	@Override
 	protected void fillFormLayoutCSS(TextualStyle formStyle)
 	{
-		formStyle.setProperty("min-width", (f.getSize().width + defaultNavigatorShift) + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-		formStyle.setProperty("min-height", f.getSize().height + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-		formStyle.setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
-		formStyle.setProperty("top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		formStyle.setProperty("left", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		formStyle.setProperty("right", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		formStyle.setProperty("bottom", "0px"); //$NON-NLS-1$ //$NON-NLS-2$		
+		formStyle.setProperty("min-width", (f.getSize().width + defaultNavigatorShift) + "px");
+		formStyle.setProperty("min-height", f.getSize().height + "px");
+		formStyle.setProperty("position", "absolute");
+		formStyle.setProperty("top", "0px");
+		formStyle.setProperty("left", "0px");
+		formStyle.setProperty("right", "0px");
+		formStyle.setProperty("bottom", "0px");
 	}
 
 	@Override
@@ -52,65 +53,65 @@ public class AnchoredFormLayoutProvider extends AbstractFormLayoutProvider
 	{
 		if (orientation.equals(OrientationApplier.RTL))
 		{
-			partStyle.setProperty("right", defaultNavigatorShift + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-			partStyle.setProperty("left", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+			partStyle.setProperty("right", defaultNavigatorShift + "px");
+			partStyle.setProperty("left", "0px");
 		}
 		else
 		{
-			partStyle.setProperty("left", defaultNavigatorShift + "px"); //$NON-NLS-1$ //$NON-NLS-2$
-			partStyle.setProperty("right", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+			partStyle.setProperty("left", defaultNavigatorShift + "px");
+			partStyle.setProperty("right", "0px");
 		}
 
 		int top = f.getPartStartYPos(part.getID());
 		if (part.getPartType() <= Part.BODY)
 		{
-			partStyle.setProperty("top", (top - spaceUsedOnlyInPrintAbove) + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+			partStyle.setProperty("top", (top - spaceUsedOnlyInPrintAbove) + "px");
 		}
 		if (part.getPartType() >= Part.BODY)
 		{
 			int bottom = f.getSize().height - part.getHeight();
-			partStyle.setProperty("bottom", (bottom - spaceUsedOnlyInPrintBelow) + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+			partStyle.setProperty("bottom", (bottom - spaceUsedOnlyInPrintBelow) + "px");
 		}
 		if (part.getPartType() != Part.BODY)
 		{
-			partStyle.setProperty("height", (part.getHeight() - top) + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+			partStyle.setProperty("height", (part.getHeight() - top) + "px");
 		}
 	}
 
 	@Override
 	protected void fillNavigatorLayoutCSS(TextualStyle navigatorStyle)
 	{
-		if (orientation.equals(OrientationApplier.RTL)) navigatorStyle.setProperty("right", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		else navigatorStyle.setProperty("left", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		navigatorStyle.setProperty("width", WebDefaultRecordNavigator.DEFAULT_WIDTH + "px"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (orientation.equals(OrientationApplier.RTL)) navigatorStyle.setProperty("right", "0px");
+		else navigatorStyle.setProperty("left", "0px");
+		navigatorStyle.setProperty("width", WebDefaultRecordNavigator.DEFAULT_WIDTH + "px");
 
-		navigatorStyle.setProperty("top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		navigatorStyle.setProperty("bottom", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+		navigatorStyle.setProperty("top", "0px");
+		navigatorStyle.setProperty("bottom", "0px");
 	}
 
 	public TextualStyle getLayoutForForm(int customNavigatorWidth, boolean isNavigator, boolean isInTabPanel)
 	{
 		TextualStyle formStyle = new TextualStyle();
 
-		formStyle.setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
+		formStyle.setProperty("position", "absolute");
 		if (orientation.equals(OrientationApplier.RTL))
 		{
 			int right = 0;
 			if ((customNavigatorWidth > 0) && !isNavigator) right = customNavigatorWidth;
-			formStyle.setProperty("right", right + "px"); //$NON-NLS-1$//$NON-NLS-2$
-			if ((customNavigatorWidth > 0) && isNavigator) formStyle.setProperty("width", customNavigatorWidth + "px"); //$NON-NLS-1$ //$NON-NLS-2$			
-			else formStyle.setProperty("left", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+			formStyle.setProperty("right", right + "px");
+			if ((customNavigatorWidth > 0) && isNavigator) formStyle.setProperty("width", customNavigatorWidth + "px");
+			else formStyle.setProperty("left", "0px");
 		}
 		else
 		{
 			int left = 0;
 			if ((customNavigatorWidth > 0) && !isNavigator) left = customNavigatorWidth;
-			formStyle.setProperty("left", left + "px"); //$NON-NLS-1$//$NON-NLS-2$
-			if ((customNavigatorWidth > 0) && isNavigator) formStyle.setProperty("width", customNavigatorWidth + "px"); //$NON-NLS-1$ //$NON-NLS-2$			
-			else formStyle.setProperty("right", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+			formStyle.setProperty("left", left + "px");
+			if ((customNavigatorWidth > 0) && isNavigator) formStyle.setProperty("width", customNavigatorWidth + "px");
+			else formStyle.setProperty("right", "0px");
 		}
-		formStyle.setProperty("top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		formStyle.setProperty("bottom", "0px"); //$NON-NLS-1$ //$NON-NLS-2$		
+		formStyle.setProperty("top", "0px");
+		formStyle.setProperty("bottom", "0px");
 
 		return formStyle;
 	}
