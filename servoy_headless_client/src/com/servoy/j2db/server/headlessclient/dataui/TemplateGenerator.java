@@ -556,7 +556,7 @@ public class TemplateGenerator
 				sortable = p.getSortable();
 				TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, p));
 				BorderAndPadding ins = applyBaseComponentProperties(p, form, styleObj, null, null, sp);
-				applyLocationAndSize(p, styleObj, ins, startY, endY, form.getSize().width, true);
+				applyLocationAndSize(p, styleObj, ins, startY, endY, form.getSize().width, true, p.getAnchors(), sp);
 				html.append("<div style='overflow: auto' ");
 				html.append(getWicketIDParameter(form, p));
 //				html.append(getJavaScriptIDParameter(p));
@@ -1878,7 +1878,7 @@ public class TemplateGenerator
 				break;
 
 			case IRepository.BEANS :
-				createBeanHTML((Bean)meta, form, html, css, startY, endY, enableAnchoring);
+				createBeanHTML((Bean)meta, form, html, css, startY, endY, enableAnchoring, sp);
 				break;
 
 			default :
@@ -1890,7 +1890,8 @@ public class TemplateGenerator
 		}
 	}
 
-	private static void createBeanHTML(Bean bean, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring)
+	private static void createBeanHTML(Bean bean, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
+		IServiceProvider sp)
 	{
 		boolean isComponent = false;
 		try
@@ -1911,7 +1912,7 @@ public class TemplateGenerator
 			styleObj.setProperty("position", "absolute");
 			TextualStyle wrapperStyleObj = css.addStyle('#' + ComponentFactory.getWebID(form, bean) + WRAPPER_SUFFIX);
 			wrapperStyleObj.setProperty("overflow", "visible");
-			applyLocationAndSize(bean, wrapperStyleObj, null, startY, endY, form.getSize().width, enableAnchoring);
+			applyLocationAndSize(bean, wrapperStyleObj, null, startY, endY, form.getSize().width, enableAnchoring, bean.getAnchors(), sp);
 
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, bean, "", WRAPPER_SUFFIX));
@@ -1920,7 +1921,7 @@ public class TemplateGenerator
 		}
 		else
 		{
-			applyLocationAndSize(bean, styleObj, null, startY, endY, form.getSize().width, enableAnchoring);
+			applyLocationAndSize(bean, styleObj, null, startY, endY, form.getSize().width, enableAnchoring, bean.getAnchors(), sp);
 		}
 
 		if (isComponent)
@@ -1959,7 +1960,7 @@ public class TemplateGenerator
 	{
 		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, tabPanel));
 		BorderAndPadding borderAndPadding = applyBaseComponentProperties(tabPanel, form, styleObj, null, null, sp);
-		applyLocationAndSize(tabPanel, styleObj, borderAndPadding, startY, endY, form.getSize().width, enableAnchoring);
+		applyLocationAndSize(tabPanel, styleObj, borderAndPadding, startY, endY, form.getSize().width, enableAnchoring, tabPanel.getAnchors(), sp);
 		// do not apply foreground to the whole tab panel
 		styleObj.remove("color");
 //		html.append("<table cellpadding=0 cellspacing=0 ");
@@ -2110,6 +2111,7 @@ public class TemplateGenerator
 		IServiceProvider sp)
 	{
 		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, shape));
+
 		BorderAndPadding ins = applyBaseComponentProperties(shape, form, styleObj, null, null, sp);
 		html.append("<span ");
 		html.append(getWicketIDParameter(form, shape));
@@ -2117,7 +2119,7 @@ public class TemplateGenerator
 		//html.append(getCSSClassParameter((BaseComponent)shape,"field",ComponentFactory.getWebID(shape)));
 		html.append("></span>");
 
-		applyLocationAndSize(shape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
+		applyLocationAndSize(shape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring, shape.getAnchors(), sp);
 	}
 
 	private static void createRectangleHTML(RectShape rectshape, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
@@ -2170,7 +2172,7 @@ public class TemplateGenerator
 				styleObj.setProperty("border-radius", rectshape.getSize().width / 2 + "px");
 			}
 		}
-		applyLocationAndSize(rectshape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring);
+		applyLocationAndSize(rectshape, styleObj, ins, startY, endY, form.getSize().width, enableAnchoring, rectshape.getAnchors(), sp);
 	}
 
 	private static void createGraphicalComponentHTML(GraphicalComponent label, Form form, StringBuffer html, TextualCSS css, int startY, int endY,
@@ -2258,6 +2260,7 @@ public class TemplateGenerator
 			String wrapperId = ComponentFactory.getWebID(form, label) + WRAPPER_SUFFIX;
 			wrapperStyle = css.addStyle(styleName + wrapperId);
 			wrapperStyle.setProperty("min-width", label.getSize().width + "px");
+			WebAnchoringHelper.addMinSize(label.getAnchors(), sp, wrapperStyle, false, true, label.getSize());
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, label, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, label, "", WRAPPER_SUFFIX));
@@ -2291,8 +2294,13 @@ public class TemplateGenerator
 				html.append("<div ");
 			}
 			// we want to wrap only if there is no html content in the label text
-			if (label.getText() != null && !HtmlUtils.hasUsefulHtmlContent(label.getText())) html.append(" style=\"white-space: nowrap; min-width:" +
-				label.getSize().width + "px;\" ");
+			if (label.getText() != null && !HtmlUtils.hasUsefulHtmlContent(label.getText()))
+			{
+				Properties properties = new Properties();
+				WebAnchoringHelper.addMinSize(label.getAnchors(), sp, properties, false, true, label.getSize());
+				String minHeight = properties.size() == 1 ? (properties.keys().nextElement() + ":" + properties.elements().nextElement()) : "";
+				html.append(" style=\"white-space: nowrap; min-width:" + label.getSize().width + "px;" + minHeight + "\" ");
+			}
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
 			html.append(getCSSClassParameter("label"));
@@ -2409,6 +2417,8 @@ public class TemplateGenerator
 	{
 		boolean addWrapperDiv = enableAnchoring && WebAnchoringHelper.needsWrapperDivForAnchoring(field);
 
+		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, field));
+
 		if (addWrapperDiv)
 		{
 			// Anchoring fields (<input>s, <textarea>s) with { left: 0px; right: 0px; } pair
@@ -2419,14 +2429,16 @@ public class TemplateGenerator
 			TextualStyle wrapperStyle = css.addStyle('#' + wrapperId);
 			wrapperStyle.setProperty("overflow", "visible");
 			wrapperStyle.setProperty("min-width", field.getSize().width + "px");
+			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, wrapperStyle, false, true, field.getSize());
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, field, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
 			html.append(">");
 		}
-
-		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, field));
-
+		else
+		{
+			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, styleObj, true, true, field.getSize());
+		}
 
 		Insets padding = (Insets)DEFAULT_FIELD_PADDING.clone();
 		Insets border = (Insets)DEFAULT_FIELD_BORDER_SIZE.clone();
@@ -2896,11 +2908,13 @@ public class TemplateGenerator
 	}
 
 	private static void applyLocationAndSize(ISupportBounds component, TextualStyle styleObj, BorderAndPadding ins, int startY, int endY, int formWidth,
-		boolean enableAnchoring)
+		boolean enableAnchoring, int anchors, IServiceProvider sp)
 	{
 		TextualCSS css = styleObj.getTextualCSS();
 		ICSSBoundsHandler handler = css.getCSSBoundsHandler();
 		handler.applyBounds(component, styleObj, ins == null ? new Insets(0, 0, 0, 0) : ins.getSum(), startY, endY, formWidth, enableAnchoring, null);
+
+		WebAnchoringHelper.addMinSize(anchors, sp, styleObj, true, true, component.getSize());
 	}
 
 	private static void applyLocationAndSize(ISupportBounds component, TextualStyle styleObj, BorderAndPadding ins, int startY, int endY, int formWidth,
