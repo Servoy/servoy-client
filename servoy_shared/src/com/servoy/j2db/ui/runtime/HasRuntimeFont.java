@@ -34,7 +34,9 @@ public interface HasRuntimeFont
 	 * 
 	 * font name - the name of the font family.
 	 * style - the type of the font. (plain = 0; bold = 1; italic = 2; bold-italic = 3).
-	 * size - the size of the font (in points).
+	 * size - the size of the font (in points). 
+	 * <br>It only returns it's correct value if it was explicitly set.
+	 * 
 	 * 
 	 * @sample
 	 * %%prefix%%%%elementName%%.font = 'Tahoma,1,11';

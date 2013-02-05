@@ -41,7 +41,8 @@ public interface HasRuntimeFormat
 	 * Some examples are "dd-MM-yyyy", "MM-dd-yyyy", etc.
 	 * <p>The format property is also used to set the UI Converter, this means that you can convert the value object to something else before it gets set into the field, this can also result in a type change of the data. 
 	 * So a string in scripting/db is converted to a integer in the ui, then you have to set an integer format.
-	 *  
+	 * <p>It only returns it's correct value if it was explicitly set, otherwise null.
+	 * 
 	 * @sample
 	 * //sets the display formatting of the field
 	 * %%prefix%%%%elementName%%.format = '###';
