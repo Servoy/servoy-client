@@ -31,7 +31,7 @@ Wicket.DivWindow = Wicket.Class.create();
 Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 
 	parentModalWindow: null,
-	closed: false,
+	closed: true,
 	onResizeTimer: null,
 	onMoveTimer: null,
 
@@ -49,6 +49,18 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 			boundEventsDelay: 300, /* if <= 0, then all drag operations on window bounds will update imediately; if > 0 bound events will be sent after this timeout in ms  */
 			dialogCloseText: null
 		}, this.settings);
+	},
+	
+	processSettings: function(processorFunc) {
+		if (this.closed) return;
+
+		processorFunc(this.settings);
+		
+		// update things that might be affected by the settings changes
+		this.bindClean();
+		this.bindInit();
+		this.settings.onMove(this.left_, this.top_, true);
+		this.settings.onResize(this.width, this.height, true);
 	},
 	
 	moving: function() {
@@ -86,6 +98,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 	},
 	
 	show: function() {
+		this.closed = false;
 		this._super.show.call(this);
 		
 		// initialize bounds
@@ -208,20 +221,6 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		return true; // if there are other windows on-top, those will be closed as well
 	},
 	
-	// it might be useful to allow other AJAX scripts to execute before actually closing the window
-	// because those scripts might be executing on a response from the window itself, so it would be wrong do unload the window while scripts still execute
-	closeAfterTimeout: function(w, timeout)
-	{
-		if (!w) w = window;
-		if (w === window) {
-			// when executing in root window
-			window.setTimeout(this.close.bind(this), timeout); // force param = undefined
-		} else {
-			// when executing in this window's (that is about to be closed) request, postpone then move call to root window, in order to generate the closed callback correctly in Opera
-			w.setTimeout(this.closeAfterTimeout.bind(this, window, 1), timeout);
-		}
-	},
-
 	// override
 	close: function(force) {
 		// make a copy of open windows, cause we will iterate on it while possibly closing some windows
@@ -453,30 +452,110 @@ Wicket.Object.extendClass(Wicket.DivWindow.Mask, Wicket.Window.Mask, {
 Wicket.DivWindow.currentModalWindow = null;
 Wicket.DivWindow.openWindows = { }; // windowId: DivWindow object pairs
 
-Wicket.DivWindow.create = function(settings, windowId, currentWindowIsInIframe) {
-	var win = Wicket.DivWindow.get(currentWindowIsInIframe);
-	// create and return instance
-	return new win(settings, windowId);
+// *** action batches are used only when executing actions from child iframe responses; see Wicket.DivWindow.executeAction
+Wicket.DivWindow.beginActionBatch = function (batchKeeperName) {
+	Wicket.DivWindow.getMainBrowserWindowFromChild().Wicket.DivWindow[batchKeeperName] = [];
 }
 
-Wicket.DivWindow.get = function(isIframe) {
-	var win;
-	// if it is an iframe window...
-	if (isIframe) {
-		// attempt to get class from parent
-		try {
-			win = window.parent.Wicket.DivWindow;
-		} catch (ignore) {}
-	}
-
-	// no parent...
-	if (typeof(win) == "undefined") {
-		win = Wicket.DivWindow;
-	}
-	return win;
+Wicket.DivWindow.actionBatchComplete = function (batchKeeperName) {
+	var mbw = Wicket.DivWindow.getMainBrowserWindowFromChild();
+	mbw.setTimeout(function() {
+			for (var i = 0; i < mbw.Wicket.DivWindow[batchKeeperName].length; i++) {
+    			try {
+    				mbw.Wicket.DivWindow[batchKeeperName][i]();
+    			} catch (ignore) {
+    				mbw.Wicket.Log.error("Error executing a div window batched action: " + ignore);
+    			}
+			}
+			delete mbw.Wicket.DivWindow[batchKeeperName];
+	}, 0);
 }
 
-Wicket.DivWindow.deletePosition = function(windowName) {
+Wicket.DivWindow.getMainBrowserWindowFromChild = function () {
+	var mbw = window;
+	try { if (typeof(window.parent.Wicket.DivWindow) != "undefined") mbw = window.parent; } catch (ignore) {};
+	return mbw;
+}
+
+Wicket.DivWindow.createAndShow = function (settings, windowId, batchKeeperName) {
+	if (batchKeeperName != null) {
+		// schedule the entire batch in sequence, in main browser window, before any of the individual actions begin executing
+		var mbw = Wicket.DivWindow.getMainBrowserWindowFromChild();
+		mbw.Wicket.DivWindow[batchKeeperName].push(function() {
+				var divWin = new mbw.Wicket.DivWindow(settings, windowId);
+				divWin.show();
+				// prepare for reattaching behaviors to correct parent page/or reattach them if the parent page/frame req. that prepares that already arrived
+				var reattachKeeper = mbw.Wicket.DivWindow.getOrCreateReattachKeeper(mbw, batchKeeperName);
+				if (reattachKeeper[windowId]) {
+					// then it's a function
+					divWin.processSettings(reattachKeeper[windowId]);
+					mbw.Wicket.DivWindow.deleteReattachKeeper(mbw, batchKeeperName, windowId);
+				} else {
+					reattachKeeper[windowId] = divWin;
+				}
+		});
+	} else {
+		new Wicket.DivWindow(settings, windowId).show();
+	}
+}
+
+Wicket.DivWindow.reAttachBehaviorsAfterShow = function (reattachFunc, windowId, batchKeeperName) {
+	// prepare for reattaching behaviors to correct parent page/or reattach them if the dialog is already shown
+	var reattachKeeper = Wicket.DivWindow.getOrCreateReattachKeeper(window, batchKeeperName);
+	if (reattachKeeper[windowId]) {
+		// then it's the shown div window object
+		reattachKeeper[windowId].processSettings(reattachFunc);
+		Wicket.DivWindow.deleteReattachKeeper(window, batchKeeperName, windowId);
+	} else {
+		reattachKeeper[windowId] = reattachFunc;
+	}
+}
+
+Wicket.DivWindow.getOrCreateReattachKeeper = function (mbw, batchKeeperName) {
+	var reattachKeeper = mbw.Wicket.DivWindow[batchKeeperName + 'showReattach'];
+	if (!reattachKeeper) {
+		reattachKeeper = [];
+		mbw.Wicket.DivWindow[batchKeeperName + 'showReattach'] = reattachKeeper;
+	}
+	return reattachKeeper;
+}
+
+Wicket.DivWindow.deleteReattachKeeper = function (mbw, batchKeeperName, windowId) {
+	var reattachKeeper = mbw.Wicket.DivWindow[batchKeeperName + 'showReattach'];
+	if (reattachKeeper) {
+		delete reattachKeeper[windowId];
+		if (reattachKeeper.length == 0)	delete mbw.Wicket.DivWindow[batchKeeperName + 'showReattach'];
+	}
+}
+
+// can be called from responses to main browser window (the one that shows the div windows in it) or
+// from responses of div-window iframe browser windows; all actions are to be executed on main browser window
+// for consistency (show/close/other actions need to execute in sequence, and not in some window that may even be closed by one of them);
+// if this is part of a batch of requests from a child IFrame (that might be closed as one of the actions) we need to make sure actions are
+// executed in main browser window, in sequence, but only after all were scheduled (in order for a potential close not to cut JS execution
+// of the child response and not schedule some actions).
+Wicket.DivWindow.executeAction = function (action, windowID, batchKeeperName) {
+	var mainDivWindow;
+	if (batchKeeperName != null) try { mainDivWindow = window.parent.Wicket.DivWindow; } catch (ignore) {};
+	
+	if (typeof(mainDivWindow) == "undefined" || typeof(mainDivWindow.openWindows[windowID]) == "undefined")
+		try { mainDivWindow = window.Wicket.DivWindow; } catch (ignore) {};
+		
+	if (typeof(mainDivWindow) != "undefined") {
+		var winObj = mainDivWindow.openWindows[windowID];
+		if (typeof(winObj) != "undefined") {
+		
+			if (batchKeeperName != null) {
+				// schedule the entire batch in sequence, in main browser window, before any of the individual actions begin executing
+				mainDivWindow[batchKeeperName].push(action.bind(undefined, winObj));
+			} else {
+				action(winObj);
+			}
+		}
+	}
+}
+
+Wicket.DivWindow.deletePosition = function (windowName) {
 	var settings = new Object();
 	settings.cookieId = windowName;
 	var win = Wicket.DivWindow.create(settings);

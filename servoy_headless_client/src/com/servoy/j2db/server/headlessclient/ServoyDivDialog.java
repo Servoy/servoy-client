@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 
@@ -29,9 +28,9 @@ public class ServoyDivDialog extends DivWindow
 
 	private boolean closeAll = false; // for legacy modal dialog behavior (when multiple forms were shown in same dialog and close would either close one at a time or all)
 
-	public ServoyDivDialog(String id, boolean isInsideIFrame)
+	public ServoyDivDialog(String id)
 	{
-		super(id, isInsideIFrame);
+		super(id);
 	}
 
 	public ServoyDivDialog(String id, IModel< ? > model, boolean isInsideIFrame)
@@ -49,14 +48,7 @@ public class ServoyDivDialog extends DivWindow
 		return closeAll;
 	}
 
-	@Override
-	protected void onAfterRender()
-	{
-		super.onAfterRender();
-		Page parentPage = getPage();
-		if (parentPage instanceof MainPage) ((MainPage)parentPage).setShowPageInDialogDelayed(false);
-	}
-
+	@Deprecated
 	@Override
 	public void show(AjaxRequestTarget target)
 	{

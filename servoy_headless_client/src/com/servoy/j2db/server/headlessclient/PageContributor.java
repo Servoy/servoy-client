@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import java.awt.Rectangle;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -137,59 +135,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			public boolean isEnabled(Component component)
 			{
 				return tablesToRender.size() > 0 && super.isEnabled(component);
-			}
-		});
-		add(new AbstractServoyDefaultAjaxBehavior()
-		{
-			private static final long serialVersionUID = 1L;
-			private DelayedDialog localCopy;
-
-			@Override
-			protected void respond(AjaxRequestTarget target)
-			{
-				if (localCopy != null)
-				{
-					if (((WebClient)application).getEventDispatcher() != null)
-					{
-						((WebClient)application).getEventDispatcher().addEvent(new Runnable()
-						{
-							public void run()
-							{
-								((WebFormManager)application.getFormManager()).showDelayedFormInDialog(localCopy.type, localCopy.formName, localCopy.r,
-									localCopy.title, localCopy.resizeble, localCopy.showTextToolbar, localCopy.closeAll, localCopy.modal, localCopy.dialogName);
-							}
-						});
-					}
-					else
-					{
-						((WebFormManager)application.getFormManager()).showDelayedFormInDialog(localCopy.type, localCopy.formName, localCopy.r,
-							localCopy.title, localCopy.resizeble, localCopy.showTextToolbar, localCopy.closeAll, localCopy.modal, localCopy.dialogName);
-					}
-					localCopy = null;
-					WebEventExecutor.generateResponse(target, findPage());
-				}
-			}
-
-			@Override
-			public void renderHead(IHeaderResponse response)
-			{
-				super.renderHead(response);
-				response.renderOnDomReadyJavascript(getCallbackScript().toString());
-			}
-
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				if (super.isEnabled(component))
-				{
-					if (delayedDialog != null)
-					{
-						localCopy = delayedDialog.duplicate();
-						delayedDialog = null;
-					}
-					return localCopy != null;
-				}
-				return false;
 			}
 		});
 		add(eventCallbackBehavior = new EventCallbackBehavior());
@@ -317,20 +262,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	public void setResizing(boolean b)
 	{
 		isResizing = b;
-	}
-
-	private DelayedDialog delayedDialog = null;
-
-	public void showFormInDialogDelayed(int type, String formName, Rectangle r, String title2, boolean resizeble, boolean showTextToolbar, boolean closeAll,
-		boolean modal, String dialogName)
-	{
-		delayedDialog = new DelayedDialog(type, formName, r, title2, resizeble, showTextToolbar, closeAll, modal, dialogName);
-		getStylePropertyChanges().setChanged();
-	}
-
-	public void showNoDialog()
-	{
-		delayedDialog = null;
 	}
 
 	public void addTableToRender(Component comp)
@@ -497,39 +428,6 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
 		{
 			return super.getCallbackUrl(true);
-		}
-	}
-
-	public class DelayedDialog implements Serializable
-	{
-		private final int type;
-		private final String formName;
-		private final Rectangle r;
-		private final String title;
-		private final boolean resizeble;
-		private final boolean showTextToolbar;
-		private final boolean closeAll;
-		private final boolean modal;
-		private final String dialogName;
-
-		public DelayedDialog(int type, String formName, Rectangle r, String title, boolean resizeble, boolean showTextToolbar, boolean closeAll, boolean modal,
-			String dialogName)
-		{
-			this.type = type;
-			this.formName = formName;
-			this.r = r;
-			this.title = title;
-			this.resizeble = resizeble;
-			this.showTextToolbar = showTextToolbar;
-			this.closeAll = closeAll;
-			this.modal = modal;
-			this.dialogName = dialogName;
-		}
-
-
-		public DelayedDialog duplicate()
-		{
-			return new DelayedDialog(type, formName, r, title, resizeble, showTextToolbar, closeAll, modal, dialogName);
 		}
 	}
 

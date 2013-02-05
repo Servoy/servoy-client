@@ -38,7 +38,6 @@ import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.util.Debug;
@@ -295,20 +294,6 @@ public class WebFormManager extends FormManager
 		else
 		{
 			super.showFormInFrame(formName, bounds, title, resizeble, showTextToolbar, windowName);
-		}
-	}
-
-	public void showDelayedFormInDialog(int type, String formName, Rectangle bounds, String title, boolean resizeble, boolean showTextToolbar,
-		boolean closeAll, boolean modal, String windowName)
-	{
-		// delayed dialog needs to ignore the showFormInDialog() old behavior override above...
-		if (type == JSWindow.WINDOW)
-		{
-			super.showFormInFrame(formName, bounds, title, resizeble, showTextToolbar, windowName);
-		}
-		else
-		{
-			super.showFormInDialog(formName, bounds, title, resizeble, showTextToolbar, closeAll, modal, windowName);
 		}
 	}
 

@@ -37,16 +37,23 @@ public class PageJSActionBuffer
 	private final List<PageAction> buffer1 = new ArrayList<PageAction>();
 	private final List<TriggerAjaxUpdateAction> buffer2 = new ArrayList<TriggerAjaxUpdateAction>();
 
+	private static int batchID = 1;
+
+	private static String newBatchID()
+	{
+		return "dd_ab_" + (batchID++);
+	}
+
 	public static interface PageAction
 	{
 
 		/**
 		 * Applies this page action to the given target, on a ajax request from given page.
 		 * @param target
-		 * @param pageName the name of the page that generated the ajax request. Null if it's the page that of the action buffer itself.
+		 * @param childFrameBatchId null if the request came from the page who's buffer contains this action. An unique ID if some other page's request is trying to execute the action.
 		 * @return true if the action (was completed successfully and) should be removed from the action buffer. If this action cannot be executed on an ajax request target, returns false.
 		 */
-		boolean apply(AjaxRequestTarget target, String pageName);
+		boolean apply(AjaxRequestTarget target, String childFrameBatchId);
 
 		/**
 		 * Applies this page action to the given header response (for example onLoad javascript) of it's own page.
@@ -71,10 +78,10 @@ public class PageJSActionBuffer
 			this.js = js;
 		}
 
-		public boolean apply(AjaxRequestTarget target, String pageName)
+		public boolean apply(AjaxRequestTarget target, String childFrameBatchId)
 		{
 			boolean applied = false;
-			if (pageName == null)
+			if (childFrameBatchId == null)
 			{
 				applied = true;
 				target.appendJavascript(js); // only if req. comes from current page
@@ -101,6 +108,7 @@ public class PageJSActionBuffer
 		public static final int OP_SET_BOUNDS = 6;
 		public static final int OP_SAVE_BOUNDS = 7;
 		public static final int OP_RESET_BOUNDS = 8;
+		private static final int OP_REATTACH_BEHAVIORS_ON_CORRECT_PAGE = 101;
 
 		private final ServoyDivDialog divDialog;
 		private final int operation;
@@ -118,49 +126,65 @@ public class PageJSActionBuffer
 			this.parameters = parameters;
 		}
 
-		public boolean apply(AjaxRequestTarget target, String pageName)
+		public boolean apply(AjaxRequestTarget target, String childFrameBatchId)
 		{
+			// pageName == null if this is executed
 			boolean applied = true;
 			switch (operation)
 			{
 				case DivDialogAction.OP_SHOW :
-					applied = (pageName == null); // this should only happen when the request comes from the root iframe itself, otherwise it has wrong effects
-					if (applied)
+					if (!divDialog.isShown())
 					{
-						if (!divDialog.isShown())
+						divDialog.setPageMapName((String)parameters[0]);
+						divDialog.show(target, childFrameBatchId);
+
+						// if show is called from a child iFrame request, all callback scripts will point to incorrect page;
+						// we need to schedule a reattach for them from the main/parent iframe.
+						if (childFrameBatchId != null)
 						{
-							divDialog.setPageMapName((String)parameters[0]);
-							divDialog.show(target);
+							((MainPage)divDialog.getPage()).addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_REATTACH_BEHAVIORS_ON_CORRECT_PAGE,
+								new Object[] { childFrameBatchId }));
 						}
+					}
+					break;
+				case DivDialogAction.OP_REATTACH_BEHAVIORS_ON_CORRECT_PAGE :
+					applied = (childFrameBatchId == null);
+					if (applied && divDialog.isShown())
+					{
+						divDialog.reAttachBehaviorsAfterShow(target, (String)parameters[0]);
 					}
 					break;
 				case DivDialogAction.OP_CLOSE :
 					if (divDialog.isShown())
 					{
-						divDialog.close(target);
+						divDialog.close(target, childFrameBatchId);
 					}
 					break;
 				case DivDialogAction.OP_TO_FRONT :
 					if (divDialog.getPageMapName() != null && divDialog.isShown())
 					{
-						divDialog.toFront(target);
+						divDialog.toFront(target, childFrameBatchId);
 					}
 					break;
 				case DivDialogAction.OP_TO_BACK :
 					if (divDialog.getPageMapName() != null && divDialog.isShown())
 					{
-						divDialog.toBack(target);
+						divDialog.toBack(target, childFrameBatchId);
 					}
 					break;
 				case DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED :
-					applied = (pageName == null); // this should only happen when the request comes from the root iframe itself, otherwise it has no effect
+					// this should only happen when the request comes from the root iframe itself, otherwise it has no effect (the component cannot be rendered on a response from another page);
+					// even though show is permitted to be called from another (iframe) page's response, the behaviors defined on this component should still work serverside when called from JS, even though it's
+					// not yet rendered client side.
+					applied = (childFrameBatchId == null);
 					if (applied) target.addComponent((WebMarkupContainer)parameters[0]);
 					break;
 				case DivDialogAction.OP_SET_BOUNDS :
-					divDialog.setBounds(target, (Integer)(parameters[0]), (Integer)parameters[1], (Integer)parameters[2], (Integer)parameters[3]);
+					divDialog.setBounds(target, (Integer)(parameters[0]), (Integer)parameters[1], (Integer)parameters[2], (Integer)parameters[3],
+						childFrameBatchId);
 					break;
 				case DivDialogAction.OP_SAVE_BOUNDS :
-					divDialog.saveBounds(target);
+					divDialog.saveBounds(target, childFrameBatchId);
 					break;
 				case DivDialogAction.OP_RESET_BOUNDS :
 					DivWindow.deleteStoredBounds(target, (String)parameters[0]);
@@ -210,10 +234,10 @@ public class PageJSActionBuffer
 
 	public void apply(AjaxRequestTarget target)
 	{
-		apply(target, null, null);
+		apply(target, null);
 	}
 
-	public synchronized void apply(AjaxRequestTarget target, PageJSActionBuffer toBeAppliedAsWell, String toBeAppliedAsWellPageName)
+	public synchronized void apply(AjaxRequestTarget target, PageJSActionBuffer toBeAppliedAsWell)
 	{
 		Iterator<PageAction> it = buffer1.iterator();
 		while (it.hasNext())
@@ -229,32 +253,38 @@ public class PageJSActionBuffer
 
 		// what follows here is possibly running div window operations that are queued in the root iframe;
 		// do this after the triggers above because one of the following operations might be a close on the current request's page and we
-		// want to limit the chance that js is still trying to execute in a disposed page (the close JS also has a setTimeout because of this)
+		// want to limit the chance that js is still trying to execute in a disposed page
 		if (toBeAppliedAsWell != null)
 		{
-			// show div window operations must execute only in the root iframe's context; it will not work correctly otherwise
-			// so in case root iframe has such operations, just skip this part instead of only executing the ones we can, in order to
-			// maintain the sequence of the operations
-			boolean ok = true;
-			it = toBeAppliedAsWell.buffer1.iterator();
-			while (it.hasNext())
+			if (toBeAppliedAsWell.buffer1.size() > 0)
 			{
-				PageAction pa = it.next();
-				if (pa instanceof DivDialogAction && ((DivDialogAction)pa).operation == DivDialogAction.OP_SHOW) ok = false; // just wait for the triggered req. on root iframe
-			}
-
-			if (ok)
-			{
-				it = toBeAppliedAsWell.buffer1.iterator();
-				while (it.hasNext())
+				String bID = newBatchID();
+				DivWindow.beginActionBatch(target, bID);
+				try
 				{
-					if (it.next().apply(target, toBeAppliedAsWellPageName)) it.remove();
+					// not using iterators in here cause divWindow show action can add an item
+					// to this buffer while iterating (reAttachBehaviors)
+					for (int i = 0; i < toBeAppliedAsWell.buffer1.size();)
+					{
+						if (toBeAppliedAsWell.buffer1.get(i).apply(target, bID))
+						{
+							toBeAppliedAsWell.buffer1.remove(i);
+						}
+						else i++;
+					}
+				}
+				finally
+				{
+					DivWindow.actionBatchComplete(target, bID);
 				}
 			}
 		}
 	}
 
-	public synchronized void apply(IHeaderResponse headerResponse)
+	/**
+	 * @return true if all scheduled actions were applied. False if more actions remain to be executed.
+	 */
+	public synchronized boolean apply(IHeaderResponse headerResponse)
 	{
 		Iterator<PageAction> it = buffer1.iterator();
 		while (it.hasNext())
@@ -267,6 +297,7 @@ public class PageJSActionBuffer
 		{
 			if (it1.next().apply(headerResponse)) it1.remove();
 		}
+		return (buffer1.size() == 0) && (buffer2.size() == 0);
 	}
 
 	public synchronized void clear()

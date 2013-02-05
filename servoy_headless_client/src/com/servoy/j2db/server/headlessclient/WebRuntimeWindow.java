@@ -26,7 +26,6 @@ import javax.swing.border.Border;
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.protocol.http.WebRequestCycle;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -59,50 +58,39 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	{
 		FormManager fm = (FormManager)application.getFormManager();
 		IMainContainer parentContainer = getParentContainerForShow(fm);
-		if (((WebRequestCycle)RequestCycle.get()).getWebRequest().isAjax() && !((MainPage)parentContainer).isShowPageInDialogDelayed() &&
-			!((MainPage)parentContainer).isAChildPopupClosing())
+		IMainContainer dialogContainer = fm.getOrCreateMainContainer(windowName);
+
+		//calling container can be set just after the creation of the container (needed for browser back button (wicket undo))
+		((MainPage)dialogContainer).setCallingContainerIfNull((MainPage)parentContainer);
+		if (formName != null)
 		{
-			IMainContainer dialogContainer = fm.getOrCreateMainContainer(windowName);
-			// In case this modal dialog wants to show another modal dialog during onStart event, we make sure it
-			// will be showed in postponed mode. Otherwise a stack of nested modal dialogs will not display OK.
-			((MainPage)dialogContainer).setShowPageInDialogDelayed(true);
-
-			//calling container can be set just after the creation of the container (needed for browser back button (wicket undo))
-			((MainPage)dialogContainer).setCallingContainerIfNull((MainPage)parentContainer);
-			if (formName != null)
+			final FormController fp = fm.showFormInMainPanel(formName, dialogContainer, title, closeAll || !legacyV3Behavior, windowName);
+			if (fp != null && fp.getName().equals(formName) && dialogContainer != parentContainer)
 			{
-				final FormController fp = fm.showFormInMainPanel(formName, dialogContainer, title, closeAll || !legacyV3Behavior, windowName);
-				if (fp != null && fp.getName().equals(formName) && dialogContainer != parentContainer)
+				Rectangle r2;
+				if (FormManager.FULL_SCREEN.equals(initialBounds))
 				{
-					Rectangle r2;
-					if (FormManager.FULL_SCREEN.equals(initialBounds))
+					r2 = initialBounds;
+				}
+				else
+				{
+					r2 = getSizeAndLocation(initialBounds, dialogContainer, fp);
+					if (Application.get().getDebugSettings().isAjaxDebugModeEnabled())
 					{
-						r2 = initialBounds;
-					}
-					else
-					{
-						r2 = getSizeAndLocation(initialBounds, dialogContainer, fp);
-						if (Application.get().getDebugSettings().isAjaxDebugModeEnabled())
-						{
-							r2.height += 40;
-						}
-					}
-
-					if (windowType == JSWindow.WINDOW)
-					{
-						((MainPage)parentContainer).showPopupWindow((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior);
-					}
-					else
-					{
-						((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, isUndecorated() ? false : resizable, closeAll ||
-							!legacyV3Behavior, (windowType == JSWindow.MODAL_DIALOG), isUndecorated(), storeBounds);
+						r2.height += 40;
 					}
 				}
+
+				if (windowType == JSWindow.WINDOW)
+				{
+					((MainPage)parentContainer).showPopupWindow((MainPage)dialogContainer, title, r2, resizable, closeAll || !legacyV3Behavior);
+				}
+				else
+				{
+					((MainPage)parentContainer).showPopupDiv((MainPage)dialogContainer, title, r2, isUndecorated() ? false : resizable, closeAll ||
+						!legacyV3Behavior, (windowType == JSWindow.MODAL_DIALOG), isUndecorated(), storeBounds);
+				}
 			}
-		}
-		else
-		{
-			((MainPage)parentContainer).setShowPageInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar, closeAll, windowName);
 		}
 		if (getTitle() != null) setTitle(getTitle());
 

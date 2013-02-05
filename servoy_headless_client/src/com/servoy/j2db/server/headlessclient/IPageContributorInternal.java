@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import java.awt.Rectangle;
 import java.util.SortedSet;
 
 import org.apache.wicket.Component;
@@ -26,9 +25,6 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 
 public interface IPageContributorInternal extends IPageContributor, IProviderStylePropertyChanges
 {
-
-	public abstract void showFormInDialogDelayed(int type, String formName, Rectangle r, String title, boolean resizeble, boolean showTextToolbar,
-		boolean closeAll, boolean modal, String dialogName);
 
 	public void addTableToRender(Component comp);
 
