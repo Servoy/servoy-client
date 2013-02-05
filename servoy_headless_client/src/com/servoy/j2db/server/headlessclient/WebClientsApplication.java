@@ -69,6 +69,7 @@ import org.apache.wicket.request.target.component.listener.BehaviorRequestTarget
 import org.apache.wicket.request.target.resource.SharedResourceRequestTarget;
 import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.session.pagemap.IPageMapEntry;
+import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
 import org.odlabs.wiquery.core.commons.IWiQuerySettings;
@@ -188,6 +189,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 	}
 
 	private SharedMediaResource sharedMediaResource;
+	private RequestCycleSettings rcSettings;
 
 	/**
 	 * Constructor
@@ -255,6 +257,17 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		});
 		internalInit();
 		return this;
+	}
+
+	@Override
+	public RequestCycleSettings getRequestCycleSettings()
+	{
+		if (rcSettings == null)
+		{
+			IRequestCycleSettings superSettings = super.getRequestCycleSettings();
+			if (superSettings != null) rcSettings = new RequestCycleSettings(superSettings);
+		}
+		return rcSettings;
 	}
 
 	/**

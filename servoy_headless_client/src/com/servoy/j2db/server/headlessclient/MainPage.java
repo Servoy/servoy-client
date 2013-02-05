@@ -48,6 +48,7 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Response;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
@@ -92,10 +93,10 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.DivDialogAction;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.JSChangeAction;
+import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.PageAction;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyLastVersionAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
@@ -185,8 +186,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	private String statusText;
 	private SetStatusBehavior setStatusBehavior = null;
 
-	private boolean showPageInDialogDelayed = false;
-
 	private ServoyDivDialog fileUploadWindow;
 	private IMediaUploadCallback mediaUploadCallback;
 
@@ -215,9 +214,9 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			return dialogsOrderedByOpenSequence.size();
 		}
 
-		public void put(String name, ServoyDivDialog divDialog)
+		public void put(String pageMapName, ServoyDivDialog divDialog)
 		{
-			ServoyDivDialog oldDivDialog = divDialogsMap.put(name, divDialog);
+			ServoyDivDialog oldDivDialog = divDialogsMap.put(pageMapName, divDialog);
 			if (oldDivDialog != null) dialogsOrderedByOpenSequence.remove(oldDivDialog);
 			dialogsOrderedByOpenSequence.add(divDialog);
 		}
@@ -225,6 +224,11 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		public ServoyDivDialog get(String pageMapName)
 		{
 			return divDialogsMap.get(pageMapName);
+		}
+
+		public List<ServoyDivDialog> getOrderedByOpenSequence()
+		{
+			return dialogsOrderedByOpenSequence;
 		}
 
 	}
@@ -448,7 +452,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			@Override
 			protected void respond(AjaxRequestTarget target)
 			{
-				for (ServoyDivDialog divDialog : divDialogs.dialogsOrderedByOpenSequence)
+				for (ServoyDivDialog divDialog : divDialogs.getOrderedByOpenSequence())
 				{
 					if (!divDialog.isShown())
 					{
@@ -457,8 +461,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 						int y = divDialog.getY();
 						int w = divDialog.getWidth();
 						int h = divDialog.getHeight();
-						divDialog.show(target);
-						divDialog.setBounds(target, x, y, w, h);
+						divDialog.show(target, null);
+						divDialog.setBounds(target, x, y, w, h, null);
 					}
 				}
 				WebEventExecutor.generateResponse(target, MainPage.this);
@@ -530,7 +534,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			divDialogRepeater = new RepeatingView(DIV_DIALOG_REPEATER_ID);
 			divDialogsParent.add(divDialogRepeater);
 
-			fileUploadWindow = new ServoyDivDialog(FILE_UPLOAD_DIALOG_ID, isShowingInDialog());
+			fileUploadWindow = new ServoyDivDialog(FILE_UPLOAD_DIALOG_ID);
 			body.add(fileUploadWindow);
 			fileUploadWindow.setModal(true);
 			fileUploadWindow.setPageMapName(null);
@@ -557,6 +561,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 				public void onClose(AjaxRequestTarget target)
 				{
+					divDialogs.remove(FILE_UPLOAD_PAGEMAP);
 					fileUploadWindow.setPageMapName(null);
 					fileUploadWindow.remove(fileUploadWindow.getContentId());
 					restoreFocusedComponentInParentIfNeeded();
@@ -692,7 +697,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	private ServoyDivDialog createDivDialog(MainPage dialogContainer, String name)
 	{
-		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId(), true);
+		final ServoyDivDialog divDialog = new ServoyDivDialog(divDialogRepeater.newChildId());
 		divDialog.setPageMapName(null);
 		divDialog.setCookieName(COOKIE_PREFIX + name);
 		divDialog.setModal(true);
@@ -725,7 +730,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				}
 				else
 				{
-					jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
+					addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
 				}
 				divDialog.setPageMapName(null);
 
@@ -748,7 +753,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				FormManager fm = ((FormManager)client.getFormManager());
 				IMainContainer divDialogContainer = fm.getMainContainer(divDialog.getPageMapName());
 				IMainContainer currentContainer = fm.getCurrentContainer();
-				// get a lock on the dialog container
+
+				// get a lock on the dialog container (form onHide code will execute, make sure another req. on the dialog itself is not running at the same time)
 				if (divDialogContainer instanceof MainPage)
 				{
 					((MainPage)divDialogContainer).touch();
@@ -776,13 +782,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				fm.setCurrentContainer(currentContainer, currentContainer.getContainerName());
 				if (divDialogContainer instanceof MainPage)
 				{
-					// commented out because this condition is unlikely to become true; also, at the time this window.focus() was added in 2007, closePopup would have been
-					// set indeed, but now after a series of refactorings and changes, closePopup is set on parent window; commented out to keep similar behavior...
-//					if (((MainPage)divDialogContainer).closePopup)
-//					{
-//						target.appendJavascript("window.focus()"); //$NON-NLS-1$
-//					}
-// repaint the modal window (the contents may have changed)
 					target.addComponent(divDialog);
 				}
 				WebEventExecutor.generateResponse(target, divDialog.getPage());
@@ -792,7 +791,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		});
 		divDialogRepeater.add(divDialog);
 		divDialogsParent.setVisible(true);
-		jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
+		addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_DIALOG_ADDED_OR_REMOVED, new Object[] { divDialogsParent }));
 		divDialogs.put(name, divDialog);
 		return divDialog;
 	}
@@ -899,7 +898,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	}
 
 	/**
-	 * Specifies if the main page is running in an additional window.
+	 * Specifies if the main page is running in an additional iframe of the main window.
 	 * 
 	 * @return true if the main page is in an additional window, false otherwise
 	 */
@@ -950,7 +949,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			response.renderOnLoadJavascript(showUrl);
 		}
 
-		jsActionBuffer.apply(response);
+		boolean allApplied = jsActionBuffer.apply(response);
+		// some actions might not have been executed yet, because they might need an Ajax request;
+		// for example a showDialog called in onLoad or onShow... so trigger an Ajax call as soon as possible in this case
+		if (!allApplied) response.renderOnDomReadyJavascript("triggerAjaxUpdate();"); //$NON-NLS-1$
 
 		response.renderJavascriptReference(servoy_js);
 		YUILoader.renderYUI(response);
@@ -1444,6 +1446,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		}
 		else
 		{
+			touch();
 			this.mediaUploadMultiSelect = multiSelect;
 			this.mediaUploadCallback = new IMediaUploadCallback()
 			{
@@ -1455,8 +1458,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					uploaded = true;
 					mediaUploadCallback = null;
 					callback.uploadComplete(fu);
-					jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
-					triggerBrowserRequestIfNeeded(); // this will probably do nothing cause a MediaUploadPage is the source of the req.
+					addJSAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
 				}
 
 				public void onSubmit()
@@ -1464,10 +1466,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					if (!uploaded)
 					{
 						mediaUploadCallback = null;
+						divDialogs.remove(FILE_UPLOAD_PAGEMAP);
 						fileUploadWindow.setPageMapName(null);
 						fileUploadWindow.remove(fileUploadWindow.getContentId());
-						jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
-						triggerBrowserRequestIfNeeded(); // this will probably do nothing cause a MediaUploadPage is the source of the req.
+						addJSAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
 					}
 				}
 			};
@@ -1481,8 +1483,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			{
 				fileUploadWindow.setTitle(title);
 			}
-			jsActionBuffer.addAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_SHOW, new Object[] { FILE_UPLOAD_PAGEMAP }));
-			triggerBrowserRequestIfNeeded();
+			divDialogs.put(FILE_UPLOAD_PAGEMAP, fileUploadWindow);
+			addJSAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_SHOW, new Object[] { FILE_UPLOAD_PAGEMAP }));
 		}
 	}
 
@@ -1616,18 +1618,34 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	public void touch()
 	{
+		touch(false);
+	}
+
+	public boolean touch(boolean onlyIfNotInUse)
+	{
+		boolean touched = false;
 		if (Session.exists() && RequestCycle.get() != null)
 		{
 			skipAttach.set(Boolean.TRUE);
+			if (onlyIfNotInUse) ((WebClientsApplication)getApplication()).getRequestCycleSettings().overrideTimeout(1);
 			try
 			{
 				Session.get().getPage(getPageMapName(), getPath(), Page.LATEST_VERSION);
+				touched = true;
+			}
+			catch (WicketRuntimeException e)
+			{
+				// ignore if it is the timeout exception in case we only want to touch if not in use
+				if (!onlyIfNotInUse || e.getCause() != null) throw e;
+				Debug.trace("Touch page ignored.");
 			}
 			finally
 			{
 				skipAttach.remove();
+				if (onlyIfNotInUse) ((WebClientsApplication)getApplication()).getRequestCycleSettings().restoreTimeout();
 			}
 		}
+		return touched;
 	}
 
 	@Override
@@ -1657,6 +1675,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (getPageMapName() != null && callingContainer != null) callingContainer.showPopupWindow(windowContainer, titleString, r2, resizeable, closeAll);
 		else
 		{
+			touch();
 			String windowVarName = MainPage.getValidJSVariableName(windowContainer.getPageMapName());
 			StringBuilder sb = new StringBuilder(100);
 			sb.append(windowVarName); // so that we can reference this window via current page JS
@@ -1722,6 +1741,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		{
 			if (useAJAX)
 			{
+				touch();
 				String windowName = dialogContainer.getPageMap().getName();
 				ServoyDivDialog divDialog = divDialogs.get(windowName);
 				if (divDialog == null)
@@ -1758,8 +1778,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				}
 
 				divDialog.setTitle(titleStr);
-				jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SHOW, new Object[] { windowName }));
-				triggerBrowserRequestIfNeeded();
+				addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_SHOW, new Object[] { windowName }));
 			}
 
 			dialogContainer.setWindowSize(null); // not used for dialogs
@@ -1791,9 +1810,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	private String getModalPageMapName()
 	{
 		// take the top-most modal dialog
-		for (int hi = divDialogs.dialogsOrderedByOpenSequence.size() - 1; hi >= 0; hi--)
+		List<ServoyDivDialog> oos = divDialogs.getOrderedByOpenSequence();
+		for (int hi = oos.size() - 1; hi >= 0; hi--)
 		{
-			ServoyDivDialog dw = divDialogs.dialogsOrderedByOpenSequence.get(hi);
+			ServoyDivDialog dw = oos.get(hi);
 			if (dw.isModal() && dw.isShown())
 			{
 				return dw.getPageMapName();
@@ -1811,8 +1831,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(windowName);
 			if (divDialog != null)
 			{
-				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SET_BOUNDS, new Object[] { x, y, width, height }));
-				callingContainer.triggerBrowserRequestIfNeeded();
+				callingContainer.addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_SET_BOUNDS, new Object[] { x, y, width, height }));
 			}
 		}
 	}
@@ -1823,8 +1842,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		touch();
 
 		setWindowSize(null);
-		setShowPageInDialogDelayed(false);
-		pageContributor.showNoDialog();
 
 		if (callingContainer != null)
 		{
@@ -1838,10 +1855,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			ServoyDivDialog divDialog = callingContainer.divDialogs.remove(getPageMapName());
 			if (divDialog != null)
 			{
-				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_SAVE_BOUNDS));
+				callingContainer.addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_SAVE_BOUNDS));
 				callingContainer.closingAChildDivPopoup = true;
 				closingAsDivPopup = true;
-				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_CLOSE, new Object[] { this })
+				callingContainer.addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_CLOSE, new Object[] { this })
 				{
 					@Override
 					protected void onAfterApply()
@@ -1849,7 +1866,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 						MainPage.this.closingAsDivPopup = false;
 					}
 				});
-				callingContainer.triggerBrowserRequestIfNeeded();
 			}
 
 			callingContainer.closeChildWindow(getPageMapName());
@@ -1927,30 +1943,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		return mainFormSwitched;
 	}
 
-	public boolean isShowPageInDialogDelayed()
-	{
-		return showPageInDialogDelayed;
-	}
-
-	public void setShowPageInDialogDelayed(boolean showDelayed)
-	{
-		this.showPageInDialogDelayed = showDelayed;
-	}
-
-	public void setShowPageInDialogDelayed(int windowType, String formName, Rectangle initialBounds, String title, boolean resizable, boolean showTextToolbar,
-		boolean closeAll, String dialogName)
-	{
-		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null) callingContainer.setShowPageInDialogDelayed(windowType, formName,
-			initialBounds, title, resizable, showTextToolbar, closeAll, dialogName);
-		else
-		{
-			getPageContributor().showFormInDialogDelayed(windowType, formName, initialBounds, title, resizable, showTextToolbar, closeAll,
-				(windowType == JSWindow.MODAL_DIALOG), dialogName);
-			// Now we need to disable the delayed show, otherwise the modal child would be continuously postponed.
-			this.showPageInDialogDelayed = false;
-		}
-	}
-
 	public boolean isClosingAsDivPopup()
 	{
 		return closingAsDivPopup;
@@ -1965,13 +1957,21 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		closingAChildDivPopoup = false;
 		closingAsWindow = false;
-		if (callingContainer != null && closingAsDivPopup) callingContainer.closingAChildDivPopoup = false; // all div operations will get executed on this target anyway
 
 		if (callingContainer != null && (isShowingInDialog() || isClosingAsDivPopup()))
 		{
-			callingContainer.touch(); // to avoid concurrent modification exceptions on the action buffer
-			// in this case execute both this page's actions and the other div window actions from parent (root) main page (only if they will all work both from parent and child)
-			jsActionBuffer.apply(target, callingContainer.jsActionBuffer, getPageMapName());
+			// to avoid concurrent modification exceptions on the action buffer, we try to touch the page; if the page is already in
+			// use by another request, just apply only current page actions, to not block this req. until the callingContainer is released (it will execute it's actions on it's own request)
+			if (callingContainer.touch(true))
+			{
+				// in this case execute both this page's actions and the other div window actions from parent (root) main page (only if they will all work both from parent and child)
+				if (isClosingAsDivPopup()) callingContainer.closingAChildDivPopoup = false; // all div operations will get executed on this target anyway
+				jsActionBuffer.apply(target, callingContainer.jsActionBuffer);
+			}
+			else
+			{
+				jsActionBuffer.apply(target);
+			}
 		}
 		else
 		{
@@ -2171,9 +2171,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			}
 
 			touch();
-			for (int i = divDialogs.dialogsOrderedByOpenSequence.size() - 1; i >= 0; i--)
+			List<ServoyDivDialog> oos = divDialogs.getOrderedByOpenSequence();
+			for (int i = oos.size() - 1; i >= 0; i--)
 			{
-				String dName = divDialogs.dialogsOrderedByOpenSequence.get(i).getPageMapName();
+				String dName = oos.get(i).getPageMapName();
 				if (!al.contains(dName))
 				{
 					al.add(dName);
@@ -2192,8 +2193,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null)
 			{
-				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_BACK));
-				callingContainer.triggerBrowserRequestIfNeeded();
+				callingContainer.addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_BACK));
 			}
 		}
 		else
@@ -2211,8 +2211,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			ServoyDivDialog divDialog = callingContainer.divDialogs.get(getContainerName());
 			if (divDialog != null)
 			{
-				callingContainer.jsActionBuffer.addAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_FRONT));
-				callingContainer.triggerBrowserRequestIfNeeded();
+				callingContainer.addJSAction(new DivDialogAction(divDialog, DivDialogAction.OP_TO_FRONT));
 			}
 		}
 		else
@@ -2230,15 +2229,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			callingContainer.touch();
 			mp = callingContainer;
 		}
-		mp.jsActionBuffer.addAction(new DivDialogAction(null, DivDialogAction.OP_RESET_BOUNDS, new Object[] { COOKIE_PREFIX + windowName }));
-		mp.triggerBrowserRequestIfNeeded();
+		mp.addJSAction(new DivDialogAction(null, DivDialogAction.OP_RESET_BOUNDS, new Object[] { COOKIE_PREFIX + windowName }));
 	}
 
 	public void appendJavaScriptChanges(String script)
 	{
 		touch();
-		jsActionBuffer.addAction(new JSChangeAction(script));
-		triggerBrowserRequestIfNeeded();
+		addJSAction(new JSChangeAction(script));
 	}
 
 	/**
@@ -2638,6 +2635,12 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	private static String getValidJSVariableName(String name)
 	{
 		return "v_" + name.replace('-', '_').replace(' ', '_').replace(':', '_'); //$NON-NLS-1$
+	}
+
+	protected void addJSAction(PageAction a)
+	{
+		jsActionBuffer.addAction(a);
+		triggerBrowserRequestIfNeeded(); // this will probably do nothing cause a MediaUploadPage is the source of the req.
 	}
 
 }

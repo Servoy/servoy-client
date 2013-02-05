@@ -31,8 +31,8 @@ public interface HasRuntimeFormat
 	/**
 	 * Gets or sets the display formatting of an element for number and text values; does not affect the actual value stored in the database column.
 	 *
-	 * There are different options for the different dataprovider types that is assigned to this field.
-	 * <p>For Integer fields, there is a display and edit format, using http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html and the max (string) length can be set.
+	 * There are different options for the different dataprovider types that are assigned to this field.
+	 * <p>For Integer fields, there is a display and an edit format, using http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html and the max (string) length can be set.
 	 * <p>For Text/String fields, there are options to force uppercase,lowercase or only numbers. Or a mask can be set that restrict the input the pattern chars can be found here: http://docs.oracle.com/javase/7/docs/api/javax/swing/text/MaskFormatter.html
 	 * A mask can have a placehoder (what is shown when there is no data) and if the data must be stored raw (without literals of the mask). A max text length can also be set to force
 	 * the max text length input, this doesn't work on mask because that max length is controlled with the mask.

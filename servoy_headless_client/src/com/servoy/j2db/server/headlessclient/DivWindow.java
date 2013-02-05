@@ -37,6 +37,7 @@ import org.apache.wicket.util.string.AppendingStringBuffer;
  * @author acostescu
  * @since 6.0
  */
+@SuppressWarnings("nls")
 public class DivWindow extends ModalWindow
 {
 
@@ -89,11 +90,6 @@ public class DivWindow extends ModalWindow
 			return getCallbackScript(true);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.apache.wicket.behavior.AbstractAjaxBehavior#getCallbackUrl(boolean)
-		 */
 		@Override
 		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
 		{
@@ -177,12 +173,18 @@ public class DivWindow extends ModalWindow
 	private boolean modal = true;
 	private boolean storeBounds = true;
 	private Point initialLocation = null;
-	protected boolean isInsideIFrame;
 	private String jsId;
 	private ResizeCallback resizeCallback = null;
 	private MoveCallback moveCallback = null;
 	private int boundEventsDelay = 300;
 	private final Rectangle bounds = new Rectangle(-1, -1, -1, -1); // initially unknown bounds; -1 in order for setBounds(getBounds()) to not have any undesired effect when bounds are not known
+
+	// if you would have an app shown in an iframe of another app, then you can't know browser side which browser window to use for running actions just by checking that DivWindow is defined or not in parent iframe
+	// because all of them definde DivWindow code & if the response comes from a dialog iframe, then you should target parent browser window, otherwise you should target current browser window.
+	// So this is added for more control in this (probably rare) case (of multiple levels of nested iframes).
+	private String tmpChildFrameActionBatch = null; // by default search for the parent
+	private boolean onCloseButtonBehaviorIsSet = false;
+	private boolean onCloseBehaviorIsSet = false;
 
 	/**
 	 * Creates a new div window.
@@ -190,10 +192,9 @@ public class DivWindow extends ModalWindow
 	 * @param isInsideIFrame true if this DivWindow component is added to a Page that is shown in another div window's iframe and false otherwise.
 	 * This will be used when creating new div windows so as to be able to keep track of all opened iframe div windows inside a browser window.
 	 */
-	public DivWindow(String id, boolean isInsideIFrame)
+	public DivWindow(String id)
 	{
 		super(id);
-		this.isInsideIFrame = isInsideIFrame;
 		initialize();
 	}
 
@@ -207,7 +208,6 @@ public class DivWindow extends ModalWindow
 	public DivWindow(String id, IModel< ? > model, boolean isInsideIFrame)
 	{
 		super(id, model);
-		this.isInsideIFrame = isInsideIFrame;
 		initialize();
 	}
 
@@ -385,90 +385,225 @@ public class DivWindow extends ModalWindow
 	{
 		settings = super.postProcessSettings(settings);
 
-		settings.append("settings.boundEventsDelay").append("=");
+		// if this will be evaluated in child window response, the callback urls are invalid; just put something that will generate JS errors
+		// when called and put the correct ones when a request arrives on parent page
+		// (for example a dialog could close itself and show another dialog => window.Wicket undefined in the closed window, but
+		// that is the window that generated the request, so callbacks like resize when showing would want to use Wicket. ...)
+		if (settings.indexOf("settings.onCloseButton = function() {") != -1)
+		{
+			onCloseButtonBehaviorIsSet = true;
+			if (tmpChildFrameActionBatch != null) settings.append("delete settings.onCloseButton;\n");
+		}
+		if (settings.indexOf("settings.onClose = function() {") != -1)
+		{
+			onCloseBehaviorIsSet = true;
+			if (tmpChildFrameActionBatch != null) settings.append("delete settings.onClose;\n");
+		}
+
+		settings.append("settings.boundEventsDelay=");
 		settings.append(getBoundEventsDelay());
 		settings.append(";\n");
 
-		settings.append("settings.modal").append("=");
+		settings.append("settings.modal=");
 		settings.append(isModal());
 		settings.append(";\n");
 
 		String closeText = WebClientSession.get().getWebClient().getI18NMessage("servoy.webclient.dialogCloseText");
 		if (closeText != null && closeText.length() > 0 && closeText.indexOf("servoy.webclient.dialogCloseText") == -1)
 		{
-			settings.append("settings.dialogCloseText").append("=");
+			settings.append("settings.dialogCloseText=");
 			settings.append("'" + closeText + "'");
 			settings.append(";\n");
 		}
 
-		settings.append("settings.storeBounds").append("=");
+		settings.append("settings.storeBounds=");
 		settings.append(getStoreBounds());
 		settings.append(";\n");
 
 		if (getInitialLocation() != null)
 		{
-			settings.append("settings.initialX").append("=");
+			settings.append("settings.initialX=");
 			settings.append(getInitialLocation().x);
 			settings.append(";\n");
 
-			settings.append("settings.initialY").append("=");
+			settings.append("settings.initialY=");
 			settings.append(getInitialLocation().y);
 			settings.append(";\n");
 		}
 
-		settings.append("settings.jsId").append("=\"");
+		settings.append("settings.jsId=\"");
 		settings.append(getJSId());
 		settings.append("\";\n");
 
-		MoveBehavior mb = getBehaviors(MoveBehavior.class).get(0);
-		settings.append("settings.onMove = function(x, y, initialShow) { ");
-		settings.append(mb.getCallbackScript());
-		settings.append("};\n");
-
-		ResizeBehavior rb = getBehaviors(ResizeBehavior.class).get(0);
-		settings.append("settings.onResize = function(w, h, initialShow) { ");
-		settings.append(rb.getCallbackScript());
-		settings.append("};\n");
+		if (tmpChildFrameActionBatch == null) attachOnMove(settings);
+		if (tmpChildFrameActionBatch == null) attachOnResize(settings);
 
 		return settings;
+	}
+
+	protected void attachOnMove(AppendingStringBuffer settings)
+	{
+		MoveBehavior mb = getBehaviors(MoveBehavior.class).get(0);
+		settings.append("settings.onMove = function(x, y, initialShow) {\n");
+		settings.append(mb.getCallbackScript());
+		settings.append("};\n");
+	}
+
+	protected void attachOnResize(AppendingStringBuffer settings)
+	{
+		ResizeBehavior rb = getBehaviors(ResizeBehavior.class).get(0);
+		settings.append("settings.onResize = function(w, h, initialShow) {\n");
+		settings.append(rb.getCallbackScript());
+		settings.append("};\n");
+	}
+
+	/**
+	 * When show was initially called from a child iframe request (thus callback scripts were generated using that
+	 * page's target), you need to call this method subsequently on a request from the root main frame, to make
+	 * behaviors work with the main page as you would expect (otherwise problems occur when you try to close it).
+	 * @param mainFrameTarget
+	 * @param childFrameBatchId should never be null; it is the child frame batchId that will execute/has executed the show. 
+	 */
+	public void reAttachBehaviorsAfterShow(AjaxRequestTarget mainFrameTarget, String childFrameBatchId)
+	{
+		if (childFrameBatchId == null) throw new IllegalArgumentException("'reAttachBehaviors' is only to be called if a show happened on child frame.");
+		AppendingStringBuffer settingsToUpdate = new AppendingStringBuffer(500);
+
+		// if show was already called (as a result of a child frame request), just re-register; otherwise wait for show to be called and that will do the re-register directly
+		settingsToUpdate.append("function (settings) {\n");
+		attachOnMove(settingsToUpdate);
+		attachOnResize(settingsToUpdate);
+		reattachOnClose(settingsToUpdate);
+		reattachOnCloseButton(settingsToUpdate);
+		settingsToUpdate.append("}");
+
+		mainFrameTarget.appendJavascript("Wicket.DivWindow.reAttachBehaviorsAfterShow(" + settingsToUpdate.toString() + ", \"" + getJSId() + "\", \"" +
+			childFrameBatchId + "\");");
+	}
+
+	protected boolean reattachOnCloseButton(AppendingStringBuffer settingsToUpdate)
+	{
+		if (onCloseButtonBehaviorIsSet)
+		{
+			CloseButtonBehaviorActivePage behavior = getBehaviors(CloseButtonBehaviorActivePage.class).get(0);
+			settingsToUpdate.append("settings.onCloseButton = function() { ");
+			settingsToUpdate.append(behavior.getCallbackScript(true));
+			settingsToUpdate.append("};\n");
+		}
+		return onCloseButtonBehaviorIsSet;
+	}
+
+	protected boolean reattachOnClose(AppendingStringBuffer settingsToUpdate)
+	{
+		if (onCloseBehaviorIsSet)
+		{
+			IWindowClosedBehavior behavior = getBehaviors(IWindowClosedBehavior.class).get(0);
+			settingsToUpdate.append("settings.onClose = function() { ");
+			settingsToUpdate.append(behavior.getCallbackScript());
+			settingsToUpdate.append(" };\n");
+		}
+		return onCloseBehaviorIsSet;
+	}
+
+	/**
+	 * @deprecated please use {@link #show(AjaxRequestTarget, boolean)}
+	 */
+	@Deprecated
+	@Override
+	public void show(AjaxRequestTarget target)
+	{
+		super.show(target);
+	}
+
+	/**
+	 * IMPORTANT: if childFrameBatchId != null (so you are running this from a child iframe) you MUST call {@link #reAttachBehaviorsAfterShow(AjaxRequestTarget, String)} as soon as possible from the main/parent iframe.
+	 * Otherwise behavior callbacks will be wrong.
+	 * @param childFrameBatchId null if this target is of the main window (that contains all dialog iframes), an unique ID if it's of an iframe. Must always be wrapped by {@link #beginActionBatch(AjaxRequestTarget, String)} and {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID if it is not null.
+	 */
+	public void show(AjaxRequestTarget target, String childFrameBatchId)
+	{
+		tmpChildFrameActionBatch = childFrameBatchId;
+		show(target);
+		tmpChildFrameActionBatch = null; // default
 	}
 
 	@Override
 	protected Object getShowJavascript()
 	{
-		// we assume this gets called inside the window that will open this new div window; isInsideIFrame refers to current window
-		String s = "var win = Wicket.DivWindow.create(settings, \"" + getJSId() + "\", " + isInsideIFrame + ");\nwin.show();"; //$NON-NLS-1$ //$NON-NLS-2$
+		if (tmpChildFrameActionBatch != null) tmpChildFrameActionBatch = '"' + tmpChildFrameActionBatch + '"';
+		String s = "Wicket.DivWindow.createAndShow(settings, \"" + getJSId() + "\", " + tmpChildFrameActionBatch + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return s;
 	}
 
-	protected String getActionJavascript(String actualActionScript, String parameters)
+	protected String getActionJavascript(String actualActionScript, String parameters, String childFrameBatchId)
 	{
-		return "var win; try { win = window.parent.Wicket.DivWindow; } catch (ignore) {}; if (typeof(win) == \"undefined\" || typeof(win.openWindows[\"" +
-			getJSId() +
-			"\"]) == \"undefined\") { try { win = window.Wicket.DivWindow; } catch (ignore) {} }; if (typeof(win) != \"undefined\") { var winObj = win.openWindows[\"" +
-			getJSId() + "\"]; if (typeof(winObj) != \"undefined\") { winObj" + actualActionScript + "(" + parameters + "); } }";
+		if (childFrameBatchId != null) childFrameBatchId = '"' + childFrameBatchId + '"';
+		return "Wicket.DivWindow.executeAction(function(winObj) { winObj" + actualActionScript + "(" + parameters + "); }, \"" + getJSId() + "\", " +
+			childFrameBatchId + ");";
+	}
+
+	/**
+	 * @deprecated please use {@link #close(AjaxRequestTarget, boolean)}
+	 */
+	@Deprecated
+	@Override
+	public void close(AjaxRequestTarget target)
+	{
+		super.close(target);
+	}
+
+	/**
+	 * @param childFrameBatchId null if this target is of the main window (that contains all dialog iframes), an unique ID if it's of an iframe. Must always be wrapped by {@link #beginActionBatch(AjaxRequestTarget, String)} and {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID if it is not null.
+	 */
+	public void close(AjaxRequestTarget target, String childFrameBatchId)
+	{
+		tmpChildFrameActionBatch = childFrameBatchId;
+		close(target);
+		tmpChildFrameActionBatch = null; // default
 	}
 
 	@Override
 	protected String getCloseJavacript()
 	{
-		return getActionJavascript(".closeAfterTimeout", "window, 50");
+		return getActionJavascript(".close", "", tmpChildFrameActionBatch);
 	}
 
-	public void setBounds(AjaxRequestTarget target, int x, int y, int width, int height)
+	/**
+	 * @param childFrameBatchId null if this target is of the main window (that contains all dialog iframes), an unique ID if it's of an iframe. Must always be wrapped by {@link #beginActionBatch(AjaxRequestTarget, String)} and {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID if it is not null.
+	 */
+	public void setBounds(AjaxRequestTarget target, int x, int y, int width, int height, String childFrameBatchId)
 	{
 		target.appendJavascript(getActionJavascript(".setPosition", ((x >= 0) ? ("'" + x + "px'") : "winObj.window.style.left") + "," +
 			((y >= 0) ? ("'" + y + "px'") : "winObj.window.style.top") + "," + ((width >= 0) ? ("'" + width + "px'") : "winObj.window.style.width") + "," +
-			((height >= 0) ? ("'" + height + "px'") : "winObj.content.style.height")));
+			((height >= 0) ? ("'" + height + "px'") : "winObj.content.style.height"), childFrameBatchId));
 		if (x >= 0) bounds.x = x;
 		if (y >= 0) bounds.y = y;
 		if (width >= 0) bounds.width = width;
 		if (height >= 0) bounds.height = height;
 	}
 
-	public void saveBounds(AjaxRequestTarget target)
+	/**
+	 * @param childFrameBatchId null if this target is of the main window (that contains all dialog iframes), an unique ID if it's of an iframe. Must always be wrapped by {@link #beginActionBatch(AjaxRequestTarget, String)} and {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID if it is not null.
+	 */
+	public void saveBounds(AjaxRequestTarget target, String childFrameBatchId)
 	{
-		target.appendJavascript(getActionJavascript(".savePosition", ""));
+		target.appendJavascript(getActionJavascript(".savePosition", "", childFrameBatchId));
+	}
+
+	/**
+	 * @param childFrameBatchId null if this target is of the main window (that contains all dialog iframes), an unique ID if it's of an iframe. Must always be wrapped by {@link #beginActionBatch(AjaxRequestTarget, String)} and {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID if it is not null.
+	 */
+	public void toFront(AjaxRequestTarget target, String childFrameBatchId)
+	{
+		target.appendJavascript(getActionJavascript(".toFront", "", childFrameBatchId));
+	}
+
+	/**
+	 * @param childFrameBatchId null if this target is of the main window (that contains all dialog iframes), an unique ID if it's of an iframe. Must always be wrapped by {@link #beginActionBatch(AjaxRequestTarget, String)} and {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID if it is not null.
+	 */
+	public void toBack(AjaxRequestTarget target, String childFrameBatchId)
+	{
+		target.appendJavascript(getActionJavascript(".toBack", "", childFrameBatchId));
 	}
 
 	public static void deleteStoredBounds(AjaxRequestTarget target, String dialogName)
@@ -477,14 +612,22 @@ public class DivWindow extends ModalWindow
 		target.appendJavascript("Wicket.DivWindow.deletePosition(\"" + dialogName + "\");");
 	}
 
-	public void toFront(AjaxRequestTarget target)
+	/**
+	 * Should only be called if 'target' from a page inside a DivWindow iframe. Must always be followed by
+	 * {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID, after the appropriate actions are batched.
+	 */
+	public static void beginActionBatch(AjaxRequestTarget target, String batchID)
 	{
-		target.appendJavascript(getActionJavascript(".toFront", ""));
+		target.appendJavascript("Wicket.DivWindow.beginActionBatch(\"" + batchID + "\");");
 	}
 
-	public void toBack(AjaxRequestTarget target)
+	/**
+	 * Should only be called if 'target' from a page inside a DivWindow iframe. Must always be preceded by
+	 * {@link #actionBatchComplete(AjaxRequestTarget, String)} with the same batchID and the appropriate actions that are to be batched.
+	 */
+	public static void actionBatchComplete(AjaxRequestTarget target, String batchID)
 	{
-		target.appendJavascript(getActionJavascript(".toBack", ""));
+		target.appendJavascript("Wicket.DivWindow.actionBatchComplete(\"" + batchID + "\");");
 	}
 
 }
