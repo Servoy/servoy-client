@@ -132,7 +132,10 @@ public class WebClient extends SessionClient implements IWebClientApplication
 					{
 						if (hostname.startsWith("http"))
 						{
-							int index = hostname.indexOf('/', 8); //8 is to skip http:// or https://
+							// first try to find the wicket servlet
+							int index = hostname.indexOf("/servoy-webclient", 8); //8 is to skip http:// or https://
+							// if that fails then just try to find the first /
+							if (index == -1) index = hostname.indexOf('/', 8); //8 is to skip http:// or https://
 							if (index == -1)
 							{
 								return new URL(hostname);
