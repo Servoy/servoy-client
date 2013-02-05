@@ -21,11 +21,13 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Hashtable;
+import java.util.Properties;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.IFormElement;
@@ -33,6 +35,7 @@ import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Helper class for web anchoring
@@ -48,7 +51,7 @@ public class WebAnchoringHelper
 		if (isInListView)
 		{
 			// substract left indicator
-			l.x = Math.max(l.x-3, 0);
+			l.x = Math.max(l.x - 3, 0);
 		}
 		Dimension s = (obj).getSize();
 		int anchors = 0;
@@ -143,5 +146,30 @@ public class WebAnchoringHelper
 			sb.append("; "); //$NON-NLS-1$
 		}
 		return sb.toString();
+	}
+
+	private static boolean isAnchored(int anchors, IServiceProvider application)
+	{
+		if (application == null || Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")))
+		{
+			return (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0)) ||
+				(((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0));
+		}
+		return false;
+	}
+
+	public static void addMinSize(int anchors, IServiceProvider application, Properties cssProperties, boolean addWidth, boolean addHeight, Dimension size)
+	{
+		if (isAnchored(anchors, application))
+		{
+			if (addWidth && size != null)
+			{
+				cssProperties.setProperty("min-width", size.width + "px");
+			}
+			if (addHeight && size != null)
+			{
+				cssProperties.setProperty("min-height", size.height + "px");
+			}
+		}
 	}
 }
