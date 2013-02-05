@@ -1009,7 +1009,8 @@ public class JSUtils implements IJSUtils
 	 * @param digits nr of digits 
 	 * @return the resulting number in text
 	 */
-	public String js_numberFormat(Number number, Number digits)
+	@JSFunction
+	public String numberFormat(Number number, Number digits)
 	{
 		if (number != null)
 		{
@@ -1032,7 +1033,8 @@ public class JSUtils implements IJSUtils
 	 * @param format the format 
 	 * @return the resulting number in text
 	 */
-	public String js_numberFormat(Number number, String format)
+	@JSFunction
+	public String numberFormat(Number number, String format)
 	{
 		if (number != null)
 		{
@@ -1059,11 +1061,11 @@ public class JSUtils implements IJSUtils
 		{
 			if (digitsOrFormat instanceof Number)
 			{
-				return js_numberFormat(Double.valueOf(Utils.getAsDouble(number)), (Number)digitsOrFormat);
+				return numberFormat(Double.valueOf(Utils.getAsDouble(number)), (Number)digitsOrFormat);
 			}
 			if (digitsOrFormat instanceof String)
 			{
-				return js_numberFormat(Double.valueOf(Utils.getAsDouble(number)), (String)digitsOrFormat);
+				return numberFormat(Double.valueOf(Utils.getAsDouble(number)), (String)digitsOrFormat);
 			}
 			return number.toString();
 		}

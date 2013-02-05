@@ -30,6 +30,10 @@ public interface IJSUtils
 {
 	public String dateFormat(Date date, String format);
 
+	public String numberFormat(Number number, Number digits);
+
+	public String numberFormat(Number number, String format);
+
 	/**
 	 * Returns true if the (related)foundset exists and has records.
 	 * Another use is, to pass a record and qualified relations string to test multiple relations/foundset at once  
@@ -50,7 +54,6 @@ public interface IJSUtils
 
 	 * @return true if exists 
 	 */
-
 	public boolean hasRecords(IJSFoundSet foundset);
 
 	/**
