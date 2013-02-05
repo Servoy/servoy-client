@@ -135,7 +135,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			{
 				setDividerLocationInternal(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$ 
 			}
-			if (getComponent().getRequest().getParameter("changed") != null) //$NON-NLS-1$
+			if (getComponent().getRequest().getParameter("changed") != null && orient == TabPanel.SPLIT_HORIZONTAL) //$NON-NLS-1$
 			{
 				// rerender for tableview header
 				WebSplitPane.this.visitChildren(WebCellBasedView.class, new Component.IVisitor<WebCellBasedView>()

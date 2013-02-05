@@ -360,28 +360,42 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
 			{
+				boolean needToRenderTable = true;
 				// if size is changed, reset scroll
 				if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint)
 				{
-					resetScrollParams();
+					if (isScrollMode() && newBodyWidthHint == bodyWidthHint)
+					{
+						needToRenderTable = false;
+						Pair<Boolean, Pair<Integer, Integer>> rowsCalculation = needsMoreThanOnePage(Math.max(newBodyHeightHint, endY - startY));
+						maxRowsPerPage = rowsCalculation.getRight().getLeft().intValue();
+						if (newBodyHeightHint > bodyHeightHint)
+						{
+							WebCellBasedView.this.scrollBehavior.appendRows(target, newBodyHeightHint - bodyHeightHint, true);
+						}
+					}
+					else resetScrollParams();
 				}
 
 				bodyWidthHint = newBodyWidthHint;
 				bodyHeightHint = newBodyHeightHint;
 				bodySizeHintSetFromClient = true;
 
-				distributeExtraSpace();
-
-				IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
-				if (tabPanel instanceof WebTabPanel)
+				if (needToRenderTable)
 				{
-					int bodyDesignHeight = resizeEndY - resizeStartY;
-					int otherPartsHeight = (resizeCellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
-					((WebTabPanel)tabPanel).setTabSize(new Dimension(bodyWidthHint, bodyHeightHint + otherPartsHeight));
+					distributeExtraSpace();
+
+					IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
+					if (tabPanel instanceof WebTabPanel)
+					{
+						int bodyDesignHeight = resizeEndY - resizeStartY;
+						int otherPartsHeight = (resizeCellview instanceof Portal) ? 0 : formDesignHeight - bodyDesignHeight;
+						((WebTabPanel)tabPanel).setTabSize(new Dimension(bodyWidthHint, bodyHeightHint + otherPartsHeight));
+					}
+					WebCellBasedView.this.setVisibilityAllowed(true);
+					WebCellBasedView.this.getStylePropertyChanges().setChanged();
+					WebEventExecutor.generateResponse(target, getComponent().getPage());
 				}
-				WebCellBasedView.this.setVisibilityAllowed(true);
-				WebCellBasedView.this.getStylePropertyChanges().setChanged();
-				WebEventExecutor.generateResponse(target, getComponent().getPage());
 			}
 		}
 	}
@@ -4972,12 +4986,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			response.renderOnLoadJavascript(sb.toString());
 		}
 
-		@Override
-		protected void onEvent(AjaxRequestTarget target)
+		public void appendRows(AjaxRequestTarget target, int scrollDiff, boolean doNotRemoveHeadRows)
 		{
-			currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
-			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
-
 			if (scrollDiff != 0)
 			{
 				Collection<ListItem< ? >> newRows = null;
@@ -4994,7 +5004,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (viewStartIdx + viewSize < tableSize)
 					{
 						newRowsCount = Math.min(2 * maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
-						if (!isKeepLoadedRowsInScrollMode && viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
+						if (!doNotRemoveHeadRows && viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
 
 						table.setStartIndex(viewStartIdx + rowsToRemove);
 						table.setViewSize(viewSize + newRowsCount - rowsToRemove);
@@ -5053,6 +5063,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else target.appendJavascript("Servoy.TableView.isAppendingRows = false;"); //$NON-NLS-1$
 			}
+		}
+
+		@Override
+		protected void onEvent(AjaxRequestTarget target)
+		{
+			currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
+			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
+			appendRows(target, scrollDiff, isKeepLoadedRowsInScrollMode);
 		}
 
 		@Override
