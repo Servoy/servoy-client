@@ -255,11 +255,6 @@ class WebStartImpl
 			// Lookup the javax.jnlp.BasicService object 
 			javax.jnlp.BasicService bs = (javax.jnlp.BasicService)javax.jnlp.ServiceManager.lookup("javax.jnlp.BasicService"); //$NON-NLS-1$
 			url = bs.getCodeBase();
-			String file = url.getFile();
-			if (file.endsWith("/")) //$NON-NLS-1$
-			{
-				url = new java.net.URL(url.getProtocol(), url.getHost(), url.getPort(), file.substring(0, file.length() - 1));
-			}
 			return url;
 		}
 		catch (Throwable e)
