@@ -155,6 +155,7 @@ public class Array
 
 	/**
 	 * Runs a function on items in the array while that function is returning true. It returns true if the function returns true for every item it could visit.
+	 * The callback function is invoked with three arguments: the element value, the element index, the array being traversed.
 	 *
 	 * @sample
 	 * function isNumber(value) { return typeof value == 'number'; }
@@ -187,6 +188,7 @@ public class Array
 
 	/**
 	 * Runs a function on every item in the array and returns an array of all items for which the function returns true.
+	 * The callback function is invoked with three arguments: the element value, the element index, the array being traversed.
 	 *
 	 * @sample
 	 * var a1 = ['a', 10, 'b', 20, 'c', 30];
@@ -326,6 +328,7 @@ public class Array
 
 	/**
 	 * Runs a function on every item in the array and returns the results in an array.
+	 * The callback function is invoked with three arguments: the element value, the element index, the array being traversed.
 	 *
 	 * @sample
 	 * var a = ['a', 'b', 'c'];	
@@ -470,6 +473,7 @@ public class Array
 
 	/**
 	 * Runs a function on items in the array while that function returns false. It returns true if the function returns true for any item it could visit.
+	 * The callback function is invoked with three arguments: the element value, the element index, the array being traversed.
 	 *
 	 * @sample
 	 * function isNumber(value) { return typeof value == 'number'; }  
