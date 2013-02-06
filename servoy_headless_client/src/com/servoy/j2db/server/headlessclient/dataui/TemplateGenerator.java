@@ -278,6 +278,9 @@ public class TemplateGenerator
 		{
 			public Object component(org.apache.wicket.Component c)
 			{
+				// ignore forms from container components
+				if (c instanceof WebForm) return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+
 				String id = "#" + c.getId();
 				//components to selectors
 				if (ids.indexOf(id) != -1 && !webFormIDToMarkupIDMap.containsKey(id))
