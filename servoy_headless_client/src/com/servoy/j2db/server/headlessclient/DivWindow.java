@@ -23,13 +23,14 @@ import org.apache.wicket.IClusterable;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.JavascriptPackageResource;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.AppendingStringBuffer;
+
+import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyLastVersionAjaxBehavior;
 
 /**
  * A div window that can be modal or non-modal. Based on wicket ModalWindow.
@@ -74,12 +75,12 @@ public class DivWindow extends ModalWindow
 		public void onMove(AjaxRequestTarget target);
 	}
 
-	private class WindowClosedBehavior extends AbstractDefaultAjaxBehavior implements IWindowClosedBehavior, AlwaysLastPageVersionRequestListenerInterface
+	private class WindowClosedBehavior extends AbstractServoyLastVersionAjaxBehavior implements IWindowClosedBehavior
 	{
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		protected void respond(AjaxRequestTarget target)
+		protected void execute(AjaxRequestTarget target)
 		{
 			respondOnWindowClosed(target);
 		}
@@ -87,39 +88,22 @@ public class DivWindow extends ModalWindow
 		@Override
 		public CharSequence getCallbackScript()
 		{
-			return getCallbackScript(true);
+			return super.getCallbackScript();
 		}
 
-		@Override
-		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
-		{
-			if (getComponent() == null)
-			{
-				throw new IllegalArgumentException("Behavior must be bound to a component to create the URL"); //$NON-NLS-1$
-			}
-
-			return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
-		}
 	}
 
-	private class ResizeBehavior extends AbstractDefaultAjaxBehavior
+	private class ResizeBehavior extends AbstractServoyLastVersionAjaxBehavior
 	{
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		protected void respond(AjaxRequestTarget target)
+		protected void execute(AjaxRequestTarget target)
 		{
 			if (resize(target) && resizeCallback != null)
 			{
 				resizeCallback.onResize(target);
 			}
-		}
-
-		// make it available to this compilation unit
-		@Override
-		protected CharSequence getCallbackScript()
-		{
-			return getCallbackScript(true);
 		}
 
 		@Override
@@ -129,27 +113,19 @@ public class DivWindow extends ModalWindow
 				"&divW=' + w + '&divH=' + h + (initialShow ? '&is=true' : '')");
 		}
 
-
 	}
 
-	private class MoveBehavior extends AbstractDefaultAjaxBehavior
+	private class MoveBehavior extends AbstractServoyLastVersionAjaxBehavior
 	{
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		protected void respond(AjaxRequestTarget target)
+		protected void execute(AjaxRequestTarget target)
 		{
 			if (move(target) && moveCallback != null)
 			{
 				moveCallback.onMove(target);
 			}
-		}
-
-		// make it available to this compilation unit
-		@Override
-		protected CharSequence getCallbackScript()
-		{
-			return getCallbackScript(true);
 		}
 
 		@Override
@@ -161,12 +137,22 @@ public class DivWindow extends ModalWindow
 
 	}
 
-	protected class CloseButtonBehaviorActivePage extends CloseButtonBehavior
+	protected class CloseButtonBehaviorActivePage extends CloseButtonBehavior implements AlwaysLastPageVersionRequestListenerInterface
 	{
 		@Override
 		protected CharSequence getCallbackScript(boolean onlyTargetActivePage)
 		{
 			return super.getCallbackScript(true);
+		}
+
+		@Override
+		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
+		{
+			if (getComponent() == null)
+			{
+				throw new IllegalArgumentException("Behavior must be bound to a component to create the URL"); //$NON-NLS-1$
+			}
+			return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
 		}
 	}
 
@@ -445,7 +431,7 @@ public class DivWindow extends ModalWindow
 	{
 		MoveBehavior mb = getBehaviors(MoveBehavior.class).get(0);
 		settings.append("settings.onMove = function(x, y, initialShow) {\n");
-		settings.append(mb.getCallbackScript());
+		settings.append(mb.getCallbackScript(true));
 		settings.append("};\n");
 	}
 
@@ -453,7 +439,7 @@ public class DivWindow extends ModalWindow
 	{
 		ResizeBehavior rb = getBehaviors(ResizeBehavior.class).get(0);
 		settings.append("settings.onResize = function(w, h, initialShow) {\n");
-		settings.append(rb.getCallbackScript());
+		settings.append(rb.getCallbackScript(true));
 		settings.append("};\n");
 	}
 
