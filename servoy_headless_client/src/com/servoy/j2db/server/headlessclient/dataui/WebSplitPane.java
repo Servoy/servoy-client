@@ -1246,4 +1246,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		paneChanged[0] = false;
 		paneChanged[1] = false;
 	}
+
+
+	@Override
+	public void uiRecreated()
+	{
+		recomputeTabSequence();
+	}
 }

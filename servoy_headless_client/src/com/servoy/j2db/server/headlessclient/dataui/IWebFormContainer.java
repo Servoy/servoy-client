@@ -38,4 +38,6 @@ public interface IWebFormContainer extends IDisplayRelatedData, ISupportWebTabSe
 	IFormUI[] getChildForms();
 
 	int getTabSequenceIndex();
+
+	void uiRecreated();
 }

@@ -2028,13 +2028,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		IWebFormContainer webContainer = findParent(IWebFormContainer.class);
 		if (webContainer != null && webContainer.isCurrentForm(this))
 		{
-			webContainer.recomputeTabSequence();
+			webContainer.uiRecreated();
 		}
-		//if the form is in a WebAccordionPannel  the Accordion must be rerendered to set the correct jqueryui accordion "ui-.." clases on the div (forms)
-		if (webContainer instanceof WebAccordionPanel)
-		{
-			((WebAccordionPanel)webContainer).getStylePropertyChanges().setChanged();
-		}
+
 	}
 
 	public boolean isUIRecreated()
