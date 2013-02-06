@@ -948,34 +948,23 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 		}
 		else if (wasEditable)
 		{
-			// it is possible that the current enclosed component of
-			// the even executor has focusLost in the event queue, that
-			// will be ignored if we set a new enclosing component, so do it after
-			if (application.isEventDispatchThread())
+			if (!eventExecutor.mustFireFocusGainedCommand())
 			{
-				application.invokeLater(new Runnable()
-				{
-					public void run()
-					{
-						setComboNotEditable();
-					}
-				});
+				// event executor in bad state because focus lost was not called yet, have to fix this
+				eventExecutor.skipNextFocusLost();
+				eventExecutor.resetFireFocusGainedCommand();
+				eventExecutor.fireLeaveCommands(this, false, IEventExecutor.MODIFIERS_UNSPECIFIED);
 			}
-			else setComboNotEditable();
+			setEditor(formattedComboEditor.getDefaultEditor());
+			eventExecutor.setEnclosedComponent(this);
+			super.setEditable(false);
+			if (editProvider != null)
+			{
+				addFocusListener(editProvider);
+				formattedComboEditor.getEditorComponent().removeFocusListener(editProvider);
+			}
+			repaint();
 		}
-	}
-
-	private void setComboNotEditable()
-	{
-		setEditor(formattedComboEditor.getDefaultEditor());
-		eventExecutor.setEnclosedComponent(this);
-		super.setEditable(false);
-		if (editProvider != null)
-		{
-			addFocusListener(editProvider);
-			formattedComboEditor.getEditorComponent().removeFocusListener(editProvider);
-		}
-		repaint();
 	}
 
 	public boolean isComponentEnabled()

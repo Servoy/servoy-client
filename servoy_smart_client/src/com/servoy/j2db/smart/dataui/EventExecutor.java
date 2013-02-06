@@ -300,6 +300,12 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 		skipFireFocusLostCommand = true;
 	}
 
+	public void resetFireFocusGainedCommand()
+	{
+		skipFireFocusGainedCommandDialogTest = false;
+		skipFireFocusGainedCommand = false;
+	}
+
 	@Override
 	protected String getFormName(Object display)
 	{
