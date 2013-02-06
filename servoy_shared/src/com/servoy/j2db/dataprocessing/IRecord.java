@@ -20,6 +20,11 @@ package com.servoy.j2db.dataprocessing;
 /**
  * The Record interface for business objects (table rows)
  * 
+ *  <p>
+ * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
+ * Records instances should be get through the {@link IFoundSet}
+ * </p>
+ * 
  * @author jblok
  * @since Servoy 5.0
  */

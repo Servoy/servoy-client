@@ -24,6 +24,11 @@ import com.servoy.j2db.util.ServoyException;
 /**
  * The public foundset interface
  * 
+ * <p>
+ * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
+ * Foundset instances should be get through {@link IDatabaseManager}
+ * </p>
+ * 
  * @author jblok
  * @since Servoy 5.0
  */
