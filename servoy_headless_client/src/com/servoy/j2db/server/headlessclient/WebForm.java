@@ -2028,9 +2028,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		IWebFormContainer webContainer = findParent(IWebFormContainer.class);
 		if (webContainer != null && webContainer.isCurrentForm(this))
 		{
-			webContainer.recomputeTabSequence();
+			webContainer.uiRecreated();
 		}
-		webContainer.uiRecreated(this);
+
 	}
 
 	public boolean isUIRecreated()

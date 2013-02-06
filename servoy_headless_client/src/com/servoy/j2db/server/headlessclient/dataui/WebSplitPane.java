@@ -1249,7 +1249,8 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 
 	@Override
-	public void uiRecreated(WebForm form)
+	public void uiRecreated()
 	{
+		recomputeTabSequence();
 	}
 }

@@ -1454,7 +1454,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 
 	@Override
-	public void uiRecreated(WebForm form)
+	public void uiRecreated()
 	{
+		recomputeTabSequence();
 	}
 }
