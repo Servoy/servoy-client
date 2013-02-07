@@ -23,7 +23,6 @@ import org.apache.wicket.IClusterable;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.JavascriptPackageResource;
@@ -76,13 +75,12 @@ public class DivWindow extends ModalWindow
 		public void onMove(AjaxRequestTarget target);
 	}
 
-	// this one doesn't extend AbstractServoyLastVersionAjaxBehavior to reduce the possibility of a dialog closing without us knowing about it
-	private class WindowClosedBehavior extends AbstractDefaultAjaxBehavior implements IWindowClosedBehavior
+	private class WindowClosedBehavior extends AbstractServoyLastVersionAjaxBehavior implements IWindowClosedBehavior
 	{
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		protected void respond(AjaxRequestTarget target)
+		protected void execute(AjaxRequestTarget target)
 		{
 			respondOnWindowClosed(target);
 		}
@@ -91,17 +89,6 @@ public class DivWindow extends ModalWindow
 		public CharSequence getCallbackScript()
 		{
 			return getCallbackScript(true);
-		}
-
-		@Override
-		public CharSequence getCallbackUrl(boolean onlyTargetActivePage)
-		{
-			if (getComponent() == null)
-			{
-				throw new IllegalArgumentException("Behavior must be bound to a component to create the URL"); //$NON-NLS-1$
-			}
-
-			return getComponent().urlFor(this, AlwaysLastPageVersionRequestListenerInterface.INTERFACE);
 		}
 
 	}
