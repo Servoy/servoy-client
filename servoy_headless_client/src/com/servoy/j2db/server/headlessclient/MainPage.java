@@ -1457,8 +1457,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					touch();
 					uploaded = true;
 					mediaUploadCallback = null;
-					callback.uploadComplete(fu);
 					addJSAction(new DivDialogAction(fileUploadWindow, DivDialogAction.OP_CLOSE));
+					callback.uploadComplete(fu);
 				}
 
 				public void onSubmit()
