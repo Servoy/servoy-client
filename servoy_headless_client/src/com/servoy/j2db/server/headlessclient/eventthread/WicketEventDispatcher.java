@@ -138,7 +138,7 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 		List<Runnable> requestEvents = event.getEvents();
 		if (requestEvents.size() > 0)
 		{
-			addEvent(new EventsRunnable(client, requestEvents));
+			addEvent(new EventsRunnable(requestEvents));
 		}
 	}
 
@@ -176,7 +176,22 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 		Event event = suspendedEvents.remove(object);
 		if (event != null)
 		{
-			addEmptyEvent();
+			client.invokeLater(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					// empty event so that the current http request will run this and will wait on the resume of the above event.
+					// or when that above event is suspended again (so a script that shows a few modal dialogs in in method after each other)
+					// it will get the waiting events from this one. 
+				}
+			});
+			if (event instanceof WicketEvent && Thread.currentThread() == scriptThread)
+			{
+				Event last = stack.getLast();
+				// make sure the resumed event has the current http thread, so that when it resumes it can get the locks back.
+				((WicketEvent)event).updateHttpThread(last);
+			}
 		}
 	}
 

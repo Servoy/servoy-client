@@ -541,14 +541,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 		if (runnables != null)
 		{
-			Runnable run = new EventsRunnable(this, runnables);
 			if (getEventDispatcher() != null)
 			{
-				getEventDispatcher().addEvent(run);
+				getEventDispatcher().addEvent(new EventsRunnable(runnables));
 			}
 			else
 			{
-				run.run();
+				new EventsRunnable(this, runnables).run();
 			}
 		}
 		return;

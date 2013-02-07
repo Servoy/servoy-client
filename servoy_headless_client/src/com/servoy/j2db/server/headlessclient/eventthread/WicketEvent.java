@@ -49,12 +49,12 @@ final class WicketEvent extends Event
 	private final Application application;
 
 	private volatile boolean executed;
-	private volatile boolean resetThreadLocals = true;
+	private volatile boolean wasSuspended;
 	private volatile Exception exception;
 
 	private final List<IClusterable> dirtyObjectsList;
 	private final List<Page> touchedPages;
-	private final Thread currentThread;
+	private volatile Thread httpThread;
 	private final Runnable runable;
 	private final IServiceProvider serviceProvider;
 	private volatile List<Runnable> events;
@@ -79,7 +79,19 @@ final class WicketEvent extends Event
 		application = Application.get();
 		dirtyObjectsList = session.getDirtyObjectsList();
 		touchedPages = session.getTouchedPages();
-		currentThread = Thread.currentThread();
+		httpThread = Thread.currentThread();
+	}
+
+
+	/**
+	 * @param last
+	 */
+	public void updateHttpThread(Event last)
+	{
+		if (last instanceof WicketEvent)
+		{
+			httpThread = ((WicketEvent)last).httpThread;
+		}
 	}
 
 	/*
@@ -92,16 +104,12 @@ final class WicketEvent extends Event
 	{
 		try
 		{
-//			resetThreadLocals = RequestCycle.get() == null;
-//			if (resetThreadLocals)
-//			{
 			ServoyRequestCycle.set(requestCycle);
 			Session.set(session);
 			Application.set(application);
 			J2DBGlobals.setServiceProvider(serviceProvider);
 
-			session.moveUsedPage(currentThread, Thread.currentThread());
-//			}
+			session.moveUsedPage(httpThread, Thread.currentThread());
 
 			runable.run();
 		}
@@ -114,8 +122,11 @@ final class WicketEvent extends Event
 		{
 			// store the current request events of the client that are 
 			// created in this thread on this event object. (see addEvent)
-			setEvents(client.getRequestEvents());
-
+			// but only if it was never suspended. if it was suspended then on this event no http thread is waiting any more on.
+			if (!wasSuspended)
+			{
+				setEvents(client.getRequestEvents());
+			}
 			executed = true;
 			cleanup();
 		}
@@ -126,32 +137,28 @@ final class WicketEvent extends Event
 	 */
 	private void cleanup()
 	{
-		if (resetThreadLocals)
+		List<IClusterable> lst = session.getDirtyObjectsList();
+		for (IClusterable dirtyObject : lst)
 		{
-			List<IClusterable> lst = session.getDirtyObjectsList();
-			for (IClusterable dirtyObject : lst)
+			if (!dirtyObjectsList.contains(dirtyObject))
 			{
-				if (!dirtyObjectsList.contains(dirtyObject))
-				{
-					dirtyObjectsList.add(dirtyObject);
-				}
+				dirtyObjectsList.add(dirtyObject);
 			}
-
-			List<Page> pages = session.getTouchedPages();
-			for (Page page : pages)
-			{
-				if (!touchedPages.contains(page))
-				{
-					touchedPages.add(page);
-				}
-			}
-
-			session.moveUsedPage(Thread.currentThread(), currentThread);
-
-//			ServoyRequestCycle.set(null);
-//			Session.unset();
-//			Application.unset();
 		}
+		lst.clear();
+
+		List<Page> pages = session.getTouchedPages();
+		for (Page page : pages)
+		{
+			if (!touchedPages.contains(page))
+			{
+				touchedPages.add(page);
+			}
+		}
+		pages.clear();
+
+		session.moveUsedPage(Thread.currentThread(), httpThread);
+
 	}
 
 	/**
@@ -179,9 +186,28 @@ final class WicketEvent extends Event
 	{
 		// store the current request events of the client that are 
 		// created in this thread on this event object. (see addEvent)
-		setEvents(client.getRequestEvents());
+		// but only if it was never suspended. if it was suspended then on this event no http thread is waiting any more on.
+		if (!wasSuspended)
+		{
+			setEvents(client.getRequestEvents());
+		}
 		cleanup();
 		super.willSuspend();
+		wasSuspended = true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.eventthread.Event#willResume()
+	 */
+	@Override
+	public void willResume()
+	{
+		super.willResume();
+		// when resuming move all used pages back to this thread.
+		// the httpThread should be updated 
+		session.moveUsedPage(httpThread, Thread.currentThread());
 	}
 
 	/*
