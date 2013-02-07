@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -202,7 +203,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	private void performRefresh(List<IPersist> changes)
 	{
 
-		List<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
 		refreshI18NMessages();
 		for (FormController controller : scopesAndFormsToReload[0])

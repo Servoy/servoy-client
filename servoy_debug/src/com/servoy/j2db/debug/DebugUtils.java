@@ -55,10 +55,10 @@ public class DebugUtils
 		public void updateForm(Form form);
 	}
 
-	public static List<FormController>[] getScopesAndFormsToReload(ClientState clientState, Collection<IPersist> changes)
+	public static Set<FormController>[] getScopesAndFormsToReload(ClientState clientState, Collection<IPersist> changes)
 	{
-		List<FormController> scopesToReload = new ArrayList<FormController>();
-		List<FormController> formsToReload = new ArrayList<FormController>();
+		Set<FormController> scopesToReload = new HashSet<FormController>();
+		Set<FormController> formsToReload = new HashSet<FormController>();
 
 		Set<Form> formsUpdated = new HashSet<Form>();
 		for (IPersist persist : changes)
@@ -201,7 +201,7 @@ public class DebugUtils
 			}
 		}
 
-		return new List[] { scopesToReload, formsToReload };
+		return new Set[] { scopesToReload, formsToReload };
 	}
 
 	/**

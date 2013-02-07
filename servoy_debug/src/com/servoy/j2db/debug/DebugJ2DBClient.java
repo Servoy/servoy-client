@@ -1126,7 +1126,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		if (shutDown) return;
 
-		List<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
 		for (FormController controller : scopesAndFormsToReload[1])
 		{
