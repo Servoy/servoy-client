@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -171,7 +172,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	private void performRefresh(List<IPersist> changes)
 	{
 
-		List<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
 		refreshI18NMessages();
 		for (FormController controller : scopesAndFormsToReload[0])
