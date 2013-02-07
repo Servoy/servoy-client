@@ -188,7 +188,7 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 
 			// move parent modal window under mask
 			if (this.parentModalWindow != null) {
-				this.parentModalWindow.window.style.zIndex = Wicket.Window.Mask.zIndex - maxZIndexDelta; // non-active modal window should be below it's child non-modal windows
+				this.parentModalWindow.window.style.zIndex = Wicket.Window.Mask.zIndex - (maxZIndexDelta > 0 ? maxZIndexDelta : 1); // non-active modal window should be below it's child non-modal windows
 			}
 		} else {
 			// show on top of other possible non-modal windows
