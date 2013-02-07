@@ -447,10 +447,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		add(new TriggerOrientationChangeAjaxBehavior());
 		add(new TriggerResizeAjaxBehavior());
 
-		add(new AbstractServoyDefaultAjaxBehavior()
+		add(new AbstractServoyLastVersionAjaxBehavior()
 		{
 			@Override
-			protected void respond(AjaxRequestTarget target)
+			protected void execute(AjaxRequestTarget target)
 			{
 				for (ServoyDivDialog divDialog : divDialogs.getOrderedByOpenSequence())
 				{
