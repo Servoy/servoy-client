@@ -98,6 +98,7 @@ import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.AnnotationManager;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -2548,6 +2549,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param recordComparisonFunction record comparator function
 	 */
 	@JSFunction
+	@JSSignature(arguments = { Function.class })
 	public void sort(Object recordComparisonFunction)
 	{
 		if (recordComparisonFunction instanceof Function)
