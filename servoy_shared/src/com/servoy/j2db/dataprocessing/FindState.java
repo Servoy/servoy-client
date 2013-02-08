@@ -522,6 +522,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		if (restName != null)
 		{
 			IRecordInternal record = rfs.getRecord(rfs.getSelectedIndex());
+			if (record == null) return null;
 			return record.getRelatedFoundSet(restName);
 		}
 		return rfs;
