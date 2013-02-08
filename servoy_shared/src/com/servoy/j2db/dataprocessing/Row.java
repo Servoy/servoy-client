@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
@@ -291,17 +292,17 @@ public class Row
 		{
 			if (columnIndex >= 0)
 			{
-				Pair<String, Map<String, String>> converterInfo = sheet.getColumnConverterInfo(columnIndex);
+				ConverterInfo converterInfo = sheet.getColumnConverterInfo(columnIndex);
 				if (converterInfo != null)
 				{
-					IColumnConverter conv = parent.getFoundsetManager().getColumnConverterManager().getConverter(converterInfo.getLeft());
+					IColumnConverter conv = parent.getFoundsetManager().getColumnConverterManager().getConverter(converterInfo.converterName);
 					if (conv == null)
 					{
-						throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { converterInfo.getLeft() })); //$NON-NLS-1$
+						throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { converterInfo.converterName })); //$NON-NLS-1$
 					}
 					try
 					{
-						convertedValue = conv.convertFromObject(converterInfo.getRight(), variableInfo.type, convertedValue);
+						convertedValue = conv.convertFromObject(converterInfo.props, variableInfo.type, convertedValue);
 					}
 					catch (Exception e)
 					{

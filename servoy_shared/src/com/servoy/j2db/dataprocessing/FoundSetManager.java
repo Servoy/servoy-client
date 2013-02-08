@@ -44,6 +44,7 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.EnumDataProvider;
@@ -1029,31 +1030,83 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		giveMeFoundSet(l);
 	}
 
-	public static TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, String operator, Object value)
+	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, String operator, Object value)
+		throws ServoyException
 	{
 		if (dataprovider == null || operator == null) return null;
 
 		dataprovider = dataprovider.trim();
 
-		if (table != null && ((Table)table).getColumn(dataprovider) == null)
-		{
-			return null;
-		}
 		int op = RelationItem.getValidOperator(operator.trim(), ISQLCondition.ALL_DEFINED_OPERATORS, ISQLCondition.ALL_MODIFIERS);
 		if (op == -1)
 		{
 			return null;
 		}
 
+		return createTableFilter(name, serverName, table, dataprovider, op, value);
+	}
+
+	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, int operator, Object value) throws ServoyException
+	{
 		if (value instanceof Wrapper)
 		{
 			value = ((Wrapper)value).unwrap();
 		}
 
-		return new TableFilter(name, serverName, table == null ? null : table.getName(), table == null ? null : table.getSQLName(), dataprovider, op, value);
+		if (table != null && ((Table)table).getColumn(dataprovider) == null)
+		{
+			return null;
+		}
+
+		Object convertedValue = value;
+		Column column = null;
+		if (table != null)
+		{
+			column = ((Table)table).getColumn(dataprovider);
+			if (column == null)
+			{
+				return null;
+			}
+
+			ConverterInfo columnConverterInfo = getSQLGenerator().getCachedTableSQLSheet(table.getDataSource()).getColumnConverterInfo(dataprovider);
+			if (columnConverterInfo != null)
+			{
+				IColumnConverter columnConverter = application.getFoundSetManager().getColumnConverterManager().getConverter(columnConverterInfo.converterName);
+				if (columnConverter != null)
+				{
+					Object[] array = null;
+					if (value instanceof List< ? >)
+					{
+						array = ((List< ? >)value).toArray();
+					}
+					else if (value != null && value.getClass().isArray())
+					{
+						array = ((Object[])value).clone();
+					}
+
+					if (array != null)
+					{
+						for (int i = 0; i < array.length; i++)
+						{
+							array[i] = SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, dataprovider, column.getDataProviderType(),
+								array[i]);
+						}
+						convertedValue = array;
+					}
+					else if (value == null || !value.toString().trim().toLowerCase().startsWith(SQLGenerator.STRING_SELECT))
+					{
+						convertedValue = SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, dataprovider, column.getDataProviderType(), value);
+					}
+					// else add as subquery
+				}
+			}
+		}
+		return new TableFilter(name, serverName, table == null ? null : table.getName(), table == null ? null : table.getSQLName(), dataprovider, operator,
+			convertedValue);
 	}
 
 	public boolean addTableFilterParam(String filterName, String serverName, ITable table, String dataprovider, String operator, Object value)
+		throws ServoyException
 	{
 		TableFilter filter = createTableFilter(filterName, serverName, table, dataprovider, operator, value);
 		if (filter == null)

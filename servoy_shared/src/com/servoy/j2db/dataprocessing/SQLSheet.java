@@ -378,15 +378,15 @@ public class SQLSheet
 				value = Utils.getAsUUID(value, false);
 			}
 
-			Pair<String, Map<String, String>> converterInfo = getColumnConverterInfo(columnIndex);
+			ConverterInfo converterInfo = getColumnConverterInfo(columnIndex);
 			if (converterInfo != null)
 			{
-				IColumnConverter conv = columnConverterManager.getConverter(converterInfo.getLeft());
+				IColumnConverter conv = columnConverterManager.getConverter(converterInfo.converterName);
 				if (conv != null)
 				{
 					try
 					{
-						value = conv.convertToObject(converterInfo.getRight(), variableInfo.type, value);
+						value = conv.convertToObject(converterInfo.props, variableInfo.type, value);
 					}
 					catch (Exception e)
 					{
@@ -819,22 +819,24 @@ public class SQLSheet
 		return retval;
 	}
 
-	private Pair<String, Map<String, String>>[] converterInfos;
+	private ConverterInfo[] converterInfos;
 
 
-	public Pair<String, Map<String, String>> getColumnConverterInfo(int columnIndex)
+	public ConverterInfo getColumnConverterInfo(String dataProviderID)
+	{
+		return getColumnConverterInfo(getColumnIndex(dataProviderID));
+	}
+
+	public ConverterInfo getColumnConverterInfo(int columnIndex)
 	{
 		if (converterInfos == null)
 		{
 			SQLDescription desc = sql.get(SELECT);
-			List< ? > dataProviderIDsDilivery = desc.getDataProviderIDsDilivery();
-			@SuppressWarnings("unchecked")
-			Pair<String, Map<String, String>>[] cis = new Pair[dataProviderIDsDilivery.size()];
-			int i = 0;
-			Iterator< ? > it = dataProviderIDsDilivery.iterator();
-			while (it.hasNext())
+			List<String> dataProviderIDsDilivery = desc.getDataProviderIDsDilivery();
+			ConverterInfo[] cis = new ConverterInfo[dataProviderIDsDilivery.size()];
+			for (int i = 0; i < dataProviderIDsDilivery.size(); i++)
 			{
-				String cdp = (String)it.next();
+				String cdp = dataProviderIDsDilivery.get(i);
 				Column c = table.getColumn(cdp);
 				ColumnInfo ci = c.getColumnInfo();
 				if (ci != null && ci.getConverterName() != null && ci.getConverterName().trim().length() != 0)
@@ -849,11 +851,15 @@ public class SQLSheet
 						Debug.error("Could not parse column converter properties", e);
 					}
 
-					cis[i] = new Pair<String, Map<String, String>>(ci.getConverterName(), props);
+					cis[i] = new ConverterInfo(ci.getConverterName(), props);
 				}
-				i++;
 			}
 			converterInfos = cis;
+		}
+
+		if (columnIndex < 0 || columnIndex >= converterInfos.length)
+		{
+			return null;
 		}
 
 		return converterInfos[columnIndex];
@@ -930,4 +936,15 @@ public class SQLSheet
 		}
 	}
 
+	public static class ConverterInfo
+	{
+		public final String converterName;
+		public final Map<String, String> props;
+
+		public ConverterInfo(String converterName, Map<String, String> props)
+		{
+			this.converterName = converterName;
+			this.props = props;
+		}
+	}
 }

@@ -30,9 +30,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.mozilla.javascript.Wrapper;
+
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.FindState.RelatedFindState;
+import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
@@ -634,7 +638,7 @@ public class SQLGenerator
 			new String[] { application.getI18NMessage("servoy.client.findModeHelp.generalCol1"), application.getI18NMessage("servoy.client.findModeHelp.generalCol2") }, //$NON-NLS-1$ //$NON-NLS-2$
 			data);
 		JSDataSet ds = new JSDataSet(application, set);
-		return "<html><body>" + ds.js_getAsHTML(false, true, true, true, true) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "<html><body>" + ds.js_getAsHTML(Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private static final int NULLCHECK_NONE = 0;
@@ -664,10 +668,28 @@ public class SQLGenerator
 				Object raw = elem.getValue();
 				if (raw == null) continue;
 
+				int dataProviderType = -1;
+				ConverterInfo columnConverterInfo = null;
+				IColumnConverter columnConverter = null;
 				IQuerySelectValue qCol = null;
 				IColumn c = table.getColumn(dataProviderID);
 				if (c != null)
 				{
+					dataProviderType = c.getDataProviderType();
+					columnConverterInfo = sheet.getColumnConverterInfo(dataProviderID);
+					if (columnConverterInfo != null)
+					{
+						columnConverter = application.getFoundSetManager().getColumnConverterManager().getConverter(columnConverterInfo.converterName);
+						if (columnConverter instanceof ITypedColumnConverter)
+						{
+							int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(columnConverterInfo.props);
+							if (convType != Integer.MAX_VALUE)
+							{
+								dataProviderType = Column.mapToDefaultType(convType);
+							}
+						}
+					}
+
 					// a column
 					qCol = new QueryColumn(columnTable, ((Column)c).getID(), ((Column)c).getSQLName(), ((Column)c).getDataProviderType(),
 						((Column)c).getLength());
@@ -688,6 +710,7 @@ public class SQLGenerator
 
 					if (c != null)
 					{
+						dataProviderType = c.getDataProviderType();
 						Map<String, QuerySelect> aggregates = sheet.getAggregates();
 						if (aggregates != null)
 						{
@@ -720,7 +743,7 @@ public class SQLGenerator
 				}
 				if (Utils.stringIsEmpty(formatString))
 				{
-					formatString = TagResolver.getDefaultFormatForType(application.getSettings(), c.getDataProviderType());
+					formatString = TagResolver.getDefaultFormatForType(application.getSettings(), dataProviderType);
 				}
 
 				ISQLCondition or = null;
@@ -730,7 +753,16 @@ public class SQLGenerator
 					Object[] elements = new Object[length];
 					for (int e = 0; e < length; e++)
 					{
-						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), Array.get(raw, e), formatString, c.getLength(), null, false);
+						Object obj = Array.get(raw, e);
+						if (obj instanceof Wrapper)
+						{
+							obj = ((Wrapper)obj).unwrap();
+						}
+						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString)) 
+						// and once to convert for query (getAsType(c.getDataProviderType(), null))
+						Object converted = convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(),
+							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false));
+						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false);
 					}
 					// where qCol in (e1, e2, ..., en)
 					or = new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
@@ -754,7 +786,7 @@ public class SQLGenerator
 						try
 						{
 							// find the format (only applicable for date columns)
-							if (c.getDataProviderType() == IColumnTypes.DATETIME)
+							if (dataProviderType == IColumnTypes.DATETIME)
 							{
 								int pipe_index = data.indexOf('|');
 								if (pipe_index != -1)//the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
@@ -879,7 +911,7 @@ public class SQLGenerator
 								CompareCondition compareEmpty = null;
 								if (nullCheck == NULLCHECK_NULL_EMPTY)
 								{
-									switch (c.getDataProviderType())
+									switch (dataProviderType)
 									{
 										case IColumnTypes.INTEGER :
 										case IColumnTypes.NUMBER :
@@ -902,13 +934,13 @@ public class SQLGenerator
 								Object value2 = null; // for between
 								int modifier = 0;
 
-								switch (c.getDataProviderType())
+								switch (dataProviderType)
 								{
 									case IColumnTypes.INTEGER :
 									case IColumnTypes.NUMBER :
 										Object initialObj = raw instanceof String ? data : raw;
-										Object objRightType = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj, formatString,
-											c.getLength(), null, false);
+										Object objRightType = Column.getAsRightType(dataProviderType, c.getFlags(), initialObj, formatString, c.getLength(),
+											null, false);
 										// Now get asRightType with RAW and not with the string. 
 										// Because if it is already a Number then it shouldn't be converted to String and then back
 										if (initialObj != null && objRightType == null)
@@ -924,8 +956,7 @@ public class SQLGenerator
 										// parse data2 (between)
 										if (data2 != null)
 										{
-											value2 = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, formatString, c.getLength(), null,
-												false);
+											value2 = Column.getAsRightType(dataProviderType, c.getFlags(), data2, formatString, c.getLength(), null, false);
 											if (value2 == null)
 											{
 												Debug.log("Cannot convert (" + data2.getClass().getSimpleName() + ") " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -940,11 +971,11 @@ public class SQLGenerator
 										Date tmp = null;
 										if (data.equalsIgnoreCase("now")) //$NON-NLS-1$ 
 										{
-											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
+											date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), tmp = new Date(), c.getLength(), false);
 										}
 										else if (data.startsWith("//") || data.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
 										{
-											date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), tmp = new Date(), c.getLength(), false);
+											date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), tmp = new Date(), c.getLength(), false);
 											dateSearch = true;
 										}
 										else
@@ -952,8 +983,8 @@ public class SQLGenerator
 											// Now get asRightType with RAW and not with the string. 
 											// Because if it is already a Date then it shouldn't be converted to String and then back
 											Object initialObj1 = ((raw instanceof String) ? data : raw);
-											Object tst = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), initialObj1, formatString, c.getLength(),
-												null, false);
+											Object tst = Column.getAsRightType(dataProviderType, c.getFlags(), initialObj1, formatString, c.getLength(), null,
+												false);
 											if (tst == null && initialObj1 != null)
 											{
 												// Format failed.. Reporting that to the user
@@ -995,19 +1026,19 @@ public class SQLGenerator
 											dateSearch = hash;
 											if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$ 
 											{
-												date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
+												date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), (tmp != null ? tmp : new Date()),
 													c.getLength(), false);
 											}
 											else if (data2.startsWith("//") || data2.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
 											{
-												date = (Date)Column.getAsRightType(c.getDataProviderType(), c.getFlags(), (tmp != null ? tmp : new Date()),
+												date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), (tmp != null ? tmp : new Date()),
 													c.getLength(), false);
 												dateSearch = true;
 											}
 											else
 											{
-												Object dt = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data2, formatString, c.getLength(),
-													null, false);
+												Object dt = Column.getAsRightType(dataProviderType, c.getFlags(), data2, formatString, c.getLength(), null,
+													false);
 												if (dt instanceof Date)
 												{
 													date = (Date)dt;
@@ -1081,23 +1112,33 @@ public class SQLGenerator
 
 									default :
 										operator = ISQLCondition.LIKE_OPERATOR;
-										value = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), data, formatString, c.getLength() + 2, null, false);//+2 for %...%
+										value = Column.getAsRightType(dataProviderType, c.getFlags(), data, formatString, c.getLength() + 2, null, false);//+2 for %...%
 								}
 
 								// create the condition
 								if (value != null)
 								{
-									Object operand2;
+									Object operand;
 									// for like, value2 may be the escape character
-									if (value2 != null && (operator == ISQLCondition.BETWEEN_OPERATOR || operator == ISQLCondition.LIKE_OPERATOR))
+									if (value2 != null && operator == ISQLCondition.BETWEEN_OPERATOR)
 									{
-										operand2 = new Object[] { value, value2 };
+										operand = new Object[] { Column.getAsRightType(c.getDataProviderType(), c.getFlags(),
+											convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(), value), null,
+											c.getLength(), null, false), Column.getAsRightType(c.getDataProviderType(), c.getFlags(),
+											convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(), value2), null,
+											c.getLength(), null, false) };
+									}
+									else if (operator == ISQLCondition.LIKE_OPERATOR)
+									{
+										operand = value2 == null ? value : new Object[] { value, value2 };
 									}
 									else
 									{
-										operand2 = value;
+										operand = Column.getAsRightType(c.getDataProviderType(), c.getFlags(),
+											convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(), value), null,
+											c.getLength(), null, false);
 									}
-									condition = new CompareCondition(operator | modifier, qCol, operand2);
+									condition = new CompareCondition(operator | modifier, qCol, operand);
 								}
 							}
 
@@ -1156,6 +1197,25 @@ public class SQLGenerator
 		return and;
 	}
 
+	public static Object convertFromObject(IColumnConverter columnConverter, ConverterInfo columnConverterInfo, String dataProviderID, int columnType,
+		Object obj)
+	{
+		if (columnConverter == null)
+		{
+			return obj;
+		}
+		try
+		{
+			return columnConverter.convertFromObject(columnConverterInfo.props, columnType, obj);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+			throw new IllegalArgumentException(Messages.getString(
+				"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(columnType), obj }), e); //$NON-NLS-1$
+		}
+	}
+
 	public static ISQLCondition createExistsCondition(IDataProviderHandler flattenedSolution, QuerySelect sqlSelect, ISQLCondition condition,
 		List<IRelation> relations, QueryTable columnTable, IGlobalValueEntry provider, QueryColumn[] pkQueryColumns) throws RepositoryException
 	{
@@ -1206,7 +1266,7 @@ public class SQLGenerator
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		Utils.applyMaxTime(cal);
-		return Column.getAsRightType(c.getDataProviderType(), c.getFlags(), cal.getTime(), c.getLength(), false);
+		return Column.getAsRightType(IColumnTypes.DATETIME, c.getFlags(), cal.getTime(), c.getLength(), false);
 	}
 
 	private Object getStartOfDay(Date date, IColumn c)
@@ -1214,7 +1274,7 @@ public class SQLGenerator
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		Utils.applyMinTime(cal);
-		return Column.getAsRightType(c.getDataProviderType(), c.getFlags(), cal.getTime(), c.getLength(), false);
+		return Column.getAsRightType(IColumnTypes.DATETIME, c.getFlags(), cal.getTime(), c.getLength(), false);
 	}
 
 	static SetCondition createDynamicPKSetConditionForFoundset(FoundSet foundSet, QueryTable queryTable, IDataSet pks)
@@ -1452,7 +1512,6 @@ public class SQLGenerator
 	 */
 	public static ISQLCondition createTableFilterCondition(QueryTable qTable, Table table, TableFilter filter)
 	{
-
 		if (!table.getSQLName().equals(qTable.getName()))
 		{
 			// not for this table

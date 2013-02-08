@@ -600,7 +600,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @return true if adding the filter succeeded, false otherwise.
 	 */
-	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value)
+	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value) throws ServoyException
 	{
 		return addFilterParam(null, dataprovider, operator, value);
 	}
@@ -629,7 +629,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return true if adding the filter succeeded, false otherwise.
 	 */
-	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value, String name)
+	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value, String name) throws ServoyException
 	{
 		return addFilterParam(name, dataprovider, operator, value);
 	}
@@ -5976,7 +5976,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		refreshFromDBInternal(select, false, false, fsm.pkChunkSize, false, false);
 	}
 
-	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)
+	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException
 	{
 		if (sheet.getTable() == null)
 		{
@@ -5989,7 +5989,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-		TableFilter filter = FoundSetManager.createTableFilter(filterName, sheet.getServerName(), sheet.getTable(), dataprovider, operator, value);
+		TableFilter filter = fsm.createTableFilter(filterName, sheet.getServerName(), sheet.getTable(), dataprovider, operator, value);
 		if (filter == null)
 		{
 			return false;

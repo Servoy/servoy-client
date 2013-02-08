@@ -2027,15 +2027,11 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		 *
 		 */
 		@Deprecated
-		public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value)
+		public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value) throws ServoyException
 		{
 			checkDestroyed();
 			FoundSet fs = formController.getFormModel();
-			if (fs != null)
-			{
-				return fs.addFilterParam(null, dataprovider, operator, value);
-			}
-			return false;
+			return fs != null && fs.addFilterParam(null, dataprovider, operator, value);
 		}
 
 		/**
