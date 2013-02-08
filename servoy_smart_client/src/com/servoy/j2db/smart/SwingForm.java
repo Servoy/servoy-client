@@ -1718,6 +1718,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	 */
 	public void uiRecreated()
 	{
+		// make sure the complete ui is validated (repainted)
+		validate();
 	}
 
 	public int getFormWidth()
