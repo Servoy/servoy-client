@@ -2531,10 +2531,17 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		designableElementsArray : null,
 		callbackurl : null,
 		mouseSelectTime : new Date(),
+		mouseDownEvent : null,
 		
 		mouseSelect: function(e)
 		{
+			Servoy.ClientDesign.mouseDownEvent = e;
 			Servoy.ClientDesign.selectElement(e, Servoy.ClientDesign.isDblClick());
+		},
+		
+		mouseUp: function(e)
+		{
+			Servoy.ClientDesign.mouseDownEvent = null;
 		},
 		
 		isDblClick: function()
@@ -2754,6 +2761,8 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				});
 				Servoy.ClientDesign.selectedElementId = elem.id;
 				Servoy.ClientDesign.selectedResizeElement = resize;
+				
+				if(Servoy.ClientDesign.mouseDownEvent) resize.dd.handleMouseDown(Servoy.ClientDesign.mouseDownEvent, resize.dd);
 			}
 			else
 			{
@@ -2765,10 +2774,32 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		attach: function (array,url)
 		{
 			Servoy.ClientDesign.designableElementsArray = array;
+			var el, enclosedEl;
+			for(var elID in Servoy.ClientDesign.designableElementsArray)
+			{
+				el = document.getElementById(elID);
+				Servoy.ClientDesign.addDragCursor(el);
+				Servoy.ClientDesign.addDragCursor(el.getElementsByTagName('input'));
+				Servoy.ClientDesign.addDragCursor(el.getElementsByTagName('textarea'));
+				Servoy.ClientDesign.addDragCursor(el.getElementsByTagName('button'));
+			}
 			Servoy.ClientDesign.callbackurl = url;
 			Wicket.Event.add(document.body, "mousedown", Servoy.ClientDesign.mouseSelect);
+			Wicket.Event.add(document.body, "mouseup", Servoy.ClientDesign.mouseUp);
 			document.body.oncontextmenu = function(e) { e.preventDefault();}
 			var Dom = YAHOO.util.Dom,Event = YAHOO.util.Event; //to load stuff?
+		},
+		
+		addDragCursor: function(el)
+		{
+			if(el.length)
+			{
+				for(var i = 0; i < el.length; i++) Servoy.ClientDesign.addDragCursor(el[i]);
+			}
+			else
+			{
+				YAHOO.util.Dom.addClass(el, 'yui-draggable');
+			}
 		},
 		
 		reattach: function()
