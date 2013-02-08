@@ -3,6 +3,7 @@
 <module rename-to='servoy_base'>
     <source path="scripting/api" />
     <source path="scripting" />
+    <source path="plugins" />
     <source path="persistence/constants" />
     <source path="persistence" />
     <source path="util" />
