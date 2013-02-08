@@ -442,16 +442,21 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 				display.notifyLastNewValueWasChange(prevValue, obj);//to trigger onChangeMethod (not all displays have own property change impl)
 
-				// onDataChange(==notifyLastNewValueWasChange) call can have changed the value
-				if (dal.getFormScope() != null && dal.getFormScope().has(dataProviderID, dal.getFormScope()))
+				// check if the DataAdapterList is now destroyed (because of recreateUI in the onchange method)
+				// ignore the rest if it is destroyed.
+				if (!dal.isDestroyed())
 				{
-					obj = dal.getFormScope().get(dataProviderID);
+					// onDataChange(==notifyLastNewValueWasChange) call can have changed the value
+					if (dal.getFormScope() != null && dal.getFormScope().has(dataProviderID, dal.getFormScope()))
+					{
+						obj = dal.getFormScope().get(dataProviderID);
+					}
+					else if (record != null)
+					{
+						obj = record.getValue(dataProviderID);
+					}
+					setValueToDisplays(obj);// we also want to reset the value in the current display if changed by script
 				}
-				else if (record != null)
-				{
-					obj = record.getValue(dataProviderID);
-				}
-				setValueToDisplays(obj);// we also want to reset the value in the current display if changed by script
 			}
 			finally
 			{

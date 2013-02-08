@@ -967,4 +967,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 
 		return new Object[] { new Integer(index), new Boolean(isSelected) };
 	}
+
+	/**
+	 * @return
+	 */
+	public boolean isDestroyed()
+	{
+		return destroyed;
+	}
 }

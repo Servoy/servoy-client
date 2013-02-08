@@ -2409,6 +2409,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		setView(v);
 		if (isFormVisible)
 		{
+			// first push the latest data in the regenerated ui.
+			valueChanged(null);
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			IDataRenderer[] array = getDataRenderers();
 			for (IDataRenderer dataRenderer : array)
