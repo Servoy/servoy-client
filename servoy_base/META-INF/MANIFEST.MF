@@ -7,6 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Servoy
 Export-Package: com.servoy.base.persistence,
  com.servoy.base.persistence.constants,
+ com.servoy.base.plugins,
  com.servoy.base.scripting.annotations,
  com.servoy.base.scripting.api,
  com.servoy.base.scripting.solutionhelper,
