@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.persistence.IMobileProperties.MobileProperty;
+import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMField;
@@ -140,17 +141,21 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 			String cGroup = c.getGroupID();
 			if (cGroup != null)
 			{
-				IBaseSMLabel[] labels = parentForm.getLabelsInternal(true);
-				for (IBaseSMLabel l : labels)
+				IBaseSMComponent[] labels = parentForm.getComponentsInternal(true, Integer.valueOf(IRepositoryConstants.GRAPHICALCOMPONENTS));
+				for (IBaseSMComponent label : labels)
 				{
-					if (cGroup.equals(l.getGroupID()))
+					if (label instanceof IBaseSMLabel)
 					{
-						// I guess the following if might as well not be; the location thing is for legacy solutions (before the COMPONENT_TITLE existed)
-						if (Boolean.TRUE.equals(getMobileProperties(l).getPropertyValue(IMobileProperties.COMPONENT_TITLE)) || l.getY() < c.getY() ||
-							(l.getY() == c.getY() && l.getX() < c.getX()))
+						IBaseSMLabel l = (IBaseSMLabel)label;
+						if (cGroup.equals(l.getGroupID()))
 						{
-							titleLabel = l;
-							break;
+							// I guess the following if might as well not be; the location thing is for legacy solutions (before the COMPONENT_TITLE existed)
+							if (Boolean.TRUE.equals(getMobileProperties(l).getPropertyValue(IMobileProperties.COMPONENT_TITLE)) || l.getY() < c.getY() ||
+								(l.getY() == c.getY() && l.getX() < c.getX()))
+							{
+								titleLabel = l;
+								break;
+							}
 						}
 					}
 				}

@@ -51,31 +51,34 @@ public class MobileDWCJSForm extends JSForm implements IBaseSMFormInternal
 	@Override
 	public JSComponent< ? >[] getComponents()
 	{
-		return getComponentsInternal(false);
+		return getComponentsInternal(false, null);
 	}
 
 	@Override
 	public JSLabel[] getLabels()
 	{
-		return getLabelsInternal(false);
+		return filterOutLabels(super.getLabels(), super.getComponents(), new JSLabel[0]);
 	}
 
 	@Override
-	public JSComponent< ? >[] getComponentsInternal(boolean showInternal)
+	public JSComponent< ? >[] getComponentsInternal(boolean showInternal, Integer componentType)
 	{
 		JSComponent< ? >[] allComponents = super.getComponents();
+		if (componentType != null)
+		{
+			List<JSComponent< ? >> components = Arrays.asList(allComponents);
+			for (JSComponent< ? > component : allComponents)
+			{
+				if (component.getBaseComponent(false).getTypeID() != componentType.intValue())
+				{
+					components.remove(component);
+				}
+			}
+			allComponents = components.toArray(new JSComponent< ? >[0]);
+		}
 		if (!showInternal) allComponents = filterOutLabels(allComponents, allComponents, new JSComponent< ? >[0]);
 
 		return allComponents;
-	}
-
-	@Override
-	public JSLabel[] getLabelsInternal(boolean showInternal)
-	{
-		JSLabel[] allLabels = super.getLabels();
-		if (!showInternal) allLabels = filterOutLabels(allLabels, super.getComponents(), new JSLabel[0]);
-
-		return allLabels;
 	}
 
 	private <T extends JSComponent< ? >> T[] filterOutLabels(T[] toFilter, JSComponent< ? >[] allComponents, T[] resultArrayType)
@@ -139,7 +142,7 @@ public class MobileDWCJSForm extends JSForm implements IBaseSMFormInternal
 		String group = c.getGroupID();
 		if (group != null)
 		{
-			JSLabel[] allLabels = getLabelsInternal(true);
+			JSLabel[] allLabels = getLabels();
 			for (JSLabel l : allLabels)
 			{
 				if (group.equals(l.getGroupID()) &&

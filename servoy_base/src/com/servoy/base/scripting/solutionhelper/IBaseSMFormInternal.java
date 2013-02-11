@@ -19,7 +19,6 @@ package com.servoy.base.scripting.solutionhelper;
 
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMForm;
-import com.servoy.base.solutionmodel.IBaseSMLabel;
 
 /**
  * Gives access to non-public functionality, such as being able to access hidden content.
@@ -31,15 +30,9 @@ public interface IBaseSMFormInternal extends IBaseSMForm
 	/**
 	 * In mobile some components such as title labels are hidden from public API access. This method allows access to them.
 	 * @param showInternal true if all should be revealed, false for normal public access.
+	 * @param componentType component type to be returned or null for all components
 	 * @return the list of components in this form, filtered or not from public API access point of view.
 	 */
-	IBaseSMComponent[] getComponentsInternal(boolean showInternal);
-
-	/**
-	 * In mobile title labels are hidden from public API access. This method allows access to them.
-	 * @param showInternal true if all should be revealed, false for normal public access.
-	 * @return the list of components in this form, filtered or not from public API access point of view.
-	 */
-	IBaseSMLabel[] getLabelsInternal(boolean showInternal);
+	IBaseSMComponent[] getComponentsInternal(boolean showInternal, Integer componentType);
 
 }
