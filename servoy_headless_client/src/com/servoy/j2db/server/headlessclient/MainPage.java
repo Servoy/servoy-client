@@ -180,6 +180,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	private boolean mustFocusNull;
 
 	private transient boolean mainFormSwitched;
+	private transient boolean versionNeedsPushing;
 
 	private final IValueMap bodyAttributes = new ValueMap();
 
@@ -1018,6 +1019,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		showingInWindow = false;
 		showUrlInfo = null;
 		mainFormSwitched = false;
+		versionNeedsPushing = false;
 
 		webForms.clear();
 		if (RequestCycle.get() != null)
@@ -1537,6 +1539,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (currentForm != f)
 		{
 			mainFormSwitched = true;
+			versionNeedsPushing = true;
 			this.currentForm = f;
 		}
 		if (currentForm == null)
@@ -1935,12 +1938,18 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		return value;
 	}
 
-	/**
-	 * @return
-	 */
 	public boolean isMainFormSwitched()
 	{
 		return mainFormSwitched;
+	}
+
+	// only create new page version once (between the time when the new version is created and the time the new version of the page
+	// is fully rendered to the browser (in a subsequent req.), there is a possibility that another AJAX request comes in
+	// and we don't want that one bumping the version again)
+	public void versionPush()
+	{
+		if (versionNeedsPushing) ignoreVersionMerge();
+		versionNeedsPushing = false;
 	}
 
 	public boolean isClosingAsDivPopup()
@@ -2150,12 +2159,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public void setMainPageSwitched()
 	{
 		mainFormSwitched = true;
+		versionNeedsPushing = true;
 	}
 
 	public void getMainPageReversedCloseSeq(ArrayList<String> al, Set<String> visited)
