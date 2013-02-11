@@ -236,7 +236,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					return IVisitor.CONTINUE_TRAVERSAL;
 				}
 			});
-			if (child instanceof IComponent && action != null)
+			if (action != null)
 			{
 				int height = stripUnitPart(request.getParameter(PARAM_RESIZE_HEIGHT));
 				int width = stripUnitPart(request.getParameter(PARAM_RESIZE_WIDTH));
@@ -246,95 +246,102 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 				if (action.equals(ACTION_SELECT))
 				{
-					Object ret = callback.executeOnSelect(getJSEvent(EventType.action, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
-					if (ret instanceof Boolean && !((Boolean)ret).booleanValue())
-					{
-						onSelectComponent = null;
-					}
+					if (!(child instanceof IComponent)) onSelectComponent = null;
 					else
 					{
-						onSelectComponent = (IComponent)child;
-						target.appendJavascript("Servoy.ClientDesign.attachElement(document.getElementById('" + id + "'));");
-					}
-					if (Boolean.parseBoolean(request.getParameter(PARAM_IS_RIGHTCLICK)))
-					{
-						callback.executeOnRightClick(getJSEvent(EventType.rightClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
-					}
-					else if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
-					{
-						callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						Object ret = callback.executeOnSelect(getJSEvent(EventType.action, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						if (ret instanceof Boolean && !((Boolean)ret).booleanValue())
+						{
+							onSelectComponent = null;
+						}
+						else
+						{
+							onSelectComponent = (IComponent)child;
+							target.appendJavascript("Servoy.ClientDesign.attachElement(document.getElementById('" + id + "'));");
+						}
+						if (Boolean.parseBoolean(request.getParameter(PARAM_IS_RIGHTCLICK)))
+						{
+							callback.executeOnRightClick(getJSEvent(EventType.rightClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						}
+						else if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
+						{
+							callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						}
 					}
 
 					WebEventExecutor.generateResponse(target, getComponent().getPage());
 					return;
 				}
 
-				if (child != onSelectComponent)
+				if (child instanceof IComponent)
 				{
-					onSelectComponent = (IComponent)child;
-				}
-				if (action.equals(ACTION_RESIZE))
-				{
-					if (width != -1 && height != -1)
+					if (child != onSelectComponent)
 					{
-						if (child instanceof ISupportWebBounds)
-						{
-							Insets paddingAndBorder = ((ISupportWebBounds)child).getPaddingAndBorder();
-							if (paddingAndBorder != null)
-							{
-								height += paddingAndBorder.bottom + paddingAndBorder.top;
-								width += paddingAndBorder.left + paddingAndBorder.right;
-							}
-						}
-						if (child instanceof IScriptableProvider)
-						{
-							((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setSize(width, height);
-							((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setLocation(x, y);
-						}
-						if (child instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
+						onSelectComponent = (IComponent)child;
 					}
-					callback.executeOnResize(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
-				}
-				else if (action.equals(DraggableBehavior.ACTION_DRAG_START))
-				{
-					Object onDragAllowed = callback.executeOnDrag(getJSEvent(EventType.onDrag, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
-					if ((onDragAllowed instanceof Boolean && !((Boolean)onDragAllowed).booleanValue()) ||
-						(onDragAllowed instanceof Number && ((Number)onDragAllowed).intValue() == DRAGNDROP.NONE))
+					if (action.equals(ACTION_RESIZE))
 					{
-						onDragComponent = null;
+						if (width != -1 && height != -1)
+						{
+							if (child instanceof ISupportWebBounds)
+							{
+								Insets paddingAndBorder = ((ISupportWebBounds)child).getPaddingAndBorder();
+								if (paddingAndBorder != null)
+								{
+									height += paddingAndBorder.bottom + paddingAndBorder.top;
+									width += paddingAndBorder.left + paddingAndBorder.right;
+								}
+							}
+							if (child instanceof IScriptableProvider)
+							{
+								((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setSize(width, height);
+								((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setLocation(x, y);
+							}
+							if (child instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
+						}
+						callback.executeOnResize(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+					}
+					else if (action.equals(DraggableBehavior.ACTION_DRAG_START))
+					{
+						Object onDragAllowed = callback.executeOnDrag(getJSEvent(EventType.onDrag, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						if ((onDragAllowed instanceof Boolean && !((Boolean)onDragAllowed).booleanValue()) ||
+							(onDragAllowed instanceof Number && ((Number)onDragAllowed).intValue() == DRAGNDROP.NONE))
+						{
+							onDragComponent = null;
+						}
+						else
+						{
+							onDragComponent = (IComponent)child;
+						}
 					}
 					else
 					{
-						onDragComponent = (IComponent)child;
-					}
-				}
-				else
-				{
-					if (child == onDragComponent)
-					{
-						if (x != -1 && y != -1)
+						if (child == onDragComponent)
 						{
-							((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setLocation(x, y);
-							if (child instanceof IProviderStylePropertyChanges)
+							if (x != -1 && y != -1)
 							{
-								// test if it is wrapped
-								if ((child).getParent() instanceof WrapperContainer)
+								((IRuntimeComponent)((IScriptableProvider)child).getScriptObject()).setLocation(x, y);
+								if (child instanceof IProviderStylePropertyChanges)
 								{
-									// call for the changes on the wrapper container so that it will copy the right values over
-									WrapperContainer wrapper = (WrapperContainer)(child).getParent();
-									wrapper.getStylePropertyChanges().getChanges();
-									wrapper.getStylePropertyChanges().setRendered();
+									// test if it is wrapped
+									if ((child).getParent() instanceof WrapperContainer)
+									{
+										// call for the changes on the wrapper container so that it will copy the right values over
+										WrapperContainer wrapper = (WrapperContainer)(child).getParent();
+										wrapper.getStylePropertyChanges().getChanges();
+										wrapper.getStylePropertyChanges().setRendered();
 
+									}
+									((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 								}
-								((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 							}
+							callback.executeOnDrop(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
 						}
-						callback.executeOnDrop(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
-					}
 
-					if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
-					{
-						callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
+						{
+							callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						}
 					}
 				}
 			}
