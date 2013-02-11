@@ -2527,18 +2527,6 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		selectedElementId : null,
 		designableElementsArray : null,
 		callbackurl : null,
-		mouseDownEvent : null,
-		
-		mouseDown: function(e)
-		{
-			Servoy.ClientDesign.mouseDownEvent = e;
-			Servoy.ClientDesign.selectElement(e);
-		},
-		
-		mouseUp: function(e)
-		{
-			Servoy.ClientDesign.mouseDownEvent = null;
-		},
 		
 		selectElement: function(e)
 		{
@@ -2746,8 +2734,6 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				});
 				Servoy.ClientDesign.selectedElementId = elem.id;
 				Servoy.ClientDesign.selectedResizeElement = resize;
-				
-				if(Servoy.ClientDesign.mouseDownEvent) resize.dd.handleMouseDown(Servoy.ClientDesign.mouseDownEvent, resize.dd);
 			}
 			else
 			{
@@ -2759,31 +2745,9 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		attach: function (array,url)
 		{
 			Servoy.ClientDesign.designableElementsArray = array;
-			var el, enclosedEl;
-			for(var elID in Servoy.ClientDesign.designableElementsArray)
-			{
-				el = document.getElementById(elID);
-				Servoy.ClientDesign.addDragCursor(el);
-				Servoy.ClientDesign.addDragCursor(el.getElementsByTagName('input'));
-				Servoy.ClientDesign.addDragCursor(el.getElementsByTagName('textarea'));
-				Servoy.ClientDesign.addDragCursor(el.getElementsByTagName('button'));
-			}
 			Servoy.ClientDesign.callbackurl = url;
-			Wicket.Event.add(document.body, "mousedown", Servoy.ClientDesign.mouseDown);
-			Wicket.Event.add(document.body, "mouseup", Servoy.ClientDesign.mouseUp);
+			Wicket.Event.add(document.body, "mousedown", Servoy.ClientDesign.selectElement);
 			var Dom = YAHOO.util.Dom,Event = YAHOO.util.Event; //to load stuff?
-		},
-		
-		addDragCursor: function(el)
-		{
-			if(el.length)
-			{
-				for(var i = 0; i < el.length; i++) Servoy.ClientDesign.addDragCursor(el[i]);
-			}
-			else
-			{
-				YAHOO.util.Dom.addClass(el, 'yui-draggable');
-			}
 		},
 		
 		reattach: function()
