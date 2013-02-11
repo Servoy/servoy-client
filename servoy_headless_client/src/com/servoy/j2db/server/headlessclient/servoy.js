@@ -2576,6 +2576,12 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				elem = elem.parentNode;
 			}
 			
+			// get the enclosing button
+			if(elem.nodeName == 'SPAN' && elem.parentNode && elem.parentNode.nodeName == "BUTTON")
+			{
+				elem = elem.parentNode;
+			}
+			
 			//get enclosing wrapper to work on
 			if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.indexOf('_wrapper')>0)
 			{
@@ -2624,17 +2630,6 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 					tabpanelElem = tabpanelElem.parentNode;
 				}
 				if(tabpanelElem && tabpanelElem.className == 'tabpanel') elem = tabpanelElem;
-			}
-			
-			// get enclosing div for a span (button)
-			if(elem.nodeName == 'SPAN')
-			{
-				var auxElem = elem;
-				while(auxElem && auxElem.nodeName != 'DIV')
-				{
-					auxElem = auxElem.parentNode;
-				}
-				if(auxElem && auxElem.nodeName == 'DIV') elem = auxElem;	
 			}
 
 			if (!elem.id)
