@@ -2754,6 +2754,13 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 					Servoy.ClientDesign.selectedResizeElement = null;
 					wicketAjaxGet(url);
 				});
+				
+				if (Servoy.ClientDesign.selectedResizeElement != null)
+				{
+					//deselect old yui elements
+					Servoy.ClientDesign.selectedResizeElement.destroy()
+					Servoy.ClientDesign.selectedResizeElement = null;
+				}
 				Servoy.ClientDesign.selectedElementId = elem.id;
 				Servoy.ClientDesign.selectedResizeElement = resize;
 				
