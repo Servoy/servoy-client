@@ -57,7 +57,7 @@ public class MobileDWCJSForm extends JSForm implements IBaseSMFormInternal
 	@Override
 	public JSLabel[] getLabels()
 	{
-		return filterOutLabels(super.getLabels(), super.getComponents(), new JSLabel[0]);
+		return filterOutLabels(super.getLabels(), getComponentsInternal(true, null), new JSLabel[0]);
 	}
 
 	@Override
