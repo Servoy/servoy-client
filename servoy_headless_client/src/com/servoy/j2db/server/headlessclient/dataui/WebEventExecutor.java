@@ -682,7 +682,7 @@ public class WebEventExecutor extends BaseEventExecutor
 			// If the main form is switched then do a normal redirect.
 			if (mainPage.isMainFormSwitched())
 			{
-				page.ignoreVersionMerge();
+				mainPage.versionPush();
 				RequestCycle.get().setResponsePage(page);
 			}
 
