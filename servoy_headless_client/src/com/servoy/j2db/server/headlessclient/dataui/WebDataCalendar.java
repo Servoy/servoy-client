@@ -39,6 +39,7 @@ import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.AbstractTextComponent.ITextFormatProvider;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
@@ -185,6 +186,15 @@ public class WebDataCalendar extends WebMarkupContainer implements IFieldCompone
 
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
+	}
+
+
+	@SuppressWarnings("nls")
+	@Override
+	public void renderHead(final HtmlHeaderContainer container)
+	{
+		super.renderHead(container);
+		container.getHeaderResponse().renderOnDomReadyJavascript("setLanguageCode('" + application.getLocale().getLanguage() + "')");
 	}
 
 	public final RuntimeDataCalendar getScriptObject()
