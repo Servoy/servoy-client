@@ -33,7 +33,6 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	private transient Boolean isPrivate;
 	private transient Boolean isProtected;
 	private transient Boolean isConstructor;
-	private transient Boolean isDeprecated;
 
 	/**
 	 * Constructor I
@@ -73,7 +72,6 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		isPrivate = null;
 		isProtected = null;
 		isConstructor = null;
-		isDeprecated = null;
 	}
 
 	/**
@@ -140,25 +138,6 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		return constructor.booleanValue();
 	}
 
-	public boolean isDeprecated()
-	{
-		Boolean deprecated = isDeprecated;
-		if (deprecated == null)
-		{
-			String declaration = getDeclaration();
-			if (declaration == null)
-			{
-				deprecated = Boolean.FALSE;
-			}
-			else
-			{
-				int index = declaration.indexOf("*/");
-				deprecated = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@deprecated", index) != -1);
-			}
-			isDeprecated = deprecated;
-		}
-		return deprecated.booleanValue();
-	}
 
 	@Override
 	public String toString()
