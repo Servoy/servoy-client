@@ -223,9 +223,9 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	@Override
 	protected void fireValueChanged(int firstIndex, int lastIndex, boolean isAdjusting)
 	{
-		// make sure if the selection is still -1 but the size > 0 (and the SelectionModel wanted to fire because of the index added index changes)
+		// make sure if the selection is still -1 but the size > 0
 		// that we just set the selected row to the first index. (and that will do the real fire)
-		if (getSelectedRow() == -1 && firstIndex != lastIndex && foundset.getSize() > 0)
+		if (getSelectedRow() == -1 && foundset.getSize() > 0)
 		{
 			setSelectedRow(firstIndex);
 		}
