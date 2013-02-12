@@ -2526,13 +2526,13 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 {
 	Servoy.ClientDesign = 
 	{
-		selectedResizeElement : null,
+		selectedResizeElements : new Array(),
 		selectedElementId : null,
 		designableElementsArray : null,
 		callbackurl : null,
 		mouseSelectTime : new Date(),
 		mouseDownEvent : null,
-		
+
 		mouseSelect: function(e)
 		{
 			Servoy.ClientDesign.mouseDownEvent = e;
@@ -2550,6 +2550,12 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			var isDblClick = now - Servoy.ClientDesign.mouseSelectTime < 200;
 			Servoy.ClientDesign.mouseSelectTime = now;
 			return isDblClick;
+		},
+		
+		destroyResizeElements: function()
+		{
+			var r;
+			while(r = Servoy.ClientDesign.selectedResizeElements.shift()) r.destroy();
 		},
 		
 		selectElement: function(e, isDblClick)
@@ -2636,12 +2642,8 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			{
 				elem = elem.parentNode;
 			}
-			if (Servoy.ClientDesign.selectedResizeElement != null)
-			{
-				//deselect old yui elements
-				Servoy.ClientDesign.selectedResizeElement.destroy()
-				Servoy.ClientDesign.selectedResizeElement = null;
-			}
+			
+			Servoy.ClientDesign.destroyResizeElements();
 			
 			if (elem.id)
 			{
@@ -2737,8 +2739,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 					var isDblClick = Servoy.ClientDesign.isDblClick();
 					var element = document.getElementById(this.id);
 					var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid + '&isDblClick=' + isDblClick;
-					Servoy.ClientDesign.selectedResizeElement.destroy()
-					Servoy.ClientDesign.selectedResizeElement = null;
+					Servoy.ClientDesign.destroyResizeElements();
 					var parentLeft = wicketAjaxGet(url);
 				});
 
@@ -2750,19 +2751,12 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				resize.on('endResize', function(args) 
 				{
 					var url = Servoy.ClientDesign.callbackurl+'&a=aResize&draggableID=' + this._wrap.id + '&resizeHeight=' + args.height + '&resizeWidth=' + args.width + '&xc=' + this._wrap.style.left + '&yc=' + this._wrap.style.top;
-					Servoy.ClientDesign.selectedResizeElement.destroy()
-					Servoy.ClientDesign.selectedResizeElement = null;
+					Servoy.ClientDesign.destroyResizeElements();
 					wicketAjaxGet(url);
 				});
-				
-				if (Servoy.ClientDesign.selectedResizeElement != null)
-				{
-					//deselect old yui elements
-					Servoy.ClientDesign.selectedResizeElement.destroy()
-					Servoy.ClientDesign.selectedResizeElement = null;
-				}
+
 				Servoy.ClientDesign.selectedElementId = elem.id;
-				Servoy.ClientDesign.selectedResizeElement = resize;
+				Servoy.ClientDesign.selectedResizeElements.push(resize);
 				
 				if(Servoy.ClientDesign.mouseDownEvent) resize.dd.handleMouseDown(Servoy.ClientDesign.mouseDownEvent, resize.dd);
 			}
@@ -2808,7 +2802,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		{
 			window.setTimeout(function()
 			{
-			   if (Servoy.ClientDesign.selectedElementId && Servoy.ClientDesign.selectedResizeElement == null)
+			   if (Servoy.ClientDesign.selectedElementId && Servoy.ClientDesign.selectedResizeElements.length == 0)
 			   {
 			   		Servoy.ClientDesign.attachElement(document.getElementById(Servoy.ClientDesign.selectedElementId));
 			   }
@@ -2818,10 +2812,9 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		
 		hideSelected: function(elemId)
 		{
-			if(Servoy.ClientDesign.selectedElementId == elemId && Servoy.ClientDesign.selectedResizeElement)
+			if(Servoy.ClientDesign.selectedElementId == elemId && Servoy.ClientDesign.selectedResizeElements.length > 0)
 			{
-				Servoy.ClientDesign.selectedResizeElement.destroy();
-				Servoy.ClientDesign.selectedResizeElement = null;
+				Servoy.ClientDesign.destroyResizeElements();
 				Servoy.ClientDesign.selectedElementId = null;
 				
 				YAHOO.util.Dom.setStyle(YAHOO.util.Dom.get(elemId), 'display', 'none');
@@ -2830,11 +2823,10 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		
 		refreshSelected: function(elemId)
 		{
-			if (Servoy.ClientDesign.selectedResizeElement != null && Servoy.ClientDesign.selectedElementId == elemId)
+			if (Servoy.ClientDesign.selectedResizeElements.length > 0 && Servoy.ClientDesign.selectedElementId == elemId)
 			{
 				var updatedEl = document.getElementById(Servoy.ClientDesign.selectedElementId);
-				Servoy.ClientDesign.selectedResizeElement.destroy();
-				Servoy.ClientDesign.selectedResizeElement = null;
+				Servoy.ClientDesign.destroyResizeElements();
 				
 				var oldEl = document.getElementById(Servoy.ClientDesign.selectedElementId);
 				oldEl.parentNode.replaceChild(updatedEl, oldEl);
