@@ -192,6 +192,37 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private Dimension size = null; // keeps the size in case of browser windows (non-modal windows); not used for dialogs;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.Page#getVersion(int)
+	 */
+	@Override
+	public Page getVersion(int versionNumber)
+	{
+		// don't let the page version number go past the minimum that is set.
+		if (versionNumber != -1 && minimumVersionNumber != -1 && versionNumber < minimumVersionNumber)
+		{
+			return super.getVersion(minimumVersionNumber);
+		}
+		return super.getVersion(versionNumber);
+	}
+
+	int minimumVersionNumber = -1;
+
+	private boolean storeMinVersion;
+
+
+	/**
+	 * 
+	 */
+	public void storeMinVersion()
+	{
+		// set the boolean that is used afterRender
+		// because only then the actual version number is set.
+		storeMinVersion = true;
+	}
+
 	private class SetStatusBehavior extends AbstractBehavior
 	{
 		private String text;
@@ -986,7 +1017,11 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 		super.onAfterRender();
 
 		mainFormSwitched = false;
-
+		if (storeMinVersion)
+		{
+			minimumVersionNumber = getCurrentVersionNumber();
+			storeMinVersion = false;
+		}
 		// make sure that all IProviderStylePropertyChanges are set to rendered on a full page render.
 		visitChildren(IProviderStylePropertyChanges.class, new IVisitor<Component>()
 		{
@@ -2474,4 +2509,5 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 	{
 		return "v_" + name.replace('-', '_').replace(' ', '_').replace(':', '_'); //$NON-NLS-1$
 	}
+
 }
