@@ -31,6 +31,7 @@ import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.SubSummaryFoundSet;
@@ -50,12 +51,12 @@ import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.util.Debug;
@@ -183,7 +184,16 @@ public class PartNode
 
 	public List<DataRendererDefinition> process(FormPreviewPanel fpp, FoundSet fs, Table table, QuerySelect sqlString) throws Exception
 	{
-		fs.setSelectedIndex(-1);//there is no selection in printing!
+		if (fs instanceof ISwingFoundSet)
+		{ //Selection model must be in print mode to be able to set the selection to -1  . Otherwise is not allowed by the selectionModel 
+			((ISwingFoundSet)fs).getSelectionModel().setPrintMode(true);
+			fs.setSelectedIndex(-1);//there is no selection in printing!
+			((ISwingFoundSet)fs).getSelectionModel().setPrintMode(false);
+		}
+		else
+		{
+			fs.setSelectedIndex(-1);//there is no selection in printing!
+		}
 		FoundSet rootSet = (FoundSet)fs.copy(false);//this is needed because we must keep sql the same in foundset during printing
 		foundSets.add(rootSet);
 

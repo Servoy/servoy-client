@@ -43,6 +43,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 {
 	private final List<FormController> formControllers;
 	private final ISwingFoundSet foundset;
+	private boolean isPrinting = false;
 
 	// the following two flags I think can be removed altogether if we override insertIndexInterval and removeIndexInterval completely, so super.these are only called
 	// from foundset ListDataListener - this way no UI JTable/JList will decide, only the foundset itself; not completely sure about this though
@@ -70,6 +71,14 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		{
 			formControllers.remove(formController);
 		}
+	}
+
+	/**
+	 * 	used to allow setting the selection to -1 when size >0  for printing 
+	 */
+	public void setPrintMode(boolean isPrinting)
+	{
+		this.isPrinting = isPrinting;
 	}
 
 	private boolean testStopUIEditing()
@@ -223,9 +232,9 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	@Override
 	protected void fireValueChanged(int firstIndex, int lastIndex, boolean isAdjusting)
 	{
-		// make sure if the selection is still -1 but the size > 0
+		// make sure if the selection is still -1 but the size > 0 (and the SelectionModel wanted to fire because of the index added index changes)
 		// that we just set the selected row to the first index. (and that will do the real fire)
-		if (getSelectedRow() == -1 && foundset.getSize() > 0)
+		if (getSelectedRow() == -1 && (firstIndex != lastIndex || !isPrinting) && foundset.getSize() > 0)
 		{
 			setSelectedRow(firstIndex);
 		}
