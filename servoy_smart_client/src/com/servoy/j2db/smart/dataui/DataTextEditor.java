@@ -33,6 +33,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.HierarchyEvent;
@@ -54,6 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JEditorPane;
@@ -1032,6 +1034,22 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 							enclosedComponent.getDocument().putProperty("IgnoreCharsetDirective", new Boolean(true));
 							StringReader sr = new StringReader(svalue);
 							editorKit.read(sr, enclosedComponent.getDocument(), 0);
+
+
+						}
+						for (Component c : enclosedComponent.getComponents())
+						{
+							Container parent = (Container)c;
+							if (parent.getComponents().length == 1 && parent.getComponents()[0] instanceof AbstractButton)
+							{
+								((AbstractButton)parent.getComponents()[0]).addActionListener(new ActionListener()
+								{
+									public void actionPerformed(ActionEvent e)
+									{
+										eventExecutor.actionPerformed(e.getModifiers());
+									}
+								});
+							}
 						}
 					}
 					else
