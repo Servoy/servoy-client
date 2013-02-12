@@ -22,9 +22,11 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  * 
  */
-public abstract class AbstractScriptProvider extends AbstractBase implements IScriptProvider, ISupportUpdateableName, ISupportContentEquals
+public abstract class AbstractScriptProvider extends AbstractBase implements IScriptProvider, ISupportUpdateableName, ISupportContentEquals,
+	ISupportDeprecatedAnnotation
 {
 	private transient String methodCode;
+	private transient Boolean isDeprecated;
 
 	/**
 	 * @param type
@@ -191,6 +193,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION, declaration);
 		methodCode = null;
+		isDeprecated = null;
 	}
 
 	/**
@@ -213,4 +216,23 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_SCOPENAME, scopeName);
 	}
 
+	public boolean isDeprecated()
+	{
+		Boolean deprecated = isDeprecated;
+		if (deprecated == null)
+		{
+			String declaration = getDeclaration();
+			if (declaration == null)
+			{
+				deprecated = Boolean.FALSE;
+			}
+			else
+			{
+				int index = declaration.indexOf("*/");
+				deprecated = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@deprecated", index) != -1);
+			}
+			isDeprecated = deprecated;
+		}
+		return deprecated.booleanValue();
+	}
 }
