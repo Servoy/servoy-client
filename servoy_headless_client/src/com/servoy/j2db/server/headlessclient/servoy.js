@@ -2527,99 +2527,111 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		selectedElementId : null,
 		designableElementsArray : null,
 		callbackurl : null,
+		clickTimer : false,
+
+		clearClickTimer: function()
+		{
+			Servoy.ClientDesign.clickTimer = false;
+		},
 		
 		selectElement: function(e)
 		{
-			var elem;
-			if (!e)
+			if(!Servoy.ClientDesign.clickTimer)
 			{
-				e = window.event;
-			}
-			
-			if (e.target)
-			{
-				elem = e.target;
-			}
-			else if (e.srcElement)
-			{
-				elem = e.srcElement;
-			}
-			
-			if (elem.nodeType == 3) // defeat Safari bug
-			{
-				elem = elem.parentNode;
-			}
-			
-			// get the enclosing button
-			if(elem.nodeName == 'SPAN' && elem.parentNode && elem.parentNode.nodeName == "BUTTON")
-			{
-				elem = elem.parentNode;
-			}
-			
-			//get enclosing wrapper to work on
-			if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.indexOf('_wrapper')>0)
-			{
-				elem = elem.parentNode;
-			}
-			
-			// get the parent label for label span & img tags
-			if(elem.id && (elem.id.indexOf('_lb')>0 || elem.id.indexOf('_img')>0))
-			{
-				var lbElem = elem;
-				while(lbElem && lbElem.className != 'label')
+				Servoy.ClientDesign.clickTimer = true;
+				
+				var elem;
+				if (!e)
 				{
-					lbElem = lbElem.parentNode;
+					e = window.event;
 				}
-				if(lbElem && lbElem.className == 'label') elem = lbElem;
-			}
-			
-			// get enclosing div for composite field
-			if(elem.id && elem.id.indexOf('compositefield')>0)
-			{
-				var dateElem = elem;
-				while(dateElem && dateElem.className != 'field')
+				
+				if (e.target)
 				{
-					dateElem = dateElem.parentNode;
+					elem = e.target;
 				}
-				if(dateElem && dateElem.className == 'field') elem = dateElem;			
-			}
-			
-			// get enclosing div for date checkbox
-			if(elem.id && (elem.id.indexOf('check_')>-1 || elem.id.indexOf('text_')>-1))
-			{
-				var checkElem = elem;
-				while(checkElem && checkElem.className != 'check')
+				else if (e.srcElement)
 				{
-					checkElem = checkElem.parentNode;
+					elem = e.srcElement;
 				}
-				if(checkElem && checkElem.className == 'check') elem = checkElem;			
-			}
-			
-			// get tabpanel of form
-			if(elem.className == 'formpart')
-			{
-				var tabpanelElem = elem;
-				while(tabpanelElem && tabpanelElem.className != 'tabpanel')
+				
+				if (elem.nodeType == 3) // defeat Safari bug
 				{
-					tabpanelElem = tabpanelElem.parentNode;
+					elem = elem.parentNode;
 				}
-				if(tabpanelElem && tabpanelElem.className == 'tabpanel') elem = tabpanelElem;
-			}
-			
-			if (!elem.id)
-			{
-				elem = elem.parentNode;
-			}
-			if (Servoy.ClientDesign.selectedResizeElement != null)
-			{
-				//deselect old yui elements
-				Servoy.ClientDesign.selectedResizeElement.destroy()
-				Servoy.ClientDesign.selectedResizeElement = null;
-			}
-			
-			if (elem.id)
-			{
-				wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aSelect&xc=' + elem.style.left + '&yc=' + elem.style.top + '&draggableID=' + elem.id);
+				
+				// get the enclosing button
+				if(elem.nodeName == 'SPAN' && elem.parentNode && elem.parentNode.nodeName == "BUTTON")
+				{
+					elem = elem.parentNode;
+				}
+				
+				//get enclosing wrapper to work on
+				if (elem.id && elem.parentNode && elem.parentNode.id && elem.parentNode.id.indexOf('_wrapper')>0)
+				{
+					elem = elem.parentNode;
+				}
+				
+				// get the parent label for label span & img tags
+				if(elem.id && (elem.id.indexOf('_lb')>0 || elem.id.indexOf('_img')>0))
+				{
+					var lbElem = elem;
+					while(lbElem && lbElem.className != 'label')
+					{
+						lbElem = lbElem.parentNode;
+					}
+					if(lbElem && lbElem.className == 'label') elem = lbElem;
+				}
+				
+				// get enclosing div for composite field
+				if(elem.id && elem.id.indexOf('compositefield')>0)
+				{
+					var dateElem = elem;
+					while(dateElem && dateElem.className != 'field')
+					{
+						dateElem = dateElem.parentNode;
+					}
+					if(dateElem && dateElem.className == 'field') elem = dateElem;			
+				}
+				
+				// get enclosing div for date checkbox
+				if(elem.id && (elem.id.indexOf('check_')>-1 || elem.id.indexOf('text_')>-1))
+				{
+					var checkElem = elem;
+					while(checkElem && checkElem.className != 'check')
+					{
+						checkElem = checkElem.parentNode;
+					}
+					if(checkElem && checkElem.className == 'check') elem = checkElem;			
+				}
+				
+				// get tabpanel of form
+				if(elem.className == 'formpart')
+				{
+					var tabpanelElem = elem;
+					while(tabpanelElem && tabpanelElem.className != 'tabpanel')
+					{
+						tabpanelElem = tabpanelElem.parentNode;
+					}
+					if(tabpanelElem && tabpanelElem.className == 'tabpanel') elem = tabpanelElem;
+				}
+				
+				if (!elem.id)
+				{
+					elem = elem.parentNode;
+				}
+				if (Servoy.ClientDesign.selectedResizeElement != null)
+				{
+					//deselect old yui elements
+					Servoy.ClientDesign.selectedResizeElement.destroy()
+					Servoy.ClientDesign.selectedResizeElement = null;
+				}
+				
+				if (elem.id)
+				{
+					wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aSelect&xc=' + elem.style.left + '&yc=' + elem.style.top + '&draggableID=' + elem.id);
+				}
+				else Servoy.ClientDesign.clearClickTimer();				
 			}
 		},
 		
@@ -2708,11 +2720,15 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 
 				resize.dd.on('mouseUpEvent', function(ev, targetid)	
 				{
-					var element = document.getElementById(this.id);
-					var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid
-					Servoy.ClientDesign.selectedResizeElement.destroy()
-					Servoy.ClientDesign.selectedResizeElement = null;
-					var parentLeft = wicketAjaxGet(url);
+					if(!Servoy.ClientDesign.clickTimer)
+					{
+						Servoy.ClientDesign.clickTimer = true;
+						var element = document.getElementById(this.id);
+						var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid
+						Servoy.ClientDesign.selectedResizeElement.destroy()
+						Servoy.ClientDesign.selectedResizeElement = null;
+						var parentLeft = wicketAjaxGet(url);
+					}
 				});
 
 				resize.on('beforeResize', function(args) 
@@ -2752,6 +2768,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			   if (Servoy.ClientDesign.selectedElementId && Servoy.ClientDesign.selectedResizeElement == null)
 			   {
 			   		Servoy.ClientDesign.attachElement(document.getElementById(Servoy.ClientDesign.selectedElementId));
+			   		Servoy.ClientDesign.clearClickTimer();
 			   }
 			}
 			,0);
