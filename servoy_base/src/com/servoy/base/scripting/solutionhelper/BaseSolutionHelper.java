@@ -168,7 +168,7 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 					cGroup = createNewGroupId();
 					c.setGroupID(cGroup);
 				}
-				titleLabel = parentForm.newLabel(null, 0, 0, 0, 0);
+				titleLabel = parentForm.newLabel(null, c.getX() - 1, c.getY() - 1, c.getWidth(), c.getHeight());
 				titleLabel.setGroupID(cGroup);
 				getMobileProperties(titleLabel).setPropertyValue(IMobileProperties.COMPONENT_TITLE, Boolean.TRUE);
 			}
@@ -419,4 +419,34 @@ public abstract class BaseSolutionHelper implements IPredefinedIconConstants
 		}
 		return false;
 	}
+
+	public void setComponentOrder(IBaseSMComponent[] components)
+	{
+		int currentHeight = 1;
+		if (components != null && components.length > 0)
+		{
+			boolean footerItems = false;
+			IMobileProperties mpc = getMobileProperties(components[0]);
+			if (Boolean.TRUE.equals(mpc.getPropertyValue(IMobileProperties.FOOTER_ITEM)))
+			{
+				footerItems = true;
+			}
+			for (IBaseSMComponent comp : components)
+			{
+				if (comp != null)
+				{
+					if (footerItems)
+					{
+						comp.setX(currentHeight);
+					}
+					else
+					{
+						comp.setY(currentHeight);
+					}
+					currentHeight += footerItems ? comp.getWidth() : comp.getHeight();
+				}
+			}
+		}
+	}
+
 }
