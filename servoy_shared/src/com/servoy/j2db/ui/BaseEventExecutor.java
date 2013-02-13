@@ -52,7 +52,7 @@ public abstract class BaseEventExecutor implements IEventExecutor
 	private boolean selectOnEnter;
 
 	private boolean validationEnabled = true;
-	protected String formName;
+	private String formName;
 
 	public void setScriptExecuter(IScriptExecuter el)
 	{
@@ -256,8 +256,9 @@ public abstract class BaseEventExecutor implements IEventExecutor
 		String name = getElementName(display);
 		String fName = formName;
 		if (fName == null) fName = getFormName(display);
-
 		if (fName == null) fName = this.formName;
+		if (fName == null) fName = getFormName();
+		if (this.formName == null && fName != null) setFormName(fName);
 
 		Object source = getSource(display);
 
@@ -277,7 +278,14 @@ public abstract class BaseEventExecutor implements IEventExecutor
 		this.formName = formName;
 	}
 
+	protected abstract String getFormName();
+
 	protected abstract String getFormName(Object display);
+
+	protected String getFormNameInternal()
+	{
+		return formName;
+	}
 
 	protected String getElementName(Object display)
 	{
