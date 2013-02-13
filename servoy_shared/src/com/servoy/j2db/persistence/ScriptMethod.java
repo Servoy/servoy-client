@@ -28,7 +28,7 @@ import com.servoy.j2db.util.UUID;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Method")
 @SuppressWarnings("nls")
-public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable, ISupportDeprecatedAnnotation
+public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable
 {
 	private transient Boolean isPrivate;
 	private transient Boolean isProtected;
