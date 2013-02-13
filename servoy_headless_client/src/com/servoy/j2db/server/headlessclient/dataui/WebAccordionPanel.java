@@ -805,6 +805,11 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		allTabs.add(index, new WebTabHolder(text, flp, iconData, tip));
 		allRelationNames.add(index, flp.getRelationName());
 		getStylePropertyChanges().setChanged();
+
+		if (allTabs.size() == 1)
+		{
+			setActiveTabPanel((WebTabFormLookup)flp);
+		}
 	}
 
 	public void setTabForegroundAt(int index, Color fg)
