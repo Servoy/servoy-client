@@ -366,12 +366,19 @@ public class EditListUI extends BasicListUI
 			{
 				dispatchComponent = SwingUtilities.getDeepestComponentAt(editorComponent, p2.x, p2.y);
 			}
-			if (dispatchComponent instanceof ISupportEventExecutor)
+
+			Component eventExecutorComponent = dispatchComponent;
+			while (!(eventExecutorComponent instanceof ISupportEventExecutor || eventExecutorComponent == null || eventExecutorComponent == list))
 			{
-				IEventExecutor executor = ((ISupportEventExecutor)dispatchComponent).getEventExecutor();
+				eventExecutorComponent = eventExecutorComponent.getParent();
+			}
+
+			if (eventExecutorComponent instanceof ISupportEventExecutor && eventExecutorComponent != list)
+			{
+				IEventExecutor executor = ((ISupportEventExecutor)eventExecutorComponent).getEventExecutor();
 				if (executor instanceof BaseEventExecutor)
 				{
-					((BaseEventExecutor)executor).setFormName(getFormName(dispatchComponent));
+					((BaseEventExecutor)executor).setFormName(getFormName(eventExecutorComponent));
 				}
 			}
 //Disabled: this breaks editing stopped !!! (if clicked besides a field)

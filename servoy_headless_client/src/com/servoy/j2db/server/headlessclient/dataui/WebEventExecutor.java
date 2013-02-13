@@ -832,6 +832,12 @@ public class WebEventExecutor extends BaseEventExecutor
 	}
 
 	@Override
+	protected String getFormName()
+	{
+		return getFormName(component);
+	}
+
+	@Override
 	protected String getFormName(Object display)
 	{
 		WebForm form = ((Component)display).findParent(WebForm.class);
@@ -1070,4 +1076,5 @@ public class WebEventExecutor extends BaseEventExecutor
 		super.setRenderState(record, index, isSelected);
 		if (component instanceof IProviderStylePropertyChanges) ((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
 	}
+
 }

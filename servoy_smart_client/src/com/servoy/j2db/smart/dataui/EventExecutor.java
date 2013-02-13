@@ -273,6 +273,12 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 	}
 
 	@Override
+	protected String getFormName()
+	{
+		return getFormName(component);
+	}
+
+	@Override
 	protected String getFormName(Object display)
 	{
 		for (Component container = (Component)display; container != null; container = container.getParent())
@@ -282,7 +288,7 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 				return ((IFormUI)container).getController().getName();
 			}
 		}
-		return formName;
+		return super.getFormNameInternal();
 	}
 
 	private static final FocusListener onRenderFocusListener = new FocusAdapter()
@@ -332,4 +338,5 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 			}
 		}
 	}
+
 }
