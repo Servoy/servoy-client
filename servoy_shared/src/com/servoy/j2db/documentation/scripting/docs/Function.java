@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.documentation.scripting.docs;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -26,6 +27,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Function", scriptingName = "Function")
+@ServoyMobile
 public class Function
 {
 	/**
