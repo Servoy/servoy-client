@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.util.Iterator;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -29,6 +30,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
+@ServoyMobileFilterOut
 public class TabPanel extends BaseComponent implements ISupportChilds, ISupportTabSeq
 {
 	//orientations, see also SwingConstants.TOP,RIGHT,BOTTOM,LEFT

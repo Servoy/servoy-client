@@ -19,6 +19,7 @@ package com.servoy.j2db.ui.scripting;
 
 import javax.swing.JComponent;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -31,6 +32,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeListBox;
  * @author lvostinar
  *	@since 6.1
  */
+@ServoyMobileFilterOut
 public class RuntimeListBox extends AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> implements IRuntimeListBox
 {
 	private final boolean multiSelection;

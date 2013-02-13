@@ -31,7 +31,6 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
@@ -56,7 +55,6 @@ import com.servoy.j2db.util.visitor.PackVisitor;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Relation")
 public abstract class RelatedFoundSet extends FoundSet
 {
 	private static NativeJavaMethod maxRecord;

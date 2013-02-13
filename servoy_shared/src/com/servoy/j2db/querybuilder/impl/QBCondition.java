@@ -25,7 +25,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCondition")
 public class QBCondition extends QBPart implements IQueryBuilderCondition
 {
 	private final ISQLCondition queryCondition;

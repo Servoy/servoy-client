@@ -30,7 +30,7 @@ import com.servoy.j2db.ui.RenderableWrapper;
  * 
  * @author gboros 
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSRenderEvent")
 public class JSRenderEvent implements IJavaScriptType
 {
 	private ISupportOnRenderCallback element;

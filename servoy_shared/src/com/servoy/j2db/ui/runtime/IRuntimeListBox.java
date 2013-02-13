@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.ui.runtime;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -26,6 +27,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeListBox", extendsComponent = "RuntimeComponent")
+@ServoyMobileFilterOut
 public interface IRuntimeListBox extends IRuntimeField, HasRuntimeReadOnly, HasRuntimeScroll, HasRuntimeValuelistItems
 {
 }

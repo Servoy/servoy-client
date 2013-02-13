@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author gerzse
  */
 @ServoyMobile
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeForm")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeForm", scriptingName = "RuntimeForm ")
 public class Form
 {
 	/**

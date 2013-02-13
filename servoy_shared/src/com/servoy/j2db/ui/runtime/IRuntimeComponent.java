@@ -26,7 +26,7 @@ import com.servoy.j2db.scripting.IScriptable;
  * 
  * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent", scriptingName = "RuntimeComponent")
 @SuppressWarnings("nls")
 public interface IRuntimeComponent extends IScriptable, HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder, HasRuntimeTransparant,
 	HasRuntimeTooltip, HasRuntimeFont, HasRuntimeSize, HasRuntimeLocation, HasRuntimeClientProperty, HasRuntimeName, HasRuntimeElementType,

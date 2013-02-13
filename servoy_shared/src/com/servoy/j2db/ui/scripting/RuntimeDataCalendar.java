@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -37,6 +38,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  * @since 6.0
  */
+@ServoyMobileFilterOut
 public class RuntimeDataCalendar extends AbstractRuntimeField<IFieldComponent> implements IRuntimeCalendar, IFormatScriptComponent
 {
 	private ComponentFormat componentFormat;

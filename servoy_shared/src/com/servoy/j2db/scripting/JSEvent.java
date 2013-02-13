@@ -29,7 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  * @since 5.0
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSEvent")
 public class JSEvent extends JSBaseEvent
 {
 	@Override

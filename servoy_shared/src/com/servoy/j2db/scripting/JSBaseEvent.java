@@ -25,7 +25,6 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSEvent;
 import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
  * JSBaseEvent base class for js event objects
@@ -34,7 +33,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  * @since 6.1
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSBaseEvent implements IConstantsObject, IJSEvent
 {
 	protected String type = IJSEvent.NONE;

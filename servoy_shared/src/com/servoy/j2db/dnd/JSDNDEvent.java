@@ -29,7 +29,7 @@ import com.servoy.j2db.scripting.JSBaseEvent;
  * 
  * @author gboros
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDNDEvent")
 @ServoyMobileFilterOut
 public class JSDNDEvent extends JSBaseEvent
 {

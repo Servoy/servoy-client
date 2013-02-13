@@ -22,7 +22,6 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -35,7 +34,6 @@ import com.servoy.j2db.util.PersistHelper;
 /**
  * @author jcompagner
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponent> implements ISMGraphicalComponent
 {
 	private final IApplication application;

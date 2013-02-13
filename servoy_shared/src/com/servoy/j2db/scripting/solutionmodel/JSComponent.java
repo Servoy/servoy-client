@@ -38,7 +38,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSComponent")
 public class JSComponent<T extends BaseComponent> extends JSBase<T> implements IJavaScriptType, ISMComponent, ISMHasDesignTimeProperty
 {
 

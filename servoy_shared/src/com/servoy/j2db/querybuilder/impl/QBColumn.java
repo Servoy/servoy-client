@@ -34,7 +34,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBColumn")
 public class QBColumn extends QBPart implements IQueryBuilderColumn
 {
 	private final IQuerySelectValue queryColumn;

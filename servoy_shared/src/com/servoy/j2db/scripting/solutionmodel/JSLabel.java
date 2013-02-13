@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.solutionmodel.ISMLabel;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSLabel")
 public class JSLabel extends JSGraphicalComponent implements ISMLabel
 {
 	public JSLabel(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)

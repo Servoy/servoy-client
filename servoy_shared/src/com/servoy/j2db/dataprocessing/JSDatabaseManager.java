@@ -442,14 +442,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @return The converted JSFoundset. 
 	 */
-	public FoundSet js_convertFoundSet(FoundSet foundset, RelatedFoundSet related) throws ServoyException
+	public FoundSet js_convertFoundSet(FoundSet foundset, FoundSet related) throws ServoyException
 	{
 		return convertFoundSet(foundset, related);
 	}
 
 	/**
-	 * @clonedesc js_convertFoundSet(FoundSet, RelatedFoundSet)
-	 * @sampleas js_convertFoundSet(FoundSet, RelatedFoundSet)
+	 * @clonedesc js_convertFoundSet(FoundSet, FoundSet)
+	 * @sampleas js_convertFoundSet(FoundSet, FoundSet)
 	 *
 	 * @param foundset The JSFoundset to convert.
 	 * @param related the name of a one-to-many relation

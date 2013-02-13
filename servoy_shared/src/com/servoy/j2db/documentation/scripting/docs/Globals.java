@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -26,6 +27,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Globals", scriptingName = "globals")
+@ServoyMobile
 public class Globals
 {
 	/**

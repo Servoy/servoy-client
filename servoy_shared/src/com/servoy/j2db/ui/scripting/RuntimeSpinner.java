@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.ui.scripting;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -28,6 +29,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeSpinner;
  * @author acostescu
  * @since 6.1
  */
+@ServoyMobileFilterOut
 public class RuntimeSpinner extends AbstractRuntimeFormattedValuelistComponent<IFieldComponent> implements IRuntimeSpinner
 {
 

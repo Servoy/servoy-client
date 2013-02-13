@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  * @author gerzse
  */
-@ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Boolean")
+@ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Boolean", scriptingName = "Boolean")
 public class Boolean
 {
 

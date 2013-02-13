@@ -64,7 +64,7 @@ import com.servoy.j2db.util.Utils;
  * Scriptable dataset wrapper
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDataSet")
 public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Serializable, IJSDataSet
 {
 	private static final long serialVersionUID = 1L;

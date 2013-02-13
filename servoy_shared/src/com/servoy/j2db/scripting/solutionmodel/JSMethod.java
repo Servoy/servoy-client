@@ -30,6 +30,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 import org.mozilla.javascript.ast.AstRoot;
 import org.mozilla.javascript.ast.FunctionNode;
 
+import com.servoy.base.persistence.constants.IDefaultSMConstants;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -44,7 +45,7 @@ import com.servoy.j2db.util.UUID;
 /**
  * @author jcompagner
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSMethod")
 public class JSMethod implements IJavaScriptType, ISMMethod
 {
 	protected final IApplication application;
@@ -255,7 +256,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 		if (sm == null)
 		{
 			if (this == DEFAULTS.COMMAND_DEFAULT) return "JSMethod[DEFAULT]";
-			if (this == DEFAULTS.COMMAND_NONE) return "JSMethod[NONE]";
+			if (this == IDefaultSMConstants.COMMAND_NONE) return "JSMethod[NONE]";
 			return "JSMethod";
 		}
 		if (parent == null)

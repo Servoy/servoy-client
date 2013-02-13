@@ -26,7 +26,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBLogicalCondition")
 public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogicalCondition
 {
 	QBLogicalCondition(QBSelect root, QBTableClause parent, AndOrCondition queryCondition)

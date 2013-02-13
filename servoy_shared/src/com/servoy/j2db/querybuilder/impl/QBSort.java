@@ -26,7 +26,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSort")
 public class QBSort extends QBPart implements IQueryBuilderSort
 {
 	private final boolean ascending;

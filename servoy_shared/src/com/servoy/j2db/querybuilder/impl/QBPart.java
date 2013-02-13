@@ -29,7 +29,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBPart")
 public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 {
 	private final QBSelect root;

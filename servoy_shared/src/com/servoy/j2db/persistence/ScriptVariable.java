@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
@@ -37,6 +38,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Variable")
+@ServoyMobile
 public class ScriptVariable extends AbstractBase implements IVariable, IDataProvider, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
 	IPersistCloneable, ICloneable, ISupportScope, ISupportDeprecatedAnnotation
 {

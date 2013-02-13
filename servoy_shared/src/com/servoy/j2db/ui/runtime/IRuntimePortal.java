@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.ui.runtime;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+
 
 /**
  * Interface for RuntimePortal component.
@@ -23,6 +25,7 @@ package com.servoy.j2db.ui.runtime;
  * @author jcompagner
  * @since 6.1
  */
+@ServoyMobileFilterOut
 public interface IRuntimePortal extends IRuntimeComponent, HasRuntimeScroll, HasRuntimeReadOnly, HasRuntimeSelectedIndex, HasRuntimeRecords
 {
 }

@@ -33,7 +33,7 @@ import com.servoy.j2db.solutionmodel.ISMField;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.PersistHelper;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSField")
 public class JSField extends JSComponent<Field> implements IConstantsObject, ISMField
 {
 	private final IApplication application;

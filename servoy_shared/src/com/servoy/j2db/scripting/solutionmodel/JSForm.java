@@ -71,7 +71,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSForm")
 public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 {
 	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)

@@ -25,7 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  * @author gerzse
  */
-@ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Function")
+@ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Function", scriptingName = "Function")
 public class Function
 {
 	/**

@@ -18,6 +18,7 @@ package com.servoy.j2db.ui.runtime;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 
 
@@ -27,7 +28,7 @@ import com.servoy.j2db.dataprocessing.IFoundSet;
  * @author rgansevles
  * @since 6.1
  */
-
+@ServoyMobileFilterOut
 public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeComponent
 {
 	/**

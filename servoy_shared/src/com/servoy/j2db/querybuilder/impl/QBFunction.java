@@ -27,7 +27,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBFunction")
 public class QBFunction extends QBColumn implements IQueryBuilderFunction
 {
 	private final QueryFunctionType functionType;

@@ -20,7 +20,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 
@@ -29,9 +28,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class BaseComponent extends AbstractBase implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable
-
 {
 	private static final long serialVersionUID = 1L;
 

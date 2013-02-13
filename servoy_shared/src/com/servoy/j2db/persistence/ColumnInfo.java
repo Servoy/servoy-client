@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Utils;
@@ -32,6 +33,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ColumnInfo")
+@ServoyMobile
 public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 {
 	public static final long serialVersionUID = -6167880772070620512L;

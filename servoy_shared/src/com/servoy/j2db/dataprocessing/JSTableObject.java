@@ -31,7 +31,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSTableObject")
 public class JSTableObject extends JSTable
 {
 	public JSTableObject(ITable table, IServer server)
