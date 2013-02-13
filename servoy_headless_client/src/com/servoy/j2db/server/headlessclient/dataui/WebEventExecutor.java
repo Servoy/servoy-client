@@ -850,6 +850,12 @@ public class WebEventExecutor extends BaseEventExecutor
 	}
 
 	@Override
+	protected String getFormName()
+	{
+		return getFormName(component);
+	}
+
+	@Override
 	protected String getFormName(Object display)
 	{
 		WebForm form = ((Component)display).findParent(WebForm.class);
@@ -1042,4 +1048,5 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		return display instanceof SortableCellViewHeader ? null : super.getSource(display);
 	}
+
 }
