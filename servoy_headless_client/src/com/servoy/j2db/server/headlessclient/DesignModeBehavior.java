@@ -270,6 +270,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					}
 
 					WebEventExecutor.generateResponse(target, getComponent().getPage());
+					target.appendJavascript("Servoy.ClientDesign.clearClickTimer();");
 					return;
 				}
 
@@ -347,7 +348,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			}
 		}
 		WebEventExecutor.generateResponse(target, getComponent().getPage());
-		target.prependJavascript("Servoy.ClientDesign.reattach();");
+		target.appendJavascript("Servoy.ClientDesign.reattach();");
 	}
 
 	/**

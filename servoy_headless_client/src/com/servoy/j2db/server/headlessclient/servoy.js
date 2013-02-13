@@ -2526,36 +2526,42 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 {
 	Servoy.ClientDesign = 
 	{
-		selectedResizeElements : new Array(),
+		selectedResizeElement : null,
 		selectedElementId : null,
 		designableElementsArray : null,
 		callbackurl : null,
 		mouseSelectTime : new Date(),
 		mouseDownEvent : null,
-
+		clickTimer : null,
+		clickCount : 0,
+		clickEvent : null,
+		clickElement : null,
+		
 		mouseSelect: function(e)
 		{
 			Servoy.ClientDesign.mouseDownEvent = e;
-			Servoy.ClientDesign.selectElement(e, Servoy.ClientDesign.isDblClick());
+			Servoy.ClientDesign.clickCount++;
+			if(!Servoy.ClientDesign.clickTimer)
+			{
+				Servoy.ClientDesign.clickEvent = e;
+				Servoy.ClientDesign.clickTimer = window.setTimeout(function()
+				{
+					Servoy.ClientDesign.selectElement(Servoy.ClientDesign.clickEvent, Servoy.ClientDesign.clickCount > 1);
+				}, 200);
+			}
 		},
 		
 		mouseUp: function(e)
 		{
 			Servoy.ClientDesign.mouseDownEvent = null;
 		},
-		
-		isDblClick: function()
+
+		clearClickTimer: function()
 		{
-			var now = new Date();
-			var isDblClick = now - Servoy.ClientDesign.mouseSelectTime < 200;
-			Servoy.ClientDesign.mouseSelectTime = now;
-			return isDblClick;
-		},
-		
-		destroyResizeElements: function()
-		{
-			var r;
-			while(r = Servoy.ClientDesign.selectedResizeElements.shift()) r.destroy();
+			Servoy.ClientDesign.clickTimer = null;
+			Servoy.ClientDesign.clickCount = 0;
+			Servoy.ClientDesign.clickEvent = null;
+			Servoy.ClientDesign.clickElement = null;
 		},
 		
 		selectElement: function(e, isDblClick)
@@ -2642,13 +2648,18 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 			{
 				elem = elem.parentNode;
 			}
-			
-			Servoy.ClientDesign.destroyResizeElements();
+			if (Servoy.ClientDesign.selectedResizeElement != null)
+			{
+				//deselect old yui elements
+				Servoy.ClientDesign.selectedResizeElement.destroy()
+				Servoy.ClientDesign.selectedResizeElement = null;
+			}
 			
 			if (elem.id)
 			{
 				wicketAjaxGet(Servoy.ClientDesign.callbackurl+'&a=aSelect&xc=' + elem.style.left + '&yc=' + elem.style.top + '&draggableID=' + elem.id + '&isDblClick=' + isDblClick + '&isRightClick=' + isRightClick);
 			}
+			else Servoy.ClientDesign.clearClickTimer();
 		},
 		
 		topBottomSwitchEl : null,
@@ -2736,11 +2747,19 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				
 				resize.dd.on('mouseUpEvent', function(ev, targetid)	
 				{
-					var isDblClick = Servoy.ClientDesign.isDblClick();
-					var element = document.getElementById(this.id);
-					var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + this.id  + '&targetID=' + targetid + '&isDblClick=' + isDblClick;
-					Servoy.ClientDesign.destroyResizeElements();
-					var parentLeft = wicketAjaxGet(url);
+					Servoy.ClientDesign.clickCount++;
+					if(!Servoy.ClientDesign.clickTimer)
+					{
+						Servoy.ClientDesign.clickElement = this;
+						Servoy.ClientDesign.clickTimer = window.setTimeout(function()
+						{
+							var element = document.getElementById(Servoy.ClientDesign.clickElement.id);
+							var url = Servoy.ClientDesign.callbackurl+'&a=aDrop&xc=' + Servoy.addPositions(element.offsetParent.style.left, element.style.left) + '&yc=' + Servoy.addPositions(element.offsetParent.style.top,element.style.top) + '&draggableID=' + Servoy.ClientDesign.clickElement.id  + '&targetID=' + targetid + '&isDblClick=' + (Servoy.ClientDesign.clickCount > 1);
+							Servoy.ClientDesign.selectedResizeElement.destroy()
+							Servoy.ClientDesign.selectedResizeElement = null;
+							var parentLeft = wicketAjaxGet(url);
+						}, 200);
+					}
 				});
 
 				resize.on('beforeResize', function(args) 
@@ -2751,12 +2770,12 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				resize.on('endResize', function(args) 
 				{
 					var url = Servoy.ClientDesign.callbackurl+'&a=aResize&draggableID=' + this._wrap.id + '&resizeHeight=' + args.height + '&resizeWidth=' + args.width + '&xc=' + this._wrap.style.left + '&yc=' + this._wrap.style.top;
-					Servoy.ClientDesign.destroyResizeElements();
+					Servoy.ClientDesign.selectedResizeElement.destroy()
+					Servoy.ClientDesign.selectedResizeElement = null;
 					wicketAjaxGet(url);
 				});
-
 				Servoy.ClientDesign.selectedElementId = elem.id;
-				Servoy.ClientDesign.selectedResizeElements.push(resize);
+				Servoy.ClientDesign.selectedResizeElement = resize;
 				
 				if(Servoy.ClientDesign.mouseDownEvent) resize.dd.handleMouseDown(Servoy.ClientDesign.mouseDownEvent, resize.dd);
 			}
@@ -2802,9 +2821,10 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		{
 			window.setTimeout(function()
 			{
-			   if (Servoy.ClientDesign.selectedElementId && Servoy.ClientDesign.selectedResizeElements.length == 0)
+			   if (Servoy.ClientDesign.selectedElementId && Servoy.ClientDesign.selectedResizeElement == null)
 			   {
 			   		Servoy.ClientDesign.attachElement(document.getElementById(Servoy.ClientDesign.selectedElementId));
+			   		Servoy.ClientDesign.clearClickTimer();
 			   }
 			}
 			,0);
@@ -2812,9 +2832,10 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		
 		hideSelected: function(elemId)
 		{
-			if(Servoy.ClientDesign.selectedElementId == elemId && Servoy.ClientDesign.selectedResizeElements.length > 0)
+			if(Servoy.ClientDesign.selectedElementId == elemId && Servoy.ClientDesign.selectedResizeElement)
 			{
-				Servoy.ClientDesign.destroyResizeElements();
+				Servoy.ClientDesign.selectedResizeElement.destroy();
+				Servoy.ClientDesign.selectedResizeElement = null;
 				Servoy.ClientDesign.selectedElementId = null;
 				
 				YAHOO.util.Dom.setStyle(YAHOO.util.Dom.get(elemId), 'display', 'none');
@@ -2823,10 +2844,11 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 		
 		refreshSelected: function(elemId)
 		{
-			if (Servoy.ClientDesign.selectedResizeElements.length > 0 && Servoy.ClientDesign.selectedElementId == elemId)
+			if (Servoy.ClientDesign.selectedResizeElement != null && Servoy.ClientDesign.selectedElementId == elemId)
 			{
 				var updatedEl = document.getElementById(Servoy.ClientDesign.selectedElementId);
-				Servoy.ClientDesign.destroyResizeElements();
+				Servoy.ClientDesign.selectedResizeElement.destroy();
+				Servoy.ClientDesign.selectedResizeElement = null;
 				
 				var oldEl = document.getElementById(Servoy.ClientDesign.selectedElementId);
 				oldEl.parentNode.replaceChild(updatedEl, oldEl);
