@@ -173,17 +173,30 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 						s = fileSolution;
 						s.setServerProxies(serverProxies);
 						Utils.closeInputStream(ois);
+						if (Debug.tracing())
+						{
+							Debug.trace("Loaded cached solution from: " + file);
+						}
 					}
 					else
 					{
 						Utils.closeInputStream(ois);
 						file.delete();
+						if (Debug.tracing())
+						{
+							Debug.trace("Cached solution from: " + file + " was not valid");
+						}
 					}
 				}
 				else
 				{
 					Utils.closeInputStream(ois);
 					file.delete();
+					if (Debug.tracing())
+					{
+						Debug.trace("Cached solution from: " + file + " was not to old");
+					}
+
 				}
 			}
 		}
@@ -234,6 +247,11 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 				ois.writeObject(solution);
 				ois.close();
 				fis = null;
+				if (Debug.tracing())
+				{
+					Debug.trace("Solution saved to: " + file);
+				}
+
 			}
 			catch (IOException e)
 			{
