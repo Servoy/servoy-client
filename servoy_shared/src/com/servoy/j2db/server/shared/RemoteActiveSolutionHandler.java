@@ -49,7 +49,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 {
-	public static final String SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME = "servoy.smartclient.shared_solution_dir"; //$NON-NLS-1$
+	public static final String SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME = "servoy.client.shared_solution_dir"; //$NON-NLS-1$
 
 	private final Map<Integer, Long> loadedActiveSolutionUpdateSequences = new HashMap<Integer, Long>(); //solution_id -> asus
 
@@ -173,17 +173,30 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 						s = fileSolution;
 						s.setServerProxies(serverProxies);
 						Utils.closeInputStream(ois);
+						if (Debug.tracing())
+						{
+							Debug.trace("Loaded cached solution from: " + file);
+						}
 					}
 					else
 					{
 						Utils.closeInputStream(ois);
 						file.delete();
+						if (Debug.tracing())
+						{
+							Debug.trace("Cached solution from: " + file + " was not valid");
+						}
 					}
 				}
 				else
 				{
 					Utils.closeInputStream(ois);
 					file.delete();
+					if (Debug.tracing())
+					{
+						Debug.trace("Cached solution from: " + file + " was not to old");
+					}
+
 				}
 			}
 		}
@@ -234,6 +247,11 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 				ois.writeObject(solution);
 				ois.close();
 				fis = null;
+				if (Debug.tracing())
+				{
+					Debug.trace("Solution saved to: " + file);
+				}
+
 			}
 			catch (IOException e)
 			{
