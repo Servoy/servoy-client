@@ -19,6 +19,7 @@ package com.servoy.j2db.ui;
 
 import java.awt.Point;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.scripting.JSEvent;
@@ -246,10 +247,9 @@ public abstract class BaseEventExecutor extends RenderEventExecutor implements I
 	public Object fireEventCommand(EventType type, String cmd, Object[] args, Object[] persistArgs, boolean saveData, Object display, boolean focusEvent,
 		int modifiers, String formName, boolean executeWhenFieldValidationFailed, Point mouseLocation)
 	{
-		if (actionListener == null)
-		{
-			return null;
-		}
+		if (actionListener == null) return null;
+		FormController fc = actionListener.getFormController();
+		if (fc == null) return null; // won't be able to execute - form is already destroyed
 
 		// also fire when cmd is null (may trigger field validation)
 		if (modifiers != MODIFIERS_UNSPECIFIED) actionListener.setLastKeyModifiers(modifiers);
@@ -258,9 +258,13 @@ public abstract class BaseEventExecutor extends RenderEventExecutor implements I
 		if (fName == null) fName = getFormName(display);
 		if (fName == null) fName = this.formName;
 		if (fName == null) fName = getFormName();
+
+		// TODO can't this be the only one used and formName/display args as well as formName member removed?
+		if (fName == null) fName = fc.getName();
+
 		if (this.formName == null && fName != null) setFormName(fName);
 
-		Object source = getSource(display);
+		Object source = getSource(display); // TODO can't an abstract Object getComponent() be created for this and display be removed as arg ? all subclasses have such a reference
 
 		JSEvent event = new JSEvent();
 		event.setType(type);
