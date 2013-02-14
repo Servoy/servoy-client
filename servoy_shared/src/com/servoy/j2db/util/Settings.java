@@ -70,6 +70,7 @@ public class Settings extends SortedProperties
 	public static final String SERVER_MAINTENANCE_MODE_SETTING = "servoy.application_server.maintenance_mode";
 	public static final String ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING = "servoy.application_server.allowClientRepositoryAccess"; //$NON-NLS-1$
 	public static final boolean ALLOW_CLIENT_REPOSITORY_ACCESS_DEFAULT = false;
+	public static final String LOG_CLIENT_STATS = "servoy.log.clientstats";
 
 	private boolean loadedFromServer = false;
 	private File file;
