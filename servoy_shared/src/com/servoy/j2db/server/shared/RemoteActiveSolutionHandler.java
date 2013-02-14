@@ -49,7 +49,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 {
-	public static final String SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME = "servoy.smartclient.shared_solution_dir"; //$NON-NLS-1$
+	public static final String SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME = "servoy.client.shared_solution_dir"; //$NON-NLS-1$
 
 	private final Map<Integer, Long> loadedActiveSolutionUpdateSequences = new HashMap<Integer, Long>(); //solution_id -> asus
 
