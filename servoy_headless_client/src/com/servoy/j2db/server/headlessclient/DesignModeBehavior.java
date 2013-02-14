@@ -19,7 +19,10 @@ package com.servoy.j2db.server.headlessclient;
 import java.awt.Insets;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Component.IVisitor;
@@ -66,12 +69,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 	public static final String PARAM_RESIZE_WIDTH = "resizeWidth";
 	public static final String PARAM_IS_DBLCLICK = "isDblClick";
 	public static final String PARAM_IS_RIGHTCLICK = "isRightClick";
+	public static final String PARAM_IS_CTRL_KEY = "isCtrlKey";
 
 	private DesignModeCallbacks callback;
 	private FormController controller;
 
-	private IComponent onDragComponent = null;
-	private IComponent onSelectComponent = null;
+	private IComponent onDragComponent;
+	private final HashMap<IComponent, String> onSelectComponents = new HashMap<IComponent, String>();
 
 	/**
 	 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#renderHead(org.apache.wicket.markup.html.IHeaderResponse)
@@ -112,7 +116,7 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			//WebClientSession webClientSession = (WebClientSession)getSession();
 			//WebClient webClient = webClientSession.getWebClient();
 
-			String selectedComponentId = null;
+			ArrayList<String> selectedComponentsId = new ArrayList<String>();
 			StringBuilder sb = new StringBuilder(markupIds.size() * 10);
 			sb.append("Servoy.ClientDesign.attach({");
 			for (int i = 0; i < markupIds.size(); i++)
@@ -154,9 +158,21 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 				}
 
 				sb.append(compId);
-				if (onSelectComponent != null && component instanceof IComponent && onSelectComponent.getName().equals(((IComponent)component).getName()))
+
+				if (component instanceof IComponent)
 				{
-					selectedComponentId = compId;
+					Iterator<IComponent> selectedComponentsIte = onSelectComponents.keySet().iterator();
+					IComponent c;
+					while (selectedComponentsIte.hasNext())
+					{
+						c = selectedComponentsIte.next();
+						if (c.getName().equals(((IComponent)component).getName()))
+						{
+							onSelectComponents.put(c, compId);
+							selectedComponentsId.add(compId);
+							break;
+						}
+					}
 				}
 
 				sb.append(":['");
@@ -180,9 +196,13 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 			sb.setLength(sb.length() - 1); //rollback last comma
 			sb.append("},'" + getCallbackUrl() + "')");
 
-			if (selectedComponentId != null)
+			if (selectedComponentsId.size() > 0)
 			{
-				sb.append(";Servoy.ClientDesign.selectedElementId='").append(selectedComponentId).append("';Servoy.ClientDesign.reattach();");
+				for (int i = 0; i < selectedComponentsId.size(); i++)
+				{
+					sb.append(";Servoy.ClientDesign.selectedElementId[").append(i).append("]='").append(selectedComponentsId.get(i)).append("';");
+				}
+				sb.append("Servoy.ClientDesign.reattach();");
 			}
 
 			response.renderOnDomReadyJavascript(sb.toString());
@@ -246,26 +266,46 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 				if (action.equals(ACTION_SELECT))
 				{
-					if (!(child instanceof IComponent)) onSelectComponent = null;
+					if (!(child instanceof IComponent)) onSelectComponents.clear();
 					else
 					{
-						Object ret = callback.executeOnSelect(getJSEvent(EventType.action, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						boolean isSelectionRemove = false;
+						if (!Boolean.parseBoolean(request.getParameter(PARAM_IS_CTRL_KEY))) onSelectComponents.clear();
+						else
+						{
+							isSelectionRemove = onSelectComponents.remove(child) != null;
+						}
+
+						IComponent[] param = onSelectComponents.keySet().toArray(
+							new IComponent[isSelectionRemove ? onSelectComponents.size() : onSelectComponents.size() + 1]);
+						if (!isSelectionRemove) param[onSelectComponents.size()] = (IComponent)child;
+
+						Object ret = callback.executeOnSelect(getJSEvent(EventType.action, 0, new Point(x, y), param));
 						if (ret instanceof Boolean && !((Boolean)ret).booleanValue())
 						{
-							onSelectComponent = null;
+							onSelectComponents.clear();
 						}
 						else
 						{
-							onSelectComponent = (IComponent)child;
-							target.appendJavascript("Servoy.ClientDesign.attachElement(document.getElementById('" + id + "'));");
+							if (!isSelectionRemove) onSelectComponents.put((IComponent)child, id);
+							StringBuilder idsArray = new StringBuilder("new Array(");
+							Iterator<String> idsIte = onSelectComponents.values().iterator();
+							while (idsIte.hasNext())
+							{
+								idsArray.append('\'').append(idsIte.next()).append('\'');
+								if (idsIte.hasNext()) idsArray.append(',');
+							}
+							idsArray.append(')');
+							target.appendJavascript("Servoy.ClientDesign.attachElements(" + idsArray.toString() + ");");
+
 						}
 						if (Boolean.parseBoolean(request.getParameter(PARAM_IS_RIGHTCLICK)))
 						{
-							callback.executeOnRightClick(getJSEvent(EventType.rightClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+							callback.executeOnRightClick(getJSEvent(EventType.rightClick, 0, new Point(x, y), param));
 						}
 						else if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
 						{
-							callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+							callback.executeOnDblClick(getJSEvent(EventType.doubleClick, 0, new Point(x, y), param));
 						}
 					}
 
@@ -276,9 +316,9 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 
 				if (child instanceof IComponent)
 				{
-					if (child != onSelectComponent)
+					if (!onSelectComponents.containsKey(child))
 					{
-						onSelectComponent = (IComponent)child;
+						onSelectComponents.put((IComponent)child, id);
 					}
 					if (action.equals(ACTION_RESIZE))
 					{
@@ -314,6 +354,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 						{
 							onDragComponent = (IComponent)child;
 						}
+						WebEventExecutor.generateResponse(target, getComponent().getPage());
+						return;
 					}
 					else
 					{
@@ -421,14 +463,50 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 		return event;
 	}
 
-	public String getSelectedComponentName()
+	public String[] getSelectedComponentsNames()
 	{
-		return onSelectComponent != null ? onSelectComponent.getName() : null;
+		Set<IComponent> selectedComponents = onSelectComponents.keySet();
+		if (selectedComponents.size() > 0)
+		{
+			ArrayList<String> selectedComponentsNames = new ArrayList<String>();
+			Iterator<IComponent> selectedComponentsIte = selectedComponents.iterator();
+			while (selectedComponentsIte.hasNext())
+				selectedComponentsNames.add(selectedComponentsIte.next().getName());
+
+			return selectedComponentsNames.toArray(new String[selectedComponentsNames.size()]);
+		}
+		return null;
 	}
 
-	public void setSelectedComponent(String selectedComponentName)
+	public void setSelectedComponents(String[] selectedComponentsNames)
 	{
-		onSelectComponent = getWicketComponentForName(selectedComponentName);
+		onSelectComponents.clear();
+		if (selectedComponentsNames != null && selectedComponentsNames.length > 0)
+		{
+			IComponent c;
+			String compId;
+			boolean webAnchorsEnabled = Utils.getAsBoolean(((WebClientSession)Session.get()).getWebClient().getRuntimeProperties().get("enableAnchors"));
+			boolean editable;
+			for (String selectedComponentName : selectedComponentsNames)
+			{
+				c = getWicketComponentForName(selectedComponentName);
+				editable = false;
+				if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeInputComponent)
+				{
+					editable = ((IRuntimeInputComponent)((IScriptableProvider)c).getScriptObject()).isEditable();
+				}
+				if (webAnchorsEnabled && c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent &&
+					needsWrapperDivForAnchoring(((IRuntimeComponent)((IScriptableProvider)c).getScriptObject()).getElementType(), editable))
+				{
+					compId = ((Component)c).getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX;
+				}
+				else
+				{
+					compId = ((Component)c).getMarkupId();
+				}
+				onSelectComponents.put(c, compId);
+			}
+		}
 	}
 
 	private IComponent getWicketComponentForName(final String componentName)

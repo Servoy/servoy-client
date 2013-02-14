@@ -1793,7 +1793,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return null;
 	}
 
-	private final WeakHashMap<DesignModeCallbacks, String> designModeSelection = new WeakHashMap<DesignModeCallbacks, String>();
+	private final WeakHashMap<DesignModeCallbacks, String[]> designModeSelection = new WeakHashMap<DesignModeCallbacks, String[]>();
 	private final WeakHashMap<IFieldComponent, Boolean> compEditableStatusBeforeDesignMode = new WeakHashMap<IFieldComponent, Boolean>();
 
 	/**
@@ -1852,15 +1852,15 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 		if (callback != null)
 		{
-			String selection = designModeSelection.get(callback);
-			designModeBehavior.setSelectedComponent(selection);
+			String[] selection = designModeSelection.get(callback);
+			designModeBehavior.setSelectedComponents(selection);
 		}
 		else
 		{
 			if (designModeBehavior != null)
 			{
-				String selectedComponentName = designModeBehavior.getSelectedComponentName();
-				if (selectedComponentName != null) designModeSelection.put(designModeBehavior.getDesignModeCallback(), selectedComponentName);
+				String[] selectedComponentsNames = designModeBehavior.getSelectedComponentsNames();
+				if (selectedComponentsNames != null) designModeSelection.put(designModeBehavior.getDesignModeCallback(), selectedComponentsNames);
 			}
 		}
 		designModeBehavior.setDesignModeCallback(callback, formController);
