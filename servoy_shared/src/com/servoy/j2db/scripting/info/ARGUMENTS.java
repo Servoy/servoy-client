@@ -16,10 +16,8 @@
  */
 package com.servoy.j2db.scripting.info;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class ARGUMENTS implements IPrefixedConstantsObject
 {
 
