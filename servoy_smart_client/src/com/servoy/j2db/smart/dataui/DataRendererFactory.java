@@ -416,7 +416,12 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		return listTocomplete;
 	}
 
-	public static void addSpringsBetweenComponents(IApplication applicaion, DataRenderer panel)
+	@Override
+	public void prepareRenderers(IApplication application, Form form)
+	{
+	}
+
+	public static void addSpringsBetweenComponents(IApplication application, DataRenderer panel)
 	{
 		Map componentsListToBeHandeldOnX = new HashMap();
 		Map componentsListToBeHandeldOnY = new HashMap();
@@ -446,8 +451,8 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 				{
 					if (slide != ISupportPrintSliding.NO_SLIDING && ccomp != comp && ccomp.getBounds().intersects(comp.getBounds()))
 					{
-						applicaion.reportJSError(
-							applicaion.getI18NMessage("servoy.sliding.error.overlap"), applicaion.getI18NMessage("servoy.sliding.error.overlap.components", new Object[] { comp, ccomp })); //$NON-NLS-1$ //$NON-NLS-2$
+						application.reportJSError(
+							application.getI18NMessage("servoy.sliding.error.overlap"), application.getI18NMessage("servoy.sliding.error.overlap.components", new Object[] { comp, ccomp })); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 			}
