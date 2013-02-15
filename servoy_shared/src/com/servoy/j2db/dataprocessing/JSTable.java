@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
@@ -170,6 +171,17 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 			return new JSColumn(c, server);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns whether table was flagged as metadata table.
+	 * 
+	 * @return boolean is metadata
+	 */
+	@JSFunction
+	public boolean isMetadataTable()
+	{
+		return ((Table)table).isMarkedAsMetaData();
 	}
 
 	@Override
