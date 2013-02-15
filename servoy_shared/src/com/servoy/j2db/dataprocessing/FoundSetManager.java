@@ -1046,63 +1046,68 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return createTableFilter(name, serverName, table, dataprovider, op, value);
 	}
 
-	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, int operator, Object value) throws ServoyException
+	public TableFilter createTableFilter(String name, String serverName, ITable table, String dataprovider, int operator, Object val) throws ServoyException
 	{
-		if (value instanceof Wrapper)
-		{
-			value = ((Wrapper)value).unwrap();
-		}
-
 		if (table != null && ((Table)table).getColumn(dataprovider) == null)
 		{
 			return null;
 		}
 
-		Object convertedValue = value;
-		Column column = null;
+		Object value = val;
+		if (value instanceof Wrapper)
+		{
+			value = ((Wrapper)value).unwrap();
+		}
+
 		if (table != null)
 		{
-			column = ((Table)table).getColumn(dataprovider);
+			Column column = ((Table)table).getColumn(dataprovider);
 			if (column == null)
 			{
 				return null;
 			}
-
-			ConverterInfo columnConverterInfo = getSQLGenerator().getCachedTableSQLSheet(table.getDataSource()).getColumnConverterInfo(dataprovider);
-			if (columnConverterInfo != null)
-			{
-				IColumnConverter columnConverter = application.getFoundSetManager().getColumnConverterManager().getConverter(columnConverterInfo.converterName);
-				if (columnConverter != null)
-				{
-					Object[] array = null;
-					if (value instanceof List< ? >)
-					{
-						array = ((List< ? >)value).toArray();
-					}
-					else if (value != null && value.getClass().isArray())
-					{
-						array = ((Object[])value).clone();
-					}
-
-					if (array != null)
-					{
-						for (int i = 0; i < array.length; i++)
-						{
-							array[i] = SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, dataprovider, column.getDataProviderType(),
-								array[i]);
-						}
-						convertedValue = array;
-					}
-					else if (value == null || !value.toString().trim().toLowerCase().startsWith(SQLGenerator.STRING_SELECT))
-					{
-						convertedValue = SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, dataprovider, column.getDataProviderType(), value);
-					}
-					// else add as subquery
-				}
-			}
+			value = convertFilterValue(table, column, value);
 		}
 		return new TableFilter(name, serverName, table == null ? null : table.getName(), table == null ? null : table.getSQLName(), dataprovider, operator,
-			convertedValue);
+			value);
+	}
+
+	public Object convertFilterValue(ITable table, Column column, Object value) throws ServoyException
+	{
+		ConverterInfo columnConverterInfo = getSQLGenerator().getCachedTableSQLSheet(table.getDataSource()).getColumnConverterInfo(column.getDataProviderID());
+		if (columnConverterInfo != null)
+		{
+			IColumnConverter columnConverter = application.getFoundSetManager().getColumnConverterManager().getConverter(columnConverterInfo.converterName);
+			if (columnConverter != null)
+			{
+				Object[] array = null;
+				if (value instanceof List< ? >)
+				{
+					array = ((List< ? >)value).toArray();
+				}
+				else if (value != null && value.getClass().isArray())
+				{
+					array = ((Object[])value).clone();
+				}
+
+				if (array != null)
+				{
+					for (int i = 0; i < array.length; i++)
+					{
+						array[i] = SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, column.getDataProviderID(),
+							column.getDataProviderType(), array[i]);
+					}
+					return array;
+				}
+
+				if (value == null || !value.toString().trim().toLowerCase().startsWith(SQLGenerator.STRING_SELECT))
+				{
+					return SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, column.getDataProviderID(), column.getDataProviderType(), value);
+				}
+				// else add as subquery
+			}
+		}
+		return value;
 	}
 
 	public boolean addTableFilterParam(String filterName, String serverName, ITable table, String dataprovider, String operator, Object value)
@@ -1238,15 +1243,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 										// should never happen
 										throw new RuntimeException("Could not find table '" + qTable.getDataSource() + "' for table filters");
 									}
-									if (table.getColumn(filter.getDataprovider()) != null)
+									Column column = table.getColumn(filter.getDataprovider());
+									if (column != null)
 									{
-										// use filter with table name filled in
+										// Use filter with table name filled in.
+										// When table was null value was not yet converted, convert now.
+										Object value = convertFilterValue(table, column, filter.getValue());
 										useFilter = new TableFilter(filter.getName(), filter.getServerName(), table.getName(), table.getSQLName(),
-											filter.getDataprovider(), filter.getOperator(), filter.getValue());
+											filter.getDataprovider(), filter.getOperator(), value);
 									}
 								}
 							}
-							catch (RepositoryException e)
+							catch (Exception e)
 							{
 								// big trouble, this is security filtering, so bail out on error
 								throw new RuntimeException(e);
