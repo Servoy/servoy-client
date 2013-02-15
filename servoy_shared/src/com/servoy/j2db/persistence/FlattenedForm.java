@@ -83,6 +83,11 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		return form;
 	}
 
+	public static Form getWrappedForm(Form form)
+	{
+		return form instanceof FlattenedForm ? ((FlattenedForm)form).getForm() : form;
+	}
+
 	@Override
 	public void setExtendsID(int arg)
 	{

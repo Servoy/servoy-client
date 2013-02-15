@@ -117,12 +117,11 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		}
 
 		//place all the elements
-		Iterator<IFormElement> e1 = form.getFormElementsSortedByFormIndex();
-		return placeElements(e1, application, form, scriptExecuter, emptyDataRenderers, 0, 0, printing, undoManager, tabSequence);
+		return placeElements(application, form, scriptExecuter, emptyDataRenderers, printing, undoManager, tabSequence);
 	}
 
-	private Map placeElements(Iterator<IFormElement> e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int XCorrection,
-		int YCorrection, boolean printing, ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
+	protected Map placeElements(IApplication app, Form form, IScriptExecuter listener, Map emptyDataRenderers, boolean printing,
+		ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
 	{
 		final boolean useAJAX = Utils.getAsBoolean(app.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 
@@ -138,10 +137,9 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		boolean isAnchoringEnabled = Utils.getAsBoolean(app.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 
 //		Insets insets = new Insets(0, 0, 0, 0);
-		while (e1.hasNext())
+		for (IFormElement obj : Utils.iterate(form.getFormElementsSortedByFormIndex()))
 		{
 			Point l = null;
-			IFormElement obj = e1.next();
 			l = (obj).getLocation();
 
 			if (l == null) continue;//unknown where to add
@@ -164,7 +162,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				if (l.y >= start && l.y < start + panel.getSize().height)
 				{
 					org.apache.wicket.Component comp = (org.apache.wicket.Component)ComponentFactory.createComponent(app, form, obj, dataProviderLookup,
-						listner, printing);
+						listener, printing);
 					// Test for a visible bean, then get the real component
 //						if (comp instanceof VisibleBean)
 //						{
@@ -209,7 +207,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 								panel.addDisplayComponent(obj, ourBean);
 							}
 						}
-						((IComponent)comp).setLocation(new Point((l.x /* +insets.left */) + XCorrection, (l.y - start) + YCorrection));
+						((IComponent)comp).setLocation(new Point((l.x /* +insets.left */), (l.y - start)));
 
 						if (form.getOnRecordEditStartMethodID() > 0 && comp instanceof IFieldComponent)
 						{
@@ -272,9 +270,14 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		while (it.hasNext())
 		{
 			WebDataRenderer panel = (WebDataRenderer)it.next();
-			panel.createDataAdapter(app, dataProviderLookup, listner, undoManager);
+			panel.createDataAdapter(app, dataProviderLookup, listener, undoManager);
 		}
 		return listTocomplete;
+	}
+
+	@Override
+	public void prepareRenderers(IApplication application, Form form)
+	{
 	}
 
 	private void setBasicSettings(IDataRenderer dr, Color bg, Dimension size, Point location, boolean printing)

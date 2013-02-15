@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 
@@ -26,16 +26,18 @@ import java.util.Comparator;
  */
 public class PositionComparator
 {
-	public static final Comparator<IPersist> XY_PERSIST_COMPARATOR = new PositionPersistComparator(true);
-	public static final Comparator<Component> XY_COMPONENT_COMPARATOR = new PositionComponentComparator(true);
-	public static final Comparator<IPersist> YX_PERSIST_COMPARATOR = new PositionPersistComparator(false);
-	public static final Comparator<Component> YX_COMPONENT_COMPARATOR = new PositionComponentComparator(false);
+	public static final Comparator< ? super IPersist> XY_PERSIST_COMPARATOR = new PositionPersistComparator(true);
+	public static final Comparator< ? super Component> XY_COMPONENT_COMPARATOR = new PositionComponentComparator(true);
+	public static final Comparator< ? super ISupportBounds> XY_BOUNDS_COMPARATOR = new SupportBoundsComparator(true);
+	public static final Comparator< ? super IPersist> YX_PERSIST_COMPARATOR = new PositionPersistComparator(false);
+	public static final Comparator< ? super Component> YX_COMPONENT_COMPARATOR = new PositionComponentComparator(false);
+	public static final Comparator< ? super ISupportBounds> YX_BOUNDS_COMPARATOR = new SupportBoundsComparator(false);
 
 	public static class PositionPersistComparator implements Comparator<IPersist>
 	{
 		private final boolean xy;
 
-		PositionPersistComparator(boolean xy)
+		private PositionPersistComparator(boolean xy)
 		{
 			this.xy = xy;
 		}
@@ -58,11 +60,43 @@ public class PositionComparator
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static final <T extends ISupportBounds> SupportBoundsComparator<T> xyBoundsComparator()
+	{
+		return (SupportBoundsComparator<T>)XY_BOUNDS_COMPARATOR;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final <T extends ISupportBounds> SupportBoundsComparator<T> yxBoundsComparator()
+	{
+		return (SupportBoundsComparator<T>)YX_BOUNDS_COMPARATOR;
+	}
+
+	public static class SupportBoundsComparator<T extends ISupportBounds> implements Comparator<T>
+	{
+		private final boolean xy;
+
+		private SupportBoundsComparator(boolean xy)
+		{
+			this.xy = xy;
+		}
+
+		public int compare(ISupportBounds o1, ISupportBounds o2)
+		{
+			if (o1 == o2) return 0;
+			if (o1 != null && o2 != null)
+			{
+				return comparePoint(xy, o1.getLocation(), o2.getLocation());
+			}
+			return o1 == null ? -1 : 1;
+		}
+	}
+
 	public static class PositionComponentComparator implements Comparator<Component>
 	{
 		private final boolean xy;
 
-		PositionComponentComparator(boolean xy)
+		private PositionComponentComparator(boolean xy)
 		{
 			this.xy = xy;
 		}

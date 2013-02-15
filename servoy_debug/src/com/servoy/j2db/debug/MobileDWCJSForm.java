@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.base.scripting.solutionhelper.IBaseSMFormInternal;
@@ -29,10 +31,13 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.scripting.solutionmodel.JSButton;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSLabel;
+import com.servoy.j2db.solutionmodel.ISMComponent;
+import com.servoy.j2db.util.IAnchorConstants;
 
 /**
  * Solution model JSForm implementation for when a mobile solution is debugged using the web-client.
@@ -155,4 +160,30 @@ public class MobileDWCJSForm extends JSForm implements IBaseSMFormInternal
 		}
 	}
 
+	@Override
+	@JSFunction
+	public JSField newField(Object dataprovider, int type, int x, int y, int width, int height)
+	{
+		return applyDeveloperSettings(super.newField(dataprovider, type, x, y, width, height));
+	}
+
+	@Override
+	@JSFunction
+	public JSButton newButton(String txt, int x, int y, int width, int height, Object action)
+	{
+		return applyDeveloperSettings(super.newButton(txt, x, y, width, height, action));
+	}
+
+	@Override
+	@JSFunction
+	public JSLabel newLabel(String txt, int x, int y, int width, int height, Object action)
+	{
+		return applyDeveloperSettings(super.newLabel(txt, x, y, width, height, action));
+	}
+
+	private <T extends ISMComponent> T applyDeveloperSettings(T jscomp)
+	{
+		jscomp.setAnchors(IAnchorConstants.EAST | IAnchorConstants.WEST);
+		return jscomp;
+	}
 }

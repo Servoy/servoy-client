@@ -2482,7 +2482,6 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		application.getFlattenedSolution().registerLiveForm(form, namedInstance);
 		if (view != null && scrollPosition != null) view.setVisibleRect(scrollPosition);
 		return true;
-
 	}
 
 	private void createDataRenderers(int viewType) throws Exception
@@ -2492,6 +2491,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		{
 			v = LOCKED_RECORD_VIEW; // form not based on any datasource
 		}
+
+		application.getDataRenderFactory().prepareRenderers(application, form);
 
 		Part bodyPart = null;
 		Map<Part, IDataRenderer> part_panels = new LinkedHashMap<Part, IDataRenderer>();

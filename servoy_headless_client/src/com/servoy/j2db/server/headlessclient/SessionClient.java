@@ -1653,13 +1653,18 @@ public class SessionClient extends ClientState implements ISessionClient
 	{
 		if (Utils.getAsBoolean(getRuntimeProperties().get("isPrinting"))) //$NON-NLS-1$
 		{
-			return new DataRendererFactory();//needed to be able to print
+			return new DataRendererFactory(); // needed to be able to print
 		}
 		if (dataRendererFactory == null)
 		{
-			dataRendererFactory = new WebDataRendererFactory();
+			dataRendererFactory = createDataRenderFactory();
 		}
 		return dataRendererFactory;
+	}
+
+	protected WebDataRendererFactory createDataRenderFactory()
+	{
+		return new WebDataRendererFactory();
 	}
 
 	private transient RendererParentWrapper printingRendererParent;

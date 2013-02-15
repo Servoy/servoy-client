@@ -22,6 +22,7 @@ import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMGraphicalComponent;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMListContainer;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 
@@ -74,8 +75,7 @@ public class BaseSHList implements IBaseSHList
 
 	public void setCountDataProviderID(String countDataProviderID)
 	{
-		createCountComponentIfNeeded();
-		countComponent.setDataProviderID(countDataProviderID);
+		getOrCreateCountComponent().setDataProviderID(countDataProviderID);
 	}
 
 	public String getText()
@@ -85,8 +85,7 @@ public class BaseSHList implements IBaseSHList
 
 	public void setText(String text)
 	{
-		createTextAndActionAndIconButtonIfNeeded();
-		textAndActionAndIconButton.setText(text);
+		getOrCreateTextAndActionAndIconButton().setText(text);
 	}
 
 	public String getTextDataProviderID()
@@ -96,14 +95,12 @@ public class BaseSHList implements IBaseSHList
 
 	public void setTextDataProviderID(String textDataPRoviderID)
 	{
-		createTextAndActionAndIconButtonIfNeeded();
-		textAndActionAndIconButton.setDataProviderID(textDataPRoviderID);
+		getOrCreateTextAndActionAndIconButton().setDataProviderID(textDataPRoviderID);
 	}
 
 	public void setOnAction(IBaseSMMethod method)
 	{
-		createTextAndActionAndIconButtonIfNeeded();
-		textAndActionAndIconButton.setOnAction(method);
+		getOrCreateTextAndActionAndIconButton().setOnAction(method);
 	}
 
 	public IBaseSMMethod getOnAction()
@@ -118,8 +115,7 @@ public class BaseSHList implements IBaseSHList
 
 	public void setSubtext(String subtext)
 	{
-		createSubtextComponentIfNeeded();
-		subtextComponent.setText(subtext);
+		getOrCreateSubtextComponent().setText(subtext);
 	}
 
 	public String getSubtextDataProviderID()
@@ -129,8 +125,7 @@ public class BaseSHList implements IBaseSHList
 
 	public void setSubtextDataProviderID(String subtextDataProviderID)
 	{
-		createSubtextComponentIfNeeded();
-		subtextComponent.setDataProviderID(subtextDataProviderID);
+		getOrCreateSubtextComponent().setDataProviderID(subtextDataProviderID);
 	}
 
 	public String getDataIconType()
@@ -140,8 +135,7 @@ public class BaseSHList implements IBaseSHList
 
 	public void setDataIconType(String iconType)
 	{
-		createTextAndActionAndIconButtonIfNeeded();
-		solutionHelper.setIconType(textAndActionAndIconButton, iconType);
+		solutionHelper.setIconType(getOrCreateTextAndActionAndIconButton(), iconType);
 	}
 
 	public String getDataIconDataProviderID()
@@ -151,44 +145,71 @@ public class BaseSHList implements IBaseSHList
 
 	public void setDataIconDataProviderID(String dataIconDataProviderID)
 	{
-		createIconComponentIfNeeded();
-		iconComponent.setDataProviderID(dataIconDataProviderID);
+		getOrCreateIconComponent().setDataProviderID(dataIconDataProviderID);
 	}
 
-	private void createTextAndActionAndIconButtonIfNeeded()
+	protected IBaseSMButton getOrCreateTextAndActionAndIconButton()
 	{
 		if (textAndActionAndIconButton == null)
 		{
-			textAndActionAndIconButton = container.newButton(null, 0, 0, 50, 30, null);
-			solutionHelper.getMobileProperties(textAndActionAndIconButton).setPropertyValue(IMobileProperties.LIST_ITEM_BUTTON, Boolean.TRUE);
+			textAndActionAndIconButton = createTextAndActionAndIconButton();
 		}
+		return textAndActionAndIconButton;
 	}
 
-	private void createSubtextComponentIfNeeded()
+	protected IBaseSMButton createTextAndActionAndIconButton()
+	{
+		IBaseSMButton button = container.newButton(null, 0, 0, 50, 30, null);
+		solutionHelper.getMobileProperties(button).setPropertyValue(IMobileProperties.LIST_ITEM_BUTTON, Boolean.TRUE);
+		return button;
+	}
+
+	protected IBaseSMGraphicalComponent getOrCreateSubtextComponent()
 	{
 		if (subtextComponent == null)
 		{
-			subtextComponent = container.newLabel(null, 0, 0, 50, 30);
-			solutionHelper.getMobileProperties(subtextComponent).setPropertyValue(IMobileProperties.LIST_ITEM_SUBTEXT, Boolean.TRUE);
+			subtextComponent = createSubtextComponent();
 		}
+		return subtextComponent;
 	}
 
-	private void createCountComponentIfNeeded()
+	protected IBaseSMGraphicalComponent createSubtextComponent()
+	{
+		IBaseSMLabel label = container.newLabel(null, 0, 0, 50, 30);
+		solutionHelper.getMobileProperties(label).setPropertyValue(IMobileProperties.LIST_ITEM_SUBTEXT, Boolean.TRUE);
+		return label;
+	}
+
+	protected IBaseSMField getOrCreateCountComponent()
 	{
 		if (countComponent == null)
 		{
-			countComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 50, 30);
-			solutionHelper.getMobileProperties(countComponent).setPropertyValue(IMobileProperties.LIST_ITEM_COUNT, Boolean.TRUE);
+			countComponent = createCountComponent();
 		}
+		return countComponent;
 	}
 
-	private void createIconComponentIfNeeded()
+	protected IBaseSMField createCountComponent()
+	{
+		IBaseSMField field = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 50, 30);
+		solutionHelper.getMobileProperties(field).setPropertyValue(IMobileProperties.LIST_ITEM_COUNT, Boolean.TRUE);
+		return field;
+	}
+
+	protected IBaseSMField getOrCreateIconComponent()
 	{
 		if (iconComponent == null)
 		{
-			iconComponent = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 30, 30);
-			solutionHelper.getMobileProperties(iconComponent).setPropertyValue(IMobileProperties.LIST_ITEM_IMAGE, Boolean.TRUE);
+			iconComponent = createIconComponent();
 		}
+		return iconComponent;
+	}
+
+	protected IBaseSMField createIconComponent()
+	{
+		IBaseSMField field = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 30, 30);
+		solutionHelper.getMobileProperties(field).setPropertyValue(IMobileProperties.LIST_ITEM_IMAGE, Boolean.TRUE);
+		return field;
 	}
 
 }

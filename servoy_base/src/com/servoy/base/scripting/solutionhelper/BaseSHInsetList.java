@@ -20,6 +20,7 @@ package com.servoy.base.scripting.solutionhelper;
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMGraphicalComponent;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMPortal;
 
 /**
@@ -64,8 +65,7 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 
 	public void setHeaderText(String headerText)
 	{
-		createHeaderComponentIfNeeded();
-		headerComponent.setText(headerText);
+		getOrCreateHeaderComponent().setText(headerText);
 	}
 
 	public String getHeaderDataProviderID()
@@ -75,17 +75,24 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 
 	public void setHeaderDataProviderID(String headerDataProviderID)
 	{
-		createHeaderComponentIfNeeded();
-		headerComponent.setDataProviderID(headerDataProviderID);
+		getOrCreateHeaderComponent().setDataProviderID(headerDataProviderID);
 	}
 
-	private void createHeaderComponentIfNeeded()
+	protected IBaseSMGraphicalComponent getOrCreateHeaderComponent()
 	{
 		if (headerComponent == null)
 		{
-			headerComponent = container.newLabel(null, 0, 0, 50, 30);
-			solutionHelper.getMobileProperties(headerComponent).setPropertyValue(IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
+			headerComponent = createHeaderComponent();
 		}
+		return headerComponent;
+	}
+
+	protected IBaseSMLabel createHeaderComponent()
+	{
+		IBaseSMLabel header = container.newLabel(null, 0, 0, 50, 30);
+		header.setDisplaysTags(true);
+		solutionHelper.getMobileProperties(header).setPropertyValue(IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
+		return header;
 	}
 
 	public String getName()

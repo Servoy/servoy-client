@@ -25,37 +25,54 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.swing.SwingUtilities;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 
+import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.debug.layout.ILayoutWrapper;
+import com.servoy.j2db.debug.layout.ILayoutWrapper.MobileFormSection;
+import com.servoy.j2db.debug.layout.MobileFormLayout;
+import com.servoy.j2db.debug.layout.PartLayoutWrapper;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.solutionmodel.JSForm;
+import com.servoy.j2db.scripting.solutionmodel.JSPart;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.TabSequenceHelper;
 
 /**
  * @author jcompagner
@@ -64,7 +81,6 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class DebugWebClient extends WebClient implements IDebugWebClient
 {
-	private final HttpSession session;
 	private SolutionMetaData solution;
 	private final List<Thread> dispatchThreads = new ArrayList<Thread>(3);
 	private final IDesignerCallback designerCallBack;
@@ -75,7 +91,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		super(req, credentials, method, methodArgs, solution != null ? solution.getName() : "");
 		this.solution = solution;
 		this.designerCallBack = designerCallBack;
-		this.session = req.getSession();
 	}
 
 	public synchronized void addEventDispatchThread()
@@ -157,6 +172,119 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	public void setCurrent(SolutionMetaData sol)
 	{
 		solution = sol;
+	}
+
+	@Override
+	protected WebDataRendererFactory createDataRenderFactory()
+	{
+		return new WebDataRendererFactory()
+		{
+			@Override
+			public void prepareRenderers(IApplication application, Form form)
+			{
+				if (form.getView() == IForm.RECORD_VIEW && SolutionMetaData.isServoyMobileSolution(getSolution()))
+				{
+					JSForm jsform = new JSForm(application, form, false);
+					if (jsform.getPart(Part.HEADER) == null)
+					{
+						// check if there are header items
+						for (IPersist persist : form.getAllObjectsAsList())
+						{
+							if (persist instanceof IFormElement && persist instanceof AbstractBase)
+							{
+								if (((AbstractBase)persist).getCustomMobileProperty(IMobileProperties.HEADER_ITEM.propertyName) != null)
+								{
+									// add missing header
+									jsform.newHeaderPart(40).setStyleClass("b"); // default theme
+									break;
+								}
+							}
+						}
+					}
+
+					if (jsform.getPart(Part.FOOTER) == null)
+					{
+						// check if there are footer items
+						for (IPersist persist : form.getAllObjectsAsList())
+						{
+							if (persist instanceof IFormElement && persist instanceof AbstractBase)
+							{
+								if (((AbstractBase)persist).getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName) != null)
+								{
+									// add missing footer
+									jsform.newFooterPart(40).setStyleClass("b"); // default theme
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				super.prepareRenderers(application, form);
+			}
+
+			@Override
+			public Map completeRenderers(IApplication application, Form form, IScriptExecuter scriptExecuter, Map emptyDataRenderers, int width,
+				boolean printing, ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
+			{
+				if (form.getView() == IForm.RECORD_VIEW && SolutionMetaData.isServoyMobileSolution(getSolution()))
+				{
+					// When the form was modified using solution model, relayout the form using same layout managers as mobile form editor.
+					// Form elements are modified using solution model so design-time settings are not affected.
+
+					Solution solutionCopy = getFlattenedSolution().getSolutionCopy(false);
+					if (solutionCopy != null && solutionCopy.getChild(form.getUUID()) != null)
+					{
+						JSForm jsform = new JSForm(application, form, false);
+
+						// layout the form
+						List<ILayoutWrapper> elements = new ArrayList<ILayoutWrapper>();
+
+						JSPart header = jsform.getPart(Part.HEADER);
+						if (header != null)
+						{
+							elements.add(new PartLayoutWrapper(header, jsform));
+						}
+
+						// sort on y-pos
+						for (ISupportBounds element : MobileFormLayout.getBodyElementsForRecordView(getFlattenedSolution(), form))
+						{
+							ILayoutWrapper wrapper = MobileFormLayout.createLayoutWrapper(element, jsform);
+							if (wrapper != null)
+							{
+								elements.add(wrapper);
+							}
+						}
+
+						JSPart footer = jsform.getPart(Part.FOOTER);
+						if (footer != null)
+						{
+							elements.add(new PartLayoutWrapper(footer, jsform));
+						}
+
+						MobileFormLayout.layoutForm(elements);
+
+						// update body height
+						JSPart body = jsform.getPart(Part.BODY);
+						if (body != null)
+						{
+							int max = 0;
+							for (ILayoutWrapper elem : elements)
+							{
+								if (elem.getElementType() == MobileFormSection.ContentElement)
+								{
+									max = Math.max(max, elem.getY() + elem.getHeight());
+								}
+							}
+							if (max > 0) body.setHeight(max);
+						}
+
+						getFlattenedSolution().deregisterLiveForm(form, form.getName());
+					}
+				}
+				return super.completeRenderers(application, form, scriptExecuter, emptyDataRenderers, width, printing, undoManager, tabSequence);
+			}
+		};
 	}
 
 	public static void installServoyMobileInternalStyle(FlattenedSolution flattenedSolution)
@@ -284,16 +412,12 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 			@Override
 			protected JSSolutionModel createSolutionModifier()
 			{
-				JSSolutionModel sm = null;
 				if (SolutionMetaData.isServoyMobileSolution(getSolution()))
 				{
-					sm = new MobileDWCJSSolutionModel(application);
+					return new MobileDWCJSSolutionModel(application);
 				}
-				else
-				{
-					sm = new JSSolutionModel(application);
-				}
-				return sm;
+
+				return super.createSolutionModifier();
 			}
 		};
 

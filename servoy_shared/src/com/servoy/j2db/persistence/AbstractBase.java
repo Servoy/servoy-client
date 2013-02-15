@@ -541,7 +541,7 @@ public abstract class AbstractBase implements IPersist
 		return allobjectsMap == null ? null : allobjectsMap.get(childUuid);
 	}
 
-	public Iterator<IPersist> getAllObjects(Comparator<IPersist> c)
+	public Iterator<IPersist> getAllObjects(Comparator< ? super IPersist> c)
 	{
 		return Utils.asSortedIterator(getAllObjects(), c);
 	}
