@@ -116,25 +116,31 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	 * Managers
 	 */
 	//form manager handling the forms
-	protected IFormManager formManager;
+	protected volatile IFormManager formManager;
 
 	//mode manager handling the application mode
-	protected transient IModeManager modeManager;
+	protected transient volatile IModeManager modeManager;
 
 	//foundset manager handling the foundsets 
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
 
 	//plugin manager handling the (scriptable plugins)
-	protected transient IPluginManagerInternal pluginManager;
+	protected transient volatile IPluginManagerInternal pluginManager;
 
 	//user manager, giving access to (other)user info 
 	private transient volatile IUserManager userManager;
 
 	// does this client use the login solution when configured?
-	private boolean useLoginSolution = true;
+	private volatile boolean useLoginSolution = true;
 
 	// boolean set to true, right after the solution is closed (right after when the solution onclose method is called)
 	private volatile boolean solutionClosed;
+
+	protected transient volatile IUserClient userClient;
+
+	private volatile ClientInfo clientInfo;
+
+	private transient volatile boolean isShutdown;
 
 	protected ClientState()
 	{
@@ -903,7 +909,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public IFoundSetManagerInternal getFoundSetManager()
 	{
-		if (foundSetManager == null)
+		if (foundSetManager == null && !isShutDown())
 		{
 			synchronized (this)
 			{
@@ -980,16 +986,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract URL getServerURL();
 
-	protected transient IUserClient userClient;
-
 	protected void createUserClient()
 	{
 		userClient = new ClientStub(this);
 	}
-
-	private ClientInfo clientInfo;
-
-	private transient boolean isShutdown;
 
 	public ClientInfo getClientInfo()
 	{
