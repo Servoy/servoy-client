@@ -502,7 +502,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	private final List<Runnable> events = new ArrayList<Runnable>();
-	private final ThreadLocal<List<Runnable>> requestEvents = new ThreadLocal<List<Runnable>>()
+	private final static ThreadLocal<List<Runnable>> requestEvents = new ThreadLocal<List<Runnable>>()
 	{
 		@Override
 		protected java.util.List<Runnable> initialValue()
