@@ -544,7 +544,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			// if not enabled or not editable do not start the edit
 			if (editor instanceof IDisplay && ((IDisplay)editor).isEnabled() && !((IDisplay)editor).isReadOnly())
 			{
-				DisplaysAdapter.startEdit(dal, (IDisplay)editor, currentEditingState, findMode);
+				DisplaysAdapter.startEdit(dal, (IDisplay)editor, currentEditingState);
 			}
 
 
@@ -718,7 +718,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		if (renderer instanceof JComponent)
 		{
-			applyRowBorder((JComponent)renderer, jtable, isSelected, row, column, hasFocus);
+			applyRowBorder((JComponent)renderer, jtable, isSelected, row, hasFocus);
 		}
 
 		boolean printing = Utils.getAsBoolean(application.getRuntimeProperties().get("isPrinting")); //$NON-NLS-1$
@@ -826,9 +826,9 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				}
 				((IDisplayData)renderer).setTagResolver(new ITagResolver()
 				{
-					public String getStringValue(String name)
+					public String getStringValue(String nm)
 					{
-						return TagResolver.formatObject(dal.getValueObject(state, name), application.getLocale(), dal.getApplication().getSettings());
+						return TagResolver.formatObject(dal.getValueObject(state, nm), application.getLocale(), dal.getApplication().getSettings());
 					}
 				});
 				if (data instanceof DbIdentValue)
@@ -870,7 +870,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			red = Math.abs(foregroundColor.getRed() - 255);
 			blue = Math.abs(foregroundColor.getBlue() - 255);
 			green = Math.abs(foregroundColor.getGreen() - 255);
-			foregroundColor = new Color(red, blue, green);
+			return new Color(red, blue, green);
 		}
 		return foregroundColor;
 	}
@@ -991,13 +991,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				{
 					String type = (editor instanceof IScriptableProvider && ((IScriptableProvider)editor).getScriptObject() instanceof IRuntimeComponent)
 						? ((IRuntimeComponent)((IScriptableProvider)editor).getScriptObject()).getElementType() : null;
-					String name = (editor instanceof IDisplayData) ? ((IDisplayData)editor).getDataProviderID() : null;
+					String nm = (editor instanceof IDisplayData) ? ((IDisplayData)editor).getDataProviderID() : null;
 					if (isRowBGColorCalculation)
 					{
 						bg_color = foundset.getCalculationValue(
 							state,
 							strRowBGColorProvider,
-							Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(isSelected), type, name, new Boolean(isEdited) }),
+							Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(isSelected), type, nm, new Boolean(isEdited) }),
 								Utils.parseJSExpressions(rowBGColorArgs)), null);
 					}
 					else
@@ -1006,7 +1006,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 						{
 							FormController currentForm = dal.getFormController();
 							bg_color = currentForm.executeFunction(strRowBGColorProvider, Utils.arrayMerge((new Object[] { new Integer(row), new Boolean(
-								isSelected), type, name, currentForm.getName(), state, new Boolean(isEdited) }), Utils.parseJSExpressions(rowBGColorArgs)),
+								isSelected), type, nm, currentForm.getName(), state, new Boolean(isEdited) }), Utils.parseJSExpressions(rowBGColorArgs)),
 								false, null, true, null);
 						}
 						catch (Exception ex)
@@ -1029,7 +1029,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		return bgColor;
 	}
 
-	private void applyRowBorder(JComponent component, JTable jtable, boolean isSelected, int row, int column, boolean hasFocus)
+	private void applyRowBorder(JComponent component, JTable jtable, boolean isSelected, int row, boolean hasFocus)
 	{
 		Border styleBorder = getBorder(jtable, isSelected, row);
 		if (styleBorder != null)
@@ -1283,9 +1283,9 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		if (!listeners.contains(l) && l != this) listeners.add(l);
 	}
 
-	public void removeDataListener(IDataAdapter listener)
+	public void removeDataListener(IDataAdapter dataListener)
 	{
-		listeners.remove(listener);
+		listeners.remove(dataListener);
 	}
 
 	private void fireModificationEvent(IRecord record)
@@ -1472,11 +1472,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 							fireModificationEvent(currentEditingState);
 							displayData.notifyLastNewValueWasChange(oldVal, obj);
 							obj = dal.getValueObject(currentEditingState, dataProviderID);
-							if (!findMode)
-							{
-								// use UI converter to convert from UI value to record value
-								obj = ComponentFormat.applyUIConverterToObject(displayData, obj, dataProviderID, application.getFoundSetManager());
-							}
 							convertAndSetValue(displayData, obj);// we also want to reset the value in the current display if changed by script
 						}
 						else if (!displayData.isValueValid())
