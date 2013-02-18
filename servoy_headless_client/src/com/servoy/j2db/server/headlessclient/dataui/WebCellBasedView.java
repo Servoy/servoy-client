@@ -5374,6 +5374,7 @@ class ScrollResponseHeaderContainer extends HtmlHeaderContainer
 		{
 			headerResponse = new IHeaderResponse()
 			{
+				private static final String SCRIPT_SEPARATOR = ";"; //$NON-NLS-1$
 
 				public void renderJavascriptReference(ResourceReference reference)
 				{
@@ -5443,11 +5444,13 @@ class ScrollResponseHeaderContainer extends HtmlHeaderContainer
 				public void renderOnDomReadyJavascript(String javascript)
 				{
 					output.append(javascript);
+					if (javascript != null && !javascript.endsWith(SCRIPT_SEPARATOR)) output.append(SCRIPT_SEPARATOR);
 				}
 
 				public void renderOnLoadJavascript(String javascript)
 				{
 					output.append(javascript);
+					if (javascript != null && !javascript.endsWith(SCRIPT_SEPARATOR)) output.append(SCRIPT_SEPARATOR);
 				}
 
 				public void renderOnEventJavascript(String target, String event, String javascript)
