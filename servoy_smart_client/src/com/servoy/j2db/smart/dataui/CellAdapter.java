@@ -1472,11 +1472,6 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 							fireModificationEvent(currentEditingState);
 							displayData.notifyLastNewValueWasChange(oldVal, obj);
 							obj = dal.getValueObject(currentEditingState, dataProviderID);
-							if (!findMode)
-							{
-								// use UI converter to convert from UI value to record value
-								obj = ComponentFormat.applyUIConverterToObject(displayData, obj, dataProviderID, application.getFoundSetManager());
-							}
 							convertAndSetValue(displayData, obj);// we also want to reset the value in the current display if changed by script
 						}
 						else if (!displayData.isValueValid())

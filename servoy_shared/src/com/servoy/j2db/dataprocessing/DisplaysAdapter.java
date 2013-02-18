@@ -332,11 +332,13 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 
 		Object prevValue = null;
 		Object obj = display.getValueObject();
-
+		boolean valueWasConverted = false;
 		if (!findMode)
 		{
 			// use UI converter to convert from UI value to record value
-			obj = ComponentFormat.applyUIConverterFromObject(display, obj, dataProviderID, application.getFoundSetManager());
+			Object converted = ComponentFormat.applyUIConverterFromObject(display, obj, dataProviderID, application.getFoundSetManager());
+			valueWasConverted = obj != converted;
+			obj = converted;
 		}
 
 		Pair<String, String> scope = ScopesUtils.getVariableScope(dataProviderID);
@@ -427,20 +429,23 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			}
 		}
 
-		if (Utils.equalObjects(prevValue, obj))
+		boolean changed = !Utils.equalObjects(prevValue, obj);
+		if (!changed)
 		{
 			// value was changed back to original value manually after an invalid input
 			display.setValueValid(true, null);
 		}
-		else
+		if (changed || valueWasConverted)
 		{
 			adjusting = true;
 			try
 			{
 				// fireDataChange to possible listeners
-				fireModificationEvent(obj);
-
-				display.notifyLastNewValueWasChange(prevValue, obj);//to trigger onChangeMethod (not all displays have own property change impl)
+				if (changed)
+				{
+					fireModificationEvent(obj);
+					display.notifyLastNewValueWasChange(prevValue, obj);//to trigger onChangeMethod (not all displays have own property change impl)
+				}
 
 				// check if the DataAdapterList is now destroyed (because of recreateUI in the onchange method)
 				// ignore the rest if it is destroyed.

@@ -259,9 +259,13 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		IRecordInternal record = (IRecordInternal)RecordItemModel.this.getObject();
 
 		// use UI converter to convert from UI value to record value
+		boolean wasConverted = false;
 		if (!(record instanceof FindState))
 		{
-			obj = ComponentFormat.applyUIConverterFromObject(component, obj, dataProviderID, webForm.getController().getApplication().getFoundSetManager());
+			Object converted = ComponentFormat.applyUIConverterFromObject(component, obj, dataProviderID,
+				webForm.getController().getApplication().getFoundSetManager());
+			wasConverted = obj != converted;
+			obj = converted;
 		}
 
 		FormScope fs = webForm.getController().getFormScope();
@@ -294,6 +298,11 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 					{
 						prevValue = record.getValue(dataProviderID);
 						record.setValue(dataProviderID, obj);
+						if (wasConverted)
+						{
+							// update component with converted value
+							((IDisplayData)component).setValueObject(record.getValue(dataProviderID));
+						}
 					}
 					catch (IllegalArgumentException e)
 					{
