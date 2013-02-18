@@ -148,6 +148,12 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	private final HashMap<String, String> defaultUserProperties = new HashMap<String, String>();
 
+	protected TimeZone timeZone;
+
+	private volatile boolean shuttingDown = false;
+
+	private transient volatile ServoyScheduledExecutor scheduledExecutorService;
+
 	protected SessionClient(ServletRequest req, String uname, String pass, String method, Object[] methodArgs, String solution) throws Exception
 	{
 		this(req, new WebCredentials(uname, pass), method, methodArgs, solution);
@@ -328,8 +334,6 @@ public class SessionClient extends ClientState implements ISessionClient
 		return registered;
 	}
 
-	private boolean shuttingDown = false;
-
 	/**
 	 * @see com.servoy.j2db.ClientState#shutDown(boolean)
 	 */
@@ -503,10 +507,6 @@ public class SessionClient extends ClientState implements ISessionClient
 		super.solutionLoaded(s);
 		J2DBGlobals.firePropertyChange(this, "solution", null, getSolution()); //$NON-NLS-1$
 	}
-
-	protected TimeZone timeZone;
-
-	private transient ServoyScheduledExecutor scheduledExecutorService;
 
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
@@ -1266,7 +1266,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	@Override
 	public ScheduledExecutorService getScheduledExecutor()
 	{
-		if (scheduledExecutorService == null)
+		if (scheduledExecutorService == null && !isShutDown())
 		{
 			synchronized (J2DBGlobals.class)
 			{

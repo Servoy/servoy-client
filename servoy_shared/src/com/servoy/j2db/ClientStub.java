@@ -124,6 +124,7 @@ public class ClientStub implements IUserClient
 
 	public void notifyDataChange(final String server_name, final String table_name, final IDataSet pks, final int action, final Object[] insertColumnData)
 	{
+		if (client.isShutDown()) return;
 		if (Debug.tracing())
 		{
 			Debug.trace("Notify Data Change get from the server for dataserver: " + server_name + " table: " + table_name); //$NON-NLS-1$ //$NON-NLS-2$
