@@ -34,7 +34,7 @@ public class TableDef implements Serializable
 	public String createScript = null;
 	public String primaryKey = null;
 	public boolean hiddenInDeveloper = false;
-	public boolean isMetaData = false;
+	public Boolean isMetaData = Boolean.FALSE;
 	public ArrayList<ColumnInfoDef> columnInfoDefSet = new ArrayList<ColumnInfoDef>(); // this should be a list, otherwise column creation order is broken
 	public int tableType = ITable.TABLE;
 
