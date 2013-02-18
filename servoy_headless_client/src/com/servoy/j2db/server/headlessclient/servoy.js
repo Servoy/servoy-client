@@ -2807,6 +2807,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 							{
 								url = Servoy.ClientDesign.callbackurl+'&a=aDrop&' + urlCommonParams  + '&targetID=' + targetid;
 								Servoy.ClientDesign.destroyResizeElements();
+								Servoy.DD.isDragStarted = false;
 							}
 							else
 							{
