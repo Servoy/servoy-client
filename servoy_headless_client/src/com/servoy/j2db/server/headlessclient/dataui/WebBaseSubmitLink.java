@@ -944,7 +944,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	{
 		super.onBeforeRender();
 
-		if (hasHtmlOrImage())
+		if (getCSSId() != null)
 		{
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) wcbw.addLabelCssClass(getId());
