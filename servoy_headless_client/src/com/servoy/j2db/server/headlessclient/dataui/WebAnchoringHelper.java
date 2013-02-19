@@ -27,11 +27,15 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportAnchors;
+import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.util.IAnchorConstants;
@@ -158,15 +162,37 @@ public class WebAnchoringHelper
 		return false;
 	}
 
-	public static void addMinSize(int anchors, IServiceProvider application, Properties cssProperties, boolean addWidth, boolean addHeight, Dimension size)
+	public static void addMinSize(int anchors, IServiceProvider application, Properties cssProperties, boolean addWidth, boolean addHeight, Dimension size,
+		IFormElement formElement)
 	{
 		if (isAnchored(anchors, application))
 		{
-			if (addWidth && size != null)
+			boolean canAddWidth = addWidth;
+			boolean canAddHeight = addHeight;
+
+			if (formElement != null)
+			{
+				Portal parentPortal = (Portal)formElement.getAncestor(IRepository.PORTALS);
+				if (parentPortal != null && !parentPortal.equals(formElement))
+				{
+					canAddWidth = canAddHeight = false;
+				}
+				else
+				{
+					Form parentForm = (Form)formElement.getAncestor(IRepository.FORMS);
+					if (parentForm != null && !parentForm.equals(formElement) &&
+						(parentForm.getView() == FormController.TABLE_VIEW || parentForm.getView() == FormController.LOCKED_TABLE_VIEW))
+					{
+						canAddWidth = canAddHeight = false;
+					}
+				}
+			}
+
+			if (canAddWidth && size != null)
 			{
 				cssProperties.setProperty("min-width", size.width + "px");
 			}
-			if (addHeight && size != null)
+			if (canAddHeight && size != null)
 			{
 				cssProperties.setProperty("min-height", size.height + "px");
 			}

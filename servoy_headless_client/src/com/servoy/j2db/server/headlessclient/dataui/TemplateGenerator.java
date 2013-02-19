@@ -2263,7 +2263,7 @@ public class TemplateGenerator
 			String wrapperId = ComponentFactory.getWebID(form, label) + WRAPPER_SUFFIX;
 			wrapperStyle = css.addStyle(styleName + wrapperId);
 			wrapperStyle.setProperty("min-width", label.getSize().width + "px");
-			WebAnchoringHelper.addMinSize(label.getAnchors(), sp, wrapperStyle, false, true, label.getSize());
+			WebAnchoringHelper.addMinSize(label.getAnchors(), sp, wrapperStyle, false, true, label.getSize(), label);
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, label, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, label, "", WRAPPER_SUFFIX));
@@ -2300,7 +2300,7 @@ public class TemplateGenerator
 			if (label.getText() != null && !HtmlUtils.hasUsefulHtmlContent(label.getText()))
 			{
 				Properties properties = new Properties();
-				WebAnchoringHelper.addMinSize(label.getAnchors(), sp, properties, false, true, label.getSize());
+				WebAnchoringHelper.addMinSize(label.getAnchors(), sp, properties, false, true, label.getSize(), label);
 				String minHeight = properties.size() == 1 ? (properties.keys().nextElement() + ":" + properties.elements().nextElement()) : "";
 				html.append(" style=\"white-space: nowrap; min-width:" + label.getSize().width + "px;" + minHeight + "\" ");
 			}
@@ -2432,7 +2432,7 @@ public class TemplateGenerator
 			TextualStyle wrapperStyle = css.addStyle('#' + wrapperId);
 			wrapperStyle.setProperty("overflow", "visible");
 			wrapperStyle.setProperty("min-width", field.getSize().width + "px");
-			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, wrapperStyle, false, true, field.getSize());
+			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, wrapperStyle, false, true, field.getSize(), field);
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, field, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
@@ -2440,7 +2440,7 @@ public class TemplateGenerator
 		}
 		else
 		{
-			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, styleObj, true, true, field.getSize());
+			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, styleObj, true, true, field.getSize(), field);
 		}
 
 		Insets padding = (Insets)DEFAULT_FIELD_PADDING.clone();
@@ -2917,7 +2917,8 @@ public class TemplateGenerator
 		ICSSBoundsHandler handler = css.getCSSBoundsHandler();
 		handler.applyBounds(component, styleObj, ins == null ? new Insets(0, 0, 0, 0) : ins.getSum(), startY, endY, formWidth, enableAnchoring, null);
 
-		WebAnchoringHelper.addMinSize(anchors, sp, styleObj, true, true, component.getSize());
+		WebAnchoringHelper.addMinSize(anchors, sp, styleObj, true, true, component.getSize(), component instanceof IFormElement ? (IFormElement)component
+			: null);
 	}
 
 	private static void applyLocationAndSize(ISupportBounds component, TextualStyle styleObj, BorderAndPadding ins, int startY, int endY, int formWidth,
