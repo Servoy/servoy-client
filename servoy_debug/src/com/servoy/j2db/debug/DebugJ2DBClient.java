@@ -418,7 +418,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	private Solution current;
-	private boolean shutDown = true;
+	private boolean shutDown = false;
 	private boolean unitTestsRunning = false;
 	private final IDesignerCallback designerCallback;
 	private final RefreshPersistsSequencer refreshPersistsSequencer;
