@@ -2301,8 +2301,13 @@ public class TemplateGenerator
 			{
 				Properties properties = new Properties();
 				WebAnchoringHelper.addMinSize(label.getAnchors(), sp, properties, false, true, label.getSize(), label);
-				String minHeight = properties.size() == 1 ? (properties.keys().nextElement() + ":" + properties.elements().nextElement()) : "";
-				html.append(" style=\"white-space: nowrap; min-width:" + label.getSize().width + "px;" + minHeight + "\" ");
+				html.append(" style=\"white-space: nowrap;");
+				if (!isTableViewComponent(label))
+				{
+					String minHeight = properties.size() == 1 ? (properties.keys().nextElement() + ":" + properties.elements().nextElement()) : "";
+					html.append(" min-width:").append(label.getSize().width).append("px;").append(minHeight);
+				}
+				html.append("\" ");
 			}
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
@@ -3321,5 +3326,28 @@ public class TemplateGenerator
 	private static String getWicketIDParameter(Form form, IPersist meta, String prefix, String suffix)
 	{
 		return "servoy:id='" + prefix + ComponentFactory.getWebID(form, meta) + suffix + "' ";
+	}
+
+	public static boolean isTableViewComponent(IFormElement element)
+	{
+		boolean isTableViewComponent = false;
+		if (element != null)
+		{
+			Portal parentPortal = (Portal)element.getAncestor(IRepository.PORTALS);
+			if (parentPortal != null && !parentPortal.equals(element))
+			{
+				isTableViewComponent = true;
+			}
+			else
+			{
+				Form parentForm = (Form)element.getAncestor(IRepository.FORMS);
+				if (parentForm != null && !parentForm.equals(element) &&
+					(parentForm.getView() == FormController.TABLE_VIEW || parentForm.getView() == FormController.LOCKED_TABLE_VIEW))
+				{
+					isTableViewComponent = true;
+				}
+			}
+		}
+		return isTableViewComponent;
 	}
 }
