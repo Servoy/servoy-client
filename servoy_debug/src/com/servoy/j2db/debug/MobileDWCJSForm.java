@@ -183,7 +183,7 @@ public class MobileDWCJSForm extends JSForm implements IBaseSMFormInternal
 
 	private <T extends ISMComponent> T applyDeveloperSettings(T jscomp)
 	{
-		jscomp.setAnchors(IAnchorConstants.EAST | IAnchorConstants.WEST);
+		jscomp.setAnchors(IAnchorConstants.EAST | IAnchorConstants.WEST | IAnchorConstants.NORTH);
 		return jscomp;
 	}
 }

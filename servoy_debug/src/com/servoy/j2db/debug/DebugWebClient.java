@@ -230,8 +230,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 				if (form.getView() == IForm.RECORD_VIEW && SolutionMetaData.isServoyMobileSolution(getSolution()))
 				{
 					// When the form was modified using solution model, relayout the form using same layout managers as mobile form editor.
-					// Form elements are modified using solution model so design-time settings are not affected.
-
 					Solution solutionCopy = getFlattenedSolution().getSolutionCopy(false);
 					if (solutionCopy != null && solutionCopy.getChild(form.getUUID()) != null)
 					{
@@ -264,19 +262,22 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 						MobileFormLayout.layoutForm(elements);
 
-						// update body height
-						JSPart body = jsform.getPart(Part.BODY);
-						if (body != null)
+						// update body height when there is no footer
+						if (footer == null)
 						{
-							int max = 0;
-							for (ILayoutWrapper elem : elements)
+							JSPart body = jsform.getPart(Part.BODY);
+							if (body != null)
 							{
-								if (elem.getElementType() == MobileFormSection.ContentElement)
+								int max = 0;
+								for (ILayoutWrapper elem : elements)
 								{
-									max = Math.max(max, elem.getY() + elem.getHeight());
+									if (elem.getElementType() == MobileFormSection.ContentElement)
+									{
+										max = Math.max(max, elem.getY() + elem.getHeight());
+									}
 								}
+								if (max > 0) body.setHeight(max);
 							}
-							if (max > 0) body.setHeight(max);
 						}
 
 						getFlattenedSolution().deregisterLiveForm(form, form.getName());

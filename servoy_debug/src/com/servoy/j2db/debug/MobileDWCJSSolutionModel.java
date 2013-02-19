@@ -17,8 +17,12 @@
 
 package com.servoy.j2db.debug;
 
+import java.awt.Dimension;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 
@@ -41,4 +45,9 @@ public class MobileDWCJSSolutionModel extends JSSolutionModel
 		return new MobileDWCJSForm(getApplication(), form, isNew);
 	}
 
+	@Override
+	protected Form createNewForm(Style style, String name, String dataSource, boolean show_in_menu, Dimension size) throws RepositoryException
+	{
+		return super.createNewForm(style, name, dataSource, show_in_menu, null); // form dimensions are ignored in mobile
+	}
 }

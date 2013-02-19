@@ -173,7 +173,7 @@ public class JSSolutionModel implements ISolutionModel
 			{
 				style = fs.getStyle(styleName);
 			}
-			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), style, name, dataSource, show_in_menu, new Dimension(width, height));
+			Form form = createNewForm(style, name, dataSource, show_in_menu, new Dimension(width, height));
 			form.createNewPart(Part.BODY, height);
 
 			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
@@ -217,11 +217,9 @@ public class JSSolutionModel implements ISolutionModel
 	@JSFunction
 	public JSForm newForm(String name, ISMForm superForm)
 	{
-		FlattenedSolution fs = application.getFlattenedSolution();
 		try
 		{
-			Form form = fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), null, name, null, superForm.getShowInMenu(),
-				((JSForm)superForm).getSupportChild().getSize());
+			Form form = createNewForm(null, name, null, superForm.getShowInMenu(), ((JSForm)superForm).getSupportChild().getSize());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			((FormManager)application.getFormManager()).addForm(form, false);
 			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
@@ -231,6 +229,12 @@ public class JSSolutionModel implements ISolutionModel
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	protected Form createNewForm(Style style, String name, String dataSource, boolean show_in_menu, Dimension size) throws RepositoryException
+	{
+		FlattenedSolution fs = application.getFlattenedSolution();
+		return fs.getSolutionCopy().createNewForm(new ScriptNameValidator(fs), style, name, dataSource, show_in_menu, size);
 	}
 
 	/**

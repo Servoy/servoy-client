@@ -47,13 +47,19 @@ public class PartLayoutWrapper implements ILayoutWrapper
 	@Override
 	public void setBounds(int x, int y, int width, int height)
 	{
-		part.setHeight(height);
+		part.setHeight(y + height);
 		if (part.getPartType() == Part.HEADER)
 		{
 			MobileFormLayout.layoutHeader(getLayoutElements(part.getPartType()), x, y, width);
 		}
 		else
 		{
+			// Adjust body
+			JSPart bodyPart = ((JSForm)part.getJSParent()).getBodyPart();
+			if (bodyPart != null)
+			{
+				bodyPart.setHeight(y);
+			}
 			MobileFormLayout.layoutFooter(getLayoutElements(part.getPartType()), x, y, width);
 		}
 	}
