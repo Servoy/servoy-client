@@ -52,7 +52,7 @@ public class PartLayoutWrapper implements ILayoutWrapper
 		{
 			MobileFormLayout.layoutHeader(getLayoutElements(part.getPartType()), x, y, width);
 		}
-		else
+		else if (part.getPartType() == Part.FOOTER)
 		{
 			// Adjust body
 			JSPart bodyPart = ((JSForm)part.getJSParent()).getBodyPart();
