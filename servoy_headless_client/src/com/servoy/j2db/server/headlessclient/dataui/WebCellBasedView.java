@@ -250,6 +250,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private boolean isKeepLoadedRowsInScrollMode;
 	private boolean hasTopBuffer, hasBottomBuffer;
 	private int currentScrollTop;
+	private int currentScrollLeft;
 	private int topPhHeight;
 	private int scrollableHeaderHeight = -1;
 
@@ -263,6 +264,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		public void renderHead(IHeaderResponse response)
 		{
+			StringBuilder jsScrollLeft = new StringBuilder("$('#").append(tableContainerBody.getMarkupId()).append("').scrollLeft(").append(currentScrollLeft).append( //$NON-NLS-1$ //$NON-NLS-2$
+				");"); //$NON-NLS-1$
+			response.renderOnLoadJavascript(jsScrollLeft.toString());
+
 			String top;
 			if (headers != null)
 			{
@@ -275,8 +280,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			StringBuffer tbodyStyle = new StringBuffer("var tbodyTop=").append(top).append(";if(tbodyTop != null && tbodyTop != ").append(scrollableHeaderHeight).append(") { $('#").append( //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				tableContainerBody.getMarkupId()).append("').css('top',tbodyTop+'px');};"); //$NON-NLS-1$
-			if (scrollableHeaderHeight == -1) tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();"); //$NON-NLS-1$//$NON-NLS-2$
+			if (scrollableHeaderHeight == -1) tbodyStyle.append("$('#").append(tableContainerBody.getMarkupId()).append("').show();"); //$NON-NLS-1$//$NON-NLS-2$ 
 			tbodyStyle.append("if(tbodyTop != null) wicketAjaxGet('").append(getCallbackUrl()).append("&h=' + tbodyTop);"); //$NON-NLS-1$ //$NON-NLS-2$
+
 			response.renderOnLoadJavascript(tbodyStyle.toString());
 		}
 
@@ -5069,6 +5075,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		protected void onEvent(AjaxRequestTarget target)
 		{
 			currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
+			currentScrollLeft = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollLeft")); //$NON-NLS-1$
 			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
 			appendRows(target, scrollDiff, isKeepLoadedRowsInScrollMode);
 		}
@@ -5076,7 +5083,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected CharSequence generateCallbackScript(final CharSequence partialCall)
 		{
-			return super.generateCallbackScript(partialCall + "+'&scrollDiff='+scrollDiff+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$
+			return super.generateCallbackScript(partialCall +
+				"+'&scrollDiff='+scrollDiff+'&currentScrollTop='+currentScrollTop+'&currentScrollLeft='+currentScrollLeft"); //$NON-NLS-1$
 		}
 
 		@Override
@@ -5102,8 +5110,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					scriptBuilder.append(
 						"clearTimeout(Servoy.TableView.appendRowsTimer); Servoy.TableView.appendRowsTimer = setTimeout(\"var currentScrollTop = $('#").append(
+						WebCellBasedView.this.tableContainerBody.getMarkupId()).append("').scrollTop();var currentScrollLeft = $('#").append(
 						WebCellBasedView.this.tableContainerBody.getMarkupId()).append(
-						"').scrollTop();var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('");
+						"').scrollLeft();var scrollDiff = Servoy.TableView.needToUpdateRowsBuffer('");
 					scriptBuilder.append(WebCellBasedView.this.tableContainerBody.getMarkupId());
 					scriptBuilder.append("');");
 					scriptBuilder.append(script);
@@ -5278,6 +5287,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		WebCellBasedView.this.hasBottomBuffer = true;
 		WebCellBasedView.this.currentScrollTop = 0;
 		WebCellBasedView.this.topPhHeight = 0;
+		WebCellBasedView.this.currentScrollLeft = 0;
 	}
 }
 
