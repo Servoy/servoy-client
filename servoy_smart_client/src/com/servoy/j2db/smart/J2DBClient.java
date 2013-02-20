@@ -880,7 +880,15 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			URL webstartUrl = WebStart.getWebStartURL();
 			try
 			{
-				URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), windowicon);
+				String windowiconFile = null;
+				String path = webstartUrl.getPath();
+				if (!path.equals("") && path.endsWith("/"))
+				{
+					windowiconFile = path.substring(0, path.length() - 1) + windowicon;
+				}
+				else windowiconFile = windowicon;
+
+				URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), windowiconFile);
 				frame.setIconImage(new ImageIcon(url).getImage());
 			}
 			catch (MalformedURLException ex)
