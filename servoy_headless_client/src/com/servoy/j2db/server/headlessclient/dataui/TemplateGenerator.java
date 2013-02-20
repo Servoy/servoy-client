@@ -2254,6 +2254,7 @@ public class TemplateGenerator
 		boolean isButton = ComponentFactory.isButton(label);
 
 		TextualStyle wrapperStyle = null;
+		Properties minSizeStyle = styleObj;
 		if (isButton && enableAnchoring)
 		{
 			// Anchoring <button> with { left: 0px; right: 0px; } pair
@@ -2262,8 +2263,7 @@ public class TemplateGenerator
 			// with { width: 100%; height: 100%; }, which works fine.
 			String wrapperId = ComponentFactory.getWebID(form, label) + WRAPPER_SUFFIX;
 			wrapperStyle = css.addStyle(styleName + wrapperId);
-			wrapperStyle.setProperty("min-width", label.getSize().width + "px");
-			WebAnchoringHelper.addMinSize(label.getAnchors(), sp, wrapperStyle, false, true, label.getSize(), label);
+			minSizeStyle = wrapperStyle;
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, label, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, label, "", WRAPPER_SUFFIX));
@@ -2299,15 +2299,7 @@ public class TemplateGenerator
 			// we want to wrap only if there is no html content in the label text
 			if (label.getText() != null && !HtmlUtils.hasUsefulHtmlContent(label.getText()))
 			{
-				Properties properties = new Properties();
-				WebAnchoringHelper.addMinSize(label.getAnchors(), sp, properties, false, true, label.getSize(), label);
-				html.append(" style=\"white-space: nowrap;");
-				if (!isTableViewComponent(label))
-				{
-					String minHeight = properties.size() == 1 ? (properties.keys().nextElement() + ":" + properties.elements().nextElement()) : "";
-					html.append(" min-width:").append(label.getSize().width).append("px;").append(minHeight);
-				}
-				html.append("\" ");
+				html.append(" style=\"white-space: nowrap;\"");
 			}
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
@@ -2333,6 +2325,12 @@ public class TemplateGenerator
 			}
 			if (label.getOnActionMethodID() > 0) styleObj.setProperty("cursor", "pointer");
 		}
+
+		Insets borderAndPadding = ins == null ? new Insets(0, 0, 0, 0) : ins.getSum();
+
+		WebAnchoringHelper.addMinSize(label.getAnchors(), sp, minSizeStyle, new Dimension(label.getSize().width - borderAndPadding.left -
+			borderAndPadding.right, label.getSize().height - borderAndPadding.top - borderAndPadding.bottom), label);
+
 		if (isButton && enableAnchoring)
 		{
 			html.append("</div>");
@@ -2427,6 +2425,7 @@ public class TemplateGenerator
 
 		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, field));
 
+		Properties minSizeStyle = styleObj;
 		if (addWrapperDiv)
 		{
 			// Anchoring fields (<input>s, <textarea>s) with { left: 0px; right: 0px; } pair
@@ -2436,16 +2435,11 @@ public class TemplateGenerator
 			String wrapperId = ComponentFactory.getWebID(form, field) + WRAPPER_SUFFIX;
 			TextualStyle wrapperStyle = css.addStyle('#' + wrapperId);
 			wrapperStyle.setProperty("overflow", "visible");
-			wrapperStyle.setProperty("min-width", field.getSize().width + "px");
-			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, wrapperStyle, false, true, field.getSize(), field);
+			minSizeStyle = wrapperStyle;
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, field, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
 			html.append(">");
-		}
-		else
-		{
-			WebAnchoringHelper.addMinSize(field.getAnchors(), sp, styleObj, true, true, field.getSize(), field);
 		}
 
 		Insets padding = (Insets)DEFAULT_FIELD_PADDING.clone();
@@ -2787,6 +2781,11 @@ public class TemplateGenerator
 				applyTextProperties(field, styleObj);
 			}
 		}
+		Insets borderAndPadding = ins == null ? new Insets(0, 0, 0, 0) : ins.getSum();
+
+		WebAnchoringHelper.addMinSize(field.getAnchors(), sp, minSizeStyle, new Dimension(field.getSize().width - borderAndPadding.left -
+			borderAndPadding.right, field.getSize().height - borderAndPadding.top - borderAndPadding.bottom), field);
+
 		if (addWrapperDiv)
 		{
 			html.append("</div>");
@@ -2920,10 +2919,14 @@ public class TemplateGenerator
 	{
 		TextualCSS css = styleObj.getTextualCSS();
 		ICSSBoundsHandler handler = css.getCSSBoundsHandler();
-		handler.applyBounds(component, styleObj, ins == null ? new Insets(0, 0, 0, 0) : ins.getSum(), startY, endY, formWidth, enableAnchoring, null);
-
-		WebAnchoringHelper.addMinSize(anchors, sp, styleObj, true, true, component.getSize(), component instanceof IFormElement ? (IFormElement)component
-			: null);
+		Insets borderAndPadding = ins == null ? new Insets(0, 0, 0, 0) : ins.getSum();
+		handler.applyBounds(component, styleObj, borderAndPadding, startY, endY, formWidth, enableAnchoring, null);
+		if (component.getSize() != null)
+		{
+			WebAnchoringHelper.addMinSize(anchors, sp, styleObj, new Dimension(component.getSize().width - borderAndPadding.left - borderAndPadding.right,
+				component.getSize().height - borderAndPadding.top - borderAndPadding.bottom), component instanceof IFormElement ? (IFormElement)component
+				: null);
+		}
 	}
 
 	private static void applyLocationAndSize(ISupportBounds component, TextualStyle styleObj, BorderAndPadding ins, int startY, int endY, int formWidth,

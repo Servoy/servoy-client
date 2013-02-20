@@ -148,26 +148,16 @@ public class WebAnchoringHelper
 		return sb.toString();
 	}
 
-	private static boolean isAnchored(int anchors, IServiceProvider application)
+	public static void addMinSize(int anchors, IServiceProvider application, Properties cssProperties, Dimension size, IFormElement formElement)
 	{
-		if (application == null || Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")))
+		if (size != null && (application == null || Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors"))) &&
+			!TemplateGenerator.isTableViewComponent(formElement))
 		{
-			return (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0)) ||
-				(((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0));
-		}
-		return false;
-	}
-
-	public static void addMinSize(int anchors, IServiceProvider application, Properties cssProperties, boolean addWidth, boolean addHeight, Dimension size,
-		IFormElement formElement)
-	{
-		if (isAnchored(anchors, application) && !TemplateGenerator.isTableViewComponent(formElement))
-		{
-			if (addWidth && size != null)
+			if (((anchors & IAnchorConstants.EAST) > 0) && ((anchors & IAnchorConstants.WEST) > 0))
 			{
 				cssProperties.setProperty("min-width", size.width + "px");
 			}
-			if (addHeight && size != null)
+			if (((anchors & IAnchorConstants.NORTH) > 0) && ((anchors & IAnchorConstants.SOUTH) > 0) && size != null)
 			{
 				cssProperties.setProperty("min-height", size.height + "px");
 			}
