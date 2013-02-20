@@ -168,7 +168,14 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 						URL webstartUrl = WebStart.getWebStartURL();
 						try
 						{
-							URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), loadingImage);
+							String loadingImageFile = null;
+							String path = webstartUrl.getPath();
+							if (!path.equals("") && path.endsWith("/"))
+							{
+								loadingImageFile = path.substring(0, path.length() - 1) + loadingImage;
+							}
+							else loadingImageFile = loadingImage;
+							URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), loadingImageFile);
 							loadingLabel = new JLabel(new ImageIcon(url), SwingConstants.CENTER);
 						}
 						catch (MalformedURLException ex)
