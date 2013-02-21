@@ -17,8 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.persistence.Part;
-
+import com.servoy.base.solutionmodel.IBaseSMPart;
 
 /**
  * Solution model form part.
@@ -27,104 +26,8 @@ import com.servoy.j2db.persistence.Part;
  *
  * @since 6.1
  */
-public interface ISMPart extends ISMHasUUID
+public interface ISMPart extends ISMHasUUID, IBaseSMPart
 {
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * This is the default part that is repeated for each record (being 
-	 * displayed and/or printed).
-	 *
-	 * @sample 
-	 * var body = form.newPart(JSPart.BODY, 320);
-	 */
-	public static final int BODY = Part.BODY;
-	/**
-	 * Constant use for specifying the type of form parts.
-	 * 
-	 * A footer is displayed at the bottom of each page when printed ad can
-	 * contain summaries of the current selection of records. In List view, the 
-	 * footer is displayed at the bottom of the list of records.
-	 * 
-	 * @sample
-	 * var footer = form.newPart(JSPart.FOOTER, 440); 
-	 */
-	public static final int FOOTER = Part.FOOTER;
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A header is displayed at the top of each page when printed and can contain
-	 * summaries of the current selection of records. In List view the header is
-	 * displayed above the list of records.
-	 * 
-	 * @sample
-	 * var header = form.newPart(JSPart.HEADER, 80);
-	 */
-	public static final int HEADER = Part.HEADER;
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Leading Grand Summary can be placed before the body part. It can contain
-	 * summary fields that will generate summaries for the entire foundset.
-	 * 
-	 * @sample
-	 * var leadingGrandSummary = form.newPart(JSPart.LEADING_GRAND_SUMMARY, 120);
-	 */
-	public static final int LEADING_GRAND_SUMMARY = Part.LEADING_GRAND_SUMMARY;
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Leading Subsummary can be placed before the body part. There can be multiple Leading Subsummaries
-	 * per form. Each Subsummary part has a set of Group By fields which are used to group data together.
-	 * Each Subsummary part can contain summary fields, which will be printed once for each group of data.
-	 *
-	 * @sample
-	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
-	 */
-	public static final int LEADING_SUBSUMMARY = Part.LEADING_SUBSUMMARY;
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * Appears once on the first page of a printed report. If a Footer is available, it is
-	 * replaced by the Title Footer on the first page.
-	 *
-	 * @sample 
-	 * var titleFooter = form.newPart(JSPart.TITLE_FOOTER, 500);
-	 */
-	public static final int TITLE_FOOTER = Part.TITLE_FOOTER;
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * Appears only once on the first page of a printed report or on top of the first screen
-	 * of a foundset. If a Header is available it is replace by the Title Header on the first
-	 * page.
-	 *
-	 * @sample
-	 * var titleHeader = form.newPart(JSPart.TITLE_HEADER, 40);
-	 */
-	public static final int TITLE_HEADER = Part.TITLE_HEADER;
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Trailing Grand Summary can be placed after the body part. It can contain
-	 * summary fields that will generate summaries for the entire foundset.
-	 *
-	 * @sample
-	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);
-	 */
-	public static final int TRAILING_GRAND_SUMMARY = Part.TRAILING_GRAND_SUMMARY;
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A Trailing Subsummary can be placed before the body part. There can be multiple Trailing Subsummaries
-	 * per form. Each Subsummary part has a set of Group By fields which are used to group data together.
-	 * Each Subsummary part can contain summary fields, which will be printed once for each group of data.
-	 *
-	 * @sample
-	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
-	 */
-	public static final int TRAILING_SUBSUMMARY = Part.TRAILING_SUBSUMMARY;
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getAllowBreakAcrossPageBounds()
@@ -226,15 +129,6 @@ public interface ISMPart extends ISMHasUUID
 	 */
 	public boolean getSinkWhenLast();
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getStyleClass()
-	 * 
-	 * @sample
-	 * var body = form.newPart(JSPart.BODY, 320);
-	 * body.styleClass = 'myBody';
-	 */
-	public String getStyleClass();
-
 	public void setAllowBreakAcrossPageBounds(boolean b);
 
 	public void setBackground(String arg);
@@ -252,7 +146,5 @@ public interface ISMPart extends ISMHasUUID
 	public void setRestartPageNumber(boolean b);
 
 	public void setSinkWhenLast(boolean b);
-
-	public void setStyleClass(String styleClass);
 
 }

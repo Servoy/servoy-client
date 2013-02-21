@@ -900,4 +900,17 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public IBaseSMMethod getOnRecordSelection();
 
 	public void setOnRecordSelection(IBaseSMMethod method);
+
+	/**
+	 * Gets a part of the form from the given type (see ISMPart constants). 
+	 *
+	 * @sample 
+	 * form.getPart(ISMPart.HEADER).background = 'red';
+	 * form.getPart(ISMPart.LEADING_SUBSUMMARY, 160).background = 'red';
+	 *
+	 * @param type The type of the part to retrieve.
+	 *
+	 * @return A IBaseSMPart instance representing the retrieved form part.
+	 */
+	public IBaseSMPart getPart(int type);
 }
