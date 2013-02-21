@@ -1063,7 +1063,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onBeforeRender()
 		{
-			if (hasOnRender())
+			if (hasOnRender() || (scrollBehavior != null && scrollBehavior.isGettingRows()))
 			{
 				boolean isSelected = Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0;
 				String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
