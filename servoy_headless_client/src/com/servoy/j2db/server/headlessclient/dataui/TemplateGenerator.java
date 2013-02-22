@@ -1250,6 +1250,21 @@ public class TemplateGenerator
 				retval.append(pSelector);
 				retval.append("\n{\n");
 			}
+			retval.append(getValuesAsString(pSelector));
+			if (pSelector == null)
+			{
+				retval.append("' ");
+			}
+			else
+			{
+				retval.append("}\n\n");
+			}
+			return retval.toString();
+		}
+
+		public String getValuesAsString(String pSelector)
+		{
+			StringBuffer retval = new StringBuffer();
 			Iterator<String> it = order.iterator();
 			while (it.hasNext())
 			{
@@ -1333,14 +1348,6 @@ public class TemplateGenerator
 					}
 					appendValue(retval, pSelector, name, val);
 				}
-			}
-			if (pSelector == null)
-			{
-				retval.append("' ");
-			}
-			else
-			{
-				retval.append("}\n\n");
 			}
 			return retval.toString();
 		}

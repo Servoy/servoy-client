@@ -293,18 +293,16 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		labelResolver.add(new AttributeModifier("class", true, group)); //$NON-NLS-1$
 
 		// append background image in case of labelFor for the current label (goes through all labelFor components in the map to get the component by name )
+		GraphicalComponent labelFor = getLabelComponent();
+		if (labelFor != null)
 		{
-			GraphicalComponent gc = getLabelComponent();
-			if (gc != null)
+			Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(application, labelFor, form);
+			IStyleRule cssRule = pair == null || pair.getRight() == null ? null : pair.getRight();
+			if (cssRule != null && cssRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
 			{
-				Pair<IStyleSheet, IStyleRule> pair = ComponentFactory.getStyleForBasicComponent(application, gc, form);
-				IStyleRule cssRule = pair == null || pair.getRight() == null ? null : pair.getRight();
-				if (cssRule != null)
-				{
-					TextualStyle headerStyle = new TextualStyle();
-					headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_IMAGE.toString()));
-					add(new StyleAppendingModifier(new Model<String>(headerStyle.toString())));
-				}
+				TextualStyle headerStyle = new TextualStyle();
+				headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), cssRule.getValues(CSS.Attribute.BACKGROUND_IMAGE.toString()), true);
+				add(new StyleAppendingModifier(new Model<String>(headerStyle.getValuesAsString(null))));
 			}
 		}
 
