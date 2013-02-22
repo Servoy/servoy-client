@@ -856,6 +856,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * myForm.view = JSForm.RECORD_VIEW;
 	 * forms['newForm1'].controller.show();
 	 */
+	@ServoyMobileFilterOut
 	public int getView();
 
 	public void setView(int arg);
