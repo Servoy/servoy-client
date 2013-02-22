@@ -913,4 +913,24 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * @return A IBaseSMPart instance representing the retrieved form part.
 	 */
 	public IBaseSMPart getPart(int type);
+
+	/**
+	 * Creates a new Header part on the form.
+	 * 
+	 * @sample
+	 * var header = form.newHeaderPart(80);
+	 * 
+	 * @return A ISMPart instance corresponding to the newly created Header form part.
+	 */
+	public IBaseSMPart newHeaderPart(int height);
+
+	/**
+	 * Creates a new Footer part on the form.
+	 *
+	 * @sample 
+	 * var footer = form.newFooterPart(440);
+	 * 
+	 * @return A ISMPart instance corresponding to the newly created Footer form part.
+	 */
+	public IBaseSMPart newFooterPart(int height);
 }

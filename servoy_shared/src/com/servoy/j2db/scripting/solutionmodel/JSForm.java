@@ -1512,6 +1512,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @sample
 	 * var titleHeader = form.newTitleHeaderPart(40);
 	 * 
+	 * @param height The height of the new part
+	 * 
 	 * @return A JSPart instance corresponding to the newly created Title Header form part.
 	 */
 	@JSFunction
@@ -1525,6 +1527,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * 
 	 * @sample
 	 * var header = form.newHeaderPart(80);
+	 * 
+	 * @param height The height of the new part
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Header form part.
 	 */
@@ -1540,6 +1544,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @sample
 	 * var leadingGrandSummary = form.newLeadingGrandSummaryPart(120);
 	 * 
+	 * @param height The height of the new part
+	 * 
 	 * @return A JSPart instance corresponding to the newly created Leading Grand Summary form part.
 	 */
 	@JSFunction
@@ -1553,6 +1559,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * 
 	 * @sample
 	 * var leadingSubsummary = form.newLeadingSubSummaryPart(160);
+	 * 
+	 * @param height The height of the new part
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Leading Subsummary form part.
 	 */
@@ -1569,6 +1577,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @sample
 	 * var trailingSubsummary = form.newTrailingSubSummaryPart(360);
 	 * 
+	 * @param height The height of the new part
+	 * 
 	 * @return A JSPart instance corresponding to the newly created Trailing Subsummary form part.
 	 */
 	@JSFunction
@@ -1582,6 +1592,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * 
 	 * @sample
 	 * var trailingGrandSummary = form.newTrailingGrandSummaryPart(400);
+	 * 
+	 * @param height The height of the new part
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Trailing Grand Summary form part.
 	 */
@@ -1597,6 +1609,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @sample 
 	 * var footer = form.newFooterPart(440);
 	 * 
+	 * @param height The height of the new part
+	 * 
 	 * @return A JSPart instance corresponding to the newly created Footer form part.
 	 */
 	@JSFunction
@@ -1611,6 +1625,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * 
 	 * @sample
 	 * var titleFooter = form.newTitleFooterPart(500);
+	 * 
+	 * @param height The height of the new part
 	 * 
 	 * @return A JSPart instance corresponding to the newly created Title Footer form part.
 	 */
