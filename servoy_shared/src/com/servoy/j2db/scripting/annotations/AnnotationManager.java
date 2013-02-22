@@ -157,4 +157,9 @@ public class AnnotationManager
 		return pair;
 	}
 
+	public static void flushCachedItems()
+	{
+		INSTANCE = null;
+	}
+
 }
