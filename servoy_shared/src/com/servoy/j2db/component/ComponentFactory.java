@@ -2069,9 +2069,12 @@ public class ComponentFactory
 	public static void flushCachedItems(IServiceProvider provider)
 	{
 		parsedStyles = new ConcurrentHashMap<Style, IStyleSheet>();
-		provider.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
-		provider.getRuntimeProperties().put(IServiceProvider.RT_OVERRIDESTYLE_CACHE, null);
-		provider.getRuntimeProperties().put(PARSED_STYLES, null);
+		if (provider != null)
+		{
+			provider.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
+			provider.getRuntimeProperties().put(IServiceProvider.RT_OVERRIDESTYLE_CACHE, null);
+			provider.getRuntimeProperties().put(PARSED_STYLES, null);
+		}
 
 		Iterator<IconHolder> it = lstIcons.values().iterator();
 		while (it.hasNext())

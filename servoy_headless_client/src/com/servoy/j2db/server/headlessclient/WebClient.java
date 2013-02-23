@@ -1072,9 +1072,9 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			synchronized (events)
 			{
 				events.addAll(list);
-				list.clear();
 			}
 		}
+		requestEvents.remove();
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException

@@ -168,6 +168,17 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		}
 	}
 
+	/**
+	 * NOTE: To be called only from ApplicationServer.dispose()
+	 */
+	public static void dispose()
+	{
+		pluginUrls.clear();
+		supportLibUrls.clear();
+		_pluginsClassLoader = null;
+		clientPluginInfo = null;
+	}
+
 	public Extension[] loadClientPluginDefs()
 	{
 		if (clientPluginInfo == null)

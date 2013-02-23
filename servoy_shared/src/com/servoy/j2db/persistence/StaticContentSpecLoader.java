@@ -350,10 +350,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(56, IRepository.GRAPHICALCOMPONENTS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
 			cs.new Element(57, IRepository.GRAPHICALCOMPONENTS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
 			cs.new Element(58, IRepository.GRAPHICALCOMPONENTS, PROPERTY_TEXT.getPropertyName(), IRepository.STRING);
-			cs.new Element(59, IRepository.GRAPHICALCOMPONENTS, PROPERTY_VERTICALALIGNMENT.getPropertyName(), IRepository.INTEGER,
-				ContentSpec.MINUS_ONE);
-			cs.new Element(60, IRepository.GRAPHICALCOMPONENTS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER,
-				ContentSpec.MINUS_ONE);
+			cs.new Element(59, IRepository.GRAPHICALCOMPONENTS, PROPERTY_VERTICALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
+			cs.new Element(60, IRepository.GRAPHICALCOMPONENTS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
 			cs.new Element(61, IRepository.GRAPHICALCOMPONENTS, PROPERTY_BORDERTYPE.getPropertyName(), IRepository.BORDER);
 			cs.new Element(62, IRepository.GRAPHICALCOMPONENTS, PROPERTY_TRANSPARENT.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(63, IRepository.GRAPHICALCOMPONENTS, PROPERTY_IMAGEMEDIAID.getPropertyName(), IRepository.ELEMENTS);
@@ -465,8 +463,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(166, IRepository.VALUELISTS, PROPERTY_SEPARATOR.getPropertyName(), IRepository.STRING);
 			cs.new Element(167, IRepository.VALUELISTS, PROPERTY_SORTOPTIONS.getPropertyName(), IRepository.STRING);
 			cs.new Element(168, IRepository.SCRIPTVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
-			cs.new Element(169, IRepository.SCRIPTVARIABLES, PROPERTY_VARIABLETYPE.getPropertyName(), IRepository.INTEGER,
-				Integer.valueOf(IColumnTypes.TEXT));
+			cs.new Element(169, IRepository.SCRIPTVARIABLES, PROPERTY_VARIABLETYPE.getPropertyName(), IRepository.INTEGER, Integer.valueOf(IColumnTypes.TEXT));
 			cs.new Element(170, IRepository.AGGREGATEVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(171, IRepository.AGGREGATEVARIABLES, PROPERTY_TYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(172, IRepository.AGGREGATEVARIABLES, PROPERTY_DATAPROVIDERIDTOAGGREGATE.getPropertyName(), IRepository.STRING);
@@ -636,8 +633,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		{
 			cs.new Element(282, IRepository.FORMS, PROPERTY_ALIASES.getPropertyName(), IRepository.STRING);
 			cs.new Element(283, IRepository.TABPANELS, PROPERTY_CLOSEONTABS.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(284, IRepository.RELATIONS, PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS.getPropertyName(),
-				IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(284, IRepository.RELATIONS, PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(285, IRepository.TABLENODES, PROPERTY_ONINSERTMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(286, IRepository.TABLENODES, PROPERTY_ONUPDATEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(287, IRepository.TABLENODES, PROPERTY_ONDELETEMETHODID.getPropertyName(), IRepository.ELEMENTS);
@@ -797,8 +793,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(393, IRepository.TABLENODES, PROPERTY_ONAFTERFINDMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(394, IRepository.TABLENODES, PROPERTY_ONSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(395, IRepository.TABLENODES, PROPERTY_ONAFTERSEARCHMETHODID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(396, IRepository.TABPANELS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER,
-				ContentSpec.MINUS_ONE);
+			cs.new Element(396, IRepository.TABPANELS, PROPERTY_HORIZONTALALIGNMENT.getPropertyName(), IRepository.INTEGER, ContentSpec.MINUS_ONE);
 			cs.new Element(397, IRepository.SCRIPTVARIABLES, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(398, IRepository.METHODS, PROPERTY_SCOPENAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(399, IRepository.FORMS, PROPERTY_SELECTIONMODE.getPropertyName(), IRepository.INTEGER);
@@ -840,4 +835,9 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		}
 	}
 
+	public static void flushCachedItems()
+	{
+		csMap.clear();
+		allCs.flushCachedItems();
+	}
 }

@@ -282,4 +282,9 @@ public class AnnotationManager
 		}
 		return new Pair<Boolean, Annotation>(Boolean.valueOf(stopped), a);
 	}
+
+	public static void flushCachedItems()
+	{
+		INSTANCE = null;
+	}
 }

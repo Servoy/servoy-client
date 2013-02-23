@@ -267,7 +267,7 @@ public class TemplateGenerator
 
 	public static final String WRAPPER_SUFFIX = "_wrapper";
 
-	private static FormCache formCache = new FormCache(true);
+	private static final FormCache formCache = new FormCache(true);
 
 	private static final String[] DEFAULT_FONT_ELEMENTS = { "input", "button", "select", "td", "th", "textarea" };
 
@@ -3364,5 +3364,10 @@ public class TemplateGenerator
 			}
 		}
 		return isTableViewComponent;
+	}
+
+	public static void clearFormCache()
+	{
+		formCache.cache.clear();
 	}
 }
