@@ -320,59 +320,65 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		else if (persistClass.equals(RelationItem.class))
+		if (persistClass.equals(RelationItem.class))
 		{
 			return name.equals("foreignColumnName") || name.equals("operator") || name.equals("primaryDataProviderID"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		}
-		else if (persistClass.equals(ScriptMethod.class) || persistClass.equals(AbstractScriptProvider.class))
+		if (persistClass.equals(ScriptMethod.class) || persistClass.equals(AbstractScriptProvider.class))
 		{
 			return name.equals("name") || name.equals("showInMenu") || name.equals("declaration"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		}
-		else if (persistClass.equals(ISupportDataProviderID.class))
+		if (persistClass.equals(ISupportDataProviderID.class))
 		{
 			return name.equals("valuelistID"); //$NON-NLS-1$
 		}
-		else if (persistClass.equals(ValueList.class))
+		if (persistClass.equals(ValueList.class))
 		{
 			return name.equals("serverName") || name.equals("tableName") || name.equals("addEmptyValue") || name.equals("customValues") ||
 				name.equals("dataSource") || name.equals("relationName") || name.equals("separator") || name.equals("sortOptions") ||
 				name.equals("useTableFilter") || name.equals("valueListType");
 		}
-		else if (persistClass.equals(Part.class))
+		if (persistClass.equals(Part.class))
 		{
 			return name.equals("groupbyDataProviderIDs") || name.equals("partType");
 		}
-		else if (persistClass.equals(ISupportPrinting.class))
+		if (persistClass.equals(ISupportPrinting.class))
 		{
 			return name.equals("printable");
 		}
-		else if (persistClass.equals(ISupportBounds.class))
+		if (persistClass.equals(ISupportBounds.class))
 		{
 			return name.equals("location");
 		}
-		else if (persistClass.equals(ISupportSize.class))
+		if (persistClass.equals(ISupportSize.class))
 		{
 			return name.equals("size");
 		}
-		else if (persistClass.equals(ISupportName.class))
+		if (persistClass.equals(ISupportName.class))
 		{
 			return name.equals("name");
 		}
-		else if (persistClass.equals(Form.class))
+		if (persistClass.equals(Form.class))
 		{
 			return name.equals("serverName") || name.equals("tableName");
 		}
-		else if (persistClass.equals(Solution.class))
+		if (persistClass.equals(Solution.class))
 		{
 			return name.equals("loginSolutionName");
 		}
-		else if (persistClass.equals(ColumnInfo.class))
+		if (persistClass.equals(ColumnInfo.class))
 		{
 			return name.equals("autoEnterSubType") || name.equals("autoEnterType") || name.equals("converterName") || name.equals("converterProperties") ||
 				name.equals("databaseDefaultValue") || name.equals("databaseSequenceName") || name.equals("defaultFormat") || name.equals("defaultValue") ||
 				name.equals("description") || name.equals("foreignType") || name.equals("lookupValue") || name.equals("titleText") ||
 				name.equals("validatorName") || name.equals("validatorProperties");
 		}
+
+		if (persistClass.equals(com.servoy.j2db.documentation.mobile.docs.InsetList.class))
+		{
+			return true;
+		}
+
 		return false;
 	}
 

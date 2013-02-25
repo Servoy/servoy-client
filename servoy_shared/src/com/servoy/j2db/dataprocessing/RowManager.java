@@ -718,6 +718,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					pkValues[j] = row.getOldRequiredValue(dataProviderID);
 				}
 
+				// TODO: ckeck for success
 				AbstractBaseQuery.setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(),
 					SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}

@@ -135,10 +135,6 @@ public class AnnotationManager
 					if (a == null && stopAnnotation != null && !stopped) // this assumes that only start+stop annotations can be set at class level as well as method level (so ServoyMobile annotation)
 					{
 						a = cls.getAnnotation(searchedAnnotation);
-						if (a instanceof ServoyMobile)
-						{
-							if (!((ServoyMobile)a).value()) a = null; // so class level annotation is configured to not auto-include all members
-						}
 					}
 				}
 			}
@@ -255,10 +251,6 @@ public class AnnotationManager
 					if (a == null && stopAnnotation != null && !stopped)
 					{
 						a = cls.getAnnotation(searchedAnnotation);
-						if (a instanceof ServoyMobile)
-						{
-							if (!((ServoyMobile)a).value()) a = null; // so class level annotation is configured to not auto-include all members
-						}
 					}
 				}
 			}
