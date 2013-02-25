@@ -834,10 +834,4 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			return "Property(" + name + ')'; //$NON-NLS-1$
 		}
 	}
-
-	public static void flushCachedItems()
-	{
-		csMap.clear();
-		allCs.flushCachedItems();
-	}
 }

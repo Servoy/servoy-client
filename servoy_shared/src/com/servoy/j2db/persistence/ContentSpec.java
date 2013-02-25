@@ -368,10 +368,4 @@ public class ContentSpec
 			elements.put(element.getName(), element);
 		}
 	}
-
-	public void flushCachedItems()
-	{
-		objectTypes.clear();
-		contentSpecElements.clear();
-	}
 }
