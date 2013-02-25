@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -24,14 +24,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation that marks functions and properties as available in the mobile client.
- * Same as  {@link @ServoyClientSupport} (mc = true)
+ * An annotation that marks functions and properties as available in which Servoy client.
  * 
  * @author rgansevles
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE, ElementType.FIELD })
-public @interface ServoyMobile
+public @interface ServoyClientSupport
 {
+	/**
+	 * Supported in mobile client
+	 */
+	boolean mc() default false;
+
+	/**
+	 * Supported in smart client
+	 */
+	boolean sc() default true;
+
+	/**
+	 * Supported in web client
+	 */
+	boolean wc() default true;
 }
