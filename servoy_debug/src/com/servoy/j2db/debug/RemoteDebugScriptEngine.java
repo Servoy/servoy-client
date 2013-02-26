@@ -60,6 +60,9 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	private static volatile ServerSocket ss;
 	private static final ConcurrentHashMap<IApplication, List<Context>> contexts = new ConcurrentHashMap<IApplication, List<Context>>();
 
+	private static volatile boolean connected = true;
+	private static final ConnectionTester connectionTester = new ConnectionTester();
+
 	private static final ContextFactory.Listener contextListener = new ContextFactory.Listener()
 	{
 		private final ThreadLocal<DBGPStackManager> manager = new ThreadLocal<DBGPStackManager>();
@@ -270,18 +273,11 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 				}
 			}
 		}
-		boolean returnValue = false;
 		if (debugger != null && socket != null && socket.isConnected() && !socket.isClosed() && socket.isBound() && debugger.isInited)
 		{
-			debugger.outputStdOut(""); //$NON-NLS-1$
-			returnValue = !socket.isClosed() && socket.isConnected() && socket.isBound();
+			connectionTester.checkState();
 		}
-		if (!returnValue && socket != null)
-		{
-			debugger = null;
-			socket = null;
-		}
-		return returnValue;
+		return connected;
 	}
 
 	/**
@@ -488,4 +484,65 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	{
 		profileListeners.remove(profileListener);
 	}
+
+	private static final class ConnectionTester implements Runnable
+	{
+		private volatile boolean executing;
+		private volatile long startTime;
+
+		@Override
+		public void run()
+		{
+			try
+			{
+				debugger.outputStdOut(""); //$NON-NLS-1$
+				connected = isConnected();
+				if (!connected && socket != null)
+				{
+					debugger = null;
+					socket = null;
+				}
+			}
+			finally
+			{
+				executing = false;
+			}
+		}
+
+		/**
+		 * @return
+		 */
+		private boolean isConnected()
+		{
+			return socket != null && !socket.isClosed() && socket.isConnected() && socket.isBound();
+		}
+
+		/**
+		 * 
+		 */
+		public void checkState()
+		{
+			if (!executing)
+			{
+				if (isConnected())
+				{
+					executing = true;
+					startTime = System.currentTimeMillis();
+					new Thread(this).start();
+				}
+			}
+			else if ((System.currentTimeMillis() - startTime) > 2000)
+			{
+				// if it was already executing and 2 seconds are passed, checking the connection, close the socket.
+				try
+				{
+					socket.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		}
+	}
+
 }
