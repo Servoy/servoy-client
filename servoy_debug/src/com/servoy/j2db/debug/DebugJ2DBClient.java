@@ -585,7 +585,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		if (this.current != current)
 		{
-			if (current != null)
+			if (this.current != null)
 			{
 				closeSolution(true, null);
 			}
@@ -795,22 +795,25 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				frame.getJMenuBar().setVisible(true);
 				((JPanel)super.getToolbarPanel()).setVisible(true);
 			}
-			invokeLater(new Runnable()
+			if (getMainApplicationFrame().isVisible())
 			{
-				public void run()
+				invokeLater(new Runnable()
 				{
-					invokeLater(new Runnable()
+					public void run()
 					{
-						public void run()
+						invokeLater(new Runnable()
 						{
-							if (solutionRoot.getMainSolutionMetaData() == null)
+							public void run()
 							{
-								selectAndOpenSolution(); // automatically re-open solution in developer
+								if (solutionRoot.getMainSolutionMetaData() == null)
+								{
+									selectAndOpenSolution(); // automatically re-open solution in developer
+								}
 							}
-						}
-					});
-				}
-			});
+						});
+					}
+				});
+			}
 		}
 		return b;
 	}
