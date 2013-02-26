@@ -408,7 +408,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 				return "Error in transaction"; //$NON-NLS-1$
 
 			case InternalCodes.CUSTOM_REPOSITORY_ERROR :
-				return tagValues[0].toString();
+				return tagValues[0] != null ? tagValues[0].toString() : ""; //$NON-NLS-1$
 
 			case NO_MODIFY_ACCESS :
 				return Messages.getString("servoy.foundSet.error.noModifyAccess"); //$NON-NLS-1$
