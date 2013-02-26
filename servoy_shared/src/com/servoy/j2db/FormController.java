@@ -1803,7 +1803,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Gets the forms context where it resides, returns a dataset of its structure to the main controller.
-		 * Note: can't be called in onload, because no context is yet available at this time.
+		 * Note1: can't be called in onload, because no context is yet available at this time.
+		 * Note2: tabindex is 1 (left) or 2 (right) for a SplitPane and 0 based for the other tabpanels.
 		 *
 		 * @sample
 		 * //dataset columns: [containername(1),formname(2),tabpanel or beanname(3),tabname(4),tabindex(5)]
