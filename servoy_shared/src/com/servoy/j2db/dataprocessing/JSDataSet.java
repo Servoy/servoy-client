@@ -46,6 +46,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
@@ -471,6 +472,31 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			if (columnNames != null && index > 0 && index <= columnNames.length)
 			{
 				return columnNames[index - 1];//all Javascript calls are 1 based
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get a column type based on index.
+	 *
+	 * @sample
+	 * //assuming the variable dataset contains a dataset
+	 * var firstColumnType = dataset.getColumnType(1) //retrieves the first columnname into the variable firstColumName
+	 * if (firstColumnType == JSColumn.NUMBER) { }
+	 * 
+	 * @param index index of column (1-based).
+	 * 
+	 * @return String column name.
+	 */
+	public Number js_getColumnType(int index)
+	{
+		if (set != null)
+		{
+			int[] types = set.getColumnTypes();
+			if (types != null && index > 0 && index <= types.length)
+			{
+				return Integer.valueOf(Column.mapToDefaultType(types[index - 1]));//all Javascript calls are 1 based
 			}
 		}
 		return null;
