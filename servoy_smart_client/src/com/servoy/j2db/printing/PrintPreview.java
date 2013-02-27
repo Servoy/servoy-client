@@ -387,7 +387,6 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 			if (currentManager != null)
 			{
 				isDoubleBufferingEnabled = currentManager.isDoubleBufferingEnabled();
-				currentManager.setDoubleBufferingEnabled(false);
 			}
 
 			if (a_printerJob != null)
@@ -403,13 +402,16 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 					}
 					SwingHelper.dispatchEvents(100);//hide dialog
 				}
+				if (currentManager != null)
+				{
+					currentManager.setDoubleBufferingEnabled(false);
+				}
 				a_printerJob.print();
 			}
 			else
 			{
 				//by default we use old system for mac, new is not always working
 				boolean useSystemPrintDialog = Utils.getAsBoolean(application.getSettings().getProperty("useSystemPrintDialog", "" + Utils.isAppleMacOS())); //$NON-NLS-1$//$NON-NLS-2$
-
 				DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PAGEABLE;
 				PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
 				if (capablePrintServices == null)
@@ -493,6 +495,10 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 					}
 					if (service != null)
 					{
+						if (currentManager != null)
+						{
+							currentManager.setDoubleBufferingEnabled(false);
+						}
 						DocPrintJob job = service.createPrintJob();
 						DocAttributeSet das = new HashDocAttributeSet();
 						Doc doc = new SimpleDoc(pageable, flavor, das);
@@ -523,6 +529,10 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 							return;
 						}
 						SwingHelper.dispatchEvents(100);//hide dialog
+					}
+					if (currentManager != null)
+					{
+						currentManager.setDoubleBufferingEnabled(false);
 					}
 					a_printerJob.print();
 				}
