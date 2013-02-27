@@ -96,7 +96,7 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 	}
 
 
-	private String getJSEventName()
+	protected String getJSEventName()
 	{
 		return getEvent() + sharedName;
 	}

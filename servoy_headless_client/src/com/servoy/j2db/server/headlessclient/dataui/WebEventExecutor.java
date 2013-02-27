@@ -224,10 +224,19 @@ public class WebEventExecutor extends BaseEventExecutor
 							@Override
 							public CharSequence postDecorateScript(CharSequence script)
 							{
-								return "var actionParam = Servoy.Utils.getActionParams(event); Servoy.Utils.startClickTimer(function() { if (testDoubleClickId('" +
-									component.getMarkupId() + "')) { " + script + "}; Servoy.Utils.clickTimerRunning = false; return false; });";
+								String functionScript = "if (testDoubleClickId('" + component.getMarkupId() + "')) { " + script + "};";
+								return "var actionParam = Servoy.Utils.getActionParams(event); " +
+									(hasDoubleClickCmd() ? "Servoy.Utils.startClickTimer(function() { " + functionScript +
+										" Servoy.Utils.clickTimerRunning = false; return false; });" : functionScript);
 							}
 						};
+					}
+
+					@Override
+					protected String getJSEventName()
+					{
+						String jsEventName = super.getJSEventName();
+						return hasDoubleClickCmd() ? jsEventName + "WithDblClick" : jsEventName; //$NON-NLS-1$
 					}
 				});
 			}
