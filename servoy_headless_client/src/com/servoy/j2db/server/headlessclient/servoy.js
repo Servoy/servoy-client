@@ -16,6 +16,33 @@ Servoy.addPositions = function(pos1, pos2)
 	return Servoy.parsePosition(pos1) + Servoy.parsePosition(pos2);
 }
 
+// only used for browsers that don't support html5 placeholder attribute
+Servoy.addPlaceholder = function(element, text){
+	if(!('placeholder' in document.createElement('input'))) {
+	$('#'+element).focus(function() {
+	  var input = $(this);
+	  if (input.val() == input.attr('placeholder')) {
+	    if (this.originalType) {
+	      this.type = this.originalType;
+	      delete this.originalType;
+	    }
+		input.val('');
+		input.removeClass('servoy_placeholder');
+	  }
+	}).bind('updatePlaceholderLast',function(e) {
+	  var input = $(this);
+	  if (input.val() == '') {
+	    if (this.type == 'password') {
+      		this.originalType = this.type;
+      		this.type = 'text';
+    	}
+		input.addClass('servoy_placeholder');
+		input.val(input.attr('placeholder'));
+	  }
+	}).trigger('updatePlaceholderLast');
+	}
+}
+
 function showMediaUploadPopup(url,imgid)
 {
 	var x = 0, y = 0;
@@ -498,7 +525,13 @@ function eventCallback(el, strEvent, callbackUrl, event)
 function postEventCallback(el, strEvent, callbackUrl, event)
 {
 	if(strEvent == "blur")
-	{
+	{	//this function should run after the submit has been done
+		if(!('placeholder' in document.createElement('input')))
+		{
+			setTimeout(function(){
+					 $(el).trigger('updatePlaceholderLast');
+					 },350);
+		}
 		ignoreFocusGained = null;
 	}
 	if(strEvent != "focus" && Wicket.Focus.refocusLastFocusedComponentAfterResponse && !Wicket.Focus.focusSetFromServer) return true;

@@ -464,6 +464,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 		container.getHeaderResponse().renderOnDomReadyJavascript(
 			"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (scriptable.getPlaceholderText() != null)
+		{
+			container.getHeaderResponse().renderOnLoadJavascript(
+				"Servoy.addPlaceholder('" + this.getMarkupId() + "','" + application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText()) + "')");
+		}
 	}
 
 	@SuppressWarnings("nls")

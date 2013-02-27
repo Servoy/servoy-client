@@ -1838,6 +1838,10 @@ public class TemplateGenerator
 		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_content_3");
 		styleObj.setProperty("border-width", "0px");
 
+		// placeholder style
+		styleObj = css.addStyle(".servoy_placeholder");
+		styleObj.setProperty("color", "#aaaaaa");
+
 //		div.wicket-modal div.w_undecorated div.w_caption
 		return css.toString();
 	}
