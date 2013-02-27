@@ -27,6 +27,7 @@ import com.servoy.base.scripting.annotations.ServoyMobile;
  *
  * @since 7.0
  */
+//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
 public interface IBaseGraphicalComponentCommon extends IBaseComponentCommon
 {
 	/**
