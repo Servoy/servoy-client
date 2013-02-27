@@ -29,7 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "InsetList", scriptingName = "InsetList")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class InsetList implements IBaseSHInsetList
+public class DocsInsetList implements IBaseSHInsetList
 {
 	/**
 	 * Dataprovider for countbubble in inset list.

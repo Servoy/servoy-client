@@ -20,7 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Insets;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.persistence.IBaseGraphicalComponent;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -30,7 +30,8 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label, Button, Image")
-public class GraphicalComponent extends BaseComponent implements ISupportTextEditing, ISupportTextSetup, ISupportDataProviderID, ISupportTabSeq, ISupportMedia
+public class GraphicalComponent extends BaseComponent implements ISupportTextEditing, ISupportTextSetup, ISupportDataProviderID, ISupportTabSeq, ISupportMedia,
+	IBaseGraphicalComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -103,7 +104,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID, arg);
 	}
 
-	@ServoyMobile
 	public String getDataProviderID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID);
@@ -154,10 +154,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 
-	/**
-	 * The text that is displayed inside the component.
-	 */
-	@ServoyMobile
 	public String getText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);
@@ -252,10 +248,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
-	/**
-	 * The method that is executed when the component is clicked.
-	 */
-	@ServoyMobile
 	public int getOnActionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
@@ -326,17 +318,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_MARGIN, arg);
 	}
 
-	/**
-	 * Flag that enables or disables merging of data inside components using tags (placeholders).
-	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
-	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
-	 * are a set of predefined tags that are made available by the system.
-	 * 
-	 * See the "Merging data" section for more details about tags.
-	 * 
-	 * The default value of this flag is "false", that is merging of data is disabled by default.
-	 */
-	@ServoyMobile
 	public boolean getDisplaysTags()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS).booleanValue();

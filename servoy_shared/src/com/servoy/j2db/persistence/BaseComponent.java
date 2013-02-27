@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.persistence.IBaseComponent;
 import com.servoy.j2db.util.UUID;
 
 
@@ -28,7 +28,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-public class BaseComponent extends AbstractBase implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable
+public class BaseComponent extends AbstractBase implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable, IBaseComponent
 {
 	private static final long serialVersionUID = 1L;
 
@@ -133,7 +133,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 
 	}
 
-	@ServoyMobile
 	public java.awt.Dimension getSize()
 	{
 		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
@@ -154,7 +153,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, arg);
 	}
 
-	@ServoyMobile
 	public java.awt.Point getLocation()
 	{
 		java.awt.Point point = getTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION);
@@ -217,12 +215,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VISIBLE, arg);
 	}
 
-	/**
-	 * The visible property of the component, default true.
-	 * 
-	 * @return visible property
-	 */
-	@ServoyMobile
 	public boolean getVisible()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VISIBLE).booleanValue();
@@ -233,12 +225,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENABLED, arg);
 	}
 
-	/**
-	 * The enable state of the component, default true.
-	 * 
-	 * @return enabled state
-	 */
-	@ServoyMobile
 	public boolean getEnabled()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENABLED).booleanValue();
@@ -279,21 +265,11 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	}
 
 
-	/**
-	 * The name of the component. Through this name it can also accessed in methods.
-	 */
-	@ServoyMobile
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
 	}
 
-	/**
-	 * Returns the groupID.
-	 * 
-	 * @return int
-	 */
-	@ServoyMobile
 	public String getGroupID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_GROUPID);
@@ -371,18 +347,6 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TRANSPARENT).booleanValue();
 	}
 
-	/**
-	 * The name of the style class that should be applied to this component.
-	 * 
-	 * When defining style classes for specific component types, their names
-	 * must be prefixed according to the type of the component. For example 
-	 * in order to define a class names 'fancy' for fields, in the style
-	 * definition the class must be named 'field.fancy'. If it would be 
-	 * intended for labels, then it would be named 'label.fancy'. When specifying
-	 * the class name for a component, the prefix is dropped however. Thus the
-	 * field or the label will have its styleClass property set to 'fancy' only.
-	 */
-	@ServoyMobile
 	public String getStyleClass()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);

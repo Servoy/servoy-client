@@ -18,19 +18,13 @@ package com.servoy.j2db.persistence;
 
 
 /**
- * Interface to hande elements the same which are dataproviders
+ * Interface to handle elements the same which are dataproviders.
+ * 
  * @author jblok
  */
 public interface ISupportDataProviderID
 {
-	/**
-	 * The dataprovider of the component.
-	 */
 	public String getDataProviderID();
 
-	/**
-	 * The valuelist that is used by this field when displaying data. Can be used
-	 * with fields of type CHECKS, COMBOBOX, RADIOS and TYPE_AHEAD.
-	 */
 	public int getValuelistID();
 }

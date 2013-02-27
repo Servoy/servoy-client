@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,15 +14,19 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.persistence;
 
+package com.servoy.j2db.documentation.mobile.docs;
+
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for objects that has a name property 
+ * Dummy class for use in the documentation generator.
  * 
- * @author jblok
+ * @author rgansevles
  */
-public interface ISupportName
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "CheckBoxes", scriptingName = "CheckBoxes")
+@ServoyClientSupport(mc = true, sc = false, wc = false)
+public class DocsCheckBoxes extends DocsField
 {
-	public String getName();
 }

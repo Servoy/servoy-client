@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.awt.Insets;
 
+import com.servoy.base.persistence.IBaseField;
 import com.servoy.base.persistence.constants.IFieldConstants;
 import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -30,7 +31,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class Field extends BaseComponent implements ISupportTextSetup, ISupportText, ISupportDataProviderID, ISupportScrollbars, ISupportTabSeq
+public class Field extends BaseComponent implements ISupportTextSetup, ISupportText, ISupportDataProviderID, ISupportScrollbars, ISupportTabSeq, IBaseField
 {
 	/*
 	 * displayTypes
@@ -150,20 +151,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, arg);
 	}
 
-	/**
-	 * Method that is executed when the data in the component is successfully changed.
-	 * 
-	 * @templatedescription Handle changed data
-	 * @templatename onDataChange
-	 * @templatetype Boolean
-	 * @templateparam ${dataproviderType} oldValue old value
-	 * @templateparam ${dataproviderType} newValue new value
-	 * @templateparam JSEvent event the event that triggered the action
-	 * @templateaddtodo
-	 * @templatecode
-	 * return true
-	 */
-	@ServoyMobile
 	public int getOnDataChangeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID).intValue();
@@ -331,7 +318,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID, arg);
 	}
 
-	@ServoyMobile
 	public int getValuelistID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID).intValue();
@@ -347,7 +333,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID, arg);
 	}
 
-	@ServoyMobile
 	public String getDataProviderID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID);
@@ -369,15 +354,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
-	/**
-	 * @sameas com.servoy.j2db.persistence.GraphicalComponent#getOnActionMethodID()
-	 * 
-	 * @templatedescription Perform the element default action
-	 * @templatename onAction
-	 * @templateparam JSEvent event the event that triggered the action
-	 * @templateaddtodo
-	 */
-	@ServoyMobile
 	public int getOnActionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
@@ -406,12 +382,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		return "dataProviderID"; //$NON-NLS-1$
 	}
 
-	/**
-	 * The type of display used by the field. Can be one of CALENDAR, CHECKS,
-	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
-	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTISELECT_LISTBOX or SPINNER.
-	 */
-	@ServoyMobile
 	public int getDisplayType()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE).intValue();
@@ -451,7 +421,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.persistence.GraphicalComponent#getDisplaysTags()
+	 * @sameas com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
 	 */
 	public boolean getDisplaysTags()
 	{
@@ -488,10 +458,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 
-	/**
-	 * The text that is displayed in field when the field doesn't have a text value.
-	 */
-	@ServoyMobile
 	public String getPlaceholderText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT);

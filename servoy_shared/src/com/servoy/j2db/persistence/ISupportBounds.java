@@ -25,8 +25,5 @@ public interface ISupportBounds extends ISupportSize
 {
 	public void setLocation(java.awt.Point p);
 
-	/**
-	 * The x and y position of the component, in pixels, separated by a comma.
-	 */
 	public java.awt.Point getLocation();
 }

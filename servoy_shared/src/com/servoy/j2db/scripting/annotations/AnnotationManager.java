@@ -52,34 +52,42 @@ public class AnnotationManager
 
 	public boolean isAnnotationPresent(Method method, Class< ? > originalClass, Class< ? extends Annotation> annotationClass)
 	{
-		return getCachedAnnotation(method, originalClass, annotationClass, null).getLeft().booleanValue();
+		Pair<Boolean, Annotation> pair = getCachedAnnotation(method, originalClass, annotationClass, null);
+		return pair != null && pair.getLeft().booleanValue();
 	}
 
 	public boolean isMobileAnnotationPresent(Method method, Class< ? > originalClass)
 	{
-		return getCachedAnnotation(method, originalClass, ServoyMobile.class, ServoyMobileFilterOut.class).getLeft().booleanValue();
+		Pair<Boolean, Annotation> pair = getCachedAnnotation(method, originalClass, ServoyMobile.class, ServoyMobileFilterOut.class);
+		return pair != null && pair.getLeft().booleanValue();
 	}
 
 	public boolean isAnnotationPresent(Method method, Class< ? > originalClass, Class< ? extends Annotation>[] annotationClasses)
 	{
-		boolean found = false;
-		for (Class< ? extends Annotation> annotationClass : annotationClasses)
+		if (method != null)
 		{
-			found = (getAnnotation(method, originalClass, annotationClass) != null);
-			if (found) break;
+			for (Class< ? extends Annotation> annotationClass : annotationClasses)
+			{
+				if (getAnnotation(method, originalClass, annotationClass) != null)
+				{
+					return true;
+				}
+			}
 		}
-		return found;
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends Annotation> T getAnnotation(Method method, Class< ? > originalClass, Class<T> annotationClass)
 	{
-		return (T)getCachedAnnotation(method, originalClass, annotationClass, null).getRight();
+		Pair<Boolean, Annotation> pair = getCachedAnnotation(method, originalClass, annotationClass, null);
+		return pair == null ? null : (T)pair.getRight();
 	}
 
 	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? > originalClass, Class< ? extends Annotation> annotationClass,
 		Class< ? extends Annotation> stopAnnotation)
 	{
+		if (method == null) return null;
 		Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
 		Pair<Boolean, Annotation> pair = methodAnnotationCache.get(key);
 		if (pair == null)

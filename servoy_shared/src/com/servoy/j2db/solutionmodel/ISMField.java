@@ -107,7 +107,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public String getToolTipText();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getValuelistID()
+	 * @clonedesc com.servoy.base.persistence.IBaseField#getValuelistID()
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
@@ -147,7 +147,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public ISMMethod getOnAction();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnDataChangeMethodID()
+	 * @clonedesc com.servoy.base.persistence.IBaseField#getOnDataChangeMethodID()
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);

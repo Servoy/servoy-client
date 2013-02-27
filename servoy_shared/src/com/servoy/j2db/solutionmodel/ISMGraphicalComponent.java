@@ -201,7 +201,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getTabSeq();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getText()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
 	 * 
 	 * @sample
 	 * // In general the text is specified when creating the component.
@@ -262,7 +262,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public void setVerticalAlignment(int arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnActionMethodID()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
 	 * 
 	 * @sample
 	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');

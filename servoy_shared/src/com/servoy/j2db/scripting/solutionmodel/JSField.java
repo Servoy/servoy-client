@@ -51,7 +51,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
+	 * @sameas com.servoy.base.persistence.IBaseFieldCommon#getDataProviderID()
 	 */
 	@JSGetter
 	public String getDataProviderID()
@@ -66,7 +66,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
+	 * @sameas com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
 	 */
 	@JSGetter
 	public boolean getDisplaysTags()
@@ -81,7 +81,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getDisplayType()
+	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getDisplayType()
 	 *
 	 * @sample 
 	 * // The display type is specified when the field is created.
@@ -278,7 +278,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getPlaceholderText()
+	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getPlaceholderText()
 	 * 
 	 * @sample
 	 * field.placeholderText = 'Search';
@@ -296,7 +296,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getValuelistID()
+	 * @clonedesc com.servoy.base.persistence.IBaseField#getValuelistID()
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
@@ -421,7 +421,18 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnAction()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
+	 * 
+	 * @sample
+	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
+	 * var onClickMethod = form.newMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
+	 * var onDoubleClickMethod = form.newMethod('function onDoubleClick(event) { application.output("I was double-clicked at " + event.getTimestamp()); }');
+	 * var onRightClickMethod = form.newMethod('function onRightClick(event) { application.output("I was right-clicked at " + event.getTimestamp()); }');
+	 * // At creation the button has the 'doNothing' method as onClick handler, but we'll change that later.
+	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, doNothingMethod);
+	 * btn.onAction = onClickMethod;
+	 * btn.onDoubleClick = onDoubleClickMethod;
+	 * btn.onRightClick = onRightClickMethod;
 	 */
 	@JSGetter
 	public JSMethod getOnAction()
@@ -436,7 +447,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnDataChangeMethodID()
+	 * @clonedesc com.servoy.base.persistence.IBaseField#getOnDataChangeMethodID()
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
