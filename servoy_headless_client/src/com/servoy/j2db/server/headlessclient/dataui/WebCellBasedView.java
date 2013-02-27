@@ -188,7 +188,7 @@ import com.servoy.j2db.util.Utils;
 public class WebCellBasedView extends WebMarkupContainer implements IView, IPortalComponent, IDataRenderer, IProviderStylePropertyChanges, TableModelListener,
 	ListSelectionListener, ISupportWebBounds, ISupportWebTabSeq, ISupportRowStyling, IProvideTabSequence
 {
-//	private static final int SCROLLBAR_SIZE = 17;
+	private static final int SCROLLBAR_SIZE = 17;
 	private static final long serialVersionUID = 1L;
 
 	public final ResourceReference R_ARROW_OFF = new ResourceReference(IApplication.class, "images/arrow_off.png"); //$NON-NLS-1$
@@ -361,7 +361,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue())
 			{
-				newBodyWidthHint -= 17; // extract the vertical scrollbar width
+				newBodyWidthHint -= SCROLLBAR_SIZE; // extract the vertical scrollbar width
 			}
 
 			if (newBodyWidthHint != bodyWidthHint || newBodyHeightHint != bodyHeightHint || !bodySizeHintSetFromClient)
@@ -1857,7 +1857,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					int scrollPadding;
 					ClientInfo info = Session.get().getClientInfo();
 					if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer()) scrollPadding = 0;
-					else scrollPadding = 14;
+					else scrollPadding = SCROLLBAR_SIZE;
 					return scrollBarDefinitionToOverflowAttribute(scrollbars) +
 						"position: absolute; left: 0px;" + (isListViewMode() ? " right: 0px;" : "") + " bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; " + (scrollableHeaderHeight == -1 ? "display:none;" : "top:" + scrollableHeaderHeight + "px;") + " padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
 				}

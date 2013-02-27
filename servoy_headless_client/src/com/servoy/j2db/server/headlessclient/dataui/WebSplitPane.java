@@ -643,6 +643,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 		if (!continuousLayout)
 		{
+			resizeScript.append("YAHOO.util.Dom.setStyle(resize.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("resize.on('startResize', function(ev) {"); //$NON-NLS-1$  			
 			resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
 			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
