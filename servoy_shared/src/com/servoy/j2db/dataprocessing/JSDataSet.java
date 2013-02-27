@@ -488,7 +488,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * 
 	 * @param index index of column (1-based).
 	 * 
-	 * @return String column name.
+	 * @return Number the column type (JSColumn constant)
+	 * @since 7.0
 	 */
 	public Number js_getColumnType(int index)
 	{
