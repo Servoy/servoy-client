@@ -51,7 +51,13 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @sameas com.servoy.base.persistence.IBaseFieldCommon#getDataProviderID()
+	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getDataProviderID()
+	 * 
+	 * @sample
+	 * // Normally the dataprovider is specified when a component is created.
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
+	 * // But it can be modified later if needed.
+	 * field.dataProviderID = 'parent_table_id';
 	 */
 	@JSGetter
 	public String getDataProviderID()
@@ -66,8 +72,13 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @sameas com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
+	 * 
+	 * @sample
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
+	 * field.displaysTags = true;
 	 */
+
 	@JSGetter
 	public boolean getDisplaysTags()
 	{
