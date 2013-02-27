@@ -33,7 +33,7 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDataProviderID()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDataProviderID()
 	 * 
 	 * @sample
 	 * // Normally the dataprovider is specified when a component is created.
@@ -44,7 +44,7 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	public String getDataProviderID();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getDisplaysTags()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
 	 * 
 	 * @sample
 	 * var label = form.newLabel('You are viewing record no. %%parent_table_id%%. You are running on server %%serverURL%%.', 
@@ -54,7 +54,7 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	public boolean getDisplaysTags();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getText()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
 	 * 
 	 * @sample
 	 * // In general the text is specified when creating the component.
@@ -73,7 +73,7 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	public void setOnAction(IBaseSMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnActionMethodID()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
 	 * 
 	 * @sample
 	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');

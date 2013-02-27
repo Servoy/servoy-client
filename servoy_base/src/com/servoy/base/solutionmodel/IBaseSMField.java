@@ -205,7 +205,7 @@ public interface IBaseSMField extends IBaseSMComponent
 
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getDisplayType()
+	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getDisplayType()
 	 *
 	 * @sample 
 	 * // The display type is specified when the field is created.
@@ -217,7 +217,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	public int getDisplayType();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getValuelistID()
+	 * @clonedesc com.servoy.base.persistence.IBaseField#getValuelistID()
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
@@ -243,7 +243,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	public void setOnDataChange(IBaseSMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnDataChangeMethodID()
+	 * @clonedesc com.servoy.base.persistence.IBaseField#getOnDataChangeMethodID()
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
@@ -255,7 +255,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	public IBaseSMMethod getOnDataChange();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getPlaceholderText()
+	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getPlaceholderText()
 	 * 
 	 * @sample
 	 * field.placeholderText = 'Search';
