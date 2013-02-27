@@ -1815,14 +1815,7 @@ function showurl(url, timeout, onRootFrame, useIFrame, pageExpiredRedirect)
 function getPreferredTableSize(startElementId)
 {
 	var el = document.getElementById(startElementId);
-	if (el) {
-		var tBody = YAHOO.util.Dom.getElementsByClassName('rowsContainerBody', 'tbody', el);		
-		if(tBody != null && tBody[0])
-		{
-			return [el.clientWidth, el.clientHeight];
-		}
-		return [el.clientWidth, el.clientHeight];
-	}
+	if (el) return [el.clientWidth, el.clientHeight];
     return null;
 }
 
