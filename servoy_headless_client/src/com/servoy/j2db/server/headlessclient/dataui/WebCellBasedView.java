@@ -953,7 +953,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public class WebCellBasedViewListViewItem extends WebMarkupContainer implements IProviderStylePropertyChanges
 	{
-		private ListItem<IRecordInternal> listItem;
+		public ListItem<IRecordInternal> listItem;
 
 		public WebCellBasedViewListViewItem(ListItem<IRecordInternal> listItem)
 		{
@@ -965,7 +965,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected void onEvent(AjaxRequestTarget target)
 				{
-					markSelected();
+					markSelected(target);
 					IFoundSetInternal modelFs = WebCellBasedViewListViewItem.this.listItem.getModelObject().getParentFoundSet();
 					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
 					WebCellBasedView.this.setSelectionMadeByCellAction();
@@ -984,7 +984,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					Object color = view.getStyleAttributeForListItem(WebCellBasedViewListViewItem.this.listItem, isSelectedEl,
 						ISupportRowStyling.ATTRIBUTE.BGCOLOR, false);
-
+					// this should be in synch with markSelected
 					if (cellview instanceof Portal)
 					{
 						return color != null && !"".equals(color) ? "background-color: " + color : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -1005,25 +1005,45 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			changesRecorder.setRendered();
 		}
 
-		public void markSelected()
+		public void markSelected(AjaxRequestTarget target)
 		{
 			if (!isSelected())
 			{
-				WebCellBasedViewListView listView = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedViewListView.class);
-				if (listView != null)
+				if (!(cellview instanceof Portal))
 				{
-					WebCellBasedViewListItem listItemObj;
-					int listViewSize = listView.size();
-					for (int i = 0; i < listViewSize; i++)
+					WebCellBasedView view = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedView.class);
+
+					Object color = view.getStyleAttributeForListItem(WebCellBasedViewListViewItem.this.listItem, true, ISupportRowStyling.ATTRIBUTE.BGCOLOR,
+						false);
+					String jsCall = "var selRow = document.getElementById('" + getMarkupId() + "');selRow.style.marginLeft='0px';";
+					if (color == null)
 					{
-						listItemObj = (WebCellBasedViewListItem)listView.get(i);
-						if (((WebCellBasedViewListViewItem)listItemObj.getListContainer()).isSelected())
+						jsCall += "selRow.style.borderLeft='3px solid black';";
+					}
+					target.appendJavascript(jsCall);
+					WebCellBasedViewListView listView = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedViewListView.class);
+					if (listView != null)
+					{
+						WebCellBasedViewListItem listItemObj;
+						int listViewSize = listView.size();
+						for (int i = 0; i < listViewSize; i++)
 						{
-							((WebCellBasedViewListViewItem)listItemObj.getListContainer()).getStylePropertyChanges().setChanged();
+							listItemObj = (WebCellBasedViewListItem)listView.get(i);
+							if (((WebCellBasedViewListViewItem)listItemObj.getListContainer()).isSelected())
+							{
+								color = view.getStyleAttributeForListItem(((WebCellBasedViewListViewItem)listItemObj.getListContainer()).listItem, false,
+									ISupportRowStyling.ATTRIBUTE.BGCOLOR, false);
+								jsCall = "var selRow = document.getElementById('" + listItemObj.getListContainer().getMarkupId() +
+									"');selRow.style.borderLeft='';";
+								if (color == null)
+								{
+									jsCall += "selRow.style.marginLeft='3px';";
+								}
+								target.appendJavascript(jsCall);
+							}
 						}
 					}
 				}
-				changesRecorder.setChanged();
 			}
 		}
 

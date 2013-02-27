@@ -539,7 +539,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				if (parentFormViewType == IForm.LIST_VIEW || parentFormViewType == FormController.LOCKED_LIST_VIEW)
 				{
 					WebCellBasedViewListViewItem listViewItem = component.findParent(WebCellBasedView.WebCellBasedViewListViewItem.class);
-					if (listViewItem != null) listViewItem.markSelected();
+					if (listViewItem != null) listViewItem.markSelected(target);
 				}
 			}
 		}
