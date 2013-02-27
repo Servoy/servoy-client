@@ -22,9 +22,11 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.TreeBidiMap;
@@ -418,5 +420,32 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	public abstract UUID resolveUUIDForElementId(int id) throws RepositoryException;
 
+	public static Map<Integer, Integer> resetUUIDSRecursively(IPersist persist, final IPersistFactory persistFactory, final boolean flagChanged)
+	{
+		final Map<Integer, Integer> updatedElementIds = new HashMap<Integer, Integer>();
+		persist.acceptVisitor(new IPersistVisitor()
+		{
+			public Object visit(IPersist o)
+			{
+				if (o instanceof AbstractBase)
+				{
+					((AbstractBase)o).resetUUID();
+					try
+					{
+						int newElementID = persistFactory.getNewElementID(o.getUUID());
+						updatedElementIds.put(Integer.valueOf(o.getID()), Integer.valueOf(newElementID));
+						((AbstractBase)o).setID(newElementID);
+						if (flagChanged) o.flagChanged();
+					}
+					catch (RepositoryException e)
+					{
+						Debug.log(e);
+					}
+				}
+				return IPersistVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
+		return updatedElementIds;
+	}
 
 }

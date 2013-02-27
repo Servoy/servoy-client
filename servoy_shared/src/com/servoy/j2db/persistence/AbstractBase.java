@@ -568,15 +568,6 @@ public abstract class AbstractBase implements IPersist
 		return false;
 	}
 
-	/**
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode()
-	{
-		return element_id;
-	}
-
 	protected void checkForNameChange(String oldValue, String newValue)
 	{
 		if (oldValue == null && newValue == null) return;
