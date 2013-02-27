@@ -36,6 +36,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Bean;
@@ -233,28 +234,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					e.getMessage());
 			}
 		}
-		final Map<Integer, Integer> updatedElementIds = new HashMap<Integer, Integer>();
-		clone.acceptVisitor(new IPersistVisitor()
-		{
-			public Object visit(IPersist o)
-			{
-				if (o instanceof AbstractBase)
-				{
-					((AbstractBase)o).resetUUID();
-					try
-					{
-						int newElementID = getPersistFactory().getNewElementID(o.getUUID());
-						updatedElementIds.put(Integer.valueOf(o.getID()), Integer.valueOf(newElementID));
-						((AbstractBase)o).setID(newElementID);
-					}
-					catch (RepositoryException e)
-					{
-						Debug.log(e);
-					}
-				}
-				return IPersistVisitor.CONTINUE_TRAVERSAL;
-			}
-		});
+
+		final Map<Integer, Integer> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
 
 		if (clone instanceof ISupportChilds)
 		{
