@@ -1355,6 +1355,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (table != null && allProvidersForTable != null)
 		{
 			allProvidersForTable.remove(table);
+			flushGlobalProviders();
 		}
 	}
 
@@ -1634,6 +1635,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private synchronized void flushScriptVariables()
 	{
 		scopeCacheByName = null;
+		flushGlobalProviders();
+	}
+
+	private synchronized void flushGlobalProviders()
+	{
 		globalProviders.clear();
 	}
 
@@ -1753,6 +1759,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (persist instanceof Form) flushForms();
 		if (persist instanceof ScriptMethod) flushScopes();
 		if (persist instanceof ScriptVariable) flushScriptVariables();
+		if (persist instanceof ScriptCalculation || persist instanceof AggregateVariable) flushGlobalProviders();
 		flushDataProvidersForPersist(persist);
 		flushDataProviderLookups(persist);
 
