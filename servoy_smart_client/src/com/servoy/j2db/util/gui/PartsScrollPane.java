@@ -20,7 +20,9 @@ package com.servoy.j2db.util.gui;
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -85,6 +87,34 @@ public class PartsScrollPane extends EnablePanel implements javax.swing.plaf.UIR
 		public JScrollBar createVerticalScrollBar()
 		{
 			return new EditListScrollBar(this, Adjustable.VERTICAL);
+		}
+
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.awt.Component#processMouseWheelEvent(java.awt.event.MouseWheelEvent)
+		 */
+		@Override
+		protected void processMouseWheelEvent(MouseWheelEvent e)
+		{
+			int value = getVerticalScrollBar().getValue();
+			super.processMouseWheelEvent(e);
+			if (value == getVerticalScrollBar().getValue())
+			{
+				// if nothing happened
+				Container p = getParent();
+				while (p != null && !(p instanceof PartsScroller))
+				{
+					p = p.getParent();
+				}
+
+				if (p instanceof PartsScroller)
+				{
+					p.dispatchEvent(new MouseWheelEvent(e.getComponent(), e.getID(), e.getWhen(), e.getModifiersEx(), e.getX(), e.getY(), e.getXOnScreen(),
+						e.getYOnScreen(), e.getClickCount(), e.isPopupTrigger(), e.getScrollType(), e.getScrollAmount(), e.getWheelRotation()));
+				}
+			}
 		}
 
 		//Very special ScrollBar implementation which send its change only on mouse release must be innerclass
