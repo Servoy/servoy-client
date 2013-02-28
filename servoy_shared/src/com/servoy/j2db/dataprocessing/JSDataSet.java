@@ -483,7 +483,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @sample
 	 * //assuming the variable dataset contains a dataset
-	 * var firstColumnType = dataset.getColumnType(1) //retrieves the first columnname into the variable firstColumName
+	 * var firstColumnType = dataset.getColumnType(1) //retrieves the first column's type into the variable firstColumnType
 	 * if (firstColumnType == JSColumn.NUMBER) { }
 	 * 
 	 * @param index index of column (1-based).
