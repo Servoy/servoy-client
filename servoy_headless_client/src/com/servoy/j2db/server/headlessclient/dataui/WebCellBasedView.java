@@ -1084,7 +1084,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onBeforeRender()
 		{
-			if (hasOnRender() || (scrollBehavior != null && scrollBehavior.isGettingRows()))
+			if (hasOnRender())
 			{
 				boolean isSelected = Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0;
 				String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
@@ -1147,17 +1147,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (!ignoreStyles)
 					{
 						WebCellBasedView.this.applyStyleOnComponent(innerComponent, bgColor, fgColor, compFont, compBorder);
-						if (innerComponent instanceof IScriptableProvider &&
-							((IScriptableProvider)innerComponent).getScriptObject() instanceof IRuntimeComponent &&
-							((IRuntimeComponent)((IScriptableProvider)innerComponent).getScriptObject()).isTransparent())
-						{
-							// apply the bg color even if transparent
-							if (innerComponent instanceof IProviderStylePropertyChanges &&
-								((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
-							{
-								((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges())).setBgcolor(bgColor);
-							}
-						}
 					}
 					boolean innerComponentChanged = innerComponent instanceof IProviderStylePropertyChanges &&
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
@@ -3893,6 +3882,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
 					sbm.setBgcolor(bgColor.toString());
+					if (sbm.isTransparent())
+					{
+						// apply the bg color even if transparent
+						if (comp instanceof IProviderStylePropertyChanges &&
+							((IProviderStylePropertyChanges)comp).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
+						{
+							((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)comp).getStylePropertyChanges())).setBgcolor(bgColor.toString());
+						}
+					}
 				}
 				else
 				{
