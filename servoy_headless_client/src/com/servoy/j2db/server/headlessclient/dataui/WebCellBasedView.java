@@ -437,7 +437,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onBeforeRender()
 		{
-			if (childComp instanceof IComponent)
+			if (childComp instanceof IComponent && ((IComponent)childComp).isOpaque())
 			{
 				Color childCompBG = ((IComponent)childComp).getBackground();
 				super.onBeforeRender();
