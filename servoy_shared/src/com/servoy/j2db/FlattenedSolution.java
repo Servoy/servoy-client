@@ -279,8 +279,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (copySolution != null)
 		{
 			copySolution.removeChild(persist);
-			flush(persist);
 		}
+		flush(persist);
 
 		if (persist instanceof Form)
 		{
@@ -2916,5 +2916,35 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			// make copy, so that this set is stable from this moment
 			this.instances = new HashSet<String>(instances);
 		}
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public Form revertForm(String name)
+	{
+		Form form = getForm(name);
+		if (form == null)
+		{
+			// if this form is not found, then it could be in the removedPersist
+			// then revert the remove/delete
+			for (IPersist persist : removedPersist)
+			{
+				if (persist instanceof Form && name.equals(((Form)persist).getName()))
+				{
+					removedPersist.remove(persist);
+					flush(persist);
+					form = getForm(name);
+					break;
+				}
+			}
+		}
+		if (form != null)
+		{
+			deletePersistCopy(form, true);
+			registerChangedForm(form);
+		}
+		return form;
 	}
 }

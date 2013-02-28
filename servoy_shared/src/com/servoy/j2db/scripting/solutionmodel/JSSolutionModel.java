@@ -694,13 +694,10 @@ public class JSSolutionModel implements ISolutionModel
 	public JSForm revertForm(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		Form form = fs.getForm(name);
+		Form form = fs.revertForm(name);
 		if (form != null)
 		{
-			fs.deletePersistCopy(form, true);
-			form = fs.getForm(name);
 			((FormManager)application.getFormManager()).addForm(form, false);
-			application.getFlattenedSolution().registerChangedForm(form);
 			return instantiateForm(form, false);
 		}
 		return null;
