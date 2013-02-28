@@ -1879,7 +1879,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer()) scrollPadding = 0;
 					else scrollPadding = SCROLLBAR_SIZE;
 					return scrollBarDefinitionToOverflowAttribute(scrollbars) +
-						"position: absolute; left: 0px;" + (isListViewMode() ? " right: 0px;" : "") + " bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; " + (scrollableHeaderHeight == -1 ? "display:none;" : "top:" + scrollableHeaderHeight + "px;") + " padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
+						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; " + (scrollableHeaderHeight == -1 ? "display:none;" : "top:" + scrollableHeaderHeight + "px;") + " padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 				}
 			}));
 			tableContainerBody.add(new SimpleAttributeModifier("class", "rowsContainerBody")); //$NON-NLS-1$ //$NON-NLS-2$
