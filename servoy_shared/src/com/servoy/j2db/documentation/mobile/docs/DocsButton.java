@@ -31,26 +31,24 @@ public class DocsButton extends DocsGraphicalComponent
 {
 	/**
 	 * Icon for a button, this must be one of:
-	 * <ul>
-	 * <li>alert</li>
-	 * <li>arrow-d</li>
-	 * <li>arrow-l</li>
-	 * <li>arrow-r</li>
-	 * <li>arrow-u</li>
-	 * <li>back</li>
-	 * <li>check</li>
-	 * <li>delete</li>
-	 * <li>forward</li>
-	 * <li>gear</li>
-	 * <li>grid</li>
-	 * <li>home</li>
-	 * <li>info</li>
-	 * <li>minus</li>
-	 * <li>plus</li>
-	 * <li>refresh</li>
-	 * <li>search</li>
-	 * <li>star</li>
-	 * </ul>
+	 * alert
+	 * arrow-d
+	 * arrow-l
+	 * arrow-r
+	 * arrow-u
+	 * back
+	 * check
+	 * delete
+	 * forward
+	 * gear
+	 * grid
+	 * home
+	 * info
+	 * minus
+	 * plus
+	 * refresh
+	 * search
+	 * star
 	 */
 	public String getDataIcon()
 	{

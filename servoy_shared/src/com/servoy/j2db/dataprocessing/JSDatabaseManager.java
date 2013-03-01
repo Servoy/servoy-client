@@ -1069,7 +1069,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Will throw an exception if anything went wrong when executing the query.
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 * 
-	 * <br>Table filters on the involved tables in the query are applied.
+	 * Table filters on the involved tables in the query are applied.
 	 *
 	 * @sample
 	 * // select customer data for order 1234
@@ -1200,7 +1200,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Performs a sql query with a query builder object.
 	 * Will throw an exception if anything did go wrong when executing the query.
 	 *
-	 * <br>Table filters on the involved tables in the query are applied.
+	 * Table filters on the involved tables in the query are applied.
 	 * 
 	 * @sample
 	 * // use the query froma foundset and add a condition

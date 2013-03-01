@@ -39,7 +39,8 @@ public interface HasRuntimeBorder
 	 * color - (hexadecimal value) for: bottom, left, right, top.
 	 * dash pattern - (numeric value) for selected side(s).
 	 * rounding radius - (numeric value) for selected side(s).
-	 * <br>It only returns it's correct value if it was explicitly set.
+	 * 
+	 * It only returns it's correct value if it was explicitly set.
 	 * 
 	 * NOTE: Use the same value(s) and order of attribute(s) from the element design time property "borderType".
 	 * 

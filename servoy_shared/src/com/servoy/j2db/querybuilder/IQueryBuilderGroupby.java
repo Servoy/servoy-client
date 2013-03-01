@@ -41,19 +41,15 @@ public interface IQueryBuilderGroupby extends IQueryBuilderPart
 
 	/**
 	 * Add column name to group-by clause, column name is searched from parent query table.
-	 * <p> Same as 
-	 * <pre>
-	 * query.groupBy().add("value")
-	 * <pre>
+	 * 
+	 * Same as query.groupBy().add("value")
 	 */
 	IQueryBuilderGroupby add(String columnName) throws RepositoryException;
 
 	/**
 	 * Add column name to group-by clause.
-	 * <p> Same as 
-	 * <pre>
-	 * query.groupBy().add(join.getColumn("value"))
-	 * <pre>
+	 * 
+	 * Same as query.groupBy().add(join.getColumn("value"))
 	 */
 	IQueryBuilderGroupby add(IQueryBuilderColumn column) throws RepositoryException;
 

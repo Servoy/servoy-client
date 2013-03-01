@@ -103,27 +103,25 @@ public class DocsInsetList implements IBaseSHInsetList
 
 	/**
 	 * Icon type for inset list.
-	 * <p>possible values
-	 * <ul>
-	 * <li>alert</li>
-	 * <li>arrow-d</li>
-	 * <li>arrow-l</li>
-	 * <li>arrow-r</li>
-	 * <li>arrow-u</li>
-	 * <li>back</li>
-	 * <li>check</li>
-	 * <li>delete</li>
-	 * <li>forward</li>
-	 * <li>gear</li>
-	 * <li>grid</li>
-	 * <li>home</li>
-	 * <li>info</li>
-	 * <li>minus</li>
-	 * <li>plus</li>
-	 * <li>refresh</li>
-	 * <li>search</li>
-	 * <li>star</li>
-	 * </ul> 
+	 * Possible values: 
+	 *  alert 
+	 *  arrow-d 
+	 *  arrow-l 
+	 *  arrow-r 
+	 *  arrow-u 
+	 *  back 
+	 *  check 
+	 *  delete 
+	 *  forward 
+	 *  gear 
+	 *  grid 
+	 *  home 
+	 *  info 
+	 *  minus 
+	 *  plus 
+	 *  refresh 
+	 *  search 
+	 *  star 
 	 */
 	@Override
 	public java.lang.String getDataIconType()

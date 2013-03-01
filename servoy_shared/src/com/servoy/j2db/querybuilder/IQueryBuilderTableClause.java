@@ -46,13 +46,13 @@ public interface IQueryBuilderTableClause extends IQueryBuilderPart
 
 	/**
 	 * Get a column from the table with given alias.
-	 * <p>The alias may be of the main table or any level deep joined table.
+	 * The alias may be of the main table or any level deep joined table.
 	 */
 	IQueryBuilderColumn getColumn(String tableAlias, String name) throws RepositoryException;
 
 	/**
 	 * Get the joins clause of this table based clause.
-	 * <p>Joins added to this clause will be based on this table clauses table.
+	 * Joins added to this clause will be based on this table clauses table.
 	 */
 	IQueryBuilderJoins joins() throws RepositoryException;
 

@@ -156,10 +156,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 
 	/**
 	 * Creates a new form JSVariable - based on the name of the variable object , the  type  and it's default value , uses the SolutionModel JSVariable constants.
-	 *
-	 *<p>
-	 * <b>This method does not require the form to be destroyed and recreated. Use this method if you want to change the form's model without destroying the runtime form</b>
-	 *</p>
+	 * 
+	 * This method does not require the form to be destroyed and recreated. Use this method if you want to change the form's model without destroying the runtime form</b>
+	 * 
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * var variable = form.newVariable('myVar', JSVariable.TEXT , "'This is a default value (with triple quotes)!'");

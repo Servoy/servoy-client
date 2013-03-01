@@ -31,7 +31,7 @@ public interface HasRuntimeFgBgColor
 {
 	/**
 	 * Gets or sets the background color of a field. The color has to be set using the hexadecimal RGB value as used in HTML.
-	 * <br>It only returns it's correct value if it was explicitly set.
+	 * It only returns it's correct value if it was explicitly set.
 	 * @sample
 	 * //sets the background color of the field
 	 * %%prefix%%%%elementName%%.bgcolor = "#FFFFFF";
@@ -46,7 +46,7 @@ public interface HasRuntimeFgBgColor
 
 	/**
 	 * Gets or sets the foreground color of a field. The color has to be set using the hexadecimal RGB value as used in HTML.
-	 * <br>It only returns it's correct value if it was explicitly set.
+	 * It only returns it's correct value if it was explicitly set.
 	 * @sample
 	 * //sets the foreground color of the field
 	 * %%prefix%%%%elementName%%.fgcolor = "#000000";

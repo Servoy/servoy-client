@@ -176,6 +176,10 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	/**
 	 * Returns whether table was flagged as metadata table.
 	 * 
+	 * @sample
+	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
+	 * var isMetaDataTable = jsTable.isMetadataTable()
+	 * 
 	 * @return boolean is metadata
 	 */
 	@JSFunction

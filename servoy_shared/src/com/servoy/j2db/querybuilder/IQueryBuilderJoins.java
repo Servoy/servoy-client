@@ -50,8 +50,8 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 
 	/**
 	 * Add a join based on relation or add a manual join.
-	 * <p>When dataSourceOrRelation is a relation name, a join will be added based on the relation.
-	 * <br>When dataSourceOrRelation is a data source, an empty join will be added with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}.
+	 * When dataSourceOrRelation is a relation name, a join will be added based on the relation.
+	 * When dataSourceOrRelation is a data source, an empty join will be added with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}.
 	 * @param dataSourceOrRelation add join based on relation or data source
 	 * @param alias alias, when null default is used
 	 * 

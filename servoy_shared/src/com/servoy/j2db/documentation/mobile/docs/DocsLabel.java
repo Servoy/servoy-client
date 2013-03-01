@@ -33,7 +33,7 @@ public class DocsLabel extends DocsGraphicalComponent
 	 * Header size property.
 	 * Sets the header size on a label. Valid values are between 'h1' to 'h6',
 	 * default value is 'h4'.
-	 * <p> The numbers match the heading tags h1 to h6 as used in html.
+	 * The numbers match the heading tags h1 to h6 as used in html.
 	 */
 	public int getHeaderSize()
 	{
