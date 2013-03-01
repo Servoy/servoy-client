@@ -1086,25 +1086,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			if (hasOnRender())
 			{
-				boolean isSelected = Arrays.binarySearch(getSelectedIndexes(), getIndex()) >= 0;
-				String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
-				if (!isListViewMode())
-				{
-					Object color = WebCellBasedView.this.getListItemBgColor(this, isSelected, false);
-					sColor = (color == null || color instanceof Undefined) ? null : color.toString();
-					Object fgColor = WebCellBasedView.this.getListItemFgColor(this, isSelected, false);
-					sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
-					Object styleFont = WebCellBasedView.this.getListItemFont(this, isSelected);
-					sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
-					Object styleBorder = WebCellBasedView.this.getListItemBorder(this, isSelected);
-					sStyleBorder = (styleBorder == null || styleBorder instanceof Undefined) ? null : styleBorder.toString();
-
-					updateComponentsRenderState(null, sColor, sFgColor, sStyleFont, sStyleBorder, isSelected);
-				}
-				else
-				{
-					updateComponentsRenderState(null, isSelected);
-				}
+				updateComponentsRenderState(null, getSelectedIndexes(), getIndex());
 			}
 
 			super.onBeforeRender();
@@ -1124,12 +1106,36 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 		}
 
-		public void updateComponentsRenderState(AjaxRequestTarget target, boolean isSelected)
+		public void updateComponentsRenderState(AjaxRequestTarget target, int[] newSelectedIndexes, int rowIdx)
+		{
+			boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
+			String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
+			if (!isListViewMode())
+			{
+				Object color = WebCellBasedView.this.getListItemBgColor(this, isSelected, false);
+				sColor = (color == null || color instanceof Undefined) ? null : color.toString();
+				Object fgColor = WebCellBasedView.this.getListItemFgColor(this, isSelected, false);
+				sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
+				Object styleFont = WebCellBasedView.this.getListItemFont(this, isSelected);
+				sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
+				Object styleBorder = WebCellBasedView.this.getListItemBorder(this, isSelected);
+				sStyleBorder = (styleBorder == null || styleBorder instanceof Undefined) ? null : styleBorder.toString();
+
+				updateComponentsRenderState(target, sColor, sFgColor, sStyleFont, sStyleBorder, isSelected);
+			}
+			else
+			{
+				updateComponentsRenderState(target, isSelected);
+			}
+		}
+
+		private void updateComponentsRenderState(AjaxRequestTarget target, boolean isSelected)
 		{
 			updateComponentsRenderState(target, null, null, null, null, isSelected, true);
 		}
 
-		public void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String compBorder, boolean isSelected)
+		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String compBorder,
+			boolean isSelected)
 		{
 			updateComponentsRenderState(target, bgColor, fgColor, compFont, compBorder, isSelected, false);
 		}
@@ -4570,22 +4576,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						ListItem<IRecordInternal> selectedListItem = (ListItem<IRecordInternal>)table.get(Integer.toString(rowIdx));
 						if (selectedListItem instanceof WebCellBasedViewListItem)
 						{
-							boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
-							String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
-							if (!isListViewMode())
+							((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, newSelectedIndexes, rowIdx);
+							if (isListViewMode())
 							{
-								Object color = WebCellBasedView.this.getListItemBgColor(selectedListItem, isSelected, false);
-								sColor = (color == null || color instanceof Undefined) ? null : color.toString();
-								Object fgColor = WebCellBasedView.this.getListItemFgColor(selectedListItem, isSelected, false);
-								sFgColor = (fgColor == null || fgColor instanceof Undefined) ? null : fgColor.toString();
-								Object styleFont = WebCellBasedView.this.getListItemFont(selectedListItem, isSelected);
-								sStyleFont = (styleFont == null || styleFont instanceof Undefined) ? null : styleFont.toString();
-								Object styleBorder = WebCellBasedView.this.getListItemBorder(selectedListItem, isSelected);
-								sStyleBorder = (styleBorder == null || styleBorder instanceof Undefined) ? null : styleBorder.toString();
+								// listview paints row item backgrounds for odd/even/selected, not only component backgrounds
+								target.addComponent(((WebCellBasedViewListItem)selectedListItem).getListContainer());
 							}
-
-							((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, sColor, sFgColor, sStyleFont, sStyleBorder,
-								isSelected);
 						}
 					}
 				}
