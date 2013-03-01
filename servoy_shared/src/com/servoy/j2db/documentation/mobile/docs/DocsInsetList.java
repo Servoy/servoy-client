@@ -19,7 +19,6 @@ package com.servoy.j2db.documentation.mobile.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.solutionhelper.IBaseSHInsetList;
-import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -29,140 +28,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "InsetList", scriptingName = "InsetList")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsInsetList implements IBaseSHInsetList
+public class DocsInsetList extends BaseDocsList implements IBaseSHInsetList
 {
-	/**
-	 * Dataprovider for countbubble in inset list.
-	 */
-	@Override
-	public java.lang.String getCountDataProviderID()
-	{
-		return null;
-	}
-
-	@Override
-	public void setCountDataProviderID(java.lang.String countDataProviderID)
-	{
-	}
-
-	/**
-	 * Text property for main text in inset list.
-	 */
-	@Override
-	public java.lang.String getText()
-	{
-		return null;
-	}
-
-	@Override
-	public void setText(java.lang.String text)
-	{
-	}
-
-	/**
-	 * Dataprovider for main text in inset list. Overrides text property.
-	 */
-	@Override
-	public java.lang.String getTextDataProviderID()
-	{
-		return null;
-	}
-
-	@Override
-	public void setTextDataProviderID(java.lang.String textDataPRoviderID)
-	{
-	}
-
-	/**
-	 * Text property for sub text in inset list.
-	 */
-	@Override
-	public java.lang.String getSubtext()
-	{
-		return null;
-	}
-
-	@Override
-	public void setSubtext(java.lang.String subtext)
-	{
-	}
-
-	/**
-	 * Dataprovider for sub text in inset list. Overrides subtext property.
-	 */
-	@Override
-	public java.lang.String getSubtextDataProviderID()
-	{
-		return null;
-	}
-
-	@Override
-	public void setSubtextDataProviderID(java.lang.String subtextDataProviderID)
-	{
-	}
-
-	/**
-	 * Icon type for inset list.
-	 * Possible values: 
-	 *  alert 
-	 *  arrow-d 
-	 *  arrow-l 
-	 *  arrow-r 
-	 *  arrow-u 
-	 *  back 
-	 *  check 
-	 *  delete 
-	 *  forward 
-	 *  gear 
-	 *  grid 
-	 *  home 
-	 *  info 
-	 *  minus 
-	 *  plus 
-	 *  refresh 
-	 *  search 
-	 *  star 
-	 */
-	@Override
-	public java.lang.String getDataIconType()
-	{
-		return null;
-	}
-
-	@Override
-	public void setDataIconType(java.lang.String dataIconType)
-	{
-	}
-
-	/**
-	 * Dataprovider for icon type in inset list. Overrides dataIconType property.
-	 */
-	@Override
-	public java.lang.String getDataIconDataProviderID()
-	{
-		return null;
-	}
-
-	@Override
-	public void setDataIconDataProviderID(java.lang.String dataIconDataProviderID)
-	{
-	}
-
-	/**
-	 * The method that is executed when the component is clicked.
-	 */
-	@Override
-	@ServoyDocumented(memberKind = ServoyDocumented.MEMBER_KIND_EVENT)
-	public IBaseSMMethod getOnAction()
-	{
-		return null;
-	}
-
-	@Override
-	public void setOnAction(IBaseSMMethod method)
-	{
-	}
-
 	/**
 	 * The name of the relationship between the table related to the currently active 
 	 * form and the table you want to show data from in the inset list.
@@ -217,20 +84,6 @@ public class DocsInsetList implements IBaseSHInsetList
 
 	@Override
 	public void setName(java.lang.String name)
-	{
-	}
-
-	/**
-	 * The styleClass of the list.
-	 */
-	@Override
-	public String getListStyleClass()
-	{
-		return null;
-	}
-
-	@Override
-	public void setListStyleClass(String styleClass)
 	{
 	}
 
