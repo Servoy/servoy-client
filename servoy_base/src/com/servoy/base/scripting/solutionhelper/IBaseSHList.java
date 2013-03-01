@@ -59,4 +59,8 @@ public interface IBaseSHList
 
 	public IBaseSMMethod getOnAction();
 
+	public String getListStyleClass();
+
+	public void setListStyleClass(String styleClass);
+
 }

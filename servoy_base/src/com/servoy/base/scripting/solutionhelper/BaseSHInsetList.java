@@ -104,4 +104,14 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 	{
 		getPortal().setName(name);
 	}
+
+	public String getHeaderStyleClass()
+	{
+		return headerComponent != null ? headerComponent.getStyleClass() : null;
+	}
+
+	public void setHeaderStyleClass(String styleClass)
+	{
+		getOrCreateHeaderComponent().setStyleClass(styleClass);
+	}
 }

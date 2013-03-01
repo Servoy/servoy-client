@@ -44,7 +44,9 @@ public class BaseSHList implements IBaseSHList
 		this.solutionHelper = solutionHelper;
 
 		// check for existing relevant components
-		for (IBaseSMComponent c : container.getComponents())
+		IBaseSMComponent[] components = (container instanceof IBaseSMFormInternal) ? ((IBaseSMFormInternal)container).getComponentsInternal(true, null)
+			: container.getComponents();
+		for (IBaseSMComponent c : components)
 		{
 			if (c instanceof IBaseSMButton && Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_BUTTON)))
 			{
@@ -210,6 +212,16 @@ public class BaseSHList implements IBaseSHList
 		IBaseSMField field = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 30, 30);
 		solutionHelper.getMobileProperties(field).setPropertyValue(IMobileProperties.LIST_ITEM_IMAGE, Boolean.TRUE);
 		return field;
+	}
+
+	public String getListStyleClass()
+	{
+		return textAndActionAndIconButton != null ? textAndActionAndIconButton.getStyleClass() : null;
+	}
+
+	public void setListStyleClass(String styleClass)
+	{
+		getOrCreateTextAndActionAndIconButton().setStyleClass(styleClass);
 	}
 
 }

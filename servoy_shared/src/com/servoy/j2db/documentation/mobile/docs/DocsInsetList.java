@@ -220,4 +220,32 @@ public class DocsInsetList implements IBaseSHInsetList
 	public void setName(java.lang.String name)
 	{
 	}
+
+	/**
+	 * The styleClass of the list.
+	 */
+	@Override
+	public String getListStyleClass()
+	{
+		return null;
+	}
+
+	@Override
+	public void setListStyleClass(String styleClass)
+	{
+	}
+
+	/**
+	 * The styleClass of the header.
+	 */
+	@Override
+	public String getHeaderStyleClass()
+	{
+		return null;
+	}
+
+	@Override
+	public void setHeaderStyleClass(String styleClass)
+	{
+	}
 }

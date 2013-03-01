@@ -43,4 +43,8 @@ public interface IBaseSHInsetList extends IBaseSHList
 
 	public void setName(String name);
 
+	public String getHeaderStyleClass();
+
+	public void setHeaderStyleClass(String styleClass);
+
 }
