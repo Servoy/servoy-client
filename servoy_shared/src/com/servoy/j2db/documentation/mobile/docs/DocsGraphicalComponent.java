@@ -85,6 +85,10 @@ public class DocsGraphicalComponent implements IBaseGraphicalComponent
 	{
 	}
 
+	/**
+	 * The name of the style class that should be applied to this component.
+	 * In mobile this is used as the scheme which is one of a-e.
+	 */
 	public String getStyleClass()
 	{
 		return null;

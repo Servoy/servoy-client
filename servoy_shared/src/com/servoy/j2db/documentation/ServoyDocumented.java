@@ -34,6 +34,10 @@ public @interface ServoyDocumented
 	public static final String DESIGNTIME = "designtime"; //$NON-NLS-1$
 	public static final String JSLIB = "jslib"; //$NON-NLS-1$
 
+	public static final String MEMBER_KIND_EVENT = "event"; //$NON-NLS-1$
+	public static final String MEMBER_KIND_COMMAND = "command"; //$NON-NLS-1$
+	public static final String MEMBER_KIND_PROPERY = "property"; //$NON-NLS-1$
+
 	String category() default PLUGINS;
 
 	/**
@@ -49,5 +53,14 @@ public @interface ServoyDocumented
 	 */
 	String scriptingName() default "";
 
+	/**
+	 * The super-component.
+	 */
 	String extendsComponent() default "";
+
+	/**
+	 * Override for member kind derived from method name.
+	 * event, command, property
+	 */
+	String memberKind() default "";
 }

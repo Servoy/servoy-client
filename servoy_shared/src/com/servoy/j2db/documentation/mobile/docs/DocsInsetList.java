@@ -152,6 +152,7 @@ public class DocsInsetList implements IBaseSHInsetList
 	 * The method that is executed when the component is clicked.
 	 */
 	@Override
+	@ServoyDocumented(memberKind = ServoyDocumented.MEMBER_KIND_EVENT)
 	public IBaseSMMethod getOnAction()
 	{
 		return null;
