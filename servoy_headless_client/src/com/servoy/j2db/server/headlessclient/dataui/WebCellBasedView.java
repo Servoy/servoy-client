@@ -954,6 +954,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	public class WebCellBasedViewListViewItem extends WebMarkupContainer implements IProviderStylePropertyChanges
 	{
 		public ListItem<IRecordInternal> listItem;
+		private final IStylePropertyChanges changesRecorder = new ChangesRecorder();
 
 		public WebCellBasedViewListViewItem(ListItem<IRecordInternal> listItem)
 		{
@@ -1054,15 +1055,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			return recIndex == modelFs.getSelectedIndex();
 		}
 
-		private final IStylePropertyChanges changesRecorder = new ChangesRecorder();
-
-		/*
-		 * @see com.servoy.j2db.ui.IProviderStylePropertyChanges#getStylePropertyChanges()
-		 */
 		public IStylePropertyChanges getStylePropertyChanges()
 		{
 			return changesRecorder;
 		}
+
 	}
 
 	private class WebCellBasedViewListItem extends ListItem<IRecordInternal>
@@ -4577,9 +4574,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						if (selectedListItem instanceof WebCellBasedViewListItem)
 						{
 							((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, newSelectedIndexes, rowIdx);
-							if (isListViewMode())
+							if (isListViewMode() && (getRowSelectedStyle() != null || getRowBGColorScript() != null))
 							{
-								// listview paints row item backgrounds for odd/even/selected, not only component backgrounds
+								// listview might need to paint row item backgrounds for odd/even/selected, not only component backgrounds
 								target.addComponent(((WebCellBasedViewListItem)selectedListItem).getListContainer());
 							}
 						}
