@@ -27,6 +27,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Password", scriptingName = "Password")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsPassword extends DocsField
+public class DocsPassword extends BaseDocsField
 {
 }

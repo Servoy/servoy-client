@@ -238,7 +238,7 @@ public class JSPart extends JSBase<Part> implements IConstantsObject, ISMPart
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getStyleClass()
+	 * @clonedesc com.servoy.base.persistence.IBasePart#getStyleClass()
 	 * 
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);

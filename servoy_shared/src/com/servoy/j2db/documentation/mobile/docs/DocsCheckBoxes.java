@@ -27,6 +27,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "CheckBoxes", scriptingName = "CheckBoxes")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsCheckBoxes extends DocsField
+public class DocsCheckBoxes extends BaseDocsField
 {
 }

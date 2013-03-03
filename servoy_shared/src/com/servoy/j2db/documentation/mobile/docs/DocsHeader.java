@@ -25,8 +25,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextField", scriptingName = "TextField")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Header", scriptingName = "Header")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsTextField extends BaseDocsField
+public class DocsHeader extends BaseDocsPart
 {
+
 }

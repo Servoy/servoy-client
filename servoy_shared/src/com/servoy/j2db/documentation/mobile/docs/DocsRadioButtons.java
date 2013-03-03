@@ -27,7 +27,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "RadioButtons", scriptingName = "RadioButtons")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsRadioButtons extends DocsField
+public class DocsRadioButtons extends BaseDocsField
 {
 	/**
 	 * Show the radios as horizontal or vertical set.

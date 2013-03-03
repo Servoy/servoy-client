@@ -27,6 +27,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ComboBox", scriptingName = "ComboBox")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsComboBox extends DocsField
+public class DocsComboBox extends BaseDocsField
 {
 }

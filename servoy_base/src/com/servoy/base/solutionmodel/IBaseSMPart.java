@@ -132,7 +132,7 @@ public interface IBaseSMPart
 	public static final int TRAILING_SUBSUMMARY = IPartConstants.TRAILING_SUBSUMMARY;
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getStyleClass()
+	 * @clonedesc com.servoy.base.persistence.IBasePart#getStyleClass()
 	 * 
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);

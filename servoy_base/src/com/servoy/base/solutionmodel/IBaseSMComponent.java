@@ -125,7 +125,7 @@ public interface IBaseSMComponent
 	public String getGroupID();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getStyleClass()
+	 * @clonedesc com.servoy.base.persistence.IBaseComponentCommon#getStyleClass()
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);

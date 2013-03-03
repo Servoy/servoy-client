@@ -27,6 +27,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextArea", scriptingName = "TextArea")
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsTextArea extends DocsField
+public class DocsTextArea extends BaseDocsField
 {
 }

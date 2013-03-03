@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,18 +15,28 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.base.scripting.annotations.ServoyMobile;
+
 
 /**
- * Dummy class for use in the documentation generator.
+ * Base interface for parts (for mobile as well as other clients).
  * 
  * @author rgansevles
+ *
+ * @since 7.0
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextField", scriptingName = "TextField")
-@ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsTextField extends BaseDocsField
+
+//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
+public interface IBasePart
 {
+	/**
+	 * The Cascading Style Sheet (CSS) class name applied to the part. 
+	 */
+	@ServoyMobile
+	String getStyleClass();
+
+	void setStyleClass(String arg);
+
 }

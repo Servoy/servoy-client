@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.servoy.base.persistence.IBasePart;
 import com.servoy.base.persistence.constants.IPartConstants;
-import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -32,7 +32,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID
+public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID, IBasePart
 {
 	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;
 	public static final int HEADER = IPartConstants.HEADER;
@@ -439,10 +439,6 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 
-	/**
-	 * The Cascading Style Sheet (CSS) class name applied to the part. 
-	 */
-	@ServoyMobile
 	public String getStyleClass()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);

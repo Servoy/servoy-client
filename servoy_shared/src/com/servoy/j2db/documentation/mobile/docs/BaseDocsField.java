@@ -26,7 +26,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsField implements IBaseField
+public class BaseDocsField implements IBaseField
 {
 	public String getDataProviderID()
 	{

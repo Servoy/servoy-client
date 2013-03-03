@@ -17,16 +17,21 @@
 
 package com.servoy.j2db.documentation.mobile.docs;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.base.persistence.IBasePart;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextField", scriptingName = "TextField")
-@ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsTextField extends BaseDocsField
+public class BaseDocsPart implements IBasePart
 {
+	public String getStyleClass()
+	{
+		return null;
+	}
+
+	public void setStyleClass(String arg)
+	{
+	}
 }
