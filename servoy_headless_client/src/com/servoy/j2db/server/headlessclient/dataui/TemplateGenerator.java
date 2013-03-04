@@ -1839,8 +1839,13 @@ public class TemplateGenerator
 		styleObj.setProperty("border-width", "0px");
 
 		// placeholder style
-		styleObj = css.addStyle(".servoy_placeholder");
+		styleObj = css.addStyle(".placeholder");
 		styleObj.setProperty("color", "#aaaaaa");
+		styleObj = css.addStyle("::-webkit-input-placeholder");
+		styleObj.setProperty("color", "#aaaaaa");
+		styleObj = css.addStyle(":-moz-placeholder");
+		styleObj.setProperty("color", "#aaaaaa");
+
 
 //		div.wicket-modal div.w_undecorated div.w_caption
 		return css.toString();
