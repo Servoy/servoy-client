@@ -1984,6 +1984,8 @@ public class TemplateGenerator
 		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, tabPanel));
 		BorderAndPadding borderAndPadding = applyBaseComponentProperties(tabPanel, form, styleObj, null, null, sp);
 		applyLocationAndSize(tabPanel, styleObj, borderAndPadding, startY, endY, form.getSize().width, enableAnchoring, tabPanel.getAnchors(), sp);
+		boolean isSplitPane = tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabPanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL;
+
 		// do not apply foreground to the whole tab panel
 		styleObj.remove("color");
 //		html.append("<table cellpadding=0 cellspacing=0 ");
@@ -1992,11 +1994,11 @@ public class TemplateGenerator
 		String tabPanelCssClass = "tabpanel";
 		if (!tabPanel.getTransparent()) tabPanelCssClass = "opaquecontainer " + tabPanelCssClass;
 		html.append(getCSSClassParameter(tabPanelCssClass));
+		if (isSplitPane) html.append(" style='overflow: hidden;' ");
 		html.append(">\n");
 
 //		int yoffset = 0;
-		if (tabPanel.getTabOrientation() != TabPanel.HIDE && tabPanel.getTabOrientation() != TabPanel.ACCORDION_PANEL &&
-			tabPanel.getTabOrientation() != TabPanel.SPLIT_HORIZONTAL && tabPanel.getTabOrientation() != TabPanel.SPLIT_VERTICAL &&
+		if (tabPanel.getTabOrientation() != TabPanel.HIDE && tabPanel.getTabOrientation() != TabPanel.ACCORDION_PANEL && !isSplitPane &&
 			!(tabPanel.getTabOrientation() == TabPanel.DEFAULT && tabPanel.hasOneTab()))
 		{
 //			yoffset = 20;
@@ -2078,7 +2080,7 @@ public class TemplateGenerator
 			//html.append(getCSSClassParameter("webform"));
 			html.append("></div></div></div>\n");
 		}
-		else if (tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabPanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
+		else if (isSplitPane)
 		{
 			String tabPanelMarkupId = ComponentFactory.getWebID(form, tabPanel);
 
