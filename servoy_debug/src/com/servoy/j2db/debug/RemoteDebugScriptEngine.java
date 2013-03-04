@@ -60,7 +60,6 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	private static volatile ServerSocket ss;
 	private static final ConcurrentHashMap<IApplication, List<Context>> contexts = new ConcurrentHashMap<IApplication, List<Context>>();
 
-	private static volatile boolean connected = true;
 	private static final ConnectionTester connectionTester = new ConnectionTester();
 
 	private static final ContextFactory.Listener contextListener = new ContextFactory.Listener()
@@ -275,9 +274,9 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		}
 		if (debugger != null && socket != null && socket.isConnected() && !socket.isClosed() && socket.isBound() && debugger.isInited)
 		{
-			connectionTester.checkState();
+			return connectionTester.checkState();
 		}
-		return connected;
+		return false;
 	}
 
 	/**
@@ -489,6 +488,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	{
 		private volatile boolean executing;
 		private volatile long startTime;
+		private volatile boolean connected = true;
 
 		@Override
 		public void run()
@@ -496,7 +496,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 			try
 			{
 				debugger.outputStdOut(""); //$NON-NLS-1$
-				connected = isConnected();
+				connected = isSocketValid();
 				if (!connected && socket != null)
 				{
 					debugger = null;
@@ -512,7 +512,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		/**
 		 * @return
 		 */
-		private boolean isConnected()
+		private boolean isSocketValid()
 		{
 			return socket != null && !socket.isClosed() && socket.isConnected() && socket.isBound();
 		}
@@ -520,11 +520,11 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		/**
 		 * 
 		 */
-		public void checkState()
+		public boolean checkState()
 		{
 			if (!executing)
 			{
-				if (isConnected())
+				if (isSocketValid())
 				{
 					executing = true;
 					startTime = System.currentTimeMillis();
@@ -537,11 +537,13 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 				try
 				{
 					socket.close();
+					connected = false;
 				}
 				catch (IOException e)
 				{
 				}
 			}
+			return connected;
 		}
 	}
 
