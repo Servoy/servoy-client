@@ -537,11 +537,11 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 				try
 				{
 					socket.close();
-					connected = false;
 				}
 				catch (IOException e)
 				{
 				}
+				connected = false;
 			}
 			return connected;
 		}
