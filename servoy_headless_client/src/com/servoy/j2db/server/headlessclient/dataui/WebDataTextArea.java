@@ -241,6 +241,10 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		super.renderHead(container);
 		container.getHeaderResponse().renderOnDomReadyJavascript(
 			"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (scriptable.getPlaceholderText() != null)
+		{
+			container.getHeaderResponse().renderOnLoadJavascript("$('#" + getMarkupId() + "').placeholder();");
+		}
 	}
 
 	@Override
