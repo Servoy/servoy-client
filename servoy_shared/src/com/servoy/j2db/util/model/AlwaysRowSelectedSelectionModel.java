@@ -76,9 +76,11 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	/**
 	 * 	used to allow setting the selection to -1 when size >0  for printing 
 	 */
-	public void setPrintMode(boolean isPrinting)
+	public void hideSelectionForPrinting()
 	{
-		this.isPrinting = isPrinting;
+		this.isPrinting = true;
+		this.setSelectedRow(-1);
+		this.isPrinting = false;
 	}
 
 	private boolean testStopUIEditing()

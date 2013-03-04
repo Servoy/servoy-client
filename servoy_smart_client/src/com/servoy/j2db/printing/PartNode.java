@@ -184,16 +184,9 @@ public class PartNode
 
 	public List<DataRendererDefinition> process(FormPreviewPanel fpp, FoundSet fs, Table table, QuerySelect sqlString) throws Exception
 	{
-		if (fs instanceof ISwingFoundSet)
-		{ //Selection model must be in print mode to be able to set the selection to -1  . Otherwise is not allowed by the selectionModel 
-			((ISwingFoundSet)fs).getSelectionModel().setPrintMode(true);
-			fs.setSelectedIndex(-1);//there is no selection in printing!
-			((ISwingFoundSet)fs).getSelectionModel().setPrintMode(false);
-		}
-		else
-		{
-			fs.setSelectedIndex(-1);//there is no selection in printing!
-		}
+		//Selection model must be in print mode to be able to set the selection to -1  . Otherwise is not allowed by the selectionModel 
+		((ISwingFoundSet)fs).getSelectionModel().hideSelectionForPrinting();
+
 		FoundSet rootSet = (FoundSet)fs.copy(false);//this is needed because we must keep sql the same in foundset during printing
 		foundSets.add(rootSet);
 
