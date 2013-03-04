@@ -50,6 +50,7 @@ import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -78,6 +79,7 @@ import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
+import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -1235,6 +1237,83 @@ public class SQLGenerator
 		Placeholder placeHolder = new Placeholder(new TablePlaceholderKey(queryTable, SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
 		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.clone()));
 		return new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
+	}
+
+	/**
+	 * check if the query is will never return any rows, in that case just return an empty dataset.
+	 */
+	public static IDataSet getEmptyDataSetForDummyQuery(ISQLSelect sqlSelect)
+	{
+		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getConditions() != null)
+		{
+			// all named conditions in QuerySelecta are AND-ed, if one always results to false, skip the query
+			for (AndCondition andCondition : ((QuerySelect)sqlSelect).getConditions().values())
+			{
+				for (ISQLCondition condition : andCondition.getConditions())
+				{
+					boolean skipQuery = false;
+					if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
+					{
+						// check for EQUALS_OPERATOR
+						int ncols = ((SetCondition)condition).getKeys().length;
+						int[] operators = ((SetCondition)condition).getOperators();
+						boolean eqop = true;
+						for (int i = 0; i < ncols; i++)
+						{
+							if (operators[i] != ISQLCondition.EQUALS_OPERATOR)
+							{
+								eqop = false;
+							}
+						}
+
+						if (eqop)
+						{
+							Object value = ((SetCondition)condition).getValues();
+							if (value instanceof Placeholder)
+							{
+								Object phval = ((Placeholder)value).getValue();
+								skipQuery = phval instanceof DynamicPkValuesArray && ((DynamicPkValuesArray)phval).getPKs().getRowCount() == 0; // cleared foundset
+							}
+							else if (value instanceof Object[][])
+							{
+								skipQuery = ((Object[][])value).length == 0 || ((Object[][])value)[0].length == 0;
+							}
+						}
+					}
+					// else more complex query, run the query
+
+					if (skipQuery)
+					{
+						// no need to query, dummy condition (where 1=2) here
+						List<IQuerySelectValue> columns = ((QuerySelect)sqlSelect).getColumns();
+						String[] columnNames = new String[columns.size()];
+						ColumnType[] columnTypes = new ColumnType[columns.size()];
+						for (int i = 0; i < columns.size(); i++)
+						{
+							IQuerySelectValue col = columns.get(i);
+							QueryColumn qcol = col.getColumn();
+							String colname;
+							if (col.getAlias() == null)
+							{
+								colname = qcol == null ? col.toString() : qcol.getName();
+							}
+							else
+							{
+								colname = col.getAlias();
+							}
+
+							columnNames[i] = colname;
+							columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : qcol.getColumnType();
+						}
+
+						return new BufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
+					}
+				}
+			}
+		}
+
+		// query needs to be run
+		return null;
 	}
 
 	private void createAggregates(SQLSheet sheet, QueryTable queryTable) throws RepositoryException

@@ -246,12 +246,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return false;
 		}
 
-		if (foundset.getPksAndRecords().hasDynamicPlaceholder() && foundset.getSize() == 0)
-		{
-			// nothing to update.
-			return false;
-		}
-
 		ITable dsTable = null;
 		try
 		{

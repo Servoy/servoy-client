@@ -6268,6 +6268,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			throw new ApplicationException(ServoyException.NO_ACCESS);
 		}
 
+		IDataSet dataSet = SQLGenerator.getEmptyDataSetForDummyQuery(theQuery);
+		if (dataSet != null)
+		{
+			// just return empty data set, prevent 'where 1=2' queries
+			return dataSet;
+		}
+
 		return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery,
 			fsm.getTableFilterParams(sheet.getServerName(), theQuery), distinctInMemory, startRow, rowsToRetrive, type);
 	}
