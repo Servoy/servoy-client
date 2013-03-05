@@ -63,4 +63,19 @@ public @interface ServoyDocumented
 	 * event, command, property
 	 */
 	String memberKind() default "";
+
+	/**
+	 * See graphical component as button
+	 */
+	boolean isButton() default false;
+
+	/**
+	 * Field display type
+	 */
+	int displayType() default 0;
+
+	/**
+	 * for documenting class, which class is the real class
+	 */
+	Class< ? > realClass() default Object.class;
 }

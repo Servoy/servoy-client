@@ -19,15 +19,16 @@ package com.servoy.j2db.documentation.mobile.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsButton extends DocsGraphicalComponent
+public class DocsButton extends BaseDocsGraphicalComponent
 {
 	/**
 	 * Icon for a button, this must be one of:

@@ -19,13 +19,14 @@ package com.servoy.j2db.documentation.mobile.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Field;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ComboBox", scriptingName = "ComboBox")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ComboBox", scriptingName = "ComboBox", displayType = Field.COMBOBOX, realClass = Field.class)
 @ServoyClientSupport(mc = true, sc = false, wc = false)
 public class DocsComboBox extends BaseDocsField
 {

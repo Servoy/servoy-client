@@ -375,7 +375,7 @@ public class RepositoryHelper
 		}
 
 		// docs package
-		if (persistClass.getPackage().equals(com.servoy.j2db.documentation.mobile.docs.DocsGraphicalComponent.class.getPackage()))
+		if (persistClass.getPackage().equals(com.servoy.j2db.documentation.mobile.docs.BaseDocsGraphicalComponent.class.getPackage()))
 		{
 			return true;
 		}
@@ -576,7 +576,51 @@ public class RepositoryHelper
 		{
 			return false;
 		}
+
 		return true;
+	}
+
+	public static boolean hideForMobileProperties(String name, Class< ? > persistClass, int displayType, boolean isButton)
+	{
+		if (name.equals(StaticContentSpecLoader.PROPERTY_GROUPID.getPropertyName()))
+		{
+			return true;
+		}
+
+		if (name.equals(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()))
+		{
+			return true;
+		}
+
+		if (name.equals(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()))
+		{
+			return true;
+		}
+
+		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && Field.class.isAssignableFrom(persistClass) &&
+			displayType != Field.TEXT_FIELD && displayType != Field.TEXT_AREA && displayType == Field.PASSWORD)
+		{
+			return true;
+		}
+
+		if (name.equals(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()) && !isButton)
+		{
+			return true;
+		}
+
+		if (name.equals(StaticContentSpecLoader.PROPERTY_VIEW.getPropertyName()) && Form.class.isAssignableFrom(Form.class))
+		{
+			return true;
+		}
+
+		// there is no style support for labels & text fields on mobile client
+		if (name.equals(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) &&
+			(((Field.class.isAssignableFrom(persistClass) && (displayType == Field.TEXT_FIELD || displayType == Field.TEXT_AREA || displayType == Field.PASSWORD)) || (GraphicalComponent.class.isAssignableFrom(persistClass) && !isButton)) && !(Part.class.isAssignableFrom(persistClass))))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	public static String getDisplayName(String displayName, Class< ? > persistClass)
