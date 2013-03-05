@@ -173,6 +173,7 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.ServoyStyleSheet;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.XMLDecoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
@@ -959,13 +960,13 @@ public class ComponentFactory
 		if (valuelist != null &&
 			(valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES || (valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)))//reuse,those are static,OTHERS not!
 		{
-			WeakHashMap<ValueList, Object> hmValueLists = null;
+			WeakHashMap<UUID, Object> hmValueLists = null;
 			if (application != null)
 			{
-				hmValueLists = (WeakHashMap<ValueList, Object>)application.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
+				hmValueLists = (WeakHashMap<UUID, Object>)application.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
 				if (hmValueLists == null)
 				{
-					hmValueLists = new WeakHashMap<ValueList, Object>();
+					hmValueLists = new WeakHashMap<UUID, Object>();
 					application.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, hmValueLists);
 				}
 
@@ -977,7 +978,7 @@ public class ComponentFactory
 					// if it was inserted by a soft reference but now it can't be softly referenced, put it back in hard.
 					if (list != null && !useSoftCacheForCustom)
 					{
-						hmValueLists.put(valuelist, list);
+						hmValueLists.put(valuelist.getUUID(), list);
 					}
 
 				}
@@ -996,7 +997,7 @@ public class ComponentFactory
 				}
 				if (!useSoftCacheForCustom && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 				{
-					if (hmValueLists != null) hmValueLists.put(valuelist, list);
+					if (hmValueLists != null) hmValueLists.put(valuelist.getUUID(), list);
 					if (dataprovider != null)
 					{
 						((CustomValueList)list).addDataProvider(dataprovider);
@@ -1004,7 +1005,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					if (hmValueLists != null) hmValueLists.put(valuelist, new SoftReference<IValueList>(list));
+					if (hmValueLists != null) hmValueLists.put(valuelist.getUUID(), new SoftReference<IValueList>(list));
 
 					if (dataprovider != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 					{
@@ -2058,10 +2059,10 @@ public class ComponentFactory
 	@SuppressWarnings("unchecked")
 	public static void flushValueList(IServiceProvider sp, ValueList vl)
 	{
-		WeakHashMap<ValueList, Object> hmValueLists = (WeakHashMap<ValueList, Object>)sp.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
+		WeakHashMap<UUID, Object> hmValueLists = (WeakHashMap<UUID, Object>)sp.getRuntimeProperties().get(IServiceProvider.RT_VALUELIST_CACHE);
 		if (hmValueLists != null)
 		{
-			hmValueLists.remove(vl);
+			hmValueLists.remove(vl.getUUID());
 		}
 	}
 

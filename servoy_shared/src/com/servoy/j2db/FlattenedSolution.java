@@ -368,7 +368,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				((Form)copyPersist).setLastModified(System.currentTimeMillis());
 			}
 		}
-		else if (persist.getParent() != null)
+		else if (persist.getParent() != null && !(persist.getParent() instanceof Solution))
 		{
 			ISupportChilds copyParent = (ISupportChilds)copySolution.acceptVisitor(new IPersistVisitor()
 			{
