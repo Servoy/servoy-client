@@ -1138,7 +1138,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			{
 				editProvider.setAdjusting(false);
 			}
-			if (scriptable.getPlaceholderText() != null)
+			if (scriptable != null && scriptable.getPlaceholderText() != null)
 			{
 				PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText()), this);
 			}

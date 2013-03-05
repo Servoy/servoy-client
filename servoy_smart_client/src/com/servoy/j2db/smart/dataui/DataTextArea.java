@@ -747,7 +747,7 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		finally
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
-			if (scriptable.getPlaceholderText() != null)
+			if (scriptable != null && scriptable.getPlaceholderText() != null)
 			{
 				PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText()), enclosedComponent);
 			}
