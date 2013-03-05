@@ -64,6 +64,8 @@ import javax.swing.text.MaskFormatter;
 import javax.swing.text.NavigationFilter;
 import javax.swing.text.NumberFormatter;
 
+import org.jdesktop.xswingx.PromptSupport;
+
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.IApplication;
@@ -882,7 +884,6 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		});
 		DecimalFormatSymbols dfs = RoundHalfUpDecimalFormat.getDecimalFormatSymbols(application.getLocale());
 		decimalSeparator = String.valueOf(dfs.getDecimalSeparator());
-
 		setFocusLostBehavior(COMMIT);
 		addMouseListener(eventExecutor);
 		addKeyListener(eventExecutor);
@@ -1136,6 +1137,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			if (editProvider != null)
 			{
 				editProvider.setAdjusting(false);
+			}
+			if (scriptable.getPlaceholderText() != null)
+			{
+				PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText()), this);
 			}
 		}
 		if (!isIgnoreOnRender && scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());

@@ -37,6 +37,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JPasswordField;
 import javax.swing.TransferHandler;
 
+import org.jdesktop.xswingx.PromptSupport;
+
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -321,6 +323,10 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		finally
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
+			if (scriptable.getPlaceholderText() != null)
+			{
+				PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText()), this);
+			}
 		}
 		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
