@@ -77,6 +77,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
+import com.servoy.j2db.ui.ISupportPlaceholderText;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -94,7 +95,7 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * @author jblok
  */
 public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IFixedPreferredWidth,
-	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportEditProvider
+	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportPlaceholderText
 {
 	private final JTextArea enclosedComponent;
 	private String dataProviderID;
@@ -747,10 +748,6 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		finally
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
-			if (scriptable != null && scriptable.getPlaceholderText() != null)
-			{
-				PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText()), enclosedComponent);
-			}
 		}
 		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
 	}
@@ -1226,5 +1223,12 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	public TransferHandler getTextTransferHandler()
 	{
 		return enclosedComponent instanceof ISupportDragNDropTextTransfer ? ((ISupportDragNDropTextTransfer)enclosedComponent).getTextTransferHandler() : null;
+	}
+
+	@Override
+	public void setPlaceholderText(String text)
+	{
+		PromptSupport.setPrompt(text, enclosedComponent);
+		repaint();
 	}
 }

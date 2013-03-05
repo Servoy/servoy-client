@@ -53,6 +53,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportPlaceholderText;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Text;
@@ -64,7 +65,8 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * Runtime swing password field 
  * @author jblok
  */
-public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer
+public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer,
+	ISupportPlaceholderText
 {
 	private String dataProviderID;
 	private final EventExecutor eventExecutor;
@@ -323,10 +325,6 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		finally
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
-			if (scriptable != null && scriptable.getPlaceholderText() != null)
-			{
-				PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText()), this);
-			}
 		}
 		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
 	}
@@ -716,5 +714,12 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 			modifiers = ((ActionEvent)currentEvent).getModifiers();
 		}
 		return modifiers;
+	}
+
+	@Override
+	public void setPlaceholderText(String text)
+	{
+		PromptSupport.setPrompt(text, this);
+		repaint();
 	}
 }
