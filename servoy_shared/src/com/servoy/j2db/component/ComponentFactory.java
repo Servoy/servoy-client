@@ -984,7 +984,7 @@ public class ComponentFactory
 					application.getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, hmValueLists);
 				}
 
-				Object object = hmValueLists.get(valuelist);
+				Object object = hmValueLists.get(valuelist.getUUID());
 				if (object instanceof SoftReference< ? >)
 				{
 					SoftReference<IValueList> sr = (SoftReference<IValueList>)object;
