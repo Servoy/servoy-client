@@ -111,4 +111,6 @@ public interface IFunctionDocumentation
 	public String getSince();
 
 	public String getUntil();
+
+	public ClientSupport getClientSupport();
 }

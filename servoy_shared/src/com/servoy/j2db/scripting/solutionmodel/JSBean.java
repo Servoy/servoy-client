@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -30,6 +31,7 @@ import com.servoy.j2db.solutionmodel.ISMBean;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBean
 {
 	public JSBean(IJSParent< ? > parent, Bean baseComponent, boolean isNew)

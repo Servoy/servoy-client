@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 
 
 /**
@@ -27,7 +26,6 @@ import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
  *
  * @since 6.1
  */
-@ServoyMobileFilterOut
 public interface ISMBean extends ISMComponent
 {
 

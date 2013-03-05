@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.servoy.base.persistence.IBasePart;
 import com.servoy.base.persistence.constants.IPartConstants;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -32,6 +33,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
+@ServoyClientSupport(mc = false, sc = true, wc = true)
 public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID, IBasePart
 {
 	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;

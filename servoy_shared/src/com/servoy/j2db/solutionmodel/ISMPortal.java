@@ -19,7 +19,6 @@ package com.servoy.j2db.solutionmodel;
 
 import java.awt.Dimension;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.base.solutionmodel.IBaseSMPortal;
 
 
@@ -30,7 +29,6 @@ import com.servoy.base.solutionmodel.IBaseSMPortal;
  *
  * @since 6.1
  */
-@ServoyMobileFilterOut
 public interface ISMPortal extends IBaseSMPortal, ISMComponent
 {
 

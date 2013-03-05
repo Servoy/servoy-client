@@ -159,4 +159,23 @@ public class BaseDocsField implements IBaseField
 	public void setTitleDisplaysTags(boolean arg)
 	{
 	}
+
+	public boolean getEditable()
+	{
+		return false;
+	}
+
+	public void setEditable(boolean arg)
+	{
+	}
+
+	public String getText()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setText(String arg)
+	{
+	}
 }

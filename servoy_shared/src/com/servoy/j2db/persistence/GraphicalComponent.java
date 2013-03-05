@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 
 import com.servoy.base.persistence.IBaseGraphicalComponent;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -30,6 +31,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label, Button, Image")
+@ServoyClientSupport(mc = false, sc = true, wc = true)
 public class GraphicalComponent extends BaseComponent implements ISupportTextEditing, ISupportTextSetup, ISupportDataProviderID, ISupportTabSeq, ISupportMedia,
 	IBaseGraphicalComponent
 {

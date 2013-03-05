@@ -36,6 +36,7 @@ public class QualifiedDocumentationName implements Comparable<QualifiedDocumenta
 {
 	public static final String JS_PREFIX = "js_"; //$NON-NLS-1$
 	public static final String JS_FUNCTION_PREFIX = "jsFunction_"; //$NON-NLS-1$
+	public static final String JS_CONSTRUCTOR_PREFIX = "jsConstructor_"; //$NON-NLS-1$
 
 	public static final String[] NO_ARGUMENTS = new String[] { };
 
