@@ -151,10 +151,24 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 	/**
 	 * Report a javascript error.
 	 * 
-	 * @param msg the warning
+	 * @param msg the error
 	 * @param detail the detail (can be exception obj)
 	 */
 	public void reportJSError(String msg, Object detail);
+
+	/**
+	 * Report a javascript warning.
+	 * 
+	 * @param msg the warning
+	 */
+	public void reportJSWarning(String msg);
+
+	/**
+	 * Report a javascript info.
+	 * 
+	 * @param msg the info
+	 */
+	public void reportJSInfo(String msg);
 
 	/**
 	 * Get the userID.

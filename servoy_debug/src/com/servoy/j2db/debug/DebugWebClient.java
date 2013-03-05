@@ -456,24 +456,20 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void output(Object msg, int level)
 	{
-		Object realMsg = msg;
-		super.output(realMsg, level);
-		if (realMsg == null)
-		{
-			realMsg = "<null>";
-		}
+		super.output(msg, level);
+		stdoutToDebugger(msg);
+	}
 
-		if (realMsg != null)
+	protected void stdoutToDebugger(Object message)
+	{
+		DBGPDebugger debugger = getDebugger();
+		if (debugger != null)
 		{
-			DBGPDebugger debugger = getDebugger();
-			if (debugger != null)
-			{
-				debugger.outputStdOut(realMsg.toString() + '\n');
-			}
-			else
-			{
-				Debug.error("No debugger found, for msg report: " + realMsg);
-			}
+			debugger.outputStdOut((message == null ? "<null>" : message.toString()) + '\n');
+		}
+		else
+		{
+			Debug.error("No debugger found, for msg report: " + message);
 		}
 	}
 
@@ -502,6 +498,20 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	{
 		errorToDebugger(message, detail);
 		super.reportError(message, detail);
+	}
+
+	@Override
+	public void reportJSWarning(String s)
+	{
+		errorToDebugger(s, null);
+		super.reportJSWarning(s);
+	}
+
+	@Override
+	public void reportJSInfo(String s)
+	{
+		stdoutToDebugger("INFO: " + s);
+		super.reportJSInfo(s);
 	}
 
 	/**
