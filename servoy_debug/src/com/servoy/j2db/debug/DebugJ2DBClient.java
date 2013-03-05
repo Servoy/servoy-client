@@ -937,23 +937,22 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		};
 	}
 
-	@SuppressWarnings("nls")
 	@Override
 	public void output(Object message, int level)
 	{
-		Object msg = message;
-		super.output(msg, level);
-		if (msg == null)
-		{
-			msg = "<null>";
-		}
+		super.output(message, level);
+		stdoutToDebugger(message);
+	}
 
+	@SuppressWarnings("nls")
+	protected void stdoutToDebugger(Object message)
+	{
 		if (getScriptEngine() != null)
 		{
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)getScriptEngine()).getDebugger();
 			if (debugger != null)
 			{
-				debugger.outputStdOut(msg.toString() + '\n');
+				debugger.outputStdOut((message == null ? "<null>" : message.toString()) + '\n');
 			}
 		}
 	}
@@ -966,6 +965,20 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		errorToDebugger(message, detail);
 		super.reportJSError(message, detail);
+	}
+
+	@Override
+	public void reportJSWarning(String s)
+	{
+		errorToDebugger(s, null);
+		super.reportJSWarning(s);
+	}
+
+	@Override
+	public void reportJSInfo(String s)
+	{
+		stdoutToDebugger("INFO: " + s);
+		super.reportJSInfo(s);
 	}
 
 	/**

@@ -1244,70 +1244,67 @@ public class SQLGenerator
 	 */
 	public static IDataSet getEmptyDataSetForDummyQuery(ISQLSelect sqlSelect)
 	{
-		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getConditions() != null)
+		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH) != null)
 		{
 			// all named conditions in QuerySelecta are AND-ed, if one always results to false, skip the query
-			for (AndCondition andCondition : ((QuerySelect)sqlSelect).getConditions().values())
+			for (ISQLCondition condition : ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH).getConditions())
 			{
-				for (ISQLCondition condition : andCondition.getConditions())
+				boolean skipQuery = false;
+				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
 				{
-					boolean skipQuery = false;
-					if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
+					// check for EQUALS_OPERATOR
+					int ncols = ((SetCondition)condition).getKeys().length;
+					int[] operators = ((SetCondition)condition).getOperators();
+					boolean eqop = true;
+					for (int i = 0; i < ncols; i++)
 					{
-						// check for EQUALS_OPERATOR
-						int ncols = ((SetCondition)condition).getKeys().length;
-						int[] operators = ((SetCondition)condition).getOperators();
-						boolean eqop = true;
-						for (int i = 0; i < ncols; i++)
+						if (operators[i] != ISQLCondition.EQUALS_OPERATOR)
 						{
-							if (operators[i] != ISQLCondition.EQUALS_OPERATOR)
-							{
-								eqop = false;
-							}
-						}
-
-						if (eqop)
-						{
-							Object value = ((SetCondition)condition).getValues();
-							if (value instanceof Placeholder)
-							{
-								Object phval = ((Placeholder)value).getValue();
-								skipQuery = phval instanceof DynamicPkValuesArray && ((DynamicPkValuesArray)phval).getPKs().getRowCount() == 0; // cleared foundset
-							}
-							else if (value instanceof Object[][])
-							{
-								skipQuery = ((Object[][])value).length == 0 || ((Object[][])value)[0].length == 0;
-							}
+							eqop = false;
 						}
 					}
-					// else more complex query, run the query
 
-					if (skipQuery)
+					if (eqop)
 					{
-						// no need to query, dummy condition (where 1=2) here
-						List<IQuerySelectValue> columns = ((QuerySelect)sqlSelect).getColumns();
-						String[] columnNames = new String[columns.size()];
-						ColumnType[] columnTypes = new ColumnType[columns.size()];
-						for (int i = 0; i < columns.size(); i++)
+						Object value = ((SetCondition)condition).getValues();
+						if (value instanceof Placeholder)
 						{
-							IQuerySelectValue col = columns.get(i);
-							QueryColumn qcol = col.getColumn();
-							String colname;
-							if (col.getAlias() == null)
-							{
-								colname = qcol == null ? col.toString() : qcol.getName();
-							}
-							else
-							{
-								colname = col.getAlias();
-							}
+							Object phval = ((Placeholder)value).getValue();
+							skipQuery = phval instanceof DynamicPkValuesArray && ((DynamicPkValuesArray)phval).getPKs().getRowCount() == 0; // cleared foundset
+						}
+						else if (value instanceof Object[][])
+						{
+							skipQuery = ((Object[][])value).length == 0 || ((Object[][])value)[0].length == 0;
+						}
+					}
+				}
+				// else more complex query, run the query
 
-							columnNames[i] = colname;
-							columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : qcol.getColumnType();
+				if (skipQuery)
+				{
+					// no need to query, dummy condition (where 1=2) here
+					List<IQuerySelectValue> columns = ((QuerySelect)sqlSelect).getColumns();
+					String[] columnNames = new String[columns.size()];
+					ColumnType[] columnTypes = new ColumnType[columns.size()];
+					for (int i = 0; i < columns.size(); i++)
+					{
+						IQuerySelectValue col = columns.get(i);
+						QueryColumn qcol = col.getColumn();
+						String colname;
+						if (col.getAlias() == null)
+						{
+							colname = qcol == null ? col.toString() : qcol.getName();
+						}
+						else
+						{
+							colname = col.getAlias();
 						}
 
-						return new BufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
+						columnNames[i] = colname;
+						columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : qcol.getColumnType();
 					}
+
+					return new BufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
 				}
 			}
 		}

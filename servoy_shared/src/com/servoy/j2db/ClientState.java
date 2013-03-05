@@ -980,6 +980,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		Debug.log(s);
 	}
 
+	public void reportJSWarning(String s)
+	{
+		Debug.log(s);
+	}
+
+	public void reportJSInfo(String s)
+	{
+		Debug.debug(s);
+	}
+
 	public abstract ScheduledExecutorService getScheduledExecutor();
 
 	public abstract boolean isRunningRemote();
