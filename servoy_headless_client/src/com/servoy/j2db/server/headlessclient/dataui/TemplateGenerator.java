@@ -67,6 +67,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -96,7 +97,6 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FixedStyleSheet;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Pair;
@@ -1999,7 +1999,7 @@ public class TemplateGenerator
 
 //		int yoffset = 0;
 		if (tabPanel.getTabOrientation() != TabPanel.HIDE && tabPanel.getTabOrientation() != TabPanel.ACCORDION_PANEL && !isSplitPane &&
-			!(tabPanel.getTabOrientation() == TabPanel.DEFAULT && tabPanel.hasOneTab()))
+			!(tabPanel.getTabOrientation() == TabPanel.DEFAULT_ORIENTATION && tabPanel.hasOneTab()))
 		{
 //			yoffset = 20;
 //			html.append("\t<thead><tr valign='bottom'><th height=20>\n");
@@ -2109,7 +2109,7 @@ public class TemplateGenerator
 			String cssClass = "webform";
 			if (styleObj.containsKey(CSS.Attribute.BORDER_STYLE.toString()) && !"none".equals(styleObj.getProperty(CSS.Attribute.BORDER_STYLE.toString())) &&
 				!"hidden".equals(styleObj.getProperty(CSS.Attribute.BORDER_STYLE.toString())) &&
-				!(tabPanel.getTabOrientation() == TabPanel.HIDE || (tabPanel.getTabOrientation() == TabPanel.DEFAULT && tabPanel.hasOneTab())))
+				!(tabPanel.getTabOrientation() == TabPanel.HIDE || (tabPanel.getTabOrientation() == TabPanel.DEFAULT_ORIENTATION && tabPanel.hasOneTab())))
 			{
 				cssClass = "tabcontainer " + cssClass;
 			}

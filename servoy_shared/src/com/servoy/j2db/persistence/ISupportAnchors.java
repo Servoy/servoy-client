@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.util.IAnchorConstants;
 
 
 /**

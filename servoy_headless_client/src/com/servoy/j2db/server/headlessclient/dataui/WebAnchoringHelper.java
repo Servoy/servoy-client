@@ -30,11 +30,11 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.ui.ISupportWebBounds;
-import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.Utils;
 
 /**

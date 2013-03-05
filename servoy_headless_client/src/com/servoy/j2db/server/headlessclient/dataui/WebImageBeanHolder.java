@@ -35,10 +35,10 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SnapShot;

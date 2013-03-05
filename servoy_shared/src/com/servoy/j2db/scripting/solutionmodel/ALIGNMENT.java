@@ -16,15 +16,15 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
-import com.servoy.base.persistence.constants.IAlignmentSMConstants;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMAlignment;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class ALIGNMENT implements IAlignmentSMConstants, IPrefixedConstantsObject
+public class ALIGNMENT implements ISMAlignment, IPrefixedConstantsObject
 {
 
 	/**

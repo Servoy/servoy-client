@@ -17,44 +17,17 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
-import java.awt.print.PageFormat;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMPageOrientation;
 
 /**
  * @author laurian
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class PAGEORIENTATION implements IPrefixedConstantsObject
+public class PAGEORIENTATION implements ISMPageOrientation, IPrefixedConstantsObject
 {
-	/**
-	 * Portrait page orientation.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("some_form");
-	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS);
-	 */
-	public static final int PORTRAIT = PageFormat.PORTRAIT;
-
-	/**
-	 * Landscape page orientation.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("some_form");
-	 * form.defaultPageFormat = solutionModel.createPageFormat(792,612,72,72,72,72,SM_ORIENTATION.LANDSCAPE,SM_UNITS.PIXELS);
-	 */
-	public static final int LANDSCAPE = PageFormat.LANDSCAPE;
-
-	/**
-	 * Reverse landscape page orientation.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("some_form");
-	 * form.defaultPageFormat = solutionModel.createPageFormat(792,612,72,72,72,72,SM_ORIENTATION.REVERSE_LANDSCAPE,SM_UNITS.PIXELS);
-	 */
-	public static final int REVERSE_LANDSCAPE = PageFormat.REVERSE_LANDSCAPE;
 
 	/**
 	 * @see java.lang.Object#toString()

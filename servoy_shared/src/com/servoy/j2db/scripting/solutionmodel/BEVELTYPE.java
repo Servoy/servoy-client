@@ -17,34 +17,17 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
-import javax.swing.border.BevelBorder;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMBevelType;
 
 /**
  * @author lvostinar
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class BEVELTYPE implements IPrefixedConstantsObject
+public class BEVELTYPE implements ISMBevelType, IPrefixedConstantsObject
 {
-	/**
-	 * Raised bevel border type.
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
-	 */
-	public final static int RAISED = BevelBorder.RAISED;
-
-	/**
-	 * Lowered bevel border type.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.LOWERED,'#ff0000','#00ff00');
-	 */
-	public final static int LOWERED = BevelBorder.LOWERED;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
@@ -62,4 +45,5 @@ public class BEVELTYPE implements IPrefixedConstantsObject
 	{
 		return "Bevel Border Type Constants"; //$NON-NLS-1$
 	}
+
 }

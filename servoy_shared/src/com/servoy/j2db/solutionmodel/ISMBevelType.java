@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,34 +15,34 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.scripting.solutionmodel;
+package com.servoy.j2db.solutionmodel;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.solutionmodel.ISMTitlePosition;
+import javax.swing.border.BevelBorder;
 
 /**
- * @author lvostinar
- *
+ * Constants used for bevel borders.
+ * 
+ * @since 7.0
+ * @author acostescu
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class TITLEPOSITION implements ISMTitlePosition, IPrefixedConstantsObject
+public interface ISMBevelType
 {
 
 	/**
-	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
+	 * Raised bevel border type.
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
 	 */
-	public String getPrefix()
-	{
-		return "SM_TITLEPOSITION"; //$NON-NLS-1$
-	}
+	public final static int RAISED = BevelBorder.RAISED;
 
 	/**
-	 * @see java.lang.Object#toString()
+	 * Lowered bevel border type.
+	 * 
+	 * @sample
+	 * var form = solutionModel.getForm("someForm");
+	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.LOWERED,'#ff0000','#00ff00');
 	 */
-	@Override
-	public String toString()
-	{
-		return "Titled Border Text Position Constants"; //$NON-NLS-1$
-	}
+	public final static int LOWERED = BevelBorder.LOWERED;
+
 }

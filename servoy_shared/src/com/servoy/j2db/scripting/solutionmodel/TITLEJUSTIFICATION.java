@@ -17,76 +17,17 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
-import javax.swing.border.TitledBorder;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMTitleJustification;
 
 /**
  * @author lvostinar
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class TITLEJUSTIFICATION implements IPrefixedConstantsObject
+public class TITLEJUSTIFICATION implements ISMTitleJustification, IPrefixedConstantsObject
 {
-	/**
-	 * Default justification for the title text
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.TOP);
-	 * 
-	 */
-	public static final int DEFAULT = TitledBorder.DEFAULT_JUSTIFICATION;
-
-	/**
-	 * Position title text at the left side of the border line.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.LEFT,SM_TITLEPOSITION.TOP);
-	 */
-	public static final int LEFT = TitledBorder.LEFT;
-
-	/**
-	 * Position title text in the center of the border line.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
-	 */
-	public static final int CENTER = TitledBorder.CENTER;
-
-	/**
-	 * Position title text at the right side of the border line.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.RIGHT,SM_TITLEPOSITION.TOP);
-	 */
-	public static final int RIGHT = TitledBorder.RIGHT;
-
-	/**
-	 * Position title text at the left side of the border line
-	 *  for left to right orientation, at the right side of the 
-	 *  border line for right to left orientation.
-	 *  
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.LEADING,SM_TITLEPOSITION.TOP);
-	 */
-	public static final int LEADING = TitledBorder.LEADING;
-
-	/**
-	 * Position title text at the right side of the border line
-	 *  for left to right orientation, at the left side of the 
-	 *  border line for right to left orientation.
-	 *  
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.TRAILING,SM_TITLEPOSITION.TOP);
-	 */
-	public static final int TRAILING = TitledBorder.TRAILING;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

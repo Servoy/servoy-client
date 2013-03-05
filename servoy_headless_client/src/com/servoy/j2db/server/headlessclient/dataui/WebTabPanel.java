@@ -68,6 +68,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -87,7 +88,6 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -142,7 +142,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			}
 		};
 
-		if (orient != TabPanel.HIDE && orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL && !(orient == TabPanel.DEFAULT && oneTab))
+		if (orient != TabPanel.HIDE && orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL && !(orient == TabPanel.DEFAULT_ORIENTATION && oneTab))
 		{
 			add(new Loop("tablinks", tabsModel) //$NON-NLS-1$
 			{

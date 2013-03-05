@@ -15,17 +15,16 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.persistence.constants;
-
-import com.servoy.base.solutionmodel.IBaseSMMethod;
+package com.servoy.base.solutionmodel;
 
 
 /**
- * Constants used for alignment property.
+ * Default/none/ignore constants for some property types.
  * 
+ * @since 7.0
  * @author acostescu
  */
-public interface IDefaultSMConstants
+public interface IBaseSMDefaults
 {
 
 	/**
@@ -62,23 +61,5 @@ public interface IDefaultSMConstants
 	 * fieldThree.tabSeq = 1;
 	 */
 	public static final int IGNORE = -2;
-
-//	/**
-//	 * Constants used for setting commands to "default".
-//	 * 
-//	 * @sample
-//	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
-//	 * form.onFindCmd = SM_DEFAULTS.COMMAND_DEFAULT; // This makes the find work like it does by default.
-//	 */
-//	public static final IBaseSMMethod COMMAND_DEFAULT = new ?();
-
-	/**
-	 * Constant used for setting commands to "none".
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
-	 * form.onFindCmd = SM_DEFAULTS.COMMAND_NONE; // This disables the find on the form.
-	 */
-	public static final IBaseSMMethod COMMAND_NONE = null;
 
 }

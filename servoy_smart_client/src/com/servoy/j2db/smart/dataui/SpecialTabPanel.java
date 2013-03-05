@@ -114,7 +114,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 
 		if (enclosingComponent == null)
 		{
-			if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT && oneTab))
+			if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && oneTab))
 			{
 				this.enclosingComponent = new TablessPanel(application);
 				setFocusTraversalPolicy(ServoyFocusTraversalPolicy.datarenderPolicy);

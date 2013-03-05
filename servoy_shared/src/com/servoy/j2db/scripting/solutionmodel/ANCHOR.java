@@ -13,18 +13,18 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.solutionmodel.ISMAnchor;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class ANCHOR implements IPrefixedConstantsObject, IAnchorConstants
+public class ANCHOR implements IPrefixedConstantsObject, ISMAnchor
 {
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

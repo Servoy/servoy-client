@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportName;
@@ -47,7 +48,6 @@ import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.Utils;
 
 /**

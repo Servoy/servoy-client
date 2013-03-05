@@ -37,6 +37,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.solutionmodel.ISMTabPanel;
 
@@ -45,7 +46,7 @@ import com.servoy.j2db.solutionmodel.ISMTabPanel;
  */
 @ServoyMobileFilterOut
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPanel>, ISMTabPanel
+public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPanel>, ISMTabPanel, IConstantsObject
 {
 	private final IApplication application;
 
@@ -288,19 +289,20 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getTabOrientation()
+	 * Specifies either the position of the tabs related to the tab panel or the type of tab-panel.
+	 * Can be one of SM_ALIGNMENT.(TOP, RIGHT, BOTTOM, LEFT), DEFAULT_ORIENTATION, HIDE, SPLIT_HORIZONTAL, SPLIT_VERTICAL, ACCORDION_PANEL.
 	 * 
 	 * @sample
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * // The SM_ALIGNMENT constants TOP, RIGHT, BOTTOM and LEFT can be used to put the
-	 * // tabs into the needed position. Use SM_DEFAULTS.NONE to hide the tabs.
-	 * // The SM_ALIGNMENT constants SPLIT_HORIZONTAL, SPLIT_VERTICAL can be used to create a split pane
-	 * // where the first tab will be left component and the second tab will the right component. 
+	 * // tabs into the needed position. Use HIDE to hide the tabs. Use DEFAULT_ORIENTATION to restore it to it's initial state.
+	 * // The constants SPLIT_HORIZONTAL, SPLIT_VERTICAL can be used to create a split pane,
+	 * // where the first tab will be the first component and the second tab will the second component.
+	 * // ACCORDION_PANEL can be used to create an accordion pane.
 	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;  
 	 */
-	@JSGetter
 	public int getTabOrientation()
 	{
 		return getBaseComponent(false).getTabOrientation();

@@ -31,13 +31,13 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSButton;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSLabel;
 import com.servoy.j2db.solutionmodel.ISMComponent;
-import com.servoy.j2db.util.IAnchorConstants;
 
 /**
  * Solution model JSForm implementation for when a mobile solution is debugged using the web-client.

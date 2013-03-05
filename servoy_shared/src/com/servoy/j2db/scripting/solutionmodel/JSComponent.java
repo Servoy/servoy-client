@@ -26,12 +26,12 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.solutionmodel.ISMComponent;
 import com.servoy.j2db.solutionmodel.ISMHasDesignTimeProperty;
-import com.servoy.j2db.util.IAnchorConstants;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 

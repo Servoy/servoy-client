@@ -17,57 +17,17 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
-import java.awt.Font;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMFontStyle;
 
 /**
  * @author lvostinar
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class FONTSTYLE implements IPrefixedConstantsObject
+public class FONTSTYLE implements ISMFontStyle, IPrefixedConstantsObject
 {
-	/**
-	 * Plain(normal) font style.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * var component = form.getComponent("someComponent")
-	 * component.fontType = solutionModel.createFont('Arial',SM_FONTSTYLE.PLAIN,10);
-	 */
-	public static final int PLAIN = Font.PLAIN;
-
-	/**
-	 * Bold font style.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * var component = form.getComponent("someComponent")
-	 * component.fontType = solutionModel.createFont('Arial',SM_FONTSTYLE.BOLD,12);
-	 */
-	public static final int BOLD = Font.BOLD;
-
-	/**
-	 * Italic font style.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * var component = form.getComponent("someComponent")
-	 * component.fontType = solutionModel.createFont('Arial',SM_FONTSTYLE.ITALIC,14);
-	 */
-	public static final int ITALIC = Font.ITALIC;
-
-	/**
-	 * Bold and italic font style.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * var component = form.getComponent("someComponent")
-	 * component.fontType = solutionModel.createFont('Arial',SM_FONTSTYLE.BOLD_ITALIC,20);
-	 */
-	public static final int BOLD_ITALIC = Font.BOLD + Font.ITALIC;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

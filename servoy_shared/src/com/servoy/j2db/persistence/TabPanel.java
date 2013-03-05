@@ -34,7 +34,7 @@ import com.servoy.j2db.util.Utils;
 public class TabPanel extends BaseComponent implements ISupportChilds, ISupportTabSeq
 {
 	//orientations, see also SwingConstants.TOP,RIGHT,BOTTOM,LEFT
-	public static final int DEFAULT = 0;
+	public static final int DEFAULT_ORIENTATION = 0; // DEFAULT would conflict with inherited interface constant
 	public static final int HIDE = -1;
 	public static final int SPLIT_HORIZONTAL = -2;
 	public static final int SPLIT_VERTICAL = -3;
@@ -63,8 +63,9 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 
 	/**
 	 * The position of the tabs related to the tab panel. Can be one of TOP, RIGHT, BOTTOM, LEFT,
-	 * HIDE, SPLIT_HORIZONTAL, SPLIT_VERTICAL. The HIDE option makes the tabs invisible, SPLIT_HORIZONTAL
-	 * makes the tab panel horizontal split pane, SPLIT_VERTICAL makes the tab panel vertical split pane.
+	 * HIDE, SPLIT_HORIZONTAL, SPLIT_VERTICAL, ACCORDION_PANEL. The HIDE option makes the tabs invisible, SPLIT_HORIZONTAL
+	 * makes the tab panel horizontal split pane, SPLIT_VERTICAL makes the tab panel vertical split pane, ACCORDION_PANEL turns
+	 * the tab panel into an accordion.
 	 */
 	public int getTabOrientation()
 	{

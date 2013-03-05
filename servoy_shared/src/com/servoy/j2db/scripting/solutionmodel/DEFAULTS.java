@@ -16,25 +16,16 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
-import com.servoy.base.persistence.constants.IDefaultSMConstants;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMDefaults;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class DEFAULTS implements IDefaultSMConstants, IPrefixedConstantsObject
+public class DEFAULTS implements ISMDefaults, IPrefixedConstantsObject
 {
-
-	/**
-	 * Constants used for setting commands to "default".
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
-	 * form.onFindCmd = SM_DEFAULTS.COMMAND_DEFAULT; // This makes the find work like it does by default.
-	 */
-	public static final JSMethod COMMAND_DEFAULT = new JSMethod();
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

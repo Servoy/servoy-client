@@ -30,7 +30,6 @@ import org.mozilla.javascript.annotations.JSSetter;
 import org.mozilla.javascript.ast.AstRoot;
 import org.mozilla.javascript.ast.FunctionNode;
 
-import com.servoy.base.persistence.constants.IDefaultSMConstants;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -38,6 +37,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.solutionmodel.ISMDefaults;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -53,10 +53,12 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	protected ScriptMethod sm;
 	protected boolean isCopy;
 
-	/**
-	 * 
-	 */
-	JSMethod()
+	public static JSMethod createDummy()
+	{
+		return new JSMethod();
+	}
+
+	private JSMethod()
 	{
 		parent = null;
 		application = null;
@@ -255,8 +257,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	{
 		if (sm == null)
 		{
-			if (this == DEFAULTS.COMMAND_DEFAULT) return "JSMethod[DEFAULT]";
-			if (this == IDefaultSMConstants.COMMAND_NONE) return "JSMethod[NONE]";
+			if (this == ISMDefaults.COMMAND_DEFAULT) return "JSMethod[DEFAULT]";
+			if (this == ISMDefaults.COMMAND_NONE) return "JSMethod[NONE]";
 			return "JSMethod";
 		}
 		if (parent == null)

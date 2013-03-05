@@ -17,45 +17,17 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
-import javax.print.attribute.Size2DSyntax;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.solutionmodel.ISMUnits;
 
 /**
  * @author lvostinar
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class UNITS implements IPrefixedConstantsObject
+public class UNITS implements ISMUnits, IPrefixedConstantsObject
 {
-	/**
-	 * Millimeters length unit.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.defaultPageFormat = solutionModel.createPageFormat(215,279,25,25,25,25,SM_ORIENTATION.PORTRAIT,SM_UNITS.MM);
-	 */
-	public static final int MM = Size2DSyntax.MM;
-
-	/**
-	 * Inch length unit.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.defaultPageFormat = solutionModel.createPageFormat(8.5,11,1,1,1,1,SM_ORIENTATION.PORTRAIT,SM_UNITS.INCH);
-	 */
-	public static final int INCH = Size2DSyntax.INCH;
-
-	/**
-	 * Pixels length unit.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("someForm");
-	 * form.defaultPageFormat = solutionModel.createPageFormat(612,792,72,72,72,72,SM_ORIENTATION.PORTRAIT,SM_UNITS.PIXELS);
-	 */
-	public static final int PIXELS = (int)(Size2DSyntax.INCH / Utils.PPI);
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

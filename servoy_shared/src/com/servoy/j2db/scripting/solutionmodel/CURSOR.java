@@ -13,40 +13,19 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting.solutionmodel;
-
-import java.awt.Cursor;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.solutionmodel.ISMCursor;
 
 /**
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class CURSOR implements IPrefixedConstantsObject
+public class CURSOR implements ISMCursor, IPrefixedConstantsObject
 {
-	/**
-	 * Constant used for setting the roll over cursor for components.
-	 * Use this for setting the roll over cursor to the default (dependent
-	 * on the OS and the L&F).
-	 * 
-	 * @sample
-	 * var label = form.newLabel('Move the mouse over me', 10, 10, 200, 200);
-	 * label.rolloverCursor = SM_CURSOR.DEFAULT_CURSOR;
-	 */
-	public static final int DEFAULT_CURSOR = Cursor.DEFAULT_CURSOR;
-
-	/**
-	 * Constant used for setting the roll over cursor for components.
-	 * Use this for setting the roll over cursor to a hand.
-	 * 
-	 * @sample 
-	 * var label = form.newLabel('Move the mouse over me', 10, 10, 200, 200);
-	 * label.rolloverCursor = SM_CURSOR.HAND_CURSOR;
-	 */
-	public static final int HAND_CURSOR = Cursor.HAND_CURSOR;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()

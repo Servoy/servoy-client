@@ -15,16 +15,20 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.persistence.constants;
+package com.servoy.j2db.solutionmodel;
 
 import javax.swing.SwingConstants;
+
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
+import com.servoy.j2db.persistence.TabPanel;
 
 /**
  * Constants used for alignment property.
  * 
+ * @since 7.0
  * @author acostescu
  */
-public interface IAlignmentSMConstants
+public interface ISMAlignment
 {
 
 	/**
@@ -97,8 +101,11 @@ public interface IAlignmentSMConstants
 	 * @sample
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_HORIZONTAL;
+	 * 
+	 * @deprecated please use {@link ISMTabPanel#SPLIT_HORIZONTAL} instead.
 	 */
-	public static final int SPLIT_HORIZONTAL = -2;
+	@Deprecated
+	public static final int SPLIT_HORIZONTAL = TabPanel.SPLIT_HORIZONTAL;
 
 	/**
 	 * Constant used for creating vertical split pane from tab panel, by setting its tabOrientation.
@@ -106,8 +113,11 @@ public interface IAlignmentSMConstants
 	 * @sample
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
+	 * 
+	 * @deprecated please use {@link ISMTabPanel#SPLIT_VERTICAL} instead.
 	 */
-	public static final int SPLIT_VERTICAL = -3;
+	@Deprecated
+	public static final int SPLIT_VERTICAL = TabPanel.SPLIT_VERTICAL;
 
 	/**
 	 * Constant used for creating accordion panel from tab panel, by setting its tabOrientation.
@@ -115,7 +125,10 @@ public interface IAlignmentSMConstants
 	 * @sample
 	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
 	 * accordion.tabOrientation = SM_ALIGNMENT.ACCORDION_PANEL;
+	 * 
+	 * @deprecated please use {@link ISMTabPanel#ACCORDION_PANEL} instead.
 	 */
-	public static final int ACCORDION_PANEL = -3;
+	@Deprecated
+	public static final int ACCORDION_PANEL = TabPanel.ACCORDION_PANEL;
 
 }

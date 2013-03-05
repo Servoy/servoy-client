@@ -19,6 +19,7 @@ package com.servoy.j2db.solutionmodel;
 
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMTabPanel;
+import com.servoy.j2db.persistence.TabPanel;
 
 
 /**
@@ -30,6 +31,53 @@ import com.servoy.base.solutionmodel.IBaseSMTabPanel;
  */
 public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 {
+
+	/**
+	 * Constant used for restoring a tab panel orientation to it's initial state.
+	 * 
+	 * @sample
+	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
+	 * splitPane.tabOrientation = JSTabPanel.SPLIT_HORIZONTAL;
+	 * // (...) some code when you decide it's better to revert the orientation
+	 * splitPane.tabOrientation = JSTabPanel.DEFAULT_ORIENTATION;
+	 */
+	public static final int DEFAULT_ORIENTATION = TabPanel.DEFAULT_ORIENTATION;
+
+	/**
+	 * Constant used for creating a tab panel that does not show tabs, by setting its tabOrientation.
+	 * 
+	 * @sample
+	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
+	 * splitPane.tabOrientation = JSTabPanel.HIDE;
+	 */
+	public static final int HIDE = TabPanel.HIDE;
+
+	/**
+	 * Constant used for creating horizontal split pane from tab panel, by setting its tabOrientation.
+	 * 
+	 * @sample
+	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
+	 * splitPane.tabOrientation = JSTabPanel.SPLIT_HORIZONTAL;
+	 */
+	public static final int SPLIT_HORIZONTAL = TabPanel.SPLIT_HORIZONTAL;
+
+	/**
+	 * Constant used for creating vertical split pane from tab panel, by setting its tabOrientation.
+	 * 
+	 * @sample
+	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
+	 * splitPane.tabOrientation = JSTabPanel.SPLIT_VERTICAL;
+	 */
+	public static final int SPLIT_VERTICAL = TabPanel.SPLIT_VERTICAL;
+
+	/**
+	 * Constant used for creating accordion panel from tab panel, by setting its tabOrientation.
+	 * 
+	 * @sample
+	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
+	 * accordion.tabOrientation = JSTabPanel.ACCORDION_PANEL;
+	 */
+	public static final int ACCORDION_PANEL = TabPanel.ACCORDION_PANEL;
 
 	/**
 	 * Adds a new tab with the text label and JSForm.
@@ -143,7 +191,7 @@ public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 	 */
 	public ISMMethod getOnChange();
 
-	public void setTabSeq(int arg);
+	public void setTabSeq(int tabSeq);
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getScrollTabs()
@@ -157,26 +205,24 @@ public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 	public boolean getScrollTabs();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getTabOrientation()
+	 * Specifies either the position of the tabs related to the tab panel or the type of tab-panel.
+	 * Can be one of SM_ALIGNMENT.(TOP, RIGHT, BOTTOM, LEFT), DEFAULT_ORIENTATION, HIDE, SPLIT_HORIZONTAL, SPLIT_VERTICAL, ACCORDION_PANEL.
 	 * 
 	 * @sample
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * // The SM_ALIGNMENT constants TOP, RIGHT, BOTTOM and LEFT can be used to put the
-	 * // tabs into the needed position. Use SM_DEFAULTS.NONE to hide the tabs.
-	 * // The SM_ALIGNMENT constants SPLIT_HORIZONTAL, SPLIT_VERTICAL can be used to create a split pane
-	 * // where the first tab will be left component and the second tab will the right component. 
+	 * // tabs into the needed position. Use HIDE to hide the tabs. Use DEFAULT_ORIENTATION to restore it to it's initial state.
+	 * // The constants SPLIT_HORIZONTAL, SPLIT_VERTICAL can be used to create a split pane,
+	 * // where the first tab will be the first component and the second tab will the second component.
+	 * // ACCORDION_PANEL can be used to create an accordion pane.
 	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;  
 	 */
 	public int getTabOrientation();
 
-	public void setScrollTabs(boolean arg);
+	public void setScrollTabs(boolean scrollTabs);
 
-	/**
-	 * sets the tab orientation, use one of the ALIGNMENT constants: SM_ALIGNMENT.TOP,BOTTOM,LEFT,RIGHT
-	 * or use SM_DEFAULTS.NONE to hide the tabs.
-	 */
-	public void setTabOrientation(int arg);
+	public void setTabOrientation(int orientation);
 
 }

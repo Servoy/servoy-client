@@ -31,7 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.persistence.IAnchorConstants;
 
 /**
  * Handy Layout Manager keeps anchored sides of an component on the same distance to the border by resizing. (Used in combination with excact positioning,
