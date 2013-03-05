@@ -444,9 +444,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		return null;
 	}
 
-	/**
-	 * @see com.servoy.j2db.IFormUI#getFormContext()
-	 */
 	public JSDataSet getFormContext()
 	{
 		SwingForm current = this;
@@ -455,8 +452,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		String currentBeanName = null;
 		SpecialSplitPane currentSplitPane = null;
 		IDataSet set = new BufferedDataSet(
-			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-		set.addRow(new Object[] { null, current.formController.getName(), null, null, null });
+			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex", "tabindex1based" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		set.addRow(new Object[] { null, current.formController.getName(), null, null, null, null });
 		Container parent = getParent();
 		while (parent != null)
 		{
@@ -492,22 +489,23 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							tabName = panel.getNameAt(index);
 						}
 					}
-					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index) });
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index), new Integer(
+						index + 1) });
 				}
 				else if (currentBeanName != null)
 				{
-					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null });
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null, null });
 				}
 				else if (currentSplitPane != null)
 				{
 					int idx = currentLookupPanel != null && currentLookupPanel.equals(currentSplitPane.getLeftForm()) ? 0 : 1;
 					set.addRow(0,
 						new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(idx), new Integer(
-							idx + 1) });
+							idx + 1), new Integer(idx + 1) });
 				}
 				else
 				{
-					set.addRow(0, new Object[] { null, current.formController.getName(), null, null, null });
+					set.addRow(0, new Object[] { null, current.formController.getName(), null, null, null, null });
 				}
 				currentBeanName = null;
 				currentTabPanel = null;

@@ -380,9 +380,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return true;
 	}
 
-	/**
-	 * @see com.servoy.j2db.IFormUI#getFormContext()
-	 */
 	public JSDataSet getFormContext()
 	{
 		WebForm current = this;
@@ -390,8 +387,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		String currentBeanName = null;
 		WebSplitPane currentSplitPane = null;
 		IDataSet set = new BufferedDataSet(
-			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-		set.addRow(new Object[] { null, current.formController.getName(), null, null, null });
+			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex", "tabindex1based" }, new ArrayList<Object[]>()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		set.addRow(new Object[] { null, current.formController.getName(), null, null, null, null });
 		MarkupContainer parent = getParent();
 		while (parent != null)
 		{
@@ -426,12 +423,13 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 						tabName = currentTabPanel.getTabNameAt(index); // js method so +1
 					}
 					current = (WebForm)parent;
-					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index) });
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index), new Integer(
+						index + 1) });
 				}
 				else if (currentBeanName != null)
 				{
 					current = (WebForm)parent;
-					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null });
+					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null, null });
 				}
 				else if (currentSplitPane != null)
 				{
@@ -439,7 +437,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 					current = (WebForm)parent;
 					set.addRow(0,
 						new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(idx), new Integer(
-							idx + 1) });
+							idx + 1), new Integer(idx + 1) });
 				}
 				current = (WebForm)parent;
 				currentTabPanel = null;
