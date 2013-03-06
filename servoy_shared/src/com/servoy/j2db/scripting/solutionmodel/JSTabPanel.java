@@ -303,6 +303,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * // ACCORDION_PANEL can be used to create an accordion pane.
 	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;  
 	 */
+	@JSGetter
 	public int getTabOrientation()
 	{
 		return getBaseComponent(false).getTabOrientation();
