@@ -22,6 +22,7 @@ package com.servoy.j2db.documentation;
  * 
  * @author rgansevles
  *
+ * NOTE: this class has a copy in com.servoy.eclipse.docgenerator.metamodel - please keep them in sync
  */
 public enum ClientSupport
 {
