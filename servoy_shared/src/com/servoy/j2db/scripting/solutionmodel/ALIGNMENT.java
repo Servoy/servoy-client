@@ -20,6 +20,7 @@ import javax.swing.SwingConstants;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ContentSpec;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
@@ -103,7 +104,7 @@ public class ALIGNMENT implements IPrefixedConstantsObject
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_HORIZONTAL;
 	 */
-	public static final int SPLIT_HORIZONTAL = -2;
+	public static final int SPLIT_HORIZONTAL = TabPanel.SPLIT_HORIZONTAL;
 
 	/**
 	 * Constant used for creating vertical split pane from tab panel, by setting its tabOrientation.
@@ -112,7 +113,7 @@ public class ALIGNMENT implements IPrefixedConstantsObject
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
 	 */
-	public static final int SPLIT_VERTICAL = -3;
+	public static final int SPLIT_VERTICAL = TabPanel.SPLIT_VERTICAL;
 
 	/**
 	 * Constant used for creating accordion panel from tab panel, by setting its tabOrientation.
@@ -121,7 +122,7 @@ public class ALIGNMENT implements IPrefixedConstantsObject
 	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
 	 * accordion.tabOrientation = SM_ALIGNMENT.ACCORDION_PANEL;
 	 */
-	public static final int ACCORDION_PANEL = -3;
+	public static final int ACCORDION_PANEL = TabPanel.ACCORDION_PANEL;
 
 	/**
 	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
