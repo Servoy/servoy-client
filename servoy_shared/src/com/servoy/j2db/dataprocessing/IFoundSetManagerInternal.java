@@ -20,7 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.util.HashMap;
 import java.util.List;
 
-import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -89,7 +89,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public EditRecordList getEditRecordList();
 
-	public IServiceProvider getApplication();
+	public IApplication getApplication();
 
 	public String createDataSourceFromDataSet(String name, IDataSet dataSet, int[] intTypes) throws ServoyException;
 

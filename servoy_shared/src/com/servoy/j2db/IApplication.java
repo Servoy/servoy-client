@@ -397,4 +397,28 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param autoconvert
 	 */
 	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert);
+
+	/**
+	 * Report a javascript error.
+	 * 
+	 * @param msg the error
+	 * @param detail the detail (can be exception obj)
+	 */
+	public void reportJSError(String msg, Object detail);
+
+	/**
+	 * Report a javascript warning.
+	 * 
+	 * @param msg the warning
+	 */
+	public void reportJSWarning(String msg);
+
+	/**
+	 * Report a javascript info.
+	 * 
+	 * @param msg the info
+	 */
+	public void reportJSInfo(String msg);
+
+
 }
