@@ -42,7 +42,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.base.util.DataSourceUtilsBase;
-import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -91,7 +91,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@SuppressWarnings("unchecked")
 	private static final Entry<String, SoftReference<RelatedFoundSet>>[] EMPTY_ENTRY_ARRAY = new Map.Entry[0];
 
-	private final IServiceProvider application;
+	private final IApplication application;
 	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Set<FoundSet> foundSets;
@@ -123,7 +123,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	// tracking info used for logging
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
 
-	public FoundSetManager(IServiceProvider app, IFoundSetFactory factory)
+	public FoundSetManager(IApplication app, IFoundSetFactory factory)
 	{
 		application = app;
 		initMembers();
@@ -870,7 +870,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return application.getDataServer();
 	}
 
-	public IServiceProvider getApplication()
+	public IApplication getApplication()
 	{
 		return application;
 	}
