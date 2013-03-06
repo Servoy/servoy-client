@@ -18,8 +18,6 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
 
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.markup.ComponentTag;
@@ -39,6 +37,7 @@ public class WebRect extends WebBaseLabel implements IRect
 {
 
 	private final int shapeType;
+	private int lineWidth;
 
 	/**
 	 * @param id
@@ -60,7 +59,7 @@ public class WebRect extends WebBaseLabel implements IRect
 	 */
 	public int getLineWidth()
 	{
-		return 0;
+		return lineWidth;
 	}
 
 	/**
@@ -76,6 +75,7 @@ public class WebRect extends WebBaseLabel implements IRect
 	 */
 	public void setLineWidth(int lineWidth)
 	{
+		this.lineWidth = lineWidth;
 	}
 
 	/**
@@ -89,17 +89,6 @@ public class WebRect extends WebBaseLabel implements IRect
 	public int getFontSize()
 	{
 		return 0;
-	}
-
-	private Border webBorder = null;
-
-	// In WebClient, graphical rectangles are not rendered with TitledBorder, so we should not use TitledBorder, because it
-	// will affect web size calculations.
-	@Override
-	public Border getBorder()
-	{
-		if (webBorder == null) webBorder = new LineBorder(Color.BLACK, 1);
-		return webBorder;
 	}
 
 	@Override
