@@ -253,6 +253,11 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("http://www.eclipse.org/legal/epl-v10.html\n");
 		sb.append("\n");
 
+		sb.append("xswingx (prompt component)\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE\n");
+		sb.append("https://code.google.com/p/xswingx\n");
+		sb.append("\n");
+
 		ta.setText(sb.toString());
 		ta.setCaretPosition(0);
 	}
