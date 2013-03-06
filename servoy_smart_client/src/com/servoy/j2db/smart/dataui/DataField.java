@@ -2275,7 +2275,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 	@Override
 	public void setPlaceholderText(String text)
 	{
-		PromptSupport.setPrompt(text, this);
+		PromptSupport.uninstall(this);
+		PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(text), this);
 		repaint();
 	}
 }

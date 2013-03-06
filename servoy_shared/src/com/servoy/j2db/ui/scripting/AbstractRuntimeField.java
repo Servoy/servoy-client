@@ -35,6 +35,7 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.ISupportPlaceholderText;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.runtime.HasRuntimePlaceholder;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
@@ -307,6 +308,10 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 	{
 		if (!Utils.safeEquals(placeholder, getPlaceholderText()))
 		{
+			if (getComponent() instanceof ISupportPlaceholderText)
+			{
+				((ISupportPlaceholderText)getComponent()).setPlaceholderText(placeholder);
+			}
 			this.placeholderText = placeholder;
 			getChangesRecorder().setChanged();
 		}

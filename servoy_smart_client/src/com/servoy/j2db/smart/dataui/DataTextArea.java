@@ -1228,7 +1228,8 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 	@Override
 	public void setPlaceholderText(String text)
 	{
-		PromptSupport.setPrompt(text, enclosedComponent);
+		PromptSupport.uninstall(enclosedComponent);
+		PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(text), enclosedComponent);
 		repaint();
 	}
 }
