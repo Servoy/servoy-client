@@ -4574,7 +4574,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						if (selectedListItem instanceof WebCellBasedViewListItem)
 						{
 							((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, newSelectedIndexes, rowIdx);
-							if (isListViewMode() && (getRowSelectedStyle() != null || getRowBGColorScript() != null))
+							if (target != null && isListViewMode() && (getRowSelectedStyle() != null || getRowBGColorScript() != null))
 							{
 								// listview might need to paint row item backgrounds for odd/even/selected, not only component backgrounds
 								target.addComponent(((WebCellBasedViewListItem)selectedListItem).getListContainer());
