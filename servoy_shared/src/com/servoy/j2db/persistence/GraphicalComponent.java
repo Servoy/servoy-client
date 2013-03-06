@@ -215,7 +215,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 	 * The roll over image Media object used. It will only work if a property image is also used.
 	 * When the mouse is moved over the component, this image Media will be displayed. 
 	 * When the mouse is moved out of the component, whatever text or image was being initially 
-	 * displayed will be restored.
+	 * displayed will be restored. Note that roll over image is not supported in Smart client for list view and tableview forms.
 	 */
 	public int getRolloverImageMediaID()
 	{
@@ -425,7 +425,7 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 
 	/**
 	 * The cursor that is shown as the mouse is rolled over the component.
-	 * Possible options are DEFAULT and HAND.
+	 * Possible options are DEFAULT and HAND. Note that roll over cursor is not supported in Smart client for list view and tableview forms.
 	 */
 	public int getRolloverCursor()
 	{
