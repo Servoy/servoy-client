@@ -24,6 +24,7 @@ import java.awt.EventQueue;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -79,7 +80,19 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		super();
 		this.scriptable = scriptable;
 		application = app;
-		eventExecutor = new EventExecutor(this);
+		eventExecutor = new EventExecutor(this)
+		{
+			@Override
+			public void fireLeaveCommands(Object display, boolean focusEvent, int modifiers)
+			{
+				if (hasLeaveCmds())
+				{
+					editProvider.focusLost(new FocusEvent(DataPassword.this, FocusEvent.FOCUS_LOST));
+				}
+
+				super.fireLeaveCommands(display, focusEvent, modifiers);
+			}
+		};
 
 		addKeyListener(new KeyAdapter()
 		{
