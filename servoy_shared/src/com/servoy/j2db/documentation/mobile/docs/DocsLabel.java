@@ -28,7 +28,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class)
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsLabel extends BaseDocsGraphicalComponent
+public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
 {
 	/**
 	 * Header size property.

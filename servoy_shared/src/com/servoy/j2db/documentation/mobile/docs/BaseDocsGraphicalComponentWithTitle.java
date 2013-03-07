@@ -18,46 +18,58 @@
 package com.servoy.j2db.documentation.mobile.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsButton extends BaseDocsGraphicalComponentWithTitle
+public class BaseDocsGraphicalComponentWithTitle extends BaseDocsGraphicalComponent
 {
 	/**
-	 * Icon for a button, this must be one of:
-	 * alert
-	 * arrow-d
-	 * arrow-l
-	 * arrow-r
-	 * arrow-u
-	 * back
-	 * check
-	 * delete
-	 * forward
-	 * gear
-	 * grid
-	 * home
-	 * info
-	 * minus
-	 * plus
-	 * refresh
-	 * search
-	 * star
+	 * Dataprovider for header text to field component
 	 */
-	public String getDataIcon()
+	public String getTitleDataProviderID()
 	{
 		return null;
 	}
 
 	@SuppressWarnings("unused")
-	public void setDataIcon(String dataIcon)
+	public void setTitleDataProviderID(String arg)
+	{
+	}
+
+	/**
+	 * Flag for header text to field component that enables or disables merging of data inside components using tags (placeholders).
+	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
+	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
+	 * are a set of predefined tags that are made available by the system.
+	 * 
+	 * See the "Merging data" section for more details about tags.
+	 * 
+	 * The default value of this flag is "false", that is merging of data is disabled by default.
+	 */
+	public boolean getTitleDisplaysTags()
+	{
+		return false;
+	}
+
+	@SuppressWarnings("unused")
+	public void setTitleDisplaysTags(boolean arg)
+	{
+	}
+
+	/**
+	 * Header text to component
+	 */
+	public String getTitleText()
+	{
+		return null;
+	}
+
+	@SuppressWarnings("unused")
+	public void setTitleText(String arg)
 	{
 	}
 }

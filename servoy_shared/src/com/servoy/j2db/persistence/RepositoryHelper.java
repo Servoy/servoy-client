@@ -374,12 +374,6 @@ public class RepositoryHelper
 				name.equals("validatorName") || name.equals("validatorProperties");
 		}
 
-		// docs package
-		if (persistClass.getPackage().equals(com.servoy.j2db.documentation.mobile.docs.BaseDocsGraphicalComponent.class.getPackage()))
-		{
-			return true;
-		}
-
 		return false;
 	}
 
