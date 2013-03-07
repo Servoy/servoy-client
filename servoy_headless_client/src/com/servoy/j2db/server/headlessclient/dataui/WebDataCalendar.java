@@ -24,7 +24,6 @@ import org.apache.wicket.Response;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.AbstractTextComponent.ITextFormatProvider;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
@@ -125,14 +124,6 @@ public class WebDataCalendar extends WebDataCompositeTextField
 				}
 			});
 		}
-	}
-
-	@SuppressWarnings("nls")
-	@Override
-	public void renderHead(final HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		container.getHeaderResponse().renderOnDomReadyJavascript("setLanguageCode('" + application.getLocale().getLanguage() + "')");
 	}
 
 	@Override
