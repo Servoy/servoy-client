@@ -33,71 +33,71 @@ public interface IPredefinedIconConstants
 	 */
 	public static final String ICON_GEAR = "gear"; // DataIcon.GEAR.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_LEFT = "arrow-l"; // DataIcon.LEFT.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_RIGHT = "arrow-r"; // DataIcon.RIGHT.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_UP = "arrow-u"; // DataIcon.UP.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_DOWN = "arrow-d"; // DataIcon.DOWN.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_DELETE = "delete"; // DataIcon.DELETE.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_PLUS = "plus"; // DataIcon.PLUS.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_MINUS = "minus"; // DataIcon.MINUS.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_CHECK = "check"; // DataIcon.CHECK.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_REFRESH = "refresh"; // DataIcon.REFRESH.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_FORWARD = "forward"; // DataIcon.FORWARD.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_BACK = "back"; // DataIcon.BACK.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_GRID = "grid"; // DataIcon.GRID.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_STAR = "star"; // DataIcon.STAR.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_ALERT = "alert"; // DataIcon.ALERT.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_INFO = "info"; // DataIcon.INFO.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_HOME = "home"; // DataIcon.HOME.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.j2db.scripting.BaseSolutionHelper#ICON_GEAR
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_SEARCH = "search"; // DataIcon.SEARCH.getJqmValue() //$NON-NLS-1$
 

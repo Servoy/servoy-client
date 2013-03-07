@@ -38,7 +38,7 @@ import com.servoy.base.solutionmodel.IBaseSolutionModel;
  * 
  * @author acostescu
  */
-public abstract class BaseSolutionHelper implements IPredefinedIconConstants
+public abstract class BaseSolutionHelper
 {
 	private static final String AUTO_CREATED_LIST_INSETLIST_NAME = "list"; //$NON-NLS-1$ 
 
