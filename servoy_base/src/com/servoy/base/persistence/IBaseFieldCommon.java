@@ -55,22 +55,4 @@ public interface IBaseFieldCommon extends IBaseComponentCommon
 	String getPlaceholderText();
 
 	void setPlaceholderText(String arg);
-
-	/**
-	 * Flag that tells if the content of the field can be edited or not. 
-	 * The default value of this flag is "true", that is the content can be edited.
-	 */
-	@ServoyMobile
-	public boolean getEditable();
-
-	public void setEditable(boolean arg);
-
-	/**
-	 * The text that is displayed in the column header associated with the component when the form
-	 * is in table view.
-	 */
-	@ServoyMobile
-	public String getText();
-
-	public void setText(String arg);
 }

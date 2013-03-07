@@ -28,7 +28,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsButton extends BaseDocsGraphicalComponentWithTitle
+public class DocsButton extends BaseDocsGraphicalComponent
 {
 	/**
 	 * Icon for a button, this must be one of:

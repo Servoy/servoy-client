@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation.mobile.docs;
 
+import java.awt.Point;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.solutionhelper.IBaseSHInsetList;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -98,6 +100,19 @@ public class DocsInsetList extends BaseDocsList implements IBaseSHInsetList
 
 	@Override
 	public void setHeaderStyleClass(String styleClass)
+	{
+	}
+
+	/**
+	 * The x and y position of the component, in pixels, separated by a comma.
+	 */
+	public Point getLocation()
+	{
+		return null;
+	}
+
+	@SuppressWarnings("unused")
+	public void setLocation(Point arg)
 	{
 	}
 }

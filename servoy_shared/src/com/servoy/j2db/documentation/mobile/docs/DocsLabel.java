@@ -31,18 +31,18 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
 {
 	/**
-	 * Header size property.
+	 * Label (header) size property.
 	 * Sets the header size on a label. Valid values are between 'h1' to 'h6',
 	 * default value is 'h4'.
 	 * The numbers match the heading tags h1 to h6 as used in html.
 	 */
-	public int getHeaderSize()
+	public int getLabelSize()
 	{
 		return 0;
 	}
 
 	@SuppressWarnings("unused")
-	public void setHeaderSize(int headerSize)
+	public void setLabelSize(int labelSize)
 	{
 	}
 

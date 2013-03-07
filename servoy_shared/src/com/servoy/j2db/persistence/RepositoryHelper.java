@@ -614,6 +614,13 @@ public class RepositoryHelper
 			return true;
 		}
 
+		// there is no support for placeholder text for checkbox, comobox, radio button in mobile client
+		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) &&
+			(((Field.class.isAssignableFrom(persistClass) && (displayType == Field.CHECKS || displayType == Field.COMBOBOX || displayType == Field.RADIOS)) || (GraphicalComponent.class.isAssignableFrom(persistClass) && !isButton)) && !(Part.class.isAssignableFrom(persistClass))))
+		{
+			return true;
+		}
+
 		return false;
 	}
 
