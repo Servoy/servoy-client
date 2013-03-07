@@ -1008,7 +1008,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid,
 			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor,
-			cssclass, rotation)); //$NON-NLS-1$
+			cssclass, rotation, scriptable.isEnabled())); //$NON-NLS-1$
 	}
 
 	protected boolean hasHtmlOrImage()
