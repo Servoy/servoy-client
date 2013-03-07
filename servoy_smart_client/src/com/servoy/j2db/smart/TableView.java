@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
@@ -737,7 +738,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		}
 		tableTabSequenceHandler = new TableTabSequenceHandler(this, cts);
 		setColumnModel(tcm);
-		JTableHeader theader = getTableHeader();
+		final JTableHeader theader = getTableHeader();
 		if (theader != null)
 		{
 			if (theader instanceof UnmovableTableHeader)
@@ -753,6 +754,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				@Override
 				public void mousePressed(MouseEvent e)
 				{
+					if (theader instanceof UnmovableTableHeader) ((UnmovableTableHeader)theader).dragStart();
 					if (resizingColumn == null && draggingColumn == null && e.isPopupTrigger())
 					{
 						handleRightClick(e);
@@ -762,6 +764,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				@Override
 				public void mouseReleased(MouseEvent e)
 				{
+					if (theader instanceof UnmovableTableHeader) ((UnmovableTableHeader)theader).dragStop();
 					if (resizingColumn != null || draggingColumn != null)
 					{
 						int nrColumns = TableView.this.getColumnCount();
@@ -2149,6 +2152,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	class UnmovableTableHeader extends JTableHeader
 	{
 		int[] unmovableColumnIndexes;
+		boolean isMouseDown;
+		int mouseStartX;
 
 		UnmovableTableHeader(TableColumnModel model)
 		{
@@ -2172,39 +2177,50 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			return false;
 		}
 
+		void dragStart()
+		{
+			mouseStartX = (int)MouseInfo.getPointerInfo().getLocation().getX();
+			isMouseDown = true;
+		}
+
+		void dragStop()
+		{
+			isMouseDown = false;
+		}
+
 		@Override
 		public TableColumn getDraggedColumn()
 		{
-			TableColumn draggedCol = super.getDraggedColumn();
-			if (draggedCol != null)
+			if (isMouseDown)
 			{
-				int modelIndex = draggedCol.getModelIndex();
-				int index = getTable().convertColumnIndexToView(modelIndex);
+				TableColumn draggedCol = super.getDraggedColumn();
+				if (draggedCol != null)
+				{
+					int modelIndex = draggedCol.getModelIndex();
+					int index = getTable().convertColumnIndexToView(modelIndex);
 
-				/* If the user tries to move an unmovable column don’t allow it */
-				if (isUnmovableColumn(index))
-				{
-					setDraggedColumn(null);
-				}
-				/* if the current dragged column is dragged towards right and the next column is unmovable one, don’t allow it */
-				else if (getDraggedDistance() > 0)
-				{
-					if (isUnmovableColumn(index + 1))
+					if (isUnmovableColumn(index))
 					{
 						setDraggedColumn(null);
 					}
-				}
-				/* if the current dragged column is dragged towards left and the next column is unmovable one, don’t allow it */
-				else if (getDraggedDistance() < 0)
-				{
-					if (isUnmovableColumn(index - 1))
+					else
 					{
-						setDraggedColumn(null);
+						int mouseDelta = (int)MouseInfo.getPointerInfo().getLocation().getX() - mouseStartX;
+						if (mouseDelta != 0)
+						{
+							int direction = (mouseDelta < 0) ? -1 : 1;
+							boolean headerLeftToRight = getComponentOrientation().isLeftToRight();
+							int newIndex = index + (headerLeftToRight ? direction : -direction);
+							if (isUnmovableColumn(newIndex))
+							{
+								setDraggedColumn(null);
+								repaint();
+							}
+						}
 					}
 				}
 			}
-
-			return draggedCol;
+			return super.getDraggedColumn();
 		}
 	}
 
