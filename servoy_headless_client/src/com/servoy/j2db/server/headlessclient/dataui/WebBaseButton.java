@@ -39,6 +39,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.IResourceListener;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
@@ -47,6 +48,9 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.link.ILinkListener;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.ClientProperties;
+import org.apache.wicket.protocol.http.WebRequestCycle;
+import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.crypt.ICrypt;
 import org.apache.wicket.util.string.Strings;
@@ -945,7 +949,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			markupStream,
 			openTag,
 			instrumentBodyText(bodyText, halign, valign, false, border, margin, cssId, (char)getDisplayedMnemonic(), getMarkupId(), getImageDisplayURL(this),
-				size, true, designMode ? null : cursor, false, anchor, cssClass, rotation));
+				size, true, designMode ? null : cursor, false, anchor, cssClass, rotation, scriptable.isEnabled()));
 	}
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
@@ -1090,7 +1094,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	@SuppressWarnings("nls")
 	protected static String instrumentBodyText(CharSequence bodyText, int halign, int valign, boolean hasHtmlOrImage, Border border, Insets margin,
 		String cssid, char mnemonic, String elementID, String imgURL, Dimension size, boolean isButton, Cursor bodyCursor, boolean isAnchored, int anchors,
-		String cssClass, int rotation)
+		String cssClass, int rotation, boolean isEnabled)
 	{
 		boolean isElementAnchored = anchors != IAnchorConstants.DEFAULT;
 		Insets padding = null;
@@ -1234,6 +1238,17 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		instrumentedBodyText.append(">"); //$NON-NLS-1$
 
+		//in ie<8 the filter:alpha(opacity=50) applied on the <button> element is not applied to the <img> element 
+		String IE8filterFIx = "";
+		if (!isEnabled)
+		{
+			WebClientInfo webClientInfo = new WebClientInfo((WebRequestCycle)RequestCycle.get());
+			ClientProperties cp = webClientInfo.getProperties();
+			if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() != -1 && cp.getBrowserVersionMajor() < 9)
+			{
+				IE8filterFIx = "filter:alpha(opacity=50);";
+			}
+		}
 		if (!Strings.isEmpty(bodyText))
 		{
 			CharSequence bodyTextValue = bodyText;
@@ -1251,11 +1266,12 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 			if (imgURL != null)
 			{
+
 				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
 					"); $(this).css('display','');\"" : "";
 				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
-					"\" style=\"vertical-align: middle;" + (isElementAnchored ? "display:none" : "") + "\"").append(onLoadCall).append("/>&nbsp;").append(
-					bodyTextValue);
+					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored ? "display:none" : "") + "\"").append(onLoadCall).append(
+					"/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
 
@@ -1265,7 +1281,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			instrumentedBodyText.append("<img id=\"");
 			instrumentedBodyText.append(elementID).append("_img\"");
-			instrumentedBodyText.append(isElementAnchored ? " style=\"display:none\"" : ""); // hide it until setLabelChildHeight is calculated
+			instrumentedBodyText.append("style=\"" + (isElementAnchored ? " display:none;" : "") + IE8filterFIx + "\""); // hide it until setLabelChildHeight is calculated
 			instrumentedBodyText.append(" src=\"");
 			instrumentedBodyText.append(imgURL);
 			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
