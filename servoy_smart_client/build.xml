@@ -116,7 +116,7 @@
 			
 			<pathelement path="../servoy_shared/lib/slf4j-log4j.jar"/>
 			
-			<pathelement path="../servoy_shared/lib/wicketstuff-calendar.jar"/>
+			<pathelement path="../servoy_shared/lib/wicket-calendar.jar"/>
 			
 			<pathelement path="../servoy_shared/lib/wicket-extentions.jar"/>
 			

@@ -39,7 +39,7 @@ Bundle-ClassPath: .,
  lib/minis.jar,
  lib/xstream.jar,
  lib/prompt.jar,
- lib/wicketstuff-calendar.jar
+ lib/wicket-calendar.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_base;visibility:=reexport
 Export-Package: antlr,
