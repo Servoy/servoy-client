@@ -20,9 +20,6 @@ package com.servoy.j2db.ui.scripting;
 import java.awt.Dimension;
 import java.awt.Insets;
 
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-
 import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IRect;
@@ -58,11 +55,6 @@ public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implem
 	{
 		Dimension newSize = new Dimension(width, height);
 		setComponentSize(newSize);
-		Border border = getComponent().getBorder();
-		boolean isTitledComponent = border instanceof TitledBorder;
-		int lineWidth = getComponent().getLineWidth();
-		// titled border in web client is special case
-		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, isTitledComponent ? null : border,
-			isTitledComponent ? new Insets(0, 0, 0, 0) : new Insets(lineWidth, lineWidth, lineWidth, lineWidth), 0);
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), new Insets(0, 0, 0, 0), 0);
 	}
 }
