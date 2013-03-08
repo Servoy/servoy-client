@@ -252,11 +252,14 @@ public class WebFormManager extends FormManager
 							{
 								navigatorName = fp.getName();
 								FormController navigator = getFormController(navigatorName, parent);
-								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-								navigator.notifyVisible(true, invokeLaterRunnables);
-								Utils.invokeLater(getApplication(), invokeLaterRunnables);
-								parent.setNavigator(navigator);
-//								parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set
+								if (navigator != null)
+								{
+									List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+									navigator.notifyVisible(true, invokeLaterRunnables);
+									Utils.invokeLater(getApplication(), invokeLaterRunnables);
+									parent.setNavigator(navigator);
+									//parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set
+								}
 							}
 
 							FormController previousMainShowingForm = (parent != null ? parent.getController() : null);
