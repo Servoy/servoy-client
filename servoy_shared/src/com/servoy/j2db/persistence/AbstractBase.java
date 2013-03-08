@@ -568,7 +568,7 @@ public abstract class AbstractBase implements IPersist
 		return false;
 	}
 
-	private final Object hascCodeObject = new Object();
+	private final int hashCodeNr = new Object().hashCode();
 
 	/**
 	 * @see java.lang.Object#hashCode()
@@ -577,7 +577,7 @@ public abstract class AbstractBase implements IPersist
 	public int hashCode()
 	{
 		// Use separate hashcode object so hashCode() is stable for cloned object, when used as key in map a clone should match.
-		return hascCodeObject.hashCode();
+		return hashCodeNr;
 	}
 
 	protected void checkForNameChange(String oldValue, String newValue)

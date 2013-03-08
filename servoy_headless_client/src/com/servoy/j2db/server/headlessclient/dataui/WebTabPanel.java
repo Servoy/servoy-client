@@ -142,7 +142,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			}
 		};
 
-		if (orient != TabPanel.HIDE && orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL && !(orient == TabPanel.DEFAULT_ORIENTATION && oneTab))
+		if (orient != TabPanel.HIDE && orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL &&
+			!(orient == TabPanel.DEFAULT_ORIENTATION && oneTab))
 		{
 			add(new Loop("tablinks", tabsModel) //$NON-NLS-1$
 			{
@@ -855,22 +856,19 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
 	{
 		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId));
-		insertTab(text, iconData, flp, tip, allTabs.size());
+		insertTab(text, iconData, flp, tip, allTabs.size(), false);
 	}
 
-	public void addTab(String text, byte[] iconData, IFormLookupPanel flp, String tip)
-	{
-		insertTab(text, iconData, flp, tip, allTabs.size());
-	}
-
-	public void insertTab(String text, byte[] iconData, IFormLookupPanel flp, String tip, int index)
+	public void insertTab(String text, byte[] iconData, IFormLookupPanel flp, String tip, int index, boolean loaded)
 	{
 		allTabs.add(index, new WebTabHolder(text, flp, iconData, tip));
 		allRelationNames.add(index, flp.getRelationName());
 		getStylePropertyChanges().setChanged();
 
-		if (allTabs.size() == 1)
+		if (allTabs.size() == 1 && loaded)
 		{
+			// it's the new active one! If the tabPanel is not loaded, don't do this because it will break execution order (it will be done when tabPanel gets shown)
+			// (renderers are now being created - forms initialisation not complete, and we shouldn't generate any JS callbacks like notifyVisible() and such which can access these forms)
 			setActiveTabPanel((WebTabFormLookup)flp);
 		}
 	}
@@ -911,12 +909,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		if (tabIndex == -1 || tabIndex >= count)
 		{
 			tabIndex = count;
-			addTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip));
 		}
-		else
-		{
-			insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip), tabIndex);
-		}
+
+		insertTab(application.getI18NMessageIfPrefixed(tabText), iconData, flp, application.getI18NMessageIfPrefixed(tabtooltip), tabIndex, true);
+
 		if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
 		if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
 
