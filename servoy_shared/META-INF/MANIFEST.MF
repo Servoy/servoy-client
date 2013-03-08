@@ -20,7 +20,6 @@ Bundle-ClassPath: .,
  lib/servlet-api.jar,
  lib/slf4j-api.jar,
  lib/slf4j-log4j.jar,
- lib/wicket-calendar.jar,
  lib/wicket-extentions.jar,
  lib/wicket.jar,
  lib/commons-pool.jar,
@@ -39,7 +38,8 @@ Bundle-ClassPath: .,
  lib/PBKDF2.jar,
  lib/minis.jar,
  lib/xstream.jar,
- lib/prompt.jar
+ lib/prompt.jar,
+ lib/wicketstuff-calendar.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_base;visibility:=reexport
 Export-Package: antlr,

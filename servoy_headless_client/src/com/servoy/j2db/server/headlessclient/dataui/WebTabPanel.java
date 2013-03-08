@@ -916,6 +916,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		if (fg != null) setTabForegroundAt(tabIndex, PersistHelper.createColor(fg));
 		if (bg != null) setTabBackgroundAt(tabIndex, PersistHelper.createColor(bg));
 
+		// TODO is this if really needed? (insertTab might activate the new tab, but loadData based on relationName only; if it
+		// doesn't activate... will ever currentForm == flp?)
+		// if the relatedFs is based on a different record then parentState, it would be wrong to use it... maybe we should only use the relationName
+		// from the relatedFs - which is already in the relationName param
 		if (relatedFs != null && currentForm == flp)
 		{
 			FormController fp = flp.getWebForm().getController();
@@ -924,6 +928,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 				fp.loadData(relatedFs, null);
 			}
 		}
+
 		return true;
 	}
 

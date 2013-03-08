@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/wicketstuff-calendar.jar" sourcepath="libsrc/wicketstuff-calendar-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/minis.jar" sourcepath="libsrc/minis-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/PBKDF2.jar" sourcepath="libsrc/PBKDF2-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
@@ -18,7 +19,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/wicket-calendar.jar" sourcepath="libsrc/wicket-calendar-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/wicket-extentions.jar" sourcepath="libsrc/wicket-extentions-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/wicket.jar" sourcepath="libsrc/wicket-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr.jar"/>
