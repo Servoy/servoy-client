@@ -1226,10 +1226,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				else if (isNavigator)
 				{
 					FormController navigator = ((FormManager)getFormManager()).getFormController(name, container);
-					navigator.loadData(foundSet, null);
-					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-					navigator.notifyVisible(true, invokeLaterRunnables);
-					Utils.invokeLater(this, invokeLaterRunnables);
+					if (navigator != null)
+					{
+						navigator.loadData(foundSet, null);
+						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+						navigator.notifyVisible(true, invokeLaterRunnables);
+						Utils.invokeLater(this, invokeLaterRunnables);
+					}
 					mainPanel.setNavigator(navigator);
 				}
 				else if (isWindow)
