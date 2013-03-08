@@ -29,6 +29,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.constants.IFieldConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMField;
@@ -54,6 +55,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
+@ServoyMobileFilterOut
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, IJavaScriptType, ISMPortal
 {
