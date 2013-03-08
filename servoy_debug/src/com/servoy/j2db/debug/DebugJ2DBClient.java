@@ -1213,11 +1213,15 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				{
 					FormLookupPanel flp = (FormLookupPanel)container;
 					FormController newFormController = flp.getFormPanel();
-					newFormController.loadData(foundSet, null);
+					if (newFormController != null)
+					{
+						// deleted in developer ?
+						newFormController.loadData(foundSet, null);
 
-					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-					newFormController.notifyVisible(true, invokeLaterRunnables);
-					Utils.invokeLater(this, invokeLaterRunnables);
+						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+						newFormController.notifyVisible(true, invokeLaterRunnables);
+						Utils.invokeLater(this, invokeLaterRunnables);
+					}
 				}
 				else if (isNavigator)
 				{

@@ -222,11 +222,15 @@ public class WebFormManager extends FormManager
 					if (formVisible)
 					{
 						FormController fc = leaseFormPanel(fp.getName());
-						fc.loadData(foundset, null);
-						if (refresh) fc.recreateUI();
-						List<Runnable> runnables = new ArrayList<Runnable>();
-						((IWebFormContainer)wfParent).notifyVisible(true, runnables);
-						Utils.invokeLater(getApplication(), runnables);
+						if (fc != null)
+						{
+							// form was deleted in developer?
+							fc.loadData(foundset, null);
+							if (refresh) fc.recreateUI();
+							List<Runnable> runnables = new ArrayList<Runnable>();
+							((IWebFormContainer)wfParent).notifyVisible(true, runnables);
+							Utils.invokeLater(getApplication(), runnables);
+						}
 					}
 				}
 				else if (wfParent != null)
