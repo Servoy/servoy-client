@@ -939,7 +939,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 
 	public Rectangle getWebBounds()
 	{
-		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, margin, 0, null);
+		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, null, null, 0, null);
 		return new Rectangle(location, d);
 	}
 
@@ -948,7 +948,7 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
+		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, null, null, 0, null);
 	}
 
 	public void setSize(Dimension size)
