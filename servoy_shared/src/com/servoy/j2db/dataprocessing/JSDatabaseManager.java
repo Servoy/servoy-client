@@ -995,7 +995,9 @@ public class JSDatabaseManager
 	 * Performs a sql query on the specified server, saves the the result in a datasource.
 	 * Will throw an exception if anything went wrong when executing the query.
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
-	 *
+	 * 
+	 * <br>Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be disregarded.
+	 * 
 	 * @sample
 	 * var query = 'select address, city, country  from customers';
 	 * var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999);
@@ -1064,7 +1066,7 @@ public class JSDatabaseManager
 	 * Will throw an exception if anything went wrong when executing the query.
 	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
 	 * 
-	 * <br>Table filters on the involved tables in the query are applied.
+	 * <br>Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be taken into account.
 	 *
 	 * @sample
 	 * // select customer data for order 1234
@@ -1120,6 +1122,8 @@ public class JSDatabaseManager
 	 * Performs a sql query on the specified server, returns the result in a dataset.
 	 * Will throw an exception if anything did go wrong when executing the query.
 	 *
+	 * <br>Using this variation of getDataSetByQuery any Tablefilter on the involved tables will be disregarded.
+	 * 
 	 * @sample
 	 * //finds duplicate records in a specified foundset
 	 * var vQuery =" SELECT companiesid from companies where company_name IN (SELECT company_name from companies group bycompany_name having count(company_name)>1 )";
@@ -1195,7 +1199,7 @@ public class JSDatabaseManager
 	 * Performs a sql query with a query builder object.
 	 * Will throw an exception if anything did go wrong when executing the query.
 	 *
-	 * <br>Table filters on the involved tables in the query are applied.
+	 * <br>Using this variation of getDataSetByQuery any Tablefilter on the involved tables will be taken into account.
 	 * 
 	 * @sample
 	 * // use the query froma foundset and add a condition
