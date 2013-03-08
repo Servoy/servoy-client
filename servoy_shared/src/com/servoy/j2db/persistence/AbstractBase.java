@@ -568,7 +568,7 @@ public abstract class AbstractBase implements IPersist
 		return false;
 	}
 
-	private final int hashCodeNr = new Random().nextInt();
+	private final int hashCodeNr = new Object().hashCode();
 
 	/**
 	 * @see java.lang.Object#hashCode()
