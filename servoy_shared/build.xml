@@ -120,8 +120,6 @@
 			
 			<pathelement path="lib/slf4j-log4j.jar"/>
 			
-			<pathelement path="lib/wicket-calendar.jar"/>
-			
 			<pathelement path="lib/wicket-extentions.jar"/>
 			
 			<pathelement path="lib/wicket.jar"/>
@@ -159,6 +157,8 @@
 			<pathelement path="lib/xstream.jar"/>
 			
 			<pathelement path="lib/prompt.jar"/>
+			
+			<pathelement path="lib/wicket-calendar.jar"/>
 			
 			<pathelement path="lib/tim-api.jar"/>
 		</path>
@@ -271,7 +271,6 @@
 				<include name="lib/mail.jar"/>
 				<include name="lib/servlet-api.jar"/>
 				<include name="lib/slf4j-api.jar"/>
-				<include name="lib/wicket-calendar.jar"/>
 				<include name="lib/wicket-extentions.jar"/>
 				<include name="lib/wicket.jar"/>
 				<include name="lib/commons-pool.jar"/>
@@ -293,6 +292,7 @@
 				<include name="lib/minis.jar"/>
 				<include name="lib/xstream.jar"/>
 				<include name="lib/prompt.jar"/>
+				<include name="lib/wicket-calendar.jar"/>
 			</fileset>
 		</copy>
 		<antcall target="apitools.generation">
