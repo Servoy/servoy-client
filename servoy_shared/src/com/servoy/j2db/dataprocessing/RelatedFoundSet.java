@@ -945,6 +945,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			catch (Exception ex)
 			{
+				Debug.error(ex);
 				throw new RuntimeException("Error quering for new pks in relatedfoundset", ex); //$NON-NLS-1$
 			}
 		}
