@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -32,6 +33,7 @@ import org.wicketstuff.calendar.markup.html.form.DatePicker;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
@@ -273,6 +275,9 @@ public class WebDataCalendar extends WebDataCompositeTextField
 					Debug.error(e);
 				}
 			}
+			int webModifier = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER));
+			WebEventExecutor.setSelectedIndex(getComponent(), target, WebEventExecutor.convertModifiers(webModifier), true);
+			WebEventExecutor.generateResponse(target, findPage());
 		}
 
 		@Override
