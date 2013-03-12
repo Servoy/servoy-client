@@ -25,7 +25,6 @@ import java.awt.Image;
 import java.awt.Paint;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.awt.image.PixelGrabber;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
@@ -722,6 +721,24 @@ public class ImageLoader
 		return null;
 	}
 
+	public static boolean imageHasAlpha(java.awt.Image image, long pixelGrabberTimeout)
+	{
+		if (image instanceof BufferedImage)
+		{
+			return ((BufferedImage)image).getColorModel().hasAlpha();
+		}
+
+		PixelGrabber pg = new PixelGrabber(image, 0, 0, 1, 1, false);
+		try
+		{
+			pg.grabPixels(pixelGrabberTimeout);
+		}
+		catch (InterruptedException e)
+		{
+			return false;
+		}
+		return pg.getColorModel() != null && pg.getColorModel().hasAlpha();
+	}
 
 	// This method returns a buffered image with the contents of an image
 	public static BufferedImage imageToBufferedImage(Image image)
@@ -735,7 +752,7 @@ public class ImageLoader
 		image = new ImageIcon(image).getImage();
 
 		// Determine if the image has transparent pixels
-		boolean hasAlpha = imageHasAlpha(image);
+		boolean hasAlpha = imageHasAlpha(image, 0);
 
 		BufferedImage bimage = null;
 
@@ -757,35 +774,6 @@ public class ImageLoader
 		return bimage;
 	}
 
-
-	// This method returns true if the specified image has transparent pixels
-	public static boolean imageHasAlpha(Image image)
-	{
-		// If buffered image, the color model is readily available
-		if (image instanceof BufferedImage)
-		{
-			BufferedImage bimage = (BufferedImage)image;
-			return bimage.getColorModel().hasAlpha();
-		}
-
-		// Use a pixel grabber to retrieve the image's color model;
-		// grabbing a single pixel is usually sufficient
-		PixelGrabber pg = new PixelGrabber(image, 0, 0, 1, 1, false);
-		try
-		{
-			pg.grabPixels();
-		}
-		catch (InterruptedException e)
-		{
-			Debug.error(e);
-		}
-
-		// Get the image's color model
-		ColorModel cm = pg.getColorModel();
-
-		return cm != null ? cm.hasAlpha() : false;
-	}
-
 	public static void paintImage(Graphics graphics, IStyleRule styleRule, IApplication application, Dimension parentSize)
 	{
 		if (styleRule != null && styleRule.hasAttribute(CSS.Attribute.BACKGROUND_IMAGE.toString()))
@@ -801,33 +789,6 @@ public class ImageLoader
 				paintGradientColor(graphics, styleRule, application, url, parentSize);
 			}
 		}
-	}
-
-	public static boolean hasAlpha(ImageIcon imageIcon)
-	{
-		boolean hasAlpha = false;
-		if (imageIcon != null)
-		{
-			Image image = imageIcon.getImage();
-			if (image instanceof BufferedImage)
-			{
-				hasAlpha = ((BufferedImage)image).getColorModel().hasAlpha();
-			}
-			else
-			{
-				PixelGrabber pg = new PixelGrabber(image, 0, 0, 1, 1, false);
-				try
-				{
-					pg.grabPixels();
-					hasAlpha = pg.getColorModel().hasAlpha();
-				}
-				catch (InterruptedException e)
-				{
-					Debug.error(e);
-				}
-			}
-		}
-		return hasAlpha;
 	}
 
 	private static void paintBackgroundImage(Graphics graphics, IStyleRule styleRule, IApplication application, String url, Dimension parentSize)
