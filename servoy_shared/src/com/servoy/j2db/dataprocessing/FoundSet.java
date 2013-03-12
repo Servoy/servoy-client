@@ -1084,7 +1084,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean cancelFind() throws ServoyException
 	{
 		// revert to foundset as before find mode
-		performFind(false, false, false, true, null); // cancel find mode
+		performFind(false, false, true, true, null); // cancel find mode
 		return !findMode;
 	}
 
