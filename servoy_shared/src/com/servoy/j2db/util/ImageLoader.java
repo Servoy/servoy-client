@@ -803,6 +803,33 @@ public class ImageLoader
 		}
 	}
 
+	public static boolean hasAlpha(ImageIcon imageIcon)
+	{
+		boolean hasAlpha = false;
+		if (imageIcon != null)
+		{
+			Image image = imageIcon.getImage();
+			if (image instanceof BufferedImage)
+			{
+				hasAlpha = ((BufferedImage)image).getColorModel().hasAlpha();
+			}
+			else
+			{
+				PixelGrabber pg = new PixelGrabber(image, 0, 0, 1, 1, false);
+				try
+				{
+					pg.grabPixels();
+					hasAlpha = pg.getColorModel().hasAlpha();
+				}
+				catch (InterruptedException e)
+				{
+					Debug.error(e);
+				}
+			}
+		}
+		return hasAlpha;
+	}
+
 	private static void paintBackgroundImage(Graphics graphics, IStyleRule styleRule, IApplication application, String url, Dimension parentSize)
 	{
 		int start = url.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
