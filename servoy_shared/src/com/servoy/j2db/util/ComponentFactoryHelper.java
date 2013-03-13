@@ -519,26 +519,38 @@ public class ComponentFactoryHelper
 						float right = Utils.getAsFloat(tk.nextToken());
 						float bottom = Utils.getAsFloat(tk.nextToken());
 						float left = Utils.getAsFloat(tk.nextToken());
-						StringBuffer pad = new StringBuffer();
-						pad.append(Math.round(top));
-						pad.append("px "); //$NON-NLS-1$
-						pad.append(Math.round(right));
-						pad.append("px "); //$NON-NLS-1$
-						pad.append(Math.round(bottom));
-						pad.append("px "); //$NON-NLS-1$
-						pad.append(Math.round(left));
-						pad.append("px"); //$NON-NLS-1$
-						style.setProperty("border-width", pad.toString()); //$NON-NLS-1$
 
-						Color topColor = PersistHelper.createColor(tk.nextToken());
-						Color rightColor = PersistHelper.createColor(tk.nextToken());
-						Color bottomColor = PersistHelper.createColor(tk.nextToken());
-						Color leftColor = PersistHelper.createColor(tk.nextToken());
+						StringBuffer tmp = new StringBuffer();
+						tmp.append(Math.round(top));
+						tmp.append("px "); //$NON-NLS-1$
+						tmp.append(Math.round(right));
+						tmp.append("px "); //$NON-NLS-1$
+						tmp.append(Math.round(bottom));
+						tmp.append("px "); //$NON-NLS-1$
+						tmp.append(Math.round(left));
+						tmp.append("px"); //$NON-NLS-1$
+						style.setProperty("border-width", tmp.toString()); //$NON-NLS-1$
 
-						style.setProperty(CSSName.BORDER_TOP_COLOR.toString(), PersistHelper.createColorString(topColor));
-						style.setProperty(CSSName.BORDER_RIGHT_COLOR.toString(), PersistHelper.createColorString(rightColor));
-						style.setProperty(CSSName.BORDER_BOTTOM_COLOR.toString(), PersistHelper.createColorString(bottomColor));
-						style.setProperty(CSSName.BORDER_LEFT_COLOR.toString(), PersistHelper.createColorString(leftColor));
+						String topColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
+						String rightColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
+						String bottomColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
+						String leftColor = PersistHelper.createColorString(PersistHelper.createColor(tk.nextToken()));
+
+//						style.setProperty(CSSName.BORDER_TOP_COLOR.toString(), topColor);
+//						style.setProperty(CSSName.BORDER_RIGHT_COLOR.toString(), rightColor);
+//						style.setProperty(CSSName.BORDER_BOTTOM_COLOR.toString(), bottomColor);
+//						style.setProperty(CSSName.BORDER_LEFT_COLOR.toString(), leftColor);
+
+						tmp.setLength(0);
+						tmp.append(topColor);
+						tmp.append(" "); //$NON-NLS-1$
+						tmp.append(rightColor);
+						tmp.append(" "); //$NON-NLS-1$
+						tmp.append(bottomColor);
+						tmp.append(" "); //$NON-NLS-1$
+						tmp.append(leftColor);
+						tmp.append(" "); //$NON-NLS-1$
+						style.setProperty(CSSName.BORDER_COLOR_SHORTHAND.toString(), tmp.toString());
 
 						style.setProperty("border-style", "solid"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (tk.hasMoreTokens())
