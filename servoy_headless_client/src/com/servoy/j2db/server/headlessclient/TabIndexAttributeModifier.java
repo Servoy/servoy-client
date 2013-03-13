@@ -17,7 +17,10 @@
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.model.Model;
+
+import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlView;
 
 /**
  * An {@link AttributeModifier} that takes care of the TabIndex.
@@ -61,6 +64,20 @@ public class TabIndexAttributeModifier extends AttributeModifier
 	public int getTabIndex()
 	{
 		return ((TabIndexModel)getReplaceModel()).tabIndex;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.AttributeModifier#isEnabled(org.apache.wicket.Component)
+	 */
+	@Override
+	public boolean isEnabled(Component component)
+	{
+		// special case for the html view, thats just a div, doesn't need
+		// to add a tabIndex, but it does need it to push it to its content (anchors)
+		if (component instanceof WebDataHtmlView) return false;
+		return super.isEnabled(component);
 	}
 
 }

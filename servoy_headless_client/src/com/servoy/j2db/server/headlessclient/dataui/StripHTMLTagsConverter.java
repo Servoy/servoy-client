@@ -43,6 +43,7 @@ import org.apache.wicket.util.value.IValueMap;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
+import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -276,6 +277,12 @@ public class StripHTMLTagsConverter implements IConverter
 
 				boolean ignoreOnclick = false;
 				IValueMap attributeMap = me.getAttributes();
+				// first transfer over the tabindex to anchor tags
+				if (currentTagName.equals("a"))
+				{
+					int tabIndex = TabIndexHelper.getTabIndex(component);
+					if (tabIndex != -1) attributeMap.put("tabindex", Integer.valueOf(tabIndex));
+				}
 				// TODO attributes with casing?
 				// now they have to be lowercase. (that is a xhtml requirement)
 				for (String attribute : scanTags)
