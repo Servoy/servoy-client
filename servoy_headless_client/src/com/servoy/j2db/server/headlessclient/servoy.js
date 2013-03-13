@@ -747,51 +747,47 @@ if (typeof(Servoy.TableView) == "undefined")
  
 					if(el.tagName && el.tagName.toLowerCase() != "td")
 					{
-						var bStyleTop = " ";
-						var bStyleBottom = " ";
-						var bStyleLeft = " ";
-						var bStyleRight = " ";
+						var bStyleTop = "";
+						var bStyleBottom = "";
+						var bStyleLeft = "";
+						var bStyleRight = "";
+						var changing = true;
 						
+						if (!el.styleBackup) el.styleBackup = {};
 						if(borderWidth != '' || borderStyle != '' || borderColor != '')
 						{
 							var bordersWidth = borderWidth.split(' ');
-							var defaultBorderWidth = bordersWidth.length > 0 ? bordersWidth[0] : '' 
+							var defaultBorderWidth = bordersWidth.length > 0 ? bordersWidth[0] + " " : '' 
 							
-							bStyleTop = defaultBorderWidth + " " + borderStyle + " " + borderColor;
-							bStyleRight = (bordersWidth.length > 1 ? bordersWidth[1] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;							
-							bStyleBottom = (bordersWidth.length > 2 ? bordersWidth[2] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;
-							bStyleLeft = (bordersWidth.length > 3 ? bordersWidth[3] : defaultBorderWidth) + " " + borderStyle + " " + borderColor;
+							var borderColors = borderColor.split(' ');
+							var defaultBorderColor = borderColors.length > 0 ? " " + borderColors[0] : '' 
+							
+							bStyleTop = defaultBorderWidth + borderStyle + defaultBorderColor;
+							bStyleRight = (bordersWidth.length > 1 ? bordersWidth[1] + " " : defaultBorderWidth) + borderStyle + (borderColors.length > 1 ? " " + borderColors[1] : defaultBorderColor);							
+							bStyleBottom = (bordersWidth.length > 2 ? bordersWidth[2] + " " : defaultBorderWidth) + borderStyle + (borderColors.length > 2 ? " " + borderColors[2] : defaultBorderColor);
+							bStyleLeft = (bordersWidth.length > 3 ? bordersWidth[3] + " " : defaultBorderWidth) + borderStyle + (borderColors.length > 3 ? " " + borderColors[3] : defaultBorderColor);
+						} else {
+							// restore previous style if any
+							changing = false;
+							if (el.styleBackup.bStyleTop) bStyleTop = el.styleBackup.bStyleTop;
+							if (el.styleBackup.bStyleRight) bStyleRight = el.styleBackup.bStyleRight;
+							if (el.styleBackup.bStyleBottom) bStyleBottom = el.styleBackup.bStyleBottom;
+							if (el.styleBackup.bStyleLeft) bStyleLeft = el.styleBackup.bStyleLeft;
 						}
+						if (changing) el.styleBackup.bStyleTop = el.style.borderTop;
 						el.style.borderTop = bStyleTop;
+						if (changing) el.styleBackup.bStyleBottom = el.style.borderBottom;
 						el.style.borderBottom = bStyleBottom;
-
-					// helper function
-                   var resetStyleForIE =  function(el) {
-					  if(jQuery.browser.msie  ) { 
-		                        // border width
-		                    if( bStyleTop == " ") el.style.borderTopWidth = "";
-		                   	if( bStyleBottom == " ") el.style.borderBottomWidth = "";	
-		                   	if( bStyleLeft == " ") el.style.borderLeftWidth = "";						
-							if( bStyleRight == " ") el.style.borderRightWidth = "";
-														
-								//padding  
-							if( bStyleTop == " ") el.style.borderBottomColor = "" ;
-							if( bStyleBottom == " ") el.style.borderTopColor = "" ;
-							if( bStyleLeft == " ") el.style.borderLeftColor = "" ;
-							if( bStyleRight == " ") el.style.borderRightColor = "" ;    
-						}               
-	                }
-						resetStyleForIE(el);
 						
 						if(Servoy.TableView.isInFirstTD(el))// ||( jQuery.browser.msie && jQuery.browser.version < 9 ))
 						{
+							if (changing) el.styleBackup.bStyleLeft = el.style.borderLeft;
 							el.style.borderLeft = bStyleLeft;
-							resetStyleForIE(el);
 						}
 						else if(Servoy.TableView.isInLastTD(el))
 						{
+							if (changing) el.styleBackup.bStyleRight = el.style.borderRight;
 							el.style.borderRight = bStyleRight;
-						   resetStyleForIE(el);
 						}
 					}
 				}
