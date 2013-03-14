@@ -37,7 +37,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1097,29 +1096,34 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 
-	public void refreshForI18NChange()
+	public void refreshForI18NChange(boolean recreateForms)
 	{
 		if (shutDown) return;
 		refreshI18NMessages();
 
-		Set<IPersist> formsToReload = new HashSet<IPersist>();
-		for (FormController fc : ((FormManager)getFormManager()).getCachedFormControllers())
+		if (recreateForms)
 		{
-			Form form = fc.getForm();
-			if (form instanceof FlattenedForm)
+			Runnable run = new Runnable()
 			{
-				// find the design-time forms that are in use, un-flatten when needed.
-				for (Form f : getFlattenedSolution().getFormHierarchy(((FlattenedForm)form).getWrappedPersist()))
+				@Override
+				public void run()
 				{
-					formsToReload.add(f);
+					for (FormController fc : ((FormManager)getFormManager()).getCachedFormControllers())
+					{
+						fc.recreateUI();
+					}
+
 				}
+			};
+			if (SwingUtilities.isEventDispatchThread())
+			{
+				run.run();
 			}
 			else
 			{
-				formsToReload.add(form);
+				SwingUtilities.invokeLater(run);
 			}
 		}
-		refreshPersists(formsToReload);
 	}
 
 	/**

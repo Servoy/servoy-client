@@ -18,6 +18,7 @@ package com.servoy.j2db.debug;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -157,7 +158,8 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	private Form form;
 
-	private final List<List<IPersist>> changesQueue = new ArrayList<List<IPersist>>();
+	private final List<List<IPersist>> changesQueue = Collections.synchronizedList(new ArrayList<List<IPersist>>());
+	private final List<List<FormController>> recreateUISet = Collections.synchronizedList(new ArrayList<List<FormController>>());
 
 	private boolean performRefresh()
 	{
@@ -165,6 +167,15 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		while (changesQueue.size() > 0)
 		{
 			performRefresh(changesQueue.remove(0));
+		}
+		if (!changed) changed = recreateUISet.size() > 0;
+		while (recreateUISet.size() > 0)
+		{
+			List<FormController> lst = recreateUISet.remove(0);
+			for (FormController fc : lst)
+			{
+				fc.recreateUI();
+			}
 		}
 		return changed;
 	}
@@ -174,7 +185,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
-		refreshI18NMessages();
 		for (FormController controller : scopesAndFormsToReload[0])
 		{
 			if (controller.getForm() instanceof FlattenedForm)
@@ -188,13 +198,15 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		if (scopesAndFormsToReload[1].size() > 0) ((WebFormManager)getFormManager()).reload((scopesAndFormsToReload[1]).toArray(new FormController[0]));
 	}
 
-	public void refreshForI18NChange()
+	public void refreshForI18NChange(boolean recreateForms)
 	{
-		List<FormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
-		ArrayList<IPersist> formsToReload = new ArrayList<IPersist>();
-		for (FormController fc : cachedFormControllers)
-			formsToReload.add(fc.getForm());
-		refreshPersists(formsToReload);
+		refreshI18NMessages();
+
+		if (recreateForms)
+		{
+			List<FormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
+			recreateUISet.add(cachedFormControllers);
+		}
 	}
 
 	/**

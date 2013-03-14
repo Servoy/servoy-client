@@ -42,7 +42,8 @@ import com.servoy.j2db.server.shared.IUserManager;
 public interface IDebugClientHandler
 {
 
-	ISessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects, String preferedSolution) throws Exception;
+	ISessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects, String preferedSolution)
+		throws Exception;
 
 	ISessionClient createDebugAuthenticator(String authenticatorName, String method, Object[] objects) throws Exception;
 
@@ -75,7 +76,7 @@ public interface IDebugClientHandler
 
 	void showInDebugClients(Form form);
 
-	public void refreshDebugClientsI18N();
+	public void refreshDebugClientsI18N(boolean recreateForms);
 
 	void refreshDebugClients(Collection<IPersist> changes);
 

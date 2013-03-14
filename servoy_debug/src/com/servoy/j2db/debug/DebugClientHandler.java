@@ -125,11 +125,11 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	}
 
 
-	public void refreshDebugClientsI18N()
+	public void refreshDebugClientsI18N(boolean recreateForms)
 	{
-		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshForI18NChange();
-		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null) jsunitJ2DBClient.refreshForI18NChange();
-		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshForI18NChange();
+		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshForI18NChange(recreateForms);
+		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null) jsunitJ2DBClient.refreshForI18NChange(recreateForms);
+		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshForI18NChange(recreateForms);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshForI18NChange();
 		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshForI18NChange();
 	}
