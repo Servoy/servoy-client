@@ -482,6 +482,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 					}
 					catch (RemoteException e)
 					{
+						throw new RepositoryException(e);
 					}
 				}
 			}
