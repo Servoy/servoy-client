@@ -2948,6 +2948,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (form != null)
 		{
 			deletePersistCopy(form, true);
+			form = getForm(name);
 			registerChangedForm(form);
 		}
 		return form;
