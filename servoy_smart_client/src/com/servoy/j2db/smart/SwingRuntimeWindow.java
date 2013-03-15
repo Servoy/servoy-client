@@ -278,7 +278,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		super.showTextToolbar(showTextToolbar);
 		if (wrappedWindow instanceof RootPaneContainer)
 		{
-			applyTextToolbar((RootPaneContainer)wrappedWindow);
+			applyToolbar((RootPaneContainer)wrappedWindow);
 		}
 	}
 
@@ -674,7 +674,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	{
 		if (fp != null && fp.getName().equals(formName))
 		{
-			applyTextToolbar((RootPaneContainer)wrappedWindow);
+			applyToolbar((RootPaneContainer)wrappedWindow);
 
 			if (wrappedWindowMenuBar != null && wrappedWindow instanceof JFrame)
 			{
@@ -846,7 +846,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		return textToolbar;
 	}
 
-	private void applyTextToolbar(RootPaneContainer window)
+	private void applyToolbar(RootPaneContainer window)
 	{
 		if (showTextToolbar)
 		{
@@ -854,12 +854,8 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			{
 				textToolbar = new TextToolbar(application);
 			}
-			if (toolbarPanel == null)
-			{
-				toolbarPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
-				toolbarPanel.addToolbar(textToolbar, 0);
-				window.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
-			}
+			if (toolbarPanel == null) toolbarPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
+			toolbarPanel.addToolbar(textToolbar, 0);
 		}
 		else
 		{
@@ -869,6 +865,11 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				textToolbar = null;
 				toolbarPanel = null;
 			}
+		}
+		//if there is a toolbar show the pannel
+		if (toolbarPanel != null && toolbarPanel.getToolBarNames().length > 0)
+		{
+			window.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
 		}
 		if (isVisible())
 		{
@@ -949,6 +950,21 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	public void resetBounds()
 	{
 		Settings.getInstance().deleteBounds(windowName, application.getSolutionName());
+	}
+
+
+	@Override
+	public void setToolbarPanel(ToolbarPanel toolbar)
+	{
+		toolbarPanel = toolbar;
+
+	}
+
+
+	@Override
+	public ToolbarPanel getToolbarPanel()
+	{
+		return toolbarPanel;
 	}
 
 }

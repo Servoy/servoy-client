@@ -21,6 +21,8 @@ import java.awt.Window;
 
 import javax.swing.JMenuBar;
 
+import com.servoy.j2db.util.toolbar.ToolbarPanel;
+
 /**
  * This interface represents a window in smart client.
  * <p>
@@ -36,5 +38,10 @@ public interface ISmartRuntimeWindow extends IRuntimeWindow
 
 	public JMenuBar getJMenuBar();
 
+	public void setToolbarPanel(ToolbarPanel toolbar);
+
+	public ToolbarPanel getToolbarPanel();
+
 	public Window getWindow();
+
 }
