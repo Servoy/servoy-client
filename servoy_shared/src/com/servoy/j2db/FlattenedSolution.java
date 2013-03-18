@@ -297,15 +297,16 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 		else if (exists && !revertToOriginal)
 		{
-			allObjectscache = null;
 			if (realPersist != null)
 			{
 				removedPersist.add(realPersist);
+				flush(realPersist);
 			}
 			else
 			{
 				removedPersist.add(persist);
 			}
+			flush(persist);
 		}
 	}
 
@@ -2923,10 +2924,6 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 	}
 
-	/**
-	 * @param name
-	 * @return
-	 */
 	public Form revertForm(String name)
 	{
 		Form form = getForm(name);
