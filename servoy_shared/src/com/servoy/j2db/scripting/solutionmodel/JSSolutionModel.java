@@ -58,6 +58,7 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMRelation;
+import com.servoy.j2db.solutionmodel.ISMUnits;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -544,7 +545,7 @@ public class JSSolutionModel implements ISolutionModel
 	 * var bytes3 = plugins.file.readFile('D:/Imgs/image3.jpg');
 	 * var image3 = solutionModel.newMedia('image3.jpg',bytes3);
 	 * 
-	 * var f = solutionModel.newForm("newForm",currentcontroller.getDataSource(),null,false,500,350);
+	 * var f = solutionModel.newForm("newForm",databaseManager.getDataSource('example_data', 'orders'),null,false,500,350);
 	 * var l = f.newLabel('', 20, 70, 300, 200);
 	 * l.imageMedia = image1;
 	 * l.borderType =  solutionModel.createLineBorder(4,'#ff0000');
@@ -1171,7 +1172,7 @@ public class JSSolutionModel implements ISolutionModel
 	 * Creates a new global method with the specified code in a scope.
 	 *
 	 * @sample 
-	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){currentcontroller.newRecord()}')
+	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){foundset.newRecord()}')
 	 *
 	 * @param scopeName the scope in which the method is created
 	 * @param code the specified code for the global method
@@ -1632,7 +1633,7 @@ public class JSSolutionModel implements ISolutionModel
 	@JSFunction
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
 	{
-		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, UNITS.PIXELS);
+		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, ISMUnits.PIXELS);
 	}
 
 	/**
@@ -1649,7 +1650,7 @@ public class JSSolutionModel implements ISolutionModel
 	@JSFunction
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation)
 	{
-		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, UNITS.PIXELS);
+		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, ISMUnits.PIXELS);
 	}
 
 	/**

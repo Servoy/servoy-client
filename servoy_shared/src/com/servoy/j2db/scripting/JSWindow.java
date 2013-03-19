@@ -19,8 +19,11 @@ package com.servoy.j2db.scripting;
 
 import java.awt.Rectangle;
 
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -570,6 +573,23 @@ public class JSWindow implements IConstantsObject
 	public void js_setSize(int width, int height)
 	{
 		impl.setSize(width, height);
+	}
+
+	/**
+	 * Get the current controller from the window/dialog.
+	 * 
+	 * @sample
+	 * var formName = application.getWindow('test').currentcontroller.getName();
+	 */
+	@JSReadonlyProperty
+	public JSForm getCurrentcontroller()
+	{
+		FormController controller = impl.getCurrentController();
+		if (controller != null)
+		{
+			return controller.initForJSUsage();
+		}
+		return null;
 	}
 
 	@SuppressWarnings("nls")

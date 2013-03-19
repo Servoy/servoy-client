@@ -365,7 +365,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * var bytes3 = plugins.file.readFile('D:/Imgs/image3.jpg');
 	 * var image3 = solutionModel.newMedia('image3.jpg',bytes3);
 	 * 
-	 * var f = solutionModel.newForm("newForm",currentcontroller.getDataSource(),null,false,500,350);
+	 * var f = solutionModel.newForm("newForm",databaseManager.getDataSource('example_data', 'orders'),null,false,500,350);
 	 * var l = f.newLabel('', 20, 70, 300, 200);
 	 * l.imageMedia = image1;
 	 * forms["newForm"].controller.show();
@@ -557,7 +557,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * Creates a new global method with the specified code in a scope.
 	 *
 	 * @sample 
-	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){currentcontroller.newRecord()}')
+	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){foundset.newRecord()}')
 	 *
 	 * @param scopeName the scope in which the method is created
 	 * @param code the specified code for the global method

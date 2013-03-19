@@ -40,7 +40,7 @@ public interface IJSDatabaseManager
 	 * // when creating many records in a loop do a batch save on an interval as every 10 records (to save on memory and roundtrips)
 	 * // for (var recordIndex = 1; recordIndex <= 5000; recordIndex++) 
 	 * // {
-	 * //		currentcontroller.newRecord();
+	 * //		foundset.newRecord();
 	 * //		someColumn = recordIndex;
 	 * //		anotherColumn = "Index is: " + recordIndex;
 	 * //		if (recordIndex % 10 == 0) databaseManager.saveData();

@@ -332,7 +332,7 @@ public interface IBaseSolutionModel
 	 * Creates a new global method with the specified code in a scope.
 	 *
 	 * @sample 
-	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){currentcontroller.newRecord()}')
+	 * var method = solutionModel.newGlobalMethod('globals', 'function myglobalmethod(){foundset.newRecord()}')
 	 *
 	 * @param scopeName the scope in which the method is created
 	 * @param code the specified code for the global method

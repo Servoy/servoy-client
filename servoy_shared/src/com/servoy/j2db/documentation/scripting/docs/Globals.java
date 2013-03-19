@@ -94,12 +94,16 @@ public class Globals
 	 * Get the controller of the top level form in the currently active dialog.
 	 * 
 	 * @sample application.output("Current controller is: " + currentcontroller.getName());
+	 * 
+	 * @deprecated use forms.myform.controller instead, currentcontroller usage can be confusing when using multiple windows
 	 */
+	@Deprecated
 	public JSForm js_getCurrentcontroller()
 	{
 		return null;
 	}
 
+	@Deprecated
 	public void js_setCurrentcontroller(JSForm currentcontroller)
 	{
 	}
