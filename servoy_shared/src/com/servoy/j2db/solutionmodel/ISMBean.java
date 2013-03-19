@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.solutionmodel.IBaseSMBean;
 
 
 /**
@@ -26,7 +27,7 @@ package com.servoy.j2db.solutionmodel;
  *
  * @since 6.1
  */
-public interface ISMBean extends ISMComponent
+public interface ISMBean extends IBaseSMBean, ISMComponent
 {
 
 	/**

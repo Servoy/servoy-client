@@ -30,6 +30,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -61,6 +62,7 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.solutionmodel.ISMDefaults;
 import com.servoy.j2db.solutionmodel.ISMForm;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.Debug;
@@ -2220,6 +2222,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return a JSBean object 
 	 */
 	@JSFunction
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public JSBean newBean(String name, String className, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -2248,6 +2251,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return a JSBean object 
 	 */
 	@JSFunction
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public JSBean getBean(String name)
 	{
 		if (name == null) return null;
@@ -2283,6 +2287,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return true if the JSBean has been removed; false otherwise
 	 */
 	@JSFunction
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public boolean removeBean(String name)
 	{
 		if (name == null) return false;
@@ -3956,7 +3961,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		}
 		else if (methodid == 0 && BaseComponent.isCommandProperty(methodProperty.getPropertyName()))
 		{
-			return DEFAULTS.COMMAND_DEFAULT;
+			return ISMDefaults.COMMAND_DEFAULT;
 		}
 		return null;
 	}
@@ -3981,7 +3986,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	static int getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<Integer> methodProperty)
 	{
 		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return -1;
-		if (method == null || method == DEFAULTS.COMMAND_DEFAULT) return 0;
+		if (method == null || method == ISMDefaults.COMMAND_DEFAULT) return 0;
 		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 
