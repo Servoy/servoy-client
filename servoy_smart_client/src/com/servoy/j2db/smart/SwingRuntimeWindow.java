@@ -861,15 +861,22 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		{
 			if (textToolbar != null)
 			{
-				window.getContentPane().remove(toolbarPanel);
+				toolbarPanel.remove(textToolbar);
 				textToolbar = null;
-				toolbarPanel = null;
 			}
 		}
 		//if there is a toolbar show the pannel
-		if (toolbarPanel != null && toolbarPanel.getToolBarNames().length > 0)
+		if (toolbarPanel != null)
 		{
-			window.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
+			if (toolbarPanel.getToolBarNames().length > 0)
+			{
+				window.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
+			}
+			else
+			{
+				window.getContentPane().remove(toolbarPanel);
+				toolbarPanel = null;
+			}
 		}
 		if (isVisible())
 		{
