@@ -163,7 +163,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 
 
-		if (formAnchorInfos != null && formAnchorInfos.size() != 0 && WebClientSession.get() != null &&
+		if (formAnchorInfos != null && formAnchorInfos.size() != 0 && WebClientSession.get() != null && WebClientSession.get().getWebClient() != null &&
 			Utils.getAsBoolean(WebClientSession.get().getWebClient().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
 		{
 			if (anchorInfoChanged)
