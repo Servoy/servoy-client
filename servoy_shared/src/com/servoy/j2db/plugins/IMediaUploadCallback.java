@@ -22,7 +22,7 @@ package com.servoy.j2db.plugins;
  * 
  * @author jcompagner
  * @since 5.1
- * @seee {@link IUploadData}
+ * @see IUploadData
  */
 public interface IMediaUploadCallback
 {
