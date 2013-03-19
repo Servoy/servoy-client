@@ -38,18 +38,22 @@ public enum ClientSupport
 	public static ClientSupport fromString(String s)
 	{
 		if (s == null || s.length() == 0) return null;
-		int bits = bits(s, mc) | bits(s, wc) | bits(s, sc);
+		return fromBits(bits(s, mc) | bits(s, wc) | bits(s, sc));
+	}
+
+	private static int bits(String s, ClientSupport supp)
+	{
+		return s.indexOf(supp.name()) >= 0 ? supp.bits : 0;
+	}
+
+	private static ClientSupport fromBits(int bits)
+	{
 		for (ClientSupport supp : ClientSupport.values())
 		{
 			if (supp.bits == bits) return supp;
 		}
 
 		return null;
-	}
-
-	private static int bits(String s, ClientSupport supp)
-	{
-		return s.indexOf(supp.name()) >= 0 ? supp.bits : 0;
 	}
 
 	public String toAttribute()
@@ -70,5 +74,10 @@ public enum ClientSupport
 	public boolean supports(ClientSupport csp)
 	{
 		return csp != null && (bits & csp.bits) == csp.bits;
+	}
+
+	public static ClientSupport create(boolean support_mc, boolean support_wc, boolean support_sc)
+	{
+		return fromBits((support_mc ? mc.bits : 0) | (support_wc ? wc.bits : 0) | (support_sc ? sc.bits : 0));
 	}
 }
