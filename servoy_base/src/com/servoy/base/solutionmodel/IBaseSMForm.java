@@ -933,4 +933,49 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * @return A ISMPart instance corresponding to the newly created Footer form part.
 	 */
 	public IBaseSMPart newFooterPart(int height);
+
+	/**
+	 * Creates a new IBaseSMBean object on the form - including the name of the IBaseSMBean object; the classname the IBaseSMBean object is based on, the "x" and "y" position of the IBaseSMBean object in pixels, as well as the width and height of the IBaseSMBean object in pixels.
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var bean = form.newBean('bean','com.servoy.extensions.beans.dbtreeview.DBTreeView',200,200,300,300);
+	 * forms['newForm1'].controller.show();
+	 * 
+	 * @param name the specified name of the IBaseSMBean object
+	 * @param className the class name of the IBaseSMBean object
+	 * @param x the horizontal "x" position of the IBaseSMBean object in pixels
+	 * @param y the vertical "y" position of the IBaseSMBean object in pixels
+	 * @param width the width of the IBaseSMBean object in pixels
+	 * @param height the height of the IBaseSMBean object in pixels
+	 * 
+	 * @return a IBaseSMBean object 
+	 */
+	public IBaseSMBean newBean(String name, String className, int x, int y, int width, int height);
+
+	/**
+	 * Returns a IBaseSMBean that has the given name.
+	 *
+	 * @sample 
+	 * var btn = myForm.getBean("mybean");
+	 * application.output(mybean.className);
+	 *
+	 * @param name the specified name of the bean
+	 * 
+	 * @return a IBaseSMBean object 
+	 */
+	public IBaseSMBean getBean(String name);
+
+	/**
+	 * Removes a IBaseSMBean that has the specified name. Returns true if removal was successful, false otherwise. 
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform');
+	 * form.removeBean('mybean')
+	 *  
+	 * @param name the specified name of the ISMBean to be removed 
+	 * 
+	 * @return true if the IBaseSMBean has been removed; false otherwise
+	 */
+	public boolean removeBean(String name);
 }
