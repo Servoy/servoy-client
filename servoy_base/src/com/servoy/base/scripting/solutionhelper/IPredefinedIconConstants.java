@@ -17,15 +17,14 @@
 
 package com.servoy.base.scripting.solutionhelper;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * @author acostescu
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public interface IPredefinedIconConstants
 {
-
 	/**
 	 * Constant for specifying a predefined icon type for a button.
 	 * @sample

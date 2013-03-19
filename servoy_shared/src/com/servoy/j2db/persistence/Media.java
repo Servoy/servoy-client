@@ -17,8 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -29,7 +28,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Media extends AbstractBase implements ISupportName, ICloneable
 {
 	public static final long serialVersionUID = 468097341226347599L;
@@ -106,7 +105,7 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 	/**
 	 * The name of the Media object.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);

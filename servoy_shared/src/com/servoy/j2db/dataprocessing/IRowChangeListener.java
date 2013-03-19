@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 
@@ -24,15 +24,15 @@ import java.util.EventListener;
  * 
  * @author jblok
  */
-public interface IRowChangeListener extends EventListener, ISaveConstants
+public interface IRowChangeListener extends EventListener
 {
-	public void notifyChange(ModificationEvent e, FireCollector collector);//this method is only called if I'm not the source of the event
+	public void notifyChange(ModificationEvent e, FireCollector collector); // this method is only called if I'm not the source of the event
 
-	public boolean startEditing();//return true if successfull start of edit, record can be locked
+	public boolean startEditing(); // return true if successful start of edit, record can be locked
 
 	public boolean startEditing(boolean mustFireEditRecordChange);
 
 	public boolean isEditing();
 
-	public int stopEditing(); //return a constant as specified above
+	public int stopEditing(); // return a constant as specified above
 }

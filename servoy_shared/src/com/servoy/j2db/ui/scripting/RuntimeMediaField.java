@@ -23,7 +23,7 @@ import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.JViewport;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -36,7 +36,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeImageMedia;
  * @author lvostinar
  * @since 6.0
  */
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> implements IRuntimeImageMedia
 {
 	private JComponent jComponent;

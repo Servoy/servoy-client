@@ -23,7 +23,7 @@ import java.awt.Insets;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -36,7 +36,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeRectangle;
  * @author lvostinar
  * @since 6.0
  */
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implements IRuntimeRectangle
 {
 	public RuntimeRectangle(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)

@@ -22,7 +22,6 @@ import java.awt.Insets;
 import com.servoy.base.persistence.IBaseField;
 import com.servoy.base.persistence.constants.IFieldConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.base.scripting.annotations.ServoyMobile;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -104,7 +103,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * Flag that tells if the content of the field can be edited or not. 
 	 * The default value of this flag is "true", that is the content can be edited.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public boolean getEditable()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EDITABLE).booleanValue();
@@ -444,7 +443,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * The text that is displayed in the column header associated with the component when the form
 	 * is in table view.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);

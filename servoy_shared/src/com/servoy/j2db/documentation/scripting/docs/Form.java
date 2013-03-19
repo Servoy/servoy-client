@@ -16,8 +16,7 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -29,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * 
  * @author gerzse
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeForm", scriptingName = "RuntimeForm ")
 public class Form
 {
@@ -180,7 +179,7 @@ public class Form
 	 * %%prefix%%_super.some_method();
 	 */
 	@JSReadonlyProperty
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public FormScope _super()
 	{
 		return null;

@@ -20,7 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Color;
 import java.awt.Dimension;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -31,7 +31,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Bean extends BaseComponent implements ISupportTabSeq
 {
 	/**

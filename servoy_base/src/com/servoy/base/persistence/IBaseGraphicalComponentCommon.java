@@ -17,7 +17,7 @@
 
 package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -33,7 +33,7 @@ public interface IBaseGraphicalComponentCommon extends IBaseComponentCommon
 	/**
 	 * The dataprovider of the component.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getDataProviderID();
 
 	void setDataProviderID(String arg);
@@ -41,7 +41,7 @@ public interface IBaseGraphicalComponentCommon extends IBaseComponentCommon
 	/**
 	 * The text that is displayed inside the component.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getText();
 
 	void setText(String arg);
@@ -56,7 +56,7 @@ public interface IBaseGraphicalComponentCommon extends IBaseComponentCommon
 	 * 
 	 * The default value of this flag is "false", that is merging of data is disabled by default.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	boolean getDisplaysTags();
 
 	void setDisplaysTags(boolean arg);

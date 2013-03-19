@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.ui.runtime;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -26,7 +26,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *   @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeCalendar", extendsComponent = "RuntimeComponent")
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public interface IRuntimeCalendar extends IRuntimeInputComponent, HasRuntimeFormat
 {
 }

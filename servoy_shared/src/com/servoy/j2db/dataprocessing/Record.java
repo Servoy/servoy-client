@@ -47,7 +47,7 @@ import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedRelation;
-import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
@@ -81,8 +81,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 				{
 					name = m.getName().substring(3);
 				}
-				else if (AnnotationManager.getInstance().isAnnotationPresent(m, Record.class, JSFunction.class) ||
-					AnnotationManager.getInstance().isAnnotationPresent(m, Record.class, JSReadonlyProperty.class))
+				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSFunction.class) ||
+					AnnotationManagerReflection.getInstance().isAnnotationPresent(m, Record.class, JSReadonlyProperty.class))
 				{
 					name = m.getName();
 				}

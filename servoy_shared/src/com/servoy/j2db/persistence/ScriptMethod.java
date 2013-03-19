@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
@@ -28,7 +28,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Method")
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 @SuppressWarnings("nls")
 public class ScriptMethod extends AbstractScriptProvider implements IPersistCloneable, ICloneable
 {

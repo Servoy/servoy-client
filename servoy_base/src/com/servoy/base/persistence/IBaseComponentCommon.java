@@ -17,7 +17,7 @@
 
 package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -36,7 +36,7 @@ public interface IBaseComponentCommon
 	 * 
 	 * @return visible property
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	boolean getVisible();
 
 	void setVisible(boolean args);
@@ -46,7 +46,7 @@ public interface IBaseComponentCommon
 	 * 
 	 * @return enabled state
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	boolean getEnabled();
 
 	void setEnabled(boolean arg);
@@ -54,7 +54,7 @@ public interface IBaseComponentCommon
 	/**
 	 * The name of the component. Through this name it can also accessed in methods.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getName();
 
 	void setName(String arg);
@@ -64,7 +64,7 @@ public interface IBaseComponentCommon
 	 * 
 	 * @return int
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getGroupID();
 
 	void setGroupID(String arg);
@@ -80,7 +80,7 @@ public interface IBaseComponentCommon
 	 * the class name for a component, the prefix is dropped however. Thus the
 	 * field or the label will have its styleClass property set to 'fancy' only.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getStyleClass();
 
 	void setStyleClass(String arg);

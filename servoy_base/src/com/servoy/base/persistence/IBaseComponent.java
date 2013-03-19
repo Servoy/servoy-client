@@ -17,7 +17,7 @@
 
 package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -34,7 +34,7 @@ public interface IBaseComponent extends IBaseComponentCommon
 	/**
 	 * The width and height (in pixels), separated by a comma.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	java.awt.Dimension getSize();
 
 	void setSize(java.awt.Dimension arg);
@@ -42,7 +42,7 @@ public interface IBaseComponent extends IBaseComponentCommon
 	/**
 	 * The x and y position of the component, in pixels, separated by a comma.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	java.awt.Point getLocation();
 
 	void setLocation(java.awt.Point arg);

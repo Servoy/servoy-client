@@ -17,7 +17,7 @@
 
 package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -33,7 +33,7 @@ public interface IBaseGraphicalComponent extends IBaseComponent, IBaseGraphicalC
 	/**
 	 * The method that is executed when the component is clicked.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	int getOnActionMethodID();
 
 	void setOnActionMethodID(int arg);

@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSBaseEvent;
@@ -32,7 +32,7 @@ import com.servoy.j2db.scripting.JSBaseEvent;
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDNDEvent")
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class JSDNDEvent extends JSBaseEvent
 {
 	/**

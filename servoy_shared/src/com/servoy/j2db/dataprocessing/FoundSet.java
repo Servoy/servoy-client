@@ -96,7 +96,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
-import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.Debug;
@@ -137,7 +137,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					name = m.getName().substring(11);
 				}
-				else if (AnnotationManager.getInstance().isAnnotationPresent(m, FoundSet.class, JSFunction.class))
+				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, FoundSet.class, JSFunction.class))
 				{
 					name = m.getName();
 				}

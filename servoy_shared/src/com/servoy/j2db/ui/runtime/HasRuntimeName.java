@@ -19,7 +19,7 @@ package com.servoy.j2db.ui.runtime;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Runtime property interface for name.
@@ -28,7 +28,7 @@ import com.servoy.base.scripting.annotations.ServoyMobile;
  *
  * @since 6.1
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface HasRuntimeName
 {
 	/**

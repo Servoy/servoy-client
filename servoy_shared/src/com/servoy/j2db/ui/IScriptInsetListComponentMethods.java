@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.ui;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -27,7 +27,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeInsetList", extendsComponent = "RuntimeComponent")
-@ServoyMobile
+@ServoyClientSupport(mc = true, sc = false, wc = false)
 public interface IScriptInsetListComponentMethods extends IScriptPortalComponentMethods
 {
 

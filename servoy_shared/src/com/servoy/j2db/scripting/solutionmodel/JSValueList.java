@@ -148,7 +148,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc setDisplayDataProviderIds(String, String, String)
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
 	 */
 	@JSFunction
@@ -159,7 +159,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc setDisplayDataProviderIds(String, String, String)
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 */
@@ -171,7 +171,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc setDisplayDataProviderIds(String, String, String)
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 *
@@ -188,7 +188,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * The values taken from these dataproviders, in order, separated by the separator, will be displayed
 	 * by the valuelist.
 	 *
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 *
@@ -301,7 +301,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc setReturnDataProviderIds(String, String, String)
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSFunction
 	public void setReturnDataProviderIds()
@@ -311,7 +311,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc setReturnDataProviderIds(String, String, String)
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 */
@@ -323,7 +323,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 
 	/**
 	 * @clonedesc setReturnDataProviderIds(String, String, String)
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
@@ -340,7 +340,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * The values taken from these dataproviders, in order, separated by the separator, will be returned
 	 * by the valuelist.
 	 *
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
@@ -475,7 +475,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getSeparator()
 	 * 
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
 	public String getSeparator()
@@ -493,7 +493,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getServerName()
 	 * 
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
 	public String getServerName()
@@ -511,7 +511,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getSortOptions()
 	 * 
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
 	public String getSortOptions()
@@ -529,7 +529,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getTableName()
 	 * 
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
 	public String getTableName()
@@ -605,7 +605,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getValueListType()
 	 * 
-	 * @sampleas DATABASE_VALUES
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 */
 	@JSGetter
 	public int getValueListType()

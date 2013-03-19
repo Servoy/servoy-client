@@ -19,7 +19,7 @@ package com.servoy.base.solutionmodel;
 
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -29,7 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyMobile;
  * @author acostescu
  * @since 7.0
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseSMVariable
 {
 

@@ -33,12 +33,12 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	//	public static final int TABLE_VIEW = FormController.TABLE_VIEW;
 
 	/**
-	 * @sameas LIST_VIEW
+	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#LIST_VIEW
 	 */
 	public static final int LOCKED_LIST_VIEW = IFormConstants.VIEW_TYPE_LIST_LOCKED;
 
 	/**
-	 * @sameas LIST_VIEW
+	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#LIST_VIEW
 	 */
 	public static final int LOCKED_RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD_LOCKED;
 
