@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.ui;
 
 
@@ -23,7 +23,7 @@ package com.servoy.j2db.ui;
  * Servoy will call {@link #getStylePropertyChanges()} on every ajax request (user action or ajax poll) to test
  * if this component is changed and wants to update itself.
  * <p>
- * Wicket components that implements this interface should call {@link Component#setOutputMarkupPlaceholderTag(boolean)} with true.
+ * Wicket components that implements this interface should call {@link org.apache.wicket.Component#setOutputMarkupPlaceholderTag(boolean)} with true.
  * So that wicket ajax can replace/update the component.
  * and override the getMarkupId() so that the right servoy markupid is generated:
  * <pre>
@@ -37,13 +37,13 @@ package com.servoy.j2db.ui;
  * @since 5.0
  * 
  * @see IStylePropertyChanges
- * @see ChangesRecorder
+ * @see com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder
  */
 public interface IProviderStylePropertyChanges
 {
 	/**
 	 * Returns an instanceof {@link IStylePropertyChanges} that monitors the changes of this component
-	 * See {@link ChangesRecorder} for an implementation that you can use for this.
+	 * See {@link com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder} for an implementation that you can use for this.
 	 *  
 	 * @return The object that has the changed state for this component.
 	 */

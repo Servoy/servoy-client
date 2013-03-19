@@ -23,7 +23,7 @@ package com.servoy.j2db.dataprocessing;
  * 
  * @author jblok
  * 
- * @see {@link ITypedColumnConverter}
+ * @see com.servoy.j2db.dataprocessing.ITypedColumnConverter
  */
 public interface IColumnConverter extends IBaseConverter
 {

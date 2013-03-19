@@ -94,7 +94,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_SHIFT = Event.SHIFT_MASK;
 
@@ -103,7 +103,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_CTRL = Event.CTRL_MASK;
 
@@ -112,7 +112,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_META = Event.META_MASK;
 
@@ -121,7 +121,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_ALT = Event.ALT_MASK;
 

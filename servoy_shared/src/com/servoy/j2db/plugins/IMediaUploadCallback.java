@@ -13,13 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 
-
 /**
- * Call back interface for opening the MediaUploadPage through the call {@link IWebClientPluginAccess#showFileOpenDialog(IMediaUploadCallback, String, boolean, String[])}
+ * Call back interface for opening the MediaUploadPage through the call {@link IClientPluginAccess#showFileOpenDialog(IMediaUploadCallback, String, boolean, String[], int, String)}
  * 
  * @author jcompagner
  * @since 5.1
