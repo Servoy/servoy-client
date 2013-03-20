@@ -2574,33 +2574,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				}
 			}
 			jsCall += "Servoy.Resize.onWindowResize();};"; //$NON-NLS-1$ 
-			if (isFormWidthZero())
-			{
-				jsCall += "Servoy.Resize.onWindowResize();"; //$NON-NLS-1$ 
-			}
 			response.renderOnLoadJavascript(jsCall);
-		}
-
-		private boolean isFormWidthZero()
-		{
-			final boolean[] returnValue = { false };
-			MainPage page = (MainPage)findPage();
-			if (page != null)
-			{
-				page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
-				{
-					public Object component(WebForm form)
-					{
-						if (form.getFormWidth() == 0)
-						{
-							returnValue[0] = true;
-							return IVisitor.STOP_TRAVERSAL;
-						}
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
-			}
-			return returnValue[0];
 		}
 	}
 
