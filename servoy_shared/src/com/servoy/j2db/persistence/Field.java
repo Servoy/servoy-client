@@ -31,7 +31,6 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyClientSupport(mc = false, sc = true, wc = true)
 public class Field extends BaseComponent implements ISupportTextSetup, ISupportText, ISupportDataProviderID, ISupportScrollbars, ISupportTabSeq, IBaseField
 {
 	/*
