@@ -4986,7 +4986,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 						}
 					}
 					// after a script clear the unchanged records so that no records keep hanging around.
-					if (!focusEvent && !"onRecordEditStopMethodID".equals(methodKey) && !"onRenderMethodID".equals(methodKey))
+					if (!focusEvent && !"onRecordEditStopMethodID".equals(methodKey) && !"onRenderMethodID".equals(methodKey) &&
+						application.getFoundSetManager() != null)
 					{
 						application.getFoundSetManager().getEditRecordList().removeUnChangedRecords(false, false);
 					}
@@ -5198,7 +5199,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 				runningExecuteOnRecordEditStop = true;
 				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record },
 					Boolean.TRUE, true, true));
-				if (ret)
+				if (ret && getApplication().getFoundSetManager() != null)
 				{
 					// for this record, record edit saved is called successfully shouldn't happen the second time.
 					getApplication().getFoundSetManager().getEditRecordList().markRecordTested(record);
