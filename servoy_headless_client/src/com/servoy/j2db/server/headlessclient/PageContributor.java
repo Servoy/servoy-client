@@ -138,6 +138,45 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			}
 		});
 		add(eventCallbackBehavior = new EventCallbackBehavior());
+		add(new AbstractServoyDefaultAjaxBehavior()
+		{
+			@Override
+			public void renderHead(IHeaderResponse response)
+			{
+				if (isFormWidthZero())
+				{
+					response.renderOnLoadJavascript("Servoy.Resize.onWindowResize();"); //$NON-NLS-1$ 
+				}
+			}
+
+			@Override
+			protected void respond(AjaxRequestTarget target)
+			{
+				// not used
+			}
+
+			private boolean isFormWidthZero()
+			{
+				final boolean[] returnValue = { false };
+				MainPage page = (MainPage)findPage();
+				if (page != null)
+				{
+					page.visitChildren(WebForm.class, new Component.IVisitor<WebForm>()
+					{
+						public Object component(WebForm form)
+						{
+							if (form.getFormWidth() == 0)
+							{
+								returnValue[0] = true;
+								return IVisitor.STOP_TRAVERSAL;
+							}
+							return IVisitor.CONTINUE_TRAVERSAL;
+						}
+					});
+				}
+				return returnValue[0];
+			}
+		});
 	}
 
 	@Override
