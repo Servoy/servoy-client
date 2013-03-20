@@ -1528,7 +1528,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	 */
 	public boolean isCellEditable(EventObject anEvent)
 	{
-		if (editor.isEnabled())
+		if (editor.isEnabled() || hasOnRender(editor))
 		{
 			// if we enable this the onAction is not fired and it is not possible
 			// to copy text from non editable field
@@ -1537,6 +1537,20 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			// return ((JTextComponent)editor).isEditable();
 			// }
 			return true;
+		}
+		return false;
+	}
+
+	private boolean hasOnRender(Component c)
+	{
+		if (c instanceof IScriptableProvider)
+		{
+			IScriptable scriptable = ((IScriptableProvider)c).getScriptObject();
+			if (scriptable instanceof ISupportOnRenderCallback)
+			{
+				RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
+				return renderEventExecutor != null && renderEventExecutor.hasRenderCallback();
+			}
 		}
 		return false;
 	}
