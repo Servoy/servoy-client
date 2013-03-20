@@ -83,6 +83,7 @@ public class ClientStub implements IUserClient
 
 	public void flushCachedDatabaseData(final String dataSource)
 	{
+		if (client.isShutDown()) return;
 		client.getScheduledExecutor().execute(new Runnable()
 		{
 			public void run()
