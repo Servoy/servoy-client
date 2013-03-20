@@ -30,6 +30,7 @@ import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.CSS;
+import javax.swing.text.html.CSS.Attribute;
 import javax.swing.text.html.StyleSheet;
 
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
@@ -42,6 +43,9 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 public class FixedStyleSheet extends StyleSheet
 {
+	public static Attribute[] borderAttributes = new Attribute[] { CSS.Attribute.BORDER, CSS.Attribute.BORDER_BOTTOM, CSS.Attribute.BORDER_BOTTOM_WIDTH, CSS.Attribute.BORDER_COLOR, CSS.Attribute.BORDER_LEFT, CSS.Attribute.BORDER_LEFT_WIDTH, CSS.Attribute.BORDER_RIGHT, CSS.Attribute.BORDER_RIGHT_WIDTH, CSS.Attribute.BORDER_STYLE, CSS.Attribute.BORDER_TOP, CSS.Attribute.BORDER_TOP_WIDTH, CSS.Attribute.BORDER_WIDTH };
+	public static String[] borderAttributesExtensions = new String[] { "border-left-style", "border-right-style", "border-top-style", "border-bottom-style", "border-left-color", "border-right-color", "border-top-color", "border-bottom-color", "border-radius", "border-top-left-radius", "border-top-right-radius", "border-bottom-right-radius", "border-bottom-left-radius" };
+
 	public FixedStyleSheet()
 	{
 		super();

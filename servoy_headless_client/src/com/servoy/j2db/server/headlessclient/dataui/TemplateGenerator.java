@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.border.Border;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.CSS;
+import javax.swing.text.html.CSS.Attribute;
 
 import org.apache.wicket.ResourceReference;
 
@@ -634,6 +635,19 @@ public class TemplateGenerator
 								{
 									String key = (String)e.nextElement();
 									styleObj.remove(key);
+								}
+								if (cssBorder != null || label.getBorderType() != null)
+								{
+									for (Attribute att : FixedStyleSheet.borderAttributes)
+									{
+										// make sure all border attributes are removed
+										styleObj.remove(att.toString());
+									}
+									for (String extendedStyleAttribute : FixedStyleSheet.borderAttributesExtensions)
+									{
+										// make sure all border attributes are removed
+										styleObj.remove(extendedStyleAttribute);
+									}
 								}
 							}
 							else
