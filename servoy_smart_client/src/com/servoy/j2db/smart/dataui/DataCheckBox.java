@@ -602,14 +602,17 @@ public class DataCheckBox extends JCheckBox implements IFieldComponent, IDisplay
 		return labels;
 	}
 
+	private String titleText = null;
+
 	public void setTitleText(String title)
 	{
-		setText(title);
+		this.titleText = title;
+		setText(Text.processTags(title, resolver));
 	}
 
 	public String getTitleText()
 	{
-		return Text.processTags(getText(), resolver);
+		return Text.processTags(titleText, resolver);
 	}
 
 	public int getAbsoluteFormLocationY()
