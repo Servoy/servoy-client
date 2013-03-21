@@ -19,13 +19,13 @@ package com.servoy.base.scripting.api;
 
 import java.util.Date;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * @author jcompagner
  *
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IJSUtils
 {
 	public String dateFormat(Date date, String format);

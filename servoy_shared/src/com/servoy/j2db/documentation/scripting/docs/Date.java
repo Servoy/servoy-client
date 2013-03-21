@@ -18,7 +18,7 @@ package com.servoy.j2db.documentation.scripting.docs;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -28,7 +28,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Date", scriptingName = "Date")
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class Date
 {
 	/**

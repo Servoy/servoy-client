@@ -18,14 +18,13 @@
 package com.servoy.base.solutionmodel;
 
 import com.servoy.base.persistence.constants.IPartConstants;
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * @author lvostinar
  *
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseSMPart
 {
 	/**
@@ -37,7 +36,7 @@ public interface IBaseSMPart
 	 * @sample 
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int BODY = IPartConstants.BODY;
 	/**
 	 * Constant use for specifying the type of form parts.
@@ -70,7 +69,7 @@ public interface IBaseSMPart
 	 * @sample
 	 * var leadingGrandSummary = form.newPart(JSPart.LEADING_GRAND_SUMMARY, 120);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int LEADING_GRAND_SUMMARY = IPartConstants.LEADING_GRAND_SUMMARY;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -82,7 +81,7 @@ public interface IBaseSMPart
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int LEADING_SUBSUMMARY = IPartConstants.LEADING_SUBSUMMARY;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -93,7 +92,7 @@ public interface IBaseSMPart
 	 * @sample 
 	 * var titleFooter = form.newPart(JSPart.TITLE_FOOTER, 500);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TITLE_FOOTER = IPartConstants.TITLE_FOOTER;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -105,7 +104,7 @@ public interface IBaseSMPart
 	 * @sample
 	 * var titleHeader = form.newPart(JSPart.TITLE_HEADER, 40);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -116,7 +115,7 @@ public interface IBaseSMPart
 	 * @sample
 	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TRAILING_GRAND_SUMMARY = IPartConstants.TRAILING_GRAND_SUMMARY;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -128,7 +127,7 @@ public interface IBaseSMPart
 	 * @sample
 	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TRAILING_SUBSUMMARY = IPartConstants.TRAILING_SUBSUMMARY;
 
 	/**

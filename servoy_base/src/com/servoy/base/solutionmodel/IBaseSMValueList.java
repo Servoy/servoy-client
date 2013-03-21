@@ -17,7 +17,7 @@
 
 package com.servoy.base.solutionmodel;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -28,7 +28,7 @@ import com.servoy.base.scripting.annotations.ServoyMobile;
  *
  * @since 7.0
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseSMValueList
 {
 

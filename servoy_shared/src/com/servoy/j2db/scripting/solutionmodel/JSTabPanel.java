@@ -26,7 +26,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
@@ -44,7 +44,7 @@ import com.servoy.j2db.solutionmodel.ISMTabPanel;
 /**
  * @author jcompagner
  */
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPanel>, ISMTabPanel, IConstantsObject
 {

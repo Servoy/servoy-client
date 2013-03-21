@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -28,7 +28,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "JSON", scriptingName = "JSON")
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class JSON
 {
 	/**

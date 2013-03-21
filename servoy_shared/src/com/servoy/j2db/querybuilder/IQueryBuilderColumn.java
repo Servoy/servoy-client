@@ -212,7 +212,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 
 	/**  
 	 * Create cast(column, type) expression
-	 * @see IQueryBuilderConstants.
+	 * @see com.servoy.j2db.querybuilder.IQueryBuilderConstants
 	 * @param type type to to cast to
 	 */
 	IQueryBuilderFunction cast(String type);

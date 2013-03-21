@@ -31,7 +31,7 @@ import org.apache.wicket.Component;
  * else it will be re rendered for every coming request. This can be done by calling {@link #setRendered()} from the {@link Component#onAfterRender()}
  * that the wicket component needs to override.
  * <p>
- * NOTE: Try to use the the implementation class {@link ChangesRecorder} 
+ * NOTE: Try to use the the implementation class {@link com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder} 
  * this interface can change with new Servoy versions if new functionality is needed.
  * </p>
  * 
@@ -39,7 +39,7 @@ import org.apache.wicket.Component;
  * 
  * @since 5.0
  * 
- * @see ChangesRecorder 
+ * @see com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder 
  */
 public interface IStylePropertyChanges
 {

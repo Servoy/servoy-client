@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -35,7 +35,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ICloneable
 {
 

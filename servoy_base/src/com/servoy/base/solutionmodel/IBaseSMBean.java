@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,23 +15,19 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.scripting.annotations;
+package com.servoy.base.solutionmodel;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
- * An annotation that marks functions and properties as available in the mobile client.
- * Same as  {@link @ServoyClientSupport} (mc = true)
+ * Solution model bean object (for mobile as well as other clients).
  * 
- * @author rgansevles
+ * @author gboros
+ *
+ * @since 7.0
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.FIELD })
-public @interface ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public interface IBaseSMBean
 {
+
 }

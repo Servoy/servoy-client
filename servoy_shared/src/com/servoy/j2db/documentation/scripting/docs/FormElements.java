@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
@@ -27,7 +27,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeComponent;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "elements", scriptingName = "elements")
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class FormElements
 {
 	/**

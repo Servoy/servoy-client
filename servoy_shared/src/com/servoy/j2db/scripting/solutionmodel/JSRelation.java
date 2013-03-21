@@ -375,7 +375,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getJoinType()
 	 * 
-	 * @sampleas INNER_JOIN
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMRelation#INNER_JOIN
 	 */
 	@JSGetter
 	public int getJoinType()

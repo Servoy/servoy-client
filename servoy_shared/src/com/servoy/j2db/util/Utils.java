@@ -746,7 +746,7 @@ public class Utils
 	 * Booleans and Numbers are converted to their string representation.
 	 * Strings are quoted with single quotes.
 	 * 
-	 * @see parseJSExpression(Object) reverse method
+	 * @see #parseJSExpression(Object) reverse method
 	 * 
 	 * @param s
 	 * @return the result string

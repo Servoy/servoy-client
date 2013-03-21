@@ -17,8 +17,7 @@
 
 package com.servoy.base.solutionmodel;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -29,7 +28,7 @@ import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
  *
  * @since 7.0
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseSMComponent
 {
 
@@ -121,7 +120,7 @@ public interface IBaseSMComponent
 	 * field.groupID = 'someGroup';	
 	 * forms['someForm'].elements.someGroup.enabled = false;
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public String getGroupID();
 
 	/**
@@ -150,7 +149,7 @@ public interface IBaseSMComponent
 
 	public void setHeight(int height);
 
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public void setGroupID(String arg);
 
 	public void setStyleClass(String arg);

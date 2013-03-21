@@ -15,8 +15,7 @@
 package com.servoy.base.solutionmodel;
 
 import com.servoy.base.persistence.constants.IFormConstants;
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -27,7 +26,7 @@ import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
  *
  * @since 7.0
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseSMForm extends IBaseSMListContainer
 {
 
@@ -51,19 +50,19 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var myRecordViewForm = solutionModel.newForm('newForm5', myDatasource, myStyleName, false, 800, 600);
 	 * myRecordViewForm.view = JSForm.RECORD_VIEW;
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int LIST_VIEW = IFormConstants.VIEW_TYPE_LIST;
 
 	/**
 	 * @sameas LIST_VIEW
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int LOCKED_TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE_LOCKED;
 
 	/**
 	 * @sameas LIST_VIEW
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD;
 
 	/**
@@ -389,7 +388,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a ISMPortal object 
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMPortal newPortal(String name, Object relation, int x, int y, int width, int height);
 
 	/**
@@ -404,7 +403,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a ISMPortal object
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMPortal getPortal(String name);
 
 	/**
@@ -425,7 +424,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return true if the ISMPortal has successfully been removed; false otherwise
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public boolean removePortal(String name);
 
 	/**
@@ -446,7 +445,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * @return an array of all ISMPortal objects on this form
 	 *
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMPortal[] getPortals();
 
 	/**
@@ -473,7 +472,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMTabPanel object	
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMTabPanel newTabPanel(String name, int x, int y, int width, int height);
 
 	/**
@@ -490,7 +489,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMTabPanel object
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMTabPanel getTabPanel(String name);
 
 	/**
@@ -516,7 +515,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return true is the IBaseSMTabPanel has been successfully removed, false otherwise
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public boolean removeTabPanel(String name);
 
 	/**
@@ -537,7 +536,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * @return an array of all IBaseSMTabPanel objects on this form			
 	 *		
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMTabPanel[] getTabPanels();
 
 	/**
@@ -856,7 +855,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * myForm.view = JSForm.RECORD_VIEW;
 	 * forms['newForm1'].controller.show();
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public int getView();
 
 	public void setView(int arg);
@@ -934,4 +933,49 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * @return A ISMPart instance corresponding to the newly created Footer form part.
 	 */
 	public IBaseSMPart newFooterPart(int height);
+
+	/**
+	 * Creates a new IBaseSMBean object on the form - including the name of the IBaseSMBean object; the classname the IBaseSMBean object is based on, the "x" and "y" position of the IBaseSMBean object in pixels, as well as the width and height of the IBaseSMBean object in pixels.
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var bean = form.newBean('bean','com.servoy.extensions.beans.dbtreeview.DBTreeView',200,200,300,300);
+	 * forms['newForm1'].controller.show();
+	 * 
+	 * @param name the specified name of the IBaseSMBean object
+	 * @param className the class name of the IBaseSMBean object
+	 * @param x the horizontal "x" position of the IBaseSMBean object in pixels
+	 * @param y the vertical "y" position of the IBaseSMBean object in pixels
+	 * @param width the width of the IBaseSMBean object in pixels
+	 * @param height the height of the IBaseSMBean object in pixels
+	 * 
+	 * @return a IBaseSMBean object 
+	 */
+	public IBaseSMBean newBean(String name, String className, int x, int y, int width, int height);
+
+	/**
+	 * Returns a IBaseSMBean that has the given name.
+	 *
+	 * @sample 
+	 * var btn = myForm.getBean("mybean");
+	 * application.output(mybean.className);
+	 *
+	 * @param name the specified name of the bean
+	 * 
+	 * @return a IBaseSMBean object 
+	 */
+	public IBaseSMBean getBean(String name);
+
+	/**
+	 * Removes a IBaseSMBean that has the specified name. Returns true if removal was successful, false otherwise. 
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform');
+	 * form.removeBean('mybean')
+	 *  
+	 * @param name the specified name of the ISMBean to be removed 
+	 * 
+	 * @return true if the IBaseSMBean has been removed; false otherwise
+	 */
+	public boolean removeBean(String name);
 }

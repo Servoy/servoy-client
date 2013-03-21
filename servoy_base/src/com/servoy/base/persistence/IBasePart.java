@@ -17,7 +17,7 @@
 
 package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -34,7 +34,7 @@ public interface IBasePart
 	/**
 	 * The Cascading Style Sheet (CSS) class name applied to the part. 
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getStyleClass();
 
 	void setStyleClass(String arg);

@@ -52,7 +52,7 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IDelegate;
@@ -83,7 +83,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				{
 					name = m.getName().substring(3);
 				}
-				else if (AnnotationManager.getInstance().isAnnotationPresent(m, JSDataSet.class, JSFunction.class))
+				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(m, JSDataSet.class, JSFunction.class))
 				{
 					name = m.getName();
 				}

@@ -17,14 +17,14 @@
 
 package com.servoy.base.scripting.solutionhelper;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 
 /**
  * Interface for mobile client form list manipulation.
  * @author acostescu
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public interface IBaseSHFormList extends IBaseSHList
 {
 

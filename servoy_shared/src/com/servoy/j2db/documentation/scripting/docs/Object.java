@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -26,7 +26,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Object", scriptingName = "Object")
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class Object
 {
 

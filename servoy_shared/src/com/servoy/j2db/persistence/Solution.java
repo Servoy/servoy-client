@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -724,7 +724,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 
 	 * To enforce a default Servoy user name and password login dialog; if set a login dialog is required, if unchecked no login dialog is required.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public boolean getMustAuthenticate()
 	{
 		return getSolutionMetaData().getMustAuthenticate();
@@ -1003,7 +1003,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 
 	 * NOTE: If the Login form is specified, then the firstForm is the first form that will load next after the loginForm.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getFirstFormID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID).intValue();
@@ -1032,7 +1032,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatename onSolutionOpen
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnOpenMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID).intValue();
@@ -1158,7 +1158,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The i18n database server connection and database table that stores the i18n keys for a solution.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getI18nDataSource()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_I18NDATASOURCE);
@@ -1195,7 +1195,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * The type of a solution; can be "Normal" (non-module), "Module", "Web client only", "Smart client only",
 	 * "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile".
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getSolutionType()
 	{
 		return getSolutionMetaData().getSolutionType();
@@ -1210,7 +1210,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The list of modules that have been added to a solution.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getModulesNames()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_MODULESNAMES);

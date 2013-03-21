@@ -17,274 +17,236 @@
 
 package com.servoy.j2db.scripting.annotations;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
 import com.servoy.j2db.util.Pair;
 
 /**
- * Handles annotions form classes, caches annotations defined for the class itself and for the interfaces it implements.
+ * Handles annotations form classes, caches annotations defined for the class itself and for the interfaces it implements.
+ * 
+ * Annotations have to defined at element (method or field) level, or at interface or class level.
+ * When an annotation is defined at class or interface, all elements in that class are annotated, but not all methods from classes inheriting from that interface or class.
  * 
  * @author rgansevles
  *
  */
-public class AnnotationManager
+public class AnnotationManager<A, AC>
 {
-	private static AnnotationManager INSTANCE = new AnnotationManager();
+	private final Map<Pair<Pair<IAnnotatedMethod<A, AC>, IAnnotatedClass<A, AC>>, AC>, Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>> methodAnnotationCache = new ConcurrentHashMap<Pair<Pair<IAnnotatedMethod<A, AC>, IAnnotatedClass<A, AC>>, AC>, Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>>();
+	private final Map<Pair<IAnnotatedField<A, AC>, AC>, Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>> fieldAnnotationCache = new ConcurrentHashMap<Pair<IAnnotatedField<A, AC>, AC>, Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>>();
+	private final Map<Pair<IAnnotatedClass<A, AC>, AC>, Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>> classAnnotationCache = new ConcurrentHashMap<Pair<IAnnotatedClass<A, AC>, AC>, Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>>();
 
-	private final Map<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>> methodAnnotationCache = new ConcurrentHashMap<Pair<Method, Class< ? >>, Pair<Boolean, Annotation>>();
-	private final Map<Pair<Field, Class< ? >>, Pair<Boolean, Annotation>> fieldAnnotationCache = new ConcurrentHashMap<Pair<Field, Class< ? >>, Pair<Boolean, Annotation>>();
-	private final Map<Pair<Class< ? >, Class< ? >>, Pair<Boolean, Annotation>> classAnnotationCache = new ConcurrentHashMap<Pair<Class< ? >, Class< ? >>, Pair<Boolean, Annotation>>();
-
-	private AnnotationManager()
+	public boolean isAnnotationPresent(IAnnotatedMethod<A, AC> method, IAnnotatedClass<A, AC> originalClass, AC annotationClass)
 	{
+		return method != null && getCachedAnnotation(method, originalClass, annotationClass).getLeft().booleanValue();
 	}
 
-	public static AnnotationManager getInstance()
-	{
-		return INSTANCE;
-	}
-
-	public boolean isAnnotationPresent(Method method, Class< ? > originalClass, Class< ? extends Annotation> annotationClass)
-	{
-		Pair<Boolean, Annotation> pair = getCachedAnnotation(method, originalClass, annotationClass, null);
-		return pair != null && pair.getLeft().booleanValue();
-	}
-
-	public boolean isMobileAnnotationPresent(Method method, Class< ? > originalClass)
-	{
-		Pair<Boolean, Annotation> pair = getCachedAnnotation(method, originalClass, ServoyMobile.class, ServoyMobileFilterOut.class);
-		return pair != null && pair.getLeft().booleanValue();
-	}
-
-	public boolean isAnnotationPresent(Method method, Class< ? > originalClass, Class< ? extends Annotation>[] annotationClasses)
-	{
-		if (method != null)
-		{
-			for (Class< ? extends Annotation> annotationClass : annotationClasses)
-			{
-				if (getAnnotation(method, originalClass, annotationClass) != null)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends Annotation> T getAnnotation(Method method, Class< ? > originalClass, Class<T> annotationClass)
-	{
-		Pair<Boolean, Annotation> pair = getCachedAnnotation(method, originalClass, annotationClass, null);
-		return pair == null ? null : (T)pair.getRight();
-	}
-
-	private Pair<Boolean, Annotation> getCachedAnnotation(Method method, Class< ? > originalClass, Class< ? extends Annotation> annotationClass,
-		Class< ? extends Annotation> stopAnnotation)
+	public A getAnnotation(IAnnotatedMethod<A, AC> method, IAnnotatedClass<A, AC> originalClass, AC annotationClass)
 	{
 		if (method == null) return null;
-		Pair<Method, Class< ? >> key = new Pair<Method, Class< ? >>(method, annotationClass);
-		Pair<Boolean, Annotation> pair = methodAnnotationCache.get(key);
+		Pair<IAnnotatedElement<A, AC>, A> pair = getCachedAnnotation(method, originalClass, annotationClass).getRight();
+		return pair == null ? null : pair.getRight();
+	}
+
+
+	public A getAnnotation(IAnnotatedField<A, AC> field, AC annotationClass)
+	{
+		if (field == null) return null;
+		Pair<IAnnotatedElement<A, AC>, A> pair = getCachedAnnotation(field, annotationClass).getRight();
+		return pair == null ? null : pair.getRight();
+	}
+
+	public A getAnnotation(IAnnotatedClass<A, AC> targetClass, AC annotationClass)
+	{
+		if (targetClass == null) return null;
+		Pair<IAnnotatedElement<A, AC>, A> pair = getCachedAnnotation(targetClass, annotationClass).getRight();
+		return pair == null ? null : pair.getRight();
+	}
+
+	private Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>> getCachedAnnotation(IAnnotatedMethod<A, AC> method, IAnnotatedClass<A, AC> originalClass,
+		AC annotationClass)
+	{
+		Pair<Pair<IAnnotatedMethod<A, AC>, IAnnotatedClass<A, AC>>, AC> key = new Pair<Pair<IAnnotatedMethod<A, AC>, IAnnotatedClass<A, AC>>, AC>(
+			new Pair<IAnnotatedMethod<A, AC>, IAnnotatedClass<A, AC>>(method, originalClass), annotationClass);
+		Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>> pair = methodAnnotationCache.get(key);
 		if (pair == null)
 		{
-			Annotation annotation = null;
-			for (Class< ? > cls = originalClass; annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
-			{
-				// check if the method is part of an interface that has the annotation
-				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(cls, method, annotationClass, stopAnnotation, false);
-				annotation = x.getRight();
-				if (x.getLeft().booleanValue()) break; // stop encountered
-			}
-			methodAnnotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
+			methodAnnotationCache.put(key, pair = getAnnotationFromSuperclasses(originalClass, method, null, annotationClass));
 		}
 
 		return pair;
 	}
 
-	private Pair<Boolean, Annotation> getAnnotationFromInterfaces(Class< ? > cls, Method method, Class< ? extends Annotation> searchedAnnotation,
-		Class< ? extends Annotation> stopAnnotation, boolean stopAlreadyEncountered)
+	private Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>> getAnnotationFromSuperclasses(IAnnotatedClass<A, AC> originalClass,
+		IAnnotatedMethod<A, AC> method, IAnnotatedField<A, AC> field, AC annotationClass)
 	{
-		Annotation a = null;
-		boolean stopped = false;
-		boolean stopEncountered = false;
+		for (IAnnotatedClass<A, AC> cls = originalClass; cls != null; cls = cls.getSuperclass())
+		{
+			// check if the method is part of an interface that has the annotation
+			Pair<IAnnotatedElement<A, AC>, A> pair = getAnnotationFromInterfaces(cls, method, field, annotationClass);
+			if (pair != null)
+			{
+				return new Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>(Boolean.TRUE, pair);
+			}
+		}
+		return new Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>>(Boolean.FALSE, null);
+	}
+
+	private Pair<IAnnotatedElement<A, AC>, A> getAnnotationFromInterfaces(IAnnotatedClass<A, AC> cls, IAnnotatedMethod<A, AC> method,
+		IAnnotatedField<A, AC> field, AC searchedAnnotation)
+	{
+		A annotation = null;
+		IAnnotatedElement<A, AC> annotatedElement = null;
 
 		if (method != null)
 		{
-			Method m = null;
-			try
-			{
-				// the declaring class check that follows is only a small optimisation
-				m = (method.getDeclaringClass() == cls) ? method : cls.getMethod(method.getName(), method.getParameterTypes());
-
-				// in case a stop annotation is also involved, make sure methods are checked in order;
-				// for example interface A extends B extends C, both B and C have method x(), when you do A.class.getMethod(...x info...)
-				// you will randomly get either the one from B or C (I think depending on how it was compiled - not sure about that though)
-				if (stopAnnotation != null && m.getDeclaringClass() != cls) m = null;
-			}
-			catch (SecurityException e)
-			{
-			}
-			catch (NoSuchMethodException e)
-			{
-			}
-
+			IAnnotatedMethod<A, AC> m = cls.getMethod(method.getSignature());
 			if (m != null)
 			{
-				if (stopAlreadyEncountered) stopped = true;
-				else
+				annotation = m.getAnnotation(searchedAnnotation);
+				annotatedElement = m;
+				if (annotation == null)
 				{
-					a = m.getAnnotation(searchedAnnotation);
-					if (a == null && stopAnnotation != null && (m.getAnnotation(stopAnnotation) != null)) stopped = true;
-					if (a == null && stopAnnotation != null && !stopped) // this assumes that only start+stop annotations can be set at class level as well as method level (so ServoyMobile annotation)
-					{
-						a = cls.getAnnotation(searchedAnnotation);
-					}
+					// first check if the class where the method is defined has the annotation
+					annotation = method.getDeclaringClass().getAnnotation(searchedAnnotation);
+					annotatedElement = method.getDeclaringClass();
 				}
 			}
-			else if (stopAnnotation != null) stopEncountered = stopAlreadyEncountered || (cls.getAnnotation(stopAnnotation) != null);
-		}
-		else
-		{
-			a = cls.getAnnotation(searchedAnnotation);
-			if (a == null && stopAnnotation != null) stopped = (cls.getAnnotation(stopAnnotation) != null);
 		}
 
-		if (a == null && !stopped)
+		if (annotation == null && field != null)
 		{
-			for (Class< ? > anInterface : cls.getInterfaces())
-			{
-				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(anInterface, method, searchedAnnotation, stopAnnotation, stopEncountered);
-				a = x.getRight();
-				stopped = x.getLeft().booleanValue();
-				if (a != null) break;
-			}
-		}
-		return new Pair<Boolean, Annotation>(Boolean.valueOf(stopped), a);
-	}
-
-	public boolean isAnnotationPresent(Class< ? > cls, Class< ? extends Annotation> annotationClass)
-	{
-		return getCachedAnnotation(cls, annotationClass, null).getLeft().booleanValue();
-	}
-
-	public boolean isMobileAnnotationPresent(Class< ? > cls)
-	{
-		return getCachedAnnotation(cls, ServoyMobile.class, ServoyMobileFilterOut.class).getLeft().booleanValue();
-	}
-
-	private Pair<Boolean, Annotation> getCachedAnnotation(Class< ? > targetClass, Class< ? extends Annotation> annotationClass,
-		Class< ? extends Annotation> stopAnnotation)
-	{
-		Pair<Class< ? >, Class< ? >> key = new Pair<Class< ? >, Class< ? >>(targetClass, annotationClass);
-		Pair<Boolean, Annotation> pair = classAnnotationCache.get(key);
-		if (pair == null)
-		{
-			Class< ? > clz = targetClass;
-			Annotation annotation = null;
-			for (; annotation == null && (clz != Object.class && clz != null); clz = clz.getSuperclass())
-			{
-				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(clz, (Method)null, annotationClass, stopAnnotation, false);
-				annotation = x.getRight();
-				if (x.getLeft().booleanValue()) break; // stop encountered
-			}
-			classAnnotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
-		}
-
-		return pair;
-	}
-
-	public boolean isAnnotationPresent(Field field, Class< ? extends Annotation> annotationClass)
-	{
-		return getCachedAnnotation(field, annotationClass, null).getLeft().booleanValue();
-	}
-
-	public boolean isMobileAnnotationPresent(Field field)
-	{
-		return getCachedAnnotation(field, ServoyMobile.class, ServoyMobileFilterOut.class).getLeft().booleanValue();
-	}
-
-	private Pair<Boolean, Annotation> getCachedAnnotation(Field field, Class< ? extends Annotation> annotationClass, Class< ? extends Annotation> stopAnnotation)
-	{
-		Pair<Field, Class< ? >> key = new Pair<Field, Class< ? >>(field, annotationClass);
-		Pair<Boolean, Annotation> pair = fieldAnnotationCache.get(key);
-		if (pair == null)
-		{
-			Annotation annotation = null;
-			for (Class< ? > cls = field.getDeclaringClass(); annotation == null && (cls != Object.class && cls != null); cls = cls.getSuperclass())
-			{
-				// check if the method is part of an interface that has the annotation
-				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(cls, field, annotationClass, stopAnnotation, false);
-				annotation = x.getRight();
-				if (x.getLeft().booleanValue()) break; // stop encountered
-			}
-			fieldAnnotationCache.put(key, pair = new Pair<Boolean, Annotation>(annotation == null ? Boolean.FALSE : Boolean.TRUE, annotation));
-		}
-
-		return pair;
-	}
-
-	private Pair<Boolean, Annotation> getAnnotationFromInterfaces(Class< ? > cls, Field field, Class< ? extends Annotation> searchedAnnotation,
-		Class< ? extends Annotation> stopAnnotation, boolean stopAlreadyEncountered)
-	{
-		Annotation a = null;
-		boolean stopped = false;
-		boolean stopEncountered = false;
-
-		if (field != null)
-		{
-			Field f = null;
-			try
-			{
-				f = (field.getDeclaringClass() == cls) ? field : cls.getField(field.getName());
-			}
-			catch (SecurityException e)
-			{
-			}
-			catch (NoSuchFieldException e)
-			{
-			}
-
+			IAnnotatedField<A, AC> f = cls.getField(field.getName());
 			if (f != null)
 			{
-				if (stopAlreadyEncountered) stopped = true;
-				else
+				annotation = f.getAnnotation(searchedAnnotation);
+				annotatedElement = f;
+				// first check if the class where the field is defined has the annotation
+				if (annotation == null)
 				{
-					a = f.getAnnotation(searchedAnnotation);
-					if (a == null && stopAnnotation != null && (f.getAnnotation(stopAnnotation) != null)) stopped = true;
-					if (a == null && stopAnnotation != null && !stopped)
+					annotation = field.getDeclaringClass().getAnnotation(searchedAnnotation);
+					annotatedElement = field.getDeclaringClass();
+				}
+			}
+		}
+
+		if (annotation == null)
+		{
+			// for fields and methods only use annotations when the field or method is defined in the class
+			if (method == null && field == null)
+			{
+				// looking for annotation at class level
+				annotation = cls.getAnnotation(searchedAnnotation);
+				annotatedElement = cls;
+
+				if (annotation == null)
+				{
+					// search interfaces
+					for (IAnnotatedClass<A, AC> anInterface : cls.getInterfaces())
 					{
-						a = cls.getAnnotation(searchedAnnotation);
+						Pair<IAnnotatedElement<A, AC>, A> pair = getAnnotationFromInterfaces(anInterface, method, field, searchedAnnotation);
+						if (pair != null)
+						{
+							return pair;
+						}
 					}
 				}
 			}
-			else if (stopAnnotation != null) stopEncountered = stopAlreadyEncountered || (cls.getAnnotation(stopAnnotation) != null);
-		}
-		else
-		{
-			a = cls.getAnnotation(searchedAnnotation);
-			if (a == null && stopAnnotation != null) stopped = (cls.getAnnotation(stopAnnotation) != null);
-		}
-
-		if (a == null && !stopped)
-		{
-			for (Class< ? > anInterface : cls.getInterfaces())
+			else
 			{
-				Pair<Boolean, Annotation> x = getAnnotationFromInterfaces(anInterface, field, searchedAnnotation, stopAnnotation, stopEncountered);
-				a = x.getRight();
-				stopped = x.getLeft().booleanValue();
-				if (a != null) break;
+				// for methods and fields first search interfaces
+				for (IAnnotatedClass<A, AC> anInterface : cls.getInterfaces())
+				{
+					Pair<IAnnotatedElement<A, AC>, A> pair = getAnnotationFromInterfaces(anInterface, method, field, searchedAnnotation);
+					if (pair != null)
+					{
+						return pair;
+					}
+				}
+
+				// looking for annotation at field or method level, use cached annotation for class
+				Pair<IAnnotatedElement<A, AC>, A> pair = getCachedAnnotation(cls, searchedAnnotation).getRight();
+				if (pair != null)
+				{
+					// check if the place where the annotation was configured the method/field is present
+					if (pair.getLeft() instanceof IAnnotatedClass< ? , ? >)
+					{
+						if (method != null && ((IAnnotatedClass<A, AC>)pair.getLeft()).isAssignableFrom(method.getDeclaringClass()) &&
+							((IAnnotatedClass<A, AC>)pair.getLeft()).getMethod(method.getSignature()) != null)
+						{
+							return pair;
+						}
+						else if (field != null && ((IAnnotatedClass<A, AC>)pair.getLeft()).isAssignableFrom(field.getDeclaringClass()) &&
+							((IAnnotatedClass<A, AC>)pair.getLeft()).getField(field.getName()) != null)
+						{
+							return pair;
+						}
+						// if we get here, class/interface-level annotation is not applicable to the method/field
+					}
+				}
 			}
 		}
-		return new Pair<Boolean, Annotation>(Boolean.valueOf(stopped), a);
+
+		return annotation == null ? null : new Pair<IAnnotatedElement<A, AC>, A>(annotatedElement, annotation);
 	}
 
-	public static void flushCachedItems()
+	private Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>> getCachedAnnotation(IAnnotatedClass<A, AC> targetClass, AC annotationClass)
 	{
-		INSTANCE = null;
+		Pair<IAnnotatedClass<A, AC>, AC> key = new Pair<IAnnotatedClass<A, AC>, AC>(targetClass, annotationClass);
+		Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>> pair = classAnnotationCache.get(key);
+		if (pair == null)
+		{
+			classAnnotationCache.put(key, pair = getAnnotationFromSuperclasses(targetClass, null, null, annotationClass));
+		}
+
+		return pair;
+	}
+
+	private Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>> getCachedAnnotation(IAnnotatedField<A, AC> field, AC annotationClass)
+	{
+		Pair<IAnnotatedField<A, AC>, AC> key = new Pair<IAnnotatedField<A, AC>, AC>(field, annotationClass);
+		Pair<Boolean, Pair<IAnnotatedElement<A, AC>, A>> pair = fieldAnnotationCache.get(key);
+		if (pair == null)
+		{
+			fieldAnnotationCache.put(key, pair = getAnnotationFromSuperclasses(field.getDeclaringClass(), null, field, annotationClass));
+		}
+
+		return pair;
+	}
+
+	//////////////// interfaces //////////////////////
+
+	public interface IAnnotatedElement<A, AC>
+	{
+		A getAnnotation(AC searchedAnnotation);
+	}
+
+	public interface IAnnotatedMethod<A, AC> extends IAnnotatedElement<A, AC>
+	{
+		Object getSignature();
+
+		IAnnotatedClass<A, AC> getDeclaringClass();
+	}
+
+	public interface IAnnotatedClass<A, AC> extends IAnnotatedElement<A, AC>
+	{
+		IAnnotatedClass<A, AC> getSuperclass();
+
+		IAnnotatedField<A, AC> getField(String name);
+
+		Collection<IAnnotatedClass<A, AC>> getInterfaces();
+
+		boolean isAssignableFrom(IAnnotatedClass<A, AC> declaringClass);
+
+		IAnnotatedMethod<A, AC> getMethod(Object signature);
+	}
+
+	public interface IAnnotatedField<A, AC> extends IAnnotatedElement<A, AC>
+	{
+		String getName();
+
+		IAnnotatedClass<A, AC> getDeclaringClass();
 	}
 }

@@ -15,36 +15,20 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.ui.runtime;
-
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
+package com.servoy.j2db.ui;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for components with placeholder support.
+ * Documentation class for inset list from mobile client.
  * 
  * @author lvostinar
- * 
- * @since 7.0
  *
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
-public interface HasRuntimePlaceholder
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeInsetList", extendsComponent = "RuntimeComponent")
+@ServoyClientSupport(mc = true, sc = false, wc = false)
+public interface IScriptInsetListComponentMethods extends IScriptPortalComponentMethods
 {
-	/**
-	 * Gets or sets the placeholder text in a field.
-	 *
-	 * @sample
-	 * //get the placeholder text
-	 * var placeholderText = %%prefix%%%%elementName%%.placeholderText;
-	 * //set another placeholder
-	 * %%prefix%%%%elementName%%.placeholderText = 'Search..';
-	 */
-	@JSGetter
-	public String getPlaceholderText();
 
-	@JSSetter
-	public void setPlaceholderText(String placeholder);
 }

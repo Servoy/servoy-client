@@ -21,8 +21,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Iterator;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -32,7 +31,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Portal extends BaseComponent implements ISupportFormElements, ISupportScrollbars, ISupportTabSeq
 {
 	/**
@@ -62,7 +61,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * The name of the relationship between the table related to the currently active 
 	 * form and the table you want to show data from in the portal.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getRelationName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME);

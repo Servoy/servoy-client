@@ -223,11 +223,15 @@ public class WebFormManager extends FormManager
 					if (formVisible)
 					{
 						FormController fc = leaseFormPanel(fp.getName());
-						fc.loadData(foundset, null);
-						if (refresh) fc.recreateUI();
-						List<Runnable> runnables = new ArrayList<Runnable>();
-						((IWebFormContainer)wfParent).notifyVisible(true, runnables);
-						Utils.invokeLater(getApplication(), runnables);
+						if (fc != null)
+						{
+							// form was deleted in developer?
+							fc.loadData(foundset, null);
+							if (refresh) fc.recreateUI();
+							List<Runnable> runnables = new ArrayList<Runnable>();
+							((IWebFormContainer)wfParent).notifyVisible(true, runnables);
+							Utils.invokeLater(getApplication(), runnables);
+						}
 					}
 				}
 				else if (wfParent != null)
@@ -248,11 +252,14 @@ public class WebFormManager extends FormManager
 							{
 								navigatorName = fp.getName();
 								FormController navigator = getFormController(navigatorName, parent);
-								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-								navigator.notifyVisible(true, invokeLaterRunnables);
-								Utils.invokeLater(getApplication(), invokeLaterRunnables);
-								parent.setNavigator(navigator);
-//								parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set
+								if (navigator != null)
+								{
+									List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+									navigator.notifyVisible(true, invokeLaterRunnables);
+									Utils.invokeLater(getApplication(), invokeLaterRunnables);
+									parent.setNavigator(navigator);
+									//parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set
+								}
 							}
 
 							FormController previousMainShowingForm = (parent != null ? parent.getController() : null);

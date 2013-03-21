@@ -18,41 +18,58 @@
 package com.servoy.j2db.documentation.mobile.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class)
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
+public class BaseDocsGraphicalComponentWithTitle extends BaseDocsGraphicalComponent
 {
 	/**
-	 * Label (header) size property.
-	 * Sets the header size on a label. Valid values are between 'h1' to 'h6',
-	 * default value is 'h4'.
-	 * The numbers match the heading tags h1 to h6 as used in html.
+	 * Dataprovider for header text to field component
 	 */
-	public int getLabelSize()
+	public String getTitleDataProviderID()
 	{
-		return 0;
+		return null;
 	}
 
 	@SuppressWarnings("unused")
-	public void setLabelSize(int labelSize)
+	public void setTitleDataProviderID(String arg)
 	{
 	}
 
-	public boolean getTitleVisible()
+	/**
+	 * Flag for header text to field component that enables or disables merging of data inside components using tags (placeholders).
+	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
+	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
+	 * are a set of predefined tags that are made available by the system.
+	 * 
+	 * See the "Merging data" section for more details about tags.
+	 * 
+	 * The default value of this flag is "false", that is merging of data is disabled by default.
+	 */
+	public boolean getTitleDisplaysTags()
 	{
 		return false;
 	}
 
 	@SuppressWarnings("unused")
-	public void setTitleVisible(boolean arg)
+	public void setTitleDisplaysTags(boolean arg)
+	{
+	}
+
+	/**
+	 * Header text to component
+	 */
+	public String getTitleText()
+	{
+		return null;
+	}
+
+	@SuppressWarnings("unused")
+	public void setTitleText(String arg)
 	{
 	}
 }

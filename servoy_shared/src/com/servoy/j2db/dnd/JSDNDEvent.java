@@ -19,7 +19,7 @@ package com.servoy.j2db.dnd;
 import java.awt.Event;
 import java.util.Arrays;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSBaseEvent;
@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.JSBaseEvent;
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDNDEvent")
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class JSDNDEvent extends JSBaseEvent
 {
 	/**
@@ -92,7 +92,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_SHIFT = Event.SHIFT_MASK;
 
@@ -101,7 +101,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_CTRL = Event.CTRL_MASK;
 
@@ -110,7 +110,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_META = Event.META_MASK;
 
@@ -119,7 +119,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @sampleas getModifiers()
 	 * 
-	 * @see com.servoy.j2db.scripting.JSDNDEvent#js_getModifiers()
+	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_ALT = Event.ALT_MASK;
 

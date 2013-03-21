@@ -15,44 +15,36 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.ui;
+
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
- * Dummy class for use in the documentation generator.
- * 
- * @author rgansevles
+ * @author gboros
+ *
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeBean", extendsComponent = "RuntimeComponent")
+@ServoyClientSupport(mc = true, wc = false, sc = false)
+public interface IScriptMobileBean extends IRuntimeComponent
 {
 	/**
-	 * Label (header) size property.
-	 * Sets the header size on a label. Valid values are between 'h1' to 'h6',
-	 * default value is 'h4'.
-	 * The numbers match the heading tags h1 to h6 as used in html.
+	 * Gets or sets the text that is displayed on the bean
+	 * 
+	 * @sample
+	 * //gets the text of the element
+	 * var my_text = %%prefix%%%%elementName%%.text;
+	 *
+	 * //sets the text of the element
+	 * %%prefix%%%%elementName%%.text = my_text + 'is cool';
 	 */
-	public int getLabelSize()
-	{
-		return 0;
-	}
+	@JSGetter
+	public String getText();
 
-	@SuppressWarnings("unused")
-	public void setLabelSize(int labelSize)
-	{
-	}
-
-	public boolean getTitleVisible()
-	{
-		return false;
-	}
-
-	@SuppressWarnings("unused")
-	public void setTitleVisible(boolean arg)
-	{
-	}
+	@JSSetter
+	public void setText(String txt);
 }

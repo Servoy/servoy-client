@@ -17,14 +17,14 @@
 
 package com.servoy.base.scripting.api;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * @author lvostinar
  * @since 7.0
  *
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IJSHistory
 {
 	public void back();

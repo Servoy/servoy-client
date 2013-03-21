@@ -31,7 +31,6 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyClientSupport(mc = false, sc = true, wc = true)
 public class Field extends BaseComponent implements ISupportTextSetup, ISupportText, ISupportDataProviderID, ISupportScrollbars, ISupportTabSeq, IBaseField
 {
 	/*
@@ -99,6 +98,11 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EDITABLE, arg);
 	}
 
+	/**
+	 * Flag that tells if the content of the field can be edited or not. 
+	 * The default value of this flag is "true", that is the content can be edited.
+	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public boolean getEditable()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EDITABLE).booleanValue();
@@ -434,6 +438,11 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS, arg);
 	}
 
+	/**
+	 * The text that is displayed in the column header associated with the component when the form
+	 * is in table view.
+	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT);

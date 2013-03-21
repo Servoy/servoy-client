@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -179,7 +179,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The name of the form.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
@@ -267,7 +267,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * The names of the database server and table that this form is linked to.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getDataSource()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE);
@@ -379,7 +379,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * This feature defers all related foundset data loading to the background - enhancing 
 	 * the visual display of a related foundset.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getView()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VIEW).intValue();
@@ -1147,7 +1147,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnLoadMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID).intValue();
@@ -1211,7 +1211,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnHideMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
@@ -1248,7 +1248,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnRecordSelectionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID).intValue();
@@ -1267,7 +1267,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnShowMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID).intValue();
@@ -2199,7 +2199,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * 
 	 * @return the encapsulation mode/level for the form
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getEncapsulation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();

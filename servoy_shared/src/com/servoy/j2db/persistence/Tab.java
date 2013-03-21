@@ -20,8 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -31,7 +30,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneable, ISupportUpdateableName, ISupportMedia, ICloneable, ISupportExtendsID
 {
 	private java.awt.Dimension dimension;
@@ -118,7 +117,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	 * The name of the relation that links the form which contains the tab 
 	 * with the form displayed in the tab.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getRelationName()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_RELATIONNAME);

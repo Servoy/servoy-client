@@ -17,7 +17,7 @@
 
 package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyMobile;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -33,7 +33,7 @@ public interface IBaseFieldCommon extends IBaseComponentCommon
 	/**
 	 * The dataprovider of the component.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getDataProviderID();
 
 	void setDataProviderID(String arg);
@@ -43,7 +43,7 @@ public interface IBaseFieldCommon extends IBaseComponentCommon
 	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
 	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTISELECT_LISTBOX or SPINNER.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	int getDisplayType();
 
 	void setDisplayType(int arg);
@@ -51,26 +51,8 @@ public interface IBaseFieldCommon extends IBaseComponentCommon
 	/**
 	 * The text that is displayed in field when the field doesn't have a text value.
 	 */
-	@ServoyMobile
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getPlaceholderText();
 
 	void setPlaceholderText(String arg);
-
-	/**
-	 * Flag that tells if the content of the field can be edited or not. 
-	 * The default value of this flag is "true", that is the content can be edited.
-	 */
-	@ServoyMobile
-	public boolean getEditable();
-
-	public void setEditable(boolean arg);
-
-	/**
-	 * The text that is displayed in the column header associated with the component when the form
-	 * is in table view.
-	 */
-	@ServoyMobile
-	public String getText();
-
-	public void setText(String arg);
 }

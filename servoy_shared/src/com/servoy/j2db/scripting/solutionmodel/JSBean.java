@@ -31,7 +31,7 @@ import com.servoy.j2db.solutionmodel.ISMBean;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBean
 {
 	public JSBean(IJSParent< ? > parent, Bean baseComponent, boolean isNew)
@@ -47,12 +47,14 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	 * application.output(bean.className);
 	 */
 	@JSGetter
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public String getClassName()
 	{
 		return getBaseComponent(false).getBeanClassName();
 	}
 
 	@JSSetter
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public void setClassName(String className)
 	{
 		getBaseComponent(true).setBeanClassName(className);

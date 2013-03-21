@@ -22,7 +22,7 @@ import java.net.URL;
 
 import javax.swing.JEditorPane;
 
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -36,7 +36,7 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  * @since 6.0
  */
-@ServoyMobileFilterOut
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class RuntimeHTMLArea extends AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> implements IRuntimeHtmlArea
 {
 	public RuntimeHTMLArea(IStylePropertyChangesRecorder jsChangeRecorder, IApplication application)

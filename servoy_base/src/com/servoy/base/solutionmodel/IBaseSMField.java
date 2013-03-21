@@ -18,8 +18,7 @@
 package com.servoy.base.solutionmodel;
 
 import com.servoy.base.persistence.constants.IFieldConstants;
-import com.servoy.base.scripting.annotations.ServoyMobile;
-import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -30,7 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyMobileFilterOut;
  *
  * @since 7.0
  */
-@ServoyMobile
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 // TODO ac filter-out unsupported field types from servoy mobile
 public interface IBaseSMField extends IBaseSMComponent
 {
@@ -95,7 +94,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
 	 */
 	// to be included in mobile in future versions
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int CALENDAR = IFieldConstants.CALENDAR;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -113,7 +112,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * 	var rtf = form.newField('my_table_rtf', JSField.RTF_AREA, 10, 340, 100, 50);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int RTF_AREA = IFieldConstants.RTF_AREA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -122,7 +121,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * var html = form.newField('my_table_html', JSField.HTML_AREA, 10, 130, 100, 50);
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int HTML_AREA = IFieldConstants.HTML_AREA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -132,7 +131,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var img = form.newField('my_table_image', JSField.IMAGE_MEDIA, 10, 190, 100, 50);
 	 */
 	// to be included in mobile in future versions
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int IMAGE_MEDIA = IFieldConstants.IMAGE_MEDIA;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -145,7 +144,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var tahead = form.newField('my_table_text', JSField.TYPE_AHEAD, 10, 490, 100, 20);
 	 * tahead.valuelist = vlist;
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TYPE_AHEAD = IFieldConstants.TYPE_AHEAD;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -171,7 +170,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var list = form.newField('my_table_list', JSField.LISTBOX, 10, 280, 100, 50);
 	 * list.valuelist = vlist;
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int LISTBOX = IFieldConstants.LIST_BOX;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -183,7 +182,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var list = form.newField('my_table_options', JSField.MULTISELECT_LISTBOX, 10, 280, 100, 50);
 	 * list.valuelist = vlist;
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int MULTISELECT_LISTBOX = IFieldConstants.MULTISELECT_LISTBOX;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
@@ -195,7 +194,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var spinner = form.newField('my_spinner', JSField.SPINNER, 10, 460, 100, 20);
 	 * spinner.valuelist = vlist;
 	 */
-	@ServoyMobileFilterOut
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int SPINNER = IFieldConstants.SPINNER;
 
 	/**

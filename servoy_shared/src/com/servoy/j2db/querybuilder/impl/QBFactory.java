@@ -32,7 +32,7 @@ import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
-import com.servoy.j2db.scripting.annotations.AnnotationManager;
+import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -78,7 +78,7 @@ public class QBFactory implements IQueryBuilderFactory
 		{
 			for (Method method : clazz.getMethods())
 			{
-				if (AnnotationManager.getInstance().isAnnotationPresent(method, clazz, JSFunction.class))
+				if (AnnotationManagerReflection.getInstance().isAnnotationPresent(method, clazz, JSFunction.class))
 				{
 					String name = method.getName();
 					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);

@@ -109,7 +109,9 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public String getApplicationName();
 
 	/**
-	 * Map containing runtime properties (will never be stored, and live one session)
+	 * Map containing runtime properties (will never be stored, and lives one session only)
+	 * One Servoy influenced runtime property is printing state, which can be checked like:
+	 * boolean isPrinting = Boolean.valueOf(access.getRuntimeProperties().get("isPrinting"));
 	 * 
 	 * @since Servoy 3.5
 	 */
