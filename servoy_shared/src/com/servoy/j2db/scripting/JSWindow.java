@@ -579,10 +579,10 @@ public class JSWindow implements IConstantsObject
 	 * Get the current controller from the window/dialog.
 	 * 
 	 * @sample
-	 * var formName = application.getWindow('test').currentcontroller.getName();
+	 * var formName = application.getWindow('test').controller.getName();
 	 */
 	@JSReadonlyProperty
-	public JSForm getCurrentcontroller()
+	public JSForm getController()
 	{
 		FormController controller = impl.getCurrentController();
 		if (controller != null)
