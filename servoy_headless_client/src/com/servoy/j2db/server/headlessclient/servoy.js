@@ -118,57 +118,78 @@ function clearDoubleClickId(elementId)
 
 var focusedValue = null;
 var focusedElement = null;
+var focusedElementCaretPosition = 0;
 var ignoreFocusGained = null;
-function storeValueBeforeUpdate()
+function storeValueAndCursorBeforeUpdate()
 {
-
 	focusedElement = Wicket.Focus.getFocusedElement();
-	if (typeof(focusedElement) != "undefined" && focusedElement != null
-	 && focusedElement.type != "button" && focusedElement.type != "submit")
+	if (typeof(focusedElement) != "undefined" && focusedElement != null)
 	{
-		ignoreFocusGained = focusedElement.id;
-		var valueChangedId = null;
-		for (var i=0;i<arguments.length;i++)
+		var focusedElementType = focusedElement.getAttribute("type");
+		if(focusedElementType != "button" && focusedElementType != "submit")
 		{
-			if(arguments[i] == focusedElement.id)
+			if(focusedElementType == "text" || focusedElementType == "textarea")
 			{
-				valueChangedId = arguments[i];
-				break;
+				focusedElementCaretPosition = Servoy.Utils.doGetCaretPosition(focusedElement, true); 
 			}
-		}
-		if (!valueChangedId)
-		{
-			focusedValue = focusedElement.value;
-			// We need this trick because in Safari 4.0.4 it seems that the Ajax refresh is not done atomically.
-			focusedElement.SERVOY_DONT_UPDATE_THIS_BECAUSE_ITS_NOT_CHANGED = true;
-		}
-		else
-		{
-			focusedElement = null;
+			ignoreFocusGained = focusedElement.id;
+			var valueChangedId = null;
+			for (var i=0;i<arguments.length;i++)
+			{
+				if(arguments[i] == focusedElement.id)
+				{
+					valueChangedId = arguments[i];
+					break;
+				}
+			}
+			if (!valueChangedId)
+			{
+				focusedValue = focusedElement.value;
+				// We need this trick because in Safari 4.0.4 it seems that the Ajax refresh is not done atomically.
+				focusedElement.SERVOY_DONT_UPDATE_THIS_BECAUSE_ITS_NOT_CHANGED = true;
+			}
+			else
+			{
+				focusedElement = null;
+			}
 		}
 	}
 	else
 	{
 		focusedElement = null;
-	}
-	
+	}	
 }
-
-function restoreValueAfterUpdate()
+ 
+function restoreValueAndCursorAfterUpdate()
 {
 	var element = Wicket.Focus.getFocusedElement();
 	if (focusedElement != null && element != null  
 		&& element.id == focusedElement.id 
-		&& typeof(element) != "undefined"
-		&& element.value != focusedValue)
+		&& typeof(element) != "undefined")
 	{
-		if (element.SERVOY_DONT_UPDATE_THIS_BECAUSE_ITS_NOT_CHANGED)
+		if(element.value != focusedValue)
 		{
-			element.SERVOY_DONT_UPDATE_THIS_BECAUSE_ITS_NOT_CHANGED = false;
+			if (element.SERVOY_DONT_UPDATE_THIS_BECAUSE_ITS_NOT_CHANGED)
+			{
+				element.SERVOY_DONT_UPDATE_THIS_BECAUSE_ITS_NOT_CHANGED = false;
+			}
+			else 
+			{
+				element.value = focusedValue;
+			}
 		}
-		else 
+		else
 		{
-			element.value = focusedValue;
+			var focusedElementType = focusedElement.getAttribute("type");
+			if(focusedElementType == "text" || focusedElementType == "textarea")
+			{
+				// setting caret position will fire onfocus in chrome, so
+				// remove it temporaly
+				var temp = element.onfocus;
+				element.onfocus = null;
+				Servoy.Utils.doSetCaretPosition(element, focusedElementCaretPosition);
+				setTimeout(function() { element.onfocus = temp; }, 0);	
+			}			
 		}
 	}
 	focusedElement = null;
@@ -2056,7 +2077,7 @@ if (typeof(Servoy.Utils) == "undefined")
 	    **  Returns the caret (cursor) position of the specified text field.
 	    **  Return value range is 0-oField.length.
 	    */
-	   doGetCaretPosition: function(oField) {
+	   doGetCaretPosition: function(oField, doNotDuplicateTextRangeOnGet) {
 	     // Initialize
 	     var iCaretPos = 0;
 	
@@ -2070,8 +2091,10 @@ if (typeof(Servoy.Utils) == "undefined")
 	       var oSel = document.selection.createRange ();
 	  
 	       // Move selection start to 0 position
-	       oSel.duplicate().moveStart ('character', -oField.value.length);
-	  
+	       if(doNotDuplicateTextRangeOnGet)
+	    	   oSel.moveStart ('character', -oField.value.length);
+	       else
+	    	   oSel.duplicate().moveStart ('character', -oField.value.length);
 	       // The caret position is selection length
 	       iCaretPos = oSel.text.length;
 	     }

@@ -815,8 +815,8 @@ public class WebEventExecutor extends BaseEventExecutor
 						argument.append(",");
 					}
 				}
-				target.prependJavascript("storeValueBeforeUpdate(" + argument + ");");
-				target.appendJavascript("restoreValueAfterUpdate();");
+				target.prependJavascript("storeValueAndCursorBeforeUpdate(" + argument + ");");
+				target.appendJavascript("restoreValueAndCursorAfterUpdate();");
 
 				//if we have admin info, show it
 				String adminInfo = mainPage.getAdminInfo();
