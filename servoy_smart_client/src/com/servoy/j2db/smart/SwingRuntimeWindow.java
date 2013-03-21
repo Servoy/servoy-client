@@ -477,6 +477,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			{
 				sfd.setUndecorated(true);
 				sfd.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+				if (Utils.isAppleMacOS()) sfd.getRootPane().putClientProperty("Window.shadow", Boolean.FALSE); //$NON-NLS-1$
 			}
 			if (windowModal)
 			{
