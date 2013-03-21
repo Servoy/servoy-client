@@ -74,6 +74,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.FixedMaskFormatter;
 
 /**
  * The Typeahead/DataLookup field that pops up a list and filters that list as you type.
@@ -465,6 +466,15 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		{
 			if (list != null && changeListener != null) list.removeListDataListener(changeListener);
 			String txt = getText();
+			//if this Typeahead is using a masked formatter remove the mask characters before looking up the string
+			if (getFormatter() != null && (getFormatter() instanceof FixedMaskFormatter))
+			{
+				FixedMaskFormatter formatter = (FixedMaskFormatter)getFormatter();
+				int invalidOffset = formatter.getInvalidOffset(txt, true);
+				invalidOffset = (invalidOffset == -1 ? 0 : invalidOffset);
+				txt = txt.substring(0, invalidOffset);
+			}
+
 			if (txt.length() > 0 || Boolean.TRUE.equals(UIUtils.getUIProperty(this, IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, Boolean.TRUE)))
 			{
 				dlm.fill(parentState, dataProviderID, txt, firstTime);

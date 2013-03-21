@@ -487,7 +487,7 @@ public class FixedMaskFormatter extends FixedDefaultFormatter
 	 * Returns -1 if the passed in string is valid, otherwise the index of
 	 * the first bogus character is returned.
 	 */
-	private int getInvalidOffset(String string, boolean completeMatch)
+	public int getInvalidOffset(String string, boolean completeMatch)
 	{
 		int iLength = string.length();
 

@@ -370,6 +370,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			@Override
 			protected Iterator<Object> getChoices(String input)
 			{
+				input = filterInput(input);
 				if (changeListener != null) dlm.getValueList().removeListDataListener(changeListener);
 				try
 				{
@@ -385,6 +386,21 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					if (changeListener != null) dlm.getValueList().addListDataListener(changeListener);
 				}
 				return Collections.emptyList().iterator();
+			}
+
+			/**
+			 * filters the input in case of masked input (removes the mask)
+			 */
+			private String filterInput(String input)
+			{
+				String displayFormat = WebDataLookupField.this.parsedFormat.getDisplayFormat();
+				if (displayFormat != null && displayFormat.length() > 0)
+				{
+					int index = input.indexOf(' ');
+					if (index == -1) return input;
+					return input.substring(0, index);
+				}
+				return input;
 			}
 
 			/**
