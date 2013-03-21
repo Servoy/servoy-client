@@ -346,7 +346,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	 */
 	public String getAjaxIndicatorMarkupId()
 	{
-		return "indicator"; //$NON-NLS-1$
+		return WebClientSession.get().blockRequest() ? null : "indicator"; //$NON-NLS-1$
 	}
 
 	/**

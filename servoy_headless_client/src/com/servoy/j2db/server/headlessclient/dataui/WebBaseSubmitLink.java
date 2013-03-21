@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -186,7 +187,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 	 */
 	public String getAjaxIndicatorMarkupId()
 	{
-		return "indicator"; //$NON-NLS-1$
+		return WebClientSession.get().blockRequest() ? null : "indicator"; //$NON-NLS-1$ 
 	}
 
 	/**

@@ -184,7 +184,7 @@ public class ServoyActionEventBehavior extends ServoyAjaxFormComponentUpdatingBe
 	@Override
 	protected String findIndicatorId()
 	{
-		return "indicator"; //$NON-NLS-1$
+		return WebClientSession.get().blockRequest() ? null : "indicator"; //$NON-NLS-1$ 
 	}
 
 	@Override
