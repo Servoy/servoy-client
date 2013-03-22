@@ -73,12 +73,21 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 			String compId = getComponent().getMarkupId();
 			String newEh = Utils.stringReplace(eh.toString(), "'" + callbackUrl + "'", "callback"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			newEh = Utils.stringReplace(newEh, "'" + compId + "'", "componentId"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
+			newEh = enhanceFunctionScript(newEh);
 			response.renderJavascript("function " + getJSEventName() + "(event, callback, componentId ) { " + newEh + "}", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				getJSEventName());
 		}
 
 		isRenderHead = false;
+	}
+
+	/**
+	 * @param newEh
+	 * @return
+	 */
+	protected String enhanceFunctionScript(String newEh)
+	{
+		return newEh;
 	}
 
 	@Override
