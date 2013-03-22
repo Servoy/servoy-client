@@ -19,8 +19,6 @@ package com.servoy.j2db.dnd;
 import java.awt.Event;
 import java.util.Arrays;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -242,7 +240,6 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @return a String representing the type of this event.
 	 */
-	@JSFunction
 	@Override
 	public String getType()
 	{
@@ -261,7 +258,6 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 
 	 * @return an int which holds the modifiers as a bitset.
 	 */
-	@JSFunction
 	@Override
 	public int getModifiers()
 	{
