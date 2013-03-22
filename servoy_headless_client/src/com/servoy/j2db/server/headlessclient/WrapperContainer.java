@@ -136,7 +136,7 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 					changed = true;
 				}
 			}
-			else
+			else if (!"none".equals(changes.get("display"))) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				changes.put("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
 				changed = true;
