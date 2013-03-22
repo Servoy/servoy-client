@@ -95,4 +95,94 @@ public interface IScriptSplitPaneMethods extends IRuntimeSplitPane, IScriptTabPa
 	 * @return right form of the split pane
 	 */
 	public FormScope js_getRightForm();
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public Object js_getTabIndex();
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public void js_setTabIndex(Object arg);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public boolean js_addTab(Object[] vargs);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public int js_getMaxTabIndex();
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public String js_getTabFGColorAt(int i);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public String js_getTabFormNameAt(int i);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public String js_getTabNameAt(int i);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public String js_getTabRelationNameAt(int i);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public String js_getTabTextAt(int i);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public boolean js_isTabEnabledAt(int i);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public boolean removeAllTabs();
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public boolean js_removeTabAt(int i);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public void js_setTabEnabledAt(int i, boolean b);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public void js_setTabFGColorAt(int i, String clr);
+
+	/**
+	 * @deprecated
+	 */
+	@Deprecated
+	public void js_setTabTextAt(int i, String text);
 }
