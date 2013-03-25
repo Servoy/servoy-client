@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.documentation;
 
+
 /**
  * Enum for tagging which clients are supported for the property.
  * 
@@ -29,6 +30,8 @@ public enum ClientSupport
 	mc(1), wc(2), sc(4), mc_wc(mc.bits | wc.bits), mc_sc(mc.bits | sc.bits), wc_sc(wc.bits | sc.bits), mc_wc_sc(mc.bits | wc.bits | sc.bits);
 
 	private final int bits;
+
+	public static final ClientSupport Default = wc_sc;
 
 	private ClientSupport(int bits)
 	{
@@ -74,6 +77,11 @@ public enum ClientSupport
 	public boolean supports(ClientSupport csp)
 	{
 		return csp != null && (bits & csp.bits) == csp.bits;
+	}
+
+	public ClientSupport union(ClientSupport scp)
+	{
+		return scp == null ? this : fromBits(bits | scp.bits);
 	}
 
 	public static ClientSupport create(boolean support_mc, boolean support_wc, boolean support_sc)
