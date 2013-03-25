@@ -609,4 +609,21 @@ public class Array
 	{
 		return null;
 	}
+
+	/**
+	 * Checks whether an object is an array or not.
+	 *
+	 * @sample
+	 * var a = [1, 2, 3];
+	 * application.output(Array.isArray(a)); //prints true
+	 * application.output(Array.isArray(23)); //prints false
+	 * 
+	 * @param obj
+	 * 
+	 * @link https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/isArray
+	 */
+	public Boolean js_isArray(Object obj)
+	{
+		return null;
+	}
 }
