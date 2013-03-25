@@ -511,7 +511,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return loginFlattenedSolution.createStyle(name, content);
 		}
 
-		if (all_styles.containsKey(name) && !deletedStyles.contains(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (getAllStyles().containsKey(name) && !deletedStyles.contains(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (user_created_styles == null) user_created_styles = new HashMap<String, Style>();
 		if (user_created_styles.containsKey(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -638,13 +638,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				combineServerProxies(mainSolution.getServerProxies(), module.getServerProxies());
 			}
 
-			all_styles = mainSolution.getSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES);
-			if (all_styles == null)
-			{
-				// this should normally not happen, because when solutions are loaded this property is set (by the repository)
-				all_styles = new HashMap<String, Style>();
-				mainSolution.setSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES, all_styles);
-			}
+			getAllStyles();
 		}
 
 		modules = getDependencyGraphOrderedModules(modulesMap.values(), mainSolution);
@@ -656,9 +650,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			{
 				synchronized (modStyles)
 				{
-					synchronized (all_styles) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards) 
+					Map<String, Style> allStyles = getAllStyles();
+					synchronized (allStyles) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards) 
 					{
-						all_styles.putAll(modStyles);
+						allStyles.putAll(modStyles);
 					}
 				}
 			}
@@ -668,6 +663,24 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 		}
 		refreshSuperForms(null);
+	}
+
+	/**
+	 * 
+	 */
+	private Map<String, Style> getAllStyles()
+	{
+		if (all_styles == null)
+		{
+			all_styles = mainSolution.getSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES);
+			if (all_styles == null)
+			{
+				// this should normally not happen, because when solutions are loaded this property is set (by the repository)
+				all_styles = new HashMap<String, Style>();
+				mainSolution.setSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES, all_styles);
+			}
+		}
+		return all_styles;
 	}
 
 	private static Solution[] getDependencyGraphOrderedModules(Collection<Solution> modules, Solution solution)
@@ -1799,7 +1812,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			return loginFlattenedSolution.getStyle(name);
 		}
-		Style style = all_styles.get(name);
+		Map<String, Style> allStyles = getAllStyles();
+		Style style = allStyles.get(name);
 		if (style == null)
 		{
 			try
@@ -1807,9 +1821,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				style = (Style)mainSolution.getRootObject().getRepository().getActiveRootObject(name, IRepository.STYLES);
 				if (style != null)
 				{
-					synchronized (all_styles)
+					synchronized (allStyles)
 					{
-						all_styles.put(name, style);
+						allStyles.put(name, style);
 					}
 				}
 			}
@@ -1835,6 +1849,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			{
 				return null;
 			}
+			Map<String, Style> allStyles = getAllStyles();
 			if (style_name != null)
 			{
 				String overridden = null;
@@ -1847,7 +1862,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					Style style = user_created_styles.get(style_name);
 					if (style != null) return style;
 				}
-				Style style = all_styles.get(style_name);
+				Style style = allStyles.get(style_name);
 				if (style != null)
 				{
 					return style;
@@ -1859,9 +1874,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						style = (Style)f.getRootObject().getRepository().getActiveRootObject(overridden, IRepository.STYLES);
 						if (style != null)
 						{
-							synchronized (all_styles)
+							synchronized (allStyles)
 							{
-								all_styles.put(style.getName(), style);
+								allStyles.put(style.getName(), style);
 							}
 							return style;
 						}
@@ -1877,9 +1892,9 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			Style s = loadStyleForForm(this, f);
 			if (s != null)
 			{
-				synchronized (all_styles)
+				synchronized (allStyles)
 				{
-					all_styles.put(s.getName(), s);
+					allStyles.put(s.getName(), s);
 				}
 			}
 			return s;
