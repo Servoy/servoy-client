@@ -34,7 +34,7 @@ public final class ProfileData
 
 	private final String functionName;
 	private final long time;
-	private final Object[] args;
+	private final String[] args;
 	private final String sourceName;
 
 	private final List<ProfileData> childs = new ArrayList<ProfileData>();
@@ -79,7 +79,7 @@ public final class ProfileData
 			this.isCalculation = false;
 		}
 		this.time = time;
-		this.args = args;
+		this.args = new String[args.length];
 		this.sourceName = sourceName;
 
 
@@ -137,7 +137,15 @@ public final class ProfileData
 					added = true;
 				}
 				sb.append("]"); //$NON-NLS-1$
-				args[i] = sb.toString();
+				this.args[i] = sb.toString();
+			}
+			else if (args[i] instanceof Undefined)
+			{
+				this.args[i] = "undefined"; //$NON-NLS-1$
+			}
+			else
+			{
+				this.args[i] = args[i] != null ? args[i].toString() : null;
 			}
 		}
 	}
@@ -211,21 +219,7 @@ public final class ProfileData
 
 	public String getArgs()
 	{
-		Object[] cleanList = new Object[args.length];
-		// replace "org.mozilla.javascript.Undefined@319d6e87" with "undefined" 
-		for (int i = 0; i < args.length; i++)
-		{
-			Object object = args[i];
-			if (object instanceof Undefined)
-			{
-				cleanList[i] = "undefined";
-			}
-			else
-			{
-				cleanList[i] = object;
-			}
-		}
-		return Arrays.toString(cleanList);
+		return Arrays.toString(args);
 	}
 
 	public long getOwnTime()
