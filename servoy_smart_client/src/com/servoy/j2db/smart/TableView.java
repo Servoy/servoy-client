@@ -195,7 +195,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 	private final ISupportOnRenderCallback dataRendererOnRenderWrapper;
 	private IStyleSheet styleSheet;
 	private IStyleRule oddStyle, evenStyle, selectedStyle, headerStyle;
-
+	private final List<CellAdapter> nonViewableColumns = new ArrayList<CellAdapter>();
 
 	public TableView(IApplication app, final FormController fc, Form formForStyles, final AbstractBase cellview, final IScriptExecuter scriptExecuter,
 		IDataRenderer headerComp, IDataRenderer leadingGrandSummaryComp, boolean printing)
@@ -686,6 +686,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 								}
 							}
 							index++;
+						}
+						else
+						{
+							nonViewableColumns.add(ca);
 						}
 					}
 				}
@@ -2148,6 +2152,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		return new UnmovableTableHeader(columnModel);
 	}
 
+	public List<CellAdapter> getNonViewableColumns()
+	{
+		return nonViewableColumns;
+	}
 
 	class UnmovableTableHeader extends JTableHeader
 	{

@@ -148,7 +148,6 @@ import com.servoy.j2db.smart.dataui.VisibleBean;
 import com.servoy.j2db.smart.scripting.TwoNativeJavaObject;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
@@ -978,14 +977,16 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			else if (dr instanceof TableView)
 			{
 				TableView tv = (TableView)dr;
-				comps = new Component[tv.getColumnCount()];
-				compsRenderer = new Component[tv.getColumnCount()];
+				List<CellAdapter> nonViewableColumns = tv.getNonViewableColumns();
+				int componentCount = tv.getColumnCount() + nonViewableColumns.size();
+				comps = new Component[componentCount];
+				compsRenderer = new Component[componentCount];
 
-				CellAdapter[] tableCellAdapters = new CellAdapter[tv.getColumnCount()];
+				CellAdapter[] tableCellAdapters = new CellAdapter[componentCount];
 
-				for (int j = 0; j < comps.length; j++)
+				for (int j = 0; j < componentCount; j++)
 				{
-					tableCellAdapters[j] = (CellAdapter)tv.getCellEditor(0, j);
+					tableCellAdapters[j] = (j < tv.getColumnCount()) ? (CellAdapter)tv.getCellEditor(0, j) : nonViewableColumns.get(j - tv.getColumnCount());
 					comps[j] = tableCellAdapters[j].getEditor();
 					compsRenderer[j] = tableCellAdapters[j].getRenderer();
 				}
@@ -1030,11 +1031,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 						hmChildrenJavaMembers);
 				}
 
-				if (comp instanceof ISupportSecuritySettings && !((ISupportSecuritySettings)comp).isViewable())
-				{
-					// do not register non viewable components
-					continue;
-				}
 				String name = null;
 
 				if (comp instanceof IComponent)
