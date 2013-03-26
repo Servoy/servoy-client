@@ -169,6 +169,7 @@ import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IAnchorConstants;
+import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -926,6 +927,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					WebEventExecutor.generateResponse(target, getPage());
 				}
 
+				@Override
 				protected String enhanceFunctionScript(String newEh)
 				{
 					return "if(event.target && event.target.id == componentId) {" + newEh + '}'; //$NON-NLS-1$
@@ -1031,6 +1033,26 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			super(index, model);
 			setOutputMarkupId(true);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.apache.wicket.Component#onRemove()
+		 */
+		@Override
+		protected void onRemove()
+		{
+			visitChildren(IDestroyable.class, new IVisitor<Component>()
+			{
+				@Override
+				public Object component(Component component)
+				{
+					((IDestroyable)component).destroy();
+					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+				}
+			});
+			super.onRemove();
 		}
 
 		@Override

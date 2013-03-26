@@ -89,8 +89,6 @@ public class WebAnchoringHelper
 				return "margin: 0px;"; //$NON-NLS-1$
 			}
 		}));
-		compWrapper.add(comp);
-
 		return compWrapper;
 	}
 
