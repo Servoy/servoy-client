@@ -86,6 +86,7 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
+import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
@@ -99,7 +100,8 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * @author jcompagner
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
-	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider
+	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider,
+	IDestroyable
 {
 	/**
 	 * @author jcompagner
@@ -254,6 +256,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			}
 		}));
 		this.scriptable = scriptable;
+	}
+
+	public void destroy()
+	{
+		if (list != null) list.deregister();
 	}
 
 	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
@@ -718,7 +725,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		{
 			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
 			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(displayFormat, null, application.getLocale(), lenient);
-			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null) //$NON-NLS-1$
+			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null)
 			{
 				StateFullSimpleDateFormat editFormatter = new StateFullSimpleDateFormat(parsedFormat.getEditFormat(), null, application.getLocale(), lenient);
 				converter = new FormatConverter(this, eventExecutor, displayFormatter, editFormatter, parsedFormat);
