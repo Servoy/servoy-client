@@ -170,6 +170,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		appendArgumentsScopeToPreferedSolutionMethodArguments(argumentsScope);
 	}
 
+	private StartupArguments argumentsScope;
+
 	public void handleArguments(String[] args)
 	{
 		String[] filteredArgs = null;
@@ -195,7 +197,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		else
 		{
-			StartupArguments argumentsScope = new StartupArguments(filteredArgs);
+			argumentsScope = new StartupArguments(filteredArgs);
 
 			if (argumentsScope.getSolutionName() == null && argumentsScope.getMethodName() == null && argumentsScope.getFirstArgument() == null &&
 				argumentsScope.getClientIdentifier() == null)
@@ -467,6 +469,20 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 		if (solutions == null || solutions.length == 0)
 		{
+			if (!Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")))
+			{
+				if (argumentsScope != null)
+				{
+					try
+					{
+						SolutionMetaData smd = applicationServer.getSolutionDefinition(argumentsScope.getSolutionName(), solutionTypeFilter);
+						if (smd != null) return smd;
+					}
+					catch (RemoteException e)
+					{
+					}
+				}
+			}
 			throw new RuntimeException(Messages.getString("servoy.client.error.opensolution")); //$NON-NLS-1$
 		}
 		if (solutions.length == 1)
@@ -1103,6 +1119,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected transient boolean isClosing = false;
 
+	protected String[] startupArguments;
+
 	public boolean closeSolution(boolean force, Object[] args)
 	{
 		if (solutionRoot.getSolution() == null || isClosing) return true;
@@ -1119,9 +1137,25 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 					s_args[i] = (args[i] != null && args[i] != Scriptable.NOT_FOUND && args[i] != Undefined.instance ? args[i].toString() : null);
 				}
 			}
-			else if (!force && args == null && getPreferedSolutionNameToLoadOnInit() != null)
+			else if (!force && args == null)
 			{
-				s_args = new String[] { getPreferedSolutionNameToLoadOnInit() };
+				if (getPreferedSolutionNameToLoadOnInit() != null) s_args = new String[] { getPreferedSolutionNameToLoadOnInit() };
+				if (!Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")) && startupArguments != null)
+				{
+					if (s_args == null) s_args = startupArguments;
+					else
+					{
+						for (String arg : startupArguments)
+						{
+							if ((arg.startsWith("s:") || arg.startsWith("solution:")) &&
+								arg.substring(arg.indexOf(":")).equals(getPreferedSolutionNameToLoadOnInit()))
+							{
+								s_args = startupArguments;
+								break;
+							}
+						}
+					}
+				}
 			}
 
 			boolean autoSaveBlocked = false;
