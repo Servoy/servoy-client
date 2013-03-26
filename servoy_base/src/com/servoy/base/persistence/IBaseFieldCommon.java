@@ -27,13 +27,12 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  *
  * @since 7.0
  */
-//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
-public interface IBaseFieldCommon extends IBaseComponentCommon
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public interface IBaseFieldCommon extends IBaseComponent
 {
 	/**
 	 * The dataprovider of the component.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getDataProviderID();
 
 	void setDataProviderID(String arg);
@@ -43,7 +42,6 @@ public interface IBaseFieldCommon extends IBaseComponentCommon
 	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
 	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTISELECT_LISTBOX or SPINNER.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	int getDisplayType();
 
 	void setDisplayType(int arg);
@@ -51,7 +49,6 @@ public interface IBaseFieldCommon extends IBaseComponentCommon
 	/**
 	 * The text that is displayed in field when the field doesn't have a text value.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getPlaceholderText();
 
 	void setPlaceholderText(String arg);

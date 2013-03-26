@@ -27,13 +27,12 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  *
  * @since 7.0
  */
-//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseGraphicalComponent extends IBaseComponent, IBaseGraphicalComponentCommon
 {
 	/**
 	 * The method that is executed when the component is clicked.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	int getOnActionMethodID();
 
 	void setOnActionMethodID(int arg);

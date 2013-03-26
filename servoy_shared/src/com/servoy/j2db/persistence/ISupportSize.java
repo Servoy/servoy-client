@@ -16,10 +16,15 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface ISupportSize
 {
 	public void setSize(java.awt.Dimension d);
 
+	/**
+	 * The width and height (in pixels), separated by a comma.
+	 */
 	public java.awt.Dimension getSize();
 }

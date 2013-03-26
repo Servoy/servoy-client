@@ -27,13 +27,12 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  *
  * @since 7.0
  */
-//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
-public interface IBaseGraphicalComponentCommon extends IBaseComponentCommon
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public interface IBaseGraphicalComponentCommon extends IBaseComponent
 {
 	/**
 	 * The dataprovider of the component.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getDataProviderID();
 
 	void setDataProviderID(String arg);
@@ -41,7 +40,6 @@ public interface IBaseGraphicalComponentCommon extends IBaseComponentCommon
 	/**
 	 * The text that is displayed inside the component.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getText();
 
 	void setText(String arg);
@@ -56,7 +54,6 @@ public interface IBaseGraphicalComponentCommon extends IBaseComponentCommon
 	 * 
 	 * The default value of this flag is "false", that is merging of data is disabled by default.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	boolean getDisplaysTags();
 
 	void setDisplaysTags(boolean arg);

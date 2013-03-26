@@ -16,14 +16,20 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+
 
 /**
  * Location extension on size to makeup bounds of elements
  * @author jblok
  */
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface ISupportBounds extends ISupportSize
 {
 	public void setLocation(java.awt.Point p);
 
+	/**
+	 * The x and y position of the component, in pixels, separated by a comma.
+	 */
 	public java.awt.Point getLocation();
 }

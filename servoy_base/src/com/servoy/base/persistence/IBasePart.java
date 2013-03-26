@@ -28,13 +28,12 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @since 7.0
  */
 
-//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBasePart
 {
 	/**
 	 * The Cascading Style Sheet (CSS) class name applied to the part. 
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	String getStyleClass();
 
 	void setStyleClass(String arg);

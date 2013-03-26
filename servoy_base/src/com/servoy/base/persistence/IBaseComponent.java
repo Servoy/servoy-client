@@ -28,22 +28,73 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @since 7.0
  */
 
-//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
-public interface IBaseComponent extends IBaseComponentCommon
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public interface IBaseComponent
 {
 	/**
-	 * The width and height (in pixels), separated by a comma.
+	 * The visible property of the component, default true.
+	 * 
+	 * @return visible property
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	java.awt.Dimension getSize();
+	boolean getVisible();
 
-	void setSize(java.awt.Dimension arg);
+	void setVisible(boolean args);
 
 	/**
-	 * The x and y position of the component, in pixels, separated by a comma.
+	 * The enable state of the component, default true.
+	 * 
+	 * @return enabled state
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	java.awt.Point getLocation();
+	boolean getEnabled();
 
-	void setLocation(java.awt.Point arg);
+	void setEnabled(boolean arg);
+
+	/**
+	 * The name of the component. Through this name it can also accessed in methods.
+	 */
+	String getName();
+
+	void setName(String arg);
+
+	/**
+	 * Returns the groupID.
+	 * 
+	 * @return int
+	 */
+	String getGroupID();
+
+	void setGroupID(String arg);
+
+	/**
+	 * The name of the style class that should be applied to this component.
+	 * 
+	 * When defining style classes for specific component types, their names
+	 * must be prefixed according to the type of the component. For example 
+	 * in order to define a class names 'fancy' for fields, in the style
+	 * definition the class must be named 'field.fancy'. If it would be 
+	 * intended for labels, then it would be named 'label.fancy'. When specifying
+	 * the class name for a component, the prefix is dropped however. Thus the
+	 * field or the label will have its styleClass property set to 'fancy' only.
+	 */
+	String getStyleClass();
+
+	void setStyleClass(String arg);
+
+
+	// size and location are not listed here because the awt types cannot be used in gwt.
+	//
+	// See ISupportSize and ISupportBounds
+//	/**
+//	 * The width and height (in pixels), separated by a comma.
+//	 */
+//	java.awt.Dimension getSize();
+//
+//	void setSize(java.awt.Dimension arg);
+
+//	/**
+//	 * The x and y position of the component, in pixels, separated by a comma.
+//	 */
+//	java.awt.Point getLocation();
+//
+//	void setLocation(java.awt.Point arg);
 }

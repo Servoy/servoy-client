@@ -22,6 +22,7 @@ import java.awt.Point;
 
 import com.servoy.base.persistence.IBaseGraphicalComponent;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.persistence.ISupportBounds;
 
 /**
  * Dummy class for use in the documentation generator.
@@ -29,7 +30,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, sc = false, wc = false)
-public class BaseDocsGraphicalComponent implements IBaseGraphicalComponent
+public class BaseDocsGraphicalComponent implements IBaseGraphicalComponent, ISupportBounds
 {
 	public Dimension getSize()
 	{

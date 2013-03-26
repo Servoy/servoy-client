@@ -27,14 +27,13 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  *
  * @since 7.0
  */
-//do not tag class as mobile until https://support.servoy.com/browse/SVY-3949 is fixed
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseField extends IBaseFieldCommon
 {
 	/**
 	 * The valuelist that is used by this field when displaying data. Can be used
 	 * with fields of type CHECKS, COMBOBOX, RADIOS and TYPE_AHEAD.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	int getValuelistID();
 
 	void setValuelistID(int arg);
@@ -47,7 +46,6 @@ public interface IBaseField extends IBaseFieldCommon
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	int getOnActionMethodID();
 
 	void setOnActionMethodID(int arg);
@@ -65,7 +63,6 @@ public interface IBaseField extends IBaseFieldCommon
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	int getOnDataChangeMethodID();
 
 	void setOnDataChangeMethodID(int arg);
