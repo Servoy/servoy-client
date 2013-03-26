@@ -1026,6 +1026,10 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 						detail = e;
 					}
 					msg += "\n > " + detail.toString(); // complete stack? 
+					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+					{
+						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+					}
 				}
 				else if (detail != null)
 				{

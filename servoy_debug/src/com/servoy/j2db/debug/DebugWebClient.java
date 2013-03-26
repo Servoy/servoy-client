@@ -53,6 +53,7 @@ import com.servoy.j2db.server.headlessclient.WebFormManager;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author jcompagner
@@ -360,6 +361,11 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 				{
 					msg += "\n > " + detail.toString(); // complete stack? 
 				}
+				if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+				{
+					msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+				}
+
 			}
 			else if (detail != null)
 			{

@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -630,6 +630,10 @@ public class EditRecordList
 					{
 						lastStopEditingException = (Exception)retValue;
 						failedCount++;
+						if (retValue instanceof ServoyException)
+						{
+							((ServoyException)retValue).fillScriptStack();
+						}
 						row.setLastException((Exception)retValue);
 						markRecordAsFailed(record);
 						continue;
