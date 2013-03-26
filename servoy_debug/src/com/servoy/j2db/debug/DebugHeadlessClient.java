@@ -54,6 +54,7 @@ import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * Headless client when running from developer.
@@ -319,6 +320,10 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 			{
 				Object e = ((Exception)detail).getCause();
 				msg += "\n > " + ((e == null ? detail : e).toString()); // complete stack? //$NON-NLS-1$
+				if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+				{
+					msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+				}
 			}
 			else if (detail != null)
 			{

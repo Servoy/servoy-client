@@ -20,6 +20,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -301,8 +306,10 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		public static final int CLIENT_NOT_REGISTERED = 420;
 	}
 
-	private int errorCode = 0;
+	private final int errorCode;
 	protected final Object[] tagValues;
+
+	private String scriptStackTrace;
 
 	public ServoyException()
 	{
@@ -319,6 +326,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		super();
 		this.errorCode = errorCode;
 		tagValues = values;
+		fillScriptStack();
 	}
 
 	/**
@@ -571,6 +579,37 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		Writer result = new StringWriter();
 		this.printStackTrace(new PrintWriter(result));
 		return result.toString();
+	}
+
+	/**
+	 * Returns the script stack trace for this ServoyException if this could be created.
+	 *
+	 * @sampleas js_getErrorCode()
+	 * @return the string stack trace for this ServoyException. 
+	 */
+	@JSFunction
+	public String getScriptStackTrace()
+	{
+		return scriptStackTrace;
+	}
+
+	/**
+	 * fills the script stack if not already generated if there is a current script context
+	 */
+	public void fillScriptStack()
+	{
+		if (scriptStackTrace == null && Context.getCurrentContext() != null)
+		{
+			try
+			{
+				EcmaError jsError = ScriptRuntime.constructError(getMessage(), getMessage());
+				scriptStackTrace = jsError.getScriptStackTrace();
+			}
+			catch (Exception e)
+			{
+				// just ignore
+			}
+		}
 	}
 
 	/**
