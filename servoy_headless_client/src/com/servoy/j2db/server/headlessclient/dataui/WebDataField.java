@@ -82,6 +82,7 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.RuntimeDataField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser;
+import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ITagResolver;
 import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
@@ -96,7 +97,7 @@ import com.servoy.j2db.util.gui.FixedMaskFormatter;
  * @author jcompagner
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
-	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IScriptableProvider
+	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IScriptableProvider, IDestroyable
 {
 	/**
 	 * @author jcompagner
@@ -230,6 +231,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			}
 		}));
 		this.scriptable = scriptable;
+	}
+
+	public void destroy()
+	{
+		if (list != null) list.deregister();
 	}
 
 	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
@@ -684,7 +690,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			boolean lenient = Boolean.TRUE.equals(UIUtils.getUIProperty(this.getScriptObject(), application, IApplication.DATE_FORMATTERS_LENIENT, Boolean.TRUE));
 			StateFullSimpleDateFormat displayFormatter = new StateFullSimpleDateFormat(displayFormat, null, application.getLocale(), lenient);
 			String eFormat = parsedFormat.getEditFormat();
-			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null) //$NON-NLS-1$
+			if (!parsedFormat.isMask() && parsedFormat.getEditFormat() != null)
 			{
 				StateFullSimpleDateFormat editFormatter = new StateFullSimpleDateFormat(eFormat, null, application.getLocale(), lenient);
 				converter = new FormatConverter(this, eventExecutor, displayFormatter, editFormatter, parsedFormat);
@@ -783,7 +789,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false);");
 			}
-			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask()) //$NON-NLS-1$
+			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask())
 			{
 				String maskPattern = parsedFormat.getDateMask();
 				setType(Date.class);

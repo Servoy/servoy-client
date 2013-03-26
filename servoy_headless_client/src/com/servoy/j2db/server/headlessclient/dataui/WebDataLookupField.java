@@ -468,8 +468,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayRelatedData#destroy()
 	 */
+	@Override
 	public void destroy()
 	{
+		super.destroy();
 		parentState = null;
 		detachModel();
 	}
