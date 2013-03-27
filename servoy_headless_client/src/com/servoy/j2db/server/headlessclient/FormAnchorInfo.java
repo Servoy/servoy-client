@@ -217,7 +217,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 		int nameCompare = this.formName.compareTo(o.formName);
 		if (nameCompare != 0) return nameCompare;
 
-		return this.formID.equals(o.formID) ? nameCompare : this.formID.compareTo(o.formID);
+		return (this.formID.equals(o.formID) ? (this.equals(o) ? nameCompare : 1) : this.formID.compareTo(o.formID));
 	}
 
 	/**
