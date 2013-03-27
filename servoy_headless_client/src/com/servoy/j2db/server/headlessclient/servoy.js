@@ -642,9 +642,11 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 			}
 		}
 		
+		var currentValue = Wicket.$(el.id).value;
 		if(delayedCall)
 		{
 			var thisEl = el;
+			
 			setTimeout(function()
 			{
 				var wcall=wicketAjaxPost
@@ -653,7 +655,9 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 					wicketSerialize(Wicket.$(thisEl.id)),
 					null,
 					function() { onAjaxError(); }.bind(thisEl),
-					function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+					function() { onAjaxCall();
+						return Wicket.$(thisEl.id) != null && currentValue == Wicket.$(el.id).value; 
+					}.bind(thisEl)
 				);
 			}, 200);						
 			return false;						
@@ -666,7 +670,9 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 				wicketSerialize(Wicket.$(el.id)),
 				null,
 				function() { onAjaxError(); }.bind(el),
-				function() { onAjaxCall(); return Wicket.$(el.id) != null; }.bind(el)
+				function() {onAjaxCall();
+				return Wicket.$(thisEl.id) != null && currentValue == Wicket.$(el.id).value; 
+			 }.bind(el)
 			);
 			return !wcall;
 		}
