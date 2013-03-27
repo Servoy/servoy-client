@@ -139,7 +139,19 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 		application = app;
 		getViewport().setView(new MyEditorPane(app.getScheduledExecutor()));
 		enclosedComponent = (FixedJEditorPane)getViewport().getView();
-		eventExecutor = new EventExecutor(this, enclosedComponent);
+		eventExecutor = new EventExecutor(this, enclosedComponent)
+		{
+			@Override
+			public void fireLeaveCommands(Object display, boolean focusEvent, int modifiers)
+			{
+				if (hasLeaveCmds())
+				{
+					editProvider.focusLost(new FocusEvent(DataTextEditor.this, FocusEvent.FOCUS_LOST));
+				}
+
+				super.fireLeaveCommands(display, focusEvent, modifiers);
+			}
+		};
 		enclosedComponent.addKeyListener(eventExecutor);
 		this.scriptable = scriptable;
 		scriptable.setTextComponent(enclosedComponent);
