@@ -708,6 +708,10 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 	 */
 	public void valueChanged(ListSelectionEvent e)
 	{
+		if (isEditing())
+		{
+			getCellEditor().stopCellEditing();
+		}
 		if (getAutoscrolls() && !e.getValueIsAdjusting())
 		{
 
