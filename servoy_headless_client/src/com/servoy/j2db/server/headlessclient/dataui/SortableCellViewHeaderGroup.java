@@ -41,6 +41,7 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportDataProviderID;
@@ -48,7 +49,6 @@ import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
@@ -121,6 +121,26 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 						FoundSet fs = ((FoundSetListWrapper)listView.getList()).getFoundSet();
 						if (fs != null)
 						{
+							WebForm wf = listView.findParent(WebForm.class);
+							FormController fc = null;
+							if (wf != null) fc = wf.getController();
+							GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
+							int labelForOnActionMethodId = 0;
+							if (gc != null)
+							{
+								labelForOnActionMethodId = gc.getOnActionMethodID();
+							}
+							if (fc != null && labelForOnActionMethodId > 0)
+							{ //execute on action 
+								JSEvent event = new JSEvent();
+								event.setType(JSEvent.EventType.action);
+								event.setFormName(view.getDataAdapterList().getFormController().getName());
+								event.setModifiers(modifiers);
+								event.setElementName(gc.getName());
+								fc.executeFunction(
+									String.valueOf(labelForOnActionMethodId),
+									Utils.arrayMerge((new Object[] { event }), Utils.parseJSExpressions(gc.getInstanceMethodArguments("onActionMethodID"))), true, null, false, "onActionMethodID"); //$NON-NLS-1$ //$NON-NLS-2$
+							}
 							String id = ((ISupportDataProviderID)element).getDataProviderID();
 							if (id != null)
 							{
@@ -133,31 +153,15 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 									}
 								}
 
-								WebForm wf = listView.findParent(WebForm.class);
-								FormController fc = null;
-								if (wf != null) fc = wf.getController();
 								IDataProvider dataProvider = null;
 								if (fc != null)
 								{
 									dataProvider = fs.getFoundSetManager().getApplication().getFlattenedSolution().getDataproviderLookup(
 										fs.getFoundSetManager(), fc.getForm()).getDataProvider(id);
 								}
-								GraphicalComponent gc = (GraphicalComponent)view.labelsFor.get(((ISupportName)element).getName());
-								int labelForOnActionMethodId = 0;
-								if (gc != null)
-								{
-									labelForOnActionMethodId = gc.getOnActionMethodID();
-								}
 								if (fc != null && labelForOnActionMethodId > 0)
 								{
-									JSEvent event = new JSEvent();
-									event.setType(JSEvent.EventType.action);
-									event.setFormName(view.getDataAdapterList().getFormController().getName());
-									event.setModifiers(modifiers);
-									event.setElementName(gc.getName());
-									fc.executeFunction(
-										String.valueOf(labelForOnActionMethodId),
-										Utils.arrayMerge((new Object[] { event }), Utils.parseJSExpressions(gc.getInstanceMethodArguments("onActionMethodID"))), true, null, false, "onActionMethodID"); //$NON-NLS-1$ //$NON-NLS-2$
+									//dummy block 
 								}
 								else if (cellview instanceof Portal || fc == null || fc.getForm().getOnSortCmdMethodID() == 0)
 								{
