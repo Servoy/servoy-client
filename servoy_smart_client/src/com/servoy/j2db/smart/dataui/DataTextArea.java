@@ -32,6 +32,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
@@ -109,7 +110,19 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		application = app;
 		getViewport().setView(new MyTextArea());
 		enclosedComponent = (JTextArea)getViewport().getView();
-		eventExecutor = new EventExecutor(this, enclosedComponent);
+		eventExecutor = new EventExecutor(this, enclosedComponent)
+		{
+			@Override
+			public void fireLeaveCommands(Object display, boolean focusEvent, int modifiers)
+			{
+				if (hasLeaveCmds())
+				{
+					editProvider.focusLost(new FocusEvent(DataTextArea.this, FocusEvent.FOCUS_LOST));
+				}
+
+				super.fireLeaveCommands(display, focusEvent, modifiers);
+			}
+		};
 		enclosedComponent.addKeyListener(eventExecutor);
 
 		plainDocument = editorDocument = enclosedComponent.getDocument();
