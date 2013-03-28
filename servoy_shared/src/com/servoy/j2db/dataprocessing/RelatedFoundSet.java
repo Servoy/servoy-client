@@ -418,9 +418,12 @@ public abstract class RelatedFoundSet extends FoundSet
 		Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), getRelationName()));
 		if (ph == null || !ph.isSet())
 		{
-			Debug.error(
-				"RelatedFoundset, creation args not found\nplaceholder=" + ph + "\nrelation=" + getRelationName() + "\ncreationSqlSelect=" + creationSqlSelect, new RuntimeException("RelatedFoundset, creation args not found!!")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			return null;//how can this happen??
+			if (!findMode)
+			{
+				Debug.error(
+					"RelatedFoundset, creation args not found\nplaceholder=" + ph + "\nrelation=" + getRelationName() + "\ncreationSqlSelect=" + creationSqlSelect, new RuntimeException("RelatedFoundset, creation args not found!!")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+			return null; // how can this happen (other then in find mode) ??
 		}
 
 		Object[][] foreignData = (Object[][])ph.getValue();
