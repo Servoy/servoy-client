@@ -478,6 +478,29 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
+	 * Set a column name based on index.
+	 *
+	 * @sample
+	 * var query = 'select customerid, customername from customers';
+	 * var dataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), query, null, -1);
+	 * dataset.setColumnName(2, 'name_of_customer') // change the column name for second column.
+	 * 
+	 * @param index index of column (1-based).
+	 * @param columnName new column name.
+	 */
+	public void js_setColumnName(int index, String columnName)
+	{
+		if (set != null)
+		{
+			String[] columnNames = set.getColumnNames();
+			if (columnNames != null && index > 0 && index <= columnNames.length)
+			{
+				set.setColumnName(index - 1, columnName); // all Javascript calls are 1 based
+			}
+		}
+	}
+
+	/**
 	 * Get a column type based on index.
 	 *
 	 * @sample
@@ -1649,6 +1672,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		public boolean addColumn(int columnIndex, String columnName, int columnType)
 		{
 			throw new UnsupportedOperationException("addColumn after createDataSource is not supported on data set"); //$NON-NLS-1$
+		}
+
+		public void setColumnName(int columnIndex, String columnName)
+		{
+			throw new UnsupportedOperationException("setColumnName after createDataSource is not supported on data set"); //$NON-NLS-1$
 		}
 
 		public void addRow(Object[] array)
