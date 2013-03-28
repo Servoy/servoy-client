@@ -44,6 +44,12 @@ public final class QueryColumnValue implements IQuerySelectValue
 		this.fixedvalue = fixedvalue;
 	}
 
+	@Override
+	public IQuerySelectValue asAlias(String newAlias)
+	{
+		return new QueryColumnValue(value, newAlias, fixedvalue);
+	}
+
 	public Object getValue()
 	{
 		return value;
