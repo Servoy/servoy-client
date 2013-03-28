@@ -656,7 +656,7 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 					null,
 					function() { onAjaxError(); }.bind(thisEl),
 					function() { onAjaxCall();
-						return Wicket.$(thisEl.id) != null && currentValue == Wicket.$(el.id).value; 
+						return Wicket.$(thisEl.id) != null && currentValue == Wicket.$(thisEl.id).value; 
 					}.bind(thisEl)
 				);
 			}, 200);						
@@ -671,7 +671,7 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 				null,
 				function() { onAjaxError(); }.bind(el),
 				function() {onAjaxCall();
-				return Wicket.$(thisEl.id) != null && currentValue == Wicket.$(el.id).value; 
+				return Wicket.$(el.id) != null && currentValue == Wicket.$(el.id).value; 
 			 }.bind(el)
 			);
 			return !wcall;
