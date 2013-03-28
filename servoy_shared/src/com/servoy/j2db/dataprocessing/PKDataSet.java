@@ -125,6 +125,11 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 		return pks.addColumn(columnIndex, columnName, columnType);
 	}
 
+	public void setColumnName(int columnIndex, String columnName)
+	{
+		pks.setColumnName(columnIndex, columnName);
+	}
+
 	public void addRow(int index, Object[] pk)
 	{
 		pksToBeUpdated();

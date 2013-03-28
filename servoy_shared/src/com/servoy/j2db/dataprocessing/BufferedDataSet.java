@@ -353,6 +353,14 @@ public class BufferedDataSet implements IDataSet
 		return true;
 	}
 
+	public void setColumnName(int columnIndex, String columnName)
+	{
+		if (columnIndex >= 0 && columnIndex < getColumnCount() && !Utils.stringIsEmpty(columnName))
+		{
+			getColumnNames()[columnIndex] = columnName;
+		}
+	}
+
 
 	public boolean removeColumn(int columnIndex)
 	{

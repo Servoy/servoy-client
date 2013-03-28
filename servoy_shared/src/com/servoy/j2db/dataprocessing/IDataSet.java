@@ -137,6 +137,14 @@ public interface IDataSet extends Serializable, Cloneable
 	public boolean removeColumn(int columnIndex);
 
 	/**
+	 * sets the column from the specified position (first position is 0)
+	 * 
+	 * @param columnIndex
+	 * @param columnName
+	 */
+	public void setColumnName(int columnIndex, String columnName);
+
+	/**
 	 * @return
 	 */
 	public IDataSet clone();
