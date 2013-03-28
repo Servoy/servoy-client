@@ -967,11 +967,12 @@ if (typeof(Servoy.TableView) == "undefined")
 				}
 			}
 
-			$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
-
-			Servoy.TableView.hasTopBuffer[rowContainerBodyId] = hasTopBuffer;
-			Servoy.TableView.hasBottomBuffer[rowContainerBodyId] = hasBottomBuffer;
-			Servoy.TableView.isAppendingRows = false;
+			setTimeout(function() {
+				$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
+				Servoy.TableView.hasTopBuffer[rowContainerBodyId] = hasTopBuffer;
+				Servoy.TableView.hasBottomBuffer[rowContainerBodyId] = hasBottomBuffer;
+				Servoy.TableView.isAppendingRows = false;				
+			}, 0);
 			
 			if(topPhChanged)
 			{
