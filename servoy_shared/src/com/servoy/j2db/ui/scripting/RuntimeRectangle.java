@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -29,6 +30,7 @@ import com.servoy.j2db.ui.IRect;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeRectangle;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 
 /**
  * Scriptable rectangle component.
@@ -60,9 +62,14 @@ public class RuntimeRectangle extends AbstractRuntimeBaseComponent<IRect> implem
 		setComponentSize(newSize);
 		Border border = getComponent().getBorder();
 		boolean isTitledComponent = border instanceof TitledBorder;
-		int lineWidth = getComponent().getLineWidth();
-		// titled border in web client is special case
+		if (!isTitledComponent)
+		{
+			int lineWidth = getComponent().getLineWidth();
+			Insets borderInsets = border != null ? ComponentFactoryHelper.getBorderInsetsForNoComponent(border) : new Insets(0, 0, 0, 0);
+			border = new EmptyBorder(borderInsets.top + lineWidth, borderInsets.left + lineWidth, borderInsets.bottom + lineWidth, borderInsets.right +
+				lineWidth);
+		}
 		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, isTitledComponent ? null : border,
-			isTitledComponent ? new Insets(0, 0, 0, 0) : new Insets(lineWidth, lineWidth, lineWidth, lineWidth), 0);
+			new Insets(0, 0, 0, 0), 0);
 	}
 }
