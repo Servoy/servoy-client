@@ -48,12 +48,25 @@ public final class QueryAggregate implements IQuerySelectValue
 	private final int type;
 	private IQuerySelectValue aggregee;
 	private final String name;
+	private final String alias;
 
-	public QueryAggregate(int type, IQuerySelectValue aggregee, String name)
+	public QueryAggregate(int type, IQuerySelectValue aggregee, String name, String alias)
 	{
 		this.type = type;
 		this.aggregee = aggregee;
 		this.name = name;
+		this.alias = alias;
+	}
+
+	public QueryAggregate(int type, IQuerySelectValue aggregee, String name)
+	{
+		this(type, aggregee, name, null);
+	}
+
+	@Override
+	public IQuerySelectValue asAlias(String newAlias)
+	{
+		return new QueryAggregate(type, aggregee, name, newAlias);
 	}
 
 	public int getType()
@@ -68,7 +81,7 @@ public final class QueryAggregate implements IQuerySelectValue
 
 	public String getAlias()
 	{
-		return name;
+		return alias == null ? name : alias;
 	}
 
 	public IQuerySelectValue getAggregee()
@@ -107,6 +120,7 @@ public final class QueryAggregate implements IQuerySelectValue
 		int result = 1;
 		result = PRIME * result + ((this.aggregee == null) ? 0 : this.aggregee.hashCode());
 		result = PRIME * result + ((this.name == null) ? 0 : this.name.hashCode());
+		result = PRIME * result + ((this.alias == null) ? 0 : this.alias.hashCode());
 		result = PRIME * result + this.type;
 		return result;
 	}
@@ -128,6 +142,11 @@ public final class QueryAggregate implements IQuerySelectValue
 			if (other.name != null) return false;
 		}
 		else if (!this.name.equals(other.name)) return false;
+		if (this.alias == null)
+		{
+			if (other.alias != null) return false;
+		}
+		else if (!this.alias.equals(other.alias)) return false;
 		if (this.type != other.type) return false;
 		return true;
 	}
@@ -135,7 +154,7 @@ public final class QueryAggregate implements IQuerySelectValue
 	@Override
 	public String toString()
 	{
-		return new StringBuffer(getAggregateName().toUpperCase()).append('(' + aggregee.toString()).append(") ").append(name).toString(); //$NON-NLS-1$
+		return new StringBuilder(getAggregateName().toUpperCase()).append('(' + aggregee.toString()).append(") ").append(name).append(alias == null ? "" : (" AS " + alias)).toString(); //$NON-NLS-1$
 	}
 
 
@@ -145,7 +164,7 @@ public final class QueryAggregate implements IQuerySelectValue
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { new Integer(type), aggregee, name });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { new Integer(type), aggregee, name, alias });
 	}
 
 	public QueryAggregate(ReplacedObject s)
@@ -155,7 +174,6 @@ public final class QueryAggregate implements IQuerySelectValue
 		type = ((Integer)members[i++]).intValue();
 		aggregee = (IQuerySelectValue)members[i++];
 		name = (String)members[i++];
+		alias = (i < members.length) ? (String)members[i++] : null;
 	}
-
-
 }

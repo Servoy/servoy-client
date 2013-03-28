@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.servoy.j2db.util.Debug;
+
 /**
  * @author rgansevles
  *
@@ -113,6 +115,7 @@ public class ReplacedObject implements Serializable
 		}
 		catch (Exception e)
 		{
+			Debug.error("Error resolving replaced object", e); //$NON-NLS-1$
 			throw new RuntimeException("Error resolving replaced object in domain " + d + " of type " + t + ':' + o, e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}

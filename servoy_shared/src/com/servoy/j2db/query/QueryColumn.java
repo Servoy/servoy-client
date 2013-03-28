@@ -31,11 +31,17 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 {
 	private QueryTable table;
 	private transient String name;
+	private final String alias;
 	private transient ColumnType columnType;
 	private transient boolean identity;
 	private final int id; // id of this column, known on the server, may be used to lookup name and columnType
 
 	public QueryColumn(QueryTable table, int id, String name, ColumnType columnType, boolean identity)
+	{
+		this(table, id, name, null, columnType, identity);
+	}
+
+	public QueryColumn(QueryTable table, int id, String name, String alias, ColumnType columnType, boolean identity)
 	{
 		if (table == null || (id == -1 && name == null))
 		{
@@ -48,6 +54,7 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 		this.table = table;
 		this.id = id;
 		this.name = name;
+		this.alias = alias;
 		this.columnType = columnType;
 		this.identity = identity;
 	}
@@ -72,6 +79,12 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 		this(table, -1, name, ColumnType.DUMMY, false);
 	}
 
+	@Override
+	public IQuerySelectValue asAlias(String newAlias)
+	{
+		return new QueryColumn(table, id, name, newAlias, columnType, identity);
+	}
+
 	public boolean isComplete()
 	{
 		return name != null;
@@ -88,7 +101,7 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 
 	public String getAlias()
 	{
-		return null;
+		return alias;
 	}
 
 	public QueryTable getTable()
@@ -140,6 +153,7 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((this.name == null) ? 0 : this.name.hashCode());
+		result = PRIME * result + ((this.alias == null) ? 0 : this.alias.hashCode());
 		result = PRIME * result + ((this.table == null) ? 0 : this.table.hashCode());
 		return result;
 	}
@@ -157,6 +171,11 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 			if (other.name != null) return false;
 		}
 		else if (!this.name.equals(other.name)) return false;
+		if (this.alias == null)
+		{
+			if (other.alias != null) return false;
+		}
+		else if (!this.alias.equals(other.alias)) return false;
 		if (this.table == null)
 		{
 			if (other.table != null) return false;
@@ -165,17 +184,15 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 		return true;
 	}
 
+
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer(table.toString()).append('.').append(id).append('=');
-		if (name == null)
+		StringBuilder sb = new StringBuilder(table.toString()).append('.').append(id).append('=');
+		sb.append((name == null) ? "?" : name); //$NON-NLS-1$
+		if (alias != null) sb.append(" AS ").append(alias); //$NON-NLS-1$
+		if (name != null)
 		{
-			sb.append('?');
-		}
-		else
-		{
-			sb.append(name);
 			sb.append(columnType.toString());
 			if (isIdentity())
 			{
@@ -200,24 +217,25 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 		{
 			// server id not known, must serialize complete info
 			return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-				new Object[] { table, name, new int[] { columnType.getSqlType(), columnType.getLength(), columnType.getScale(), identity ? 1 : 0 } });
+				new Object[] { table, name, new int[] { columnType.getSqlType(), columnType.getLength(), columnType.getScale(), identity ? 1 : 0 }, alias });
 		}
 		else
 		{
 			// server id known, just serialize id and table, the server will update
-			return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, new Integer(id) });
+			return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, new Integer(id), alias });
 		}
 	}
 
 	public QueryColumn(ReplacedObject s)
 	{
 		Object[] members = (Object[])s.getObject();
-		if (members.length == 2)
+		if (members[1] instanceof Integer)
 		{
-			// just the id and table are serialized, the server must update the fields
+			// just the id and table are serialized, optionally alias, the server must update the fields
 			int i = 0;
 			table = (QueryTable)members[i++];
 			id = ((Integer)members[i++]).intValue();
+			alias = i < members.length ? (String)members[i++] : null;
 			name = null;
 			columnType = null;
 			identity = false;
@@ -231,10 +249,10 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 			int[] numbers = (int[])members[i++];
 			columnType = ColumnType.getInstance(numbers[0], numbers[1], numbers[2]);
 			identity = numbers[3] == 1;
+			alias = i < members.length ? (String)members[i++] : null;
 			id = -1;
 		}
 	}
-
 
 	/**
 	 * Update the fields that have not been set in serialization

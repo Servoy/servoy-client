@@ -45,12 +45,25 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	IQueryBuilderResult add(String columnName) throws RepositoryException;
 
 	/**
+	 * Add a column with alias by name to the query result.
+	 */
+	IQueryBuilderResult add(String columnName, String alias) throws RepositoryException;
+
+	/**
 	 * Add a column to the query result.
 	 * <pre>
 	 * query.result().add(query.getColumn("value1")).add(query.getColumn("value2"));
 	 * </pre>
 	 */
 	IQueryBuilderResult add(IQueryBuilderColumn column) throws RepositoryException;
+
+	/**
+	 * Add a column with an to the query result.
+	 * <pre>
+	 * query.result().add(query.getColumn("value1", "myalias1")).add(query.getColumn("value2", "myalias1"));
+	 * </pre>
+	 */
+	IQueryBuilderResult add(IQueryBuilderColumn column, String alias) throws RepositoryException;
 
 	/**
 	 * Add a fixed value to the query result.
@@ -60,6 +73,15 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	 * </pre>
 	 */
 	IQueryBuilderResult addValue(Object value) throws RepositoryException;
+
+	/**
+	 * Add a fixed value with alias to the query result.
+	 * <pre>
+	 *  // select 100 as myval, value2 from tab
+	 * query.result().addValue(new Integer(100), "myval").add(query.getColumn("value2"));
+	 * </pre>
+	 */
+	IQueryBuilderResult addValue(Object value, String alias) throws RepositoryException;
 
 	/**
 	 * Set the distinct flag for the query.

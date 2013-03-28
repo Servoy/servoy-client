@@ -23,6 +23,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
@@ -89,6 +90,16 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
+	 * Add a column with alias by name to the query result.
+	 * @sample
+	 * query.result.add("custname", "customer_name")
+	 */
+	public QBResult add(String columnName, String alias) throws RepositoryException
+	{
+		return add(getParent().getColumn(columnName), alias);
+	}
+
+	/**
 	 * Add a column to the query result.
 	 * @sample
 	 * query.result.add(query.columns.custname)
@@ -98,6 +109,19 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	public QBResult js_add(QBColumn column) throws RepositoryException
 	{
 		return add(column);
+	}
+
+	/**
+	 * Add a column with alias to the query result.
+	 * @sample
+	 * query.result.add(query.columns.custname, 'customer_name')
+	 * 
+	 * @param column column to add to result
+	 * @param alias column alias
+	 */
+	public QBResult js_add(QBColumn column, String alias) throws RepositoryException
+	{
+		return add(column, alias);
 	}
 
 	/**
@@ -113,6 +137,19 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	/**
+	 * Add an aggregate with alias to the query result.
+	 * @sample
+	 * query.result.add(query.columns.item_count.max, 'maximum_items')
+	 * 
+	 * @param aggregate the aggregate to add to result
+	 * @param alias aggregate alias
+	 */
+	public QBResult js_add(QBAggregate aggregate, String alias) throws RepositoryException
+	{
+		return add(aggregate, alias);
+	}
+
+	/**
 	 * Add a function result to the query result.
 	 * @sample
 	 * query.result.add(query.columns.custname.upper())
@@ -124,9 +161,28 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return add(func);
 	}
 
+	/**
+	 * Add a function with alias result to the query result.
+	 * @sample
+	 * query.result.add(query.columns.custname.upper(), 'customer_name')
+	 * 
+	 * @param func the function to add to the result
+	 * @param alias function alias
+	 */
+	public QBResult js_add(QBFunction func, String alias) throws RepositoryException
+	{
+		return add(func, alias);
+	}
+
 	public QBResult add(IQueryBuilderColumn column) throws RepositoryException
 	{
-		getParent().getQuery().addColumn(((QBColumn)column).getQuerySelectValue());
+		return add(column, null);
+	}
+
+	public QBResult add(IQueryBuilderColumn column, String alias) throws RepositoryException
+	{
+		IQuerySelectValue querySelectValue = ((QBColumn)column).getQuerySelectValue();
+		getParent().getQuery().addColumn(alias == null ? querySelectValue : querySelectValue.asAlias(alias));
 		return this;
 	}
 
@@ -134,11 +190,27 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * Add a value to the query result.
 	 * @sample
 	 * query.result.addValue(100)
+	 * 
+	 * @param value value add to result
 	 */
 	@JSFunction
 	public QBResult addValue(Object value) throws RepositoryException
 	{
-		getParent().getQuery().addColumn(new QueryColumnValue(value, null, value instanceof Integer));
+		return addValue(value, null);
+	}
+
+	/**
+	 * Add a value with an alias to the query result.
+	 * @sample
+	 * query.result.addValue(100, 'myvalue')
+	 * 
+	 * @param value value add to result
+	 * @param alias value alias
+	 */
+	@JSFunction
+	public QBResult addValue(Object value, String alias) throws RepositoryException
+	{
+		getParent().getQuery().addColumn(new QueryColumnValue(value, alias, value instanceof Integer));
 		return this;
 	}
 

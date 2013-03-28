@@ -76,12 +76,19 @@ public final class QueryFunction implements IQuerySelectValue
 	private final QueryFunctionType function;
 	private IQuerySelectValue[] args;
 	private final String name;
+	private final String alias;
 
-	public QueryFunction(QueryFunctionType function, IQuerySelectValue[] args, String name)
+	public QueryFunction(QueryFunctionType function, IQuerySelectValue[] args, String name, String alias)
 	{
 		this.function = function;
 		this.args = args;
 		this.name = name;
+		this.alias = alias;
+	}
+
+	public QueryFunction(QueryFunctionType function, IQuerySelectValue[] args, String name)
+	{
+		this(function, args, name, null);
 	}
 
 	/**
@@ -91,7 +98,13 @@ public final class QueryFunction implements IQuerySelectValue
 	 */
 	public QueryFunction(QueryFunctionType function, IQuerySelectValue key, String name)
 	{
-		this(function, new IQuerySelectValue[] { key }, name);
+		this(function, new IQuerySelectValue[] { key }, name, null);
+	}
+
+	@Override
+	public IQuerySelectValue asAlias(String newAlias)
+	{
+		return new QueryFunction(function, args, name, newAlias);
 	}
 
 	public QueryFunctionType getFunction()
@@ -106,7 +119,7 @@ public final class QueryFunction implements IQuerySelectValue
 
 	public String getAlias()
 	{
-		return name;
+		return alias == null ? name : alias;
 	}
 
 	public IQuerySelectValue[] getArgs()
@@ -131,6 +144,7 @@ public final class QueryFunction implements IQuerySelectValue
 		result = prime * result + Arrays.hashCode(args);
 		result = prime * result + ((function == null) ? 0 : function.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((alias == null) ? 0 : alias.hashCode());
 		return result;
 	}
 
@@ -148,6 +162,11 @@ public final class QueryFunction implements IQuerySelectValue
 			if (other.name != null) return false;
 		}
 		else if (!name.equals(other.name)) return false;
+		if (alias == null)
+		{
+			if (other.alias != null) return false;
+		}
+		else if (!alias.equals(other.alias)) return false;
 		return true;
 	}
 
@@ -164,7 +183,8 @@ public final class QueryFunction implements IQuerySelectValue
 	@Override
 	public String toString()
 	{
-		return new StringBuffer(function.name().toUpperCase()).append(AbstractBaseQuery.toString(args)).append(' ').append(name).toString();
+		return new StringBuilder(function.name().toUpperCase()).append(AbstractBaseQuery.toString(args)).append(' ').append(name).append(
+			alias == null ? "" : (" AS " + alias)).toString();
 	}
 
 
@@ -175,7 +195,7 @@ public final class QueryFunction implements IQuerySelectValue
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { function.name(), ReplacedObject.convertArray(args,
-			Object.class), name });
+			Object.class), name, alias });
 	}
 
 	public QueryFunction(ReplacedObject s)
@@ -185,6 +205,7 @@ public final class QueryFunction implements IQuerySelectValue
 		function = QueryFunctionType.valueOf((String)members[i++]);
 		args = (IQuerySelectValue[])ReplacedObject.convertArray((Object[])members[i++], IQuerySelectValue.class);
 		name = (String)members[i++];
+		alias = (i < members.length) ? (String)members[i++] : null;
 	}
 
 }
