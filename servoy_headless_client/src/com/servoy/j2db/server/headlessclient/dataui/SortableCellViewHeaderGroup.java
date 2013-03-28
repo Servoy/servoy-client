@@ -159,62 +159,61 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 									dataProvider = fs.getFoundSetManager().getApplication().getFlattenedSolution().getDataproviderLookup(
 										fs.getFoundSetManager(), fc.getForm()).getDataProvider(id);
 								}
-								if (fc != null && labelForOnActionMethodId > 0)
-								{
-									//dummy block 
-								}
-								else if (cellview instanceof Portal || fc == null || fc.getForm().getOnSortCmdMethodID() == 0)
-								{
-									List<String> sortingProviders = null;
-									try
+								if (!(fc != null && labelForOnActionMethodId > 0))
+								{ // in case there is no onAction definned
+									if (cellview instanceof Portal || fc == null || fc.getForm().getOnSortCmdMethodID() == 0)
 									{
-										sortingProviders = DBValueList.getShowDataproviders(
-											fs.getFoundSetManager().getApplication().getFlattenedSolution().getValueList(
-												((ISupportDataProviderID)element).getValuelistID()), (Table)fs.getTable(), dataProvider == null ? id
-												: dataProvider.getDataProviderID(), fs.getFoundSetManager());
-									}
-									catch (RepositoryException ex)
-									{
-										Debug.error(ex);
-									}
-
-									if (sortingProviders == null)
-									{
-										// no related sort, use sort on dataProviderID instead
-										sortingProviders = Collections.singletonList(dataProvider == null ? id : dataProvider.getDataProviderID());
-									}
-
-									List<SortColumn> list = (modifiers & Event.SHIFT_MASK) != 0 ? fs.getSortColumns() : new ArrayList<SortColumn>();
-									for (String sortingProvider : sortingProviders)
-									{
-										SortColumn sc = ((FoundSetManager)fs.getFoundSetManager()).getSortColumn(fs.getTable(), sortingProvider);
-										if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
+										List<String> sortingProviders = null;
+										try
 										{
-											for (SortColumn oldColumn : list)
-											{
-												if (oldColumn.equalsIgnoreSortorder(sc))
-												{
-													sc = oldColumn;
-													break;
-												}
-											}
-											if (!list.contains(sc)) list.add(sc);
-											sc.setSortOrder(direction ? SortColumn.ASCENDING : SortColumn.DESCENDING);
+											sortingProviders = DBValueList.getShowDataproviders(
+												fs.getFoundSetManager().getApplication().getFlattenedSolution().getValueList(
+													((ISupportDataProviderID)element).getValuelistID()), (Table)fs.getTable(), dataProvider == null ? id
+													: dataProvider.getDataProviderID(), fs.getFoundSetManager());
 										}
-										fs.sort(list, false);
+										catch (RepositoryException ex)
+										{
+											Debug.error(ex);
+										}
+
+										if (sortingProviders == null)
+										{
+											// no related sort, use sort on dataProviderID instead
+											sortingProviders = Collections.singletonList(dataProvider == null ? id : dataProvider.getDataProviderID());
+										}
+
+										List<SortColumn> list = (modifiers & Event.SHIFT_MASK) != 0 ? fs.getSortColumns() : new ArrayList<SortColumn>();
+										for (String sortingProvider : sortingProviders)
+										{
+											SortColumn sc = ((FoundSetManager)fs.getFoundSetManager()).getSortColumn(fs.getTable(), sortingProvider);
+											if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
+											{
+												for (SortColumn oldColumn : list)
+												{
+													if (oldColumn.equalsIgnoreSortorder(sc))
+													{
+														sc = oldColumn;
+														break;
+													}
+												}
+												if (!list.contains(sc)) list.add(sc);
+												sc.setSortOrder(direction ? SortColumn.ASCENDING : SortColumn.DESCENDING);
+											}
+											fs.sort(list, false);
+										}
 									}
-								}
-								else if (fc != null && fc.getForm().getOnSortCmdMethodID() != -1)
-								{
-									JSEvent event = new JSEvent();
-									event.setType(JSEvent.EventType.none);
-									event.setFormName(view.getDataAdapterList().getFormController().getName());
-									event.setModifiers(modifiers);
-									fc.executeFunction(
-										String.valueOf(fc.getForm().getOnSortCmdMethodID()),
-										Utils.arrayMerge(
-											(new Object[] { dataProvider == null ? id : dataProvider.getDataProviderID(), Boolean.valueOf(direction), event }),
-											Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
+									else if (fc != null && fc.getForm().getOnSortCmdMethodID() != -1)
+									{
+										JSEvent event = new JSEvent();
+										event.setType(JSEvent.EventType.none);
+										event.setFormName(view.getDataAdapterList().getFormController().getName());
+										event.setModifiers(modifiers);
+										fc.executeFunction(
+											String.valueOf(fc.getForm().getOnSortCmdMethodID()),
+											Utils.arrayMerge(
+												(new Object[] { dataProvider == null ? id : dataProvider.getDataProviderID(), Boolean.valueOf(direction), event }),
+												Utils.parseJSExpressions(fc.getForm().getInstanceMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
+									}
 								}
 								if ((modifiers & Event.SHIFT_MASK) == 0)
 								{
