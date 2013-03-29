@@ -123,6 +123,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	private volatile Solution mainSolution;
 	private volatile Solution[] modules;
 	private volatile FlattenedSolution loginFlattenedSolution;
+	private volatile FlattenedSolution parentFlattenedSolution;
 
 	private volatile Solution copySolution = null;
 
@@ -577,6 +578,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					loginFlattenedSolution = new FlattenedSolution();
 				}
 				loginFlattenedSolution.setSolutionAndModules(loginSolutionAndModules[0].getName(), loginSolutionAndModules);
+				loginFlattenedSolution.setParentSolution(this);
 			}
 		}
 
@@ -1180,6 +1182,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		removedPersist.clear();
 
 		allObjectsSize = 256;
+
+		parentFlattenedSolution = null;
 	}
 
 	private static final IDataProvider NULL = new IDataProvider()
@@ -1766,7 +1770,18 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	/**
 	 * @param persist
 	 */
-	private void flush(IPersist persist)
+
+	public void setParentSolution(FlattenedSolution parent)
+	{
+		this.parentFlattenedSolution = parent;
+	}
+
+	public void flush(IPersist persist)
+	{
+		flush(persist, true);
+	}
+
+	public void flush(IPersist persist, boolean flushParent)
 	{
 		if (persist instanceof Relation) flushRelations();
 		if (persist instanceof ValueList) flushValuelists();
@@ -1781,7 +1796,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 		if (loginFlattenedSolution != null)
 		{
-			loginFlattenedSolution.flush(persist);
+			loginFlattenedSolution.flush(persist, false);
+		}
+
+		if (flushParent && parentFlattenedSolution != null)
+		{
+			parentFlattenedSolution.flush(persist);
 		}
 	}
 
