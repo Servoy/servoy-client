@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
@@ -27,16 +27,54 @@ import java.util.Map;
  */
 public class FireCollector
 {
+	private static final ThreadLocal<FireCollector> current = new ThreadLocal<FireCollector>();
+
+	/**
+	 * Creates a new FireCollector or returns the current one of the current thread already has one.
+	 * Make sure that when calling this method, the {@link #done()} method needs to be called. So that should be in a try/finally block
+	 * 
+	 * @return {@link FireCollector}
+	 */
+	public static FireCollector getFireCollector()
+	{
+		FireCollector fireCollector = current.get();
+		if (fireCollector == null)
+		{
+			fireCollector = new FireCollector();
+			current.set(fireCollector);
+		}
+		return fireCollector;
+	}
+
 	private final Map<IFireCollectable, List<Object>> map = new HashMap<IFireCollectable, List<Object>>();
+	private boolean doneCalled = false;
+
+	private FireCollector()
+	{
+	}
 
 	/**
 	 * 
 	 */
 	public void done()
 	{
-		for (Map.Entry<IFireCollectable, List<Object>> entry : map.entrySet())
+		if (doneCalled) return;
+		doneCalled = true;
+		try
 		{
-			entry.getKey().completeFire(entry.getValue());
+			while (map.size() > 0)
+			{
+				ArrayList<Map.Entry<IFireCollectable, List<Object>>> copy = new ArrayList<Map.Entry<IFireCollectable, List<Object>>>(map.entrySet());
+				map.clear();
+				for (Map.Entry<IFireCollectable, List<Object>> entry : copy)
+				{
+					entry.getKey().completeFire(entry.getValue());
+				}
+			}
+		}
+		finally
+		{
+			current.remove();
 		}
 	}
 

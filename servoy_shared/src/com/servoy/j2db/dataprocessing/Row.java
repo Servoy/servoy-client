@@ -433,9 +433,15 @@ public class Row
 
 			handleCalculationDependencies(sheet.getTable().getColumn(dataProviderID), dataProviderID);
 
-			FireCollector collector = new FireCollector();
-			fireNotifyChange(dataProviderID, convertedValue, collector);
-			collector.done();
+			FireCollector collector = FireCollector.getFireCollector();
+			try
+			{
+				fireNotifyChange(dataProviderID, convertedValue, collector);
+			}
+			finally
+			{
+				collector.done();
+			}
 
 			if (src != null && mustStop && existInDB && !wasUNINITIALIZED)
 			{
