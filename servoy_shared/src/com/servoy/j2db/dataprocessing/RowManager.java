@@ -1341,16 +1341,22 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	{
 		if (fires != null && fires.size() > 0)
 		{
-			FireCollector collector = new FireCollector();
-			Set<RowFireNotifyChange> fired = new HashSet<RowFireNotifyChange>();
-			for (RowFireNotifyChange fire : fires)
+			FireCollector collector = FireCollector.getFireCollector();
+			try
 			{
-				if (fired.add(fire))
+				Set<RowFireNotifyChange> fired = new HashSet<RowFireNotifyChange>();
+				for (RowFireNotifyChange fire : fires)
 				{
-					fire.row.fireNotifyChange(fire.name, fire.value, collector);
+					if (fired.add(fire))
+					{
+						fire.row.fireNotifyChange(fire.name, fire.value, collector);
+					}
 				}
 			}
-			collector.done();
+			finally
+			{
+				collector.done();
+			}
 		}
 	}
 
