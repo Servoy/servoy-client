@@ -43,39 +43,39 @@ public class FireCollector
 			fireCollector = new FireCollector();
 			current.set(fireCollector);
 		}
+		fireCollector.depth++;
 		return fireCollector;
 	}
 
 	private final Map<IFireCollectable, List<Object>> map = new HashMap<IFireCollectable, List<Object>>();
-	private boolean doneCalled = false;
+	private int depth = 0;
 
 	private FireCollector()
 	{
 	}
 
-	/**
-	 * 
-	 */
 	public void done()
 	{
-		if (doneCalled) return;
-		doneCalled = true;
-		try
+		if (depth == 1)
 		{
-			while (map.size() > 0)
+			try
 			{
-				ArrayList<Map.Entry<IFireCollectable, List<Object>>> copy = new ArrayList<Map.Entry<IFireCollectable, List<Object>>>(map.entrySet());
-				map.clear();
-				for (Map.Entry<IFireCollectable, List<Object>> entry : copy)
+				while (map.size() > 0)
 				{
-					entry.getKey().completeFire(entry.getValue());
+					ArrayList<Map.Entry<IFireCollectable, List<Object>>> copy = new ArrayList<Map.Entry<IFireCollectable, List<Object>>>(map.entrySet());
+					map.clear();
+					for (Map.Entry<IFireCollectable, List<Object>> entry : copy)
+					{
+						entry.getKey().completeFire(entry.getValue());
+					}
 				}
 			}
+			finally
+			{
+				current.remove();
+			}
 		}
-		finally
-		{
-			current.remove();
-		}
+		depth--;
 	}
 
 	/**
