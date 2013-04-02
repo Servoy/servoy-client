@@ -1161,7 +1161,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
 				{
 					((ISupportOnRenderCallback)s).getRenderEventExecutor().setRenderState(getModelObject(), getIndex(), isSelected);
-					((IProviderStylePropertyChanges)component).getStylePropertyChanges().setChanged();
 					return true;
 				}
 			}
