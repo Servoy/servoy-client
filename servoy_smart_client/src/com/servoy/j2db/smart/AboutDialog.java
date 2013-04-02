@@ -193,6 +193,11 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("http://jabsorb.org\n");
 		sb.append("\n");
 
+		sb.append("wiQuery\n");
+		sb.append("The MIT License (MIT)\n");
+		sb.append("http://code.google.com/p/wiquery\n");
+		sb.append("\n");
+
 		sb.append("Used client libs\n");
 		sb.append("\n");
 
@@ -245,6 +250,44 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("https://code.google.com/p/xswingx\n");
 		sb.append("\n");
 
+		sb.append("Jabsorb\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://code.google.com/p/jabsorb\n");
+		sb.append("\n");
+
+		sb.append("Apache commons\n");
+		sb.append("Copyright \u00A9 1999, 2000  The Apache Software Foundation\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://commons.apache.org\n");
+		sb.append("\n");
+
+		sb.append("SLF4J\n");
+		sb.append("Licensing terms for SLF4J\n");
+		sb.append("Copyright (c) 2004-2013 QOS.ch\n");
+		sb.append("http://www.slf4j.org\n");
+		sb.append("\n");
+
+		sb.append("L2fprod Common Outlookbar\n");
+		sb.append("Apache Software License,  Version 2.0\n");
+		sb.append("http://mvnrepository.com/artifact/com.l2fprod.common/l2fprod-common-outlookbar/6.9.1\n");
+		sb.append("\n");
+
+		sb.append("Flying Saucer\n");
+		sb.append("GNU Lesser General Public License\n");
+		sb.append("http://code.google.com/p/flying-saucer\n");
+		sb.append("\n");
+
+		sb.append("PBKDF2\n");
+		sb.append("GNU Lesser General Public License, version 2.1");
+		sb.append("http://www.rtner.de/software/PBKDF2.html\n");
+		sb.append("\n");
+
+		sb.append("XStream\n");
+		sb.append("Copyright (c) 2003-2006, Joe Walnes");
+		sb.append("Copyright (c) 2006-2009, 2011 XStream Committers\n");
+		sb.append("http://xstream.codehaus.org\n");
+		sb.append("\n");
+
 		sb.append("Used developer libs\n");
 		sb.append("\n");
 
@@ -256,6 +299,11 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("DLTK\n");
 		sb.append("Eclipse Public License v1.0\n");
 		sb.append("http://www.eclipse.org/legal/epl-v10.html\n");
+		sb.append("\n");
+
+		sb.append("JsUnit 1.3\n");
+		sb.append("JsUnit License\n");
+		sb.append("http://jsunit.berlios.de/license.html\n");
 		sb.append("\n");
 
 		ta.setText(sb.toString());
