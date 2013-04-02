@@ -27,6 +27,7 @@ public class J2DBGlobals
 	private static final ThreadLocal<IServiceProvider> serviceprovider = new ThreadLocal<IServiceProvider>();
 
 	public static final String SERVOY_APPLICATION_SERVER_DIRECTORY_KEY = "servoy_application_server.dir"; //$NON-NLS-1$
+	public static final String SERVOY_APPLICATION_SERVER_CONTEXT_KEY = "servoy.application_server.context"; //$NON-NLS-1$
 
 	public static final String CLIENT_LOCAL_DIR = "/.servoy/"; //$NON-NLS-1$
 
