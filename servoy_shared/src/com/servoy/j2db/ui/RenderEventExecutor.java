@@ -64,10 +64,13 @@ public class RenderEventExecutor
 
 	public void setRenderState(IRecordInternal record, int index, boolean isSelected)
 	{
-		renderRecord = record;
-		renderIndex = index;
-		renderIsSelected = isSelected;
-		setRenderStateChanged();
+		if (!Utils.equalObjects(renderRecord, record) || renderIndex != index || renderIsSelected != isSelected)
+		{
+			renderRecord = record;
+			renderIndex = index;
+			renderIsSelected = isSelected;
+			setRenderStateChanged();
+		}
 	}
 
 	public void setRenderStateChanged()
