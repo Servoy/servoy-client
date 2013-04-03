@@ -932,7 +932,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected String enhanceFunctionScript(String newEh)
 				{
-					return "if(event.target && event.target.id == componentId) {" + newEh + '}'; //$NON-NLS-1$
+					return "if(event.target && (event.target.id == componentId || (event.target.tagName && (event.target.tagName.toLowerCase() == 'div' || event.target.tagName.toLowerCase() == 'span' || event.target.tagName.toLowerCase() == 'label')) )) {" + newEh + '}'; //$NON-NLS-1$
 				}
 			});
 
