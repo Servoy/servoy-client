@@ -251,7 +251,7 @@ public class WebDataButton extends WebBaseButton implements IDisplayData, IDispl
 	public void setValueObject(Object value)
 	{
 
-		if (dataProviderID == null && tagText != null)
+		if (dataProviderID == null && needEntireState)
 		{
 			CharSequence current = Text.processTags(tagText, resolver);
 			if (current != null && bodyText != null)
