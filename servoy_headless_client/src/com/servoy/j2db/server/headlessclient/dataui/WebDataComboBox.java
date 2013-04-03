@@ -157,7 +157,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 						}
 						return getRealSelectedItem();
 					}
-					idx--;
+					if (idx >= 0) idx--;
 				}
 				return super.getElementAt(idx);
 			}
@@ -175,7 +175,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 					{
 						return getRealSelectedItem();
 					}
-					idx--;
+					if (idx >= 0) idx--;
 				}
 				return super.getRealElementAt(idx);
 			}
@@ -211,7 +211,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			{
 				// the web always will call List.indexOf instead of realindex of because o == the real object here.
 				int index = listModel.realValueIndexOf(o);
-				if (!valueInList)
+				if (!valueInList && index >= -1)
 				{
 					index = index + 1;
 				}
