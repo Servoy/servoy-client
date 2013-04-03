@@ -239,7 +239,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	 */
 	public void setValueObject(Object obj)
 	{
-		if (dataProviderID == null && tagText != null)
+		if (dataProviderID == null && needEntireState)
 		{
 			CharSequence current = Text.processTags(tagText, resolver);
 			// test for the page else this field is not yet attached to a page yet and must be rerendered anyway.
