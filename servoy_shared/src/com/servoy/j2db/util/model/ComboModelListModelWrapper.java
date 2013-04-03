@@ -35,6 +35,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.ScopesUtils;
@@ -78,8 +79,16 @@ public class ComboModelListModelWrapper<E> extends AbstractListModel implements 
 		listModel.deregister();
 	}
 
-	public void register(IValueList newModel)
+	public void register(IValueList vlModel)
 	{
+		IValueList newModel = vlModel;
+		if (newModel instanceof LookupValueList)
+		{
+			// We never expect a LookupValueList here, these are not made for listing all values.
+			// When we get a LookupValueList, this is probably a value list that was used as fallback (we create LookupValueList), replace with real value list.
+			newModel = ((LookupValueList)newModel).getRealValueList();
+		}
+
 		deregister();
 		Set<Integer> newSelectedSet = Collections.synchronizedSet(new HashSet<Integer>());
 		if (selectedSet != null && selectedSet.size() > 0)
