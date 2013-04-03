@@ -416,12 +416,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		try
 		{
 			QuerySelect theQuery = (sqlSelect == null) ? pksAndRecords.getQuerySelectForReading() : sqlSelect;
-			int type = initialized ? IDataServer.FIND_BROWSER_QUERY : IDataServer.FOUNDSET_LOAD_QUERY;
-			pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve, type);
+			if (theQuery == null)
+			{
+				// query has been cleared
+				pks = new BufferedDataSet();
+			}
+			else
+			{
+				pks = performQuery(transaction_id, theQuery, !theQuery.isUnique(), 0, rowsToRetrieve, initialized ? IDataServer.FIND_BROWSER_QUERY
+					: IDataServer.FOUNDSET_LOAD_QUERY);
+			}
 			synchronized (pksAndRecords)
 			{
 				// optimistic locking, if the query has been changed in the mean time forget about the refresh
-				if (sqlSelect != null || theQuery == pksAndRecords.getQuerySelectForReading())
+				if (sqlSelect != null || theQuery == null || theQuery == pksAndRecords.getQuerySelectForReading())
 				{
 					cachedRecords = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
 				}
@@ -433,7 +441,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (Debug.tracing())
 			{
 				Debug.trace(Thread.currentThread().getName() +
-					": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + ", SQL: " + theQuery.toString()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + ", SQL: " + theQuery); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 		catch (RemoteException e)
