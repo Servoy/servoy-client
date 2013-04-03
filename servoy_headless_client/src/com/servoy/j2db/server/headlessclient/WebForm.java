@@ -1871,11 +1871,17 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		if (previousParent != getParent())
+		Component container = (Component)findParent(IWebFormContainer.class);
+		if (container == null)
 		{
-			formWidth = 0;
-			previousParent = getParent();
+			container = getParent();
 		}
+		if (previousParent != null && previousParent != container)
+		{
+			// we show this form in another container, we must refresh the size
+			formWidth = 0;
+		}
+		previousParent = container;
 		//if recreateUI is called on a form in a tabpannel the tabs bar flickers if the background collor isnot the same as the form containing the tab pannel ... So the form in the  tab is shown after rearrageTabsInTabPanel() is done
 		if (isUIRecreated() && getParent() instanceof WebTabPanel)
 		{
