@@ -16,7 +16,9 @@
  */
 package com.servoy.j2db.documentation;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.servoy.j2db.scripting.IScriptObject;
@@ -142,25 +144,69 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 
 	public String getSample(String methodName)
 	{
-		IFunctionDocumentation fdoc = objDoc.getFunction(methodName);
-		if (fdoc != null)
+		return getSample(methodName, ClientSupport.Default).getSampleCode();
+	}
+
+	public ISampleDocumentation getMobileSample(String methodName)
+	{
+		return getSample(methodName, ClientSupport.mc);
+	}
+
+	private ISampleDocumentation getSample(String methodName, ClientSupport csp)
+	{
+		for (ISampleDocumentation sample : getSamples(methodName))
 		{
-			if (!fdoc.isDocumented() && original != null) return original.getSample(methodName);
-			return fdoc.getSample();
+			if (csp.equals(sample.getClientSupport())) return sample;
 		}
-		if (original != null) return original.getSample(methodName);
 		return null;
 	}
 
-	public String getSample(String methodName, Class< ? >[] argTypes)
+	public ISampleDocumentation getSample(String methodName, Class< ? >[] argTypes)
+	{
+		for (ISampleDocumentation sample : getSamples(methodName, argTypes))
+		{
+			if (!ClientSupport.mc.equals(sample.getClientSupport())) return sample;
+		}
+		return null;
+	}
+
+	public List<ISampleDocumentation> getSamples(final String methodName)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName);
+		if (fdoc != null)
+		{
+			if (!fdoc.isDocumented() && original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default,
+				original.getSample(methodName)) });
+			return fdoc.getSamples();
+		}
+		if (original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default, original.getSample(methodName)) });
+		return null;
+	}
+
+	public List<ISampleDocumentation> getSamples(final String methodName, Class< ? >[] argTypes)
 	{
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
 		if (fdoc != null)
 		{
-			if (!fdoc.isDocumented() && original != null) return original.getSample(methodName);
-			return fdoc.getSample();
+			if (!fdoc.isDocumented() && original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default,
+				original.getSample(methodName)) });
+			return fdoc.getSamples();
 		}
-		if (original != null) return original.getSample(methodName);
+		if (original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default, original.getSample(methodName)) });
+		return null;
+	}
+
+
+	public ISampleDocumentation getMobileSample(String methodName, Class< ? >[] argTypes)
+	{
+		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		if (fdoc != null)
+		{
+			for (ISampleDocumentation sample : fdoc.getSamples())
+			{
+				if (ClientSupport.mc.equals(sample.getClientSupport())) return sample;
+			}
+		}
 		return null;
 	}
 

@@ -18,6 +18,7 @@
 package com.servoy.j2db.documentation;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.dom4j.Element;
 
@@ -58,9 +59,13 @@ public interface IFunctionDocumentation
 
 	public Class< ? >[] getArgumentsTypes();
 
-	public String getSample();
+	public void addSample(ISampleDocumentation sample);
 
-	public void setSample(String sample);
+	public String getSample(ClientSupport csp);
+
+	public List<ISampleDocumentation> getSamples();
+
+	public void setSamples(List<ISampleDocumentation> samples);
 
 	public String getFullSignature();
 
