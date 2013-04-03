@@ -18,8 +18,9 @@ package com.servoy.j2db.server.headlessclient;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
+import java.util.Iterator;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -717,7 +718,6 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		private static final String STR_EVENT_CALLBACK = "eventCallback("; //$NON-NLS-1$
 		private static final String STR_POST_EVENT_CALLBACK = "postEventCallback("; //$NON-NLS-1$
 		private static final String STR_FOCUS_MOUSEDOWN_CALLBACK = "focusMousedownCallback("; //$NON-NLS-1$
-		private static final String DELIMITER = ";"; //$NON-NLS-1$
 
 		EventCallbackModifier(final String attribute, final boolean addAttributeIfNotPresent, final IModel< ? > replaceModel)
 		{
@@ -732,12 +732,12 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 				if (replacementValue != null)
 				{
 					StringBuilder newValue = new StringBuilder();
-					StringTokenizer st = new StringTokenizer(currentValue, DELIMITER);
+					Iterator<String> st = getTokens(currentValue).iterator();
 					String t;
 					boolean replacementValueAdded = false;
-					while (st.hasMoreTokens())
+					while (st.hasNext())
 					{
-						t = st.nextToken();
+						t = st.next();
 						if ((t.startsWith(STR_EVENT_CALLBACK) && replacementValue.startsWith(STR_EVENT_CALLBACK)) ||
 							(t.startsWith(STR_POST_EVENT_CALLBACK) && replacementValue.startsWith(STR_POST_EVENT_CALLBACK)) ||
 							(t.startsWith(STR_FOCUS_MOUSEDOWN_CALLBACK) && replacementValue.startsWith(STR_FOCUS_MOUSEDOWN_CALLBACK)))
@@ -749,7 +749,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 						{
 							newValue.append(t);
 						}
-						newValue.append(DELIMITER);
+						newValue.append(';');
 					}
 					if (!replacementValueAdded) newValue.append(replacementValue);
 					if (newValue.length() > 0) return newValue.toString();
@@ -758,6 +758,49 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 				return currentValue;
 			}
 			return replacementValue;
+		}
+
+		private ArrayList<String> getTokens(String s)
+		{
+			ArrayList<String> tokens = new ArrayList<String>();
+			int start = 0;
+			int index = 0;
+			int len = s.length();
+			boolean parsingQuote = false;
+			char quote = 0;
+			while (index < len)
+			{
+				switch (s.charAt(index))
+				{
+					case ';' :
+						if (!parsingQuote)
+						{
+							tokens.add(s.substring(start, index));
+							start = index + 1;
+						}
+						break;
+					case '"' :
+					case '\'' :
+						if (index > 0 && s.charAt(index - 1) == '\\') continue;
+						if (parsingQuote)
+						{
+							if (quote == s.charAt(index))
+							{
+								parsingQuote = false;
+							}
+						}
+						else
+						{
+							parsingQuote = true;
+							quote = s.charAt(index);
+						}
+
+				}
+				index++;
+			}
+
+			if (tokens.size() == 0) tokens.add(s);
+			return tokens;
 		}
 	}
 }
