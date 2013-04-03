@@ -781,7 +781,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 						break;
 					case '"' :
 					case '\'' :
-						if (index > 0 && s.charAt(index - 1) == '\\') continue;
+						if (index > 0 && s.charAt(index - 1) == '\\') break;
 						if (parsingQuote)
 						{
 							if (quote == s.charAt(index))
