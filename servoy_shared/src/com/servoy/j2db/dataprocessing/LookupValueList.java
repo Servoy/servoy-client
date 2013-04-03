@@ -27,6 +27,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
@@ -201,7 +202,7 @@ public class LookupValueList implements IValueList
 
 	public void fill(IRecordInternal ps)
 	{
-		if (valueList.getDatabaseValuesType() != ValueList.TABLE_VALUES)
+		if (valueList.getDatabaseValuesType() == ValueList.RELATED_VALUES)
 		{
 			this.parentState = ps;
 			if (parentState != null)
@@ -571,5 +572,13 @@ public class LookupValueList implements IValueList
 	public void removeListDataListener(ListDataListener l)
 	{
 		listeners.remove(l);
+	}
+
+	/**
+	 * Get real value list, used when this LookupValueList was used as fallback value list.
+	 */
+	public IValueList getRealValueList()
+	{
+		return ComponentFactory.getRealValueList(application, valueList, true, 0, null, null);
 	}
 }
