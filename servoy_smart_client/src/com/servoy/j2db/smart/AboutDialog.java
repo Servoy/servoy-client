@@ -198,6 +198,27 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("http://code.google.com/p/wiquery\n");
 		sb.append("\n");
 
+		sb.append("Tyrex\n");
+		sb.append("BSD-like license\n");
+		sb.append("Copyright (c) 1999-2001, Intalio, Inc.\n");
+		sb.append("http://tyrex.sourceforge.net\n");
+		sb.append("\n");
+
+		sb.append("Java Transaction API (JTA)\n");
+		sb.append("Oracle License and Service Agreements\n");
+		sb.append("http://www.oracle.com/technetwork/java/javaee/jta/index.html\n");
+		sb.append("\n");
+
+		sb.append("dom4j\n");
+		sb.append("BSD style license\n");
+		sb.append("http://dom4j.sourceforge.net\n");
+		sb.append("\n");
+
+		sb.append("JCifs\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE\n");
+		sb.append("http://jcifs.samba.org\n");
+		sb.append("\n");
+
 		sb.append("Used client libs\n");
 		sb.append("\n");
 
@@ -288,6 +309,19 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("http://xstream.codehaus.org\n");
 		sb.append("\n");
 
+		sb.append("Used mobile client libs\n");
+		sb.append("\n");
+
+		sb.append("Google Web Toolkit\n");
+		sb.append("Creative Commons Attribution 3.0 License");
+		sb.append("https://developers.google.com/web-toolkit\n");
+		sb.append("\n");
+
+		sb.append("jqm4gwt\n");
+		sb.append("Apache License Version 2.0");
+		sb.append("https://github.com/sksamuel/jqm4gwt\n");
+		sb.append("\n");
+
 		sb.append("Used developer libs\n");
 		sb.append("\n");
 
@@ -305,6 +339,52 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("JsUnit License\n");
 		sb.append("http://jsunit.berlios.de/license.html\n");
 		sb.append("\n");
+
+		sb.append("Used extension plugins libs\n");
+		sb.append("\n");
+
+		sb.append("Bouncy Castle\n");
+		sb.append("The Legion of the Bouncy Castle\n");
+		sb.append("Copyright (c) 2000 - 2012\n");
+		sb.append("www.bouncycastle.org\n");
+		sb.append("\n");
+
+		sb.append("Acrobat Forms Data Format (FDF) Toolkit\n");
+		sb.append("ADOBE® FDF SOFTWARE DEVELOPER’S KIT SOFTWARE LICENSE AGREEMENT\n");
+		sb.append("http://www.adobe.com/devnet/acrobat/fdftoolkit.html\n");
+		sb.append("\n");
+
+		sb.append("Guice\n");
+		sb.append("Apache License Version 2.0\n");
+		sb.append("http://code.google.com/p/google-guice\n");
+		sb.append("\n");
+
+		sb.append("iText\n");
+		sb.append("Copyright (C) 2000, Lowagie Bruno\n");
+		sb.append("GNU LESSER GENERAL PUBLIC LICENSE\n");
+		sb.append("http://itextpdf.com\n");
+		sb.append("\n");
+
+		sb.append("Apache POI\n");
+		sb.append("Apache License Version 2.0\n");
+		sb.append("http://poi.apache.org\n");
+		sb.append("\n");
+
+		sb.append("metadata-extractor\n");
+		sb.append("Apache License Version 2.0\n");
+		sb.append("http://code.google.com/p/metadata-extractor\n");
+		sb.append("\n");
+
+		sb.append("openid4java\n");
+		sb.append("Apache License Version 2.0\n");
+		sb.append("http://code.google.com/p/openid4java\n");
+		sb.append("\n");
+
+		sb.append("openid4java\n");
+		sb.append("Apache License Version 2.0\n");
+		sb.append("http://quartz-scheduler.org\n");
+		sb.append("\n");
+
 
 		ta.setText(sb.toString());
 		ta.setCaretPosition(0);
