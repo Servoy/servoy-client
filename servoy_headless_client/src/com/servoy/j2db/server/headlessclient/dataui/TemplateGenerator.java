@@ -2271,7 +2271,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(field));
 //					html.append(getJavaScriptIDParameter(field));
 				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter("field")); //$NON-NLS-1$ 
+				html.append(getCSSClassParameter(field.getDisplayType() == Field.TYPE_AHEAD ? "field typeahead" : "field")); //$NON-NLS-1$  //$NON-NLS-2$ 
 				html.append("type='text' "); //$NON-NLS-1$ 
 				if (field.getSelectOnEnter())
 				{

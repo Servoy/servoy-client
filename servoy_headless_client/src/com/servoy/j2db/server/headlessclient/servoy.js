@@ -420,27 +420,69 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					{
 						modifiers = getModifiers(e);
 					}
+					// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
+					// of the input via "onchange", else the blur may replace the input
+					var delayedCall = (strEvent == "blur" && this.className && (this.className.indexOf('typeahead') != -1));
+					
 					// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
 					if (Wicket.$(this.id).displayValue && Wicket.$(this.id).value == Wicket.$(this.id).displayValue)
 					{
-						var wcall=wicketAjaxGet
+						if(delayedCall)
+						{
+							var thisEl = this;
+							setTimeout(function()
+							{
+								var wcall=wicketAjaxGet
+								(
+									callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+									null,
+									function() { onAjaxError(); }.bind(thisEl),
+									function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+								);
+							}, 200);
+							return false;							
+						}
+						else
+						{
+							var wcall=wicketAjaxGet
+							(
+								callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+								null,
+								function() { onAjaxError(); }.bind(this),
+								function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+							);
+							return !wcall;
+						}
+					}
+					
+					if(delayedCall)
+					{
+						var thisEl = this;
+						setTimeout(function()
+						{
+							var wcall=wicketAjaxPost
+							(
+								callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+								wicketSerialize(Wicket.$(thisEl.id)),
+								null,
+								function() { onAjaxError(); }.bind(thisEl),
+								function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+							);
+						}, 200);						
+						return false;						
+					}
+					else
+					{
+						var wcall=wicketAjaxPost
 						(
-							callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							wicketSerialize(Wicket.$(this.id)),
 							null,
 							function() { onAjaxError(); }.bind(this),
 							function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
 						);
 						return !wcall;
 					}
-					var wcall=wicketAjaxPost
-					(
-						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-						wicketSerialize(Wicket.$(this.id)),
-						null,
-						function() { onAjaxError(); }.bind(this),
-						function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
-					);
-					return !wcall;
 				}
 			}
 			else
@@ -470,15 +512,38 @@ function addListeners(strEvent, callbackUrl, ids, post)
 					else
 					{
 						modifiers = getModifiers(e);
-					}					
-					var wcall=wicketAjaxGet
-					(					
-						callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
-						null,
-						function() { onAjaxError(); }.bind(this),
-						function() { return Wicket.$(this.id) != null; }.bind(this)
-					);
-					return !wcall;
+					}
+					
+					// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
+					// of the input via "onchange", else the blur may replace the input
+					var delayedCall = (strEvent == "blur" && this.className && (this.className.indexOf('typeahead') != -1));
+					
+					if(delayedCall)
+					{
+						var thisEl = this;
+						setTimeout(function()
+							{
+								var wcall=wicketAjaxGet
+								(					
+									callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
+									null,
+									function() { onAjaxError(); }.bind(thisEl),
+									function() { return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+								);
+							}, 200);
+						return false;						
+					}
+					else
+					{
+						var wcall=wicketAjaxGet
+						(					
+							callbackUrl+'&event='+strEvent+'&id='+this.id+'&modifiers='+modifiers,
+							null,
+							function() { onAjaxError(); }.bind(this),
+							function() { return Wicket.$(this.id) != null; }.bind(this)
+						);
+						return !wcall;
+					}
 				}
 			}
 			if(strEvent == "blur")
