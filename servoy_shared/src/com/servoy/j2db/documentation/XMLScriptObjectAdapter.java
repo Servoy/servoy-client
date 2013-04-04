@@ -144,7 +144,8 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 
 	public String getSample(String methodName)
 	{
-		return getSample(methodName, ClientSupport.Default).getSampleCode();
+		ISampleDocumentation s = getSample(methodName, ClientSupport.Default);
+		return s != null ? s.getSampleCode() : null;
 	}
 
 	public ISampleDocumentation getMobileSample(String methodName)
