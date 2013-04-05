@@ -17,41 +17,17 @@
 
 package com.servoy.j2db.documentation;
 
-
 /**
  * @author acostache
  *
  */
-public class SampleDocumentation implements ISampleDocumentation
+public interface IDescriptionDocumentation
 {
-	private String sampleCode;
-	private ClientSupport clientSupport;
+	public ClientSupport getClientSupport();
 
-	public SampleDocumentation(ClientSupport csp, String sampleCode)
-	{
-		this.clientSupport = csp;
-		this.sampleCode = sampleCode;
-	}
+	public void setClientSupport(ClientSupport clientSupport);
 
-	public String getSampleCode()
-	{
-		return sampleCode;
-	}
+	public String getText();
 
-	public void setSampleCode(String sampleCode)
-	{
-		this.sampleCode = sampleCode;
-	}
-
-	public ClientSupport getClientSupport()
-	{
-		return clientSupport;
-	}
-
-	public void setClientSupport(ClientSupport csp)
-	{
-		clientSupport = csp;
-	}
-
-
+	public void setText(String text);
 }

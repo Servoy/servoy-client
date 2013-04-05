@@ -1911,7 +1911,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Returns the table name from the datasource, or null if not a database datasource.
 	 *
+	 * @mobiledescription
+	 * Returns the table name from the datasource, or null if not a database datasource.
+	 * 
 	 * @sample var tablename = databaseManager.getDataSourceTableName(datasource);
+	 * 
+	 * @mobilesample var tablename = databaseManager.getDataSourceTableName(datasource);
 	 *
 	 * @param dataSource The datasource string to get the tablename from.
 	 * 

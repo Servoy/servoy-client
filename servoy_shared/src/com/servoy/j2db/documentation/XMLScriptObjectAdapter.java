@@ -16,9 +16,7 @@
  */
 package com.servoy.j2db.documentation;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.servoy.j2db.scripting.IScriptObject;
@@ -144,92 +142,56 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 
 	public String getSample(String methodName)
 	{
-		ISampleDocumentation s = getSample(methodName, ClientSupport.Default);
-		return s != null ? s.getSampleCode() : null;
+		return getSample(methodName, ClientSupport.Default);
 	}
 
-	public ISampleDocumentation getMobileSample(String methodName)
+	public String getSample(String methodName, ClientSupport csp)
 	{
-		return getSample(methodName, ClientSupport.mc);
+		return getSample(methodName, null, csp);
 	}
 
-	private ISampleDocumentation getSample(String methodName, ClientSupport csp)
+	public String getSample(String methodName, Class< ? >[] argTypes)
 	{
-		for (ISampleDocumentation sample : getSamples(methodName))
-		{
-			if (csp.equals(sample.getClientSupport())) return sample;
-		}
-		return null;
+		return getSample(methodName, argTypes, ClientSupport.Default);
 	}
 
-	public ISampleDocumentation getSample(String methodName, Class< ? >[] argTypes)
+	public String getSample(final String methodName, Class< ? >[] argTypes, ClientSupport csp)
 	{
-		for (ISampleDocumentation sample : getSamples(methodName, argTypes))
-		{
-			if (!ClientSupport.mc.equals(sample.getClientSupport())) return sample;
-		}
-		return null;
-	}
-
-	public List<ISampleDocumentation> getSamples(final String methodName)
-	{
-		IFunctionDocumentation fdoc = objDoc.getFunction(methodName);
+		IFunctionDocumentation fdoc = (argTypes == null ? objDoc.getFunction(methodName) : objDoc.getFunction(methodName, argTypes));
 		if (fdoc != null)
 		{
-			if (!fdoc.isDocumented() && original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default,
-				original.getSample(methodName)) });
-			return fdoc.getSamples();
-		}
-		if (original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default, original.getSample(methodName)) });
-		return null;
-	}
-
-	public List<ISampleDocumentation> getSamples(final String methodName, Class< ? >[] argTypes)
-	{
-		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
-		if (fdoc != null)
-		{
-			if (!fdoc.isDocumented() && original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default,
-				original.getSample(methodName)) });
-			return fdoc.getSamples();
-		}
-		if (original != null) return Arrays.asList(new ISampleDocumentation[] { new SampleDocumentation(ClientSupport.Default, original.getSample(methodName)) });
-		return null;
-	}
-
-
-	public ISampleDocumentation getMobileSample(String methodName, Class< ? >[] argTypes)
-	{
-		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
-		if (fdoc != null)
-		{
-			for (ISampleDocumentation sample : fdoc.getSamples())
+			if (!fdoc.isDocumented() && original != null)
 			{
-				if (ClientSupport.mc.equals(sample.getClientSupport())) return sample;
+				return original.getSample(methodName);
 			}
+			return fdoc.getSample(csp);
 		}
+		if (original != null) return original.getSample(methodName);
 		return null;
 	}
 
 	public String getToolTip(String methodName)
 	{
-		IFunctionDocumentation fdoc = objDoc.getFunction(methodName);
-		if (fdoc != null)
-		{
-			if (!fdoc.isDocumented() && original != null) return original.getToolTip(methodName);
-			return fdoc.getDescription();
-		}
-		if (original != null) return original.getToolTip(methodName);
-		return null;
+		return getToolTip(methodName, null, ClientSupport.Default);
 	}
 
 	public String getToolTip(String methodName, Class< ? >[] argTypes)
 	{
-		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+		return getToolTip(methodName, argTypes, ClientSupport.Default);
+	}
+
+	public String getToolTip(String methodName, ClientSupport csp)
+	{
+		return getToolTip(methodName, null, csp);
+	}
+
+	public String getToolTip(String methodName, Class< ? >[] argTypes, ClientSupport csp)
+	{
+		IFunctionDocumentation fdoc = (argTypes != null ? objDoc.getFunction(methodName, argTypes) : objDoc.getFunction(methodName));
 		if (fdoc != null)
 		{
 			if (!fdoc.isDocumented() && original != null) return original.getToolTip(methodName);
-			return fdoc.getDescription();
+			return (fdoc.getDescription(csp) == null && csp == ClientSupport.mc ? fdoc.getDescription(ClientSupport.Default) : fdoc.getDescription(csp));
 		}
 		if (original != null) return original.getToolTip(methodName);
 		return null;

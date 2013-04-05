@@ -51,9 +51,17 @@ public interface IFunctionDocumentation
 
 	public int getState();
 
-	public String getDescription();
+	public List<IDescriptionDocumentation> getDescriptions();
 
-	public void setDescription(String description);
+	public void setDescriptions(List<IDescriptionDocumentation> description);
+
+	public void addDescription(IDescriptionDocumentation description);
+
+	public void addDescription(ClientSupport csp, String text);
+
+	public String getDescription(ClientSupport csp);
+
+	public void addSummary(IDescriptionDocumentation summary);
 
 	public String getMainName();
 

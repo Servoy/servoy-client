@@ -16,10 +16,8 @@
  */
 package com.servoy.j2db.scripting;
 
-import java.util.List;
-
+import com.servoy.j2db.documentation.ClientSupport;
 import com.servoy.j2db.documentation.IParameter;
-import com.servoy.j2db.documentation.ISampleDocumentation;
 
 public interface ITypedScriptObject extends IScriptObject
 {
@@ -29,13 +27,17 @@ public interface ITypedScriptObject extends IScriptObject
 
 	public String getJSTranslatedSignature(String methodName, Class< ? >[] argTypes);
 
-	public ISampleDocumentation getSample(String methodName, Class< ? >[] argTypes);
+	public String getSample(String methodName, Class< ? >[] argTypes);
 
-	public ISampleDocumentation getMobileSample(String methodName, Class< ? >[] argTypes);
+	public String getSample(String methodName, ClientSupport csp);
 
-	public List<ISampleDocumentation> getSamples(String methodName, Class< ? >[] argTypes);
+	public String getSample(String methodName, Class< ? >[] argTypes, ClientSupport csp);
 
 	public String getToolTip(String methodName, Class< ? >[] argTypes);
+
+	public String getToolTip(String methodName, ClientSupport csp);
+
+	public String getToolTip(String methodName, Class< ? >[] argTypes, ClientSupport csp);
 
 	public boolean isDeprecated(String methodName, Class< ? >[] argTypes);
 
