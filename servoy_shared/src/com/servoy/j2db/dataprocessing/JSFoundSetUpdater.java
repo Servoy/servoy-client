@@ -21,6 +21,8 @@ import java.util.List;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
+import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
@@ -178,6 +180,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 			{
 				//all rows at once, via sql
 				Table table = (Table)foundset.getTable();
+				SQLSheet sheet = foundset.getSQLSheet();
 
 				QueryUpdate sqlUpdate = new QueryUpdate(sqlParts.getTable());
 				for (int j = 0; j < list.size(); j++)
@@ -185,7 +188,20 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 					Pair<String, Object> p = list.get(j);
 					String name = p.getLeft();
 					Object val = p.getRight();
-
+					int columnIndex = sheet.getColumnIndex(name);
+					if (val != null && columnIndex >= 0)
+					{
+						ConverterInfo converterInfo = sheet.getColumnConverterInfo(columnIndex);
+						if (converterInfo != null)
+						{
+							IColumnConverter conv = foundset.getFoundSetManager().getColumnConverterManager().getConverter(converterInfo.converterName);
+							if (conv != null)
+							{
+								VariableInfo variableInfo = sheet.getCalculationOrColumnVariableInfo(name, columnIndex);
+								val = conv.convertFromObject(converterInfo.props, variableInfo.type, val);
+							}
+						}
+					}
 					Column c = table.getColumn(name);
 					val = c.getAsRightType(val);
 					if (val == null) val = ValueFactory.createNullValue(c.getType());
