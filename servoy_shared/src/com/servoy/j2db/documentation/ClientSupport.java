@@ -18,6 +18,7 @@
 package com.servoy.j2db.documentation;
 
 
+
 /**
  * Enum for tagging which clients are supported for the property.
  * 
@@ -87,6 +88,11 @@ public enum ClientSupport
 	public ClientSupport remove(ClientSupport scp)
 	{
 		return scp == null ? this : fromBits(bits & ~scp.bits);
+	}
+
+	public ClientSupport intersect(ClientSupport scp)
+	{
+		return scp == null ? null : fromBits(bits & scp.bits);
 	}
 
 	public static ClientSupport create(boolean support_mc, boolean support_wc, boolean support_sc)
