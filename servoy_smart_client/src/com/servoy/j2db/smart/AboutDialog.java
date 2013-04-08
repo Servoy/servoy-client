@@ -350,7 +350,7 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("\n");
 
 		sb.append("Acrobat Forms Data Format (FDF) Toolkit\n");
-		sb.append("ADOBE® FDF SOFTWARE DEVELOPER’S KIT SOFTWARE LICENSE AGREEMENT\n");
+		sb.append("ADOBE\u00AE FDF SOFTWARE DEVELOPER’S KIT SOFTWARE LICENSE AGREEMENT\n");
 		sb.append("http://www.adobe.com/devnet/acrobat/fdftoolkit.html\n");
 		sb.append("\n");
 
@@ -380,7 +380,7 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("http://code.google.com/p/openid4java\n");
 		sb.append("\n");
 
-		sb.append("openid4java\n");
+		sb.append("Quartz\n");
 		sb.append("Apache License Version 2.0\n");
 		sb.append("http://quartz-scheduler.org\n");
 		sb.append("\n");
