@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Iterator;
 
+import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
@@ -490,5 +491,10 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	public int getOnRenderMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
+	}
+
+	public boolean isMobileInsetList()
+	{
+		return Boolean.TRUE.equals(getCustomMobileProperty(IMobileProperties.LIST_COMPONENT.propertyName));
 	}
 }

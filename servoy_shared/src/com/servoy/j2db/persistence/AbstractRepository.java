@@ -142,11 +142,12 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 * @param persist
 	 * @throws RepositoryException
 	 */
-	public static IPersist searchPersist(ISupportChilds parent, IPersist persist)
+	@SuppressWarnings("unchecked")
+	public static <T extends IPersist> T searchPersist(ISupportChilds parent, T persist)
 	{
 		if (persist == null || parent == null) return null;
 		UUID parentUuid = parent.getUUID();
-		if (parentUuid.equals(persist.getUUID())) return parent;
+		if (parentUuid.equals(persist.getUUID())) return (T)parent;
 
 		// find the path to the parent
 		List<UUID> path = new ArrayList<UUID>();
@@ -174,7 +175,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 			}
 			if (node != null)
 			{
-				return node;
+				return (T)node;
 			}
 		}
 
@@ -191,7 +192,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		}
 
 		// not found via the path and in different parent, fall back on complete search on uuid
-		return searchPersist(parent, persist.getUUID(), persist.getParent());
+		return (T)searchPersist(parent, persist.getUUID(), persist.getParent());
 	}
 
 	public static IPersist searchPersist(ISupportChilds node, final UUID uuid)

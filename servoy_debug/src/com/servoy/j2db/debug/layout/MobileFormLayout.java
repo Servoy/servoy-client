@@ -193,7 +193,7 @@ public class MobileFormLayout
 				String groupID = ((IFormElement)persist).getGroupID();
 				if (groupID == null)
 				{
-					if (persist instanceof Portal && ((Portal)persist).getCustomMobileProperty(IMobileProperties.LIST_COMPONENT.propertyName) != null)
+					if (persist instanceof Portal && ((Portal)persist).isMobileInsetList())
 					{
 						// inset list
 						elements.add(((Portal)persist));
