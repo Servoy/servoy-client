@@ -109,6 +109,7 @@ public class SortDialog extends JEscapeDialog implements ActionListener
 		contentPane.add(buttonPane, BorderLayout.SOUTH);
 
 		loadBounds("SortDialog"); //$NON-NLS-1$
+		setMinimumSize(new Dimension(900, 250));
 		setButton.requestFocus();
 	}
 
