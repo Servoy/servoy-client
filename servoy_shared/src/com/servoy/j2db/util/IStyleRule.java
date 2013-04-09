@@ -47,7 +47,7 @@ public interface IStyleRule
 	/**
 	 * Fetches the value of the given attribute, as defined in CSS.
 	 *
-	 * @param key the non-null key of the attribute binding
+	 * @param attributeName the non-null key of the attribute binding
 	 * @return the value
 	 */
 	public String getValue(String attributeName);
@@ -55,7 +55,7 @@ public interface IStyleRule
 	/**
 	 * Fetches all the values for a CSS attribute, in the order defined in CSS (getValue will return only the last value).
 	 * 
-	 * @param key the non-null key of the attribute binding
+	 * @param attributeName the non-null key of the attribute binding
 	 * @return the set of values for this attribute, in defined order
 	 */
 	public String[] getValues(String attributeName);

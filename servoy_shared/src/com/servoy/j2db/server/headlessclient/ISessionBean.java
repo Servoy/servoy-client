@@ -57,7 +57,7 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 	/**
 	 * Set all request parameters as dataprovider values, if the names match.
 	 * 
-	 * @param context This is the form name or null if the method is a global method.
+	 * @param contextName This is the form name or null if the method is a global method.
 	 * @param request_data the page request object
 	 */
 	public int setDataProviderValues(String contextName, HttpServletRequest request_data);

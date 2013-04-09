@@ -383,7 +383,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	 * <p>
 	 * The first of two UUIDs follows the second if the most significant field in which the UUIDs differ is greater for the first UUID.
 	 * 
-	 * @param other <tt>UUID</tt> to which this <tt>UUID</tt> is to be compared.
+	 * @param otherUUID <tt>UUID</tt> to which this <tt>UUID</tt> is to be compared.
 	 * @return -1, 0 or 1 as this <tt>UUID</tt> is less than, equal to, or greater than <tt>other</tt>.
 	 */
 	public int compareTo(UUID otherUUID)
@@ -397,7 +397,7 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	/**
 	 * Convert to byte array, compatible with UUID(byte[])
 	 * 
-	 * @return
+	 * @return the result byte array
 	 */
 	public byte[] toBytes()
 	{

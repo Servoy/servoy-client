@@ -227,7 +227,7 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 
 	/**
 	 * Returns the current drag operation, a DRAGNDROP constant or a combination of that
-	 * @return
+	 * @return the current drag operation
 	 */
 	public int getCurrentDragOperation()
 	{

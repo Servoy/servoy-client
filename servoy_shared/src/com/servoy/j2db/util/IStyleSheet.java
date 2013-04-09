@@ -233,22 +233,22 @@ public interface IStyleSheet
 	public List<Color> getBackgrounds(IStyleRule a);
 
 	/**
-	 * Check whatever the supplied attributes have border attribute
-	 * @param a the attributes
+	 * Check whether the supplied attributes have border attribute
+	 * @param s the attributes
 	 * @return true if the attributes have border attribute, false otherwise
 	 */
 	public boolean hasBorder(IStyleRule s);
 
 	/**
 	 * Check whatever the supplied attributes have margin attribute
-	 * @param a the attributes
+	 * @param s the attributes
 	 * @return true if the attributes have margin attribute, false otherwise
 	 */
 	public boolean hasMargin(IStyleRule s);
 
 	/**
 	 * Check whatever the supplied attributes have font attribute
-	 * @param a the attributes
+	 * @param s the attributes
 	 * @return true if the attributes have font attribute, false otherwise
 	 */
 	public boolean hasFont(IStyleRule s);

@@ -276,7 +276,7 @@ public class BufferedDataSet implements IDataSet
 
 
 	/**
-	 * @return
+	 * @return the column types
 	 */
 	public ColumnType[] getColumnTypeInfo()
 	{

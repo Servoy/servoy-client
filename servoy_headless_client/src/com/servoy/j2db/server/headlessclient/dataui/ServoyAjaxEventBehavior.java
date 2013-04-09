@@ -83,7 +83,7 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 
 	/**
 	 * @param newEh
-	 * @return
+	 * @return enhanced function script
 	 */
 	protected String enhanceFunctionScript(String newEh)
 	{

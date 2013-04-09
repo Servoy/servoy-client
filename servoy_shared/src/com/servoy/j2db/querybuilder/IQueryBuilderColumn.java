@@ -116,7 +116,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * <pre>
 	 * query.where().add(query.getColumn("value").not().eq(new Integer(100));
 	 * </pre>
-	 * @return
+	 * @return the negated condition
 	 */
 	IQueryBuilderColumn not();
 

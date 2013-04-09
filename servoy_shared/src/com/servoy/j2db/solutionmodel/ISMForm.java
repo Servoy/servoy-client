@@ -304,9 +304,9 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var field = form.newField(variable, ISMField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 *
-	 * @param displaytype the display type of the ISMField object (see the Solution Model -> ISMField node for display types)
+	 * @param type the display type of the ISMField object (see the Solution Model -> ISMField node for display types)
 	 *
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 *
@@ -318,7 +318,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object (of the specified display type) 
 	 */
-	public ISMField newField(Object dataprovider, int type, int x, int y, int width, int height);
+	public ISMField newField(Object dataprovidername, int type, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of TEXT_FIELD - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -338,7 +338,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * //textField.dataProviderID = columnTextDataProvider;
 	 * forms['newForm1'].controller.show();
 	 *
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -346,7 +346,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of TEXT_FIELD
 	 */
-	public ISMField newTextField(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newTextField(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of TEXT_AREA - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -358,7 +358,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var textArea = form.newTextArea(globalVar,100,100,300,150);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMTabPanel object in pixels
 	 * @param y the vertical "y" position of the ISMTabPanel object in pixels
 	 * @param width the width of the ISMTabPanel object in pixels
@@ -366,7 +366,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of TEXT_AREA
 	 */
-	public ISMField newTextArea(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newTextArea(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of COMBOBOX - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -376,7 +376,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var calendar = form.newComboBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -384,7 +384,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of COMBOBOX
 	 */
-	public ISMField newComboBox(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newComboBox(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of LISTBOX - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -394,7 +394,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var list = form.newListBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -402,7 +402,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of LISTBOX
 	 */
-	public ISMField newListBox(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newListBox(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of MULTISELECT_LISTBOX - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -412,7 +412,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var calendar = form.newMultiSelectListBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovider the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -420,7 +420,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of MULTISELECT_LISTBOX
 	 */
-	public ISMField newMultiSelectListBox(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newMultiSelectListBox(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of SPINNER - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -430,7 +430,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var spinner = form.newSpinner(myDataProvider, 10, 460, 100, 20);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -438,7 +438,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of SPINNER
 	 */
-	public ISMField newSpinner(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newSpinner(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -450,7 +450,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var radios = form.newRadios('columnDataProvider',100,100,200,200);
 	 * radios.valuelist = vlist;
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -458,7 +458,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of RADIOS (radio buttons)
 	 */
-	public ISMField newRadios(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newRadios(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of CHECK (checkbox) - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -468,7 +468,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var calendar = form.newCheck(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -476,7 +476,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of CHECK (checkbox)
 	 */
-	public ISMField newCheck(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newCheck(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of CALENDAR - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -486,7 +486,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var calendar = form.newCalendar(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels 
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -494,7 +494,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of CALENDAR
 	 */
-	public ISMField newCalendar(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newCalendar(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of RTF_AREA (enables more than one line of text to be displayed in a field) - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -504,7 +504,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var rtf_area = form.newRtfArea('columnDataProvider',100,100,100,100);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -512,7 +512,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of RTF_AREA
 	 */
-	public ISMField newRtfArea(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newRtfArea(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of HTML_AREA - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -524,7 +524,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var htmlArea = myListViewForm.newHtmlArea(textProvider,100,100,100,100);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -532,7 +532,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object on the form with the displayType of HTML_AREA 
 	 */
-	public ISMField newHtmlArea(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newHtmlArea(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of IMAGE_MEDIA - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -543,7 +543,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var imageMedia = form.newImageMedia(myMediaVar,100,100,200,200)
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -551,7 +551,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of IMAGE_MEDIA
 	 */
-	public ISMField newImageMedia(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newImageMedia(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of TYPE_AHEAD - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -564,7 +564,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * typeAhead.valuelist = vlist;
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -572,7 +572,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of TYPE_AHEAD
 	 */
-	public ISMField newTypeAhead(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newTypeAhead(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new ISMField object on the form with the displayType of PASSWORD - including the dataprovider/ISMVariable of the ISMField object, the "x" and "y" position of the ISMField object in pixels, as well as the width and height of the ISMField object in pixels.
@@ -582,7 +582,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var pass = form.newPassword(scopes.globals.aVariable, 100, 100, 70, 30);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/ISMVariable the specified dataprovider name/ISMVariable of the ISMField object
+	 * @param dataprovidername the specified dataprovider name/ISMVariable of the ISMField object
 	 * @param x the horizontal "x" position of the ISMField object in pixels
 	 * @param y the vertical "y" position of the ISMField object in pixels
 	 * @param width the width of the ISMField object in pixels
@@ -590,7 +590,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of PASSWORD
 	 */
-	public ISMField newPassword(Object dataprovider, int x, int y, int width, int height);
+	public ISMField newPassword(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new button on the form with the given text, place, size and ISMMethod as the onAction event triggered action.
@@ -601,7 +601,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * var button = form.newButton('myButton', 10, 10, 100, 30, method);
 	 * application.output("The new button: " + button.name + " has the following onAction event handling method assigned " + button.onAction.getName());
 	 *
-	 * @param text the text on the button
+	 * @param txt the text on the button
 	 *
 	 * @param x the x coordinate of the button location on the form
 	 *
@@ -611,7 +611,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @param height the height of the button 
 	 *
-	 * @param ISMMethod the method assigned to handle an onAction event
+	 * @param action the method assigned to handle an onAction event
 	 * 
 	 * @return a new ISMButton object
 	 */

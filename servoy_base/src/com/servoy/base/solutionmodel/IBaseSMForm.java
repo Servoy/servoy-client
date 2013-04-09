@@ -183,9 +183,9 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var field = form.newField(variable, IBaseSMField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 *
-	 * @param displaytype the display type of the IBaseSMField object (see the Solution Model -> IBaseSMField node for display types)
+	 * @param type the display type of the IBaseSMField object (see the Solution Model -> IBaseSMField node for display types)
 	 *
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 *
@@ -197,7 +197,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object (of the specified display type) 
 	 */
-	public IBaseSMField newField(Object dataprovider, int type, int x, int y, int width, int height);
+	public IBaseSMField newField(Object dataprovidername, int type, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of TEXT_FIELD - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -217,7 +217,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * //textField.dataProviderID = columnTextDataProvider;
 	 * forms['newForm1'].controller.show();
 	 *
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -225,7 +225,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMField object with the displayType of TEXT_FIELD
 	 */
-	public IBaseSMField newTextField(Object dataprovider, int x, int y, int width, int height);
+	public IBaseSMField newTextField(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of TEXT_AREA - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -237,7 +237,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var textArea = form.newTextArea(globalVar,100,100,300,150);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMTabPanel object in pixels
 	 * @param y the vertical "y" position of the IBaseSMTabPanel object in pixels
 	 * @param width the width of the IBaseSMTabPanel object in pixels
@@ -245,7 +245,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMField object with the displayType of TEXT_AREA
 	 */
-	public IBaseSMField newTextArea(Object dataprovider, int x, int y, int width, int height);
+	public IBaseSMField newTextArea(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of COMBOBOX - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -255,7 +255,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var calendar = form.newComboBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -263,7 +263,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object on the form with the displayType of COMBOBOX
 	 */
-	public IBaseSMField newComboBox(Object dataprovider, int x, int y, int width, int height);
+	public IBaseSMField newComboBox(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -275,7 +275,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var radios = form.newRadios('columnDataProvider',100,100,200,200);
 	 * radios.valuelist = vlist;
 	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -283,7 +283,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMField object with the displayType of RADIOS (radio buttons)
 	 */
-	public IBaseSMField newRadios(Object dataprovider, int x, int y, int width, int height);
+	public IBaseSMField newRadios(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of CHECK (checkbox) - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -293,7 +293,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var calendar = form.newCheck(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -301,7 +301,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object on the form with the displayType of CHECK (checkbox)
 	 */
-	public IBaseSMField newCheck(Object dataprovider, int x, int y, int width, int height);
+	public IBaseSMField newCheck(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of PASSWORD - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -311,7 +311,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var pass = form.newPassword(scopes.globals.aVariable, 100, 100, 70, 30);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/IBaseSMVariable the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -319,7 +319,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object on the form with the displayType of PASSWORD
 	 */
-	public IBaseSMField newPassword(Object dataprovider, int x, int y, int width, int height);
+	public IBaseSMField newPassword(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new button on the form with the given text, place, size and IBaseSMMethod as the onAction event triggered action.
@@ -330,7 +330,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var button = form.newButton('myButton', 10, 10, 100, 30, method);
 	 * application.output("The new button: " + button.name + " has the following onAction event handling method assigned " + button.onAction.getName());
 	 *
-	 * @param text the text on the button
+	 * @param txt the text on the button
 	 *
 	 * @param x the x coordinate of the button location on the form
 	 *
@@ -340,7 +340,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @param height the height of the button 
 	 *
-	 * @param IBaseSMMethod the method assigned to handle an onAction event
+	 * @param action the method assigned to handle an onAction event
 	 * 
 	 * @return a new IBaseSMButton object
 	 */

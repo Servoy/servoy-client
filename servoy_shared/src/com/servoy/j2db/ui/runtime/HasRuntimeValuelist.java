@@ -52,7 +52,7 @@ public interface HasRuntimeValuelist
 	 * // %%prefix%%%%elementName%% should have a valuelist attached
 	 * %%prefix%%%%elementName%%.setValueListItems(dataset);
 	 *
-	 * @param dataset first column is display value, second column is real value
+	 * @param value first column is display value, second column is real value
 	 */
 	@JSFunction
 	public void setValueListItems(Object value);

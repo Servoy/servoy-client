@@ -334,7 +334,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 * @param margin
 	 * @param fontSize
 	 * @param properties
-	 * @return
+	 * @return the padding and border
 	 */
 	@SuppressWarnings("nls")
 	public Insets getPaddingAndBorder(int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)

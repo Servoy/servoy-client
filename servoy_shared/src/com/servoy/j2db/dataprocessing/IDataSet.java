@@ -115,7 +115,7 @@ public interface IDataSet extends Serializable, Cloneable
 
 
 	/**
-	 * @param rowComparable
+	 * @param rowComparator 
 	 */
 	public void sort(Comparator<Object[]> rowComparator);
 
@@ -145,7 +145,7 @@ public interface IDataSet extends Serializable, Cloneable
 	public void setColumnName(int columnIndex, String columnName);
 
 	/**
-	 * @return
+	 * @return the data set clone
 	 */
 	public IDataSet clone();
 }

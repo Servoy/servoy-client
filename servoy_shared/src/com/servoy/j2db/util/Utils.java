@@ -748,7 +748,7 @@ public class Utils
 	 * 
 	 * @see #parseJSExpression(Object) reverse method
 	 * 
-	 * @param s
+	 * @param o
 	 * @return the result string
 	 */
 	public static String makeJSExpression(Object o)
@@ -2539,7 +2539,7 @@ public class Utils
 	 * Get the rectangle that surrounds all elements
 	 * 
 	 * @param elements
-	 * @return
+	 * @return the rectangle
 	 */
 	public static Rectangle getBounds(Iterator< ? > elements)
 	{
@@ -2625,7 +2625,7 @@ public class Utils
 	 *     o. ....
 	 * }
 	 * </pre>
-	 * @param iterator, when null, iterate over empty list
+	 * @param iterator when null, iterate over empty list
 	 */
 	public static <T> Iterable<T> iterate(final Iterator<T> iterator)
 	{
@@ -2661,8 +2661,8 @@ public class Utils
 	 * Removes the first map entry based on a map value
 	 * 
 	 * @param name the map value to remove the map entry
-	 * @param map - A map from which to remove the value and key
-	 * @return
+	 * @param map a map from which to remove the value and key
+	 * @return the previous value associated with key, or null if there was no mapping for key
 	 */
 	public static <K, V> V mapRemoveByValue(V name, Map<K, V> map)
 	{
@@ -2687,7 +2687,7 @@ public class Utils
 	 *  
 	 * @param map
 	 * @param value
-	 * @return
+	 * @return the first key of a map based on the value parameter
 	 */
 	public static <K, V> K mapGetKeyByValue(Map<K, V> map, V value)
 	{

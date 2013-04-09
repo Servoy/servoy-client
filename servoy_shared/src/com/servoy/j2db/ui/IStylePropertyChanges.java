@@ -84,7 +84,7 @@ public interface IStylePropertyChanges
 	 * Gets the value of a js property (returns null if the property does not exist).
 	 * 
 	 * @param key
-	 * @return
+	 * @return the js propery value
 	 */
 	public String getJSProperty(String key);
 }

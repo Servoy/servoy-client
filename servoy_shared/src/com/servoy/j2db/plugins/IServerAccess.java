@@ -223,7 +223,7 @@ public interface IServerAccess extends IPluginAccess
 	 * Two additional boolean flags can be used to make sure that the server is enabled and valid.
 	 * 
 	 * @param serverName The name of the database server to retrieve.
-	 * @param mustBeEnable If true, then the database server must be enabled in order to be returned.
+	 * @param mustBeEnabled If true, then the database server must be enabled in order to be returned.
 	 * @param mustBeValid If true, then the database server must be valid in order to be returned.
 	 * 
 	 * @return An IServer instance that corresponds to the requested server. If the server with the given
@@ -307,12 +307,12 @@ public interface IServerAccess extends IPluginAccess
 	 * @param questiondata
 	 * @param inOutType
 	 * @param startRow
-	 * @param rowsToRetrieve
+	 * @param maxNumberOfRowsToRetrieve
 	 * 
 	 * @return last resultset of procedure or result of inOutType
 	 * 
 	 * @since 6.1
 	 */
-	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] args,
+	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] questiondata,
 		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
 }

@@ -158,7 +158,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * 
 	 * @return a boolean value indicating if tab was successfully removed
 	 */
-	public boolean removeTabAt(int i);
+	public boolean removeTabAt(int index);
 
 	/**
 	 * Removes all tabs for a specified tabpanel.
@@ -281,7 +281,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @param index the number of the specified tab
 	 * @param text the text to be set for the specified tab
 	 */
-	public void setTabTextAt(int i, String s);
+	public void setTabTextAt(int index, String text);
 
 	/**
 	 * Sets the status of a specified tab in a tabpanel.

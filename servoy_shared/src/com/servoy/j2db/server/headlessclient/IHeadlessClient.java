@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import com.servoy.j2db.plugins.IClientPluginAccess;
@@ -35,7 +35,7 @@ public interface IHeadlessClient
 	/**
 	 * Get a dataprovider value.
 	 * 
-	 * @param context This is the form name or null if the method is a global method.
+	 * @param contextName This is the form name or null if the method is a global method.
 	 * @param dataprovider the dataprovider name as seen in Servoy
 	 * @return the value for the dataprovider
 	 */
@@ -44,7 +44,7 @@ public interface IHeadlessClient
 	/**
 	 * Set a dataprovider value.
 	 * 
-	 * @param context This is the form name or null if the method is a global method.
+	 * @param contextName This is the form name or null if the method is a global method.
 	 * @param dataprovider the dataprovider name as seen in Servoy
 	 * @param value to set
 	 * @return the old value or null if no change

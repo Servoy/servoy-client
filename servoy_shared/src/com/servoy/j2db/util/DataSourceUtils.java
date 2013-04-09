@@ -76,7 +76,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	 * Create the a data source string for an inmemory table
 	 * 
 	 * @param name
-	 * @return
+	 * @return the datasource string
 	 */
 	public static String createInmemDataSource(String name)
 	{
@@ -118,8 +118,8 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	/**
 	 * Get the sorted set of server names used server names in the data sources list
 	 * 
-	 * @param server names
-	 * @return
+	 * @param dataSources server names
+	 * @return the sorted set of server names
 	 */
 	public static SortedSet<String> getServerNames(Set<String> dataSources)
 	{
@@ -138,8 +138,9 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	/**
 	 * Get the table names with the given server name in the data sources list
 	 * 
-	 * @param table names
-	 * @return
+	 * @param dataSources
+	 * @param serverName
+	 * @return the sorted set of table names
 	 */
 	public static List<String> getServerTablenames(Set<String> dataSources, String serverName)
 	{
@@ -159,7 +160,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	/**
 	 * @param dataSource1
 	 * @param dataSource2
-	 * @return
+	 * @return true if the datasources desginate the same server, false otherwise
 	 */
 	public static boolean isSameServer(String dataSource1, String dataSource2)
 	{

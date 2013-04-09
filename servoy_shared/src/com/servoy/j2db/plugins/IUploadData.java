@@ -40,26 +40,26 @@ public interface IUploadData
 
 	/**
 	 * The contents of this uploaded data.
-	 * @return
+	 * @return a byte array with the contents of the uploaded data 
 	 */
 	byte[] getBytes();
 
 	/**
 	 * The name of the file on the users machine.
 	 * 
-	 * @return
+	 * @return the name of the file
 	 */
 	String getName();
 
 	/**
 	 * The content type of the data.
-	 * @return
+	 * @return the content type of the data
 	 */
 	String getContentType();
 
 	/**
 	 * An inputStream on the data
-	 * @return
+	 * @return the inputStream on the data
 	 */
 	InputStream getInputStream() throws IOException;
 }
