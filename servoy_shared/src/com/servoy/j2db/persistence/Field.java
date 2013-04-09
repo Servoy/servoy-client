@@ -102,7 +102,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * Flag that tells if the content of the field can be edited or not. 
 	 * The default value of this flag is "true", that is the content can be edited.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public boolean getEditable()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EDITABLE).booleanValue();
@@ -458,6 +457,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getPlaceholderText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT);
