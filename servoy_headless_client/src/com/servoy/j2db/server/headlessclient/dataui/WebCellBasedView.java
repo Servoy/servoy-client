@@ -1158,7 +1158,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				IScriptable s = ((IScriptableProvider)component).getScriptObject();
 				if (s instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)s).getRenderEventExecutor().hasRenderCallback())
 				{
-					((ISupportOnRenderCallback)s).getRenderEventExecutor().setRenderState(getModelObject(), getIndex(), isSelected);
+					((ISupportOnRenderCallback)s).getRenderEventExecutor().setRenderState(getModelObject(), getIndex(), isSelected, false);
 					return true;
 				}
 			}
@@ -2848,7 +2848,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		updateRowSelection(null);
 		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
-			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false);
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false, false);
 			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
 		}
 		super.onBeforeRender();

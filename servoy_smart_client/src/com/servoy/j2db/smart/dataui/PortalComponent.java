@@ -501,7 +501,7 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 
 		if (currentData != null && portalRenderComponent != null && portalRenderComponent.getRenderEventExecutor().hasRenderCallback())
 		{
-			portalRenderComponent.getRenderEventExecutor().setRenderState(null, -1, false);
+			portalRenderComponent.getRenderEventExecutor().setRenderState(null, -1, false, true);
 			portalRenderComponent.getRenderEventExecutor().fireOnRender(false);
 		}
 	}

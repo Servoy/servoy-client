@@ -919,7 +919,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			{
 				recordStatus = getRecordIndexAndSelectStatus(rec);
 				dataRenderer.getOnRenderComponent().getRenderEventExecutor().setRenderState(rec, ((Integer)recordStatus[0]).intValue(),
-					((Boolean)recordStatus[1]).booleanValue());
+					((Boolean)recordStatus[1]).booleanValue(), true);
 			}
 
 
@@ -938,7 +938,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 						if (rendererEventExecutor != null && rendererEventExecutor.hasRenderCallback())
 						{
 							if (recordStatus == null) recordStatus = getRecordIndexAndSelectStatus(rec);
-							rendererEventExecutor.setRenderState(rec, ((Integer)recordStatus[0]).intValue(), ((Boolean)recordStatus[1]).booleanValue());
+							rendererEventExecutor.setRenderState(rec, ((Integer)recordStatus[0]).intValue(), ((Boolean)recordStatus[1]).booleanValue(), true);
 						}
 					}
 				}

@@ -537,7 +537,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					RenderEventExecutor renderEventExecutor = ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor();
 					if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
 					{
-						renderEventExecutor.setRenderState(currentEditingState, row, isSelected);
+						renderEventExecutor.setRenderState(currentEditingState, row, isSelected, true);
 					}
 				}
 			}
@@ -725,7 +725,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 
 		if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback())
 		{
-			renderEventExecutor.setRenderState(state, row, isSelected);
+			renderEventExecutor.setRenderState(state, row, isSelected, true);
 		}
 
 		if (renderer instanceof IDisplayRelatedData)
