@@ -2408,6 +2408,31 @@ public class Utils
 		return false;
 	}
 
+	public static boolean writeFile(File f, byte[] content)
+	{
+		if (f != null)
+		{
+			FileOutputStream fos = null;
+			try
+			{
+				f.getParentFile().mkdirs();
+				fos = new FileOutputStream(f);
+				fos.write(content);
+				fos.flush();
+				return true;
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error writing file: " + f, e); //$NON-NLS-1$
+			}
+			finally
+			{
+				closeOutputStream(fos);
+			}
+		}
+		return false;
+	}
+
 	public static boolean isAppleMacOS()
 	{
 		return getPlatform() == PLATFORM_MAC;
