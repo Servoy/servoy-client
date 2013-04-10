@@ -62,9 +62,9 @@ public class RenderEventExecutor
 		return renderCallback != null;
 	}
 
-	public void setRenderState(IRecordInternal record, int index, boolean isSelected)
+	public void setRenderState(IRecordInternal record, int index, boolean isSelected, boolean optimizeChangedState)
 	{
-		if (!Utils.equalObjects(renderRecord, record) || renderIndex != index || renderIsSelected != isSelected)
+		if (!optimizeChangedState || !Utils.equalObjects(renderRecord, record) || renderIndex != index || renderIsSelected != isSelected)
 		{
 			renderRecord = record;
 			renderIndex = index;
