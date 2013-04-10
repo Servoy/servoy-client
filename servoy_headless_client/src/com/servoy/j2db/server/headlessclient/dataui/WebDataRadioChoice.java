@@ -577,7 +577,7 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	private void updatePrefix()
 	{
 		StringBuffer prefix = new StringBuffer();
-		prefix.append("<div onfocus='parentNode.onfocus()' onblur='parentNode.onblur()'"); //$NON-NLS-1$
+		prefix.append("<div onfocus='if (parentNode.onfocus)parentNode.onfocus()' onblur='if (parentNode.onblur)parentNode.onblur()'"); //$NON-NLS-1$
 		prefix.append(" tabindex='").append(tabIndex).append("'"); //$NON-NLS-1$//$NON-NLS-2$
 		prefix.append(" class='"); //$NON-NLS-1$
 		if (vScrollPolicy == ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER) prefix.append("inl"); //$NON-NLS-1$
