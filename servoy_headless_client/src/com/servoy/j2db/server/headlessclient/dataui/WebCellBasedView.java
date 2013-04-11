@@ -4254,13 +4254,27 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
 		if ((!(requestTarget instanceof AjaxRequestTarget) || !labelsCssRendered) && labelsCSSClasses.size() > 0)
 		{
-			StringBuilder style = new StringBuilder("<style type=\"text/css\">\n"); //$NON-NLS-1$
+			boolean isStyleSheetLimitForIE = ((WebClientInfo)getSession().getClientInfo()).getProperties().isBrowserInternetExplorer() &&
+				((WebClientInfo)getSession().getClientInfo()).getProperties().getBrowserVersionMajor() < 10;
+
+			StringBuilder classes = new StringBuilder();
 			for (String cssClass : labelsCSSClasses)
 			{
-				style.append(".").append(getTableLabelCSSClass(cssClass)).append(" { visibility: hidden; }\n"); //$NON-NLS-1$ //$NON-NLS-2$ 
+				classes.append(".").append(getTableLabelCSSClass(cssClass)).append(" { visibility: hidden; }").append(isStyleSheetLimitForIE ? " " : "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 			}
-			style.append("</style>"); //$NON-NLS-1$
-			container.getHeaderResponse().renderString(style.toString());
+
+			if (isStyleSheetLimitForIE)
+			{
+				container.getHeaderResponse().renderOnDomReadyJavascript(
+					"Servoy.Utils.appendToInlineStylesheetForIE('.servoydummy {}', '" + classes.toString() + "');"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				StringBuilder style = new StringBuilder("<style type=\"text/css\">\n"); //$NON-NLS-1$
+				style.append(classes);
+				style.append("</style>"); //$NON-NLS-1$
+				container.getHeaderResponse().renderString(style.toString());
+			}
 			labelsCssRendered = true;
 		}
 
