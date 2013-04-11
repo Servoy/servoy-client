@@ -197,4 +197,13 @@ public interface IJSFoundSet
 	 * @return boolean true if all records could be deleted.
 	 */
 	public boolean js_deleteRecord() throws Exception;
+
+	/**
+	 * Delete all records in foundset, resulting in empty foundset.
+	 *
+	 * @sample
+	 * var success = %%prefix%%foundset.deleteAllRecords();
+	 * @return boolean true if all records could be deleted.
+	 */
+	public boolean js_deleteAllRecords() throws Exception;
 }
