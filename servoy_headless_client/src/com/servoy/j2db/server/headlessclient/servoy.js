@@ -2006,13 +2006,13 @@ if (typeof(Servoy.Utils) == "undefined")
 			  for (var i=0; i<ss.length; i++)
 			  {
 				  if(ss[i].href != null) continue;
-				  ssFound = true;
 				  var rules = ss[i].cssRules || ss[i].rules;
 	
 				  for (var j=0; j<rules.length; j++)
 				  {
 					  if (rules[j].selectorText == clsName)
 					  {
+						  ssFound = true;
 						  if(rules[j].style.visibility != 'inherit') rules[j].style.visibility = 'inherit';
 						  var vTop = top + "px";
 						  if(rules[j].style.top != vTop) rules[j].style.top = vTop;
@@ -2030,6 +2030,28 @@ if (typeof(Servoy.Utils) == "undefined")
 			}
 			if(child.childNodes !=null) child.childNodes[0].style.visibility = "inherit"
 		  }		  
+		},
+		
+		appendToInlineStylesheetForIE: function(stylesheetId, newContent)
+		{
+			  var ss = document.styleSheets;
+			  for (var i=0; i<ss.length; i++)
+			  {
+				  if(ss[i].href != null) continue;
+				  if(ss[i].cssText && ss[i].rules.length > 0 && stylesheetId.indexOf(ss[i].rules[0].selectorText) == 0)
+				  {
+					  ss[i].cssText = ss[i].cssText + newContent;
+					  return;
+				  }
+			  }
+			  
+			  var newStyle= document.createElement('style');
+              newStyle.type= "text/css";
+			  if(newStyle.styleSheet)
+			  {
+				  newStyle.styleSheet.cssText = stylesheetId + ' ' + newContent;
+				  document.getElementsByTagName('head')[0].appendChild(newStyle);
+			  }
 		},
 		
 		stopClickTimer: function()
