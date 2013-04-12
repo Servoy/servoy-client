@@ -2948,16 +2948,22 @@ if (typeof(Servoy.TabCycleHandling) == "undefined")
 		registerListeners: function (elemIdMinTabIndex, elemIdMaxTabIndex)
 		{
 			Servoy.TabCycleHandling.minTabIndexElemId = elemIdMinTabIndex;
-			elem = document.getElementById(elemIdMinTabIndex);
-			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
+			var elem = document.getElementById(elemIdMinTabIndex);
+			if (typeof(elem) != "undefined" && elem != null)
+			{
+				Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabRewindHandler);
+			}
 			
 			var dummyElem = document.createElement("div");
 			dummyElem.innerHTML='<a href="javascript: void(0)"></a>';
 			document.body.appendChild(dummyElem);
 			
 			Servoy.TabCycleHandling.maxTabIndexElemId = elemIdMaxTabIndex;
-			var elem = document.getElementById(elemIdMaxTabIndex);
-			Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabForwardHandler);
+			elem = document.getElementById(elemIdMaxTabIndex);
+			if (typeof(elem) != "undefined" && elem != null)
+			{
+				Wicket.Event.add(elem,"keydown",Servoy.TabCycleHandling.tabForwardHandler);
+			}
 		},
 		
 		tabForwardHandler: function (event)
