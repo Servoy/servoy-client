@@ -26,9 +26,9 @@ public abstract class ClientVersion
 {
 	// these fields are private intentionally, to prevent final class member copy in other classes! 
 	private static final int majorVersion = 7;
-	private static final int middleVersion = 0;
-	private static final int minorVersion = 1;
-	private static final int releaseNumber = 2008;
+	private static final int middleVersion = 1;
+	private static final int minorVersion = 0;
+	private static final int releaseNumber = 2009;
 	private static final String versionPostfix = "";
 
 	// make sure you keep this the same format, or make it work with extensions version comparing & xml schema
