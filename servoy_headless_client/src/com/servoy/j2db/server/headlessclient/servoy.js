@@ -2028,7 +2028,7 @@ if (typeof(Servoy.Utils) == "undefined")
 				child.style.top = top + "px";
 				child.style.visibility = 'inherit';
 			}
-			if(child.childNodes !=null) child.childNodes[0].style.visibility = "inherit"
+			if($(child).children().length > 0) $(child).children()[0].style.visibility = "inherit"
 		  }		  
 		},
 		
