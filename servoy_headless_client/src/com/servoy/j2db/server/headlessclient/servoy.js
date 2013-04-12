@@ -119,6 +119,7 @@ function clearDoubleClickId(elementId)
 var focusedValue = null;
 var focusedElement = null;
 var focusedElementCaretPosition = 0;
+var focusedElementSelection = null;
 var ignoreFocusGained = null;
 function storeValueAndCursorBeforeUpdate()
 {
@@ -130,7 +131,8 @@ function storeValueAndCursorBeforeUpdate()
 		{
 			if(focusedElementType == "text" || focusedElementType == "textarea")
 			{
-				focusedElementCaretPosition = Servoy.Utils.doGetCaretPosition(focusedElement, true); 
+				focusedElementCaretPosition = Servoy.Utils.doGetCaretPosition(focusedElement, true);
+				focusedElementSelection = Servoy.Utils.getSelection(focusedElement);
 			}
 			ignoreFocusGained = focusedElement.id;
 			var valueChangedId = null;
@@ -180,16 +182,27 @@ function restoreValueAndCursorAfterUpdate()
 		}
 		else
 		{
-			var focusedElementType = focusedElement.getAttribute("type");
-			if(focusedElementType == "text" || focusedElementType == "textarea")
+			if (element != focusedElement)
 			{
-				// setting caret position will fire onfocus in chrome, so
-				// remove it temporaly
-				var temp = element.onfocus;
-				element.onfocus = null;
-				Servoy.Utils.doSetCaretPosition(element, focusedElementCaretPosition);
-				setTimeout(function() { element.onfocus = temp; }, 0);	
-			}			
+				// only restore cursor and selection if element was replaced by AJAX
+				var focusedElementType = focusedElement.getAttribute("type");
+				if(focusedElementType == "text" || focusedElementType == "textarea")
+				{
+					// setting caret position will fire onfocus in chrome, so
+					// remove it temporaly
+					var temp = element.onfocus;
+					element.onfocus = null;
+					if (focusedElementSelection && focusedElementSelection.begin != focusedElementSelection.end)
+					{
+						Servoy.Utils.createSelection(element,focusedElementSelection.begin,focusedElementSelection.end);
+					}
+					else
+					{
+						Servoy.Utils.doSetCaretPosition(element, focusedElementCaretPosition);
+					}
+					setTimeout(function() { element.onfocus = temp; }, 0);	
+				}
+			}
 		}
 	}
 	focusedElement = null;
@@ -2106,6 +2119,23 @@ if (typeof(Servoy.Utils) == "undefined")
 	     // Return results
 		  return { begin: begin, end: end };
 		},
+		createSelection: function(field,start, end){
+			if( field.createTextRange ) {
+			     var selRange = field.createTextRange();
+			     selRange.collapse(true);
+			     selRange.moveStart('character', start);
+			     selRange.moveEnd('character', end);
+			     selRange.select();
+			     field.focus();
+			 } else if( field.setSelectionRange ) {
+			     field.focus();
+			     field.setSelectionRange(start, end);
+			 } else if( typeof field.selectionStart != 'undefined' ) {
+			    field.selectionStart = start;
+			    field.selectionEnd = end;
+			    field.focus();
+			 }
+		},
 	   /*
 	    **  Returns the caret (cursor) position of the specified text field.
 	    **  Return value range is 0-oField.length.
@@ -2268,7 +2298,7 @@ if (typeof(Servoy.Utils) == "undefined")
 	  
 	  doSelect: function(el) 
 	  {
-	  	if(Servoy.Utils.isChrome)
+	  	if(Servoy.Utils.isChrome || Servoy.Utils.isSafari)
 	  	{
 	  		var x= el;
 	  		setTimeout(function(){x.select();},0);
