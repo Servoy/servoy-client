@@ -1949,11 +1949,13 @@ if (typeof(Servoy.Utils) == "undefined")
 		
 		setLabelChildHeight: function(elemid, valign)
 		{			
-		    setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign);},50);
+		    if(Servoy.Utils[elemid] !=null) {clearTimeout(Servoy.Utils[elemid]);}
+			Servoy.Utils[elemid] = setTimeout(function(){Servoy.Utils.setLabelChildHeightEx(elemid, valign);},50);
 		},
 		
 		setLabelChildHeightEx: function(elemid, valign) 
 		{
+		  Servoy.Utils[elemid] = null;
 		  var elem = document.getElementById(elemid);
 		  var child = document.getElementById(elemid + "_lb");
 		  var paddTop;
@@ -2013,6 +2015,7 @@ if (typeof(Servoy.Utils) == "undefined")
 			{
 			  var ss = document.styleSheets;
 			  var clsName = "." + child.className;
+			  out:
 			  for (var i=0; i<ss.length; i++)
 			  {
 				  if(ss[i].href != null) continue;
@@ -2022,10 +2025,11 @@ if (typeof(Servoy.Utils) == "undefined")
 				  {
 					  if (rules[j].selectorText == clsName)
 					  {
+						  ssFound = true;
 						  if(rules[j].style.visibility != 'inherit') rules[j].style.visibility = 'inherit';
 						  var vTop = top + "px";
 						  if(rules[j].style.top != vTop) rules[j].style.top = vTop;
-		                  return;
+		                  break out;
 					  }
 				  }
 			  }
@@ -2037,6 +2041,7 @@ if (typeof(Servoy.Utils) == "undefined")
 				child.style.top = top + "px";
 				child.style.visibility = 'inherit';
 			}
+			if($(child).children().length > 0) $(child).children()[0].style.visibility = "inherit"
 		  }		  
 		},
 		
