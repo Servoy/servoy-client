@@ -1268,9 +1268,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			if (imgURL != null)
 			{
 
-				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
+				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
+					"); $(this).css('display','');\"" : "";
 				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
-					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored ? "visibility:hidden;" : "") + "\"").append(onLoadCall).append(
+					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored ? "display:none" : "") + "\"").append(onLoadCall).append(
 					"/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
@@ -1281,10 +1282,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			instrumentedBodyText.append("<img id=\"");
 			instrumentedBodyText.append(elementID).append("_img\"");
-			instrumentedBodyText.append("style=\"" + (isElementAnchored ? " visibility:hidden;" : "") + IE8filterFIx + "\""); // hide it until setLabelChildHeight is calculated
+			instrumentedBodyText.append("style=\"" + (isElementAnchored ? " display:none;" : "") + IE8filterFIx + "\""); // hide it until setLabelChildHeight is calculated
 			instrumentedBodyText.append(" src=\"");
 			instrumentedBodyText.append(imgURL);
-			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
+			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign +
+				"); $(this).css('display','');\"" : "";
 			instrumentedBodyText.append("\" align=\"middle\"").append(onLoadCall).append("/>");
 		}
 
