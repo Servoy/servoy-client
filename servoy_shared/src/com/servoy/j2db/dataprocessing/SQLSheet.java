@@ -32,6 +32,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -50,6 +51,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -352,6 +354,100 @@ public class SQLSheet
 				Debug.error(ex);
 			}
 		}
+	}
+
+	Object convertObjectToValue(String dataProviderID, Object obj, IConverterManager<IColumnConverter> columnConverterManager,
+		IColumnValidatorManager columnValidatorManager)
+	{
+		Object convertedValue = obj;
+
+		int columnIndex = getColumnIndex(dataProviderID);
+		VariableInfo variableInfo = getCalculationOrColumnVariableInfo(dataProviderID, columnIndex);
+		if (columnIndex >= 0)
+		{
+			Pair<String, Map<String, String>> converterInfo = getColumnConverterInfo(columnIndex);
+			if (converterInfo != null)
+			{
+				IColumnConverter conv = columnConverterManager.getConverter(converterInfo.getLeft());
+				if (conv == null)
+				{
+					throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { converterInfo.getLeft() })); //$NON-NLS-1$
+				}
+				try
+				{
+					convertedValue = conv.convertFromObject(converterInfo.getRight(), variableInfo.type, convertedValue);
+				}
+				catch (Exception e)
+				{
+					throw new IllegalArgumentException(
+						Messages.getString(
+							"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e); //$NON-NLS-1$
+				}
+
+				int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
+				if (valueLen > 0 && variableInfo.length > 0 && valueLen > variableInfo.length) // insufficient space to save value
+				{
+					throw new IllegalArgumentException(
+						Messages.getString(
+							"servoy.record.error.columnSizeTooSmall", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$						
+				}
+			}
+
+			Pair<String, Map<String, String>> validatorInfo = getColumnValidatorInfo(columnIndex);
+			if (validatorInfo != null)
+			{
+				IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
+				if (validator == null)
+				{
+					throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
+				}
+
+				try
+				{
+					validator.validate(validatorInfo.getRight(), convertedValue);
+				}
+				catch (IllegalArgumentException e)
+				{
+					String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+					if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
+					throw new IllegalArgumentException(msg);
+				}
+			}
+
+			if ((variableInfo.flags & Column.UUID_COLUMN) != 0)
+			{
+				// this is a UUID column, convert from UUID
+				UUID uuid = Utils.getAsUUID(convertedValue, false);
+				if (uuid != null)
+				{
+					switch (Column.mapToDefaultType(variableInfo.type))
+					{
+						case IColumnTypes.TEXT :
+							convertedValue = uuid.toString();
+							break;
+						case IColumnTypes.MEDIA :
+							convertedValue = uuid.toBytes();
+							break;
+					}
+				}
+			}
+		}
+
+		if (variableInfo.type != IColumnTypes.MEDIA || (variableInfo.flags & Column.UUID_COLUMN) != 0)
+		{
+			try
+			{
+				convertedValue = Column.getAsRightType(variableInfo.type, variableInfo.flags, convertedValue, null, variableInfo.length, null, true); // dont use timezone here, should only be done in ui related stuff
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+				throw new IllegalArgumentException(Messages.getString(
+					"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$
+			}
+		}
+
+		return convertedValue;
 	}
 
 	/**
