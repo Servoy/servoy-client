@@ -811,6 +811,11 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		if (requestTarget instanceof AjaxRequestTarget && page != null)
 		{
 			((PageContributor)page.getPageContributor()).addSplitPaneToUpdatedDivider(this);
+			if (page.getController() != null && Utils.getAsBoolean(page.getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
+			{
+				((AjaxRequestTarget)requestTarget).appendJavascript("layoutEntirePage();"); //$NON-NLS-1$
+			}
+			((AjaxRequestTarget)requestTarget).appendJavascript("Servoy.Resize.onWindowResize();"); //$NON-NLS-1$
 		}
 		else sizeChanged = true;
 	}
