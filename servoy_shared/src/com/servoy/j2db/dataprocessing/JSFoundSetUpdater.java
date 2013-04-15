@@ -21,10 +21,10 @@ import java.util.List;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.QueryColumn;
@@ -189,22 +189,17 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 					String name = p.getLeft();
 					Object val = p.getRight();
 					int columnIndex = sheet.getColumnIndex(name);
-					if (val != null && columnIndex >= 0)
+					VariableInfo variableInfo = sheet.getCalculationOrColumnVariableInfo(name, columnIndex);
+					if (val != null && !("".equals(val) && Column.mapToDefaultType(variableInfo.type) == IColumnTypes.TEXT))//do not convert null to 0 incase of numbers, this means the calcs the value whould change each time //$NON-NLS-1$
 					{
-						ConverterInfo converterInfo = sheet.getColumnConverterInfo(columnIndex);
-						if (converterInfo != null)
-						{
-							IColumnConverter conv = foundset.getFoundSetManager().getColumnConverterManager().getConverter(converterInfo.converterName);
-							if (conv != null)
-							{
-								VariableInfo variableInfo = sheet.getCalculationOrColumnVariableInfo(name, columnIndex);
-								val = conv.convertFromObject(converterInfo.props, variableInfo.type, val);
-							}
-						}
+						val = sheet.convertObjectToValue(name, val, foundset.getFoundSetManager().getColumnConverterManager(),
+							foundset.getFoundSetManager().getColumnValidatorManager());
 					}
 					Column c = table.getColumn(name);
-					val = c.getAsRightType(val);
-					if (val == null) val = ValueFactory.createNullValue(c.getType());
+					if (val == null)
+					{
+						val = ValueFactory.createNullValue(c.getType());
+					}
 
 					sqlUpdate.addValue(new QueryColumn(sqlParts.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale()), val);
 				}

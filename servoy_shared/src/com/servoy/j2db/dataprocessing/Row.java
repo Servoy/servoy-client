@@ -31,10 +31,8 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 
@@ -290,90 +288,8 @@ public class Row
 
 		if (convertedValue != null && !("".equals(convertedValue) && Column.mapToDefaultType(variableInfo.type) == IColumnTypes.TEXT))//do not convert null to 0 incase of numbers, this means the calcs the value whould change each time //$NON-NLS-1$
 		{
-			if (columnIndex >= 0)
-			{
-				ConverterInfo converterInfo = sheet.getColumnConverterInfo(columnIndex);
-				if (converterInfo != null)
-				{
-					IColumnConverter conv = parent.getFoundsetManager().getColumnConverterManager().getConverter(converterInfo.converterName);
-					if (conv == null)
-					{
-						throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { converterInfo.converterName })); //$NON-NLS-1$
-					}
-					try
-					{
-						convertedValue = conv.convertFromObject(converterInfo.props, variableInfo.type, convertedValue);
-					}
-					catch (Exception e)
-					{
-						throw new IllegalArgumentException(
-							Messages.getString(
-								"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e); //$NON-NLS-1$
-					}
-
-					int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
-					if (valueLen > 0 && variableInfo.length > 0 && valueLen > variableInfo.length) // insufficient space to save value
-					{
-						throw new IllegalArgumentException(
-							Messages.getString(
-								"servoy.record.error.columnSizeTooSmall", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$						
-					}
-				}
-
-				Pair<String, Map<String, String>> validatorInfo = sheet.getColumnValidatorInfo(columnIndex);
-				if (validatorInfo != null)
-				{
-					IColumnValidator validator = parent.getFoundsetManager().getColumnValidatorManager().getValidator(validatorInfo.getLeft());
-					if (validator == null)
-					{
-						throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
-					}
-
-					try
-					{
-						validator.validate(validatorInfo.getRight(), convertedValue);
-					}
-					catch (IllegalArgumentException e)
-					{
-						String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
-						if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
-						throw new IllegalArgumentException(msg);
-					}
-				}
-
-				if ((variableInfo.flags & Column.UUID_COLUMN) != 0)
-				{
-					// this is a UUID column, convert from UUID
-					UUID uuid = Utils.getAsUUID(convertedValue, false);
-					if (uuid != null)
-					{
-						switch (Column.mapToDefaultType(variableInfo.type))
-						{
-							case IColumnTypes.TEXT :
-								convertedValue = uuid.toString();
-								break;
-							case IColumnTypes.MEDIA :
-								convertedValue = uuid.toBytes();
-								break;
-						}
-					}
-				}
-			}
-
-			if (variableInfo.type != IColumnTypes.MEDIA || (variableInfo.flags & Column.UUID_COLUMN) != 0)
-			{
-				try
-				{
-					convertedValue = Column.getAsRightType(variableInfo.type, variableInfo.flags, convertedValue, null, variableInfo.length, null, true); // dont use timezone here, should only be done in ui related stuff
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-					throw new IllegalArgumentException(
-						Messages.getString(
-							"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$
-				}
-			}
+			convertedValue = sheet.convertObjectToValue(dataProviderID, convertedValue, parent.getFoundsetManager().getColumnConverterManager(),
+				parent.getFoundsetManager().getColumnValidatorManager());
 		}
 		else if (parent.getFoundsetManager().getNullColumnValidatorEnabled())
 		{
