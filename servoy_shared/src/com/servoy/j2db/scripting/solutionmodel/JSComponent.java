@@ -78,7 +78,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @sample
 	 * //HINT: To know exactly the notation of this property set it in the designer and then read it once out through the solution model.
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * field.borderType = solutionModel.createBorder(1,'#ff0000');;
+	 * field.borderType = solutionModel.createLineBorder(1,'#ff0000');
 	 */
 	public String js_getBorderType()
 	{
