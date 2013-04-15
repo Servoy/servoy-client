@@ -994,6 +994,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public void setReadOnly(boolean b)
 	{
 		if (b && !editable) return;
+		Debug.error("Setting readonly to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
 		if (b)
 		{
 			setEditable(false);
@@ -1007,6 +1008,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	public void setEditable(boolean b)
 	{
+		Debug.error("Setting editable to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
 		editState = b;
 		editable = b;
 		toggleFocusBehavior();
