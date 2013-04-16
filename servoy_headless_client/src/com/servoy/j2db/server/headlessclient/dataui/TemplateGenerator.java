@@ -2462,6 +2462,10 @@ public class TemplateGenerator
 			html.append("<div ");
 			html.append(getWicketIDParameter(form, field, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
+			if (field.getDisplayType() == Field.COMBOBOX)
+			{
+				html.append(getCSSClassParameter("select_wrapper"));
+			}
 			html.append(">");
 		}
 
