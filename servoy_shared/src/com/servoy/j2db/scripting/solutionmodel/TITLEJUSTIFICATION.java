@@ -34,7 +34,7 @@ public class TITLEJUSTIFICATION implements IPrefixedConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.TOP);
 	 * 
 	 */
 	public static final int DEFAULT = TitledBorder.DEFAULT_JUSTIFICATION;
@@ -44,7 +44,7 @@ public class TITLEJUSTIFICATION implements IPrefixedConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.LEFT,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.LEFT,SM_TITLEPOSITION.TOP);
 	 */
 	public static final int LEFT = TitledBorder.LEFT;
 
@@ -53,7 +53,7 @@ public class TITLEJUSTIFICATION implements IPrefixedConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.CENTER,SM_TITLEPOSITION.TOP);
 	 */
 	public static final int CENTER = TitledBorder.CENTER;
 
@@ -62,7 +62,7 @@ public class TITLEJUSTIFICATION implements IPrefixedConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.RIGHT,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.RIGHT,SM_TITLEPOSITION.TOP);
 	 */
 	public static final int RIGHT = TitledBorder.RIGHT;
 
@@ -73,7 +73,7 @@ public class TITLEJUSTIFICATION implements IPrefixedConstantsObject
 	 *  
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.LEADING,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.LEADING,SM_TITLEPOSITION.TOP);
 	 */
 	public static final int LEADING = TitledBorder.LEADING;
 
@@ -84,7 +84,7 @@ public class TITLEJUSTIFICATION implements IPrefixedConstantsObject
 	 *  
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.TRAILING,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.TRAILING,SM_TITLEPOSITION.TOP);
 	 */
 	public static final int TRAILING = TitledBorder.TRAILING;
 

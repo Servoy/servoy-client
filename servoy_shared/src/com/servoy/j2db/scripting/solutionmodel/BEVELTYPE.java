@@ -33,7 +33,7 @@ public class BEVELTYPE implements IPrefixedConstantsObject
 	 * Raised bevel border type.
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.RAISED,'#ff0000','#00ff00');
+	 * form.borderType = solutionModel.createBevelBorder(SM_BEVELTYPE.RAISED, '#ff0000', '#00ff00','#f0000f', '#0000ff');
 	 */
 	public final static int RAISED = BevelBorder.RAISED;
 
@@ -42,7 +42,7 @@ public class BEVELTYPE implements IPrefixedConstantsObject
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder(SM_BEVELTYPE.LOWERED,'#ff0000','#00ff00');
+	 * form.borderType = solutionModel.createBevelBorder(SM_BEVELTYPE.LOWERED, '#ff0000', '#00ff00','#f0000f', '#0000ff');
 	 */
 	public final static int LOWERED = BevelBorder.LOWERED;
 
