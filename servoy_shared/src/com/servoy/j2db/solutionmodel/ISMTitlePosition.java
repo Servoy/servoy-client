@@ -33,7 +33,7 @@ public interface ISMTitlePosition
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.DEFAULT_POSITION);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.DEFAULT_POSITION);
 	 */
 	public static final int DEFAULT = TitledBorder.DEFAULT_POSITION;
 
@@ -42,7 +42,7 @@ public interface ISMTitlePosition
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.ABOVE_TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.ABOVE_TOP);
 	 */
 	public static final int ABOVE_TOP = TitledBorder.ABOVE_TOP;
 
@@ -51,7 +51,7 @@ public interface ISMTitlePosition
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.TOP);
 	 */
 	public static final int TOP = TitledBorder.TOP;
 
@@ -60,7 +60,7 @@ public interface ISMTitlePosition
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.BELOW_TOP);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.BELOW_TOP);
 	 */
 	public static final int BELOW_TOP = TitledBorder.BELOW_TOP;
 
@@ -69,7 +69,7 @@ public interface ISMTitlePosition
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.ABOVE_BOTTOM);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.ABOVE_BOTTOM);
 	 */
 	public static final int ABOVE_BOTTOM = TitledBorder.ABOVE_BOTTOM;
 
@@ -78,7 +78,7 @@ public interface ISMTitlePosition
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
-	 * form.borderType = solutionModel.createBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.BELOW_BOTTOM);
+	 * form.borderType = solutionModel.createTitledBorder('Test',null,'#ff0000',SM_TITLEJUSTIFICATION.DEFAULT,SM_TITLEPOSITION.BELOW_BOTTOM);
 	 */
 	public static final int BELOW_BOTTOM = TitledBorder.BELOW_BOTTOM;
 
