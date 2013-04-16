@@ -2298,10 +2298,12 @@ if (typeof(Servoy.Utils) == "undefined")
 	  
 	  doSelect: function(el) 
 	  {
-	  	if(Servoy.Utils.isChrome || Servoy.Utils.isSafari)
+	  	if(Servoy.Utils.isChrome || Servoy.Utils.isSafari || Servoy.Utils.isFirefox)
 	  	{
+	  		var delay = 0;
+	  		if (Servoy.Utils.isFirefox) delay = 200;
 	  		var x= el;
-	  		setTimeout(function(){x.select();},0);
+	  		setTimeout(function(){x.select();},delay);
 	  	}
 	  	else
 	  	{
