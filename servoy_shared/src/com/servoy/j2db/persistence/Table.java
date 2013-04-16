@@ -52,6 +52,7 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 	private String plainSQLName;
 	private final int tableType;
 
+	private transient volatile boolean initialized = false;
 	private volatile boolean hiddenInDeveloper = false;
 	private volatile boolean hiddenBecauseNoPk = false;
 
@@ -186,17 +187,14 @@ public class Table implements ITable, Serializable, ISupportUpdateableName
 		return this.tableType;
 	}
 
+	public void setInitialized(boolean initialized)
+	{
+		this.initialized = initialized;
+	}
+
 	public boolean isInitialized()
 	{
-		acquireReadLock();
-		try
-		{
-			return getColumnCount() != 0;
-		}
-		finally
-		{
-			releaseReadLock();
-		}
+		return initialized;
 	}
 
 	/**
