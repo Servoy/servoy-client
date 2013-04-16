@@ -1994,15 +1994,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			set = new BufferedDataSet(null);
 		}
 
-
-		QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
+		// Load with pk set: remove all conditions (except foundset filters) and set pks as search-condition
+		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
 
 		// Set a dynamic pk condition, when pks are added, these are added to the condition automatically.
 		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), set));
 
-		sqlSelect.clearJoins();
-		sqlSelect.clearSorts();
-		sqlSelect.setDistinct(false); // not needed when you have no joins and may conflict with order by
 		//not possible to keep related, can limit the just supplied pkset, which would awkward
 		fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false);
 		clearOmit(sqlSelect);
@@ -2010,7 +2007,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
-		if (fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null && set.getRowCount() > 0)
+		if ((fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null || sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) &&
+			set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter);
 			refreshFromDBInternal(null, false, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
