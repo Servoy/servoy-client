@@ -187,7 +187,7 @@ import com.servoy.j2db.util.gui.MyImageIcon;
 @SuppressWarnings("nls")
 public class ComponentFactory
 {
-	public static final String WEB_ID_PREFIX = "_sv";
+	public static final String WEB_ID_PREFIX = "sv_";
 	public static final int RTF_AREA = 7;
 	public static final int HTML_AREA = 8;
 
