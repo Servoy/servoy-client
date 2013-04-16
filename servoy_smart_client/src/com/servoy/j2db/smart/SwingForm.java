@@ -530,6 +530,17 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		return new JSDataSet(formController.getApplication(), set);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IFormUIInternal#isReadOnly()
+	 */
+	@Override
+	public boolean isReadOnly()
+	{
+		return readonly;
+	}
+
 	/**
 	 * TODO CHECK this one should always only be called Through the FormController!!
 	 * 

@@ -4241,7 +4241,10 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		//uninstall old view
 		if (view != null)
 		{
-			if (formReadOnly)
+			// if the form manager says this is readonly or the container is currently in readonly
+			// do revert it here else the readonly flag from the form manager and the containre itself are out of sync
+			// with the elements that are now created again.
+			if (formReadOnly || containerImpl.isReadOnly())
 			{
 				containerImpl.setReadOnly(false);
 			}
