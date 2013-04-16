@@ -346,6 +346,12 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	}
 
 	@Override
+	public boolean isReadOnly()
+	{
+		return true;
+	}
+
+	@Override
 	public void setTitleText(String title)
 	{
 		super.setTitleText(title);
