@@ -35,6 +35,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -66,6 +67,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
+import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -994,7 +996,18 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public void setReadOnly(boolean b)
 	{
 		if (b && !editable) return;
-		Debug.error("Setting readonly to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
+		MarkupContainer p = getParent();
+		while (p != null && !(p instanceof WebForm))
+		{
+			p = p.getParent();
+		}
+		if (p instanceof WebForm)
+		{
+			if (((WebForm)p).getController().getName().equals("seislines_tab_energy"))
+			{
+				Debug.error("Setting readonly to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
+			}
+		}
 		if (b)
 		{
 			setEditable(false);
@@ -1008,7 +1021,19 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	public void setEditable(boolean b)
 	{
-		Debug.error("Setting editable to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
+		MarkupContainer p = getParent();
+		while (p != null && !(p instanceof WebForm))
+		{
+			p = p.getParent();
+		}
+		if (p instanceof WebForm)
+		{
+			if (((WebForm)p).getController().getName().equals("seislines_tab_energy"))
+			{
+				Debug.error("Setting editable to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
+			}
+		}
+
 		editState = b;
 		editable = b;
 		toggleFocusBehavior();

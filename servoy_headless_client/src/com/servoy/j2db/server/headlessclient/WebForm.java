@@ -879,7 +879,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	 */
 	public void setReadOnly(boolean b)
 	{
-		Debug.error("Setting readonly to " + b + " from " + readonly + " of " + getController()); // TEST CODE
+		if (getController().getName().equals("seislines_tab_energy"))
+		{
+			Debug.error("Setting readonly to " + b + " from " + readonly + " of " + getController()); // TEST CODE
+		}
 		if (readonly != b)
 		{
 			readonly = b;
@@ -893,7 +896,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		{
 			visitChildren(WebForm.class, new WicketCompVisitorMarker(markedComponents, b));
 		}
-		Debug.error("Setting readonly to " + b + " of " + getController()); // TEST CODE
+		if (getController().getName().equals("seislines_tab_energy"))
+		{
+			Debug.error("Setting readonly to " + b + " of " + getController().getName()); // TEST CODE
+		}
 	}
 
 	public List<Component> getReadOnlyComponents()
