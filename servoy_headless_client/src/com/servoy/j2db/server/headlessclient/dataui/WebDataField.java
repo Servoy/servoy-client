@@ -35,7 +35,6 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -67,7 +66,6 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -491,19 +489,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	@Override
 	protected void onRender(final MarkupStream markupStream)
 	{
-		MarkupContainer p = getParent();
-		while (p != null && !(p instanceof WebForm))
-		{
-			p = p.getParent();
-		}
-		if (p instanceof WebForm)
-		{
-			if (((WebForm)p).getController().getName().equals("inv_list"))
-			{
-				Debug.error("rendering " + getDataProviderID() + " is readonly: " + isReadOnly() + "::" + System.identityHashCode(this) + " value: " +
-					getModelObject()); // TEST CODE
-			}
-		}
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
 		IModel< ? > model = getInnermostModel();
@@ -1022,19 +1007,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	public void setEditable(boolean b)
 	{
-		MarkupContainer p = getParent();
-		while (p != null && !(p instanceof WebForm))
-		{
-			p = p.getParent();
-		}
-		if (p instanceof WebForm)
-		{
-			if (((WebForm)p).getController().getName().equals("inv_list"))
-			{
-				Debug.error("Setting editable to " + b + " from " + editable + " of: " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
-			}
-		}
-
 		editState = b;
 		editable = b;
 		toggleFocusBehavior();

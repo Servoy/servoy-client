@@ -2484,6 +2484,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			((WebDataCheckBox)c).setText(""); //$NON-NLS-1$
 		}
+
 		if (element != null)
 		{
 			// apply to this cell the state of the columnIdentifier IComponent
@@ -2509,7 +2510,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			((IServoyAwareBean)c).setValidationEnabled(validationEnabled);
 		}
-
 		addClassToCellComponent(c);
 		if (c instanceof WebDataCompositeTextField) // the check could be extended against IDelegate<?>
 		{
@@ -3041,6 +3041,34 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		validationEnabled = b;
 		dal.setFindMode(!b);
+
+		visitChildren(new IVisitor<Component>()
+		{
+			@Override
+			public Object component(Component c)
+			{
+				if (c instanceof IDisplayData)
+				{
+					IDisplayData cdd = (IDisplayData)c;
+					if (!(dal != null && dal.getFormScope() != null && cdd.getDataProviderID() != null && dal.getFormScope().get(cdd.getDataProviderID()) != Scriptable.NOT_FOUND)) // skip for form variables
+					{
+						cdd.setValidationEnabled(validationEnabled);
+					}
+					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+				}
+				else if (c instanceof IDisplayRelatedData)
+				{
+					((IDisplayRelatedData)c).setValidationEnabled(validationEnabled);
+					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+				}
+				else if (c instanceof IServoyAwareBean)
+				{
+					((IServoyAwareBean)c).setValidationEnabled(validationEnabled);
+					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+				}
+				return IVisitor.CONTINUE_TRAVERSAL;
+			}
+		});
 	}
 
 	public boolean stopUIEditing(final boolean looseFocus)
