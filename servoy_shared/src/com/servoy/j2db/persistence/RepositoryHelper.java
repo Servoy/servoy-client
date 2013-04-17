@@ -581,16 +581,6 @@ public class RepositoryHelper
 			return true;
 		}
 
-		if (name.equals(StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()))
-		{
-			return true;
-		}
-
-		if (name.equals(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()))
-		{
-			return true;
-		}
-
 		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && Field.class.isAssignableFrom(persistClass) &&
 			displayType != Field.TEXT_FIELD && displayType != Field.TEXT_AREA && displayType == Field.PASSWORD)
 		{
@@ -598,11 +588,6 @@ public class RepositoryHelper
 		}
 
 		if (name.equals(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()) && !isButton)
-		{
-			return true;
-		}
-
-		if (name.equals(StaticContentSpecLoader.PROPERTY_VIEW.getPropertyName()) && Form.class.isAssignableFrom(Form.class))
 		{
 			return true;
 		}

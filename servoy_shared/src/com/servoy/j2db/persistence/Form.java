@@ -379,7 +379,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * This feature defers all related foundset data loading to the background - enhancing 
 	 * the visual display of a related foundset.
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getView()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VIEW).intValue();
