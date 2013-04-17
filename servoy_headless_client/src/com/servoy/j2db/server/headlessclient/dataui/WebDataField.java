@@ -491,6 +491,19 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	@Override
 	protected void onRender(final MarkupStream markupStream)
 	{
+		MarkupContainer p = getParent();
+		while (p != null && !(p instanceof WebForm))
+		{
+			p = p.getParent();
+		}
+		if (p instanceof WebForm)
+		{
+			if (((WebForm)p).getController().getName().equals("inv_list"))
+			{
+				Debug.error("rendering " + getDataProviderID() + " is readonly: " + isReadOnly() + "::" + System.identityHashCode(this) + " value: " +
+					getModelObject()); // TEST CODE
+			}
+		}
 		super.onRender(markupStream);
 		getStylePropertyChanges().setRendered();
 		IModel< ? > model = getInnermostModel();
@@ -996,18 +1009,6 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public void setReadOnly(boolean b)
 	{
 		if (b && !editable) return;
-		MarkupContainer p = getParent();
-		while (p != null && !(p instanceof WebForm))
-		{
-			p = p.getParent();
-		}
-		if (p instanceof WebForm)
-		{
-			if (((WebForm)p).getController().getName().equals("seislines_tab_energy"))
-			{
-				Debug.error("Setting readonly to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
-			}
-		}
 		if (b)
 		{
 			setEditable(false);
@@ -1028,9 +1029,9 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		}
 		if (p instanceof WebForm)
 		{
-			if (((WebForm)p).getController().getName().equals("seislines_tab_energy"))
+			if (((WebForm)p).getController().getName().equals("inv_list"))
 			{
-				Debug.error("Setting editable to " + b + " to " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
+				Debug.error("Setting editable to " + b + " from " + editable + " of: " + getDataProviderID() + ":: " + System.identityHashCode(this)); // TEST CODE
 			}
 		}
 
