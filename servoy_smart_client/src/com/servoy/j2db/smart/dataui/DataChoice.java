@@ -582,6 +582,25 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			stopCellEditing();
 		}
 
+		private boolean cellEditStoping;
+
+		@Override
+		public boolean stopCellEditing()
+		{
+			if (cellEditStoping) return true;
+			else
+			{
+				try
+				{
+					cellEditStoping = true;
+					return super.stopCellEditing();
+				}
+				finally
+				{
+					cellEditStoping = false;
+				}
+			}
+		}
 	}
 
 	public class RadioCell extends AbstractCell
