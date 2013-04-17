@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import com.servoy.base.util.I18NProvider;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -128,12 +129,25 @@ public class I18NMessagesModel
 		}
 	}
 
-	public Collection<I18NMessagesModelEntry> getMessages(String searchKey, String filterColumn, String[] filterValue, IFoundSetManagerInternal fm)
+	public Collection<I18NMessagesModelEntry> getMessages(String searchKey, String filterColumn, String[] filterValue, IFoundSetManagerInternal fm,
+		boolean mobileKeys)
 	{
 		TreeMap<String, I18NMessagesModelEntry> tm = new TreeMap<String, I18NMessagesModelEntry>(StringComparator.INSTANCE);
 		if (defaultMap != null)
 		{
 			tm.putAll(defaultMap);
+			if (mobileKeys)
+			{
+				Iterator<Map.Entry<String, I18NMessagesModelEntry>> it = tm.entrySet().iterator();
+				while (it.hasNext())
+				{
+					Map.Entry<String, I18NMessagesModelEntry> entry = it.next();
+					if (!entry.getKey().toLowerCase().startsWith(I18NProvider.MOBILE_KEY_PREFIX))
+					{
+						it.remove();
+					}
+				}
+			}
 			if (searchKey != null)
 			{
 				String searchKeyLowerCase = searchKey.toLowerCase();

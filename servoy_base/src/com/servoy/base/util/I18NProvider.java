@@ -23,6 +23,8 @@ package com.servoy.base.util;
  */
 public interface I18NProvider
 {
+	public final static String MOBILE_KEY_PREFIX = "servoy.mobile."; //$NON-NLS-1$
+
 	/**
 	 * get a i18n message for the given key
 	 * 

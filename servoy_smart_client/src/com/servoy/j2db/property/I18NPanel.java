@@ -779,7 +779,8 @@ public class I18NPanel extends JPanel implements DocumentListener
 				filterValue = ((IMessagesCallback)application).getI18NColumnValueFilter();
 			}
 
-			Collection<I18NMessagesModelEntry> messages = i18NMessagesModel.getMessages(searchKey, filterColumn, filterValue, application.getFoundSetManager());
+			Collection<I18NMessagesModelEntry> messages = i18NMessagesModel.getMessages(searchKey, filterColumn, filterValue, application.getFoundSetManager(),
+				false);
 
 			Object selLang = "<unknown>";
 			if (languagesCombo.getSelectedItem() != null) selLang = ((Object[])languagesCombo.getSelectedItem())[1];
