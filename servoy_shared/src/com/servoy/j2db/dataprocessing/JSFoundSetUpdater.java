@@ -127,7 +127,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	 * 1) update entire foundset, not possible when the table of the foundset has tracking enabled, will fall back to 3. 
 	 *    This will not update any modification columns, because it does the update directly in the database, without getting the records.
 	 * 2) update part of foundset, for example the first 4 row (starts with selected row)
-	 * 3) safely loop through foundset (starts with selected row)
+	 * 3) safely loop through whole foundset
 	 *
 	 * @sample
 	 * //1) update entire foundset
@@ -254,7 +254,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 
 			//update via loop
 			int arrayIndex = 0;
-			int i = foundset.getSelectedIndex();
+			int i = rowsToUpdate >= 0 ? foundset.getSelectedIndex() : 0;
 			int size = 0;
 			while (i < (size = foundset.getSize()))
 			{
