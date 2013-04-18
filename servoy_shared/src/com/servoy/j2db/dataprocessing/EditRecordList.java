@@ -126,6 +126,15 @@ public class EditRecordList
 	 */
 	public IRecordInternal[] getEditedRecords(IFoundSetInternal set)
 	{
+		return getEditedRecords(set, false);
+	}
+
+	public IRecordInternal[] getEditedRecords(IFoundSetInternal set, boolean removeUnchanged)
+	{
+		if (removeUnchanged)
+		{
+			removeUnChangedRecords(true, false, set);
+		}
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
 		try

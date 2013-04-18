@@ -1521,7 +1521,7 @@ public class JSDatabaseManager
 
 	public IRecordInternal[] js_getEditedRecords(IFoundSetInternal foundset)
 	{
-		return application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset);
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset, true);
 	}
 
 	/**
@@ -3261,7 +3261,7 @@ public class JSDatabaseManager
 		{
 			EditRecordList el = application.getFoundSetManager().getEditRecordList();
 			// fist test quickly for this foundset only.
-			IRecordInternal[] editedRecords = el.getEditedRecords(foundset);
+			IRecordInternal[] editedRecords = el.getEditedRecords(foundset, true);
 			for (IRecordInternal editedRecord : editedRecords)
 			{
 				IRecordInternal record = editedRecord;
