@@ -78,7 +78,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	 *
 	 * @param name The name of the column to update. 
 	 *
-	 * @param value The new value to be stored in the specified column.
+	 * @param value The new value (can be an array with data for x number of rows) to be stored in the specified column.
 	 * 
 	 * @return true if succeeded, false if failed. 
 	 */
