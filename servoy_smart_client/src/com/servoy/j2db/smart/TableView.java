@@ -2066,7 +2066,8 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		if (isCellEditable)
 		{
 			Object o = getCellEditor(row, column);
-			if (o instanceof CellAdapter && ((CellAdapter)o).getEditor() instanceof ISupportOnRenderCallback)
+			if (o instanceof CellAdapter && ((CellAdapter)o).getEditor() instanceof IScriptableProvider &&
+				((IScriptableProvider)((CellAdapter)o).getEditor()).getScriptObject() instanceof ISupportOnRenderCallback)
 			{
 				Object value = getValueAt(row, column);
 				boolean isSelected = isCellSelected(row, column);
