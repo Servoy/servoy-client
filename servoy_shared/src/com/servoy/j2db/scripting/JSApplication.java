@@ -2016,7 +2016,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param a
 	 * @return
 	 */
-	private StringBuilder getArrayString(Object[] a)
+	public static StringBuilder getArrayString(Object[] a)
 	{
 		StringBuilder buf = new StringBuilder();
 		buf.append('[');
@@ -2035,7 +2035,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param scriptable
 	 * @return
 	 */
-	private String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
+	public static String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
 	{
 		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
 		if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();
