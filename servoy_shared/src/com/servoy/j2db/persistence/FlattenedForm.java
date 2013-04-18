@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.Utils;
 
 
 /**
@@ -40,9 +42,15 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			Form form1 = (Form)element1.getParent();
 			Form form2 = (Form)element2.getParent();
 			// first sort on the hierarchy, elements of super-forms are sorted before elements of sub-forms
-			if (form1 != form2)
+			if (!Utils.equalObjects(form1, form2))
 			{
-				return hasFormInHierarchy(form1, form2) ? 1 : -1;
+				boolean isChildForm = hasFormInHierarchy(form1, form2);
+				if (isChildForm == hasFormInHierarchy(form2, form1))
+				{
+					// how can this happen, transitivity is not respected
+					Debug.error("Cannot sort elements, transitivity is not respected for forms:" + form1 + " and " + form2);
+				}
+				return isChildForm ? 1 : -1;
 			}
 			return element1.getFormIndex() - element2.getFormIndex();
 		}
