@@ -66,7 +66,7 @@ public class JSI18N implements IJSI18N
 	 * Set/Overwrite the locale for this client.
 	 * All forms not yet loaded will change (execute this in solution startup or first form).
 	 * 
-	 * The language must be a lowercase 2 letter code defined by ISO-649.
+	 * The language must be a lowercase 2 letter code defined by ISO-639.
 	 * see http://www.ics.uci.edu/pub/ietf/http/related/iso639.txt
 	 * The country must be an upper case 2 letter code defined by IS-3166
 	 * see http://www.chemie.fu-berlin.de/diverse/doc/ISO_3166.html 

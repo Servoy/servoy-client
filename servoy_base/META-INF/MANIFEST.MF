@@ -12,4 +12,5 @@ Export-Package: com.servoy.base.persistence,
  com.servoy.base.scripting.api,
  com.servoy.base.scripting.solutionhelper,
  com.servoy.base.solutionmodel,
+ com.servoy.base.test,
  com.servoy.base.util
