@@ -39,6 +39,8 @@ public interface IFormUIInternal<T> extends IFormUI, IFocusCycleRoot<T>
 
 	public void setReadOnly(boolean b);
 
+	public boolean isReadOnly();
+
 	/* overrides IFormUI.getController() */
 	public FormController getController();
 

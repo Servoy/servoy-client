@@ -872,6 +872,17 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	}
 
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IFormUIInternal#isReadOnly()
+	 */
+	@Override
+	public boolean isReadOnly()
+	{
+		return readonly;
+	}
+
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#setReadOnly(boolean)
 	 */
