@@ -315,14 +315,6 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 	{
 		if (accessible || !b)
 		{
-			if (b)
-			{
-				Debug.error("Set component to enabled: " + getDataProviderID() + "::" + System.identityHashCode(this));
-			}
-			else
-			{
-				Debug.error("Set component to disabled: " + getDataProviderID() + "::" + System.identityHashCode(this));
-			}
 			super.setComponentEnabled(b);
 			if (labels != null)
 			{
