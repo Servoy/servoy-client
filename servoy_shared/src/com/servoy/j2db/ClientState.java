@@ -1077,6 +1077,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	public boolean closeSolution(boolean force, Object[] args)
 	{
 		if (solutionRoot.getSolution() == null || isClosing) return true;
+		boolean solutionClosed = false;
 		try
 		{
 			isClosing = true;
@@ -1130,7 +1131,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			{
 				return false;
 			}
-
+			solutionClosed = true;
 			if (autoSaveBlocked && foundSetManager != null)
 			{
 				// clear edited records so that they will not be auto-saved by the operations that follow
@@ -1199,7 +1200,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		finally
 		{
 			isClosing = false;
-			if (dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
+			if (solutionClosed && dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
 		}
 		return true;
 	}
