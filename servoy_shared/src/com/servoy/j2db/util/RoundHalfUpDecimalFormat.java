@@ -17,6 +17,7 @@
 package com.servoy.j2db.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
@@ -57,53 +58,21 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 			minusAtBack = true;
 		}
 		setParseBigDecimal(true);
+		setRoundingMode(RoundingMode.HALF_UP);
 	}
 
 	@Override
 	public StringBuffer format(double number, StringBuffer result, FieldPosition fieldPosition)
 	{
-		if ("%".equals(getPositiveSuffix()) || "%".equals(getPositivePrefix())) //$NON-NLS-1$ //$NON-NLS-2$
+		if (minusAtBack && number < 0 && !("%".equals(getPositiveSuffix()) || "%".equals(getPositivePrefix())))
 		{
-			return super.format(number, result, fieldPosition);
+			StringBuffer sb = super.format(Math.abs(number), result, fieldPosition);
+			sb.append('-');
+			return sb;
 		}
-		else
-		{
-			// super uses always ROUND_HALF_EVEN and we need ROUND_HALF_UP
-			if (minusAtBack && number < 0)
-			{
-				StringBuffer sb = super.format(getRoundedUpNumber(Math.abs(number)), result, fieldPosition);
-				sb.append('-');
-				return sb;
-			}
-			else
-			{
-				return super.format(getRoundedUpNumber(number), result, fieldPosition);
-			}
-		}
+		return super.format(number, result, fieldPosition);
 	}
 
-	private static final BigDecimal one = new BigDecimal(1);
-
-	private double getRoundedUpNumber(double number)
-	{
-		BigDecimal nr;
-		try
-		{
-			// I am using the String constructor + Double.toString, because numbers such as 0.15
-			// are transformed to strings as "0.15" while the BigDecimal constructor that receives doubles will
-			// see it as "0.1499999...." - they parse the double differently
-			nr = new BigDecimal(Double.toString(number));
-		}
-		catch (NumberFormatException e)
-		{
-			// toString incompatible with BigDecimal (should no happen, but you never know what other differences they have)
-			nr = new BigDecimal(number);
-		}
-
-		// do the round-up
-		BigDecimal result = nr.divide(one, getMaximumFractionDigits(), BigDecimal.ROUND_HALF_UP);
-		return result.doubleValue();
-	}
 
 	@Override
 	public StringBuffer format(long number, StringBuffer result, FieldPosition fieldPosition)
@@ -137,6 +106,10 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 			else if (o instanceof Long)
 			{
 				o = new Long(-((Long)o).longValue());
+			}
+			else if (o instanceof BigDecimal)
+			{
+				return ((BigDecimal)o).negate();
 			}
 			return o;
 		}
