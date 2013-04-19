@@ -1263,9 +1263,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		finally
 		{
 			isClosing = false;
+			if (solutionClosed && dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
 			// just set the solutionClosed boolean to false again here, now the solution should be null.
 			solutionClosed = false;
-			if (dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
 		}
 		return true;
 	}
