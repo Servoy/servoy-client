@@ -124,10 +124,10 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	/**
 	 * Do the actual update in the database, returns true if successful.
 	 * There are 3 types of possible use with the foundset updater
-	 * 1) update entire foundset, not possible when the table of the foundset has tracking enabled, will fall back to 3. 
+	 * 1) update entire foundset by an single sql statement; that is not possible when the table of the foundset has tracking enabled then it will loop over the whole foundset. 
 	 *    This will not update any modification columns, because it does the update directly in the database, without getting the records.
 	 * 2) update part of foundset, for example the first 4 row (starts with selected row)
-	 * 3) safely loop through whole foundset
+	 * 3) safely loop through foundset (starts with selected row)
 	 *
 	 * @sample
 	 * //1) update entire foundset
