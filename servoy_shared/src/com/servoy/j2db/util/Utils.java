@@ -61,6 +61,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -74,14 +75,20 @@ import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
 
 import org.apache.commons.codec.binary.Base64;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeError;
+import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.xml.XMLObject;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.MediaURLStreamHandler;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
@@ -2724,6 +2731,81 @@ public class Utils
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param a
+	 * @return
+	 */
+	public static StringBuilder getArrayString(Object[] a)
+	{
+		StringBuilder buf = new StringBuilder();
+		buf.append('[');
+		for (int i = 0; i < a.length; i++)
+		{
+			if (i > 0) buf.append(", "); //$NON-NLS-1$
+			if (a[i] instanceof Scriptable) buf.append(Utils.getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
+			else if (a[i] instanceof Object[]) buf.append(getArrayString((Object[])a[i]));
+			else buf.append(String.valueOf(a[i]));
+		}
+		buf.append(']');
+		return buf;
+	}
+
+	/**
+	 * @param scriptable
+	 * @return
+	 */
+	public static String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
+	{
+		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
+		if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();
+		if (processed.contains(scriptable)) return scriptable.toString();
+		if (processed.size() > 10) return scriptable.toString();
+		processed.add(scriptable);
+		Object[] ids = scriptable.getIds();
+		if (ids != null && ids.length > 0)
+		{
+			StringBuilder sb = new StringBuilder();
+			if (scriptable instanceof NativeArray) sb.append('[');
+			else sb.append('{');
+			for (Object object : ids)
+			{
+				if (!(object instanceof Integer))
+				{
+					sb.append(object);
+					sb.append(':');
+				}
+				Object value = null;
+				if (object instanceof String)
+				{
+					value = scriptable.get((String)object, scriptable);
+				}
+				else if (object instanceof Number)
+				{
+					value = scriptable.get(((Number)object).intValue(), scriptable);
+				}
+				if (!(value instanceof NativeJavaMethod))
+				{
+					if (value instanceof Scriptable)
+					{
+						sb.append(getScriptableString((Scriptable)value, processed));
+					}
+					else
+					{
+						sb.append(value);
+					}
+					sb.append(',');
+				}
+			}
+			sb.setLength(sb.length() - 1);
+			if (scriptable instanceof NativeArray) sb.append(']');
+			else sb.append('}');
+			return sb.toString();
+		}
+		Object defaultValue = scriptable.getDefaultValue(String.class);
+		if (defaultValue != null) return defaultValue.toString();
+		return scriptable.toString();
 	}
 
 }
