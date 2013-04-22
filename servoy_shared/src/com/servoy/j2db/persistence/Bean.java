@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Color;
 import java.awt.Dimension;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -148,6 +149,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 
 
 	@Override
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public java.awt.Dimension getSize()
 	{
 		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
