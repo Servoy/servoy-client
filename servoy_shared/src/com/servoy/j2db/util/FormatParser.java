@@ -367,7 +367,7 @@ public class FormatParser
 
 		public boolean isEmpty()
 		{
-			return !allUpperCase && !allLowerCase && !numberValidator && displayFormat == null && maxLength == null;
+			return !allUpperCase && !allLowerCase && !numberValidator && displayFormat == null && maxLength == null && uiConverterName == null;
 		}
 
 		public char getPlaceHolderCharacter()
