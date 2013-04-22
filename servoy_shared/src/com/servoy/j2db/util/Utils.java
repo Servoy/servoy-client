@@ -61,7 +61,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -2741,7 +2741,7 @@ public class Utils
 	public static String getScriptableString(Scriptable obj)
 	{
 		if (obj == null) return "null"; //$NON-NLS-1$
-		return getScriptableString(obj, new HashSet<Scriptable>());
+		return getScriptableString(obj, new HashMap<Scriptable, CharSequence>()).toString();
 	}
 
 	/**
@@ -2766,7 +2766,7 @@ public class Utils
 		for (int i = 0; i < a.length; i++)
 		{
 			if (i > 0) buf.append(", "); //$NON-NLS-1$
-			if (a[i] instanceof Scriptable) buf.append(getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
+			if (a[i] instanceof Scriptable) buf.append(getScriptableString((Scriptable)a[i], new HashMap<Scriptable, CharSequence>()));
 			else if (a[i] instanceof Object[]) buf.append(getArrayString((Object[])a[i]));
 			else buf.append(String.valueOf(a[i]));
 		}
@@ -2778,13 +2778,19 @@ public class Utils
 	 * @param scriptable
 	 * @return
 	 */
-	private static String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
+	private static CharSequence getScriptableString(Scriptable scriptable, HashMap<Scriptable, CharSequence> processed)
 	{
 		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
 		if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();
-		if (processed.contains(scriptable)) return scriptable.toString();
+		CharSequence processedString = processed.get(scriptable);
+		if (processedString != null)
+		{
+			return processedString;
+		}
 		if (processed.size() > 10) return scriptable.toString();
-		processed.add(scriptable);
+
+		if (scriptable instanceof NativeArray) processed.put(scriptable, "Array[SelfRef]"); //$NON-NLS-1$
+		else processed.put(scriptable, "Object[SelfRef]"); //$NON-NLS-1$
 		Object[] ids = scriptable.getIds();
 		if (ids != null && ids.length > 0)
 		{
@@ -2823,11 +2829,12 @@ public class Utils
 			sb.setLength(sb.length() - 1);
 			if (scriptable instanceof NativeArray) sb.append(']');
 			else sb.append('}');
-			return sb.toString();
+			processed.put(scriptable, sb);
+			return sb;
 		}
 		Object defaultValue = scriptable.getDefaultValue(String.class);
-		if (defaultValue != null) return defaultValue.toString();
-		return scriptable.toString();
+		if (defaultValue == null) defaultValue = scriptable.toString();
+		processed.put(scriptable, defaultValue.toString());
+		return defaultValue.toString();
 	}
-
 }
