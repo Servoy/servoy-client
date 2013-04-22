@@ -2330,7 +2330,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		// if state is still null (invalid pk?) then return prototype state 
 		// so that in scripting and in ui everything does format (and global relations are able display)
-		if (state == null && row < getSize())
+		if (state == null && row < Math.max(rowCount, getSize()))
 		{
 			state = getPrototypeState();
 		}
