@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 
 public interface IHeadlessClient
@@ -62,4 +63,19 @@ public interface IHeadlessClient
 	 * @param force to enforce shutdown
 	 */
 	public void shutDown(boolean force);
+
+	/**
+	 * Load solution into the client
+	 * 
+	 * @param solutionName of the solution to load
+	 * @throws RepositoryException
+	 */
+	public void loadSolution(String solutionName) throws RepositoryException;
+
+	/**
+	 * Close currently opened solution
+	 * 
+	 * @return whatever the closing was successful
+	 */
+	public boolean closeSolution();
 }

@@ -266,6 +266,11 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 	}
 
+	public boolean closeSolution()
+	{
+		return super.closeSolution(true, null);
+	}
+
 	/**
 	 * We can define this here to allow all server based client to run every solution type, 
 	 * while WebClient as exception uses SolutionLoader logic to load a SOLUTION|WEB_CLIENT_ONLY
@@ -1190,7 +1195,7 @@ public class SessionClient extends ClientState implements ISessionClient
 
 	public boolean isValid()
 	{
-		return !isShutDown() && getClientInfo() != null && isSolutionLoaded();
+		return !isShutDown() && getClientInfo() != null;
 	}
 
 	/*
