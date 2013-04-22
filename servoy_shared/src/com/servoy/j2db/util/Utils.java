@@ -2734,17 +2734,39 @@ public class Utils
 	}
 
 	/**
+	 * returns a js/json string representation of the given {@link Scriptable}
+	 * @param obj
+	 * @return
+	 */
+	public static String getScriptableString(Scriptable obj)
+	{
+		if (obj == null) return "null"; //$NON-NLS-1$
+		return getScriptableString(obj, new HashSet<Scriptable>());
+	}
+
+	/**
+	 * returns a js/json string representation of the given Array that can have {@link Scriptable} objects inside it
+	 * @param obj
+	 * @return
+	 */
+	public static String getScriptableString(Object[] array)
+	{
+		if (array == null) return "null"; //$NON-NLS-1$
+		return getArrayString(array).toString();
+	}
+
+	/**
 	 * @param a
 	 * @return
 	 */
-	public static StringBuilder getArrayString(Object[] a)
+	private static StringBuilder getArrayString(Object[] a)
 	{
 		StringBuilder buf = new StringBuilder();
 		buf.append('[');
 		for (int i = 0; i < a.length; i++)
 		{
 			if (i > 0) buf.append(", "); //$NON-NLS-1$
-			if (a[i] instanceof Scriptable) buf.append(Utils.getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
+			if (a[i] instanceof Scriptable) buf.append(getScriptableString((Scriptable)a[i], new HashSet<Scriptable>()));
 			else if (a[i] instanceof Object[]) buf.append(getArrayString((Object[])a[i]));
 			else buf.append(String.valueOf(a[i]));
 		}
@@ -2756,7 +2778,7 @@ public class Utils
 	 * @param scriptable
 	 * @return
 	 */
-	public static String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
+	private static String getScriptableString(Scriptable scriptable, HashSet<Scriptable> processed)
 	{
 		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
 		if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();

@@ -28,7 +28,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -1991,8 +1990,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	{
 		if (msg instanceof Object[])
 		{
-			Object[] a = (Object[])msg;
-			application.output(Utils.getArrayString(a), level);
+			application.output(Utils.getScriptableString((Object[])msg), level);
 		}
 		else if (msg instanceof NativeError)
 		{
@@ -2000,7 +1998,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		else if (msg instanceof Scriptable)
 		{
-			application.output(Utils.getScriptableString((Scriptable)msg, new HashSet<Scriptable>()), level);
+			application.output(Utils.getScriptableString((Scriptable)msg), level);
 		}
 		else
 		{
