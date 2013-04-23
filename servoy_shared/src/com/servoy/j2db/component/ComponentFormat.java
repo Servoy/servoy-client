@@ -152,6 +152,7 @@ public class ComponentFormat
 		int uiType = dpType;
 
 		// parse format to see if it contains UI converter info
+		boolean hasUIConverter = false;
 		ParsedFormat parsedFormat = FormatParser.parseFormatProperty(formatProperty);
 		if (parsedFormat.getUIConverterName() != null)
 		{
@@ -159,6 +160,7 @@ public class ComponentFormat
 				parsedFormat.getUIConverterName());
 			if (uiConverter != null)
 			{
+				hasUIConverter = true;
 				int convType = uiConverter.getToObjectType(parsedFormat.getUIConverterProperties());
 				if (convType != Integer.MAX_VALUE)
 				{
@@ -167,16 +169,17 @@ public class ComponentFormat
 			}
 		}
 
+		String defaultFormat = parsedFormat.isEmpty() ? TagResolver.getDefaultFormatForType(application.getSettings(), uiType) : null;
 		String formatString;
-		if (parsedFormat.isEmpty())
+		if (parsedFormat.isEmpty() && !hasUIConverter)
 		{
-			formatString = TagResolver.getDefaultFormatForType(application.getSettings(), uiType);
+			formatString = defaultFormat;
 		}
 		else
 		{
 			formatString = application.getI18NMessageIfPrefixed(parsedFormat.getFormatString());
 		}
-		return new ComponentFormat(FormatParser.parseFormatProperty(formatString), dpType, uiType);
+		return new ComponentFormat(FormatParser.parseFormatProperty(formatString, defaultFormat), dpType, uiType);
 	}
 
 	public static Object applyUIConverterToObject(Object component, Object value, String dataProviderID, IFoundSetManagerInternal foundsetManager)

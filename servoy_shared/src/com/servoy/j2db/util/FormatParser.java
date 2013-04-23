@@ -30,7 +30,13 @@ import org.json.JSONException;
 @SuppressWarnings("nls")
 public class FormatParser
 {
+
 	public static ParsedFormat parseFormatProperty(String formatProperty)
+	{
+		return parseFormatProperty(formatProperty, null);
+	}
+
+	public static ParsedFormat parseFormatProperty(String formatProperty, String defaultFormat)
 	{
 		if (formatProperty != null && formatProperty.startsWith("{") && formatProperty.endsWith("}"))
 		{
@@ -49,6 +55,7 @@ public class FormatParser
 				}
 
 				String formatString = (String)props.get("format");
+				if (formatString == null) formatString = defaultFormat;
 				if (formatString != null)
 				{
 					return parseFormatString(formatString, uiConverterName, uiConverterProperties);
@@ -367,7 +374,7 @@ public class FormatParser
 
 		public boolean isEmpty()
 		{
-			return !allUpperCase && !allLowerCase && !numberValidator && displayFormat == null && maxLength == null && uiConverterName == null;
+			return !allUpperCase && !allLowerCase && !numberValidator && displayFormat == null && maxLength == null;
 		}
 
 		public char getPlaceHolderCharacter()
