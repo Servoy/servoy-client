@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import com.servoy.j2db.persistence.RepositoryException;
@@ -63,7 +63,7 @@ public interface IHeadlessClient
 	 * @param force to enforce shutdown
 	 */
 	public void shutDown(boolean force);
-	
+
 	/**
 	 * Load solution into the client
 	 * 
@@ -75,7 +75,8 @@ public interface IHeadlessClient
 	/**
 	 * Close currently opened solution
 	 * 
-	 * @return whatever the closing was successful
+	 * @param force to enforce close
+	 * @return whether the closing was successful
 	 */
-	public boolean closeSolution();
+	public boolean closeSolution(boolean force);
 }

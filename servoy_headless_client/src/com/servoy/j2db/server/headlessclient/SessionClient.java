@@ -266,9 +266,9 @@ public class SessionClient extends ClientState implements ISessionClient
 		}
 	}
 
-	public boolean closeSolution()
+	public boolean closeSolution(boolean force)
 	{
-		return super.closeSolution(true, null);
+		return super.closeSolution(force, null);
 	}
 
 	/**
