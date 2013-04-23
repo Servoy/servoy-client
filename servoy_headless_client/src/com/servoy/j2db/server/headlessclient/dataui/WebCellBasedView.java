@@ -3167,35 +3167,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public boolean isReadOnly()
 	{
-		MarkupContainer p = getParent();
-		while (p != null && !(p instanceof WebForm))
-		{
-			p = p.getParent();
-		}
-		if (p instanceof WebForm)
-		{
-			if (((WebForm)p).getController().getName().equals("inv_list"))
-			{
-				Debug.error("getting of webcellbased view readonly  " + isReadOnly); // TEST CODE
-			}
-		}
 		return isReadOnly;
 	}
 
 	public void setReadOnly(boolean b)
 	{
-		MarkupContainer p = getParent();
-		while (p != null && !(p instanceof WebForm))
-		{
-			p = p.getParent();
-		}
-		if (p instanceof WebForm)
-		{
-			if (((WebForm)p).getController().getName().equals("inv_list"))
-			{
-				Debug.error("Setting of webcellbased view readonly to " + b + " from " + isReadOnly); // TEST CODE
-			}
-		}
 		isReadOnly = b;
 	}
 
