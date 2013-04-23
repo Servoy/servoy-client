@@ -81,6 +81,11 @@ public class GlobalMethodValueList extends CustomValueList
 		return hasRealValue;
 	}
 
+	public void fill()
+	{
+		fill(record, null, null);
+	}
+
 	public void fill(IRecordInternal state, String display, Object real)
 	{
 		if (filling)
@@ -196,6 +201,7 @@ public class GlobalMethodValueList extends CustomValueList
 		super.fill(parentState);
 		fill(parentState, null, null);
 	}
+
 
 	/**
 	 * @see com.servoy.j2db.dataprocessing.CustomValueList#realValueIndexOf(java.lang.Object)

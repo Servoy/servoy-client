@@ -74,6 +74,7 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList;
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
@@ -629,6 +630,23 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			if (list != null)
 			{
+				// if it is in find mode and the list reports to have real values and it is a global method valuelist
+				// test first if the given value is really a real value by comparing a real value class with the give class.
+				if (value != null && !eventExecutor.getValidationEnabled() && list.hasRealValues() && list instanceof GlobalMethodValueList)
+				{
+					if (list.getSize() == 0)
+					{
+						((GlobalMethodValueList)list).fill();
+					}
+					if (list.getSize() > 0)
+					{
+						Object real = list.getRealElementAt(0);
+						if (real != null && !real.getClass().equals(value.getClass()))
+						{
+							return super.valueToString(value);
+						}
+					}
+				}
 				int index = list.realValueIndexOf(value);
 				if (index != -1)
 				{
