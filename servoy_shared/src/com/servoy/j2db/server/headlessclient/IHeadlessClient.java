@@ -75,7 +75,8 @@ public interface IHeadlessClient
 	/**
 	 * Close currently opened solution
 	 * 
-	 * @return whatever the closing was successful
+	 * @param force to enforce close
+	 * @return whether the closing was successful
 	 */
-	public boolean closeSolution();
+	public boolean closeSolution(boolean force);
 }
