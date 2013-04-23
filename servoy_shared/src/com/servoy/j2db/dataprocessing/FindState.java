@@ -505,7 +505,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 						else if (r.isValid()) reason = "server/table not valid/loaded";
 						else
 						{
-							reason = "relation primary datasource: " + r.getPrimaryDataSource() + " != findsate primary datasource: " + parent.getDataSource();
+							reason = "relation primary datasource: " + r.getPrimaryDataSource() + " != findstate primary datasource: " + parent.getDataSource();
 						}
 						Debug.warn("Find: skip related search for '" + partName + "', relation cannot be used in search, because: " + reason);
 						parent.getFoundSetManager().getApplication().reportJSError(
