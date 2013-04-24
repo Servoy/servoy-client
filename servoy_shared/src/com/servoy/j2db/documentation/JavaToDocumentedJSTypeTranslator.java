@@ -256,6 +256,7 @@ public class JavaToDocumentedJSTypeTranslator
 					jsType = annotation.scriptingName();
 					if (jsType == null || jsType.trim().length() == 0) jsType = annotation.publicName();
 					if (jsType == null || jsType.trim().length() == 0) jsType = translatedClassAndName.getLeft().getSimpleName();
+					if (jsType != null) jsType = jsType.trim();
 				}
 				else
 				{
