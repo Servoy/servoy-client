@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import org.apache.wicket.util.convert.IConverter;
 
+import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 
 /**
@@ -74,6 +75,23 @@ final class ValuelistValueConverter implements IConverter
 	{
 		if (list != null)//valueToString
 		{
+			// if it is in find mode and the list reports to have real values and it is a global method valuelist
+			// test first if the given value is really a real value by comparing a real value class with the give class.
+			if (value != null && !component.getEventExecutor().getValidationEnabled() && list.hasRealValues() && list instanceof GlobalMethodValueList)
+			{
+				if (list.getSize() == 0 || (list.getSize() == 1 && list.getAllowEmptySelection()))
+				{
+					((GlobalMethodValueList)list).fill();
+				}
+				if (list.getSize() > 0)
+				{
+					Object real = list.getRealElementAt(list.getSize() - 1);
+					if (real != null && !real.getClass().equals(value.getClass()))
+					{
+						return value.toString();
+					}
+				}
+			}
 			int index = list.realValueIndexOf(value);
 			if (index != -1)
 			{

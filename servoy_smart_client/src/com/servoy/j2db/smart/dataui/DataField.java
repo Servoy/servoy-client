@@ -634,16 +634,16 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				// test first if the given value is really a real value by comparing a real value class with the give class.
 				if (value != null && !eventExecutor.getValidationEnabled() && list.hasRealValues() && list instanceof GlobalMethodValueList)
 				{
-					if (list.getSize() == 0)
+					if (list.getSize() == 0 || (list.getSize() == 1 && list.getAllowEmptySelection()))
 					{
 						((GlobalMethodValueList)list).fill();
 					}
 					if (list.getSize() > 0)
 					{
-						Object real = list.getRealElementAt(0);
+						Object real = list.getRealElementAt(list.getSize() - 1);
 						if (real != null && !real.getClass().equals(value.getClass()))
 						{
-							return super.valueToString(value);
+							return value.toString();
 						}
 					}
 				}
