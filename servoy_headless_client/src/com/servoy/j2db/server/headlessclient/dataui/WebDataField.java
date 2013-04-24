@@ -409,7 +409,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	{
 		if (eventExecutor.getValidationEnabled() == validation)
 		{
-			if (!validation && !editable) // web cell based view - reinitializing a component onBeforeRender can result in readonly being set back to true while in find; when validation is reset to false, we must restore find state for the control
+			// web cell based view - reinitializing a component onBeforeRender can result in readonly being set back to true while in find; when validation is reset to false, we must restore find state for the control
+			if (!validation && !editable && !Boolean.TRUE.equals(application.getClientProperty(IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE)))
 			{
 				boolean prevEditState = editState;
 				setEditable(true);// allow search
