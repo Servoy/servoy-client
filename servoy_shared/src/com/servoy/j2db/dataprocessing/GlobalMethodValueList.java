@@ -85,6 +85,11 @@ public class GlobalMethodValueList extends CustomValueList
 	{
 		return hasRealValue;
 	}
+	
+	public void fill()
+	{
+		fill(record, null, null);
+	}
 
 	private LookupListChangeListener savedLookupListChangeListener;
 
