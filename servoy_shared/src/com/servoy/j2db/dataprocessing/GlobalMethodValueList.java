@@ -83,6 +83,11 @@ public class GlobalMethodValueList extends CustomValueList
 	{
 		return hasRealValue;
 	}
+	
+	public void fill()
+	{
+		fill(record, null, null);
+	}
 
 	public void fill(IRecordInternal state, String display, Object real)
 	{
