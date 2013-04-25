@@ -300,4 +300,18 @@ public interface IJSFoundSet
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
 	 */
 	public int js_search() throws Exception;
+
+	/**
+	 * Loads all accessible records from the datasource into the foundset.
+	 * Filters on the foundset are applied.
+	 * 
+	 * Before loading the records, all unsaved records will be saved in the database.
+	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), 
+	 * records will not be loaded,
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_addFoundSetFilterParam(String, String, Object, String)
+	 *
+	 * @return true if records are loaded, false otherwise.
+	 */
+	public boolean js_loadAllRecords() throws Exception;
 }
