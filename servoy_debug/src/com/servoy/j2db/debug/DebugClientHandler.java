@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -706,10 +707,22 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		debugHeadlessClient = new DebugHeadlessClient(req, userName, password, method, objects, solutionMetaData, designerCallback)
 		{
 			@Override
-			public void shutDown(boolean force)
+			public synchronized void shutDown(boolean force)
 			{
 				super.shutDown(force);
 				debugHeadlessClient = null;
+			}
+
+			@Override
+			public synchronized void loadSolution(String solutionName) throws RepositoryException
+			{
+				if (!isShutDown()) super.loadSolution(solutionName);
+			}
+
+			@Override
+			public synchronized boolean closeSolution(boolean force)
+			{
+				return isShutDown() ? true : super.closeSolution(force);
 			}
 		};
 		testAndStartDebugger();
