@@ -736,16 +736,20 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				}
 			});
 
-			if (createdNewWindow && Utils.getPlatform() == Utils.PLATFORM_LINUX)
+			if (createdNewWindow &&
+				(Utils.getPlatform() == Utils.PLATFORM_LINUX || (Utils.getPlatform() == Utils.PLATFORM_MAC && System.getProperty("java.version").startsWith("1.7.")))) //$NON-NLS-1$//$NON-NLS-2$
 			{
 				createdNewWindow = false;
 				application.invokeLater(new Runnable()
 				{
 					public void run()
 					{
-						if (wrappedWindow != null)
+						if (wrappedWindow != null &&
+							(Utils.getPlatform() == Utils.PLATFORM_LINUX || (Utils.getPlatform() == Utils.PLATFORM_MAC && !wrappedWindow.isFocused())))
 						{
 							// needed to work around a focus issue on Linux, text fields in a tabpanel on a dialog do not get focus.
+							// also needed as a workaround for a focus issue on Mac, where windows did not get focus
+							// possibly (Mac OS) related: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=8001161
 							wrappedWindow.setVisible(false);
 							wrappedWindow.setVisible(true);
 						}
