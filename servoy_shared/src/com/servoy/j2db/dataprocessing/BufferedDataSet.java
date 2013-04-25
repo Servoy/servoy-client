@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
@@ -41,7 +42,7 @@ public class BufferedDataSet implements IDataSet
 	private List<Object[]> rows; //which contains RowData with column data
 	private boolean hadMore;
 	private String[] columnNames;
-	private ColumnType[] columnTypes;
+	private BaseColumnType[] columnTypes;
 
 	public BufferedDataSet()
 	{
@@ -72,7 +73,7 @@ public class BufferedDataSet implements IDataSet
 		setColumnTypes(columnTypes);
 	}
 
-	public BufferedDataSet(String[] columnNames, ColumnType[] columnTypes, List<Object[]> rows, boolean hadMore)
+	public BufferedDataSet(String[] columnNames, BaseColumnType[] columnTypes, List<Object[]> rows, boolean hadMore)
 	{
 		this.columnNames = columnNames;
 		this.columnTypes = columnTypes;
@@ -278,7 +279,7 @@ public class BufferedDataSet implements IDataSet
 	/**
 	 * @return the column types
 	 */
-	public ColumnType[] getColumnTypeInfo()
+	public BaseColumnType[] getColumnTypeInfo()
 	{
 		return columnTypes == null ? null : columnTypes.clone();
 	}
@@ -344,8 +345,8 @@ public class BufferedDataSet implements IDataSet
 
 		if (size == 0 || columnTypes != null)
 		{
-			ColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) }, index,
-				1);
+			BaseColumnType[] newColumnTypes = Utils.arrayInsert(columnTypes, new ColumnType[] { ColumnType.getInstance(columnType, Integer.MAX_VALUE, 0) },
+				index, 1);
 			columnTypes = newColumnTypes;
 		}
 
@@ -371,8 +372,8 @@ public class BufferedDataSet implements IDataSet
 		}
 		String[] oldColumns = getColumnNames();
 		String[] newColumns = new String[size - 1];
-		ColumnType[] oldColumnTypes = columnTypes;
-		ColumnType[] newColumnTypes = oldColumnTypes == null || size == 1 ? null : new ColumnType[size - 1];
+		BaseColumnType[] oldColumnTypes = columnTypes;
+		BaseColumnType[] newColumnTypes = oldColumnTypes == null || size == 1 ? null : new ColumnType[size - 1];
 		for (int i = 0; i < columnIndex; i++)
 		{
 			newColumns[i] = oldColumns[i];

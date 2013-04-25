@@ -54,6 +54,7 @@ public final class BooleanCondition implements ISQLCondition, Immutable
 		return valueOf(!value);
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

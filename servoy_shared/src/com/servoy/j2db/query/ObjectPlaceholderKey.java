@@ -57,6 +57,7 @@ public class ObjectPlaceholderKey<T> implements IPlaceholderKey
 	}
 
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

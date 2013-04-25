@@ -7,4 +7,6 @@
     <source path="util" />
     <source path="solutionmodel" />
     <source path="test" />
+    <source path="query" />
+    <source path="dataprocessing" />
 </module>

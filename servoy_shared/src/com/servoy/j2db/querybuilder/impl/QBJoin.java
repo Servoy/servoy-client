@@ -17,9 +17,9 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ISQLTableJoin;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -41,7 +41,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin
 	}
 
 	@Override
-	QueryTable getQueryTable()
+	BaseQueryTable getQueryTable()
 	{
 		return join.getForeignTable();
 	}

@@ -442,9 +442,8 @@ public class SQLSheet
 			catch (Exception e)
 			{
 				Debug.error(e);
-				throw new IllegalArgumentException(
-					Messages.getString(
-						"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$
+				throw new IllegalArgumentException(Messages.getString(
+					"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue })); //$NON-NLS-1$
 			}
 		}
 

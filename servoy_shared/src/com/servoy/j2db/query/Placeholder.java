@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
+import com.servoy.base.query.IQueryValues;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -26,7 +28,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public class Placeholder implements IQueryElement
+public class Placeholder implements IQueryElement, IQueryValues
 {
 	private IPlaceholderKey key;
 	private Object value = null;
@@ -61,6 +63,7 @@ public class Placeholder implements IQueryElement
 		set = false;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();
@@ -93,7 +96,7 @@ public class Placeholder implements IQueryElement
 		result = prime * result + ((this.key == null) ? 0 : this.key.hashCode());
 		result = prime * result + (this.set ? 1231 : 1237);
 		// only look at value is set is true
-		result = prime * result + (((!set) || this.value == null) ? 0 : AbstractBaseQuery.arrayHashcode(this.value));
+		result = prime * result + (((!set) || this.value == null) ? 0 : BaseAbstractBaseQuery.arrayHashcode(this.value));
 		return result;
 	}
 
@@ -112,7 +115,7 @@ public class Placeholder implements IQueryElement
 		if (this.set != other.set) return false;
 		if (set) // only look at value is set is true
 		{
-			return AbstractBaseQuery.arrayEquals(this.value, other.value);
+			return BaseAbstractBaseQuery.arrayEquals(this.value, other.value);
 		}
 		return true;
 	}
@@ -123,7 +126,7 @@ public class Placeholder implements IQueryElement
 		StringBuffer sb = new StringBuffer("${").append(key != null ? key.toString() : null); //$NON-NLS-1$
 		if (set)
 		{
-			sb.append('=').append(AbstractBaseQuery.toString(value));
+			sb.append('=').append(BaseAbstractBaseQuery.toString(value));
 		}
 		sb.append('}');
 		return sb.toString();

@@ -16,6 +16,7 @@
 */
 package com.servoy.j2db.query;
 
+
 /** Common interface for all statements: update, delete and insert.
  * @author rgansevles
  *

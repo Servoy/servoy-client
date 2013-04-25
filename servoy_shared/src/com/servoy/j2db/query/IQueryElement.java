@@ -13,13 +13,15 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import java.io.Serializable;
 
+import com.servoy.base.query.IBaseQueryElement;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.visitor.IVisitable;
+
 
 /**
  * Common interface for all elements in the query structure.
@@ -27,7 +29,7 @@ import com.servoy.j2db.util.visitor.IVisitable;
  * @author rgansevles
  * 
  */
-public interface IQueryElement extends Serializable, IWriteReplace, IVisitable, Cloneable
+public interface IQueryElement extends IBaseQueryElement, Serializable, Cloneable, IWriteReplace, IVisitable
 {
 	Object shallowClone() throws CloneNotSupportedException;
 }

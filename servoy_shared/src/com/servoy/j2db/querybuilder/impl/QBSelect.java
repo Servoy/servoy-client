@@ -23,6 +23,7 @@ import java.util.Date;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IDataProviderHandler;
@@ -48,6 +49,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * @author rgansevles
@@ -65,7 +67,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	private QuerySelect query;
 	private QBWhereCondition where;
 	private QBLogicalCondition having;
-	private QueryTable queryTable;
+	private BaseQueryTable queryTable;
 
 	private QBParameters params;
 
@@ -102,7 +104,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@Override
 	public QuerySelect build() throws RepositoryException
 	{
-		return AbstractBaseQuery.deepClone(getQuery());
+		return AbstractBaseQuery.acceptVisitor(getQuery(), DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	/**
@@ -415,7 +417,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@Override
-	QueryTable getQueryTable()
+	BaseQueryTable getQueryTable()
 	{
 		if (queryTable == null)
 		{

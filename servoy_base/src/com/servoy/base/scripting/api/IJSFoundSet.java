@@ -206,4 +206,98 @@ public interface IJSFoundSet
 	 * @return boolean true if all records could be deleted.
 	 */
 	public boolean js_deleteAllRecords() throws Exception;
+
+	/**
+	 * Set the foundset in find mode. (Start a find request), use the "search" function to perform/exit the find.
+	 * 
+	 * Before going into find mode, all unsaved records will be saved in the database.
+	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), the foundset will not go into find mode.
+	 * Make sure the operator and the data (value) are part of the string passed to dataprovider (included inside a pair of quotation marks).
+	 * Note: always make sure to check the result of the find() method.
+	 * 
+	 * When in find mode, columns can be assigned string expressions (including operators) that are evaluated as:
+	 * General:
+	 *       c1||c2    (condition1 or condition2)
+	 *       c|format  (apply format on condition like 'x|dd-MM-yyyy')
+	 *       !c        (not condition)
+	 *       #c        (modify condition, depends on column type)
+	 *       ^         (is null)
+	 *       ^=        (is null or empty)
+	 *       &lt;x     (less than value x)
+	 *       &gt;x     (greater than value x)
+	 *       &lt;=x    (less than or equals value x)
+	 *       &gt;=x    (greater than or equals value x)
+	 *       x...y     (between values x and y, including values)
+	 *       x         (equals value x)
+	 *
+	 *  Number fields:
+	 *       =x       (equals value x)
+	 *       ^=       (is null or zero)
+	 *
+	 *  Date fields:
+	 *       #c       (equals value x, entire day)
+	 *       now      (equals now, date and or time)
+	 *       //       (equals today)
+	 *       today    (equals today)
+	 *
+	 *  Text fields:
+	 *       #c	        (case insensitive condition)
+	 *       = x      (equals a space and 'x')
+	 *       ^=       (is null or empty)
+	 *       %x%      (contains 'x')
+	 *       %x_y%    (contains 'x' followed by any char and 'y')
+	 *       \%      (contains char '%')
+	 *       \_      (contains char '_')
+	 *
+	 * Related columns can be assigned, they will result in related searches.
+	 * For example, "employees_to_department.location_id = headoffice" finds all employees in the specified location).
+	 * 
+	 * Searching on related aggregates is supported.
+	 * For example, "orders_to_details.total_amount = '&gt;1000'" finds all orders with total order details amount more than 1000.
+	 * 
+	 * Arrays can be used for searching a number of values, this will result in an 'IN' condition that will be used in the search.
+	 * The values are not restricted to strings but can be any type that matches the column type.
+	 * For example, "record.department_id = [1, 33, 99]"
+	 * 
+	 * @sample
+	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
+	 * {
+	 * 	columnTextDataProvider = 'a search value'
+	 * 	// for numbers you have to make sure to format it correctly so that the decimal point is in your locales notation (. or ,)
+	 * 	columnNumberDataProvider = '>' + utils.numberFormat(anumber, '####.00');
+	 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
+	 * 	%%prefix%%foundset.search()
+	 * }
+	 * 
+	 * @return true if the foundset is now in find mode, false otherwise.
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean, Boolean)
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
+	 * @see com.servoy.j2db.FormController$JSForm#js_find()
+	 * @see com.servoy.j2db.FormController$JSForm#js_search(Boolean, Boolean)
+	 */
+	public boolean js_find();
+
+	/**
+	 * Check if this foundset is in find mode.
+	 *
+	 * @sample
+	 * //Returns true when find was called on this foundset and search has not been called yet
+	 * %%prefix%%foundset.isInFind();
+	 * 
+	 * @return boolean is in find mode.
+	 */
+	public boolean js_isInFind();
+
+	/**
+	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
+	 * Clear results from previous searches.
+	 *
+	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
+	 * 
+	 * @return the recordCount
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 */
+	public int js_search() throws Exception;
 }

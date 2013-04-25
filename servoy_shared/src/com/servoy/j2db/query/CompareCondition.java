@@ -13,11 +13,10 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
-
 
 
 /** Simple version of set-condition: 1 operator, 1 key, 1 value
@@ -28,7 +27,7 @@ public final class CompareCondition extends SetCondition
 {
 	public CompareCondition(int operator, IQuerySelectValue operand1, Object operand2)
 	{
-		super (new int[] { operator} , new IQuerySelectValue[] { operand1 } , new Object[][] { new Object[] { operand2 } }, true);
+		super(new int[] { operator }, new IQuerySelectValue[] { operand1 }, new Object[][] { new Object[] { operand2 } }, true);
 	}
 
 	public int getOperator()
@@ -40,17 +39,18 @@ public final class CompareCondition extends SetCondition
 	{
 		return getKeys()[0];
 	}
+
 	public Object getOperand2()
 	{
 		return ((Object[][])getValues())[0][0];
 	}
-	
-	
+
+
 	///////// serialization ////////////////
-	
+
 	public CompareCondition(ReplacedObject s)
 	{
 		super(s);
 	}
-	
+
 }

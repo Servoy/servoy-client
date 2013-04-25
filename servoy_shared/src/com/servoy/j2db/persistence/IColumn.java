@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.base.persistence.IBaseColumn;
 
 
 /**
@@ -24,7 +24,7 @@ import com.servoy.j2db.persistence.IColumnTypes;
  * 
  * @author jblok
  */
-public interface IColumn extends IDataProvider, IColumnTypes
+public interface IColumn extends IBaseColumn, IDataProvider, IColumnTypes
 {
 	public String getName();
 

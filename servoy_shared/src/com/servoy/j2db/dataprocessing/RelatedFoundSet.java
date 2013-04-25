@@ -30,6 +30,7 @@ import java.util.StringTokenizer;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
@@ -38,7 +39,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
@@ -48,6 +48,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.PackVisitor;
 
 /**
@@ -110,7 +111,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			pkColumns.add(new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 		}
 		select.setColumns(pkColumns);
-		creationSqlSelect = AbstractBaseQuery.deepClone(select);
+		creationSqlSelect = AbstractBaseQuery.acceptVisitor(select, DeepCloneVisitor.createDeepCloneVisitor());
 
 		if (aggregateData != null)
 		{
@@ -200,7 +201,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			else
 			{
-				sqlSelect = AbstractBaseQuery.deepClone(cleanSelect);
+				sqlSelect = AbstractBaseQuery.acceptVisitor(cleanSelect, DeepCloneVisitor.createDeepCloneVisitor());
 			}
 
 			if (!sqlSelect.setPlaceholderValue(placeHolderKey, whereArgs))
@@ -232,7 +233,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 				else
 				{
-					ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
+					ISQLSelect selectStatement = AbstractBaseQuery.acceptVisitor((ISQLSelect)sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
 					// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
 					// Clone is needed because packed queries may not be save to manipulate.
 					SQLStatement trackingInfo = null;
@@ -250,8 +251,8 @@ public abstract class RelatedFoundSet extends FoundSet
 					if (aggregateSelect != null)
 					{
 						// Note: see note about clone above.
-						queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect), fsm.getTableFilterParams(sheet.getServerName(),
-							aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
+						queryDatas.add(new QueryData(AbstractBaseQuery.acceptVisitor((ISQLSelect)aggregateSelect, DeepCloneVisitor.createDeepCloneVisitor()),
+							fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
 						queryIndex.add(Integer.valueOf(i)); // same index for aggregates
 						aggregateSelects[i] = aggregateSelect;
 					}
@@ -398,7 +399,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		// from db coming from outside or a search that has no results.
 		clearOmit(null);
 
-		refreshFromDBInternal(AbstractBaseQuery.deepClone(creationSqlSelect), true, false, fsm.pkChunkSize, false, false);
+		refreshFromDBInternal(AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor()), true, false, fsm.pkChunkSize,
+			false, false);
 	}
 
 	@Override
@@ -718,25 +720,25 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	private boolean checkForeignKeyValue(Object obj, Object whereArg, int operator)
 	{
-		int maskedOperator = operator & ISQLCondition.OPERATOR_MASK;
+		int maskedOperator = operator & IBaseSQLCondition.OPERATOR_MASK;
 		if (Utils.equalObjects(whereArg, obj, true))
 		{
-			return (maskedOperator == ISQLCondition.EQUALS_OPERATOR || maskedOperator == ISQLCondition.GTE_OPERATOR ||
-				maskedOperator == ISQLCondition.LTE_OPERATOR || maskedOperator == ISQLCondition.LIKE_OPERATOR);
+			return (maskedOperator == IBaseSQLCondition.EQUALS_OPERATOR || maskedOperator == IBaseSQLCondition.GTE_OPERATOR ||
+				maskedOperator == IBaseSQLCondition.LTE_OPERATOR || maskedOperator == IBaseSQLCondition.LIKE_OPERATOR);
 		}
 
-		if ((operator & ISQLCondition.ORNULL_MODIFIER) != 0 && Utils.equalObjects(obj, null))
+		if ((operator & IBaseSQLCondition.ORNULL_MODIFIER) != 0 && Utils.equalObjects(obj, null))
 		{
 			return true;
 		}
 
-		if (maskedOperator == ISQLCondition.NOT_OPERATOR)
+		if (maskedOperator == IBaseSQLCondition.NOT_OPERATOR)
 		{
 			return true;
 		}
 
 		boolean equal = false;
-		if (maskedOperator == ISQLCondition.LIKE_OPERATOR)
+		if (maskedOperator == IBaseSQLCondition.LIKE_OPERATOR)
 		{
 			if (obj == null) return false;
 			// For LIKE we make case-insensitive comparison.
@@ -784,7 +786,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 			}
 		}
-		else if (maskedOperator != ISQLCondition.EQUALS_OPERATOR)
+		else if (maskedOperator != IBaseSQLCondition.EQUALS_OPERATOR)
 		{
 			// Now test the GT(E) and LT(E) if possible (Comparable)
 			if (obj instanceof Comparable && whereArg instanceof Comparable)
@@ -802,11 +804,11 @@ public abstract class RelatedFoundSet extends FoundSet
 				{
 					compare = ((Comparable)whereArg).compareTo(obj);
 				}
-				if (maskedOperator == ISQLCondition.GT_OPERATOR || maskedOperator == ISQLCondition.GTE_OPERATOR)
+				if (maskedOperator == IBaseSQLCondition.GT_OPERATOR || maskedOperator == IBaseSQLCondition.GTE_OPERATOR)
 				{
 					equal = compare >= 0;
 				}
-				else if (maskedOperator == ISQLCondition.LT_OPERATOR || maskedOperator == ISQLCondition.LTE_OPERATOR)
+				else if (maskedOperator == IBaseSQLCondition.LT_OPERATOR || maskedOperator == IBaseSQLCondition.LTE_OPERATOR)
 				{
 					equal = compare <= 0;
 				}

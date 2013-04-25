@@ -50,6 +50,7 @@ public final class QuerySort implements IQuerySort
 		return ascending;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

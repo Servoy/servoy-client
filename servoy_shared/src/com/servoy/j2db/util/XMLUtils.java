@@ -31,6 +31,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
 
@@ -349,7 +350,7 @@ public class XMLUtils
 		return sb.toString();
 	}
 
-	public static String serializeColumnType(ColumnType columnType)
+	public static String serializeColumnType(BaseColumnType columnType)
 	{
 		if (columnType == null)
 		{

@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.ObjectCountVisitor;
 
@@ -43,7 +45,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	 * 
 	 */
 
-	private QueryTable table;
+	private BaseQueryTable table;
 	private ArrayList<IQuerySelectValue> columns; // declare as ArrayList in stead of List -> must be sure that it is Serializable
 	private boolean distinct = false;
 	private boolean plain_pk_select = false;
@@ -56,7 +58,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	private static final long serialVersionUID = 1L;
 
-	public QuerySelect(QueryTable table)
+	public QuerySelect(BaseQueryTable table)
 	{
 		this.table = table;
 	}
@@ -93,7 +95,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		columns.add(c);
 	}
 
-	public void setTable(QueryTable table)
+	public void setTable(BaseQueryTable table)
 	{
 		this.table = table;
 	}
@@ -349,7 +351,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public AndCondition getConditionClone(String name)
 	{
-		return deepClone(getCondition(name));
+		return AbstractBaseQuery.acceptVisitor(getCondition(name), DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	public boolean isDistinct()
@@ -367,7 +369,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return joins;
 	}
 
-	public ISQLJoin getJoin(QueryTable primaryTable, String name)
+	public ISQLJoin getJoin(BaseQueryTable primaryTable, String name)
 	{
 		for (int i = 0; joins != null && i < joins.size(); i++)
 		{
@@ -382,22 +384,22 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ArrayList<ISQLJoin> getJoinsClone()
 	{
-		return deepClone(joins);
+		return AbstractBaseQuery.acceptVisitor(joins, DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	public ArrayList<IQuerySelectValue> getColumnsClone()
 	{
-		return deepClone(columns);
+		return AbstractBaseQuery.acceptVisitor(columns, DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	public ArrayList<IQuerySelectValue> getGroupByClone()
 	{
-		return deepClone(groupBy);
+		return AbstractBaseQuery.acceptVisitor(groupBy, DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	public ArrayList<IQuerySort> getSortsClone()
 	{
-		return deepClone(sorts);
+		return AbstractBaseQuery.acceptVisitor(sorts, DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	public ArrayList<IQuerySort> getSorts()
@@ -410,7 +412,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return groupBy;
 	}
 
-	public QueryTable getTable()
+	public BaseQueryTable getTable()
 	{
 		return table;
 	}
@@ -493,7 +495,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ISQLCondition getWhereClone()
 	{
-		return deepClone(getWhere());
+		return AbstractBaseQuery.acceptVisitor(getWhere(), DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	/**
@@ -508,7 +510,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ISQLCondition getHavingClone()
 	{
-		return deepClone(getHaving());
+		return AbstractBaseQuery.acceptVisitor(getHaving(), DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	@Override
@@ -519,7 +521,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public QuerySelect getSelectCount(String name, boolean distinctCount)
 	{
-		QuerySelect selectCount = deepClone(this);
+		QuerySelect selectCount = AbstractBaseQuery.acceptVisitor(this, DeepCloneVisitor.createDeepCloneVisitor());
 
 		selectCount.clearSorts();
 
@@ -570,7 +572,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 					continue;
 				}
 
-				QueryTable joinTable = ((ISQLTableJoin)join).getForeignTable();
+				BaseQueryTable joinTable = ((ISQLTableJoin)join).getForeignTable();
 				ObjectCountVisitor selectCounter = new ObjectCountVisitor(joinTable, true);
 				ObjectCountVisitor joinCounter = new ObjectCountVisitor(joinTable, true);
 				acceptVisitor(selectCounter);

@@ -23,6 +23,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * @author jcompagner
@@ -145,7 +146,7 @@ public class PksAndRecordsHolder
 	 */
 	public synchronized QuerySelect getQuerySelectForModification()
 	{
-		return AbstractBaseQuery.deepClone(querySelect);
+		return AbstractBaseQuery.acceptVisitor(querySelect, DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 	private SafeArrayList<IRecordInternal> reUseStatesBasedOnNewPrimaryKeys()

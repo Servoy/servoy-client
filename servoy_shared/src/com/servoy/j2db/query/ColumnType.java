@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
@@ -28,7 +29,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * @author rgansevles
  *
  */
-public class ColumnType implements Serializable, IWriteReplace
+public class ColumnType extends BaseColumnType implements Serializable, IWriteReplace
 {
 	private static final ConcurrentMap<ColumnType, ColumnType> instances;
 	public static final ColumnType DUMMY;
@@ -39,31 +40,9 @@ public class ColumnType implements Serializable, IWriteReplace
 		DUMMY = getInstance(-1, -1, 0);
 	}
 
-	private final int sqlType;
-	private final int length;
-	private final int scale;
-
-
 	private ColumnType(int sqlType, int length, int scale)
 	{
-		this.sqlType = sqlType;
-		this.length = length;
-		this.scale = scale;
-	}
-
-	public int getLength()
-	{
-		return length;
-	}
-
-	public int getScale()
-	{
-		return scale;
-	}
-
-	public int getSqlType()
-	{
-		return sqlType;
+		super(sqlType, length, scale);
 	}
 
 	public static ColumnType getInstance(int sqlType, int length, int scale)
@@ -79,37 +58,7 @@ public class ColumnType implements Serializable, IWriteReplace
 
 	public ColumnType intern()
 	{
-		return getInstance(sqlType, length, scale);
-	}
-
-	@Override
-	public String toString()
-	{
-		return "<" + sqlType + ',' + length + ',' + scale + '>'; //$NON-NLS-1$
-	}
-
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + this.length;
-		result = prime * result + this.scale;
-		result = prime * result + this.sqlType;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		final ColumnType other = (ColumnType)obj;
-		if (this.length != other.length) return false;
-		if (this.scale != other.scale) return false;
-		if (this.sqlType != other.sqlType) return false;
-		return true;
+		return getInstance(getSqlType(), getLength(), getScale());
 	}
 
 ///////// serialization ////////////////

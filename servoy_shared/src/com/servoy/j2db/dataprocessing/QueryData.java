@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.util.serialize.IWriteReplace;

@@ -16,11 +16,14 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.IBaseQuerySelectValue;
+
+
 /** Interface for selectable values in a select statement.
  * @author rgansevles
  *
  */
-public interface IQuerySelectValue extends IQueryElement
+public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 {
 	String getAlias();
 

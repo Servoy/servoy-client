@@ -23,7 +23,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 
 /**
  * Query condition consisting of conditions to be OR-ed.
- * @author rgansevles
+ * @author rgansevles 
  *
  */
 
@@ -52,7 +52,7 @@ public final class OrCondition extends AndOrCondition
 		List<ISQLCondition> nconditions = new ArrayList<ISQLCondition>(conditions.size());
 		for (int i = 0; i < conditions.size(); i++)
 		{
-			nconditions.add(conditions.get(i).negate());
+			nconditions.add((ISQLCondition)conditions.get(i).negate());
 		}
 		return new AndCondition(nconditions);
 	}

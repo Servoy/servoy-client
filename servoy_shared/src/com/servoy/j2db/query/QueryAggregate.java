@@ -26,7 +26,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public final class QueryAggregate implements IQuerySelectValue
+public final class QueryAggregate implements IQuerySelectValue, IQueryElement
 {
 	// aggregate types
 	public static final int COUNT = 0;
@@ -103,6 +103,7 @@ public final class QueryAggregate implements IQuerySelectValue
 		return AGGREGATE_TYPE_HIBERNATE[type];
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

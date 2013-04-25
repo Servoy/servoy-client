@@ -16,13 +16,15 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseQueryTable;
+
 /** Interface for joins in queries, for all non-custom joins.
  * @author rgansevles
  *
  */
 public interface ISQLTableJoin extends ISQLJoin
 {
-	QueryTable getForeignTable();
+	BaseQueryTable getForeignTable();
 
 	void invert(String newName);
 

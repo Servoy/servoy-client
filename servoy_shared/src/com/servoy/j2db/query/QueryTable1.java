@@ -94,7 +94,7 @@ public final class QueryTable1 extends QueryTable
 			{
 				// [name], needsQuoting = false
 				v1needsQuoting = false;
-				v1alias = QueryTable.generateAlias(v1name);
+				v1alias = generateAlias(v1name);
 				v1generatedAlias = true;
 			}
 			else if (members.length == 3)
@@ -111,7 +111,7 @@ public final class QueryTable1 extends QueryTable
 				v1schemaName = (String)members[i++];
 				v1isComplete = true;
 				v1needsQuoting = ((Boolean)members[i++]).booleanValue();
-				v1alias = QueryTable.generateAlias(v1name);
+				v1alias = generateAlias(v1name);
 				v1generatedAlias = true;
 			}
 			else if (members.length == 5)
@@ -136,7 +136,7 @@ public final class QueryTable1 extends QueryTable
 		{ // name
 			v1name = (String)o;
 			v1needsQuoting = true;
-			v1alias = QueryTable.generateAlias(v1name);
+			v1alias = generateAlias(v1name);
 			v1generatedAlias = true;
 		}
 	}

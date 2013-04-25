@@ -29,10 +29,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
@@ -95,7 +96,7 @@ public class MetaDataUtils
 		// columns
 		JSONArray jsonColumns = new JSONArray();
 		String[] columnNames = dataSet.getColumnNames();
-		ColumnType[] columnTypes = dataSet.getColumnTypeInfo();
+		BaseColumnType[] columnTypes = dataSet.getColumnTypeInfo();
 		for (int c = 0; c < columnNames.length; c++)
 		{
 			JSONObject jsonColumn = new JSONObject();

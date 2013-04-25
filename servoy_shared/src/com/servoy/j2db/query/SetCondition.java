@@ -18,6 +18,9 @@ package com.servoy.j2db.query;
 
 import java.util.Arrays;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
+import com.servoy.base.query.BaseSetCondition;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.query.AbstractBaseQuery.PlaceHolderSetter;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -49,30 +52,11 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public class SetCondition implements ISQLCondition
+public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements ISQLCondition
 {
-	private final int[] operators; // use '=' for in-conditions
-	private IQuerySelectValue[] keys;
-	private Object values; // maybe placeholder or subquery
-	boolean andCondition; // true for AND between key/value pairs and OR between records
-
 	public SetCondition(int operators[], IQuerySelectValue[] keys, Object values, boolean andCondition)
 	{
-		validateOperators(operators);
-		this.values = validateValues(keys, values);
-		this.operators = operators;
-		this.keys = keys;
-		this.andCondition = andCondition;
-	}
-
-	private static int[] makeOperatorsArray(int op, int n)
-	{
-		int[] operators = new int[n];
-		for (int i = 0; i < n; i++)
-		{
-			operators[i] = op;
-		}
-		return operators;
+		super(operators, keys, values, andCondition);
 	}
 
 	/**
@@ -85,119 +69,26 @@ public class SetCondition implements ISQLCondition
 	 */
 	public SetCondition(int operator, IQuerySelectValue[] keys, Object values, boolean andCondition)
 	{
-		this(makeOperatorsArray(operator, keys.length), keys, values, andCondition);
+		super(operator, keys, values, andCondition);
 	}
 
-	/**
-	 * Validate values and convert if neeed.
-	 * 
-	 * @param keys
-	 * @param values
-	 */
-	private static Object validateValues(IQuerySelectValue[] keys, Object values)
+	@Override
+	public Object shallowClone() throws CloneNotSupportedException
 	{
-		Object vals = values;
-
-		if (keys == null || keys.length == 0)
-		{
-			throw new IllegalArgumentException("Empty key set in set condition"); //$NON-NLS-1$
-		}
-
-		if (vals instanceof Placeholder || vals instanceof ISQLSelect || vals instanceof IDynamicValue)
-		{
-			// placeholder or sub-query: ok
-			return vals;
-		}
-
-		// convenience: array of objects as wide as keys, convert to array of value arrays
-		if (vals instanceof Object[] && !(vals instanceof Object[][]) && ((Object[])vals).length == keys.length)
-		{
-			Object[][] converted = new Object[((Object[])vals).length][];
-			for (int i = 0; i < converted.length; i++)
-			{
-				converted[i] = new Object[] { ((Object[])vals)[i] };
-			}
-			vals = converted;
-		}
-
-
-		if (vals == null || !(vals instanceof Object[][]) || ((Object[][])vals).length != keys.length)
-		{
-			throw new IllegalArgumentException("Value list does not match key list in set condition"); //$NON-NLS-1$
-		}
-
-		// ok
-		return vals;
+		return super.clone();
 	}
 
-	private static void validateOperators(int[] operators)
-	{
-		if (operators == null || operators.length == 0)
-		{
-			throw new IllegalArgumentException("operators missing");
-		}
-		for (int op : operators)
-		{
-			boolean ok = false;
-			int maskedOp = op & OPERATOR_MASK;
-			for (int defined : ISQLCondition.ALL_DEFINED_OPERATORS)
-			{
-				if (maskedOp == defined)
-				{
-					ok = true;
-					break;
-				}
-			}
-			if (!ok)
-			{
-				throw new IllegalArgumentException("Unknown operator " + op);
-			}
-			int maskedMod = op & ~OPERATOR_MASK;
-			for (int defined : ISQLCondition.ALL_MODIFIERS)
-			{
-				maskedMod = maskedMod & ~defined;
-			}
-			if (maskedMod != 0)
-			{
-				throw new IllegalArgumentException("Unknown operation modifier " + op);
-			}
-		}
-	}
-
-	public IQuerySelectValue[] getKeys()
-	{
-		return keys;
-	}
-
-	public Object getValues()
-	{
-		return values;
-	}
-
-	public boolean isAndCondition()
-	{
-		return andCondition;
-	}
-
-	public int[] getOperators()
-	{
-		return operators;
-	}
-
+	@Override
 	public ISQLCondition negate()
 	{
 		int[] negop = new int[operators.length];
 		for (int i = 0; i < operators.length; i++)
 		{
-			negop[i] = OPERATOR_NEGATED[operators[i] & ISQLCondition.OPERATOR_MASK] | (operators[i] & ~ISQLCondition.OPERATOR_MASK);
+			negop[i] = OPERATOR_NEGATED[operators[i] & IBaseSQLCondition.OPERATOR_MASK] | (operators[i] & ~IBaseSQLCondition.OPERATOR_MASK);
 		}
 		return new SetCondition(negop, keys, values, !andCondition);
 	}
 
-	public Object shallowClone() throws CloneNotSupportedException
-	{
-		return super.clone();
-	}
 
 	public void acceptVisitor(IVisitor visitor)
 	{
@@ -233,9 +124,9 @@ public class SetCondition implements ISQLCondition
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + (this.andCondition ? 1231 : 1237);
-		result = PRIME * result + AbstractBaseQuery.hashCode(this.keys);
+		result = PRIME * result + BaseAbstractBaseQuery.hashCode(this.keys);
 		result = PRIME * result + SetCondition.hashCode(this.operators);
-		result = PRIME * result + ((this.values == null) ? 0 : AbstractBaseQuery.arrayHashcode(this.values));
+		result = PRIME * result + ((this.values == null) ? 0 : BaseAbstractBaseQuery.arrayHashcode(this.values));
 		return result;
 	}
 
@@ -249,7 +140,7 @@ public class SetCondition implements ISQLCondition
 		if (this.andCondition != other.andCondition) return false;
 		if (!Arrays.equals(this.keys, other.keys)) return false;
 		if (!Arrays.equals(this.operators, other.operators)) return false;
-		return AbstractBaseQuery.arrayEquals(this.values, other.values);
+		return BaseAbstractBaseQuery.arrayEquals(this.values, other.values);
 	}
 
 	@Override
@@ -277,22 +168,22 @@ public class SetCondition implements ISQLCondition
 			{
 				sb.append('|');
 			}
-			sb.append(ISQLCondition.OPERATOR_STRINGS[operators[o] & ISQLCondition.OPERATOR_MASK].toUpperCase());
-			int modifiers = (operators[0] & ~ISQLCondition.OPERATOR_MASK);
+			sb.append(IBaseSQLCondition.OPERATOR_STRINGS[operators[o] & IBaseSQLCondition.OPERATOR_MASK].toUpperCase());
+			int modifiers = (operators[0] & ~IBaseSQLCondition.OPERATOR_MASK);
 			if (modifiers != 0)
 			{
 				sb.append('(');
 				// modifiers
 				boolean added = false;
-				for (int m = 0; m < ISQLCondition.ALL_MODIFIERS.length; m++)
+				for (int m = 0; m < IBaseSQLCondition.ALL_MODIFIERS.length; m++)
 				{
-					if ((m & ISQLCondition.ALL_MODIFIERS[m]) != 0)
+					if ((m & IBaseSQLCondition.ALL_MODIFIERS[m]) != 0)
 					{
 						if (added)
 						{
 							sb.append(',');
 						}
-						sb.append(ISQLCondition.MODIFIER_STRINGS[m]);
+						sb.append(IBaseSQLCondition.MODIFIER_STRINGS[m]);
 						added = true;
 					}
 				}
@@ -309,12 +200,12 @@ public class SetCondition implements ISQLCondition
 				{
 					sb.append('|');
 				}
-				sb.append(AbstractBaseQuery.toString(vals[k]));
+				sb.append(BaseAbstractBaseQuery.toString(vals[k]));
 			}
 		}
 		else
 		{
-			sb.append(AbstractBaseQuery.toString(values));
+			sb.append(BaseAbstractBaseQuery.toString(values));
 		}
 		sb.append(')');
 

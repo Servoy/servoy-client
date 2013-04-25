@@ -13,8 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.query;
+
+import com.servoy.base.query.BaseQueryTable;
+
 
 /**
  * Common interface for all queries: select, update, delete and insert.
@@ -24,5 +27,5 @@ package com.servoy.j2db.query;
  */
 public interface ISQLQuery extends IQueryElement
 {
-	QueryTable getTable();
+	BaseQueryTable getTable();
 }

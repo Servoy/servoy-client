@@ -22,12 +22,12 @@ import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.QueryColumn;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderTableClause;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
@@ -78,7 +78,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return tableAlias;
 	}
 
-	abstract QueryTable getQueryTable();
+	abstract BaseQueryTable getQueryTable();
 
 
 	/**

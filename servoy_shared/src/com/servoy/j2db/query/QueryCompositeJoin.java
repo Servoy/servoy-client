@@ -19,6 +19,7 @@ package com.servoy.j2db.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -57,7 +58,7 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		return joins;
 	}
 
-	public QueryTable getPrimaryTable()
+	public BaseQueryTable getPrimaryTable()
 	{
 		if (joins.size() > 0)
 		{
@@ -66,7 +67,7 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		return null;
 	}
 
-	public QueryTable getForeignTable()
+	public BaseQueryTable getForeignTable()
 	{
 		if (joins.size() > 0)
 		{
@@ -138,10 +139,12 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		}
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();
 	}
+
 
 	public void acceptVisitor(IVisitor visitor)
 	{

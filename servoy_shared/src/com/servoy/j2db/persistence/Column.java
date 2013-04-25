@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.servoy.base.persistence.BaseColumn;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -50,7 +51,7 @@ import com.servoy.j2db.util.keyword.SQLKeywords;
  * 
  * @author jblok
  */
-public class Column implements Serializable, IColumn, ISupportHTMLToolTipText, ISupportAlias<String>
+public class Column extends BaseColumn implements Serializable, IColumn, ISupportHTMLToolTipText, ISupportAlias<String>
 {
 	public static final long serialVersionUID = -2730015162348120893L;
 	public static final int MAX_SQL_OBJECT_NAME_LENGTH = 30; // max length of table names, column names, etc; 30 seen by oracle, 31 seen by firebird

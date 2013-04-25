@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
 
@@ -26,12 +27,12 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * 
  */
 
-public final class TablePlaceholderKey extends ObjectPlaceholderKey<QueryTable>
+public final class TablePlaceholderKey extends ObjectPlaceholderKey<BaseQueryTable>
 {
 	/**
 	 * @param name
 	 */
-	public TablePlaceholderKey(QueryTable table, String name)
+	public TablePlaceholderKey(BaseQueryTable table, String name)
 	{
 		super(table, name);
 	}

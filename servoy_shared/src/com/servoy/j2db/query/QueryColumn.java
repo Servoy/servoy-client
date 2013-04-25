@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseQueryColumn;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.IWriteReplaceExtended;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -27,54 +29,34 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtended
+public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceExtended, IQuerySelectValue
 {
-	private QueryTable table;
-	private transient String name;
-	private final String alias;
-	private transient ColumnType columnType;
-	private transient boolean identity;
-	private final int id; // id of this column, known on the server, may be used to lookup name and columnType
-
-	public QueryColumn(QueryTable table, int id, String name, ColumnType columnType, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, ColumnType columnType, boolean identity)
 	{
-		this(table, id, name, null, columnType, identity);
+		super(table, id, name, columnType, identity);
 	}
 
-	public QueryColumn(QueryTable table, int id, String name, String alias, ColumnType columnType, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, String alias, ColumnType columnType, boolean identity)
 	{
-		if (table == null || (id == -1 && name == null))
-		{
-			throw new IllegalArgumentException("Null table or column argument"); //$NON-NLS-1$
-		}
-		if (id == -1 && name.indexOf('.') >= 0)
-		{
-			throw new IllegalArgumentException("Invalid column name '" + name + '\''); //$NON-NLS-1$
-		}
-		this.table = table;
-		this.id = id;
-		this.name = name;
-		this.alias = alias;
-		this.columnType = columnType;
-		this.identity = identity;
+		super(table, id, name, alias, columnType, identity);
 	}
 
-	public QueryColumn(QueryTable table, int id, String name, int sqlType, int length, int scale, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, boolean identity)
 	{
 		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), identity);
 	}
 
-	public QueryColumn(QueryTable table, int id, String name, int sqlType, int length, int scale)
+	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale)
 	{
 		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), false);
 	}
 
-	public QueryColumn(QueryTable table, int id, String name, int sqlType, int length)
+	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length)
 	{
 		this(table, id, name, ColumnType.getInstance(sqlType, length, 0), false);
 	}
 
-	public QueryColumn(QueryTable table, String name)
+	public QueryColumn(BaseQueryTable table, String name)
 	{
 		this(table, -1, name, ColumnType.DUMMY, false);
 	}
@@ -82,38 +64,11 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 	@Override
 	public IQuerySelectValue asAlias(String newAlias)
 	{
-		return new QueryColumn(table, id, name, newAlias, columnType, identity);
+		return new QueryColumn(table, id, name, newAlias, ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale()),
+			identity);
 	}
 
-	public boolean isComplete()
-	{
-		return name != null;
-	}
-
-	public String getName()
-	{
-		if (name == null)
-		{
-			throw new IllegalStateException("Name requested on incomplete column"); //$NON-NLS-1$
-		}
-		return name;
-	}
-
-	public String getAlias()
-	{
-		return alias;
-	}
-
-	public QueryTable getTable()
-	{
-		return table;
-	}
-
-	public int getId()
-	{
-		return id;
-	}
-
+	@Override
 	public QueryColumn getColumn()
 	{
 		return this;
@@ -128,80 +83,6 @@ public final class QueryColumn implements IQuerySelectValue, IWriteReplaceExtend
 	{
 		table = AbstractBaseQuery.acceptVisitor(table, visitor);
 	}
-
-	public ColumnType getColumnType()
-	{
-		if (name == null)
-		{
-			throw new IllegalStateException("Column type requested on incomplete column"); //$NON-NLS-1$
-		}
-		return columnType;
-	}
-
-	public boolean isIdentity()
-	{
-		if (name == null)
-		{
-			throw new IllegalStateException("Identity requested on incomplete column"); //$NON-NLS-1$
-		}
-		return identity;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		final int PRIME = 31;
-		int result = 1;
-		result = PRIME * result + ((this.name == null) ? 0 : this.name.hashCode());
-		result = PRIME * result + ((this.alias == null) ? 0 : this.alias.hashCode());
-		result = PRIME * result + ((this.table == null) ? 0 : this.table.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		final QueryColumn other = (QueryColumn)obj;
-		if (this.id != -1 || other.id != -1) return this.id == other.id;
-		if (this.name == null)
-		{
-			if (other.name != null) return false;
-		}
-		else if (!this.name.equals(other.name)) return false;
-		if (this.alias == null)
-		{
-			if (other.alias != null) return false;
-		}
-		else if (!this.alias.equals(other.alias)) return false;
-		if (this.table == null)
-		{
-			if (other.table != null) return false;
-		}
-		else if (!this.table.equals(other.table)) return false;
-		return true;
-	}
-
-
-	@Override
-	public String toString()
-	{
-		StringBuilder sb = new StringBuilder(table.toString()).append('.').append(id).append('=');
-		sb.append((name == null) ? "?" : name); //$NON-NLS-1$
-		if (alias != null) sb.append(" AS ").append(alias); //$NON-NLS-1$
-		if (name != null)
-		{
-			sb.append(columnType.toString());
-			if (isIdentity())
-			{
-				sb.append(" IDENTITY"); //$NON-NLS-1$
-			}
-		}
-		return sb.toString();
-	}
-
 
 	///////// serialization ////////////////
 

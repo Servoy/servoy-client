@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -33,14 +36,14 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 {
 	private static final String ANONYMOUS = "__ANONYMOUS_CONDITION__";
 
-	private QueryTable table;
+	private BaseQueryTable table;
 	private List columns = new ArrayList();
 	private List values = new ArrayList();
 	private HashMap<String, AndCondition> conditions = null; // Map of AndCondition objects
 	private List joins; // joins in update statements are not supported by hibernate.
 
 
-	public QueryUpdate(QueryTable table)
+	public QueryUpdate(BaseQueryTable table)
 	{
 		this.table = table;
 	}
@@ -116,7 +119,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 
 	public ISQLCondition getConditionClone()
 	{
-		return deepClone(getCondition());
+		return AbstractBaseQuery.acceptVisitor(getCondition(), DeepCloneVisitor.createDeepCloneVisitor());
 	}
 
 //	public List getJoins()
@@ -124,7 +127,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 //		return joins;
 //	}
 
-	public QueryTable getTable()
+	public BaseQueryTable getTable()
 	{
 		return table;
 	}
@@ -213,7 +216,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 			{
 				sb.append('|');
 			}
-			sb.append(AbstractBaseQuery.toString(values.get(i)));
+			sb.append(BaseAbstractBaseQuery.toString(values.get(i)));
 		}
 		sb.append(')');
 		if (conditions != null)

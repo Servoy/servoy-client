@@ -73,6 +73,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 		return null;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

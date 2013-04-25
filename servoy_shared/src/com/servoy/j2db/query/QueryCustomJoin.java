@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -30,7 +31,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
 public final class QueryCustomJoin implements ISQLJoin
 {
 	private final String name;
-	private QueryTable primaryTable;
+	private BaseQueryTable primaryTable;
 	private final String foreignTables;
 
 	/**
@@ -40,7 +41,7 @@ public final class QueryCustomJoin implements ISQLJoin
 	 * @param primaryTable
 	 * @param foreignTables
 	 */
-	public QueryCustomJoin(String name, QueryTable primaryTable, String foreignTables)
+	public QueryCustomJoin(String name, BaseQueryTable primaryTable, String foreignTables)
 	{
 		this.name = name;
 		this.primaryTable = primaryTable;
@@ -52,7 +53,7 @@ public final class QueryCustomJoin implements ISQLJoin
 		return name;
 	}
 
-	public QueryTable getPrimaryTable()
+	public BaseQueryTable getPrimaryTable()
 	{
 		return primaryTable;
 	}
@@ -62,6 +63,7 @@ public final class QueryCustomJoin implements ISQLJoin
 		return foreignTables;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

@@ -23,6 +23,9 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.persistence.IRepository;
@@ -35,7 +38,6 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
@@ -47,6 +49,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * {@link AbstractListModel} implementation for Lookup/Typeahead fields.
@@ -102,7 +105,7 @@ public class LookupListModel extends AbstractListModel
 		String tableName = null;
 		try
 		{
-			if (vl.getDatabaseValuesType() == ValueList.TABLE_VALUES)
+			if (vl.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 			{
 				serverName = vl.getServerName();
 				tableName = vl.getTableName();
@@ -192,7 +195,7 @@ public class LookupListModel extends AbstractListModel
 			if (vl.getUseTableFilter())//apply name as filter on column valuelist_name
 			{
 				nameFilter = new TableFilter("lookupValuelist.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), DBValueList.NAME_COLUMN, //$NON-NLS-1$
-					ISQLCondition.EQUALS_OPERATOR, vl.getName());
+					IBaseSQLCondition.EQUALS_OPERATOR, vl.getName());
 			}
 
 			defaultSort = application.getFoundSetManager().getSortColumns(table, vl.getSortOptions());
@@ -383,7 +386,7 @@ public class LookupListModel extends AbstractListModel
 				alReal.add(null);
 				alDisplay.add(""); //$NON-NLS-1$
 			}
-			if (((LookupValueList)lookup).getValueList().getDatabaseValuesType() == ValueList.TABLE_VALUES)
+			if (((LookupValueList)lookup).getValueList().getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 			{
 				fillDBValueListValues(txt);
 			}
@@ -412,13 +415,13 @@ public class LookupListModel extends AbstractListModel
 		ValueList valueList = ((LookupValueList)lookup).getValueList();
 
 		Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
-		Pair<QuerySelect, QueryTable> pair = RelatedValueList.createRelatedValuelistQuery(application, valueList, relations, parentState);
+		Pair<QuerySelect, BaseQueryTable> pair = RelatedValueList.createRelatedValuelistQuery(application, valueList, relations, parentState);
 		if (pair == null)
 		{
 			return;
 		}
 		QuerySelect select = pair.getLeft();
-		QueryTable qTable = pair.getRight();
+		BaseQueryTable qTable = pair.getRight();
 
 		generateWherePart(txt, valueList, select, qTable);
 
@@ -470,7 +473,7 @@ public class LookupListModel extends AbstractListModel
 	 * @param select
 	 * @param qTable
 	 */
-	private boolean generateWherePart(String txt, ValueList valueList, QuerySelect select, QueryTable qTable)
+	private boolean generateWherePart(String txt, ValueList valueList, QuerySelect select, BaseQueryTable qTable)
 	{
 		if (txt != null && !txt.equals("")) //$NON-NLS-1$
 		{
@@ -520,7 +523,7 @@ public class LookupListModel extends AbstractListModel
 		return false;
 	}
 
-	protected void addOrCondition(String dataProviderId, QueryTable qTable, String likeValue, String[] displayValues, OrCondition overallOr)
+	protected void addOrCondition(String dataProviderId, BaseQueryTable qTable, String likeValue, String[] displayValues, OrCondition overallOr)
 	{
 		IQuerySelectValue querySelect = DBValueList.getQuerySelectValue(table, qTable, dataProviderId);
 		if (displayValues != null)
@@ -543,7 +546,7 @@ public class LookupListModel extends AbstractListModel
 	private void fillDBValueListValues(String filter) throws ServoyException
 	{
 		ValueList valueList = ((LookupValueList)lookup).getValueList();
-		QuerySelect sqlParts = AbstractBaseQuery.deepClone(creationSQLParts);
+		QuerySelect sqlParts = AbstractBaseQuery.acceptVisitor(creationSQLParts, DeepCloneVisitor.createDeepCloneVisitor());
 		if (!generateWherePart(filter, valueList, sqlParts, sqlParts.getTable()))
 		{
 			ArrayList<IQuerySort> sorts = getSortColumnsForQuery(sqlParts);
@@ -599,13 +602,13 @@ public class LookupListModel extends AbstractListModel
 	 */
 	private void fillDBColumnValues(String dataProviderID, String txt) throws ServoyException
 	{
-		QuerySelect sqlParts = AbstractBaseQuery.deepClone(creationSQLParts);
+		QuerySelect sqlParts = AbstractBaseQuery.acceptVisitor(creationSQLParts, DeepCloneVisitor.createDeepCloneVisitor());
 
 		sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		if (!"".equals(txt)) //$NON-NLS-1$
 		{
-			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(ISQLCondition.LIKE_OPERATOR, new QueryFunction(QueryFunctionType.upper,
-				DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID), txt.toUpperCase() + '%'));
+			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, new QueryFunction(
+				QueryFunctionType.upper, DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID), txt.toUpperCase() + '%'));
 		}
 		else
 		{

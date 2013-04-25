@@ -21,11 +21,25 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.MDC;
 
+import com.servoy.base.util.ILogger;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 
 public class Debug
 {
+	public static final ILogger LOGGER = new ILogger()
+	{
+		public void log(String message)
+		{
+			Debug.log(message);
+		}
+
+		public void error(String message, Throwable t)
+		{
+			Debug.error(message, t);
+		}
+	};
+
 	private volatile static Log log = null;
 
 	private volatile static boolean trace = false;

@@ -21,10 +21,8 @@ import java.lang.reflect.Array;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +30,13 @@ import java.util.Map;
 
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.dataprocessing.BaseSQLGenerator;
+import com.servoy.base.dataprocessing.ITypeConverter;
+import com.servoy.base.dataprocessing.IValueConverter;
+import com.servoy.base.query.BaseColumnType;
+import com.servoy.base.query.BaseQueryColumn;
+import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
@@ -71,6 +76,7 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
+import com.servoy.j2db.query.QueryFactory;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QueryInsert;
@@ -86,6 +92,7 @@ import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -146,7 +153,7 @@ public class SQLGenerator
 		QuerySelect retval;
 		if (oldSQLQuery != null)
 		{
-			retval = AbstractBaseQuery.deepClone(oldSQLQuery);
+			retval = AbstractBaseQuery.acceptVisitor(oldSQLQuery, DeepCloneVisitor.createDeepCloneVisitor());
 			retval.setGroupBy(null);
 			if (orderByFields != null) retval.clearSorts(); // will be generated based on foundset sorting
 			// remove all servoy conditions, except filter, search and relation
@@ -188,7 +195,7 @@ public class SQLGenerator
 		{
 			//omit is rebuild each time
 			retval.setCondition(CONDITION_OMIT,
-				createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
+				createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
 		else if (oldSQLQuery != null)
 		{
@@ -289,7 +296,7 @@ public class SQLGenerator
 		return retval;
 	}
 
-	public void addSorts(QuerySelect sqlSelect, QueryTable selectTable, IGlobalValueEntry provider, Table table, List<SortColumn> orderByFields,
+	public void addSorts(QuerySelect sqlSelect, BaseQueryTable selectTable, IGlobalValueEntry provider, Table table, List<SortColumn> orderByFields,
 		boolean includeRelated) throws RepositoryException
 	{
 		List<Column> unusedRowidentColumns = new ArrayList<Column>(table.getRowIdentColumns());
@@ -318,8 +325,8 @@ public class SQLGenerator
 				if (doRelatedJoin)
 				// related sort, cannot join across multiple servers
 				{
-					QueryTable primaryQtable = selectTable;
-					QueryTable foreignQtable = null;
+					BaseQueryTable primaryQtable = selectTable;
+					BaseQueryTable foreignQtable = null;
 					for (Relation relation : relations)
 					{
 						// join must be re-created as it is possible to have globals involved;
@@ -406,8 +413,8 @@ public class SQLGenerator
 	/**
 	 * Join clause for this relation.
 	 */
-	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, QueryTable primaryTable, QueryTable foreignTable,
-		final IGlobalValueEntry provider) throws RepositoryException
+	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable,
+		BaseQueryTable foreignTable, final IGlobalValueEntry provider) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -415,7 +422,7 @@ public class SQLGenerator
 			if (queryJoin != null)
 			{
 				// a query join was defined for this relation, just relink the tables for the first and last in the joins
-				queryJoin = AbstractBaseQuery.deepClone(queryJoin);
+				queryJoin = AbstractBaseQuery.acceptVisitor(queryJoin, DeepCloneVisitor.createDeepCloneVisitor());
 				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getPrimaryTable(), primaryTable, queryJoin);
 				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getForeignTable(), foreignTable, queryJoin);
 
@@ -578,7 +585,7 @@ public class SQLGenerator
 		}
 
 		return new SetCondition(operator, pkQuerycolumns, createPKValuesArray(pkColumns, pks),
-			(operator & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR);
+			(operator & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR);
 	}
 
 
@@ -657,7 +664,7 @@ public class SQLGenerator
 		{
 			RelatedFindState rfs = relatedFindStates.get(i);
 			FindState state = rfs.getFindState();
-			QueryTable columnTable = rfs.getPrimaryTable();
+			BaseQueryTable columnTable = rfs.getPrimaryTable();
 
 			SQLSheet sheet = state.getParentFoundSet().getSQLSheet();
 			Table table = sheet.getTable();
@@ -666,7 +673,7 @@ public class SQLGenerator
 			while (it.hasNext())
 			{
 				Map.Entry<String, Object> elem = it.next();
-				String dataProviderID = elem.getKey();
+				final String dataProviderID = elem.getKey();
 				Object raw = elem.getValue();
 				if (raw == null) continue;
 
@@ -767,415 +774,36 @@ public class SQLGenerator
 						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false);
 					}
 					// where qCol in (e1, e2, ..., en)
-					or = new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
+					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
 				}
 				else
 				{
-					//filter on the || (=or)
-					for (String element : raw.toString().split("\\|\\|")) //$NON-NLS-1$
-					{
-						String data = element;
-						if (!(c instanceof Column) || ((Column)c).getType() != Types.CHAR)
+					final IColumnConverter fColumnConverter = columnConverter;
+					final ConverterInfo fColumnConverterInfo = columnConverterInfo;
+					final int fDataProviderType = c.getDataProviderType();
+					or = (ISQLCondition)BaseSQLGenerator.parseFindExpression(QueryFactory.INSTANCE, raw, qCol, columnTable, dataProviderType, formatString, c,
+						relatedNullSearchAddPkCondition && rfs.getRelations().size() > 0, new IValueConverter()
 						{
-							// if char, it fills up with spaces, so don't trim
-							data = data.trim();
-						}
-						if (data.length() == 0) //filter out the zero length strings
+							@Override
+							public Object convertFromObject(Object value)
+							{
+								return SQLGenerator.convertFromObject(fColumnConverter, fColumnConverterInfo, dataProviderID, fDataProviderType, value);
+							}
+						}, new ITypeConverter()
 						{
-							continue;
-						}
 
-						try
-						{
-							// find the format (only applicable for date columns)
-							if (dataProviderType == IColumnTypes.DATETIME)
+							@Override
+							public Object getAsRightType(int type, int flags, Object obj, int l, boolean throwOnFail)
 							{
-								int pipe_index = data.indexOf('|');
-								if (pipe_index != -1)//the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
-								{
-									formatString = data.substring(pipe_index + 1);
-									data = data.substring(0, pipe_index);
-								}
+								return Column.getAsRightType(type, flags, obj, l, throwOnFail);
 							}
 
-							// find the operators and the modifiers
-							boolean isNot = false;
-							boolean hash = false;
-							int nullCheck = NULLCHECK_NONE;
-							int operator = ISQLCondition.EQUALS_OPERATOR;
-							String data2 = null; // for between
-
-							boolean parsing = true;
-							while (parsing && data.length() > 0)
+							@Override
+							public Object getAsRightType(int type, int flags, Object obj, String format, int l, boolean throwOnFail)
 							{
-								char first = data.charAt(0);
-								switch (first)
-								{
-									case '!' : // ! negation
-										if (data.startsWith("!!")) //$NON-NLS-1$ 
-										{
-											parsing = false;
-										}
-										else
-										{
-											isNot = true;
-										}
-										data = data.substring(1);
-
-										break;
-
-									case '#' : // # case insensitive (Text) or day search (Date)
-										if (data.startsWith("##")) //$NON-NLS-1$ 
-										{
-											parsing = false;
-										}
-										else
-										{
-											hash = true;
-										}
-										data = data.substring(1);
-										break;
-
-									case '^' : // ^ or ^= nullchecks
-										if (data.startsWith("^^")) //$NON-NLS-1$ 
-										{
-											data = data.substring(1);
-										}
-										else
-										{
-											if (data.startsWith("^=")) //$NON-NLS-1$
-											{
-												nullCheck = NULLCHECK_NULL_EMPTY;
-											}
-											else
-											{
-												nullCheck = NULLCHECK_NULL;
-											}
-										}
-										parsing = false;
-										break;
-
-									default :
-
-										// unary operators
-										if (data.startsWith("<=") || data.startsWith("=<")) //$NON-NLS-1$ //$NON-NLS-2$ 
-										{
-											operator = ISQLCondition.LTE_OPERATOR;
-											data = data.substring(2);
-										}
-										else if (data.startsWith(">=") || data.startsWith("=>")) //$NON-NLS-1$ //$NON-NLS-2$ 
-										{
-											operator = ISQLCondition.GTE_OPERATOR;
-											data = data.substring(2);
-										}
-										else if (data.startsWith("==")) //$NON-NLS-1$ 
-										{
-											operator = ISQLCondition.EQUALS_OPERATOR;
-											data = data.substring(2);
-										}
-										else if (data.startsWith("<")) //$NON-NLS-1$ 
-										{
-											operator = ISQLCondition.LT_OPERATOR;
-											data = data.substring(1);
-										}
-										else if (data.startsWith(">")) //$NON-NLS-1$ 
-										{
-											operator = ISQLCondition.GT_OPERATOR;
-											data = data.substring(1);
-										}
-										else if (data.startsWith("=")) //$NON-NLS-1$ 
-										{
-											operator = ISQLCondition.EQUALS_OPERATOR;
-											data = data.substring(1);
-										}
-										else
-										{
-											// between ?
-											int index = data.indexOf("..."); //$NON-NLS-1$
-											if (index != -1)
-											{
-												data2 = data.substring(index + 3);
-												data = data.substring(0, index);
-												operator = ISQLCondition.BETWEEN_OPERATOR;
-											}
-
-											// regular data
-											parsing = false;
-										}
-								}
+								return Column.getAsRightType(type, flags, obj, format, l, null, throwOnFail);
 							}
-
-							ISQLCondition condition = null;
-
-							if (nullCheck != NULLCHECK_NONE)
-							{
-								// nullchecks
-								CompareCondition compareEmpty = null;
-								if (nullCheck == NULLCHECK_NULL_EMPTY)
-								{
-									switch (dataProviderType)
-									{
-										case IColumnTypes.INTEGER :
-										case IColumnTypes.NUMBER :
-											compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, Integer.valueOf(0));
-											break;
-
-										case IColumnTypes.TEXT :
-											compareEmpty = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, ""); //$NON-NLS-1$
-											break;
-									}
-								}
-
-								condition = OrCondition.or(compareEmpty, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, qCol, null));
-							}
-
-							else if (data.length() > 0)
-							{
-								// get the operators
-								Object value = null;
-								Object value2 = null; // for between
-								int modifier = 0;
-
-								switch (dataProviderType)
-								{
-									case IColumnTypes.INTEGER :
-									case IColumnTypes.NUMBER :
-										Object initialObj = raw instanceof String ? data : raw;
-										Object objRightType = Column.getAsRightType(dataProviderType, c.getFlags(), initialObj, formatString, c.getLength(),
-											null, false);
-										// Now get asRightType with RAW and not with the string. 
-										// Because if it is already a Number then it shouldn't be converted to String and then back
-										if (initialObj != null && objRightType == null)
-										{
-											Debug.log("Cannot convert (" + initialObj.getClass().getSimpleName() + ") " + initialObj + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-											value = null;
-										}
-										else
-										{
-											value = objRightType;
-										}
-
-										// parse data2 (between)
-										if (data2 != null)
-										{
-											value2 = Column.getAsRightType(dataProviderType, c.getFlags(), data2, formatString, c.getLength(), null, false);
-											if (value2 == null)
-											{
-												Debug.log("Cannot convert (" + data2.getClass().getSimpleName() + ") " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-											}
-										}
-										break;
-
-									case IColumnTypes.DATETIME :
-										// special date parsing
-										boolean dateSearch = hash;
-										Date date;
-										Date tmp = null;
-										if (data.equalsIgnoreCase("now")) //$NON-NLS-1$ 
-										{
-											date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), tmp = new Date(), c.getLength(), false);
-										}
-										else if (data.startsWith("//") || data.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
-										{
-											date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), tmp = new Date(), c.getLength(), false);
-											dateSearch = true;
-										}
-										else
-										{
-											// Now get asRightType with RAW and not with the string. 
-											// Because if it is already a Date then it shouldn't be converted to String and then back
-											Object initialObj1 = ((raw instanceof String) ? data : raw);
-											Object tst = Column.getAsRightType(dataProviderType, c.getFlags(), initialObj1, formatString, c.getLength(), null,
-												false);
-											if (tst == null && initialObj1 != null)
-											{
-												// Format failed.. Reporting that to the user
-												Debug.log("Cannot parse " + initialObj1 + " using format " + formatString + '.'); //$NON-NLS-1$ //$NON-NLS-2$
-												date = null;
-											}
-											else
-											{
-												date = (Date)tst;
-											}
-										}
-
-										if (dateSearch && date != null)
-										{
-											if (operator == ISQLCondition.EQUALS_OPERATOR)
-											{
-												value = getStartOfDay(date, c);
-												value2 = getEndOfDay(date, c);
-												operator = ISQLCondition.BETWEEN_OPERATOR;
-											}
-											else if (operator == ISQLCondition.BETWEEN_OPERATOR || operator == ISQLCondition.LT_OPERATOR ||
-												operator == ISQLCondition.GTE_OPERATOR)
-											{
-												value = getStartOfDay(date, c);
-											}
-											else
-											{
-												value = getEndOfDay(date, c);
-											}
-										}
-										else
-										{
-											value = date;
-										}
-
-										// parse data2 (between)
-										if (data2 != null)
-										{
-											dateSearch = hash;
-											if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$ 
-											{
-												date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), (tmp != null ? tmp : new Date()),
-													c.getLength(), false);
-											}
-											else if (data2.startsWith("//") || data2.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
-											{
-												date = (Date)Column.getAsRightType(dataProviderType, c.getFlags(), (tmp != null ? tmp : new Date()),
-													c.getLength(), false);
-												dateSearch = true;
-											}
-											else
-											{
-												Object dt = Column.getAsRightType(dataProviderType, c.getFlags(), data2, formatString, c.getLength(), null,
-													false);
-												if (dt instanceof Date)
-												{
-													date = (Date)dt;
-												}
-												else
-												{
-													Debug.log("Cannot parse '" + data2 + "' using format " + formatString + '.'); //$NON-NLS-1$ //$NON-NLS-2$
-													date = null;
-												}
-											}
-
-											if (dateSearch && date != null)
-											{
-												value2 = getEndOfDay(date, c);
-											}
-											else
-											{
-												value2 = date;
-											}
-										}
-										break;
-
-
-									case IColumnTypes.TEXT :
-										if (hash)
-										{
-											modifier |= ISQLCondition.CASEINSENTITIVE_MODIFIER;
-										}
-
-										if (operator == ISQLCondition.EQUALS_OPERATOR)
-										{
-											//count the amount of percents based upon the amount we decide what to do
-											char[] chars = data.toCharArray();
-											StringBuilder dataBuf = new StringBuilder();
-											boolean escapeNext = false;
-											for (char d : chars)
-											{
-												if (!escapeNext && d == '\\')
-												{
-													escapeNext = true;
-												}
-												else
-												{
-													if (!escapeNext && d == '%')
-													{
-														// found a like operator, use backslash as escape in like,
-														// use unmodified value, db will use escape backslash from like expression
-														operator = ISQLCondition.LIKE_OPERATOR;
-														if (data.indexOf('\\') >= 0)
-														{
-															value2 = "\\"; // escape char, put escape in sql when seen in string  //$NON-NLS-1$
-														}
-														break;
-													}
-													dataBuf.append(d);
-													escapeNext = false;
-												}
-											}
-											if (operator == ISQLCondition.EQUALS_OPERATOR)
-											{
-												data = dataBuf.toString();
-											}
-											// else escape in db will handle escape. use original data
-										}
-										else
-										{
-											value2 = data2;
-										}
-										value = data;
-										break;
-
-									default :
-										operator = ISQLCondition.LIKE_OPERATOR;
-										value = Column.getAsRightType(dataProviderType, c.getFlags(), data, formatString, c.getLength() + 2, null, false);//+2 for %...%
-								}
-
-								// create the condition
-								if (value != null)
-								{
-									Object operand;
-									// for like, value2 may be the escape character
-									if (value2 != null && operator == ISQLCondition.BETWEEN_OPERATOR)
-									{
-										operand = new Object[] { Column.getAsRightType(c.getDataProviderType(), c.getFlags(),
-											convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(), value), null,
-											c.getLength(), null, false), Column.getAsRightType(c.getDataProviderType(), c.getFlags(),
-											convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(), value2), null,
-											c.getLength(), null, false) };
-									}
-									else if (operator == ISQLCondition.LIKE_OPERATOR)
-									{
-										operand = value2 == null ? value : new Object[] { value, value2 };
-									}
-									else
-									{
-										operand = Column.getAsRightType(c.getDataProviderType(), c.getFlags(),
-											convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(), value), null,
-											c.getLength(), null, false);
-									}
-									condition = new CompareCondition(operator | modifier, qCol, operand);
-								}
-							}
-
-							if (condition != null)
-							{
-								if (isNot)
-								{
-									condition = condition.negate();
-								}
-								else
-								{
-									// When a search on a related null-value is performed, we have to add a not-null check to the related pk to make sure
-									// the left outer join does not cause a match with the null value.
-									if (relatedNullSearchAddPkCondition && nullCheck != NULLCHECK_NONE && rfs.getRelations().size() > 0)
-									{
-										// in case of composite pk, checking only the first pk column is enough
-										Column firstForeignPKColumn = table.getRowIdentColumns().get(0);
-										condition = AndCondition.and(condition, new CompareCondition(ISQLCondition.NOT_OPERATOR, new QueryColumn(columnTable,
-											firstForeignPKColumn.getID(), firstForeignPKColumn.getSQLName(), firstForeignPKColumn.getType(),
-											firstForeignPKColumn.getLength(), firstForeignPKColumn.getScale()), null));
-									}
-								}
-
-								or = OrCondition.or(or, condition);
-							}
-						}
-						catch (Exception ex)
-						{
-							if (ex instanceof ApplicationException)
-							{
-								throw (ApplicationException)ex;
-							}
-							Debug.error(ex);
-						}
-					}
+						}, table.getRowIdentColumns().get(0), Debug.LOGGER);
 				}
 
 				if (or != null)
@@ -1219,7 +847,7 @@ public class SQLGenerator
 	}
 
 	public static ISQLCondition createExistsCondition(IDataProviderHandler flattenedSolution, QuerySelect sqlSelect, ISQLCondition condition,
-		List<IRelation> relations, QueryTable columnTable, IGlobalValueEntry provider, QueryColumn[] pkQueryColumns) throws RepositoryException
+		List<IRelation> relations, BaseQueryTable columnTable, IGlobalValueEntry provider, BaseQueryColumn[] pkQueryColumns) throws RepositoryException
 	{
 		// search on aggregate, change to exists-condition:
 		// exists (select 1 from innermain join related1 ... join relatedn where innermain.pk = main.pk having aggregate(relatedn))
@@ -1237,18 +865,18 @@ public class SQLGenerator
 		QueryColumn[] innerPkColumns = new QueryColumn[pkQueryColumns.length];
 		for (int p = 0; p < pkQueryColumns.length; p++)
 		{
-			QueryColumn pk = pkQueryColumns[p];
+			BaseQueryColumn pk = pkQueryColumns[p];
 			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType().getSqlType(),
 				pk.getColumnType().getLength(), pk.getColumnType().getScale(), pk.isIdentity());
 
 			// group by on the inner pk, some dbs (hxtt dbf) require that
 			existsSelect.addGroupBy(innerPkColumns[p]);
 		}
-		existsSelect.addCondition("AGGREGATE-SEARCH", new SetCondition(new int[] { ISQLCondition.EQUALS_OPERATOR }, innerPkColumns, //$NON-NLS-1$
+		existsSelect.addCondition("AGGREGATE-SEARCH", new SetCondition(new int[] { IBaseSQLCondition.EQUALS_OPERATOR }, innerPkColumns, //$NON-NLS-1$
 			pkQueryColumns, true));
 
 		// add the joins
-		QueryTable prevTable = existsSelect.getTable();
+		BaseQueryTable prevTable = existsSelect.getTable();
 		for (IRelation relation : relations)
 		{
 			Table foreignTable = relation.getForeignTable();
@@ -1263,23 +891,7 @@ public class SQLGenerator
 		return new ExistsCondition(existsSelect, true);
 	}
 
-	private Object getEndOfDay(Date date, IColumn c)
-	{
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		Utils.applyMaxTime(cal);
-		return Column.getAsRightType(IColumnTypes.DATETIME, c.getFlags(), cal.getTime(), c.getLength(), false);
-	}
-
-	private Object getStartOfDay(Date date, IColumn c)
-	{
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		Utils.applyMinTime(cal);
-		return Column.getAsRightType(IColumnTypes.DATETIME, c.getFlags(), cal.getTime(), c.getLength(), false);
-	}
-
-	static SetCondition createDynamicPKSetConditionForFoundset(FoundSet foundSet, QueryTable queryTable, IDataSet pks)
+	static SetCondition createDynamicPKSetConditionForFoundset(FoundSet foundSet, BaseQueryTable queryTable, IDataSet pks)
 	{
 		Table table = (Table)foundSet.getTable();
 
@@ -1296,7 +908,7 @@ public class SQLGenerator
 		// Dynamic PK condition, the special placeholder will be updated when the foundset pk set changes
 		Placeholder placeHolder = new Placeholder(new TablePlaceholderKey(queryTable, SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
 		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.clone()));
-		return new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
+		return new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
 	}
 
 	/**
@@ -1307,7 +919,7 @@ public class SQLGenerator
 		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH) != null)
 		{
 			// all named conditions in QuerySelecta are AND-ed, if one always results to false, skip the query
-			for (ISQLCondition condition : ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH).getConditions())
+			for (IBaseSQLCondition condition : ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH).getConditions())
 			{
 				boolean skipQuery = false;
 				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
@@ -1318,7 +930,7 @@ public class SQLGenerator
 					boolean eqop = true;
 					for (int i = 0; i < ncols; i++)
 					{
-						if (operators[i] != ISQLCondition.EQUALS_OPERATOR)
+						if (operators[i] != IBaseSQLCondition.EQUALS_OPERATOR)
 						{
 							eqop = false;
 						}
@@ -1345,11 +957,11 @@ public class SQLGenerator
 					// no need to query, dummy condition (where 1=2) here
 					List<IQuerySelectValue> columns = ((QuerySelect)sqlSelect).getColumns();
 					String[] columnNames = new String[columns.size()];
-					ColumnType[] columnTypes = new ColumnType[columns.size()];
+					BaseColumnType[] columnTypes = new ColumnType[columns.size()];
 					for (int i = 0; i < columns.size(); i++)
 					{
 						IQuerySelectValue col = columns.get(i);
-						QueryColumn qcol = col.getColumn();
+						BaseQueryColumn qcol = col.getColumn();
 						String colname;
 						if (col.getAlias() == null)
 						{
@@ -1469,12 +1081,12 @@ public class SQLGenerator
 
 		Iterator<Column> it2 = columns.iterator();
 		select.setColumns(makeQueryColumns(it2, queryTable, insert));
-		SetCondition pkSelect = new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
+		SetCondition pkSelect = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
 			new Placeholder(new TablePlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
 
 		select.setCondition(CONDITION_SEARCH, pkSelect);
-		delete.setCondition(AbstractBaseQuery.deepClone(pkSelect));
-		update.setCondition(AbstractBaseQuery.deepClone(pkSelect));
+		delete.setCondition(AbstractBaseQuery.acceptVisitor(pkSelect, DeepCloneVisitor.createDeepCloneVisitor()));
+		update.setCondition(AbstractBaseQuery.acceptVisitor(pkSelect, DeepCloneVisitor.createDeepCloneVisitor()));
 
 		//fill dataprovider map
 		List<String> dataProviderIDsDilivery = new ArrayList<String>();
@@ -1499,7 +1111,7 @@ public class SQLGenerator
 	/**
 	 * Create place holder name for PR (Relation Key)
 	 */
-	public static TablePlaceholderKey createRelationKeyPlaceholderKey(QueryTable foreignTable, String relationName)
+	public static TablePlaceholderKey createRelationKeyPlaceholderKey(BaseQueryTable foreignTable, String relationName)
 	{
 		return new TablePlaceholderKey(foreignTable, PLACEHOLDER_RELATION_KEY + ':' + relationName);
 	}
@@ -1586,7 +1198,7 @@ public class SQLGenerator
 	 * @param filter
 	 * @return
 	 */
-	public static ISQLCondition createTableFilterCondition(QueryTable qTable, Table table, TableFilter filter)
+	public static ISQLCondition createTableFilterCondition(BaseQueryTable qTable, Table table, TableFilter filter)
 	{
 		if (!table.getSQLName().equals(qTable.getName()))
 		{
@@ -1601,12 +1213,12 @@ public class SQLGenerator
 			return null;
 		}
 		int op = filter.getOperator();
-		int maskedOp = op & ISQLCondition.OPERATOR_MASK;
+		int maskedOp = op & IBaseSQLCondition.OPERATOR_MASK;
 		Object value = filter.getValue();
 
 		QueryColumn qColumn = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale());
 		ISQLCondition filterWhere;
-		if (maskedOp == ISQLCondition.IN_OPERATOR || maskedOp == ISQLCondition.NOT_IN_OPERATOR)
+		if (maskedOp == IBaseSQLCondition.IN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_IN_OPERATOR)
 		{
 			Object inValues;
 			if (value instanceof List< ? >)
@@ -1643,11 +1255,11 @@ public class SQLGenerator
 					}
 				}
 			}
-			int setOperator = maskedOp == ISQLCondition.IN_OPERATOR ? ISQLCondition.EQUALS_OPERATOR : ISQLCondition.NOT_OPERATOR;
-			filterWhere = new SetCondition(setOperator | (op & ~ISQLCondition.OPERATOR_MASK), new IQuerySelectValue[] { qColumn }, inValues,
-				maskedOp == ISQLCondition.IN_OPERATOR);
+			int setOperator = maskedOp == IBaseSQLCondition.IN_OPERATOR ? IBaseSQLCondition.EQUALS_OPERATOR : IBaseSQLCondition.NOT_OPERATOR;
+			filterWhere = new SetCondition(setOperator | (op & ~IBaseSQLCondition.OPERATOR_MASK), new IQuerySelectValue[] { qColumn }, inValues,
+				maskedOp == IBaseSQLCondition.IN_OPERATOR);
 		}
-		else if (maskedOp == ISQLCondition.BETWEEN_OPERATOR || maskedOp == ISQLCondition.NOT_BETWEEN_OPERATOR)
+		else if (maskedOp == IBaseSQLCondition.BETWEEN_OPERATOR || maskedOp == IBaseSQLCondition.NOT_BETWEEN_OPERATOR)
 		{
 			Object op1 = null;
 			Object op2 = null;
@@ -1671,7 +1283,7 @@ public class SQLGenerator
 		else
 		{
 			Object operand;
-			if (maskedOp == ISQLCondition.LIKE_OPERATOR || maskedOp == ISQLCondition.NOT_LIKE_OPERATOR)
+			if (maskedOp == IBaseSQLCondition.LIKE_OPERATOR || maskedOp == IBaseSQLCondition.NOT_LIKE_OPERATOR)
 			{
 				operand = value;
 			}
@@ -1714,8 +1326,8 @@ public class SQLGenerator
 				values[k][r] = pkValues[r][k];
 			}
 		}
-		lockSelect.setCondition(CONDITION_LOCK, new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
-			values, true));
+		lockSelect.setCondition(CONDITION_LOCK,
+			new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), values, true));
 
 		return lockSelect;
 	}
@@ -1808,7 +1420,7 @@ public class SQLGenerator
 
 	public static QuerySelect createAggregateSelect(QuerySelect sqlSelect, Collection<QuerySelect> aggregates, List<Column> pkColumns)
 	{
-		QuerySelect selectClone = AbstractBaseQuery.deepClone(sqlSelect);
+		QuerySelect selectClone = AbstractBaseQuery.acceptVisitor(sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
 		selectClone.clearSorts();
 		selectClone.setDistinct(false);
 		selectClone.setColumns(null);
@@ -1834,7 +1446,7 @@ public class SQLGenerator
 			innerColumns.add(new QueryColumnValue(Integer.valueOf(1), null, true));
 			innerSelect.setColumns(innerColumns);
 
-			QueryTable innerTable = innerSelect.getTable();
+			BaseQueryTable innerTable = innerSelect.getTable();
 			QueryTable outerTable = new QueryTable(innerTable.getName(), innerTable.getDataSource(), innerTable.getCatalogName(), innerTable.getSchemaName());
 
 			aggregateSqlSelect = new QuerySelect(outerTable);
@@ -1844,7 +1456,7 @@ public class SQLGenerator
 					column.getScale(), false);
 				QueryColumn outerColumn = new QueryColumn(outerTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
 					column.getScale(), false);
-				innerSelect.addCondition("EXISTS", new CompareCondition(ISQLCondition.EQUALS_OPERATOR, innerColumn, outerColumn)); //$NON-NLS-1$ 
+				innerSelect.addCondition("EXISTS", new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, innerColumn, outerColumn)); //$NON-NLS-1$ 
 			}
 			aggregateSqlSelect.addCondition("EXISTS", new ExistsCondition(innerSelect, true)); //$NON-NLS-1$ 
 		}
@@ -1879,6 +1491,6 @@ public class SQLGenerator
 			likeSelectValue = new QueryFunction(QueryFunctionType.castfrom,
 				new IQuerySelectValue[] { selectValue, new QueryColumnValue("integer", null, true), new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return new CompareCondition(ISQLCondition.LIKE_OPERATOR, likeSelectValue, value);
+		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
 	}
 }

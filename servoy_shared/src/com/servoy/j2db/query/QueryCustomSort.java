@@ -43,6 +43,7 @@ public final class QueryCustomSort implements IQuerySort, Immutable
 		return sort;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

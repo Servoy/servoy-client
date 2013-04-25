@@ -18,6 +18,7 @@ package com.servoy.j2db.query;
 
 import java.util.Arrays;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -170,6 +171,7 @@ public final class QueryFunction implements IQuerySelectValue
 		return true;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();
@@ -183,7 +185,7 @@ public final class QueryFunction implements IQuerySelectValue
 	@Override
 	public String toString()
 	{
-		return new StringBuilder(function.name().toUpperCase()).append(AbstractBaseQuery.toString(args)).append(' ').append(name).append(
+		return new StringBuilder(function.name().toUpperCase()).append(BaseAbstractBaseQuery.toString(args)).append(' ').append(name).append(
 			alias == null ? "" : (" AS " + alias)).toString();
 	}
 

@@ -13,12 +13,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
 
-import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Utils;
 
@@ -159,7 +159,7 @@ public class QueryString implements Serializable
 		if (parameters != null)
 		{
 			sb.append(' ');
-			sb.append(AbstractBaseQuery.toString(parameters));
+			sb.append(BaseAbstractBaseQuery.toString(parameters));
 		}
 		if (limitApplied)
 		{

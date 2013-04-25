@@ -46,6 +46,7 @@ public class ExistsCondition implements ISQLCondition
 		return exists;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

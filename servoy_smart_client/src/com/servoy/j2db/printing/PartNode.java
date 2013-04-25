@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -48,20 +50,19 @@ import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * Node used in chain
@@ -194,7 +195,7 @@ public class PartNode
 		List<DataRendererDefinition> list = new ArrayList<DataRendererDefinition>();//retval
 		if (part != null && (part.getPartType() == Part.LEADING_SUBSUMMARY || part.getPartType() == Part.TRAILING_SUBSUMMARY || isLeadingAndTrailingSubsummary))
 		{
-			QuerySelect newSQLString = AbstractBaseQuery.deepClone(sqlString);
+			QuerySelect newSQLString = AbstractBaseQuery.acceptVisitor(sqlString, DeepCloneVisitor.createDeepCloneVisitor());
 
 			IDataServer server = app.getDataServer();
 
@@ -204,7 +205,7 @@ public class PartNode
 			ArrayList<QuerySort> sortbyCols = new ArrayList<QuerySort>();
 			for (SortColumn element : sortColumns)
 			{
-				QueryTable queryTable = sqlString.getTable();
+				BaseQueryTable queryTable = sqlString.getTable();
 				Relation[] relations = element.getRelations();
 				if (relations != null)
 				{
@@ -254,14 +255,14 @@ public class PartNode
 			for (int i = 0; i < sortbyCols.size(); i++)
 			{
 				QueryColumn sc = (QueryColumn)(sortbyCols.get(i)).getColumn();
-				newSQLString.addCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, sc, new Placeholder(
+				newSQLString.addCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, sc, new Placeholder(
 					new TablePlaceholderKey(sc.getTable(), '#' + sc.getName()))));
 			}
 
 			int count = newSet.getSize();
 			for (int ii = 0; ii < count; ii++)
 			{
-				QuerySelect newSQLStringCopy = AbstractBaseQuery.deepClone(newSQLString);//make copy for setting sort column 
+				QuerySelect newSQLStringCopy = AbstractBaseQuery.acceptVisitor(newSQLString, DeepCloneVisitor.createDeepCloneVisitor());//make copy for setting sort column 
 
 				//handle the child first, this puts the rootset in the right state! for use of related(!) fields in the subsums
 				//THIS is EXTREMELY important for correct printing, see also SubSummaryFoundSet.queryForRelatedFoundSet

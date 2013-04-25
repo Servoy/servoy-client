@@ -18,6 +18,7 @@ package com.servoy.j2db.query;
 
 import java.util.Arrays;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -29,6 +30,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * 
  */
 public class QueryCustomElement implements IQueryElement
+
 {
 	protected final String sql;
 	protected final Object[] args;
@@ -55,6 +57,7 @@ public class QueryCustomElement implements IQueryElement
 		return args;
 	}
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();
@@ -74,7 +77,7 @@ public class QueryCustomElement implements IQueryElement
 	{
 		final int PRIME = 31;
 		int result = 1;
-		result = PRIME * result + AbstractBaseQuery.hashCode(this.args);
+		result = PRIME * result + BaseAbstractBaseQuery.hashCode(this.args);
 		result = PRIME * result + ((this.sql == null) ? 0 : this.sql.hashCode());
 		return result;
 	}
@@ -104,7 +107,7 @@ public class QueryCustomElement implements IQueryElement
 		if (args != null)
 		{
 			sb.append(" ("); //$NON-NLS-1$
-			sb.append(AbstractBaseQuery.toString(args));
+			sb.append(BaseAbstractBaseQuery.toString(args));
 			sb.append(')');
 		}
 		return sb.toString();

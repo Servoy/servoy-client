@@ -26,6 +26,8 @@ import java.util.WeakHashMap;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
@@ -38,7 +40,6 @@ import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -81,7 +82,7 @@ public class LookupValueList implements IValueList
 
 		String dataSource = null;
 		Relation[] relations = null;
-		if (list.getDatabaseValuesType() == ValueList.TABLE_VALUES)
+		if (list.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 		{
 			dataSource = list.getDataSource();
 		}
@@ -188,7 +189,7 @@ public class LookupValueList implements IValueList
 
 	public void fill(IRecordInternal ps)
 	{
-		if (valueList.getDatabaseValuesType() == ValueList.RELATED_VALUES)
+		if (valueList.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES)
 		{
 			this.parentState = ps;
 			if (parentState != null)
@@ -274,8 +275,8 @@ public class LookupValueList implements IValueList
 		}
 
 		QuerySelect select = null;
-		QueryTable qTable = null;
-		if (valueList.getDatabaseValuesType() == ValueList.TABLE_VALUES)
+		BaseQueryTable qTable = null;
+		if (valueList.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 		{
 			select = DBValueList.createValuelistQuery(application, valueList, table);
 			if (select != null)
@@ -286,7 +287,7 @@ public class LookupValueList implements IValueList
 		else
 		{
 			Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
-			Pair<QuerySelect, QueryTable> pair = RelatedValueList.createRelatedValuelistQuery(application, valueList, relations, parentState);
+			Pair<QuerySelect, BaseQueryTable> pair = RelatedValueList.createRelatedValuelistQuery(application, valueList, relations, parentState);
 			if (pair != null)
 			{
 				select = pair.getLeft();
@@ -529,7 +530,7 @@ public class LookupValueList implements IValueList
 
 	public boolean getAllowEmptySelection()
 	{
-		return valueList.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS;
+		return valueList.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS;
 	}
 
 	public int getSize()

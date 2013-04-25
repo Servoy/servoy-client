@@ -53,7 +53,7 @@ public final class AndCondition extends AndOrCondition
 		List<ISQLCondition> nconditions = new ArrayList<ISQLCondition>(conditions.size());
 		for (int i = 0; i < conditions.size(); i++)
 		{
-			nconditions.add(conditions.get(i).negate());
+			nconditions.add((ISQLCondition)conditions.get(i).negate());
 		}
 		return new OrCondition(nconditions);
 	}

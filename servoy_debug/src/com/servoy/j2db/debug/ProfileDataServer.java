@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.dataprocessing.Blob;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -33,7 +34,6 @@ import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
@@ -119,11 +119,11 @@ public class ProfileDataServer implements IDataServer
 			{
 				if (arguments[0] instanceof Object[] && arguments.length == 1)
 				{
-					argumentString = AbstractBaseQuery.toString(arguments[0]);
+					argumentString = BaseAbstractBaseQuery.toString(arguments[0]);
 				}
 				else
 				{
-					argumentString = AbstractBaseQuery.toString(arguments);
+					argumentString = BaseAbstractBaseQuery.toString(arguments);
 				}
 
 			}

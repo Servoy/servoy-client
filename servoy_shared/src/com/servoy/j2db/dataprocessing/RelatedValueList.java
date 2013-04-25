@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
@@ -38,6 +40,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * Valuelist based on values from a relation (related foundset)
@@ -68,7 +71,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 	@Override
 	public void deregister()
 	{
-		if (registered && valueList.getDatabaseValuesType() == ValueList.RELATED_VALUES)
+		if (registered && valueList.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES)
 		{
 			try
 			{
@@ -235,7 +238,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 					startBundlingEvents();
 					//add empty row
-					if (valueList.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+					if (valueList.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 					{
 						addElement(""); //$NON-NLS-1$
 						realValues.add(null);
@@ -322,7 +325,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 	{
 		FoundSetManager foundSetManager = (FoundSetManager)application.getFoundSetManager();
 
-		Pair<QuerySelect, QueryTable> pair = createRelatedValuelistQuery(application, valueList, relations, parentState);
+		Pair<QuerySelect, BaseQueryTable> pair = createRelatedValuelistQuery(application, valueList, relations, parentState);
 		if (pair == null)
 		{
 			return;
@@ -349,7 +352,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		{
 			startBundlingEvents();
 			//add empty row
-			if (valueList.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+			if (valueList.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 			{
 				addElement(""); //$NON-NLS-1$
 				realValues.add(null);
@@ -377,7 +380,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		isLoaded = true;
 	}
 
-	public static Pair<QuerySelect, QueryTable> createRelatedValuelistQuery(IServiceProvider application, ValueList valueList, Relation[] relations,
+	public static Pair<QuerySelect, BaseQueryTable> createRelatedValuelistQuery(IServiceProvider application, ValueList valueList, Relation[] relations,
 		IRecordInternal parentState) throws ServoyException
 	{
 		if (parentState == null)
@@ -393,7 +396,8 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		// this returns quickly if it already has a sheet for that relation, but optimize further?
 		sqlGenerator.makeRelatedSQL(childSheet, relations[0]);
 
-		QuerySelect select = AbstractBaseQuery.deepClone((QuerySelect)childSheet.getRelatedSQLDescription(relations[0].getName()).getSQLQuery());
+		QuerySelect select = AbstractBaseQuery.acceptVisitor((QuerySelect)childSheet.getRelatedSQLDescription(relations[0].getName()).getSQLQuery(),
+			DeepCloneVisitor.createDeepCloneVisitor());
 
 		Object[] relationWhereArgs = foundSetManager.getRelationWhereArgs(parentState, relations[0], false);
 		if (relationWhereArgs == null)
@@ -407,7 +411,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			return null;
 		}
 
-		QueryTable lastTable = select.getTable();
+		BaseQueryTable lastTable = select.getTable();
 		Table foreignTable = relations[0].getForeignTable();
 		for (int i = 1; i < relations.length; i++)
 		{
@@ -441,6 +445,6 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		select.setColumns(columns);
 		select.setDistinct(false); // not allowed in all situations
 
-		return new Pair<QuerySelect, QueryTable>(select, lastTable);
+		return new Pair<QuerySelect, BaseQueryTable>(select, lastTable);
 	}
 }

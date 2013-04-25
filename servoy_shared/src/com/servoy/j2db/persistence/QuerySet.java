@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.servoy.j2db.query.AbstractBaseQuery;
+import com.servoy.base.query.BaseAbstractBaseQuery;
 
 /**
  * Container for all parts that may be needed for running a query, all parts are optional.
@@ -157,19 +157,19 @@ public class QuerySet implements Serializable
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append("QuerySet { prepares = "); //$NON-NLS-1$
-		sb.append(AbstractBaseQuery.toString(prepares));
+		sb.append(BaseAbstractBaseQuery.toString(prepares));
 		if (select != null)
 		{
 			sb.append(", select = "); //$NON-NLS-1$
-			sb.append(AbstractBaseQuery.toString(select));
+			sb.append(BaseAbstractBaseQuery.toString(select));
 		}
 		if (update != null)
 		{
 			sb.append(", update = "); //$NON-NLS-1$
-			sb.append(AbstractBaseQuery.toString(update));
+			sb.append(BaseAbstractBaseQuery.toString(update));
 		}
 		sb.append(", cleanups = "); //$NON-NLS-1$
-		sb.append(AbstractBaseQuery.toString(cleanups));
+		sb.append(BaseAbstractBaseQuery.toString(cleanups));
 		sb.append(" }"); //$NON-NLS-1$
 		return sb.toString();
 	}

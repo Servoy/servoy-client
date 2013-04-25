@@ -18,6 +18,8 @@ package com.servoy.j2db.query;
 
 import java.util.Arrays;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -30,16 +32,16 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 {
-	QueryTable table;
+	BaseQueryTable table;
 	private QueryColumn[] columns = null;
 	private Object values = null; // maybe SQLValue placeholder or subquery
 
-	public QueryInsert(QueryTable table)
+	public QueryInsert(BaseQueryTable table)
 	{
 		this.table = table;
 	}
 
-	public QueryInsert(QueryTable table, QueryColumn[] columns, Object values)
+	public QueryInsert(BaseQueryTable table, QueryColumn[] columns, Object values)
 	{
 		this.table = table;
 		setColumnValues(columns, values);
@@ -124,7 +126,7 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 		return vals;
 	}
 
-	public QueryTable getTable()
+	public BaseQueryTable getTable()
 	{
 		return table;
 	}
@@ -166,9 +168,9 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 	{
 		final int PRIME = 31;
 		int result = 1;
-		result = PRIME * result + AbstractBaseQuery.hashCode(this.columns);
+		result = PRIME * result + BaseAbstractBaseQuery.hashCode(this.columns);
 		result = PRIME * result + ((this.table == null) ? 0 : this.table.hashCode());
-		result = PRIME * result + ((this.values == null) ? 0 : AbstractBaseQuery.arrayHashcode(this.values));
+		result = PRIME * result + ((this.values == null) ? 0 : BaseAbstractBaseQuery.arrayHashcode(this.values));
 		return result;
 	}
 
@@ -185,7 +187,7 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 			if (other.table != null) return false;
 		}
 		else if (!this.table.equals(other.table)) return false;
-		return AbstractBaseQuery.arrayEquals(this.values, other.values);
+		return BaseAbstractBaseQuery.arrayEquals(this.values, other.values);
 	}
 
 	@Override
@@ -212,12 +214,12 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 				{
 					sb.append('|');
 				}
-				sb.append(AbstractBaseQuery.toString(cols[k]));
+				sb.append(BaseAbstractBaseQuery.toString(cols[k]));
 			}
 		}
 		else
 		{
-			sb.append(AbstractBaseQuery.toString(values));
+			sb.append(BaseAbstractBaseQuery.toString(values));
 		}
 		sb.append(')');
 

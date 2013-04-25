@@ -17,6 +17,7 @@
 package com.servoy.j2db.query;
 
 import com.servoy.base.persistence.constants.IJoinConstants;
+import com.servoy.base.query.BaseQueryTable;
 
 /** Interface for joins in queries.
  * @author rgansevles
@@ -40,5 +41,5 @@ public interface ISQLJoin extends IQueryElement
 
 	public abstract String getName();
 
-	public abstract QueryTable getPrimaryTable();
+	public abstract BaseQueryTable getPrimaryTable();
 }

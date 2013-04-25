@@ -18,11 +18,13 @@ package com.servoy.j2db.query;
 
 import java.util.List;
 
+import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
- * Join element in a query structure.
+ * Join element in a query structure. 
  * 
  * @author rgansevles
  * 
@@ -30,8 +32,8 @@ import com.servoy.j2db.util.visitor.IVisitor;
 public final class QueryJoin implements ISQLTableJoin
 {
 	private String name;
-	private QueryTable primaryTable;
-	private QueryTable foreignTable;
+	private BaseQueryTable primaryTable;
+	private BaseQueryTable foreignTable;
 	private AndCondition condition;
 	private int joinType;
 
@@ -47,7 +49,7 @@ public final class QueryJoin implements ISQLTableJoin
 	 * @param condition
 	 * @param joinType
 	 */
-	public QueryJoin(String name, QueryTable primaryTable, QueryTable foreignTable, ISQLCondition condition, int joinType)
+	public QueryJoin(String name, BaseQueryTable primaryTable, BaseQueryTable foreignTable, ISQLCondition condition, int joinType)
 	{
 		this.name = name;
 		this.primaryTable = primaryTable;
@@ -110,17 +112,12 @@ public final class QueryJoin implements ISQLTableJoin
 		return joinType == INNER_JOIN;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.query.ISQLJoin#getPrimaryTable()
-	 */
-	public QueryTable getPrimaryTable()
+	public BaseQueryTable getPrimaryTable()
 	{
 		return primaryTable;
 	}
 
-	public QueryTable getForeignTable()
+	public BaseQueryTable getForeignTable()
 	{
 		return foreignTable;
 	}
@@ -131,7 +128,7 @@ public final class QueryJoin implements ISQLTableJoin
 	public void invert(String newName)
 	{
 		// switch the tables
-		QueryTable tmp = primaryTable;
+		BaseQueryTable tmp = primaryTable;
 		primaryTable = foreignTable;
 		foreignTable = tmp;
 
@@ -142,7 +139,7 @@ public final class QueryJoin implements ISQLTableJoin
 			for (int i = 0; i < conditions.size(); i++)
 			{
 				CompareCondition cond = (CompareCondition)conditions.get(i);
-				if ((cond.getOperator() & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR && cond.getOperand1() instanceof QueryColumn &&
+				if ((cond.getOperator() & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR && cond.getOperand1() instanceof QueryColumn &&
 					cond.getOperand2() instanceof QueryColumn)
 				{
 					conditions.set(i, new CompareCondition(cond.getOperator(), (QueryColumn)cond.getOperand2(), cond.getOperand1()));
@@ -158,6 +155,7 @@ public final class QueryJoin implements ISQLTableJoin
 	}
 
 
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

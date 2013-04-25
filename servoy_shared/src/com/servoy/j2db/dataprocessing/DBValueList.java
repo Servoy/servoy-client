@@ -20,6 +20,9 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
@@ -32,7 +35,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
@@ -63,7 +65,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	{
 		super(app, vl);
 
-		if (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+		if (vl.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 		{
 			allowEmptySelection = true;
 		}
@@ -71,7 +73,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		setContainsCalculationFlag();
 
 		realValues = new SafeArrayList<Object>();
-		if (vl.getDatabaseValuesType() == ValueList.TABLE_VALUES)
+		if (vl.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 		{
 			try
 			{
@@ -155,7 +157,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				fireIntervalRemoved(this, 0, size - 1);
 			}
 			isLoaded = false;
-			if (valueList.getDatabaseValuesType() == ValueList.TABLE_VALUES)
+			if (valueList.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 			{
 				fill();
 			}
@@ -176,7 +178,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	public void fill(IRecordInternal parentState)
 	{
 		super.fill(parentState);
-		if (!isLoaded && !(parentState instanceof PrototypeState) && parentState != null && valueList.getDatabaseValuesType() == ValueList.TABLE_VALUES)
+		if (!isLoaded && !(parentState instanceof PrototypeState) && parentState != null &&
+			valueList.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 		{
 			fill();
 			stopBundlingEvents(); // to be on the safe side
@@ -234,7 +237,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			{
 				startBundlingEvents();
 				//add empty row
-				if (valueList.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+				if (valueList.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 				{
 					addElement(""); //$NON-NLS-1$
 					realValues.add(null);
@@ -257,7 +260,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						}
 						tableFilterParams.add(new TableFilter(
 							"dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
-							ISQLCondition.EQUALS_OPERATOR, valueList.getName()));
+							IBaseSQLCondition.EQUALS_OPERATOR, valueList.getName()));
 					}
 					String transaction_id = foundSetManager.getTransactionID(table.getServerName());
 					SQLStatement trackingInfo = null;
@@ -329,7 +332,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		return dp != null && application.getFlattenedSolution().getScriptCalculation(dp, table) != null;
 	}
 
-	public static IQuerySelectValue getQuerySelectValue(Table table, QueryTable queryTable, String dataprovider)
+	public static IQuerySelectValue getQuerySelectValue(Table table, BaseQueryTable queryTable, String dataprovider)
 	{
 		if (dataprovider != null && table != null)
 		{

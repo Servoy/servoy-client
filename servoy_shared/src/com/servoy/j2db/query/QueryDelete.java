@@ -18,6 +18,7 @@ package com.servoy.j2db.query;
 
 import java.util.List;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -29,12 +30,12 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 {
-	private QueryTable table;
+	private BaseQueryTable table;
 	private AndCondition condition;
 	private List joins; // joins in delete statements are not supported by hibernate.
 
 
-	public QueryDelete(QueryTable table)
+	public QueryDelete(BaseQueryTable table)
 	{
 		this.table = table;
 	}
@@ -100,7 +101,7 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 //		return joins;
 //	}
 
-	public QueryTable getTable()
+	public BaseQueryTable getTable()
 	{
 		return table;
 	}

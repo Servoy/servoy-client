@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.CompareCondition;
@@ -76,7 +77,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition gt(Object value)
 	{
-		return createCompareCondition(ISQLCondition.GT_OPERATOR, value);
+		return createCompareCondition(IBaseSQLCondition.GT_OPERATOR, value);
 	}
 
 	/**
@@ -88,7 +89,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition lt(Object value)
 	{
-		return createCompareCondition(ISQLCondition.LT_OPERATOR, value);
+		return createCompareCondition(IBaseSQLCondition.LT_OPERATOR, value);
 	}
 
 	/**
@@ -100,7 +101,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition ge(Object value)
 	{
-		return createCompareCondition(ISQLCondition.GTE_OPERATOR, value);
+		return createCompareCondition(IBaseSQLCondition.GTE_OPERATOR, value);
 	}
 
 	/**
@@ -112,7 +113,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition le(Object value)
 	{
-		return createCompareCondition(ISQLCondition.LTE_OPERATOR, value);
+		return createCompareCondition(IBaseSQLCondition.LTE_OPERATOR, value);
 	}
 
 	/**
@@ -120,12 +121,12 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value1
 	 * @param value2
 	 * @sample
-	 * query.where.add(query.columns.flag.between(0, 5))
+	 * query.where.add(query.columns.flag.between(0, 5)) 
 	 */
 	@JSFunction
 	public QBCondition between(Object value1, Object value2)
 	{
-		return createCondition(new CompareCondition(ISQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(),
+		return createCondition(new CompareCondition(IBaseSQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(),
 			new Object[] { getRoot().createOperand(value1), getRoot().createOperand(value2) }));
 	}
 
@@ -142,7 +143,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	public QBCondition in(IQueryBuilderPart query) throws RepositoryException
 	{
-		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, query.build(), true));
+		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, query.build(), true));
 	}
 
 	/**
@@ -158,7 +159,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	public QBCondition in(Object[] values)
 	{
-		return createCondition(new SetCondition(ISQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
+		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
 			new Object[][] { values == null ? new Object[0] : values }, true));
 	}
 
@@ -183,7 +184,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition eq(Object value)
 	{
-		return createCompareCondition(ISQLCondition.EQUALS_OPERATOR, value);
+		return createCompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, value);
 	}
 
 	/**
@@ -198,7 +199,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition like(String pattern)
 	{
-		return createCompareCondition(ISQLCondition.LIKE_OPERATOR, pattern);
+		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
 	}
 
 	/**
@@ -214,7 +215,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition like(String pattern, char escape)
 	{
-		return createCondition(new CompareCondition(ISQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { pattern, String.valueOf(escape) }));
+		return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { pattern, String.valueOf(escape) }));
 	}
 
 	/**

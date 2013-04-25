@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.IQueryValues;
+
 /**
  * Interface for values in queries that will calculate the actual value needed when the query is executed.
  * 
@@ -24,7 +26,7 @@ package com.servoy.j2db.query;
  * @since 6.1.1
  */
 
-public interface IDynamicValue
+public interface IDynamicValue extends IQueryValues
 {
 	Object getValue();
 }

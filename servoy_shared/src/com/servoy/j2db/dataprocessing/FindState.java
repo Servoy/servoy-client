@@ -27,6 +27,7 @@ import java.util.Map;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
@@ -633,7 +634,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public List<RelatedFindState> createFindStateJoins(QuerySelect sqlSelect, List<IRelation> relations, QueryTable selectTable, IGlobalValueEntry provider)
+	public List<RelatedFindState> createFindStateJoins(QuerySelect sqlSelect, List<IRelation> relations, BaseQueryTable selectTable, IGlobalValueEntry provider)
 		throws RepositoryException
 	{
 		List<RelatedFindState> relatedFindStates = null;
@@ -649,7 +650,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 				if (set != null && set.getSize() > 0)
 				{
 					ISQLTableJoin existingJoin = (ISQLTableJoin)sqlSelect.getJoin(selectTable, relation.getName());
-					QueryTable foreignQTable;
+					BaseQueryTable foreignQTable;
 					if (existingJoin == null)
 					{
 						Table foreignTable = relation.getForeignTable();
@@ -778,14 +779,14 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	public static class RelatedFindState
 	{
 		private final FindState findState;
-		private final QueryTable primaryTable;
+		private final BaseQueryTable primaryTable;
 		private final List<IRelation> relations;
 
 		/**
 		 * @param findState
 		 * @param relation
 		 */
-		public RelatedFindState(FindState findState, List<IRelation> relations, QueryTable primaryTable)
+		public RelatedFindState(FindState findState, List<IRelation> relations, BaseQueryTable primaryTable)
 		{
 			this.findState = findState;
 			this.relations = relations;
@@ -802,7 +803,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 			return relations;
 		}
 
-		public QueryTable getPrimaryTable()
+		public BaseQueryTable getPrimaryTable()
 		{
 			return primaryTable;
 		}

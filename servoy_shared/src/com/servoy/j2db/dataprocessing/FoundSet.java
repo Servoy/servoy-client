@@ -45,6 +45,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
@@ -106,6 +108,7 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * The foundset of a form, also handles the locking with the AppServer based on tablepks, and is the formmodel itself!
@@ -240,10 +243,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		else
 		{
-			creationSqlSelect = AbstractBaseQuery.deepClone(pkSelect);
+			creationSqlSelect = AbstractBaseQuery.acceptVisitor(pkSelect, DeepCloneVisitor.createDeepCloneVisitor());
 		}
 
-		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
+		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor()));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
 	}
@@ -1727,7 +1730,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		QuerySelect originalQuery = pksAndRecords.getQuerySelectForReading();
 
-		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_OMIT);
 
@@ -1794,7 +1797,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				order_by_index = customQuery.toLowerCase().lastIndexOf("order by"); //$NON-NLS-1$
 			}
 			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH,
-				new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
+				new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), new QueryCustomSelect(
 					customQuery, whereArgs), true));
 
 			// set the previous sort, add all joins that are needed for this sort
@@ -1804,7 +1807,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				ArrayList<IQuerySort> sorts = new ArrayList<IQuerySort>();
 
 				// find which sorts we will use and which tables are needed for that
-				Set<QueryTable> sortTables = new HashSet<QueryTable>();
+				Set<BaseQueryTable> sortTables = new HashSet<BaseQueryTable>();
 				for (IQuerySort isort : origSorts)
 				{
 					if (isort instanceof QuerySort)
@@ -1822,10 +1825,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 
 				// try to find the joins that are needed to satisfy tablesToResolve
-				List<QueryTable> tablesToResolve = new ArrayList<QueryTable>();
+				List<BaseQueryTable> tablesToResolve = new ArrayList<BaseQueryTable>();
 				tablesToResolve.addAll(sortTables);
 
-				List<QueryTable> resolvedTables = new ArrayList<QueryTable>();
+				List<BaseQueryTable> resolvedTables = new ArrayList<BaseQueryTable>();
 				resolvedTables.add(sqlSelect.getTable());
 
 				ArrayList<ISQLJoin> requiredJoins = new ArrayList<ISQLJoin>();
@@ -1833,7 +1836,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				boolean found = true;
 				while (found && tablesToResolve.size() > 0)
 				{
-					QueryTable table = tablesToResolve.remove(0);
+					BaseQueryTable table = tablesToResolve.remove(0);
 					if (resolvedTables.contains(table))
 					{
 						continue;
@@ -1920,7 +1923,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 
 			// set table alias or unalias table when no alias was used
-			QueryTable qTable = sqlSelect.getTable();
+			BaseQueryTable qTable = sqlSelect.getTable();
 			sqlSelect.relinkTable(sqlSelect.getTable(),
 				new QueryTable(qTable.getName(), qTable.getDataSource(), qTable.getCatalogName(), qTable.getSchemaName(), mainTableAlias));
 
@@ -1998,7 +2001,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		// Load with pk set: remove all conditions (except foundset filters) and set pks as search-condition
-		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
 
 		// Set a dynamic pk condition, when pks are added, these are added to the condition automatically.
 		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), set));
@@ -2211,7 +2214,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		QuerySelect sqlSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), otherSQLSelect, null, true, null, lastSortColumns, true);
 		if (!initialized)
 		{
-			creationSqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
+			creationSqlSelect = AbstractBaseQuery.acceptVisitor(sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
 		}
 
 		//cache pks
@@ -4204,7 +4207,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			// replace the OMIT condition, keep sort (could be custom sort, different from lastSortColumns)
 			List<IQuerySelectValue> pkQueryColumns = sqlSelect.getColumns();
-			sqlSelect.setCondition(SQLGenerator.CONDITION_OMIT, SQLGenerator.createSetConditionFromPKs(ISQLCondition.NOT_OPERATOR,
+			sqlSelect.setCondition(SQLGenerator.CONDITION_OMIT, SQLGenerator.createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR,
 				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), sheet.getTable().getRowIdentColumns(), omittedPKs));
 
 			refreshFromDBInternal(sqlSelect, false, false, fsm.pkChunkSize, true, false);
@@ -4541,7 +4544,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), currentQuery, pksAndRecords.getCachedRecords(), reduceSearch, omittedPKs,
 				lastSortColumns, true);
 		}
-		return clone ? AbstractBaseQuery.deepClone(currentQuery) : currentQuery;
+		return clone ? AbstractBaseQuery.acceptVisitor(currentQuery, DeepCloneVisitor.createDeepCloneVisitor()) : currentQuery;
 	}
 
 	/**
@@ -4696,7 +4699,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		synchronized (pksAndRecords)
 		{
-			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), AbstractBaseQuery.deepClone(creationSqlSelect), true);
+			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(),
+				AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor()), true);
 		}
 	}
 
@@ -5789,7 +5793,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				pksAndRecords.getQuerySelectForModification());
 		}
 		obj.findMode = false;
-		obj.creationSqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		obj.creationSqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
 		if (foundSetFilters != null)
 		{
 			obj.foundSetFilters = new ArrayList<TableFilter>(foundSetFilters);
@@ -5818,7 +5822,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// make sure the references to the tables from the copies are correct
 				fs_sqlSelect.relinkTable(select.getTable(), fs_sqlSelect.getTable());
 
-				fs.creationSqlSelect = AbstractBaseQuery.deepClone(fs_sqlSelect);//reset the creation! because we just changed the sqlSelect
+				fs.creationSqlSelect = AbstractBaseQuery.acceptVisitor(fs_sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());//reset the creation! because we just changed the sqlSelect
 				fs.lastSortColumns = null;
 				if (fs.rowManager != null) fs.rowManager.register(fs);
 				fs.aggregateCache = new HashMap<String, Object>(6);
@@ -6100,7 +6104,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public void clear()
 	{
 		omittedPKs = null;
-		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
 		BufferedDataSet emptyPks = new BufferedDataSet();
 		if (sqlSelect != null)
 		{
