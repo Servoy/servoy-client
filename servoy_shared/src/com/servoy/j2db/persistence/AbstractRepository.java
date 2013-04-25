@@ -48,7 +48,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	private final Map<String, String> mimeTypeMap;
 	protected final IServerManager serverManager;
 
-	protected AbstractRepository(IServerManager serverManager, boolean loadImportHooks)
+	protected AbstractRepository(IServerManager serverManager)
 	{
 		this.serverManager = serverManager;
 		mimeTypeMap = new HashMap<String, String>();
@@ -57,7 +57,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		mimeTypeMap.put("jpg", "image/jpg"); //$NON-NLS-1$ //$NON-NLS-2$
 
 
-		repositoryHelper = new RepositoryHelper(this, loadImportHooks);
+		repositoryHelper = new RepositoryHelper(this);
 	}
 
 	public String getContentType(String filename)
@@ -440,7 +440,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 					metadata = iterator.next();
 					if (metadata.getRootObjectId() == rootObjectId)
 					{
-						getRootObjectCache().add(metadata);
+						getRootObjectCache().add(metadata, false);
 						return getRootObject(rootObjectId, metadata.getLatestRelease());
 					}
 				}
@@ -655,7 +655,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		int latestRelease) throws RepositoryException
 	{
 		RootObjectMetaData romd = createRootObjectMetaData(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
-		getRootObjectCache().add(romd);
+		getRootObjectCache().add(romd, false);
 		return romd;
 	}
 
@@ -666,7 +666,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 */
 	public void addRootObjectMetaData(RootObjectMetaData rootObjectMetaData) throws RepositoryException
 	{
-		getRootObjectCache().add(rootObjectMetaData);
+		getRootObjectCache().add(rootObjectMetaData, true);
 	}
 
 	public abstract void updateRootObject(IRootObject rootObject) throws RepositoryException;

@@ -30,7 +30,7 @@ import com.servoy.j2db.util.SortedList;
 public class RootObjectCache
 {
 	private final AbstractRepository repository;
-	private final HashMap rootObjectsById;
+	private final HashMap<Integer, CacheRecord> rootObjectsById;
 	private final HashMap rootObjectsByName;
 
 	class RootObjectKey
@@ -65,7 +65,7 @@ public class RootObjectCache
 	class CacheRecord
 	{
 		RootObjectMetaData rootObjectMetaData;
-		HashMap rootObjects;
+		HashMap<Integer, IRootObject> rootObjects;
 
 		@Override
 		public String toString()
@@ -78,28 +78,38 @@ public class RootObjectCache
 	RootObjectCache(AbstractRepository repository, Collection metaDatas)
 	{
 		this.repository = repository;
-		rootObjectsById = new HashMap();
+		rootObjectsById = new HashMap<Integer, CacheRecord>();
 		rootObjectsByName = new HashMap();
 
 		// Initialize the cache.
 		Iterator iterator = metaDatas.iterator();
 		while (iterator.hasNext())
 		{
-			add((RootObjectMetaData)iterator.next());
+			add((RootObjectMetaData)iterator.next(), false);
 		}
 	}
 
-
-	/**
-	 * @param metadata
-	 */
-	synchronized void add(RootObjectMetaData metaData)
+	synchronized void add(RootObjectMetaData metaData, boolean allowUpdate)
 	{
-		CacheRecord cacheRecord = new CacheRecord();
+		Integer intId = new Integer(metaData.getRootObjectId());
+
+		CacheRecord cacheRecord = allowUpdate ? rootObjectsById.get(intId) : null;
+		if (cacheRecord == null)
+		{
+			cacheRecord = new CacheRecord();
+			cacheRecord.rootObjects = new HashMap<Integer, IRootObject>();
+			rootObjectsById.put(intId, cacheRecord);
+			rootObjectsByName.put(new RootObjectKey(metaData.getName(), metaData.getObjectTypeId()), cacheRecord);
+		}
+		else
+		{
+			for (IRootObject ro : cacheRecord.rootObjects.values())
+			{
+				((AbstractRootObject)ro).setMetaData(metaData);
+			}
+		}
+
 		cacheRecord.rootObjectMetaData = metaData;
-		cacheRecord.rootObjects = new HashMap();
-		rootObjectsById.put(new Integer(metaData.getRootObjectId()), cacheRecord);
-		rootObjectsByName.put(new RootObjectKey(metaData.getName(), metaData.getObjectTypeId()), cacheRecord);
 	}
 
 
@@ -122,7 +132,7 @@ public class RootObjectCache
 		{
 			throw new RepositoryException("cannot cache new root object with release " + rootObject.getReleaseNumber());
 		}
-		cacheRecord.rootObjects = new HashMap();
+		cacheRecord.rootObjects = new HashMap<Integer, IRootObject>();
 		cacheRecord.rootObjects.put(new Integer(1), rootObject);
 		rootObjectsById.put(key, cacheRecord);
 		rootObjectsByName.put(new RootObjectKey(rootObject.getName(), rootObject.getTypeID()), cacheRecord);
@@ -197,7 +207,7 @@ public class RootObjectCache
 					release = cacheRecord.rootObjectMetaData.getLatestRelease();
 				}
 				Integer key = new Integer(release);
-				IRootObject rootObject = (IRootObject)cacheRecord.rootObjects.get(key);
+				IRootObject rootObject = cacheRecord.rootObjects.get(key);
 				return rootObject != null;
 			}
 		}
@@ -220,7 +230,7 @@ public class RootObjectCache
 			release = cacheRecord.rootObjectMetaData.getLatestRelease();
 		}
 		Integer key = new Integer(release);
-		IRootObject rootObject = (IRootObject)cacheRecord.rootObjects.get(key);
+		IRootObject rootObject = cacheRecord.rootObjects.get(key);
 		if (rootObject == null)
 		{
 			rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, release);
@@ -264,11 +274,11 @@ public class RootObjectCache
 	synchronized RootObjectMetaData[] getRootObjectMetaDatas() throws RepositoryException
 	{
 		RootObjectMetaData[] metaDatas = new RootObjectMetaData[rootObjectsById.size()];
-		Iterator iterator = rootObjectsById.values().iterator();
+		Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
 		int i = 0;
 		while (iterator.hasNext())
 		{
-			metaDatas[i++] = ((CacheRecord)iterator.next()).rootObjectMetaData;
+			metaDatas[i++] = iterator.next().rootObjectMetaData;
 		}
 		return metaDatas;
 	}
@@ -276,10 +286,10 @@ public class RootObjectCache
 	synchronized RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RepositoryException
 	{
 		List list = new SortedList(NameComparator.INSTANCE);
-		Iterator iterator = rootObjectsById.values().iterator();
+		Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
 		while (iterator.hasNext())
 		{
-			RootObjectMetaData metaData = ((CacheRecord)iterator.next()).rootObjectMetaData;
+			RootObjectMetaData metaData = iterator.next().rootObjectMetaData;
 			if (metaData.getObjectTypeId() == objectTypeId)
 			{
 				list.add(metaData);
@@ -293,7 +303,7 @@ public class RootObjectCache
 	{
 		Integer key = new Integer(rootObjectId);
 		flushRootObject(rootObjectId);
-		CacheRecord cacheRecord = (CacheRecord)rootObjectsById.get(key);
+		CacheRecord cacheRecord = rootObjectsById.get(key);
 		if (cacheRecord != null)
 		{
 			rootObjectsById.remove(key);
@@ -304,7 +314,7 @@ public class RootObjectCache
 	synchronized void flushRootObject(int rootObjectId) throws RepositoryException
 	{
 		Integer key = new Integer(rootObjectId);
-		CacheRecord cacheRecord = (CacheRecord)rootObjectsById.get(key);
+		CacheRecord cacheRecord = rootObjectsById.get(key);
 		if (cacheRecord != null)
 		{
 			flushRootObjectMap(cacheRecord.rootObjects);
@@ -313,7 +323,7 @@ public class RootObjectCache
 
 	synchronized void flushRootObjectRelease(int rootObjectId, int release) throws RepositoryException
 	{
-		CacheRecord cacheRecord = (CacheRecord)rootObjectsById.get(new Integer(rootObjectId));
+		CacheRecord cacheRecord = rootObjectsById.get(new Integer(rootObjectId));
 		if (cacheRecord != null)
 		{
 			if (release == 0)
@@ -325,7 +335,7 @@ public class RootObjectCache
 				release = cacheRecord.rootObjectMetaData.getLatestRelease();
 			}
 			Integer key = new Integer(release);
-			IRootObject rootObject = (IRootObject)cacheRecord.rootObjects.get(key);
+			IRootObject rootObject = cacheRecord.rootObjects.get(key);
 			if (rootObject != null)
 			{
 				rootObject.getChangeHandler().rootObjectIsFlushed();
@@ -336,20 +346,20 @@ public class RootObjectCache
 
 	synchronized void flush() throws RepositoryException
 	{
-		Iterator iterator = rootObjectsById.values().iterator();
+		Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
 		while (iterator.hasNext())
 		{
-			CacheRecord cacheRecord = (CacheRecord)iterator.next();
+			CacheRecord cacheRecord = iterator.next();
 			flushRootObjectMap(cacheRecord.rootObjects);
 		}
 	}
 
-	private void flushRootObjectMap(HashMap rootObjectMap) throws RepositoryException
+	private void flushRootObjectMap(HashMap<Integer, IRootObject> rootObjectMap) throws RepositoryException
 	{
-		Iterator iterator = rootObjectMap.values().iterator();
+		Iterator<IRootObject> iterator = rootObjectMap.values().iterator();
 		while (iterator.hasNext())
 		{
-			IRootObject rootObject = (IRootObject)iterator.next();
+			IRootObject rootObject = iterator.next();
 			ChangeHandler ch = rootObject.getChangeHandler();
 			if (ch != null)
 			{
@@ -362,7 +372,7 @@ public class RootObjectCache
 	private CacheRecord getCacheRecord(int rootObjectId) throws RepositoryException
 	{
 		Integer key = new Integer(rootObjectId);
-		return (CacheRecord)rootObjectsById.get(key);
+		return rootObjectsById.get(key);
 
 	}
 

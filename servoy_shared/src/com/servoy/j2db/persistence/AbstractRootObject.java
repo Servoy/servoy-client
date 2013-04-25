@@ -42,7 +42,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 	// The initial fix was using ConcurrentHashMap, but there is a bug in Terracotta with ConcurrentHashMap and serialization, so we can't use that for now. See http://jira.terracotta.org/jira/browse/CDV-1377
 	private Map<String, IServer> serverProxies; //name -> Server
 
-	private final RootObjectMetaData metaData;
+	private RootObjectMetaData metaData;
 	private int releaseNumber;
 
 	private List<IPersist> newObjects;
@@ -57,6 +57,11 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 	{
 		super(metaData.getObjectTypeId(), null, metaData.getRootObjectId(), metaData.getRootObjectUuid());
 		this.repository = repository;
+		this.metaData = metaData;
+	}
+
+	void setMetaData(RootObjectMetaData metaData)
+	{
 		this.metaData = metaData;
 	}
 
@@ -156,8 +161,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 
 	public Map<String, IServer> getServerProxies()
 	{
-		if (serverProxies == null)
-			serverProxies = new HashMap<String, IServer>();
+		if (serverProxies == null) serverProxies = new HashMap<String, IServer>();
 		return serverProxies;
 	}
 

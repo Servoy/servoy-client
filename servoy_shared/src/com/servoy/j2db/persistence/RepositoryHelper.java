@@ -55,12 +55,9 @@ public class RepositoryHelper
 
 	private final IDeveloperRepository developerRepository;
 
-	private final boolean loadImportHooks;
-
-	public RepositoryHelper(IDeveloperRepository dr, boolean loadImportHooks)
+	public RepositoryHelper(IDeveloperRepository dr)
 	{
 		developerRepository = dr;
-		this.loadImportHooks = loadImportHooks;
 	}
 
 	private static final Map<Class< ? >, Map<String, Method>> setterCache = Collections.synchronizedMap(new HashMap<Class< ? >, Map<String, Method>>());
@@ -190,7 +187,7 @@ public class RepositoryHelper
 			if (sol != null)
 			{
 				referencedModules.put(sol.getUUID(), new RootObjectReference(sol.getName(), sol.getUUID(), sol.getRootObjectMetaData(), sol.getReleaseNumber()));
-				loadObjectMetaDatas(sol.getModulesNames(), referencedModules);
+				loadObjectMetaDatas(sol.getModulesNames(), referencedModules, SolutionMetaData.isImportHook(sol.getSolutionMetaData()));
 			}
 		}
 		catch (Exception e)
@@ -200,7 +197,7 @@ public class RepositoryHelper
 		return new ArrayList<RootObjectReference>(referencedModules.values());
 	}
 
-	private void loadObjectMetaDatas(String moduleNames, Map<UUID, RootObjectReference> referencedModules) throws RepositoryException
+	private void loadObjectMetaDatas(String moduleNames, Map<UUID, RootObjectReference> referencedModules, boolean loadImportHooks) throws RepositoryException
 	{
 		if (moduleNames == null) return;
 		StringTokenizer tk = new StringTokenizer(moduleNames, ";,"); //$NON-NLS-1$
@@ -249,7 +246,7 @@ public class RepositoryHelper
 					{
 						referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
 						Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectId(), releaseNumber);
-						loadObjectMetaDatas(sol.getModulesNames(), referencedModules);
+						loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);
 					}
 				}
 				catch (RemoteException e)
