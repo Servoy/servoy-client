@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db;
 
-import com.servoy.j2db.util.Utils;
 
 /**
  * Servoy version info class
@@ -49,19 +48,6 @@ public abstract class ClientVersion
 	public static String getBundleVersion()
 	{
 		return majorVersion + "." + middleVersion + "." + minorVersion + "." + releaseNumber;
-	}
-
-	public static int[] parseBundleVersion(String bundleVersion)
-	{
-		if (bundleVersion != null)
-		{
-			String[] parts = bundleVersion.split("\\.");
-			if (parts != null && parts.length == 4)
-			{
-				return new int[] { Utils.getAsInteger(parts[0]), Utils.getAsInteger(parts[1]), Utils.getAsInteger(parts[2]), Utils.getAsInteger(parts[3]) };
-			}
-		}
-		return null;
 	}
 
 	public static int getMajorVersion()
