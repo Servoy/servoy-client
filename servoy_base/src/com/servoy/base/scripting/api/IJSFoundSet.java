@@ -276,7 +276,7 @@ public interface IJSFoundSet
 	 * @see com.servoy.j2db.FormController$JSForm#js_find()
 	 * @see com.servoy.j2db.FormController$JSForm#js_search(Boolean, Boolean)
 	 */
-	public boolean js_find();
+	public boolean find();
 
 	/**
 	 * Check if this foundset is in find mode.
@@ -287,7 +287,7 @@ public interface IJSFoundSet
 	 * 
 	 * @return boolean is in find mode.
 	 */
-	public boolean js_isInFind();
+	public boolean isInFind();
 
 	/**
 	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
@@ -299,7 +299,7 @@ public interface IJSFoundSet
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
 	 */
-	public int js_search() throws Exception;
+	public int search() throws Exception;
 
 	/**
 	 * Loads all accessible records from the datasource into the foundset.

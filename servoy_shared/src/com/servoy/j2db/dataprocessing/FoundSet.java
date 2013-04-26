@@ -812,7 +812,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @see com.servoy.j2db.FormController$JSForm#js_find()
 	 * @see com.servoy.j2db.FormController$JSForm#js_search(Boolean, Boolean)
 	 */
-	public boolean js_find()
+	@JSFunction
+	public boolean find()
 	{
 		if (!isInFindMode())
 		{
@@ -834,7 +835,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return boolean is in find mode.
 	 */
-	public boolean js_isInFind()
+	@JSFunction
+	public boolean isInFind()
 	{
 		return isInFindMode();
 	}
@@ -849,9 +851,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @return the recordCount
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
-	public int js_search() throws ServoyException
+	@JSFunction
+	public int search() throws ServoyException
 	{
 		return js_search(Boolean.TRUE, Boolean.TRUE);
 	}
@@ -868,7 +871,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return the recordCount
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
 	public int js_search(Boolean clearLastResults) throws ServoyException
 	{
@@ -889,7 +892,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return the recordCount
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
 	public int js_search(Boolean clearLastResults, Boolean reduceSearch) throws ServoyException
 	{
