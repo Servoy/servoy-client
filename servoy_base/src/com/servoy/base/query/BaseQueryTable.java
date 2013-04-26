@@ -246,9 +246,4 @@ public class BaseQueryTable implements IBaseQueryElement
 		}
 		return sb.toString();
 	}
-
-	public Object shallowClone() throws Exception
-	{
-		return new BaseQueryTable(name, dataSource, catalogName, schemaName, alias, needsQuoting);
-	}
 }
