@@ -92,7 +92,6 @@ import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -153,7 +152,7 @@ public class SQLGenerator
 		QuerySelect retval;
 		if (oldSQLQuery != null)
 		{
-			retval = AbstractBaseQuery.acceptVisitor(oldSQLQuery, DeepCloneVisitor.createDeepCloneVisitor());
+			retval = AbstractBaseQuery.deepClone(oldSQLQuery);
 			retval.setGroupBy(null);
 			if (orderByFields != null) retval.clearSorts(); // will be generated based on foundset sorting
 			// remove all servoy conditions, except filter, search and relation
@@ -422,7 +421,7 @@ public class SQLGenerator
 			if (queryJoin != null)
 			{
 				// a query join was defined for this relation, just relink the tables for the first and last in the joins
-				queryJoin = AbstractBaseQuery.acceptVisitor(queryJoin, DeepCloneVisitor.createDeepCloneVisitor());
+				queryJoin = AbstractBaseQuery.deepClone(queryJoin);
 				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getPrimaryTable(), primaryTable, queryJoin);
 				queryJoin = AbstractBaseQuery.relinkTable(queryJoin.getForeignTable(), foreignTable, queryJoin);
 
@@ -1085,8 +1084,8 @@ public class SQLGenerator
 			new Placeholder(new TablePlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
 
 		select.setCondition(CONDITION_SEARCH, pkSelect);
-		delete.setCondition(AbstractBaseQuery.acceptVisitor(pkSelect, DeepCloneVisitor.createDeepCloneVisitor()));
-		update.setCondition(AbstractBaseQuery.acceptVisitor(pkSelect, DeepCloneVisitor.createDeepCloneVisitor()));
+		delete.setCondition(AbstractBaseQuery.deepClone(pkSelect));
+		update.setCondition(AbstractBaseQuery.deepClone(pkSelect));
 
 		//fill dataprovider map
 		List<String> dataProviderIDsDilivery = new ArrayList<String>();
@@ -1420,7 +1419,7 @@ public class SQLGenerator
 
 	public static QuerySelect createAggregateSelect(QuerySelect sqlSelect, Collection<QuerySelect> aggregates, List<Column> pkColumns)
 	{
-		QuerySelect selectClone = AbstractBaseQuery.acceptVisitor(sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect selectClone = AbstractBaseQuery.deepClone(sqlSelect);
 		selectClone.clearSorts();
 		selectClone.setDistinct(false);
 		selectClone.setColumns(null);

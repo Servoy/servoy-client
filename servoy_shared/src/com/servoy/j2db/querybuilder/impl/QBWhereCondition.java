@@ -19,7 +19,6 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
@@ -28,7 +27,6 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * Where clause for a query, conditions can be added by name.
@@ -157,6 +155,6 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	{
 		QuerySelect query = getRoot().getQuery(false);
 		AndCondition condition = query == null ? null : query.getCondition(name);
-		return condition == null ? null : new QBCondition(getRoot(), getParent(), AbstractBaseQuery.acceptVisitor(condition, DeepCloneVisitor.createDeepCloneVisitor()));
+		return condition == null ? null : new QBCondition(getRoot(), getParent(), AbstractBaseQuery.deepClone(condition));
 	}
 }

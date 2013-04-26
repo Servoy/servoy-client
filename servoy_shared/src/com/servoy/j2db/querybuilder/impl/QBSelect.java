@@ -49,7 +49,6 @@ import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * @author rgansevles
@@ -104,7 +103,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@Override
 	public QuerySelect build() throws RepositoryException
 	{
-		return AbstractBaseQuery.acceptVisitor(getQuery(), DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(getQuery());
 	}
 
 	/**

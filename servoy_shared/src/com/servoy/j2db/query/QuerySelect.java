@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.util.serialize.ReplacedObject;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.ObjectCountVisitor;
 
@@ -351,7 +350,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public AndCondition getConditionClone(String name)
 	{
-		return AbstractBaseQuery.acceptVisitor(getCondition(name), DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(getCondition(name));
 	}
 
 	public boolean isDistinct()
@@ -384,22 +383,22 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ArrayList<ISQLJoin> getJoinsClone()
 	{
-		return AbstractBaseQuery.acceptVisitor(joins, DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(joins);
 	}
 
 	public ArrayList<IQuerySelectValue> getColumnsClone()
 	{
-		return AbstractBaseQuery.acceptVisitor(columns, DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(columns);
 	}
 
 	public ArrayList<IQuerySelectValue> getGroupByClone()
 	{
-		return AbstractBaseQuery.acceptVisitor(groupBy, DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(groupBy);
 	}
 
 	public ArrayList<IQuerySort> getSortsClone()
 	{
-		return AbstractBaseQuery.acceptVisitor(sorts, DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(sorts);
 	}
 
 	public ArrayList<IQuerySort> getSorts()
@@ -495,7 +494,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ISQLCondition getWhereClone()
 	{
-		return AbstractBaseQuery.acceptVisitor(getWhere(), DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(getWhere());
 	}
 
 	/**
@@ -510,7 +509,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ISQLCondition getHavingClone()
 	{
-		return AbstractBaseQuery.acceptVisitor(getHaving(), DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(getHaving());
 	}
 
 	@Override
@@ -521,7 +520,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public QuerySelect getSelectCount(String name, boolean distinctCount)
 	{
-		QuerySelect selectCount = AbstractBaseQuery.acceptVisitor(this, DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect selectCount = AbstractBaseQuery.deepClone(this);
 
 		selectCount.clearSorts();
 

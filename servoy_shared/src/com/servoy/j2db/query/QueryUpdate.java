@@ -23,7 +23,6 @@ import java.util.List;
 import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -119,7 +118,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 
 	public ISQLCondition getConditionClone()
 	{
-		return AbstractBaseQuery.acceptVisitor(getCondition(), DeepCloneVisitor.createDeepCloneVisitor());
+		return AbstractBaseQuery.deepClone(getCondition());
 	}
 
 //	public List getJoins()

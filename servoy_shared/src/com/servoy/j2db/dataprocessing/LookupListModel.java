@@ -49,7 +49,6 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * {@link AbstractListModel} implementation for Lookup/Typeahead fields.
@@ -546,7 +545,7 @@ public class LookupListModel extends AbstractListModel
 	private void fillDBValueListValues(String filter) throws ServoyException
 	{
 		ValueList valueList = ((LookupValueList)lookup).getValueList();
-		QuerySelect sqlParts = AbstractBaseQuery.acceptVisitor(creationSQLParts, DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect sqlParts = AbstractBaseQuery.deepClone(creationSQLParts);
 		if (!generateWherePart(filter, valueList, sqlParts, sqlParts.getTable()))
 		{
 			ArrayList<IQuerySort> sorts = getSortColumnsForQuery(sqlParts);
@@ -602,7 +601,7 @@ public class LookupListModel extends AbstractListModel
 	 */
 	private void fillDBColumnValues(String dataProviderID, String txt) throws ServoyException
 	{
-		QuerySelect sqlParts = AbstractBaseQuery.acceptVisitor(creationSQLParts, DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect sqlParts = AbstractBaseQuery.deepClone(creationSQLParts);
 
 		sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		if (!"".equals(txt)) //$NON-NLS-1$

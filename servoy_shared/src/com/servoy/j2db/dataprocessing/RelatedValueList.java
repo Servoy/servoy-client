@@ -40,7 +40,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * Valuelist based on values from a relation (related foundset)
@@ -396,8 +395,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		// this returns quickly if it already has a sheet for that relation, but optimize further?
 		sqlGenerator.makeRelatedSQL(childSheet, relations[0]);
 
-		QuerySelect select = AbstractBaseQuery.acceptVisitor((QuerySelect)childSheet.getRelatedSQLDescription(relations[0].getName()).getSQLQuery(),
-			DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect select = AbstractBaseQuery.deepClone((QuerySelect)childSheet.getRelatedSQLDescription(relations[0].getName()).getSQLQuery());
 
 		Object[] relationWhereArgs = foundSetManager.getRelationWhereArgs(parentState, relations[0], false);
 		if (relationWhereArgs == null)

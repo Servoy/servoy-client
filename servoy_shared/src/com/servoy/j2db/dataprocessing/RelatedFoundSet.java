@@ -48,7 +48,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.PackVisitor;
 
 /**
@@ -111,7 +110,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			pkColumns.add(new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 		}
 		select.setColumns(pkColumns);
-		creationSqlSelect = AbstractBaseQuery.acceptVisitor(select, DeepCloneVisitor.createDeepCloneVisitor());
+		creationSqlSelect = AbstractBaseQuery.deepClone(select);
 
 		if (aggregateData != null)
 		{
@@ -201,7 +200,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			else
 			{
-				sqlSelect = AbstractBaseQuery.acceptVisitor(cleanSelect, DeepCloneVisitor.createDeepCloneVisitor());
+				sqlSelect = AbstractBaseQuery.deepClone(cleanSelect);
 			}
 
 			if (!sqlSelect.setPlaceholderValue(placeHolderKey, whereArgs))
@@ -233,7 +232,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 				else
 				{
-					ISQLSelect selectStatement = AbstractBaseQuery.acceptVisitor((ISQLSelect)sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+					ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
 					// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
 					// Clone is needed because packed queries may not be save to manipulate.
 					SQLStatement trackingInfo = null;
@@ -251,8 +250,8 @@ public abstract class RelatedFoundSet extends FoundSet
 					if (aggregateSelect != null)
 					{
 						// Note: see note about clone above.
-						queryDatas.add(new QueryData(AbstractBaseQuery.acceptVisitor((ISQLSelect)aggregateSelect, DeepCloneVisitor.createDeepCloneVisitor()),
-							fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
+						queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect), fsm.getTableFilterParams(sheet.getServerName(),
+							aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
 						queryIndex.add(Integer.valueOf(i)); // same index for aggregates
 						aggregateSelects[i] = aggregateSelect;
 					}
@@ -399,8 +398,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		// from db coming from outside or a search that has no results.
 		clearOmit(null);
 
-		refreshFromDBInternal(AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor()), true, false, fsm.pkChunkSize,
-			false, false);
+		refreshFromDBInternal(AbstractBaseQuery.deepClone(creationSqlSelect), true, false, fsm.pkChunkSize, false, false);
 	}
 
 	@Override

@@ -108,7 +108,6 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * The foundset of a form, also handles the locking with the AppServer based on tablepks, and is the formmodel itself!
@@ -243,10 +242,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		else
 		{
-			creationSqlSelect = AbstractBaseQuery.acceptVisitor(pkSelect, DeepCloneVisitor.createDeepCloneVisitor());
+			creationSqlSelect = AbstractBaseQuery.deepClone(pkSelect);
 		}
 
-		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor()));
+		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
 	}
@@ -1733,7 +1732,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		QuerySelect originalQuery = pksAndRecords.getQuerySelectForReading();
 
-		QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_OMIT);
 
@@ -2004,7 +2003,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		// Load with pk set: remove all conditions (except foundset filters) and set pks as search-condition
-		QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
 
 		// Set a dynamic pk condition, when pks are added, these are added to the condition automatically.
 		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), set));
@@ -2217,7 +2216,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		QuerySelect sqlSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), otherSQLSelect, null, true, null, lastSortColumns, true);
 		if (!initialized)
 		{
-			creationSqlSelect = AbstractBaseQuery.acceptVisitor(sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+			creationSqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 		}
 
 		//cache pks
@@ -4547,7 +4546,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), currentQuery, pksAndRecords.getCachedRecords(), reduceSearch, omittedPKs,
 				lastSortColumns, true);
 		}
-		return clone ? AbstractBaseQuery.acceptVisitor(currentQuery, DeepCloneVisitor.createDeepCloneVisitor()) : currentQuery;
+		return clone ? AbstractBaseQuery.deepClone(currentQuery) : currentQuery;
 	}
 
 	/**
@@ -4702,8 +4701,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		synchronized (pksAndRecords)
 		{
-			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(),
-				AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor()), true);
+			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), AbstractBaseQuery.deepClone(creationSqlSelect), true);
 		}
 	}
 
@@ -5796,7 +5794,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				pksAndRecords.getQuerySelectForModification());
 		}
 		obj.findMode = false;
-		obj.creationSqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+		obj.creationSqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
 		if (foundSetFilters != null)
 		{
 			obj.foundSetFilters = new ArrayList<TableFilter>(foundSetFilters);
@@ -5825,7 +5823,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// make sure the references to the tables from the copies are correct
 				fs_sqlSelect.relinkTable(select.getTable(), fs_sqlSelect.getTable());
 
-				fs.creationSqlSelect = AbstractBaseQuery.acceptVisitor(fs_sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());//reset the creation! because we just changed the sqlSelect
+				fs.creationSqlSelect = AbstractBaseQuery.deepClone(fs_sqlSelect);//reset the creation! because we just changed the sqlSelect
 				fs.lastSortColumns = null;
 				if (fs.rowManager != null) fs.rowManager.register(fs);
 				fs.aggregateCache = new HashMap<String, Object>(6);
@@ -6107,7 +6105,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public void clear()
 	{
 		omittedPKs = null;
-		QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(creationSqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
 		BufferedDataSet emptyPks = new BufferedDataSet();
 		if (sqlSelect != null)
 		{

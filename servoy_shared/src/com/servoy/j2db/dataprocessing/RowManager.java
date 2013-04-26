@@ -62,7 +62,6 @@ import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.SoftReferenceWithData;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * Manager for rows from one table
@@ -272,7 +271,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			return false;
 		}
 		Object[] pk = row.getPK();
-		QuerySelect select = (QuerySelect)AbstractBaseQuery.acceptVisitor(sheet.getSQL(SQLSheet.SELECT), DeepCloneVisitor.createDeepCloneVisitor());
+		QuerySelect select = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
 		if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 		{
 			Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
@@ -641,7 +640,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				statement_action = ISQLActionTypes.UPDATE_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
-				sqlUpdate = (QueryUpdate)AbstractBaseQuery.acceptVisitor(sqlDesc.getSQLQuery(), DeepCloneVisitor.createDeepCloneVisitor());
+				sqlUpdate = (QueryUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				List<String> old = sqlDesc.getOldRequiredDataProviderIDs();
 
@@ -728,7 +727,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				List<Object> argsArray = new ArrayList<Object>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
-				sqlUpdate = (ISQLUpdate)AbstractBaseQuery.acceptVisitor(sqlDesc.getSQLQuery(), DeepCloneVisitor.createDeepCloneVisitor());
+				sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
@@ -799,7 +798,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			QuerySelect requerySelect = null;
 			if (mustRequeryRow)
 			{
-				requerySelect = (QuerySelect)AbstractBaseQuery.acceptVisitor(sheet.getSQL(SQLSheet.SELECT), DeepCloneVisitor.createDeepCloneVisitor());
+				requerySelect = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
 				if (!requerySelect.setPlaceholderValue(new TablePlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 				{
 					Debug.error(new RuntimeException(
@@ -957,8 +956,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		r.flagExistInDB();//prevent it processed by any update, changed is false now
 		if (!partOfBiggerDelete)
 		{
-			QueryDelete sqlDelete = AbstractBaseQuery.acceptVisitor((QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery(),
-				DeepCloneVisitor.createDeepCloneVisitor());
+			QueryDelete sqlDelete = AbstractBaseQuery.deepClone((QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery());
 			Object[] pk = r.getPK();
 			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 			{

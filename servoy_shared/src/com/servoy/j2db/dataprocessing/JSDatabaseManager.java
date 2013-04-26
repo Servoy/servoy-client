@@ -103,7 +103,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
@@ -632,7 +631,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (getInOneQuery && columnMap.size() > 0)
 			{
 				// large foundset, query the columns in 1 go
-				QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(fs.getSqlSelect(), DeepCloneVisitor.createDeepCloneVisitor());
+				QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
 				ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
 				for (String dpname : dpnames)
 				{
@@ -1705,7 +1704,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		else
 		{
 			// get the sql without any filters
-			sqlSelect = AbstractBaseQuery.acceptVisitor(sqlSelect, DeepCloneVisitor.createDeepCloneVisitor());
+			sqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
 			tableFilterParams = null;
 		}
@@ -1800,7 +1799,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				if ((fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs))
 				{
 					// large foundset, query the column in 1 go
-					QuerySelect sqlSelect = AbstractBaseQuery.acceptVisitor(fs.getSqlSelect(), DeepCloneVisitor.createDeepCloneVisitor());
+					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
 					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 					sqlSelect.setColumns(cols);

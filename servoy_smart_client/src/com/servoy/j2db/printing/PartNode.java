@@ -62,7 +62,6 @@ import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.visitor.DeepCloneVisitor;
 
 /**
  * Node used in chain
@@ -195,7 +194,7 @@ public class PartNode
 		List<DataRendererDefinition> list = new ArrayList<DataRendererDefinition>();//retval
 		if (part != null && (part.getPartType() == Part.LEADING_SUBSUMMARY || part.getPartType() == Part.TRAILING_SUBSUMMARY || isLeadingAndTrailingSubsummary))
 		{
-			QuerySelect newSQLString = AbstractBaseQuery.acceptVisitor(sqlString, DeepCloneVisitor.createDeepCloneVisitor());
+			QuerySelect newSQLString = AbstractBaseQuery.deepClone(sqlString);
 
 			IDataServer server = app.getDataServer();
 
@@ -262,7 +261,7 @@ public class PartNode
 			int count = newSet.getSize();
 			for (int ii = 0; ii < count; ii++)
 			{
-				QuerySelect newSQLStringCopy = AbstractBaseQuery.acceptVisitor(newSQLString, DeepCloneVisitor.createDeepCloneVisitor());//make copy for setting sort column 
+				QuerySelect newSQLStringCopy = AbstractBaseQuery.deepClone(newSQLString);//make copy for setting sort column 
 
 				//handle the child first, this puts the rootset in the right state! for use of related(!) fields in the subsums
 				//THIS is EXTREMELY important for correct printing, see also SubSummaryFoundSet.queryForRelatedFoundSet
