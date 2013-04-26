@@ -345,7 +345,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@JSFunction
 	public QBCondition not(IQueryBuilderLogicalCondition cond)
 	{
-		return new QBCondition(getRoot(), (QBTableClause)cond.getParent(), (AndOrCondition)((QBLogicalCondition)cond).getQueryCondition().negate());
+		ISQLCondition queryCondition = ((QBLogicalCondition)cond).getQueryCondition();
+		return new QBCondition(getRoot(), (QBTableClause)cond.getParent(), queryCondition.negate());
 	}
 
 	/**
