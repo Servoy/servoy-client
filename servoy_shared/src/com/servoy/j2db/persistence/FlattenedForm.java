@@ -245,6 +245,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 
 	private static Form getFormIndexContext(IFormElement element)
 	{
+		if (element instanceof IFlattenedPersistWrapper)
+		{
+			element = (IFormElement)((IFlattenedPersistWrapper)element).getWrappedPersist();
+		}
 		if (element.getFormIndex() == 0 || element.getExtendsID() <= 0)
 		{
 			return (Form)element.getParent();
