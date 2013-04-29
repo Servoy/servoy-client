@@ -1,4 +1,5 @@
 /*
+
  This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
@@ -881,7 +882,7 @@ public class WebEventExecutor extends BaseEventExecutor
 	{
 		StringBuilder sb = null;
 		if (hasDragEvent &&
-			(component instanceof WebBaseLabel || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
+			(component instanceof WebBaseLabel || component instanceof WebBaseButton || component instanceof WebBaseSubmitLink || ((component instanceof IDisplay) && ((IDisplay)component).isReadOnly()))) sb = sbAttachDrag;
 		else if (hasDropEvent) sb = sbAttachDrop;
 
 		if (sb != null)
