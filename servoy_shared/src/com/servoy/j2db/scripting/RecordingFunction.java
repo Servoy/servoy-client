@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Context;
@@ -36,12 +36,12 @@ public class RecordingFunction extends RecordingScriptable implements Function
 
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		return RecordingScriptable.wrapIfNeeded(null, null, ((Function)scriptable).call(cx, scope, (Scriptable)RecordingScriptable.unwrapScriptable(thisObj),
-			RecordingScriptable.unwrapScriptable(args)));
+		return RecordingScriptable.wrapIfNeeded(null, null,
+			((Function)scriptable).call(cx, scope, (Scriptable)RecordingScriptable.unwrapScriptable(thisObj), args));
 	}
 
 	public Scriptable construct(Context cx, Scriptable scope, Object[] args)
 	{
-		return ((Function)scriptable).construct(cx, scope, RecordingScriptable.unwrapScriptable(args));
+		return ((Function)scriptable).construct(cx, scope, args);
 	}
 }
