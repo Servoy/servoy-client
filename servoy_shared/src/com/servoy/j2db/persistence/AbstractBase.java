@@ -183,6 +183,7 @@ public abstract class AbstractBase implements IPersist
 	 */
 	private void setPropertyInternal(String propertyName, Object val)
 	{
+		boolean wasChanged = isChanged;
 		if (propertiesMap.containsKey(propertyName))
 		{
 			if (!StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(propertyName))
@@ -213,7 +214,13 @@ public abstract class AbstractBase implements IPersist
 				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
 				if (element != null && Utils.equalObjects(val, element.getDefaultClassValue()))
 				{
-					propertiesMap.remove(propertyName);
+					// remove the current value - it was reverted to default
+					if (propertiesMap.remove(propertyName) == null)
+					{
+						// so nothing was stored there before, no inheritance, DEFAULT value is being stored; so nothing actually changed
+						isChanged = wasChanged;
+					}
+
 					return;
 				}
 			}
