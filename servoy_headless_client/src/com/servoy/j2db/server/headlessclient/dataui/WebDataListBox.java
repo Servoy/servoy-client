@@ -304,6 +304,8 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 		{
 			tag.remove("multiple"); //$NON-NLS-1$
 		}
+		tag.put("size", Math.max(2, getChoices().size())); //$NON-NLS-1$
+
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		if (useAJAX)
 		{
