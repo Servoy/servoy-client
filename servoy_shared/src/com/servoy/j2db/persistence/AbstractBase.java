@@ -183,6 +183,7 @@ public abstract class AbstractBase implements IPersist
 	 */
 	private void setPropertyInternal(String propertyName, Object val)
 	{
+		Boolean newPropAndWasChanged = null;
 		if (propertiesMap.containsKey(propertyName))
 		{
 			if (!StaticContentSpecLoader.PROPERTY_NAME.getPropertyName().equals(propertyName))
@@ -196,6 +197,7 @@ public abstract class AbstractBase implements IPersist
 		}
 		else
 		{
+			newPropAndWasChanged = Boolean.valueOf(isChanged);
 			isChanged = true;
 		}
 		if (bufferPropertiesMap != null)
@@ -213,6 +215,11 @@ public abstract class AbstractBase implements IPersist
 				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
 				if (element != null && Utils.equalObjects(val, element.getDefaultClassValue()))
 				{
+					if (newPropAndWasChanged != null)
+					{
+						// changed was set because property was added, now we remove property again, revert to previous changed state
+						isChanged = newPropAndWasChanged.booleanValue();
+					}
 					propertiesMap.remove(propertyName);
 					return;
 				}
