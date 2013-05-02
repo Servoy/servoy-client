@@ -1799,18 +1799,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		String mpmn = getModalPageMapName();
 		if (mpmn != null)
 		{
-			IMainContainer activeContainer = formManager.getMainContainer(mpmn);
-			if (activeContainer == null)
-			{
-				Debug.error("Cannot find page of an opened modal dialog: " + mpmn); //$NON-NLS-1$
-			}
 			// there is a modal div window opened; it is the one that should become the new current container
-			formManager.setCurrentContainer(activeContainer, mpmn);
-			if (activeContainer != null)
-			{
-				// also refresh it
-				((MainPage)activeContainer).triggerBrowserRequestIfNeeded();
-			}
+			formManager.setCurrentContainer(formManager.getMainContainer(mpmn), mpmn);
+			// also refresh it
+			((MainPage)formManager.getMainContainer(mpmn)).triggerBrowserRequestIfNeeded();
 		}
 		else
 		{
@@ -1820,6 +1812,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	private String getModalPageMapName()
 	{
+		FormManager formManager = ((FormManager)client.getFormManager());
 		// take the top-most modal dialog
 		List<ServoyDivDialog> oos = divDialogs.getOrderedByOpenSequence();
 		for (int hi = oos.size() - 1; hi >= 0; hi--)
@@ -1827,7 +1820,14 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			ServoyDivDialog dw = oos.get(hi);
 			if (dw.isModal() && dw.isShown() && dw != fileUploadWindow)
 			{
-				return dw.getPageMapName();
+				if (formManager.getMainContainer(dw.getPageMapName()) != null)
+				{
+					return dw.getPageMapName();
+				}
+				else
+				{
+					Debug.error("Cannot find page of an opened modal dialog: " + dw.getPageMapName());
+				}
 			}
 		}
 		return null;
