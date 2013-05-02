@@ -677,8 +677,9 @@ public class WebEventExecutor extends BaseEventExecutor
 			// do executed the events for before generating the response.
 			webClientSession.getWebClient().executeEvents();
 
-			if (webClientSession.getWebClient().getSolution() == null)
+			if (webClientSession.getWebClient() == null || webClientSession.getWebClient().getSolution() == null)
 			{
+				// how can the web client be null here ?
 				return;
 			}
 			final MainPage mainPage = ((MainPage)page);
