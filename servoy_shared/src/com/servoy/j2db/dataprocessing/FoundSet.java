@@ -3826,7 +3826,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
 						if (set != null && set.getSize() > 0)
 						{
-							Debug.log("Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords size: " + set.getSize() + " from record with PK: " + state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + rel.getName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+							fsm.getApplication().reportJSError(
+								"Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords size: " + set.getSize() + " from record with PK: " +
+									state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + rel.getName(), null);
 							throw new ApplicationException(ServoyException.NO_PARENT_DELETE_WITH_RELATED_RECORDS, new Object[] { rel.getName() });
 						}
 					}
