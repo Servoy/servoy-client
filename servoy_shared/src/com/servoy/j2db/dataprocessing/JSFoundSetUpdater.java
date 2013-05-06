@@ -229,15 +229,22 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 					}
 					Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
 
-					fsm.flushCachedDatabaseData(fsm.getDataSource(table));
 					for (int i = 0; results != null && i < results.length; i++)
 					{
 						if (results[i] instanceof ServoyException)
 						{
+							if (((ServoyException)results[i]).getErrorCode() == ServoyException.UNEXPECTED_UPDATE_COUNT)
+							{
+								performLoopUpdate();
+								clear();
+								return true;
+							}
+							fsm.flushCachedDatabaseData(fsm.getDataSource(table));
 							throw (ServoyException)results[i];
 						}
 					}
 
+					fsm.flushCachedDatabaseData(fsm.getDataSource(table));
 					clear();
 					return true;
 				}
@@ -252,44 +259,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				}
 			}
 
-			//update via loop
-			int arrayIndex = 0;
-			int i = rowsToUpdate >= 0 ? foundset.getSelectedIndex() : 0;
-			int size = 0;
-			while (i < (size = foundset.getSize()))
-			{
-				if (arrayIndex == rowsToUpdate) break;
-
-				IRecordInternal r = foundset.getRecord(i);
-				boolean wasEditing = r.isEditing();
-				if (r.startEditing())
-				{
-
-					//update the fields
-					for (int j = 0; j < list.size(); j++)
-					{
-						Pair<String, Object> p = list.get(j);
-						String name = p.getLeft();
-						Object val = p.getRight();
-						if (val instanceof Object[])
-						{
-							int indx = arrayIndex;
-							if (arrayIndex >= ((Object[])val).length) indx = ((Object[])val).length - 1;//incase there is a length difference between arrays, repeat last value
-							val = ((Object[])val)[indx];
-						}
-						r.setValue(name, val);
-					}
-				}
-				if (!wasEditing)
-				{
-					r.stopEditing();
-				}
-				i++;
-				arrayIndex++;
-
-				//check if record did fall out of foundset, due to update relation field incase of related foundset or search field
-				if (foundset.getSize() < size) i--;
-			}
+			performLoopUpdate();
 		}
 		catch (Exception ex)
 		{
@@ -300,6 +270,51 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 
 		clear();
 		return true;
+	}
+
+	/**
+	 * 
+	 */
+	private void performLoopUpdate()
+	{
+		//update via loop
+		int arrayIndex = 0;
+		int i = rowsToUpdate >= 0 ? foundset.getSelectedIndex() : 0;
+		int size = 0;
+		while (i < (size = foundset.getSize()))
+		{
+			if (arrayIndex == rowsToUpdate) break;
+
+			IRecordInternal r = foundset.getRecord(i);
+			boolean wasEditing = r.isEditing();
+			if (r.startEditing())
+			{
+
+				//update the fields
+				for (int j = 0; j < list.size(); j++)
+				{
+					Pair<String, Object> p = list.get(j);
+					String name = p.getLeft();
+					Object val = p.getRight();
+					if (val instanceof Object[])
+					{
+						int indx = arrayIndex;
+						if (arrayIndex >= ((Object[])val).length) indx = ((Object[])val).length - 1;//incase there is a length difference between arrays, repeat last value
+						val = ((Object[])val)[indx];
+					}
+					r.setValue(name, val);
+				}
+			}
+			if (!wasEditing)
+			{
+				r.stopEditing();
+			}
+			i++;
+			arrayIndex++;
+
+			//check if record did fall out of foundset, due to update relation field incase of related foundset or search field
+			if (foundset.getSize() < size) i--;
+		}
 	}
 
 	private IRecordInternal currentRecord;
