@@ -401,7 +401,15 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			{
 				((FoundSet)currentData).queryForAllPKs();
 			}
-			((FoundSet)currentData).setSelectedIndex(-1);//selection causes paint problems on mac during printing
+			currentData.getSelectionModel().setPrintMode(true);
+			try
+			{
+				((FoundSet)currentData).setSelectedIndex(-1);//selection causes paint problems on mac during printing
+			}
+			finally
+			{
+				currentData.getSelectionModel().setPrintMode(false);
+			}
 		}
 		return super.getBounds();
 	}
