@@ -69,7 +69,8 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 {
 
 	private static final long serialVersionUID = 1L;
-	IRecordInternal parentState;
+	private IRecordInternal parentState;
+	private IRecordInternal relatedRecord;
 	private LookupListModel dlm;
 	protected LookupListChangeListener changeListener;
 
@@ -589,7 +590,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 */
 	public void setRecord(IRecordInternal parentState, boolean stopEditing)
 	{
-//		if (this.parentState == parentState) return;
+		IRecordInternal prevState = parentState;
 		this.parentState = parentState;
 		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
@@ -598,7 +599,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			{
 				index = getDataProviderID().lastIndexOf('.');
 			}
-			if (index == -1 || parentState == null)
+			if ((index == -1 || parentState == null) && (prevState != parentState))
 			{
 				list.fill(parentState);
 			}
@@ -607,13 +608,18 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(getDataProviderID().substring(0, index));
 				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
 				{
+					this.relatedRecord = null;
 					list.fill(null);
 				}
 				else
 				{
-					IRecordInternal relatedRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
-//					if (relatedRecord != null) relatedRecord.addModificationListener(this);
-					list.fill(relatedRecord);
+
+					IRecordInternal relRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
+					if (relRecord != relatedRecord)
+					{
+						this.relatedRecord = relRecord;
+						list.fill(relatedRecord);
+					}
 				}
 			}
 		}
@@ -668,6 +674,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			dlm.getValueList().removeListDataListener(changeListener);
 		}
 		parentState = null;
+		relatedRecord = null;
 		detachModel();
 	}
 
