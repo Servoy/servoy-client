@@ -579,7 +579,7 @@ public class RepositoryHelper
 		}
 
 		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && Field.class.isAssignableFrom(persistClass) &&
-			displayType != Field.TEXT_FIELD && displayType != Field.TEXT_AREA && displayType == Field.PASSWORD)
+			displayType != Field.TEXT_FIELD && displayType != Field.TEXT_AREA && displayType != Field.PASSWORD)
 		{
 			return true;
 		}
@@ -592,13 +592,6 @@ public class RepositoryHelper
 		// there is no style support for labels & text fields on mobile client
 		if (name.equals(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) &&
 			(((Field.class.isAssignableFrom(persistClass) && (displayType == Field.TEXT_FIELD || displayType == Field.TEXT_AREA || displayType == Field.PASSWORD)) || (GraphicalComponent.class.isAssignableFrom(persistClass) && !isButton)) && !(Part.class.isAssignableFrom(persistClass))))
-		{
-			return true;
-		}
-
-		// there is no support for placeholder text for checkbox, comobox, radio button in mobile client
-		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) &&
-			(((Field.class.isAssignableFrom(persistClass) && (displayType == Field.CHECKS || displayType == Field.COMBOBOX || displayType == Field.RADIOS)) || (GraphicalComponent.class.isAssignableFrom(persistClass) && !isButton)) && !(Part.class.isAssignableFrom(persistClass))))
 		{
 			return true;
 		}
