@@ -344,7 +344,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 					}
 					else if (action.equals(DraggableBehavior.ACTION_DRAG_START))
 					{
-						Object onDragAllowed = callback.executeOnDrag(getJSEvent(EventType.onDrag, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+						Object onDragAllowed = callback.executeOnDrag(getJSEvent(EventType.onDrag, 0, new Point(x, y),
+							onSelectComponents.keySet().toArray(new IComponent[onSelectComponents.size()])));
 						if ((onDragAllowed instanceof Boolean && !((Boolean)onDragAllowed).booleanValue()) ||
 							(onDragAllowed instanceof Number && ((Number)onDragAllowed).intValue() == DRAGNDROP.NONE))
 						{
@@ -378,7 +379,8 @@ public class DesignModeBehavior extends AbstractServoyDefaultAjaxBehavior
 									((IProviderStylePropertyChanges)child).getStylePropertyChanges().setRendered();
 								}
 							}
-							callback.executeOnDrop(getJSEvent(EventType.onDrop, 0, new Point(x, y), new IComponent[] { (IComponent)child }));
+							callback.executeOnDrop(getJSEvent(EventType.onDrop, 0, new Point(x, y),
+								onSelectComponents.keySet().toArray(new IComponent[onSelectComponents.size()])));
 						}
 
 						if (Boolean.parseBoolean(request.getParameter(PARAM_IS_DBLCLICK)))
