@@ -1270,8 +1270,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
 				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
-					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored ? "visibility:hidden;" : "") + "\"").append(onLoadCall).append(
-					"/>&nbsp;").append(bodyTextValue);
+					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored && (cssClass == null) ? "visibility:hidden;" : "") + "\"").append(
+					onLoadCall).append("/>&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
 
@@ -1281,7 +1281,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			instrumentedBodyText.append("<img id=\"");
 			instrumentedBodyText.append(elementID).append("_img\"");
-			instrumentedBodyText.append("style=\"" + (isElementAnchored ? " visibility:hidden;" : "") + IE8filterFIx + "\""); // hide it until setLabelChildHeight is calculated
+			instrumentedBodyText.append("style=\"" + (isElementAnchored && (cssClass == null) ? " visibility:hidden;" : "") + IE8filterFIx + "\""); // hide it until setLabelChildHeight is calculated
 			instrumentedBodyText.append(" src=\"");
 			instrumentedBodyText.append(imgURL);
 			String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
