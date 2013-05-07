@@ -846,7 +846,7 @@ public class WebEventExecutor extends BaseEventExecutor
 
 				try
 				{
-					if (((WebClientInfo)page.getSession().getClientInfo()).getProperties().isBrowserInternetExplorer())
+					if (isStyleSheetLimitForIE(page.getSession()))
 					{
 						target.appendJavascript("testStyleSheets();");
 					}
@@ -858,6 +858,16 @@ public class WebEventExecutor extends BaseEventExecutor
 				}
 			}
 		}
+	}
+
+	public static boolean isStyleSheetLimitForIE(Session session)
+	{
+		if (session != null)
+		{
+			return ((WebClientInfo)session.getClientInfo()).getProperties().isBrowserInternetExplorer() &&
+				((WebClientInfo)session.getClientInfo()).getProperties().getBrowserVersionMajor() < 10;
+		}
+		return false;
 	}
 
 	@Override

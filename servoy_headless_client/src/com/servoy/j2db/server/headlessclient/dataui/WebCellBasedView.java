@@ -4280,8 +4280,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
 		if ((!(requestTarget instanceof AjaxRequestTarget) || !labelsCssRendered) && labelsCSSClasses.size() > 0)
 		{
-			boolean isStyleSheetLimitForIE = ((WebClientInfo)getSession().getClientInfo()).getProperties().isBrowserInternetExplorer() &&
-				((WebClientInfo)getSession().getClientInfo()).getProperties().getBrowserVersionMajor() < 10;
+			boolean isStyleSheetLimitForIE = WebEventExecutor.isStyleSheetLimitForIE(getSession());
 
 			StringBuilder classes = new StringBuilder();
 			for (String cssClass : labelsCSSClasses)
