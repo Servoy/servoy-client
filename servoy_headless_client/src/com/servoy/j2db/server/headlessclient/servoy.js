@@ -2044,7 +2044,7 @@ if (typeof(Servoy.Utils) == "undefined")
 			  var ss = document.styleSheets;
 			  for (var i=0; i<ss.length; i++)
 			  {
-				  if(ss[i].href != null) continue;
+				  if(ss[i].href != null && ss[i].href != '') continue;
 				  if(ss[i].cssText && ss[i].rules.length > 0 && stylesheetId.indexOf(ss[i].rules[0].selectorText) == 0)
 				  {
 					  ss[i].cssText = ss[i].cssText + newContent;
