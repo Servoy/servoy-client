@@ -429,14 +429,6 @@ public class LookupValueList implements IValueList
 					}
 				}
 				index = alReal.size();
-				// KELMAN TEST CODE
-				application.reportError("Adding realvalue: " + obj + " to this valuelist: " + getName(), null);
-				application.reportError("realvalues: " + alReal + " display: " + alDisplay, null);
-				application.reportError("from state: " + parentState + " and relatedfoudset: " + relatedFoundset, null);
-				if (relatedFoundset != null)
-				{
-					application.reportError(((RelatedFoundSet)relatedFoundset).getWhereArgsHash(), null);
-				}
 				alReal.add(obj);
 				alDisplay.add(CustomValueList.convertToString(obj, application));
 			}
