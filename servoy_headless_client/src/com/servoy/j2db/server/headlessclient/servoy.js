@@ -2897,6 +2897,10 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 
 				resize.on('beforeResize', function(args) 
 				{
+					if (Servoy.ClientDesign.selectedResizeElement.length > 1)
+					{
+						return false;
+					}
 					return true;
 				});
 				
