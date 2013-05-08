@@ -599,9 +599,12 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			{
 				index = getDataProviderID().lastIndexOf('.');
 			}
-			if ((index == -1 || parentState == null) && (prevState != parentState))
+			if (index == -1 || parentState == null)
 			{
-				list.fill(parentState);
+				if (prevState != parentState)
+				{
+					list.fill(parentState);
+				}
 			}
 			else
 			{
