@@ -517,7 +517,6 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 						{
 							// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
 							String displayValue = result == null ? "" : result;
-							// if this is found then it is a commit of data of a partial string, make sure that the field is updated with the complete value.
 							if (displayValue != null && !displayValue.equals(trimmed) && RequestCycle.get() != null)
 							{
 								IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
@@ -545,21 +544,16 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		}
 	}
 
-	/**
-	 * @param trimmed
-	 * @param startsWidth TODO
-	 * @return
-	 */
-	private String matchValueListValue(String trimmed, boolean startsWidth)
+	private String matchValueListValue(String trimmed, boolean startsWith)
 	{
 		int size = dlm.getSize();
 		// Find a match in the value list.
 		String result = null;
-		if (startsWidth) trimmed = trimmed.toLowerCase();
+		if (startsWith) trimmed = trimmed.toLowerCase();
 		for (int i = 0; i < size; i++)
 		{
 			String currentValue = dlm.getElementAt(i).toString();
-			if (startsWidth && currentValue.trim().toLowerCase().startsWith(trimmed))
+			if (startsWith && currentValue.trim().toLowerCase().startsWith(trimmed))
 			{
 				result = currentValue;
 				break;
@@ -571,7 +565,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			}
 		}
 		// if not found, and it must be an exact match, try the fallback valuelist.
-		if (!startsWidth && result == null && dlm.getValueList().getFallbackValueList() != null)
+		if (!startsWith && result == null && dlm.getValueList().getFallbackValueList() != null)
 		{
 			IValueList fallbackValueList = dlm.getValueList().getFallbackValueList();
 			int index = fallbackValueList.indexOf(trimmed);
