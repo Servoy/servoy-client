@@ -352,6 +352,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IP
 		{
 			addEnabledStyleAttributeModifier();
 			iconReference = new ResourceReference("media"); //$NON-NLS-1$
+			text_url = ILabel.MEDIA_ITEM_PREFIX + media.getName();
 		}
 		else if (enabledStyle != null)
 		{

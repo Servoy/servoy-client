@@ -73,6 +73,7 @@ import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
+import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
@@ -452,6 +453,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		{
 			addEnabledStyleAttributeModifier();
 			iconReference = new ResourceReference("media"); //$NON-NLS-1$
+			text_url = ILabel.MEDIA_ITEM_PREFIX + media.getName();
 		}
 		else if (enabledStyle != null)
 		{

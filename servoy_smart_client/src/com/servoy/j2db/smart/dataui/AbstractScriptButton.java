@@ -47,6 +47,7 @@ import javax.swing.plaf.IconUIResource;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -190,6 +191,8 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 		try
 		{
 			setIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(mediaId)));
+			Media media = application.getFlattenedSolution().getMedia(mediaId);
+			if (media != null) text_url = ILabel.MEDIA_ITEM_PREFIX + media.getName();
 		}
 		catch (Exception ex)
 		{

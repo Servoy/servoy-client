@@ -29,6 +29,8 @@ public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISuppo
 	public static int UPPERCASE = 2;
 	public static int LOWERCASE = 3;
 
+	public static String MEDIA_ITEM_PREFIX = "media:///"; //$NON-NLS-1$
+
 	/**
 	 * @param mediaOptions
 	 */
