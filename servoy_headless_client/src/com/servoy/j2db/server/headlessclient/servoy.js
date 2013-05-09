@@ -155,6 +155,10 @@ function storeValueAndCursorBeforeUpdate()
 				focusedElement = null;
 			}
 		}
+		else
+		{
+			focusedElement = null;
+		}
 	}
 	else
 	{
