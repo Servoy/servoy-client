@@ -266,7 +266,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			StringBuilder jsScrollLeft = new StringBuilder("$('#").append(tableContainerBody.getMarkupId()).append("').scrollLeft(").append(currentScrollLeft).append( //$NON-NLS-1$ //$NON-NLS-2$
 				");"); //$NON-NLS-1$
-			response.renderOnLoadJavascript(jsScrollLeft.toString());
+			response.renderOnDomReadyJavascript(jsScrollLeft.toString());
 
 			String top;
 			if (headers != null)
