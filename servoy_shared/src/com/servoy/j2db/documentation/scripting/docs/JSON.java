@@ -74,7 +74,9 @@ public class JSON
 	}
 
 	/**
-	 * Convert a value to JSON, optionally replacing values if a replacer function is specified, or optionally including only the specified properties if a replacer array is specified
+	 * Convert a value to JSON, optionally replacing values if a replacer function is specified, or optionally including only the specified properties if a replacer array is specified.
+	 * As a function, the replacer takes two parameters, the key and the value being stringified. Initially it gets called with an empty key representing the object being stringified, 
+	 * and it then gets called for each property on the object or array being stringified.
 	 *
 	 * @sample 
 	 * function censor(key, value) {  
@@ -89,29 +91,87 @@ public class JSON
 	 * 
 	 * @param value The value to convert to a JSON string.
 	 * 
-	 * @param replacer If a function, transforms values and properties encountered while stringifying; if an array, specifies the set of properties included in objects in the final string.
+	 * @param replacer If a function, transforms values and properties encountered while stringifying; if an array (of String or Number), specifies the set of properties included in objects in the final string.
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/JSON/stringify
 	 */
-	public String js_stringify(Object value, Object replacer)
+	public String js_stringify(Object value, Function replacer)
 	{
 		return null;
 	}
 
 	/**
-	 * Convert a value to JSON, optionally replacing values if a replacer function is specified, or optionally including only the specified properties if a replacer array is specified
+	 * @sameas js_stringify(Object, Function)
+	 */
+	public String js_stringify(Object value, String[] replacer)
+	{
+		return null;
+	}
+
+	/**
+	 * @sameas js_stringify(Object, Function)
+	 */
+	public String js_stringify(Object value, Number[] replacer)
+	{
+		return null;
+	}
+
+	/**
+	 * Convert a value to JSON, optionally replacing values if a replacer function is specified, or optionally including only the specified properties if a replacer array is specified.
+	 * As a function, the replacer takes two parameters, the key and the value being stringified. Initially it gets called with an empty key representing the object being stringified,
+	 * and it then gets called for each property on the object or array being stringified.
 	 *
 	 * @sample JSON.stringify({ uno: 1, dos : 2 }, null, '\t') 
 	 * 
 	 * @param value The value to convert to a JSON string.
 	 * 
-	 * @param replacer If a function, transforms values and properties encountered while stringifying; if an array, specifies the set of properties included in objects in the final string.
+	 * @param replacer If a function, transforms values and properties encountered while stringifying; if an array (of String or Number), specifies the set of properties included in objects in the final string.
 	 * 
-	 * @param space The space argument may be used to control spacing in the final string. If it is a number, successive levels in the stringification will each be indented by this many space characters (up to 10). If it is a string, successive levels will indented by this string (or the first ten characters of it).
+	 * @param space The space argument may be used to control spacing in the final string (causes the resulting string to be pretty-printed). If it is a number, successive levels in the stringification will each be indented by this many space characters (up to 10). If it is a string, successive levels will indented by this string (or the first ten characters of it).
 	 * 
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/JSON/stringify
 	 */
-	public String js_stringify(Object value, Object replacer, Object space)
+	public String js_stringify(Object value, Function replacer, String space)
+	{
+		return null;
+	}
+
+	/**
+	 * @sameas js_stringify(Object, Function, String)
+	 */
+	public String js_stringify(Object value, Function replacer, Number space)
+	{
+		return null;
+	}
+
+	/**
+	 * @sameas js_stringify(Object, Function, String)
+	 */
+	public String js_stringify(Object value, String[] replacer, String space)
+	{
+		return null;
+	}
+
+	/**
+	 * @sameas js_stringify(Object, Function, String)
+	 */
+	public String js_stringify(Object value, Number[] replacer, String space)
+	{
+		return null;
+	}
+
+	/**
+	 * @sameas js_stringify(Object, Function, String)
+	 */
+	public String js_stringify(Object value, String[] replacer, Number space)
+	{
+		return null;
+	}
+
+	/**
+	 * @sameas js_stringify(Object, Function, String)
+	 */
+	public String js_stringify(Object value, Number[] replacer, Number space)
 	{
 		return null;
 	}
