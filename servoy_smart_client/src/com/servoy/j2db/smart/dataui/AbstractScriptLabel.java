@@ -54,6 +54,7 @@ import javax.swing.text.View;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IScriptExecuter;
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -588,7 +589,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 		{
 			setIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(mediaId)));
 			Media media = application.getFlattenedSolution().getMedia(mediaId);
-			if (media != null) text_url = ILabel.MEDIA_ITEM_PREFIX + media.getName();
+			if (media != null) text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
 		catch (Exception ex)
 		{

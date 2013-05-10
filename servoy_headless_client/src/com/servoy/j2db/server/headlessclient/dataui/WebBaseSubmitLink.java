@@ -406,7 +406,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 		{
 			addEnabledStyleAttributeModifier();
 			iconReference = new ResourceReference("media"); //$NON-NLS-1$
-			text_url = ILabel.MEDIA_ITEM_PREFIX + media.getName();
+			text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
 		else if (enabledStyle != null)
 		{
