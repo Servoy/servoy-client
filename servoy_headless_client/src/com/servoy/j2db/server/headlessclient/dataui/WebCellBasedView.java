@@ -79,6 +79,7 @@ import org.apache.wicket.markup.parser.filter.HtmlHeaderSectionHandler;
 import org.apache.wicket.markup.resolver.IComponentResolver;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
 import org.apache.wicket.response.StringResponse;
@@ -143,6 +144,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent.EventType;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
@@ -4953,9 +4955,22 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return headerStyle;
 	}
 
+	/**
+	 * scroll mode is not supported in Internet Explorer 7 and will always set scroll mode to false in this case
+	 * @param scrollMode
+	 */
 	public void setScrollMode(boolean scrollMode)
 	{
-		this.isScrollMode = scrollMode;
+		ClientProperties cp = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
+		if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() < 8)
+		{
+			this.isScrollMode = false;
+
+		}
+		else
+		{
+			this.isScrollMode = scrollMode;
+		}
 	}
 
 	public boolean isScrollMode()
