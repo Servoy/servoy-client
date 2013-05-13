@@ -614,6 +614,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					IRecordInternal relRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
 					if (relRecord != relatedRecord)
 					{
+						// KELMAN TEST CODE
+						application.reportError(
+							"setting related lookup valuelist: " + relRecord + " to this valuelist: " + list.getName() + " rel: " + list.getRelationName(),
+							null);
 						this.relatedRecord = relRecord;
 						list.fill(relatedRecord);
 					}
