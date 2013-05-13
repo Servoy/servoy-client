@@ -2944,6 +2944,7 @@ if (typeof(Servoy.ClientDesign) == "undefined")
 				Servoy.ClientDesign.addDragCursor(el.getElementsByTagName('button'));
 			}
 			Servoy.ClientDesign.callbackurl = url;
+			Servoy.ClientDesign.clearClickTimer();
 			Wicket.Event.add(document.body, "mousedown", Servoy.ClientDesign.mouseSelect);
 			Wicket.Event.add(document.body, "mouseup", Servoy.ClientDesign.mouseUp);
 			document.body.oncontextmenu = function(e) { e.preventDefault();}
