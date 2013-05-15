@@ -192,7 +192,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 * It is interpreted as a JS expression.
 	 * 
 	 * For form variables ,setting this property requires the form instances to be destroyed (history.remove("formName")). 
-	 * If you want to use a default value for a newly created variable  create the variable using the 3 paramaeter version newVariable(name,type,defaultValue).
+	 * If you want to use a default value for a newly created variable  create the variable using the 3 parameter version newVariable(name,type,defaultValue).
 	 * 
 	 * For INTEGER variables it can be an integer constant, like 10 for example.
 	 * For NUMBER variables it can be a real constant, like 22.41. For DATETIME
