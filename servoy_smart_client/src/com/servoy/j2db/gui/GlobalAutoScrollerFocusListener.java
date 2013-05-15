@@ -25,6 +25,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.ScrollPaneConstants;
 
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.smart.dataui.DataCalendar;
@@ -141,8 +142,16 @@ public class GlobalAutoScrollerFocusListener implements PropertyChangeListener
 	{
 		if (owner == null) return null;
 		Component c = owner.getParent();
-		while ((c != null) && (!(c instanceof JScrollPane)))
+		Component prev = null;
+
+		//if it is an element that has a column header (ex ListView with header) , skip the first JScrollPane
+		while ((c != null) &&
+			(!((c instanceof JScrollPane) && (prev != ((JScrollPane)c).getColumnHeader()) && (prev != ((JScrollPane)c).getRowHeader()) &&
+				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.LOWER_LEFT_CORNER)) &&
+				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.LOWER_RIGHT_CORNER)) &&
+				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.UPPER_LEFT_CORNER)) && (prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER)))))
 		{
+			prev = c;
 			c = c.getParent();
 		}
 		if (c != null)
@@ -154,5 +163,4 @@ public class GlobalAutoScrollerFocusListener implements PropertyChangeListener
 		}
 		else return null;
 	}
-
 }
