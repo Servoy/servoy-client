@@ -29,7 +29,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label, Button, Image")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label, Button, Image", isButton = true)
 public class GraphicalComponent extends BaseComponent implements ISupportTextEditing, ISupportTextSetup, ISupportDataProviderID, ISupportTabSeq, ISupportMedia,
 	IBaseGraphicalComponent
 {

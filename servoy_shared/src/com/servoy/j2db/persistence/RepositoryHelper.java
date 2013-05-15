@@ -578,7 +578,7 @@ public class RepositoryHelper
 			return true;
 		}
 
-		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && Field.class.isAssignableFrom(persistClass) &&
+		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && Field.class.isAssignableFrom(persistClass) && displayType >= 0 &&
 			displayType != Field.TEXT_FIELD && displayType != Field.TEXT_AREA && displayType != Field.PASSWORD)
 		{
 			return true;
@@ -590,9 +590,21 @@ public class RepositoryHelper
 		}
 
 		// there is no style support for labels & text fields on mobile client
-		if (name.equals(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) &&
-			(((Field.class.isAssignableFrom(persistClass) && (displayType == Field.TEXT_FIELD || displayType == Field.TEXT_AREA || displayType == Field.PASSWORD)) || (GraphicalComponent.class.isAssignableFrom(persistClass) && !isButton)) && !(Part.class.isAssignableFrom(persistClass))))
+		if (name.equals(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()))
 		{
+			if ((GraphicalComponent.class.isAssignableFrom(persistClass) && isButton))
+			{
+				return false;
+			}
+			if (Field.class.isAssignableFrom(persistClass) &&
+				(displayType == Field.CHECKS || displayType == Field.RADIOS || displayType == Field.COMBOBOX || displayType < 0))
+			{
+				return false;
+			}
+			if (Part.class.isAssignableFrom(persistClass))
+			{
+				return false;
+			}
 			return true;
 		}
 
