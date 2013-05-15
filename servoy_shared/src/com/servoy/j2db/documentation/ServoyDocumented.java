@@ -72,7 +72,7 @@ public @interface ServoyDocumented
 	/**
 	 * Field display type
 	 */
-	int displayType() default 0;
+	int displayType() default -1;
 
 	/**
 	 * for documenting class, which class is the real class
