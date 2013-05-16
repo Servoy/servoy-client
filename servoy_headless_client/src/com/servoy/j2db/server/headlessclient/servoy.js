@@ -1965,17 +1965,26 @@ if (typeof(Servoy.Utils) == "undefined")
 		  var ua = window.navigator.userAgent
 	      var msie = ua.indexOf("MSIE ");
 
-      	  if (msie > 0) // IE
-      	  {
-      	  	paddTop = elem.currentStyle.paddingTop.replace("px","");
-      	  	paddBottom = elem.currentStyle.paddingBottom.replace("px","");
-      	  }
-      	  else // other browsers 
-      	  {
-		 	paddTop = parseInt(window.getComputedStyle(elem, null).paddingTop.replace("px","")); 
-		  	paddBottom = parseInt(window.getComputedStyle(elem, null).paddingBottom.replace("px","")); 
+		  if (elem)
+		  {
+	      	  if (msie > 0) // IE
+	      	  {
+	      		  if (elem.currentStyle)
+	      		  {
+	      			  paddTop = elem.currentStyle.paddingTop.replace("px","");
+	      			  paddBottom = elem.currentStyle.paddingBottom.replace("px","");
+	      		  }
+	      		  else
+	      		  {
+	      			  Wicket.Log.info("currentStyle of element is null: " + elemid);
+	      		  }
+	      	  }
+	      	  else // other browsers 
+	      	  {
+	      		  paddTop = parseInt(window.getComputedStyle(elem, null).paddingTop.replace("px","")); 
+	      		  paddBottom = parseInt(window.getComputedStyle(elem, null).paddingBottom.replace("px","")); 
+			  }
 		  }
-		  
 		  if(elem && child)
 		  {
 			var elemHeight =  elem.clientHeight;
