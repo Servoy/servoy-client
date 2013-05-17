@@ -584,11 +584,6 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 */
 	public void setRecord(IRecordInternal parentState, boolean stopEditing)
 	{
-		if (parentState != this.parentState)
-		{
-			this.relatedRecord = null;
-		}
-		IRecordInternal prevState = parentState;
 		this.parentState = parentState;
 		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
@@ -599,35 +594,19 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			}
 			if (index == -1 || parentState == null)
 			{
-				if (prevState != parentState)
-				{
-					list.fill(parentState);
-				}
+				list.fill(parentState);
 			}
 			else
 			{
 				IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(getDataProviderID().substring(0, index));
 				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
 				{
-					this.relatedRecord = null;
 					list.fill(null);
 				}
 				else
 				{
-
 					IRecordInternal relRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
-					if (relRecord != relatedRecord)
-					{
-						this.relatedRecord = relRecord;
-						list.fill(relatedRecord);
-					}
-					else
-					{
-						application.reportJSInfo("related record set, calling refresh: " + relRecord);
-						application.reportJSInfo("related record was: " + this.relatedRecord);
-						this.relatedRecord = relRecord;
-						list.fill(relatedRecord);
-					}
+					list.fill(relRecord);
 				}
 			}
 		}
