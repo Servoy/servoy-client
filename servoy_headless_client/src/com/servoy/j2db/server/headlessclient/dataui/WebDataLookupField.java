@@ -621,6 +621,13 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 						this.relatedRecord = relRecord;
 						list.fill(relatedRecord);
 					}
+					else
+					{
+						application.reportJSInfo("related record set, calling refresh: " + relRecord);
+						application.reportJSInfo("related record was: " + this.relatedRecord);
+						this.relatedRecord = relRecord;
+						list.fill(relatedRecord);
+					}
 				}
 			}
 		}
