@@ -605,10 +605,12 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(getDataProviderID().substring(0, index));
 				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
 				{
+					this.relatedRecord = null;
 					list.fill(null);
 				}
 				else
 				{
+
 					IRecordInternal relRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
 					if (relRecord != relatedRecord)
 					{
