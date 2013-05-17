@@ -584,7 +584,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 */
 	public void setRecord(IRecordInternal parentState, boolean stopEditing)
 	{
-		IRecordInternal prevState = parentState;
+		IRecordInternal prevState = this.parentState;
 		this.parentState = parentState;
 		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
