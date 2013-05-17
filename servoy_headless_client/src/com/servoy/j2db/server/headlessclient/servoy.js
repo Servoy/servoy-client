@@ -1976,7 +1976,10 @@ if (typeof(Servoy.Utils) == "undefined")
 	      		  }
 	      		  else
 	      		  {
+	      			  // should never happen
 	      			  Wicket.Log.info("currentStyle of element is null: " + elemid);
+	      			  paddTop = 0;
+	      			  paddBottom = 0;
 	      		  }
 	      	  }
 	      	  else // other browsers 
