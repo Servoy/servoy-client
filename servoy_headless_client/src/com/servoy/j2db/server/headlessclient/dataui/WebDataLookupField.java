@@ -584,6 +584,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 */
 	public void setRecord(IRecordInternal parentState, boolean stopEditing)
 	{
+		IRecordInternal prevState = this.parentState;
 		this.parentState = parentState;
 		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
@@ -594,7 +595,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			}
 			if (index == -1 || parentState == null)
 			{
-				list.fill(parentState);
+				if (prevState != parentState)
+				{
+					list.fill(parentState);
+				}
 			}
 			else
 			{
@@ -606,7 +610,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				else
 				{
 					IRecordInternal relRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
-					list.fill(relRecord);
+					if (relRecord != relatedRecord)
+					{
+						this.relatedRecord = relRecord;
+						list.fill(relatedRecord);
+					}
 				}
 			}
 		}
