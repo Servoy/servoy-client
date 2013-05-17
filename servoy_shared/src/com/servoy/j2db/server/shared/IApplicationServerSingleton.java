@@ -35,6 +35,7 @@ import com.servoy.j2db.persistence.IXMLExportI18NHelper;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
+import com.servoy.j2db.plugins.IServerAccess;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
@@ -136,4 +137,6 @@ public interface IApplicationServerSingleton
 	void setServerProcess(String clientID);
 
 	IServerStatus getServerStatus();
+
+	IServerAccess getServerAccess();
 }
