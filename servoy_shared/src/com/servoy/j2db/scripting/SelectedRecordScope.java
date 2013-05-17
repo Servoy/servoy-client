@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db.scripting;
 
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.FormController;
@@ -45,6 +48,21 @@ public class SelectedRecordScope implements Scriptable
 		if (selectedIndex == -1 && fc.getFormModel().getSize() > 0)
 		{
 			Debug.error("No selection set on foundset with size " + fc.getFormModel().getSize() + " fs: " + fc.getFormModel(), new RuntimeException());
+
+			if (Context.getCurrentContext() != null)
+			{
+				try
+				{
+					EcmaError jsError = ScriptRuntime.constructError("No selection set on foundset", "No selection set on foundset");
+					Debug.error("No selection set on foundset, script stacktrace:");
+					Debug.error(jsError.getScriptStackTrace());
+				}
+				catch (Exception e)
+				{
+					// just ignore
+				}
+			}
+
 			fc.getFormModel().setSelectedIndex(0);
 		}
 		Scriptable record = (Scriptable)fc.getFormModel().getRecord(selectedIndex);
