@@ -13,7 +13,7 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.util.rtf;
 
 import java.awt.Color;
@@ -34,6 +34,8 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.TabStop;
+
+import com.servoy.j2db.util.Debug;
 
 /**
  * Generates an RTF output stream (java.io.OutputStream) from rich text (handed off through a series of LTTextAcceptor calls). Can be used to generate RTF from
@@ -809,7 +811,7 @@ class RTFGenerator extends Object
 			catch (BadLocationException ble)
 			{
 				/* TODO is this the correct error to raise? */
-				ble.printStackTrace();
+				Debug.error(ble);
 				throw new InternalError(ble.getMessage());
 			}
 			writeText(this.workingSegment);

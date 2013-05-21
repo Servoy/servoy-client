@@ -109,7 +109,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		}
 		catch (IOException ex)
 		{
-			ex.printStackTrace();
+			Debug.error(ex);
 		}
 		NOT_EMPTY_IMAGE = ImageLoader.getIcon(notEmptyImage, -1, -1, true);
 	}

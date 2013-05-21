@@ -146,7 +146,7 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		}
 		catch (IOException e1)
 		{
-			e1.printStackTrace();
+			Debug.error(e1);
 			return -1;
 		}
 		Runnable debugThread = new Runnable()

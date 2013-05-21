@@ -510,11 +510,13 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 		}
 
 		// ignore the drags
+		@Override
 		public void mouseDragged(MouseEvent e)
 		{
 		}
 
 		// track the moving of the mouse.
+		@Override
 		public void mouseMoved(MouseEvent e)
 		{
 			JEditorPane editor = (JEditorPane)e.getSource();
@@ -1044,7 +1046,7 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 				}
 				catch (Exception e)
 				{
-					e.printStackTrace();
+					Debug.error(e);
 				}
 			}
 		}
