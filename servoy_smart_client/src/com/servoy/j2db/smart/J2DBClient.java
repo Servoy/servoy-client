@@ -158,7 +158,6 @@ import com.servoy.j2db.dataprocessing.GlobalEditEvent;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IGlobalEditListener;
 import com.servoy.j2db.dataprocessing.IInfoListener;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IUserClient;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
@@ -751,6 +750,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			System.setProperty("sun.rmi.dgc.client.gcInterval", "360000");
 			// System.setProperty("java.rmi.server.codebase", "");//disable any rmi classloading
 			System.setProperty("apple.laf.useScreenMenuBar", Boolean.toString(getAppleScreenMenuBar()));
+
+			if (Utils.isAppleMacOS() && System.getProperty("mrj.version") == null) System.setProperty("mrj.version", "3.1");
 
 			UIManager.put("TabbedPane.contentOpaque", Boolean.FALSE);
 			// The "TabbedPane.tabsOpaque" should not be set. If we set it, then the tabs (the little handles
@@ -2016,7 +2017,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 			else
 			{
-				String name2 = Text.processTags(i18nName, TagResolver.createResolver((IRecordInternal)new PrototypeState(null)));
+				String name2 = Text.processTags(i18nName, TagResolver.createResolver(new PrototypeState(null)));
 				if (name2 != null) i18nName = name2;
 			}
 			if (!i18nName.trim().equals("")) //$NON-NLS-1$
