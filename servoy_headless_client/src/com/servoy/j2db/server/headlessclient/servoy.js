@@ -2015,13 +2015,6 @@ if (typeof(Servoy.Utils) == "undefined")
 			else					// ISupportTextSetup.CENTER
 			{
 				top = Math.floor((elemHeight - childHeight)/2);
-				
-				// buttons have special bottom padding set with element height;
-				// for IE 8.0 we need to use that for having right top position
-				if(child.parentNode.tagName == 'BUTTON' && ua.indexOf("MSIE 8.0") > 0)
-				{
-					top = top - Math.floor(elemHeight/2);
-				}
 			}
 			
 			var ssFound = false;
