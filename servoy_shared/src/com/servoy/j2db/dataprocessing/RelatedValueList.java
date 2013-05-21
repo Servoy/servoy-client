@@ -25,6 +25,7 @@ import java.util.List;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -192,6 +193,22 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		fireContentsChanged(this, -1, -1);
 	}
 
+	private String[] getDisplayFormat(Table table)
+	{
+		if (table != null && hasRealValues())
+		{
+			String[] displayFormats = new String[3];
+			Column col1 = table.getColumn(valueList.getDataProviderID1());
+			if (col1 != null && col1.getColumnInfo() != null) displayFormats[0] = col1.getColumnInfo().getDefaultFormat();
+			Column col2 = table.getColumn(valueList.getDataProviderID2());
+			if (col2 != null && col2.getColumnInfo() != null) displayFormats[1] = col2.getColumnInfo().getDefaultFormat();
+			Column col3 = table.getColumn(valueList.getDataProviderID3());
+			if (col3 != null && col3.getColumnInfo() != null) displayFormats[2] = col3.getColumnInfo().getDefaultFormat();
+			return displayFormats;
+		}
+		return null;
+	}
+
 	/**
 	 * Fill from foundset in case of one-level relation or multiple servers
 	 * 
@@ -256,15 +273,17 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 					}
 
+					String[] displayFormat = getDisplayFormat((Table)relatedFoundSet.getTable());
+
 					for (IRecordInternal state : records)
 					{
 						if (state == null || state.getParentFoundSet() == null) continue;
 
-						Object element = CustomValueList.handleRowData(valueList, concatShowValues, showValues, state, application);
+						Object element = CustomValueList.handleRowData(valueList, displayFormat, concatShowValues, showValues, state, application);
 						if (showAndReturnAreSame && indexOf(element) > -1) continue;
 
 						addElement(element);
-						realValues.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, state, application));
+						realValues.add(CustomValueList.handleRowData(valueList, null, concatReturnValues, returnValues, state, application));
 					}
 				}
 				finally
@@ -360,11 +379,14 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			{
 				application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 			}
+			String[] displayFormat = getDisplayFormat((Table)application.getFoundSetManager().getTable(pair.getRight().getDataSource()));
 			for (int i = 0; i < dataSet.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(dataSet.getRow(i), showValues, returnValues);
 
-				Object element = CustomValueList.handleRowData(valueList, concatShowValues, showValues, row, application);
+				Object element = null;
+				if (displayFormat != null) element = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString();
+				else element = CustomValueList.handleRowData(valueList, concatShowValues, showValues, row, application);
 				if (showAndReturnAreSame && indexOf(element) != -1) continue;
 
 				addElement(element);

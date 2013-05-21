@@ -218,7 +218,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	@SuppressWarnings("nls")
 	private void firstFill(String values, boolean displayValuesOnly)
 	{
-		if (values != null && super.getSize() == 0 && SEPARATOR_DESIGN_VALUE.equals(values.toString())) //$NON-NLS-1$
+		if (values != null && super.getSize() == 0 && SEPARATOR_DESIGN_VALUE.equals(values.toString()))
 		{
 			values = null;
 		}
@@ -247,7 +247,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 					// in case we are dealing with a valuelist with display & real values, consider \- display value not to be a separator (normally you could use \\- but it's hard to figure out)
 					if (SEPARATOR_DESIGN_VALUE.equals(str[0])) str[0] = Utils.stringSplit(line, "|")[0];
 
-					if ((SEPARATOR_DESIGN_VALUE.equals(str[0]) || str[1] != null) && !displayValuesOnly) //$NON-NLS-1$
+					if ((SEPARATOR_DESIGN_VALUE.equals(str[0]) || str[1] != null) && !displayValuesOnly)
 					{
 						super.addElement(application.getI18NMessageIfPrefixed(str[0]));
 						if (realValues == null)
@@ -593,13 +593,14 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		return returnValue;
 	}
 
-	public static Object handleRowData(ValueList vl, boolean concat, int bitset, IRecordInternal row, IServiceProvider application)
+	public static Object handleRowData(ValueList vl, String[] displayFormats, boolean concat, int bitset, IRecordInternal row, IServiceProvider application)
 	{
 		Object[] args = new Object[3];
 		if ((bitset & 1) != 0) args[0] = row.getValue(vl.getDataProviderID1());
 		if ((bitset & 2) != 0) args[1] = row.getValue(vl.getDataProviderID2());
 		if ((bitset & 4) != 0) args[2] = row.getValue(vl.getDataProviderID3());
-		return handleRowData(vl, concat, bitset, args, application);
+		if (displayFormats != null) return handleDisplayData(vl, displayFormats, concat, bitset, args, application).toString();
+		else return handleRowData(vl, concat, bitset, args, application);
 	}
 
 	public static Object handleRowData(ValueList vl, boolean concat, int bitset, Object[] row, IServiceProvider application)
@@ -655,12 +656,12 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		}
 	}
 
-	public static DisplayString handleDisplayData(ValueList vl, String displayFormat, boolean concat, int bitset, Object[] row, IServiceProvider application)
+	public static DisplayString handleDisplayData(ValueList vl, String[] displayFormat, boolean concat, int bitset, Object[] row, IServiceProvider application)
 	{
 		DisplayString showVal = new DisplayString(vl.getSeparator());
 		if ((bitset & 1) != 0)
 		{
-			String str = convertToString(row[0], displayFormat, application);
+			String str = convertToString(row[0], displayFormat[0], application);
 			if (concat)
 			{
 				showVal.append(str);
@@ -672,7 +673,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		}
 		if ((bitset & 2) != 0)
 		{
-			String str = convertToString(row[1], displayFormat, application);
+			String str = convertToString(row[1], displayFormat[1], application);
 			if (concat)
 			{
 				showVal.append(str);
@@ -684,7 +685,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		}
 		if ((bitset & 4) != 0)
 		{
-			String str = convertToString(row[2], displayFormat, application);
+			String str = convertToString(row[2], displayFormat[2], application);
 			if (concat)
 			{
 				showVal.append(str);

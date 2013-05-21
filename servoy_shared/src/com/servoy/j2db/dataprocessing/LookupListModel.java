@@ -447,10 +447,10 @@ public class LookupListModel extends AbstractListModel
 			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select,
 				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
-				String displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
 				if (display != null && !display.equals("")) //$NON-NLS-1$
 				{
@@ -574,10 +574,10 @@ public class LookupListModel extends AbstractListModel
 			}
 			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
 				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
-				String displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
 				if (display != null && !display.equals("")) //$NON-NLS-1$
 				{

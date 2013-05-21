@@ -143,6 +143,22 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		return i;
 	}
 
+	private String[] getDisplayFormat()
+	{
+		if (table != null && hasRealValues())
+		{
+			String[] displayFormats = new String[3];
+			Column col1 = table.getColumn(valueList.getDataProviderID1());
+			if (col1 != null && col1.getColumnInfo() != null) displayFormats[0] = col1.getColumnInfo().getDefaultFormat();
+			Column col2 = table.getColumn(valueList.getDataProviderID2());
+			if (col2 != null && col2.getColumnInfo() != null) displayFormats[1] = col2.getColumnInfo().getDefaultFormat();
+			Column col3 = table.getColumn(valueList.getDataProviderID3());
+			if (col3 != null && col3.getColumnInfo() != null) displayFormats[2] = col3.getColumnInfo().getDefaultFormat();
+			return displayFormats;
+		}
+		return null;
+	}
+
 	//update the list, contents may have changed, can this implemented more effective?
 	public void tableChange(TableEvent e)
 	{
@@ -277,22 +293,25 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
 					}
 
+					String[] displayFormat = getDisplayFormat();
 					for (int i = 0; i < set.getRowCount(); i++)
 					{
 						Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
-						addElement(handleRowData(valueList, concatShowValues, showValues, row, application));
+						if (displayFormat != null) addElement(handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application).toString());
+						else addElement(handleRowData(valueList, concatShowValues, showValues, row, application).toString());
 						realValues.add(handleRowData(valueList, concatReturnValues, returnValues, row, application));
 					}
 				}
 				else
 				{
 					IRecordInternal[] array = fs.getRecords(0, MAX_VALUELIST_ROWS);
+					String[] displayFormat = getDisplayFormat();
 					for (IRecordInternal r : array)
 					{
 						if (r != null)
 						{
-							Object val = handleRowData(valueList, concatShowValues, showValues, r, application);
-							Object rval = handleRowData(valueList, concatReturnValues, returnValues, r, application);
+							Object val = handleRowData(valueList, displayFormat, concatShowValues, showValues, r, application);
+							Object rval = handleRowData(valueList, null, concatReturnValues, returnValues, r, application);
 							int index = indexOf(val);
 							if (index == -1 || !Utils.equalObjects(getRealElementAt(index), rval))
 							{

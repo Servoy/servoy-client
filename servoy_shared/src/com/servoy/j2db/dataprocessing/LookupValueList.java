@@ -28,16 +28,17 @@ import javax.swing.event.ListDataListener;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.CompareCondition;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
@@ -219,10 +220,10 @@ public class LookupValueList implements IValueList
 							if (valueList.getDataProviderID3() != null) data[i][2] = records[i].getValue(valueList.getDataProviderID3());
 						}
 
+						String[] displayFormats = getDisplayFormat();
 						for (Object[] element : data)
 						{
-							DisplayString obj = CustomValueList.handleDisplayData(valueList, getDisplayFormat(), concatShowValues, showValues, element,
-								application);
+							DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormats, concatShowValues, showValues, element, application);
 							if (obj != null && !obj.equals("")) //$NON-NLS-1$
 							{
 								alDisplay.add(obj);
@@ -319,13 +320,13 @@ public class LookupValueList implements IValueList
 
 				for (String displayValue : displayValues)
 				{
-					where.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp1), getAsRightType(
-						dp1, displayValue)));
+					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp1),
+						getAsRightType(dp1, displayValue)));
 				}
 			}
 			// also just add the complete value, for the possibility that it was a value with a separator.
 			value = getAsRightType(dp1, value);
-			where.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp1), value));
+			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp1), value));
 		}
 		if ((values & 2) != 0)
 		{
@@ -334,12 +335,12 @@ public class LookupValueList implements IValueList
 			{
 				for (String displayValue : displayValues)
 				{
-					where.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp2), getAsRightType(
-						dp2, displayValue)));
+					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp2),
+						getAsRightType(dp2, displayValue)));
 				}
 			}
 			value = getAsRightType(dp2, value);
-			where.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp2), value));
+			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp2), value));
 		}
 		if ((values & 4) != 0)
 		{
@@ -348,12 +349,12 @@ public class LookupValueList implements IValueList
 			{
 				for (String displayValue : displayValues)
 				{
-					where.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp3), getAsRightType(
-						dp3, displayValue)));
+					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp3),
+						getAsRightType(dp3, displayValue)));
 				}
 			}
 			value = getAsRightType(dp3, value);
-			where.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp3), value));
+			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp3), value));
 		}
 		select.setCondition(SQLGenerator.CONDITION_SEARCH, where);
 
@@ -367,7 +368,7 @@ public class LookupValueList implements IValueList
 				tableFilterParams = new ArrayList<TableFilter>();
 			}
 			tableFilterParams.add(new TableFilter("lookupValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), //$NON-NLS-1$
-				DBValueList.NAME_COLUMN, ISQLCondition.EQUALS_OPERATOR, valueList.getName()));
+				DBValueList.NAME_COLUMN, IBaseSQLCondition.EQUALS_OPERATOR, valueList.getName()));
 		}
 		SQLStatement trackingInfo = null;
 		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
@@ -378,10 +379,11 @@ public class LookupValueList implements IValueList
 		}
 		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
 			!select.isUnique(), 0, ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4, IDataServer.VALUELIST_QUERY, trackingInfo);
+		String[] displayFormats = getDisplayFormat();
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
 			Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
-			DisplayString obj = CustomValueList.handleDisplayData(valueList, getDisplayFormat(), concatShowValues, showValues, row, application);
+			DisplayString obj = CustomValueList.handleDisplayData(valueList, displayFormats, concatShowValues, showValues, row, application);
 			if (obj != null && !obj.equals("")) //$NON-NLS-1$
 			{
 				alDisplay.add(obj);
@@ -562,14 +564,29 @@ public class LookupValueList implements IValueList
 		listeners.remove(l);
 	}
 
-	public String getDisplayFormat()
+	public String[] getDisplayFormat()
 	{
-		if (hasRealValues())
+		String[] displayFormats = new String[3];
+		if (displayFormat == null || hasRealValues()) // format is linked to dataproviderid, so returning it could lead to incorrect display
 		{
-			// format is linked to dataproviderid, so returning it could lead to incorrect display
-			return null;
+			if (table != null)
+			{
+				Column col1 = table.getColumn(valueList.getDataProviderID1());
+				if (col1 != null && col1.getColumnInfo() != null) displayFormats[0] = col1.getColumnInfo().getDefaultFormat();
+				Column col2 = table.getColumn(valueList.getDataProviderID2());
+				if (col2 != null && col2.getColumnInfo() != null) displayFormats[1] = col2.getColumnInfo().getDefaultFormat();
+				Column col3 = table.getColumn(valueList.getDataProviderID3());
+				if (col3 != null && col3.getColumnInfo() != null) displayFormats[2] = col3.getColumnInfo().getDefaultFormat();
+			}
 		}
-		return displayFormat;
+		else
+		{
+			for (int i = 0; i < displayFormats.length; i++)
+			{
+				displayFormats[i] = displayFormat;
+			}
+		}
+		return displayFormats;
 	}
 
 	/**
