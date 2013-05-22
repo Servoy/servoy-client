@@ -595,12 +595,18 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setMaxLength(int)
 	 */
+	private int maxLength = -1;
+
 	public void setMaxLength(int maxLength)
 	{
-		// if the format has a max length set and the current one is larger, ignore this one (format length is leading)
-		if (parsedFormat != null && parsedFormat.getMaxLength() != null && parsedFormat.getMaxLength().intValue() < maxLength) return;
+		this.maxLength = maxLength;
+		addMaxLengthBehavior(maxLength);
+	}
 
+	public void addMaxLengthBehavior(int maxLength)
+	{
 		if (maxLengthBehavior != null) remove(maxLengthBehavior);
+		maxLengthBehavior = null;
 		if (maxLength > 0)
 		{
 			maxLengthBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "maxlength", Integer.toString(maxLength).intern()); //$NON-NLS-1$
@@ -818,14 +824,15 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		converter = null;
 		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
 		parsedFormat = componentFormat.parsedFormat;
+		if (formatAttributeModifier != null) remove(formatAttributeModifier);
+		addMaxLengthBehavior(-1);
 		if (!componentFormat.parsedFormat.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
 			int maxLength = parsedFormat.getMaxLength() != null ? parsedFormat.getMaxLength().intValue() : 0;
 			if (maxLength > 0)
 			{
-				setMaxLength(parsedFormat.getMaxLength().intValue());
+				addMaxLengthBehavior(parsedFormat.getMaxLength().intValue());
 			}
-			if (formatAttributeModifier != null) remove(formatAttributeModifier);
 			if (parsedFormat.isAllUpperCase())
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,true," +
@@ -864,6 +871,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			if (formatAttributeModifier != null) add(formatAttributeModifier);
 
 		}
+		if (maxLength > 0 && maxLengthBehavior == null)
+		{
+			addMaxLengthBehavior(maxLength);
+		}
+
 	}
 
 	public Insets getMargin()

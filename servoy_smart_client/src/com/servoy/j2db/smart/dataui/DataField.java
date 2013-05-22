@@ -1075,6 +1075,8 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		if (editProvider != null) editProvider.setEditable(b);
 	}
 
+	private int maxLength = -1;
+
 	public void setMaxLength(int i)
 	{
 		// do not set max length check when it has been set in setFormat() 
@@ -1082,6 +1084,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		{
 			editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(i));
 		}
+		maxLength = i;
 	}
 
 	@Override
@@ -1377,6 +1380,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 		this.dataType = componentFormat.uiType;
 		this.displayFormat = null;
 		this.editFormat = null;
+		editorDocument.clearValidators();
 		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
 		if (!fp.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
@@ -1516,6 +1520,10 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			TextFormatter display = new TextFormatter();
 			TextFormatter edit = new TextFormatter();
 			setFormatterFactory(new EditingFixedDefaultFormatterFactory(display, display, edit, edit));
+		}
+		if (maxLength >= 0 && editorDocument.getValidator(MAX_LENGTH_VALIDATOR) == null)
+		{
+			editorDocument.setValidator(MAX_LENGTH_VALIDATOR, new LengthDocumentValidator(maxLength));
 		}
 	}
 
