@@ -19,6 +19,9 @@ package com.servoy.j2db.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.ScriptRuntime;
 import org.slf4j.MDC;
 
 import com.servoy.j2db.IServiceProvider;
@@ -230,6 +233,19 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		log.error(insertClientInfo(message), s);
+		if (Context.getCurrentContext() != null)
+		{
+			try
+			{
+				EcmaError jsError = ScriptRuntime.constructError(message, message);
+				String scriptStackTrace = jsError.getScriptStackTrace();
+				if (!scriptStackTrace.equals("")) log.error(insertClientInfo(message + ", script stacktrace:\n" + scriptStackTrace));
+			}
+			catch (Exception e)
+			{
+				// just ignore
+			}
+		}
 	}
 
 	public static void error(Object s)
@@ -238,7 +254,7 @@ public class Debug
 		if (log == null) return;
 		if (s instanceof Throwable)
 		{
-			log.error(insertClientInfo("Throwable"), (Throwable)s);
+			error("Throwable", (Throwable)s);
 		}
 		else
 		{
