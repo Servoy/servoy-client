@@ -128,7 +128,7 @@ public interface IServerInternal
 	QuerySet getSQLQuerySet(ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, boolean forceQualifyColumns)
 		throws RepositoryException;
 
-	boolean hasMissingDBSequences(Table table) throws SQLException, RepositoryException;
+	String[] getMissingDBSequences(Table table) throws SQLException, RepositoryException;
 
 	String[] createMissingDBSequences(Table table) throws SQLException, RepositoryException;
 
