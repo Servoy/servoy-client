@@ -364,19 +364,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			if (!currentRecord.equals(state))
 			{
 				stopUIEditing(false);
+			}
+			if (state != currentRecord)
+			{
 				currentRecord.removeModificationListener(this);//unregister
 			}
 		}
 
-		//1) handle first related data (needed for comboboxes)
-		if (state != null)
+		if (state != null && state != currentRecord)
 		{
-			if (!state.equals(currentRecord))
-			{
-				state.addModificationListener(this);//register so we are notified about javascript changes on non global vars from here
-			}
+			state.addModificationListener(this);//register so we are notified about javascript changes on non global vars from here
 		}
 		currentRecord = state;
+		//1) handle first related data (needed for comboboxes)
 		for (IDisplayRelatedData drd : relatedDataAdapters)
 		{
 			if (state != null)// && !(state instanceof PrototypeState)) 
