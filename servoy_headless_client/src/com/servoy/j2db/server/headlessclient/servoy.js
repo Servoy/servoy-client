@@ -2335,6 +2335,17 @@ if (typeof(Servoy.Utils) == "undefined")
 					Wicket.Event.add(inp, 'click', function(e){e.target.parentNode.focus();});
 		 		}
 			}
+	  },
+	  
+	  checkWebFormHeights: function() {
+		  $(".webform").each(function( index ) {
+			  if ($(this).height()  == 0) {
+				  var parentHeight = parseInt($(this).parent().height(), 10);
+				  if (parentHeight > 0) {
+					  $(this).css("height" , parseInt($(this).parent().height(), 10) - parseInt($(this).css("top"), 10));
+				  }
+			  }
+		  });
 	  }
 	}
 }
