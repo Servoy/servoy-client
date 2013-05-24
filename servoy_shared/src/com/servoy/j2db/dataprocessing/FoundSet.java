@@ -1299,6 +1299,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Loads records into form foundset based on a query builder object (also known as 'Form by query').
 	 * When the founset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
+	 * If the foundset is related, the relation-condition will be added to the query.
 	 * 
 	 * @sample
 	 * %%prefix%%foundset.loadRecords(qbselect);
@@ -1308,7 +1309,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords(QBSelect querybuilder) throws ServoyException
 	{
-		return checkLoadRecordsAllowed(false, true) && loadByQuery(querybuilder);
+		return checkLoadRecordsAllowed(true, true) && loadByQuery(querybuilder);
 	}
 
 	/** 
@@ -1659,8 +1660,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
-			Debug.log("couldn't load dataset because foundset had editted records but couldn't save it"); //$NON-NLS-1$
-			fsm.getApplication().reportJSError("couldn't load dataset because foundset had editted records but couldn't save it", null); //$NON-NLS-1$
+			Debug.log("couldn't load dataset because foundset had edited records but couldn't save it"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it", null); //$NON-NLS-1$
 			return false;
 		}
 
@@ -1671,6 +1672,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		clearOmit(sqlSelect);
+
+		if (relationName != null)
+		{
+			AndCondition fsRelatedCondition = pksAndRecords.getQuerySelectForReading().getCondition(SQLGenerator.CONDITION_RELATION);
+			AndCondition selectRelatedCondition = sqlSelect.getCondition(SQLGenerator.CONDITION_RELATION);
+			if (selectRelatedCondition != null && !selectRelatedCondition.equals(fsRelatedCondition))
+			{
+				// add the different relation condition as search
+				sqlSelect.addCondition(SQLGenerator.CONDITION_SEARCH, selectRelatedCondition);
+			}
+
+			// Make sure the relation condition of this related foundset is left untouched
+			sqlSelect.setCondition(SQLGenerator.CONDITION_RELATION,
+				AbstractBaseQuery.relinkTable(pksAndRecords.getQuerySelectForReading().getTable(), sqlSelect.getTable(), fsRelatedCondition));
+		}
 
 		//do query with sqlSelect
 		String transaction_id = fsm.getTransactionID(sheet);
@@ -1725,8 +1741,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
-			Debug.log("couldn't load dataset because foundset had editted records but couldn't save it"); //$NON-NLS-1$
-			fsm.getApplication().reportJSError("couldn't load dataset because foundset had editted records but couldn't save it", null); //$NON-NLS-1$
+			Debug.log("couldn't load dataset because foundset had edited records but couldn't save it"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it", null); //$NON-NLS-1$
 			return false;
 		}
 
@@ -1958,8 +1974,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (initialized && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
-			Debug.log("couldn't load dataset because foundset had editted records but couldn't save it"); //$NON-NLS-1$
-			fsm.getApplication().reportJSError("couldn't load dataset because foundset had editted records but couldn't save it", null); //$NON-NLS-1$
+			Debug.log("couldn't load dataset because foundset had edited records but couldn't save it"); //$NON-NLS-1$
+			fsm.getApplication().reportJSError("couldn't load dataset because foundset had edited records but couldn't save it", null); //$NON-NLS-1$
 			return false;
 		}
 
