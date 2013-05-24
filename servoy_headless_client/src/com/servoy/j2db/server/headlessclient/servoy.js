@@ -2342,7 +2342,7 @@ if (typeof(Servoy.Utils) == "undefined")
 			  if ($(this).height()  == 0) {
 				  var parentHeight = parseInt($(this).parent().height(), 10);
 				  if (parentHeight > 0) {
-					  $(this).css("height" , parseInt($(this).parent().height(), 10) - parseInt($(this).css("top"), 10));
+					  $(this).css("height" , parentHeight - parseInt($(this).css("top"), 10));
 				  }
 			  }
 		  });
