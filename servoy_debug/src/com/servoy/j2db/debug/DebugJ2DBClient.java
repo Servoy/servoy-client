@@ -113,6 +113,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.DeveloperURLStreamHandler;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.ThreadingRemoteInvocationHandler;
@@ -720,7 +721,15 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void addURLStreamHandler(String protocolName, URLStreamHandler handler)
 	{
 		// TODO See Activator of application server eclipse project
-		Debug.error("Tried adding protocol: " + protocolName + " as an url stream handler in debug client");
+		if (handler instanceof DeveloperURLStreamHandler)
+		{
+
+			designerCallback.addURLStreamHandler(protocolName, (DeveloperURLStreamHandler)handler);
+		}
+		else
+		{
+			Debug.error("Tried adding protocol: " + protocolName + " as an url stream handler in debug client, please implement the DeveloperURLStreamHandler interface");
+		}
 	}
 
 	/**
