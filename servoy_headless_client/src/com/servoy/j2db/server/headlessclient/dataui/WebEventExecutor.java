@@ -844,7 +844,11 @@ public class WebEventExecutor extends BaseEventExecutor
 
 				mainPage.renderJavascriptChanges(target);
 
-				target.appendJavascript("Servoy.Utils.checkWebFormHeights();");
+				if (((WebClientInfo)webClientSession.getClientInfo()).getProperties().isBrowserInternetExplorer() &&
+					((WebClientInfo)webClientSession.getClientInfo()).getProperties().getBrowserVersionMajor() < 9)
+				{
+					target.appendJavascript("Servoy.Utils.checkWebFormHeights();");
+				}
 				try
 				{
 					if (isStyleSheetLimitForIE(page.getSession()))
