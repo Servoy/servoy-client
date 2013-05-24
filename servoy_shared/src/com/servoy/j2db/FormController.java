@@ -911,6 +911,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 		/**
 		 * Loads records into form foundset based on a query (also known as 'Form by query'). The query must be a valid sql select.
+		 * If the foundset is related this function is not allowed.
+		 * 
+		 * see foundset.loadRecords(QBSelect).
 		 * 
 		 * @sample
 		 * %%prefix%%controller.loadRecords(sqlstring);
