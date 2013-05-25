@@ -56,4 +56,11 @@ public interface IJSUnitSuiteHandler extends IBridgedTestSuite, IBridgedTestList
 
 	}
 
+	/**
+	 * Returns either - suggesting that the mobile client should build the suite itself null or a String[2] where index 0 is
+	 * the test suite name and index 1 is the whole javascript code of the solution js unit testsuite.
+	 * @return see description.
+	 */
+	String[] getSolutionJsUnitJavascriptCode();
+
 }
