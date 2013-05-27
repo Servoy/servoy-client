@@ -21,6 +21,7 @@ import javax.swing.SwingConstants;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.scripting.solutionmodel.JSTabPanel;
 
 /**
  * Constants used for alignment property.
@@ -102,7 +103,7 @@ public interface ISMAlignment
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_HORIZONTAL;
 	 * 
-	 * @deprecated please use {@link ISMTabPanel#SPLIT_HORIZONTAL} instead.
+	 * @deprecated please use {@link JSTabPanel#SPLIT_HORIZONTAL} instead.
 	 */
 	@Deprecated
 	public static final int SPLIT_HORIZONTAL = TabPanel.SPLIT_HORIZONTAL;
@@ -114,7 +115,7 @@ public interface ISMAlignment
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
 	 * 
-	 * @deprecated please use {@link ISMTabPanel#SPLIT_VERTICAL} instead.
+	 * @deprecated please use {@link JSTabPanel#SPLIT_VERTICAL} instead.
 	 */
 	@Deprecated
 	public static final int SPLIT_VERTICAL = TabPanel.SPLIT_VERTICAL;
