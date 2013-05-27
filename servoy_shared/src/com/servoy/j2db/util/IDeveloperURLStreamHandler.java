@@ -12,7 +12,7 @@ import com.servoy.j2db.ISmartClientApplication;
  * @author jcompagner
  * @since 7.2
  */
-public interface DeveloperURLStreamHandler
+public interface IDeveloperURLStreamHandler
 {
 	/**
 	 * @see "java.net.URLStreamHandler.openConnection"

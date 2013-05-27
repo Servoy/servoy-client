@@ -69,7 +69,7 @@ import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.DeveloperURLStreamHandler;
+import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.Utils;
 
 public class DebugClientHandler implements IDebugClientHandler, IDesignerCallback
@@ -809,7 +809,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	 * @see com.servoy.j2db.IDesignerCallback#addURLStreamHandler(java.lang.String, java.net.URLStreamHandler)
 	 */
 	@Override
-	public void addURLStreamHandler(String protocolName, DeveloperURLStreamHandler handler)
+	public void addURLStreamHandler(String protocolName, IDeveloperURLStreamHandler handler)
 	{
 		if (designerCallback != null) designerCallback.addURLStreamHandler(protocolName, handler);
 

@@ -27,7 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 
 import com.servoy.j2db.dataprocessing.IDisplay;
-import com.servoy.j2db.util.DeveloperURLStreamHandler;
+import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 
@@ -39,7 +39,7 @@ public interface ISmartClientApplication extends IApplication
 {
 	/**
 	 * Register a URLStreamHandler for a protocol.
-	 * For developer support for this URLStreamHandler your class has to implement {@link DeveloperURLStreamHandler}
+	 * For developer support for this URLStreamHandler your class has to implement {@link IDeveloperURLStreamHandler}
 	 * 
 	 * @param protocolName
 	 * @param handler

@@ -19,7 +19,7 @@ package com.servoy.j2db;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.util.DeveloperURLStreamHandler;
+import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 
 public interface IDesignerCallback
 {
@@ -33,5 +33,5 @@ public interface IDesignerCallback
 	 * @param protocolName
 	 * @param handler
 	 */
-	public void addURLStreamHandler(String protocolName, DeveloperURLStreamHandler handler);
+	public void addURLStreamHandler(String protocolName, IDeveloperURLStreamHandler handler);
 }

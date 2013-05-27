@@ -23,6 +23,7 @@ import java.rmi.Remote;
 import javax.swing.JMenu;
 
 import com.servoy.j2db.plugins.IClientPluginAccess;
+import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 /**
@@ -54,7 +55,8 @@ public interface ISmartClientPluginAccess extends IClientPluginAccess
 	public IToolbarPanel getToolbarPanel();
 
 	/**
-	 * Register a URLStreamHandler for a protocol
+	 * Register a URLStreamHandler for a protocol.
+	 * For developer support for this URLStreamHandler your class has to implement {@link IDeveloperURLStreamHandler}
 	 * 
 	 * @param protocolName
 	 * @param handler
