@@ -51,6 +51,8 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
@@ -58,6 +60,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
@@ -468,6 +472,30 @@ public class ScriptEngine implements IScriptSupport
 	{
 		Context cx = Context.enter();
 		int iOp = cx.getOptimizationLevel();
+		String sourceName = sp.getDataProviderID();
+		if (sp.getScopeName() != null)
+		{
+			Solution sol = (Solution)sp.getAncestor(IRepository.SOLUTIONS);
+			sourceName = sol.getName() + "/scopes/" + sp.getScopeName() + '/' + sourceName;
+		}
+		else if (sp.getParent() instanceof Form)
+		{
+			Solution sol = (Solution)sp.getAncestor(IRepository.SOLUTIONS);
+			sourceName = sol.getName() + "/forms/" + ((Form)sp.getParent()).getName() + '/' + sourceName;
+		}
+		else if (sp.getParent() instanceof TableNode)
+		{
+			Solution sol = (Solution)sp.getAncestor(IRepository.SOLUTIONS);
+			sourceName = sol.getName() + '/' + ((TableNode)sp.getParent()).getDataSource() + '/' + sourceName;
+			if (sp instanceof ScriptCalculation)
+			{
+				sourceName = sourceName.replace("db:", "calculations");
+			}
+			else
+			{
+				sourceName = sourceName.replace("db:", "entities");
+			}
+		}
 		try
 		{
 			if (Utils.getAsBoolean(System.getProperty("servoy.disableScriptCompile", "false"))) //flag should only be used in rich client
@@ -479,11 +507,11 @@ public class ScriptEngine implements IScriptSupport
 				cx.setOptimizationLevel(9);
 			}
 			cx.setGeneratingSource(Boolean.getBoolean("servoy.generateJavascriptSource"));
-			return compileScriptProvider(sp, scope, cx, sp.getDataProviderID());
+			return compileScriptProvider(sp, scope, cx, sourceName);
 		}
 		catch (Exception e)
 		{
-			Debug.error("Compilation failed for method: " + sp.getDataProviderID());
+			Debug.error("Compilation failed for method: " + sourceName);
 			throw e;
 		}
 		finally
