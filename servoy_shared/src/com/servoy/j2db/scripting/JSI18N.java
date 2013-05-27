@@ -378,7 +378,8 @@ public class JSI18N implements IJSI18N
 	 * You can use filter fall back by setting the filter value as an array of strings.
 	 * // NOTE: this function is only working on runtime clients when the i18n values are read from the database
 	 *
-	 * @deprecated use table filters on the i18n table using databaseManager.addTableFilterParam
+	 * @deprecated use table filters on the i18n table using databaseManager.addTableFilterParam, for example: </br>
+	 * databaseManager.addTableFilterParam('database', 'your_i18n_table', 'message_variant', 'in', [1, 2])
 	 * 
 	 * @sampleas js_setI18NMessagesFilter(String, String)
 	 *
