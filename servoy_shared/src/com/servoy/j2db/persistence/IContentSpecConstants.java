@@ -25,7 +25,6 @@ import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
  */
 public interface IContentSpecConstants extends IContentSpecConstantsBase
 {
-
 	public static final String PROPERTY_ALLOWBREAKACROSSPAGEBOUNDS = "allowBreakAcrossPageBounds"; //$NON-NLS-1$
 	public static final String PROPERTY_ALLOWCREATIONRELATEDRECORDS = "allowCreationRelatedRecords"; //$NON-NLS-1$
 	public static final String PROPERTY_ALLOWPARENTDELETEWHENHAVINGRELATEDRECORDS = "allowParentDeleteWhenHavingRelatedRecords"; //$NON-NLS-1$
@@ -177,7 +176,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_FONTTYPE = "fontType"; //$NON-NLS-1$
 	public static final String PROPERTY_FOREIGNCOLUMNNAME = "foreignColumnName"; //$NON-NLS-1$
 	public static final String PROPERTY_FOREIGNDATASOURCE = "foreignDataSource"; //$NON-NLS-1$
-	public static final String PROPERTY_FORMAT = "format"; //$NON-NLS-1$
 	public static final String PROPERTY_GROUPBYDATAPROVIDERIDS = "groupbyDataProviderIDs"; //$NON-NLS-1$
 	public static final String PROPERTY_GROUPID = "groupID"; //$NON-NLS-1$
 	public static final String PROPERTY_I18NDATASOURCE = "i18nDataSource"; //$NON-NLS-1$
