@@ -61,6 +61,8 @@ public interface IMobileProperties
 	public final static MobileProperty<Number> RADIO_STYLE = new MobileProperty<Number>("radioStyle", Integer.valueOf(RADIO_STYLE_VERTICAL));
 	public final static MobileProperty<String> DATA_ICON = new MobileProperty<String>("dataIcon", null);
 	public final static MobileProperty<Boolean> COMPONENT_TITLE = new MobileProperty<Boolean>("componentTitle", Boolean.FALSE);
+	public final static MobileProperty<Boolean> FIXED_POSITION = new MobileProperty<Boolean>("fixed", Boolean.FALSE);
+
 
 	<T> void setPropertyValue(MobileProperty<T> property, T value);
 
