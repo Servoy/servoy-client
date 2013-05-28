@@ -40,6 +40,7 @@ import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMPart;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -162,6 +163,7 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(IBaseSMButton.class, JSButton.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMLabel.class, JSLabel.class);
+		javaClassToDocumentedJavaClass.put(IBaseSMPart.class, com.servoy.j2db.scripting.solutionmodel.JSPart.class);
 
 //		javaClassToDocumentedJavaClass.put(ISMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
