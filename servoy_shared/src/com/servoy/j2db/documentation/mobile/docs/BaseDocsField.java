@@ -129,6 +129,17 @@ public class BaseDocsField implements IBaseField
 	{
 	}
 
+	@Override
+	public String getFormat()
+	{
+		return null;
+	}
+
+	@Override
+	public void setFormat(String format)
+	{
+	}
+
 	/**
 	 * Dataprovider for header text to field component
 	 */

@@ -135,4 +135,13 @@ public class BaseDocsGraphicalComponent implements IBaseGraphicalComponent, ISup
 	public void setOnActionMethodID(int arg)
 	{
 	}
+
+	public String getFormat()
+	{
+		return null;
+	}
+
+	public void setFormat(String format)
+	{
+	}
 }

@@ -526,10 +526,6 @@ public class GraphicalComponent extends BaseComponent implements ISupportTextEdi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT, format);
 	}
 
-	/**
-	 * The format that should be applied when displaying data(using dataProviderID) in the label/button.
-	 * Some examples are "#%", "dd-MM-yyyy", "MM-dd-yyyy", etc.
-	 */
 	public String getFormat()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT);

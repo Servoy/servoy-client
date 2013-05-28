@@ -58,4 +58,12 @@ public interface IBaseGraphicalComponentCommon extends IBaseComponent
 
 	void setDisplaysTags(boolean arg);
 
+	/**
+	 * The format that should be applied when displaying data(using dataProviderID) in the label/button.
+	 * Some examples are "#%", "dd-MM-yyyy", "MM-dd-yyyy", etc.
+	 */
+	public String getFormat();
+
+	public void setFormat(String format);
+
 }
