@@ -455,6 +455,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 						}
 					}
 					
+					var currentValue = Wicket.$(el.id).value;
 					if(delayedCall)
 					{
 						var thisEl = this;
@@ -466,7 +467,9 @@ function addListeners(strEvent, callbackUrl, ids, post)
 								wicketSerialize(Wicket.$(thisEl.id)),
 								null,
 								function() { onAjaxError(); }.bind(thisEl),
-								function() { onAjaxCall(); return Wicket.$(thisEl.id) != null; }.bind(thisEl)
+								function() { onAjaxCall();
+									return Wicket.$(thisEl.id) != null && currentValue == Wicket.$(thisEl.id).value; 
+								}.bind(thisEl)
 							);
 						}, 200);						
 						return false;						
@@ -479,7 +482,9 @@ function addListeners(strEvent, callbackUrl, ids, post)
 							wicketSerialize(Wicket.$(this.id)),
 							null,
 							function() { onAjaxError(); }.bind(this),
-							function() { onAjaxCall(); return Wicket.$(this.id) != null; }.bind(this)
+							function() {onAjaxCall();
+								return Wicket.$(el.id) != null && currentValue == Wicket.$(el.id).value; 
+							 }.bind(el)
 						);
 						return !wcall;
 					}
