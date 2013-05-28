@@ -31,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
@@ -90,7 +92,6 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.CompareCondition;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.ObjectPlaceholderKey;
@@ -522,6 +523,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		Style style = new Style(mainSolution.getRepository(), rootObjectMetaData);
 		style.setContent(content);
 		user_created_styles.put(name, style);
+		deletedStyles.remove(name);
 		return style;
 	}
 
@@ -1815,7 +1817,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (user_created_styles != null && user_created_styles.containsKey(name))
 		{
-			user_created_styles.remove(name);
+			Style style = user_created_styles.remove(name);
+			if (style != null)  ComponentFactory.flushStyle(null, style);
 		}
 		else if (!deletedStyles.contains(name))
 		{
@@ -2645,7 +2648,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name
 					{
 						lastJoin.getCondition().addCondition(
-							new CompareCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, DBValueList.NAME_COLUMN), valueList.getName()));
+							new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, DBValueList.NAME_COLUMN), valueList.getName()));
 					}
 				}
 				else
@@ -2696,7 +2699,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 				// add condition for return dp id
 				lastJoin.getCondition().addCondition(
-					new CompareCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(),
+					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(),
 						destColumn.getType(), destColumn.getLength()), new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(),
 						callingColumn.getType(), callingColumn.getLength())));
 

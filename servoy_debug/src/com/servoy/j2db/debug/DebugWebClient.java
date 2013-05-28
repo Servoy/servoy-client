@@ -303,36 +303,88 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 			{
 				String servoyMobileStyle = //
 
-				"label, label.a, button, button.a, field, field.a, header, header.a, footer, footer.a, portal, portal.a {"//
-					+ "color: #FFFFFF;" //
+				"label, label.a {"//
+					+ "color: #101010;" //
 					+ "background-color: #414141;" //
+					+ "}"//
+
+					+ "field, field.a {"//
+					+ "color: #101010;" //
+					+ "background-color: #ffffff;" //
+					+ "}"//
+
+
+					+ "button, button.a, header, header.a, footer, footer.a, portal, portal.a {"//
+					+ "color: #FFFFFF;" //
+					+ "background-color: #414141;" // 414141
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.b, button.b, field.b, header.b, footer.b, portal.b {"//
+					+ "label.b {"//
+					+ "color: #101010;" //
+					+ "background-color: #4C83B1;" //
+					+ "}" //
+
+					+ "field.b {"//
+					+ "color: #101010;" //
+					+ "background-color: #ffffff;" //
+					+ "}"//
+
+					+ "button.b, header.b, footer.b, portal.b {"//
 					+ "color: #FFFFFF;" //
 					+ "background-color: #4C83B1;" //
 					+ "font-weight:bold;" //
 					+ "}" //
 
-					+ "label.c, button.c, field.c, header.c, footer.c, portal.c {" //
+					+ "label.c {"//
+					+ "color: #101010;" //
+					+ "background-color: #4C83B1;" //
+					+ "}" //
+
+					+ "field.c {"//
+					+ "color: #101010;" //
+					+ "background-color: #ffffff;" //
+					+ "}"//
+
+					+ "button.c, header.c, footer.c, portal.c {" //
 					+ "color: #363636;" //
 					+ "background-color: #F5F5F5;"//
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.d, button.d, field.d, header.d, footer.d, portal.d {" //
+					+ "label.d {"//
+					+ "color: #101010;" //
+					+ "background-color: #4C83B1;" //
+					+ "}" //
+
+					+ "field.d {"//
+					+ "color: #101010;" //
+					+ "background-color: #ffffff;" //
+					+ "}"//
+
+					+ "button.d, header.d, footer.d, portal.d {" //
 					+ "color: #363636;" //
 					+ "background-color: #FFFFFF;" //
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.e, button.e, field.e, header.e, footer.e, portal.e {" //
+					+ "label.e {"//
+					+ "color: #101010;" //
+					+ "background-color: #4C83B1;" //
+					+ "}" //
+
+					+ "field.e {"//
+					+ "color: #101010;" //
+					+ "background-color: #ffffff;" //
+					+ "}"//
+
+					+ "button.e, header.e, footer.e, portal.e {" //
 					+ "color: #363636;" //
 					+ "background-color: #FBE274;" //
 					+ "font-weight:bold;" //
 					+ "}" //
 				;
+				flattenedSolution.removeStyle("_servoy_mobile");
 				flattenedSolution.createStyle("_servoy_mobile", servoyMobileStyle);
 			}
 		}
