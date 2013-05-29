@@ -256,6 +256,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private int currentScrollLeft;
 	private int topPhHeight;
 	private int scrollableHeaderHeight = -1;
+	public boolean selectionChanged = false;
 
 	private boolean isLeftToRightOrientation;
 	private Dimension formBodySize;
@@ -3005,7 +3006,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		if (currentData != null && !e.getValueIsAdjusting())
 		{
 			boolean isTableChanged = false;
-
+			if (!isScrollFirstShow) selectionChanged = true;
 			//in case selection changed outside of an action on the component, and it's a list view with left-bar selection mark (so, no selection color),
 			// we need to re-render the view
 			if (!isSelectionByCellAction() && isListViewMode() && getStyleAttributeValue(getRowSelectedStyle(), ISupportRowStyling.ATTRIBUTE.BGCOLOR) == null)
@@ -4991,6 +4992,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
+	public void scrollViewPort(AjaxRequestTarget target)
+	{
+		if (selectionChanged && !isScrollFirstShow)
+		{
+			scrollBehavior.scrollViewPort(target);
+			selectionChanged = false;
+		}
+	}
+
 	private class ScrollBehavior extends ServoyAjaxEventBehavior
 	{
 		private boolean isGettingRows;
@@ -5101,6 +5111,140 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else target.appendJavascript("Servoy.TableView.isAppendingRows = false;"); //$NON-NLS-1$
 			}
+		}
+
+		/**
+		 * called each time a new selection is applied  , </br>
+		 *  - if the selection is in the viewPort does nothing </br>
+		 *  - if the selection is in the rendered view but not in the viewport scrolls to that position</br>
+		 *  + if the selection is outside of the view and viewport:</br>
+		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is active then it loads records until the selection and scrolls to that position 
+		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
+		 */
+		public void scrollViewPort(AjaxRequestTarget target)
+		{
+
+			Collection<ListItem< ? >> newRows = null;
+			StringBuilder[] rowsBuffer = null;
+			int newRowsCount = 0, rowsToRemove = 0;
+			int viewSize = table.getViewSize();
+			int pageViewSize = 3 * maxRowsPerPage;
+
+
+			Integer selectedIndex = WebCellBasedView.this.getSelectedIndexes() == null ? null : WebCellBasedView.this.getSelectedIndexes()[0];
+			if (selectedIndex == null) return;
+
+			{// this block handles the case where there is not need to render new rows
+				int cellScroll = getCellHeight() * (selectedIndex.intValue() + 1);
+				if (cellScroll > currentScrollTop && (cellScroll < currentScrollTop + bodyHeightHint))
+				{
+					//selection was in the current view
+					return;
+				}
+				else if (isKeepLoadedRowsInScrollMode && (cellScroll < currentScrollTop + 2 * bodyHeightHint))
+				{
+					//selection was in the loaded rows but not visible in the viewport, scroll without loading records
+					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1);");
+					return;
+				}
+				else if (!isKeepLoadedRowsInScrollMode &&
+					(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
+				{
+					//selection was within the loaded viewSize
+					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1);");
+					return;
+				}
+			}
+
+			if (isKeepLoadedRowsInScrollMode)
+			{
+				newRowsCount = selectedIndex - viewSize + pageViewSize;
+				rowsToRemove = selectedIndex;
+				table.setStartIndex(0);
+				table.setViewSize(newRowsCount);
+				isGettingRows = true; // if isKeepLoadedRowsInScrollMode
+				newRows = getRows(table, viewSize, newRowsCount); // if newRowsCount >0
+				rowsBuffer = renderRows(getResponse(), newRows);
+				isGettingRows = false;
+			}
+			else
+			{
+				newRowsCount = 2 * maxRowsPerPage;
+
+				int startIndex = selectedIndex;
+				rowsToRemove = selectedIndex;
+				table.setStartIndex(startIndex);
+				table.setViewSize(pageViewSize);
+				isGettingRows = true;
+				//get all rows until the selection 
+				getRows(table, 0, selectedIndex + pageViewSize);
+
+				//get the actual 3*pageSize rows
+				newRows = getRows(table, startIndex, pageViewSize);
+				rowsBuffer = renderRows(getResponse(), newRows);
+				isGettingRows = false;
+			}
+
+			if (rowsBuffer != null)
+			{
+				hasTopBuffer = table.getStartIndex() > 0;
+				hasBottomBuffer = table.getStartIndex() + table.getViewSize() < table.getList().size();
+
+				StringBuffer sb = new StringBuffer();
+				sb.append("Servoy.TableView.appendRows('"); //$NON-NLS-1$
+				sb.append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append("','"); //$NON-NLS-1$
+				sb.append(rowsBuffer[1].toString()).append("',"); //$NON-NLS-1$
+				sb.append(newRowsCount).append(","); //$NON-NLS-1$
+				sb.append(rowsToRemove).append(","); //$NON-NLS-1$
+				sb.append(1).append(", "); //$NON-NLS-1$
+				sb.append(hasTopBuffer).append(","); //$NON-NLS-1$
+				sb.append(hasBottomBuffer).append(",");
+				sb.append(!isKeepLoadedRowsInScrollMode).append(");");
+
+				if (rowsBuffer[0].length() > 0)
+				{
+					sb.append('\n').append(rowsBuffer[0]);
+				}
+				//sb.append("$('#" + table.get(selectedIndex).getMarkupId() + "')[0].scrollIntoView(true);");
+
+				sb.append("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "');");
+				target.appendJavascript(sb.toString());
+			}
+
+		}
+
+		/**
+		* 
+		* @return the Height in pixels of a tableview cell
+		*/
+		int getCellHeight()
+		{
+			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(table.getStartIndex());
+			int maxHeight = -1;
+			Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
+			for (Component c : it)
+			{
+				if (c instanceof CellContainer)
+				{
+					CellContainer cell = (CellContainer)c;
+					Component cellContents = cell.iterator().next();
+					if (cellContents instanceof IScriptableProvider)
+					{
+						IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
+						if (scriptableComponent instanceof IRuntimeComponent)
+						{
+							IRuntimeComponent runtimeComp = (IRuntimeComponent)scriptableComponent;
+							maxHeight = runtimeComp.getHeight() > maxHeight ? runtimeComp.getHeight() : maxHeight;
+						}
+					}
+				}
+				else if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
+				{
+					IRuntimeComponent runtimeComp = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
+					maxHeight = runtimeComp.getHeight() > maxHeight ? runtimeComp.getHeight() : maxHeight;
+				}
+			}
+			return maxHeight;
 		}
 
 		@Override

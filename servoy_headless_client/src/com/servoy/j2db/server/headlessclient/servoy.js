@@ -903,29 +903,38 @@ if (typeof(Servoy.TableView) == "undefined")
 		topPhHeight: new Array(),
 		scrollCallback: new Array(),
 
-		appendRows: function(rowContainerBodyId, rows, newRowsCount, rowsCountToRemove, scrollDiff, hasTopBuffer, hasBottomBuffer)
+		appendRows: function(rowContainerBodyId, rows, newRowsCount, rowsCountToRemove, scrollDiff, hasTopBuffer, hasBottomBuffer,clearAllRows)
 		{	
 			var rowContainerBodyEl = document.getElementById(rowContainerBodyId);
 			
 			var row, rowHeight = 0, topPhChanged = false;
-			if(scrollDiff > 0)
+			var $tableBody = $('#' + rowContainerBodyId);
+			if(scrollDiff > 0 ||clearAllRows)
 			{
-				if(rowsCountToRemove > 0 && !Servoy.TableView.keepLoadedRows)
+				
+				if((rowsCountToRemove > 0||clearAllRows )&& !Servoy.TableView.keepLoadedRows)
 				{
-					row = $('#' + rowContainerBodyId).children('tr:first');
+					row =$tableBody.children('tr:first');
 					var topPhHeight = 0;
 					if(row.attr('id') == 'topPh')
 					{
-						topPhHeight = row.height();
+						if(!clearAllRows)topPhHeight = row.height();
 						row.remove();
 					}
 					
 					for(var i = 0; i < rowsCountToRemove; i++)
 					{ 
-						row = $('#' + rowContainerBodyId).children('tr:first');
+						row = $tableBody.children('tr:first');
 						if(rowHeight == 0) rowHeight = row.height();
 						topPhHeight += rowHeight;
-						row.remove();
+						if(row !=null)row.remove();
+					}
+					if(clearAllRows){
+						row =null;						
+						while($tableBody.children().size()>0 ){
+							row = $tableBody.children('tr:first');
+							row.remove();
+						}
 					}
 					Servoy.TableView.topPhHeight[rowContainerBodyId] = topPhHeight;
 					topPhChanged = true;
@@ -941,13 +950,13 @@ if (typeof(Servoy.TableView) == "undefined")
 			
 				if(rowsCountToRemove == -1)	// remove all
 				{
-					while((row = $('#' + rowContainerBodyId).children('tr:last')).length > 0 && (row.attr('id') != 'topPh')) row.remove();
+					while((row = $tableBody.children('tr:last')).length > 0 && (row.attr('id') != 'topPh')) row.remove();
 				}
 				else
 				{
 					for(var i = 0; i < rowsCountToRemove; i++)
 					{ 
-						row = $('#' + rowContainerBodyId).children('tr:last');
+						row = $tableBody.children('tr:last');
 						row.remove();
 					}
 				}
@@ -956,7 +965,7 @@ if (typeof(Servoy.TableView) == "undefined")
 				{
 					var topPhHeight = 0;
 
-					row = $('#' + rowContainerBodyId).children('tr:first');
+					row = $tableBody.children('tr:first');
 						
 					if(row.attr('id') == 'topPh')
 					{
@@ -966,11 +975,11 @@ if (typeof(Servoy.TableView) == "undefined")
 					
 					topPhHeight -= rowHeight * newRowsCount;
 					
-					$('#' + rowContainerBodyId).prepend(rows);
+					$tableBody.prepend(rows);
 					if(topPhHeight > 0)
 					{
 						Servoy.TableView.topPhHeight[rowContainerBodyId] = topPhHeight;
-						$('#' + rowContainerBodyId).prepend("<tr id='topPh' height='" + topPhHeight + "'></tr>");
+						$tableBody.prepend("<tr id='topPh' height='" + topPhHeight + "'></tr>");
 						if(Servoy.TableView.currentScrollTop[rowContainerBodyId] < topPhHeight)
 						{
 							Servoy.TableView.currentScrollTop[rowContainerBodyId] = topPhHeight;
@@ -985,7 +994,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			}
 
 			setTimeout(function() {
-				$('#' + rowContainerBodyId).scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
+				$tableBody.scrollTop(Servoy.TableView.currentScrollTop[rowContainerBodyId]);
 				Servoy.TableView.hasTopBuffer[rowContainerBodyId] = hasTopBuffer;
 				Servoy.TableView.hasBottomBuffer[rowContainerBodyId] = hasBottomBuffer;
 				Servoy.TableView.isAppendingRows = false;				
@@ -1039,6 +1048,11 @@ if (typeof(Servoy.TableView) == "undefined")
 			return Servoy.TableView.isAppendingRows ? nrRows : 0;
 		},
 		
+		scrollIntoView : function (markupId, delay){
+			var del = 1000;
+			if (!(typeof variable === 'undefined')) del =delay;
+			setTimeout(function (){$('#'+markupId)[0].scrollIntoView(true);} , del);
+		},
 		scrollToTop: function(rowContainerBodyId)
 		{
 			if(Servoy.TableView.currentScrollTop[rowContainerBodyId] > 0)
