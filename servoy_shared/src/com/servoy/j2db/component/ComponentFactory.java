@@ -202,6 +202,9 @@ public class ComponentFactory
 	public static final RuntimeProperty<Boolean> MODIFIED_BY_CLIENT = new RuntimeProperty<Boolean>()
 	{
 	};
+	public static final RuntimeProperty<String> STYLE_LOOKUP_NAME = new RuntimeProperty<String>()
+	{
+	};
 	private static final String PARSED_STYLES = "parsedStyles";
 	private static ConcurrentMap<Style, IStyleSheet> parsedStyles = new ConcurrentHashMap<Style, IStyleSheet>();
 
@@ -652,6 +655,11 @@ public class ComponentFactory
 	 */
 	public static String getLookupName(AbstractBase bc)
 	{
+		String runtimeLookupName = bc.getRuntimeProperty(STYLE_LOOKUP_NAME);
+		if (runtimeLookupName != null)
+		{
+			return runtimeLookupName;
+		}
 		String lookupName = "root";
 		if (bc instanceof Field)
 		{

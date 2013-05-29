@@ -298,93 +298,99 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		if (mainSolutionMetaData != null && mainSolutionMetaData.getSolutionType() == SolutionMetaData.MOBILE)
 		{
 			// Add a built-in style for mobile schemes
-			// TODO: improve
 			if (flattenedSolution.getStyle("_servoy_mobile") == null)
 			{
 				String servoyMobileStyle = //
 
-				"label, label.a {"//
-					+ "color: #101010;" //
+				"label, label.a, label.b, label.c, label.d, label.e {"//
+					+ "color: #101010;" //  
 					+ "background-color: #414141;" //
 					+ "}"//
 
-					+ "field, field.a {"//
-					+ "color: #101010;" //
-					+ "background-color: #ffffff;" //
+					+ "headertext, headertext.a {"//
+					+ "color: #ffffff;" //
+					+ "background-color: #414141;" //
+					+ "font-weight:bold;" //
 					+ "}"//
 
+					+ "field {"//
+					+ "color: #101010;" //
+					+ "background-color: #F9F9F9;" //
+					+ "}"//
 
-					+ "button, button.a, header, header.a, footer, footer.a, portal, portal.a {"//
+					+ "button, button.a, combobox.a, check.a, radio.a, portal.a {"//
 					+ "color: #FFFFFF;" //
-					+ "background-color: #414141;" // 414141
-					+ "font-weight:bold;" //
+					+ "background-color: #414141;" + "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.b {"//
-					+ "color: #101010;" //
-					+ "background-color: #4C83B1;" //
+					+ "header, header.a, footer.a {" //
+					+ "background-color: #262626;" //
 					+ "}" //
 
-					+ "field.b {"//
-					+ "color: #101010;" //
-					+ "background-color: #ffffff;" //
-					+ "}"//
+					+ "headertext.b {"//
+					+ "color: #ffffff;" //
+					+ "background-color: #4C83B1;" //
+					+ "font-weight:bold;" //
+					+ "}" //
 
-					+ "button.b, header.b, footer.b, portal.b {"//
+					+ "button.b, combobox.b, check.b, radio.b, portal.b {"//
 					+ "color: #FFFFFF;" //
 					+ "background-color: #4C83B1;" //
 					+ "font-weight:bold;" //
 					+ "}" //
 
-					+ "label.c {"//
-					+ "color: #101010;" //
-					+ "background-color: #4C83B1;" //
+					+ "header.b, footer.b {" //
+					+ "background-color: #5A91BF;" //
 					+ "}" //
 
-					+ "field.c {"//
+					+ "headertext.c {"//
 					+ "color: #101010;" //
-					+ "background-color: #ffffff;" //
-					+ "}"//
+					+ "background-color: #4C83B1;" //
+					+ "font-weight:bold;" //
+					+ "}" //
 
-					+ "button.c, header.c, footer.c, portal.c {" //
+					+ "button.c, combobox.c, check.c, radio.c, portal.c {" //
 					+ "color: #363636;" //
-					+ "background-color: #F5F5F5;"//
+					+ "background-color: #F6F6F6;"//
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.d {"//
-					+ "color: #101010;" //
-					+ "background-color: #4C83B1;" //
+					+ "header.c, footer.c {" //
+					+ "background-color: #E4E4E4;" //
 					+ "}" //
 
-					+ "field.d {"//
+					+ "headertext.d {"//
 					+ "color: #101010;" //
-					+ "background-color: #ffffff;" //
-					+ "}"//
+					+ "background-color: #4C83B1;" //
+					+ "font-weight:bold;" //
+					+ "}" //
 
-					+ "button.d, header.d, footer.d, portal.d {" //
+					+ "button.d, combobox.d, check.d, radio.d, portal.d {" //
 					+ "color: #363636;" //
-					+ "background-color: #FFFFFF;" //
+					+ "background-color: #F8F8F8;" //
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "label.e {"//
-					+ "color: #101010;" //
-					+ "background-color: #4C83B1;" //
+					+ "header.d, footer.d {" //
+					+ "background-color: #C7C7C7;" //
 					+ "}" //
 
-					+ "field.e {"//
+					+ "headertext.e {"//
 					+ "color: #101010;" //
-					+ "background-color: #ffffff;" //
-					+ "}"//
-
-					+ "button.e, header.e, footer.e, portal.e {" //
-					+ "color: #363636;" //
-					+ "background-color: #FBE274;" //
+					+ "background-color: #4C83B1;" //
 					+ "font-weight:bold;" //
+					+ "}" //
+
+					+ "button.e, combobox.e, check.e, radio.e, portal.e {" //
+					+ "color: #363636;" //
+					+ "background-color: #FFE87C;" //
+					+ "font-weight:bold;" //
+					+ "}" //
+
+					+ "header.e, footer.e {" //
+					+ "background-color: #FBEE90;" //
 					+ "}" //
 				;
-				flattenedSolution.removeStyle("_servoy_mobile");
 				flattenedSolution.createStyle("_servoy_mobile", servoyMobileStyle);
 			}
 		}
