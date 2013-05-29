@@ -455,7 +455,7 @@ function addListeners(strEvent, callbackUrl, ids, post)
 						}
 					}
 					
-					var currentValue = Wicket.$(el.id).value;
+					var currentValue = Wicket.$(this.id).value;
 					if(delayedCall)
 					{
 						var thisEl = this;
@@ -483,8 +483,8 @@ function addListeners(strEvent, callbackUrl, ids, post)
 							null,
 							function() { onAjaxError(); }.bind(this),
 							function() {onAjaxCall();
-								return Wicket.$(el.id) != null && currentValue == Wicket.$(el.id).value; 
-							 }.bind(el)
+								return Wicket.$(this.id) != null && currentValue == Wicket.$(this.id).value; 
+							 }.bind(this)
 						);
 						return !wcall;
 					}
