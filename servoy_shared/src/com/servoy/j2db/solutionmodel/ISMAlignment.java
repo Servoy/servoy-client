@@ -21,7 +21,6 @@ import javax.swing.SwingConstants;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.scripting.solutionmodel.JSTabPanel;
 
 /**
  * Constants used for alignment property.
@@ -103,7 +102,7 @@ public interface ISMAlignment
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_HORIZONTAL;
 	 * 
-	 * @deprecated please use {@link JSTabPanel#SPLIT_HORIZONTAL} instead.
+	 * @deprecated please use {@link com.servoy.j2db.solutionmodel.ISMTabPanel#SPLIT_HORIZONTAL} instead.
 	 */
 	@Deprecated
 	public static final int SPLIT_HORIZONTAL = TabPanel.SPLIT_HORIZONTAL;
@@ -115,7 +114,7 @@ public interface ISMAlignment
 	 * var splitPane = myForm.newTabPanel('splitPane', 10, 10, 620, 460);
 	 * splitPane.tabOrientation = SM_ALIGNMENT.SPLIT_VERTICAL;
 	 * 
-	 * @deprecated please use {@link JSTabPanel#SPLIT_VERTICAL} instead.
+	 * @deprecated please use {@link com.servoy.j2db.solutionmodel.ISMTabPanel#SPLIT_VERTICAL} instead.
 	 */
 	@Deprecated
 	public static final int SPLIT_VERTICAL = TabPanel.SPLIT_VERTICAL;
@@ -127,7 +126,7 @@ public interface ISMAlignment
 	 * var accordion = myForm.newTabPanel('accordion', 10, 10, 620, 460);
 	 * accordion.tabOrientation = SM_ALIGNMENT.ACCORDION_PANEL;
 	 * 
-	 * @deprecated please use {@link ISMTabPanel#ACCORDION_PANEL} instead.
+	 * @deprecated please use {@link com.servoy.j2db.solutionmodel.ISMTabPanel#ACCORDION_PANEL} instead.
 	 */
 	@Deprecated
 	public static final int ACCORDION_PANEL = TabPanel.ACCORDION_PANEL;
