@@ -28,7 +28,6 @@ import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
-import com.servoy.base.solutionmodel.IBaseSMPart;
 import com.servoy.base.solutionmodel.IBaseSMPortal;
 import com.servoy.base.solutionmodel.IBaseSolutionModel;
 
@@ -121,16 +120,6 @@ public abstract class BaseSolutionHelper
 	public boolean isRadioFieldHorizontal(IBaseSMField radioField)
 	{
 		return getMobileProperties(radioField).getPropertyValue(IMobileProperties.RADIO_STYLE).intValue() == IMobileProperties.RADIO_STYLE_HORIZONTAL;
-	}
-
-	public void setPartFixed(IBaseSMPart part, boolean isFixed)
-	{
-		getMobileProperties(part).setPropertyValue(IMobileProperties.FIXED_POSITION, Boolean.valueOf(isFixed));
-	}
-
-	public boolean isPartFixed(IBaseSMPart part)
-	{
-		return Boolean.TRUE.equals(getMobileProperties(part).getPropertyValue(IMobileProperties.FIXED_POSITION));
 	}
 
 	protected IBaseSMLabel getTitleForComponent(IBaseSMComponent c, boolean createIfMissing)

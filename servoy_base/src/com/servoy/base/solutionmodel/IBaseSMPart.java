@@ -92,7 +92,6 @@ public interface IBaseSMPart
 	 * @sample 
 	 * var titleFooter = form.newPart(JSPart.TITLE_FOOTER, 500);
 	 */
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TITLE_FOOTER = IPartConstants.TITLE_FOOTER;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -104,7 +103,6 @@ public interface IBaseSMPart
 	 * @sample
 	 * var titleHeader = form.newPart(JSPart.TITLE_HEADER, 40);
 	 */
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;
 	/**
 	 * Constant use for specifying the type of form parts. 
