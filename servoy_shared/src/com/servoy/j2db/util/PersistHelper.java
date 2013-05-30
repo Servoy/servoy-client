@@ -429,6 +429,26 @@ public class PersistHelper
 	{
 		if (name == null) return null;
 
+		StringBuilder sb = new StringBuilder();
+		sb.append(name);
+		sb.append(","); //$NON-NLS-1$
+		sb.append(style);
+		sb.append(","); //$NON-NLS-1$
+		sb.append(size <= 0 ? 1 : size);
+		String fontName = sb.toString();
+		if (allCreatedFonts.containsKey(fontName))
+		{
+			return allCreatedFonts.get(fontName);
+		}
+		Font font = createFontImpl(name, style, size);
+		allCreatedFonts.put(fontName, font);
+		return font;
+	}
+
+	private static Font createFontImpl(String name, int style, int size)
+	{
+		if (name == null) return null;
+
 		if (size <= 0) size = 1;
 
 		Font retval = new Font(name, style, size);
@@ -541,7 +561,7 @@ public class PersistHelper
 //			}
 			int istyle = Utils.getAsInteger(style);
 			int isize = Utils.getAsInteger(size);
-			Font retval = createFont(name, istyle, isize);
+			Font retval = createFontImpl(name, istyle, isize);
 			allCreatedFonts.put(s, retval);
 			return retval;
 		}
