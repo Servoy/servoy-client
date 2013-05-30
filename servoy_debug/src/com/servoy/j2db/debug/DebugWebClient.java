@@ -323,7 +323,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 					+ "background-color: #414141;" + "font-weight:bold;" //
 					+ "}"//
 
-					+ "header, header.a, footer.a {" //
+					+ "header, header.a, footer.a,  title_header, title_header.a, title_footer.a {" //
 					+ "background-color: #262626;" //
 					+ "}" //
 
@@ -339,7 +339,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 					+ "font-weight:bold;" //
 					+ "}" //
 
-					+ "header.b, footer.b {" //
+					+ "header.b, footer.b, title_header.b, title_footer.b {" //
 					+ "background-color: #5A91BF;" //
 					+ "}" //
 
@@ -355,7 +355,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "header.c, footer.c {" //
+					+ "header.c, footer.c, title_header.c, title_footer.c {" //
 					+ "background-color: #E4E4E4;" //
 					+ "}" //
 
@@ -371,7 +371,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 					+ "font-weight:bold;" //
 					+ "}"//
 
-					+ "header.d, footer.d {" //
+					+ "header.d, footer.d, title_header.d, title_footer.d {" //
 					+ "background-color: #C7C7C7;" //
 					+ "}" //
 
@@ -387,7 +387,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 					+ "font-weight:bold;" //
 					+ "}" //
 
-					+ "header.e, footer.e {" //
+					+ "header.e, footer.e, title_header.e, title_footer.e {" //
 					+ "background-color: #FBEE90;" //
 					+ "}" //
 				;
