@@ -902,6 +902,8 @@ if (typeof(Servoy.TableView) == "undefined")
 		keepLoadedRows : false,
 		topPhHeight: new Array(),
 		scrollCallback: new Array(),
+		selectIndexTimer:null,
+		
 
 		appendRows: function(rowContainerBodyId, rows, newRowsCount, rowsCountToRemove, scrollDiff, hasTopBuffer, hasBottomBuffer,clearAllRows)
 		{	
@@ -1051,7 +1053,8 @@ if (typeof(Servoy.TableView) == "undefined")
 		scrollIntoView : function (markupId, delay){
 			var del = 1000;
 			if (!(typeof variable === 'undefined')) del =delay;
-			setTimeout(function (){$('#'+markupId)[0].scrollIntoView(true);} , del);
+			if(Servoy.TableView.selectIndexTimer) clearTimeout(Servoy.TableView.selectIndexTimer);
+			Servoy.TableView.selectIndexTimer = setTimeout(function (){$('#'+markupId)[0].scrollIntoView(true);} , del);
 		},
 		scrollToTop: function(rowContainerBodyId)
 		{

@@ -5129,10 +5129,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newRowsCount = 0, rowsToRemove = 0;
 			int viewSize = table.getViewSize();
 			int pageViewSize = 3 * maxRowsPerPage;
-
+			int tableSize = table.getList().size();
 
 			Integer selectedIndex = WebCellBasedView.this.getSelectedIndexes() == null ? null : WebCellBasedView.this.getSelectedIndexes()[0];
-			if (selectedIndex == null) return;
+			if (selectedIndex == null || selectedIndex > tableSize) return;
 
 			{// this block handles the case where there is not need to render new rows
 				int cellScroll = getCellHeight() * (selectedIndex.intValue() + 1);
@@ -5158,8 +5158,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (isKeepLoadedRowsInScrollMode)
 			{
-				newRowsCount = selectedIndex - viewSize + pageViewSize;
-				rowsToRemove = selectedIndex;
+				int remainingPageViewSize = tableSize - selectedIndex < pageViewSize ? tableSize - selectedIndex : pageViewSize;
+				newRowsCount = selectedIndex - viewSize + remainingPageViewSize;
 				table.setStartIndex(0);
 				table.setViewSize(viewSize + newRowsCount);
 				isGettingRows = true;
@@ -5169,16 +5169,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			else
 			{
-				newRowsCount = pageViewSize;
-				rowsToRemove = selectedIndex;
-				table.setStartIndex(selectedIndex);
-				table.setViewSize(pageViewSize);
+				int viewStartIndex = selectedIndex - 1 - maxRowsPerPage > 0 ? selectedIndex - 1 - maxRowsPerPage : 0;
+				newRowsCount = Math.min(tableSize - viewStartIndex, pageViewSize);
+				rowsToRemove = viewStartIndex;
+				table.setStartIndex(viewStartIndex);
+				table.setViewSize(newRowsCount);
 				isGettingRows = true;
 				//get all rows until the selection 
-				getRows(table, 0, selectedIndex + pageViewSize);
+				getRows(table, 0, viewStartIndex + newRowsCount);
 
 				//get the actual 3*pageSize rows
-				newRows = getRows(table, selectedIndex, pageViewSize);
+				newRows = getRows(table, viewStartIndex, newRowsCount);
 				rowsBuffer = renderRows(getResponse(), newRows);
 				isGettingRows = false;
 			}
