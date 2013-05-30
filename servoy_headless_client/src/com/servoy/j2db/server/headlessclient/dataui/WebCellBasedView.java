@@ -5161,26 +5161,24 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				newRowsCount = selectedIndex - viewSize + pageViewSize;
 				rowsToRemove = selectedIndex;
 				table.setStartIndex(0);
-				table.setViewSize(newRowsCount);
-				isGettingRows = true; // if isKeepLoadedRowsInScrollMode
-				newRows = getRows(table, viewSize, newRowsCount); // if newRowsCount >0
+				table.setViewSize(viewSize + newRowsCount);
+				isGettingRows = true;
+				newRows = getRows(table, viewSize, newRowsCount);
 				rowsBuffer = renderRows(getResponse(), newRows);
 				isGettingRows = false;
 			}
 			else
 			{
-				newRowsCount = 2 * maxRowsPerPage;
-
-				int startIndex = selectedIndex;
+				newRowsCount = pageViewSize;
 				rowsToRemove = selectedIndex;
-				table.setStartIndex(startIndex);
+				table.setStartIndex(selectedIndex);
 				table.setViewSize(pageViewSize);
 				isGettingRows = true;
 				//get all rows until the selection 
 				getRows(table, 0, selectedIndex + pageViewSize);
 
 				//get the actual 3*pageSize rows
-				newRows = getRows(table, startIndex, pageViewSize);
+				newRows = getRows(table, selectedIndex, pageViewSize);
 				rowsBuffer = renderRows(getResponse(), newRows);
 				isGettingRows = false;
 			}

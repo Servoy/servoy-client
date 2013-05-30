@@ -909,7 +909,7 @@ if (typeof(Servoy.TableView) == "undefined")
 			
 			var row, rowHeight = 0, topPhChanged = false;
 			var $tableBody = $('#' + rowContainerBodyId);
-			if(scrollDiff > 0 ||clearAllRows)
+			if(scrollDiff > 0)
 			{
 				
 				if((rowsCountToRemove > 0||clearAllRows )&& !Servoy.TableView.keepLoadedRows)
