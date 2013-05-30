@@ -45,6 +45,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dnd.DNDSessionInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -352,6 +353,16 @@ public class WebClientSession extends WebSession
 	public void keepCredentials(String solutionName)
 	{
 		this.keepCredentialsSolutionName = solutionName;
+	}
+
+	@Override
+	public void invalidateNow()
+	{
+		if (Debug.tracing())
+		{
+			Debug.trace("Session invalidated for sessionid: " + getId());
+		}
+		super.invalidateNow();
 	}
 
 
