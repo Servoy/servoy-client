@@ -781,7 +781,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					columnResizeScript = wcbv.getColumnResizeScript();
 					if (columnResizeScript != null) target.appendJavascript(columnResizeScript);
 
-					wcbv.scrollViewPort(target);
+					if (wcbv.isScrollMode()) wcbv.scrollViewPort(target);
 				}
 
 				// double check if the page contributor is changed, because the above IStylePropertyChanges ischanged could have altered it.
