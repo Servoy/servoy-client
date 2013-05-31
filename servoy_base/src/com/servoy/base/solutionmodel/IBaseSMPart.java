@@ -140,7 +140,7 @@ public interface IBaseSMPart
 	 * var stickyHeader = form.newPart(JSPart.STICKY_HEADER);
 	 */
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public static final int SICKY_HEADER = TITLE_HEADER;
+	public static final int STICKY_HEADER = TITLE_HEADER;
 
 
 	/**
@@ -152,7 +152,7 @@ public interface IBaseSMPart
 	 * var stickyHeader = form.newPart(JSPart.STICKY_FOOTER);
 	 */
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public static final int SICKY_FOOTER = TITLE_FOOTER;
+	public static final int STICKY_FOOTER = TITLE_FOOTER;
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBasePart#getStyleClass()
