@@ -285,6 +285,7 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 		URLConnection urlConnection = mpURL.openConnection();
 
 		urlConnection.addRequestProperty("accept", acceptContentType); //$NON-NLS-1$
+		urlConnection.setConnectTimeout(30 * 1000); // don't make an unstoppable job if the network connection is down
 
 		return urlConnection;
 	}
