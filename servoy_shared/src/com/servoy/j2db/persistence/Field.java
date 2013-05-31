@@ -116,7 +116,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT, format);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getFormat()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT);
@@ -439,7 +438,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getPlaceholderText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT);

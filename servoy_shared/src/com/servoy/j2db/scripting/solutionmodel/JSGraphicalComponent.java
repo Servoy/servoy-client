@@ -485,7 +485,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getFormat()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getFormat()
 	 * 
 	 * @sample
 	 * var label = form.newLabel('', 10, 10, 100, 100);

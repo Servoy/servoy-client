@@ -306,7 +306,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public ISMMethod getOnRightClick();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getFormat()
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getFormat()
 	 * 
 	 * @sample
 	 * var label = form.newLabel('', 10, 10, 100, 100);

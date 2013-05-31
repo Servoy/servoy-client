@@ -133,7 +133,7 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getFormat()
+	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getFormat()
 	 * 
 	 * @sample
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
