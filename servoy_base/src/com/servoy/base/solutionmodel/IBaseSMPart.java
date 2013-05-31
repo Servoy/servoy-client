@@ -92,6 +92,7 @@ public interface IBaseSMPart
 	 * @sample 
 	 * var titleFooter = form.newPart(JSPart.TITLE_FOOTER, 500);
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TITLE_FOOTER = IPartConstants.TITLE_FOOTER;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -103,6 +104,7 @@ public interface IBaseSMPart
 	 * @sample
 	 * var titleHeader = form.newPart(JSPart.TITLE_HEADER, 40);
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;
 	/**
 	 * Constant use for specifying the type of form parts. 
@@ -127,6 +129,30 @@ public interface IBaseSMPart
 	 */
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TRAILING_SUBSUMMARY = IPartConstants.TRAILING_SUBSUMMARY;
+
+
+	/**
+	 * Constant use for specifying the type of form parts. 
+	 * 
+	 * A header that won't changes position when the page content is scrolled 
+	 * 
+	 * @sample
+	 * var stickyHeader = form.newPart(JSPart.STICKY_HEADER);
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public static final int SICKY_HEADER = TITLE_HEADER;
+
+
+	/**
+	 * Constant use for specifying the type of form parts. 
+	 * 
+	 * A footer that won't changes position when the page content is scrolled 
+	 * 
+	 * @sample
+	 * var stickyHeader = form.newPart(JSPart.STICKY_FOOTER);
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public static final int SICKY_FOOTER = TITLE_FOOTER;
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBasePart#getStyleClass()
