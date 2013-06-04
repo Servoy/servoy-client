@@ -1169,6 +1169,7 @@ if (typeof(Servoy.DD) == "undefined")
 		attachDrag: function (array, callback , bUseProxy, bResizeProxyFrame, bXConstraint, bYConstraint)
 		{
 			YAHOO.util.DDM.mode = YAHOO.util.DDM.INTERSECT;
+			YAHOO.util.DDM.preventDefault = false;
 			if(Servoy.DD.klEsc == null)
 			{
 				Servoy.DD.klEsc = new YAHOO.util.KeyListener(document, {keys:27}, {fn:Servoy.DD.cancelDrag,scope:Servoy.DD,correctScope:true }, "keyup" );
