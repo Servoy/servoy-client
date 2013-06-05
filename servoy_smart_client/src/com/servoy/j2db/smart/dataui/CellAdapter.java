@@ -642,6 +642,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			editor.setSize(cellRect.width, cellRect.height);
 		}
 
+		boolean isRenderWithOnRender = renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && renderable instanceof RenderableWrapper;
 		if (isSelected)
 		{
 			Color tableSelectionColor = jtable.getSelectionForeground();
@@ -649,15 +650,22 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			{
 				tableSelectionColor = adjustColorDifference(bgColor, tableSelectionColor);
 			}
-			renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
-			renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
+
+			if (!isRenderWithOnRender)
+			{
+				renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
+				renderer.setBackground(bgColor != null ? bgColor : jtable.getSelectionBackground());
+			}
+			else
+			{
+				if (fgColor != null) renderer.setForeground(fgColor);
+				if (bgColor != null) renderer.setBackground(bgColor);
+			}
 
 			if (font != null) renderer.setFont(font);
 		}
 		else
 		{
-			boolean isRenderWithOnRender = renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && renderable instanceof RenderableWrapper;
-
 			if (isRenderWithOnRender)
 			{
 				Color newBGColor = bgColor != null ? bgColor : componentBgColor;
