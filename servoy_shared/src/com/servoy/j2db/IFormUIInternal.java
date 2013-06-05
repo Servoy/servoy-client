@@ -112,4 +112,6 @@ public interface IFormUIInternal<T> extends IFormUI, IFocusCycleRoot<T>
 
 	public void prepareForSave(boolean looseFocus);
 
+	public void touch();
+
 }
