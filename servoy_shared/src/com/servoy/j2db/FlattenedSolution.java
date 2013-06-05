@@ -781,7 +781,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			return loginFlattenedSolution.getFlattenedForm(persist, useCached);
 		}
 
-		if (persist == null)
+		if (persist == null || getSolution() == null)
 		{
 			return null;
 		}
