@@ -64,7 +64,10 @@ public class ClientStub implements IUserClient
 		{
 			public void run()
 			{
-				client.shutDown(true);
+				synchronized (ClientStub.this)
+				{
+					client.shutDown(true);
+				}
 			}
 		}, true);
 	}
@@ -75,8 +78,11 @@ public class ClientStub implements IUserClient
 		{
 			public void run()
 			{
-				client.closeSolution(true, null);
-				client.reportInfo(client.getI18NMessage("servoy.client.message.remotesolutionclose")); //$NON-NLS-1$
+				synchronized (ClientStub.this)
+				{
+					client.closeSolution(true, null);
+					client.reportInfo(client.getI18NMessage("servoy.client.message.remotesolutionclose")); //$NON-NLS-1$
+				}
 			}
 		}, true);
 	}
