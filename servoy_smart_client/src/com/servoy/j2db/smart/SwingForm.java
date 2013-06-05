@@ -1154,6 +1154,11 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		invalidateTables(this);
 	}
 
+	@Override
+	public void touch()
+	{
+	}
+
 	private void invalidateTables(JComponent component)
 	{
 		int count = component.getComponentCount();

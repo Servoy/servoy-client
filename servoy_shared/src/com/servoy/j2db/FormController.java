@@ -3062,6 +3062,8 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		// don't do anything yet when there are records but the selection is invalid
 		if (formModel.getSize() > 0 && (formModel.getSelectedIndex() < 0 || formModel.getSelectedIndex() >= formModel.getSize())) return;
 
+		// let the ui know that it will be touched, so that locks can be taken if needed.
+		getFormUI().touch();
 		boolean executeOnRecordSelect = false;
 		IRecordInternal[] state = records;
 		if (state == null)

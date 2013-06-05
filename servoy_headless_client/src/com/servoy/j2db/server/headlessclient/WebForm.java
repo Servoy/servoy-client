@@ -915,6 +915,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	{
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IFormUIInternal#touch()
+	 */
+	@Override
+	public void touch()
+	{
+		MainPage page = getMainPage();
+		if (page != null)
+		{
+			page.touch();
+		}
+	}
+
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#getController()
 	 */
