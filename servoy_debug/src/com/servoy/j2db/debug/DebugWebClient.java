@@ -304,6 +304,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 				"label, label.a, label.b, label.c, label.d, label.e {"//
 					+ "color: #101010;" //  
+					+ "margin-left:5px;" //
 					+ "background-color: #414141;" //
 					+ "}"//
 
