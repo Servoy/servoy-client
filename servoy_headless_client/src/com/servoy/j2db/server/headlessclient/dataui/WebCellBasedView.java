@@ -4729,7 +4729,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		boolean moreThanOnePage = currentData != null && currentData.getSize() > maxRows;
 		if (moreThanOnePage)
 		{
-			reservedHeight += 20; // the page navigator
+			if (!isScrollMode()) reservedHeight += 20; // the page navigator
 			maxRows = Math.max((height - reservedHeight) / maxHeight, 1);
 			// if only 1px is missing for another row, increase the maxRows;
 			// windows web clients does not return accurately the clientHeight property			
