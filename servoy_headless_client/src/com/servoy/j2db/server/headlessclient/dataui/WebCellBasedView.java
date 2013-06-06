@@ -2489,8 +2489,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		if (element != null)
 		{
-			// apply to this cell the state of the columnIdentifier IComponent
+			// apply to this cell the state of the columnIdentifier IComponent, do keep the location that is set by the cell based view when creating these components the first time.
+			Point loc = ((IComponent)c).getLocation();
 			PropertyCopy.copyElementProps((IComponent)elementToColumnIdentifierComponent.get(element), (IComponent)c);
+			((IComponent)c).setLocation(loc);
 		}
 		else
 		{
