@@ -420,6 +420,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * IGNORE - the navigator last assigned to a previous form. 
 	 * Custom - a custom navigator based on a selected form.
 	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getNavigatorID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAVIGATORID).intValue();
