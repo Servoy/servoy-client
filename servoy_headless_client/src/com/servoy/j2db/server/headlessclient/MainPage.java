@@ -384,7 +384,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				@Override
 				protected void onTimer(AjaxRequestTarget target)
 				{
-					if (!client.getFlattenedSolution().isInDesign(null) &&
+					if (isServoyEnabled() && !client.getFlattenedSolution().isInDesign(null) &&
 						String.valueOf(MainPage.this.getCurrentVersionNumber()).equals(RequestCycle.get().getRequest().getParameter("pvs")))
 					{
 						WebEventExecutor.generateResponse(target, MainPage.this);
@@ -394,10 +394,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				@Override
 				public void renderHead(IHeaderResponse response)
 				{
-					super.renderHead(response);
+					if (isServoyEnabled())
+					{
+						super.renderHead(response);
 
-					String jsTimerScript = getJsTimeoutCall(getUpdateInterval());
-					response.renderJavascript("function restartTimer() {" + jsTimerScript + "}", "restartTimer"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						String jsTimerScript = getJsTimeoutCall(getUpdateInterval());
+						response.renderJavascript("function restartTimer() {" + jsTimerScript + "}", "restartTimer"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					}
 				}
 
 				@Override
@@ -415,9 +418,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				@Override
 				protected CharSequence getCallbackScript()
 				{
-					return generateCallbackScript("wicketAjaxGet('" //$NON-NLS-1$
-						+
-						getCallbackUrl(onlyTargetActivePage()) + "&ignoremp=true&pvs=" + MainPage.this.getCurrentVersionNumber() + "'"); //$NON-NLS-1$
+					// if it is not enabled then just return an empty function. so that the timer stops.
+					if (isServoyEnabled())
+					{
+						return generateCallbackScript("wicketAjaxGet('" + //$NON-NLS-1$
+							getCallbackUrl(onlyTargetActivePage()) + "&ignoremp=true&pvs=" + MainPage.this.getCurrentVersionNumber() + "'"); //$NON-NLS-1$
+					}
+					return "function(){}";
 				}
 
 				@Override
@@ -436,8 +443,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					return null; // main page defines it and the timer shouldnt show it
 				}
 
-				@Override
-				public boolean isEnabled(Component component)
+				/*
+				 * this can't be isEnabled(component) of the behavior itself because IE8
+				 * will constant call this on closed (modal)windows. So then this is marked as disabled
+				 * and an AbortException is thrown what our code sees as a server error and will constantly
+				 * restart the timer.
+				 */
+				private boolean isServoyEnabled()
 				{
 					return ((getController() != null && getController().isFormVisible()) || closingAsWindow);
 				}
@@ -688,7 +700,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		form.add(defaultButton);
 
 		StylePropertyChangeMarkupContainer container = new StylePropertyChangeMarkupContainer("externaldivsparent");
-		form.add(container); //$NON-NLS-1$
+		form.add(container);
 		PageContributorRepeatingView repeatingView = new PageContributorRepeatingView("externaldivs", container);
 		container.add(repeatingView);
 		pageContributor.addRepeatingView(repeatingView);
