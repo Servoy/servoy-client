@@ -40,7 +40,6 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -2499,38 +2498,6 @@ public class Utils
 			default :
 				return "other"; //$NON-NLS-1$
 		}
-	}
-
-	public static boolean isJavaFXAvailable(ClassLoader classLoader)
-	{
-		try
-		{
-			Class.forName("javafx.embed.swing.JFXPanel", false, classLoader); //$NON-NLS-1$
-			return true;
-		}
-		catch (Exception e)
-		{
-			// ignore
-		}
-		return false;
-	}
-
-	public static URL getJavaFXURL()
-	{
-		String jrePath = System.getProperty("java.home"); //$NON-NLS-1$
-		File javaFXJar = new File(jrePath, "lib/jfxrt.jar"); //$NON-NLS-1$
-		if (javaFXJar.exists())
-		{
-			try
-			{
-				return javaFXJar.toURI().toURL();
-			}
-			catch (MalformedURLException e)
-			{
-				Debug.error(e);
-			}
-		}
-		return null;
 	}
 
 	public static String getDotQualitfied(Object... tokens)
