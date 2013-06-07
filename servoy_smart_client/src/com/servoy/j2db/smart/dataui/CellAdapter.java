@@ -651,16 +651,10 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				tableSelectionColor = adjustColorDifference(bgColor, tableSelectionColor);
 			}
 
-			if (!isRenderWithOnRender)
-			{
-				renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
-				renderer.setBackground(bgColor != null ? bgColor : jtable.getSelectionBackground());
-			}
-			else
-			{
-				if (fgColor != null) renderer.setForeground(fgColor);
-				if (bgColor != null) renderer.setBackground(bgColor);
-			}
+			if (!(isRenderWithOnRender && ((RenderableWrapper)renderable).getProperty(RenderableWrapper.PROPERTY_FGCOLOR) != null)) renderer.setForeground(fgColor != null
+				? fgColor : tableSelectionColor);
+			if (!(isRenderWithOnRender && ((RenderableWrapper)renderable).getProperty(RenderableWrapper.PROPERTY_BGCOLOR) != null)) renderer.setBackground(bgColor != null
+				? bgColor : jtable.getSelectionBackground());
 
 			if (font != null) renderer.setFont(font);
 		}
