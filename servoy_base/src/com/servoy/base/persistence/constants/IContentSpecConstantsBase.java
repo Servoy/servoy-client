@@ -54,5 +54,6 @@ public interface IContentSpecConstantsBase
 	public static final String PROPERTY_PARTTYPE = "partType"; //$NON-NLS-1$
 	public static final String PROPERTY_PLACEHOLDERTEXT = "placeholderText"; //$NON-NLS-1$
 	public static final String PROPERTY_FORMAT = "format"; //$NON-NLS-1$
+	public static final String PROPERTY_NAVIGATORID = "navigatorID"; //$NON-NLS-1$
 
 }
