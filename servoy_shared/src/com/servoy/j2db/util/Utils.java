@@ -2501,7 +2501,7 @@ public class Utils
 		}
 	}
 
-	public static boolean isJavaFXAvaible(ClassLoader classLoader)
+	public static boolean isJavaFXAvailable(ClassLoader classLoader)
 	{
 		try
 		{
