@@ -350,125 +350,129 @@ public class TemplateGenerator
 		Pair<String, ArrayList<Pair<String, String>>> retval = formCache.getFormAndCssPair(form, formInstanceName, overriddenStyleName, repository);
 
 		Form f = form;
-		if (retval == null)
+		FlattenedSolution fsToClose = null;
+		try
 		{
-			if (f.getExtendsFormID() > 0)
+			if (retval == null)
 			{
-				FlattenedSolution fs = sp == null ? null : sp.getFlattenedSolution();
-				if (fs == null)
+				if (f.getExtendsID() > 0)
 				{
-					try
+					FlattenedSolution fs = sp == null ? null : sp.getFlattenedSolution();
+					if (fs == null)
 					{
-						fs = new FlattenedSolution(solution.getSolutionMetaData(), new AbstractActiveSolutionHandler()
+						try
 						{
-							@Override
-							public IRepository getRepository()
+							fsToClose = fs = new FlattenedSolution(solution.getSolutionMetaData(), new AbstractActiveSolutionHandler()
 							{
-								return repository;
-							}
-						});
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error("Couldn't create flattened form for the template generator", e);
-					}
-					finally
-					{
-						if (fs != null)
+								@Override
+								public IRepository getRepository()
+								{
+									return repository;
+								}
+							});
+						}
+						catch (RepositoryException e)
 						{
-							fs.close(null);
+							Debug.error("Couldn't create flattened form for the template generator", e);
+						}
+					}
+					f = fs.getFlattenedForm(f);
+
+					if (f == null)
+					{
+						Debug.log("TemplateGenerator couldn't get a FlattenedForm for " + form + ", solution closed?");
+						f = form;
+					}
+				}
+
+				StringBuffer html = new StringBuffer();
+				TextualCSS css = new TextualCSS();
+
+				IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(sp, solution, f, formInstanceName);
+
+				int viewType = layoutProvider.getViewType();
+
+				layoutProvider.renderOpenFormHTML(html, css);
+
+				int startY = 0;
+				Iterator<Part> parts = f.getParts();
+				while (parts.hasNext())
+				{
+					Part part = parts.next();
+					int endY = part.getHeight();
+
+					if (Part.rendersOnlyInPrint(part.getPartType()))
+					{
+						startY = part.getHeight();
+						continue;//is never shown (=printing only)
+					}
+
+					Color bgColor = ComponentFactory.getPartBackground(sp, part, f);
+
+					if (part.getPartType() == Part.BODY &&
+						(viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
+					{
+						layoutProvider.renderOpenTableViewHTML(html, css, part);
+						createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType, enableAnchoring);//tableview == bodypart
+						layoutProvider.renderCloseTableViewHTML(html);
+					}
+					else
+					{
+						layoutProvider.renderOpenPartHTML(html, css, part);
+						placePartElements(f, startY, endY, html, css, bgColor, enableAnchoring, sp);
+						layoutProvider.renderClosePartHTML(html, part);
+					}
+					startY = part.getHeight();
+				}
+
+				layoutProvider.renderCloseFormHTML(html);
+
+				retval = new Pair<String, ArrayList<Pair<String, String>>>(html.toString(), css.getAsSelectorValuePairs());
+				formCache.putFormAndCssPair(form, formInstanceName, overriddenStyleName, repository, retval);
+			}
+
+			Map<String, String> formIDToMarkupIDMap = null;
+			if (sp instanceof IApplication)
+			{
+				Map runtimeProps = sp.getRuntimeProperties();
+				Map<WebForm, Map<String, String>> clientFormsIDToMarkupIDMap = (Map<WebForm, Map<String, String>>)runtimeProps.get("WebFormIDToMarkupIDCache");
+				if (clientFormsIDToMarkupIDMap == null)
+				{
+					clientFormsIDToMarkupIDMap = new WeakHashMap<WebForm, Map<String, String>>();
+					runtimeProps.put("WebFormIDToMarkupIDCache", clientFormsIDToMarkupIDMap);
+				}
+
+				IForm wfc = ((IApplication)sp).getFormManager().getForm(formInstanceName);
+				if (wfc instanceof FormController)
+				{
+					IFormUIInternal wf = ((FormController)wfc).getFormUI();
+					if (wf instanceof WebForm)
+					{
+						if (!((WebForm)wf).isUIRecreated()) formIDToMarkupIDMap = clientFormsIDToMarkupIDMap.get(wf);
+						if (formIDToMarkupIDMap == null)
+						{
+							ArrayList<Pair<String, String>> formCSS = retval.getRight();
+							ArrayList<String> selectors = new ArrayList<String>(formCSS.size());
+							for (Pair<String, String> formCSSEntry : formCSS)
+								selectors.add(formCSSEntry.getLeft());
+							formIDToMarkupIDMap = getWebFormIDToMarkupIDMap((WebForm)wf, selectors);
+							clientFormsIDToMarkupIDMap.put((WebForm)wf, formIDToMarkupIDMap);
 						}
 					}
 				}
-				f = fs.getFlattenedForm(f);
-
-				if (f == null)
-				{
-					Debug.log("TemplateGenerator couldn't get a FlattenedForm for " + form + ", solution closed?");
-					f = form;
-				}
 			}
 
-			StringBuffer html = new StringBuffer();
-			TextualCSS css = new TextualCSS();
-
-			IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(sp, solution, f, formInstanceName);
-
-			int viewType = layoutProvider.getViewType();
-
-			layoutProvider.renderOpenFormHTML(html, css);
-
-			int startY = 0;
-			Iterator<Part> parts = f.getParts();
-			while (parts.hasNext())
-			{
-				Part part = parts.next();
-				int endY = part.getHeight();
-
-				if (Part.rendersOnlyInPrint(part.getPartType()))
-				{
-					startY = part.getHeight();
-					continue;//is never shown (=printing only)
-				}
-
-				Color bgColor = ComponentFactory.getPartBackground(sp, part, f);
-
-				if (part.getPartType() == Part.BODY &&
-					(viewType == FormController.TABLE_VIEW || viewType == FormController.LOCKED_TABLE_VIEW || viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW))
-				{
-					layoutProvider.renderOpenTableViewHTML(html, css, part);
-					createCellBasedView(f, f, html, css, layoutProvider.needsHeaders(), startY, endY, bgColor, sp, viewType, enableAnchoring);//tableview == bodypart
-					layoutProvider.renderCloseTableViewHTML(html);
-				}
-				else
-				{
-					layoutProvider.renderOpenPartHTML(html, css, part);
-					placePartElements(f, startY, endY, html, css, bgColor, enableAnchoring, sp);
-					layoutProvider.renderClosePartHTML(html, part);
-				}
-				startY = part.getHeight();
-			}
-
-			layoutProvider.renderCloseFormHTML(html);
-
-			retval = new Pair<String, ArrayList<Pair<String, String>>>(html.toString(), css.getAsSelectorValuePairs());
-			formCache.putFormAndCssPair(form, formInstanceName, overriddenStyleName, repository, retval);
+			String webFormCSS = getWebFormCSS(retval.getRight(), formIDToMarkupIDMap);
+			webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "").toString(); // string the formcss/solutionname/ out of the url.		
+			return new Pair<String, String>(retval.getLeft(), webFormCSS);
 		}
-
-		Map<String, String> formIDToMarkupIDMap = null;
-		if (sp instanceof IApplication)
+		finally
 		{
-			Map runtimeProps = sp.getRuntimeProperties();
-			Map<WebForm, Map<String, String>> clientFormsIDToMarkupIDMap = (Map<WebForm, Map<String, String>>)runtimeProps.get("WebFormIDToMarkupIDCache");
-			if (clientFormsIDToMarkupIDMap == null)
+			if (fsToClose != null)
 			{
-				clientFormsIDToMarkupIDMap = new WeakHashMap<WebForm, Map<String, String>>();
-				runtimeProps.put("WebFormIDToMarkupIDCache", clientFormsIDToMarkupIDMap);
-			}
-
-			IForm wfc = ((IApplication)sp).getFormManager().getForm(formInstanceName);
-			if (wfc instanceof FormController)
-			{
-				IFormUIInternal wf = ((FormController)wfc).getFormUI();
-				if (wf instanceof WebForm)
-				{
-					if (!((WebForm)wf).isUIRecreated()) formIDToMarkupIDMap = clientFormsIDToMarkupIDMap.get(wf);
-					if (formIDToMarkupIDMap == null)
-					{
-						ArrayList<Pair<String, String>> formCSS = retval.getRight();
-						ArrayList<String> selectors = new ArrayList<String>(formCSS.size());
-						for (Pair<String, String> formCSSEntry : formCSS)
-							selectors.add(formCSSEntry.getLeft());
-						formIDToMarkupIDMap = getWebFormIDToMarkupIDMap((WebForm)wf, selectors);
-						clientFormsIDToMarkupIDMap.put((WebForm)wf, formIDToMarkupIDMap);
-					}
-				}
+				fsToClose.close(null);
 			}
 		}
-
-		String webFormCSS = getWebFormCSS(retval.getRight(), formIDToMarkupIDMap);
-		webFormCSS = StripHTMLTagsConverter.convertMediaReferences(webFormCSS, solution.getName(), new ResourceReference("media"), "").toString(); // string the formcss/solutionname/ out of the url.		
-		return new Pair<String, String>(retval.getLeft(), webFormCSS);
 	}
 
 	private static void placePartElements(Form f, int startY, int endY, StringBuffer html, TextualCSS css, Color formPartBgColor, boolean enableAnchoring,
@@ -2091,9 +2095,9 @@ public class TemplateGenerator
 			}
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ 
+				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div></div>"); //$NON-NLS-1$
-			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ 
+			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div>"); //$NON-NLS-1$ 
 		}
 		else
