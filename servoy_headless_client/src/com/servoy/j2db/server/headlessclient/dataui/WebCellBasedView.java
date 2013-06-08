@@ -84,6 +84,7 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
 import org.apache.wicket.response.StringResponse;
 import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.apache.wicket.util.string.Strings;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
@@ -4995,7 +4996,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
-	private class ScrollBehavior extends ServoyAjaxEventBehavior
+	private class ScrollBehavior extends ServoyAjaxEventBehavior implements IIgnoreDisabledComponentBehavior
 	{
 		private boolean isGettingRows;
 
@@ -5114,6 +5115,29 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			currentScrollLeft = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollLeft")); //$NON-NLS-1$
 			int scrollDiff = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("scrollDiff")); //$NON-NLS-1$
 			appendRows(target, scrollDiff, isKeepLoadedRowsInScrollMode);
+		}
+
+		/**
+		 * if component is disabled the ajax call decorators are not set.
+		 * Override this behavior to always set them , ScrollBehavior is always needed regardless of the state of the component
+		 */
+		@Override
+		protected void onComponentTag(final ComponentTag tag)
+		{ //old behavior handles the component enabled case
+			super.onComponentTag(tag);
+
+			Component myComponent = getComponent();
+			if (!myComponent.isEnabledInHierarchy())
+			{
+				CharSequence attr = getEventHandler();
+				if (null == attr)
+				{
+					attr = "";
+				}
+				CharSequence escaped = Strings.escapeMarkup(attr.toString());
+				Strings.replaceAll(escaped, "&#039;", "'");
+				tag.put(getEvent(), escaped);
+			}
 		}
 
 		@Override
