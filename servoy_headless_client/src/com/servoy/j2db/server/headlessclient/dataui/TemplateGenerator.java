@@ -59,7 +59,6 @@ import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -2592,13 +2591,9 @@ public class TemplateGenerator
 				ValueList valuelist = null;
 				if (field.getValuelistID() > 0 && sp != null)
 				{
-					ComponentFormat fieldFormat = ComponentFormat.getComponentFormat(field.getFormat(), field.getDataProviderID(),
-						sp.getFlattenedSolution().getDataproviderLookup(sp.getFoundSetManager(), form), sp);
 					valuelist = sp.getFlattenedSolution().getValueList(field.getValuelistID());
-					if (valuelist != null) val = ComponentFactory.getRealValueList(sp, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat,
-						field.getDataProviderID());
 				}
-				boolean addSingle = ComponentFactory.isSingleValue(valuelist, val);
+				boolean addSingle = ComponentFactory.isSingleValue(valuelist);
 
 				// If we have multiple checkboxes, then the default is "field".
 				if (field.getValuelistID() > 0 && !addSingle && !isRadio) cssClass = "radioCheckField";

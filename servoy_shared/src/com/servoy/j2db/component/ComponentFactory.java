@@ -1189,7 +1189,7 @@ public class ComponentFactory
 				if (valuelist != null)
 				{
 					IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
-					if (isSingleValue(valuelist, list))
+					if (isSingleValue(valuelist))
 					{
 						scriptable = so = new RuntimeCheckbox(jsChangeRecorder, application);
 						fl = application.getItemFactory().createCheckBox((RuntimeCheckbox)so, getWebID(form, field),
@@ -1219,7 +1219,7 @@ public class ComponentFactory
 			{
 				AbstractRuntimeValuelistComponent<IFieldComponent> so;
 				IValueList list = getRealValueList(application, valuelist, true, fieldFormat.dpType, fieldFormat.parsedFormat, field.getDataProviderID());
-				if (isSingleValue(valuelist, list))
+				if (isSingleValue(valuelist))
 				{
 					scriptable = so = new RuntimeRadioButton(jsChangeRecorder, application);
 					fl = application.getItemFactory().createRadioButton((RuntimeRadioButton)so, getWebID(form, field),
@@ -2380,11 +2380,15 @@ public class ComponentFactory
 		}
 	}
 
-	public static boolean isSingleValue(ValueList valuelist, IValueList list)
+	public static boolean isSingleValue(ValueList valuelist)
 	{
-		return list != null && valuelist != null &&
-			!(valuelist.getValueListType() == IValueListConstants.DATABASE_VALUES && valuelist.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES) &&
-			list.getSize() == 1 && valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS;
+		if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES &&
+			valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS && valuelist.getCustomValues() != null &&
+			valuelist.getCustomValues().split(System.getProperty("line.separator")).length == 1)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public static boolean isButton(GraphicalComponent label)
