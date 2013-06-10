@@ -161,7 +161,9 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 	@Override
 	protected void onModelChanged()
 	{
-		getModel().setObject(getConvertedInput());
+		Object ci = getConvertedInput();
+		Object realValue = resolveRealValue(ci);
+		getModel().setObject(realValue);
 	}
 
 	/*
