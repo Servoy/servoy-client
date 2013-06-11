@@ -81,19 +81,19 @@ public class AnnotationManagerReflection
 		return (T)annotationManager.getAnnotation(new ReflectionAnnotatedClass(targetClass), annotationClass);
 	}
 
-	public boolean supportsClientType(Method method, Class< ? > originalClass, ClientSupport clientType, ClientSupport defaultClientType)
+	public boolean hasSupportForClientType(Method method, Class< ? > originalClass, ClientSupport clientType, ClientSupport defaultClientType)
 	{
-		return getClientSupport(method, originalClass, defaultClientType).supports(clientType);
+		return getClientSupport(method, originalClass, defaultClientType).hasSupport(clientType);
 	}
 
-	public boolean supportsClientType(Class< ? extends IScriptable> cls, ClientSupport clientType, ClientSupport defaultClientType)
+	public boolean hasSupportForClientType(Class< ? extends IScriptable> cls, ClientSupport clientType, ClientSupport defaultClientType)
 	{
-		return getClientSupport(cls, defaultClientType).supports(clientType);
+		return getClientSupport(cls, defaultClientType).hasSupport(clientType);
 	}
 
-	public boolean supportsClientType(Field field, ClientSupport clientType, ClientSupport defaultClientType)
+	public boolean hasSupportForClientType(Field field, ClientSupport clientType, ClientSupport defaultClientType)
 	{
-		return getClientSupport(field, defaultClientType).supports(clientType);
+		return getClientSupport(field, defaultClientType).hasSupport(clientType);
 	}
 
 	public ClientSupport getClientSupport(Method method, Class< ? > originalClass, ClientSupport defaultClientType)

@@ -77,6 +77,17 @@ public enum ClientSupport
 		return sb;
 	}
 
+	/**
+	 * Check if the current ClientSupport has (partly) support for the csp argument
+	 */
+	public boolean hasSupport(ClientSupport csp)
+	{
+		return csp != null && (bits & csp.bits) != 0;
+	}
+
+	/**
+	 * Check if the current ClientSupport fully supports the csp argument
+	 */
 	public boolean supports(ClientSupport csp)
 	{
 		return csp != null && (bits & csp.bits) == csp.bits;

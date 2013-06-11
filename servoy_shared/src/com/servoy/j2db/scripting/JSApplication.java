@@ -49,6 +49,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.api.IJSApplication;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
@@ -2885,6 +2886,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.updateUI(500);
 	 * //continue doing things
 	 */
+	@ServoyClientSupport(mc = false, sc = true, wc = false)
 	public void js_updateUI()
 	{
 		js_updateUI(100);
@@ -2898,10 +2900,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @param milliseconds How long the update should take in milliseconds
 	 */
+	@ServoyClientSupport(mc = false, sc = true, wc = false)
 	public void js_updateUI(int milliseconds)
 	{
-		if (milliseconds < 100) milliseconds = 100;
-		application.updateUI(milliseconds);
+		application.updateUI(milliseconds < 100 ? 100 : milliseconds);
 	}
 
 	/**
