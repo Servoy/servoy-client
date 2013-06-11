@@ -19,26 +19,24 @@ package com.servoy.base.solutionmodel;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
+
 /**
- * Solution model button object (for mobile as well as other clients).
+ * Flagging interface for solution model components that have a separate title.
  * 
  * @author rgansevles
  *
- * @since 7.1
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
-public interface IBaseSMButton extends IBaseSMGraphicalComponent, IBaseSMButtonConstants
+@ServoyClientSupport(mc = true, sc = false, wc = false)
+public interface IBaseSMHasTitle
 {
 	/**
-	 * Icon shown on a button.
+	 * Get title label for the field or label.
 	 * 
 	 * @sample
-	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, null);
-	 * btn.iconType = JSButton.ICON_STAR
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table');
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 1);
+	 * field.getTitle().text = 'Parent table'
+	 * forms['someForm'].controller.show()
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public String getIconType();
-
-	public void setIconType(String method);
-
+	public IBaseSMTitle getTitle();
 }

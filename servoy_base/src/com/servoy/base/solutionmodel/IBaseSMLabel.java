@@ -28,6 +28,18 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @since 7.0
  */
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public interface IBaseSMLabel extends IBaseSMGraphicalComponent
+public interface IBaseSMLabel extends IBaseSMGraphicalComponent, IBaseSMHasTitle
 {
+	/** 
+	 * Size property for a label, values 1 to 60 correspond to header class h1 to h6
+	 * 
+	 * @sample
+	 * var label = form.newLabel('Hello', 1);
+	 * label.labelSize = 2 // corresponds to header class h2
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public int getLabelSize();
+
+	public void setLabelSize(int size);
+
 }

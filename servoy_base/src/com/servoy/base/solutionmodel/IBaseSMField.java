@@ -31,9 +31,8 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  */
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 // TODO ac filter-out unsupported field types from servoy mobile
-public interface IBaseSMField extends IBaseSMComponent
+public interface IBaseSMField extends IBaseSMComponent, IBaseSMHasTitle
 {
-
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the
 	 * field to text field. The field will show regular text on a single line.
@@ -262,6 +261,4 @@ public interface IBaseSMField extends IBaseSMComponent
 	public String getPlaceholderText();
 
 	public void setPlaceholderText(String arg);
-
-
 }

@@ -18,6 +18,7 @@
 package com.servoy.base.solutionmodel;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.scripting.solutionhelper.IBaseSHList;
 
 
 /**
@@ -94,6 +95,74 @@ public interface IBaseSolutionModel
 	 * @return a new ISMForm object
 	 */
 	public IBaseSMForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height);
+
+	/** 
+	 * Creates a new IBaseSMForm Object.
+	 * 
+	 * NOTE: See the IBaseSMForm node for more information about form objects that can be added to the new form. 
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm', 'db:/my_server/my_table')
+	 * //now you can add stuff to the form (under IBaseSMForm node)
+	 * //add a label
+	 * myForm.newLabel('Name', 1)
+	 * //add a "normal" text entry field
+	 * myForm.newTextField('dataProviderNameHere', 2)
+	 *
+	 * @param name the specified name of the form
+	 *
+	 * @param dataSource the specified name of the datasource for the specified table
+	 *
+	 * @return a new ISMForm object
+	 */
+	@ServoyClientSupport(mc = true, sc = false, wc = false)
+	public IBaseSMForm newForm(String name, String dataSource);
+
+	/**
+	 * Creates a new list form, similar to an inset list but without the inset list's header and relation.
+	 * The result will be an independent form which behaves like a mobile list.
+	 * 
+	 * @param formName the new form's name.
+	 * @param dataSource the list will be populated based on this datasource.
+	 * @param textDataProviderID can be null; it's a convenience argument for setting the dataprovider that will be used to populate the main text area of the list's items.
+	 * @return the newly created list form.
+	 * 
+	 * @sample
+	 * var f = solutionModel.newForm("created_by_sm_1","udm","contacts",null,false,100,380);
+	 * // create a button to go to it on the main form
+	 * b = f.newButton("Show created list form",0,9,10,10,
+	 * 	f.newMethod("function showListForm() { forms.created_by_sm_2.controller.show(); }"));
+	 * // create the actual list form
+	 * var list = f.createListForm('created_by_sm_2', databaseManager.getDataSource("udm","contacts"),"name_first");
+	 * list.onAction = solutionModel.getForm('created_by_sm_2').newMethod("function goBack() { history.back(); }");
+	 */
+	@ServoyClientSupport(mc = true, sc = false, wc = false)
+	public IBaseSHList newListForm(String formName, String dataSource, String textDataProviderID);
+
+	/**
+	 * Returns an existing list form.
+	 * 
+	 * @param formName the form's name.
+	 * @return the existing list form, or null if it does not exist.
+	 * 
+	 * @sample
+	 * var list = solutionModel.getListForm('created_by_sm_2');
+	 */
+	@ServoyClientSupport(mc = true, sc = false, wc = false)
+	public IBaseSHList getListForm(String name);
+
+	/**
+	 * Get an array of all list-forms.
+	 *
+	 * @sample
+	 * var forms = solutionModel.getListForms()
+	 * for (var i in forms)
+	 * 	application.output(forms[i].name)
+	 *
+	 * @return an array of IBaseSHList type elements
+	 */
+	@ServoyClientSupport(mc = true, sc = false, wc = false)
+	public IBaseSHList[] getListForms();
 
 	/**
 	 * Reverts the specified form to the original (blueprint) version of the form; will result in an exception error if the form is not an original form.

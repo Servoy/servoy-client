@@ -30,13 +30,12 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 {
 	private IBaseSMGraphicalComponent headerComponent;
 
-	public BaseSHInsetList(IBaseSMPortal portal, BaseSolutionHelper solutionHelper)
+	public BaseSHInsetList(IBaseSMPortal portal, IBaseSMFormInternal contextForm)
 	{
-		super(portal, solutionHelper);
+		super(portal, contextForm);
 		for (IBaseSMComponent c : container.getComponents())
 		{
-			if (c instanceof IBaseSMGraphicalComponent &&
-				Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_HEADER)))
+			if (c instanceof IBaseSMGraphicalComponent && Boolean.TRUE.equals(contextForm.getMobilePropertyValue(c, IMobileProperties.LIST_ITEM_HEADER)))
 			{
 				headerComponent = (IBaseSMGraphicalComponent)c;
 			}
@@ -91,7 +90,7 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 	{
 		IBaseSMLabel header = container.newLabel(null, 0, 0, 50, 30);
 		header.setDisplaysTags(true);
-		solutionHelper.getMobileProperties(header).setPropertyValue(IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
+		contextForm.setMobilePropertyValue(header, IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
 		return header;
 	}
 

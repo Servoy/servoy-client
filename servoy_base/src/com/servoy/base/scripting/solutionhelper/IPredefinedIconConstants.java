@@ -99,5 +99,13 @@ public interface IPredefinedIconConstants
 	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
 	 */
 	public static final String ICON_SEARCH = "search"; // DataIcon.SEARCH.getJqmValue() //$NON-NLS-1$
+	/**
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 */
+	public static final String ICON_BARS = "bars"; // DataIcon.BARS.getJqmValue() //$NON-NLS-1$
+	/**
+	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 */
+	public static final String ICON_EDIT = "edit"; // DataIcon.EDIT.getJqmValue() //$NON-NLS-1$
 
 }

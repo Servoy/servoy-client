@@ -22,13 +22,14 @@ import java.util.List;
 
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.persistence.IMobileProperties.MobileProperty;
-import com.servoy.base.persistence.constants.IRepositoryConstants;
 import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMForm;
+import com.servoy.base.solutionmodel.IBaseSMHasTitle;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
-import com.servoy.base.solutionmodel.IBaseSMPortal;
+import com.servoy.base.solutionmodel.IBaseSMRadios;
+import com.servoy.base.solutionmodel.IBaseSMTitle;
 import com.servoy.base.solutionmodel.IBaseSolutionModel;
 
 /**
@@ -40,7 +41,7 @@ import com.servoy.base.solutionmodel.IBaseSolutionModel;
  */
 public abstract class BaseSolutionHelper
 {
-	private static final String AUTO_CREATED_LIST_INSETLIST_NAME = "list"; //$NON-NLS-1$ 
+	public static final String AUTO_CREATED_LIST_INSETLIST_NAME = "list"; //$NON-NLS-1$ 
 
 	protected final IBaseSolutionModel solutionModel;
 
@@ -96,132 +97,82 @@ public abstract class BaseSolutionHelper
 
 	public void setHeaderSize(IBaseSMLabel label, int headerSize)
 	{
-		// only set valid values
-		if (headerSize > 0 && headerSize < 7)
-		{
-			getMobileProperties(label).setPropertyValue(IMobileProperties.HEADER_SIZE, Integer.valueOf(headerSize));
-		}
+		label.setLabelSize(headerSize);
 	}
 
 	public int getHeaderSize(IBaseSMLabel label)
 	{
-		Number headerSize = getMobileProperties(label).getPropertyValue(IMobileProperties.HEADER_SIZE);
-		return headerSize != null ? headerSize.intValue() : 4;
+		return label.getLabelSize();
 	}
 
 	public void setRadioFieldHorizontal(IBaseSMField radioField, boolean horizontal)
 	{
-		if (radioField.getDisplayType() != IBaseSMField.RADIOS) return;
-
-		int radioStyle = (horizontal ? IMobileProperties.RADIO_STYLE_HORIZONTAL : IMobileProperties.RADIO_STYLE_VERTICAL);
-		getMobileProperties(radioField).setPropertyValue(IMobileProperties.RADIO_STYLE, Integer.valueOf(radioStyle));
+		if (radioField instanceof IBaseSMRadios)
+		{
+			((IBaseSMRadios)radioField).setHorizontal(horizontal);
+		}
 	}
 
 	public boolean isRadioFieldHorizontal(IBaseSMField radioField)
 	{
-		return getMobileProperties(radioField).getPropertyValue(IMobileProperties.RADIO_STYLE).intValue() == IMobileProperties.RADIO_STYLE_HORIZONTAL;
+		return radioField instanceof IBaseSMRadios && ((IBaseSMRadios)radioField).getHorizontal();
 	}
 
-	protected IBaseSMLabel getTitleForComponent(IBaseSMComponent c, boolean createIfMissing)
+	private IBaseSMTitle getTitleForComponent(IBaseSMComponent c)
 	{
-		// fail with exception for setters that are called with unsupported component types (only fields and labels are currently supported)
-		if (createIfMissing && !supportsTitleLabel(c))
+		if (c instanceof IBaseSMHasTitle)
 		{
-			throw new RuntimeException("Title labels are only supported for field and label components."); //$NON-NLS-1$
+			return ((IBaseSMHasTitle)c).getTitle();
 		}
-
-		IBaseSMLabel titleLabel = null;
-		IBaseSMFormInternal parentForm = getParentForm(c);
-		if (parentForm != null)
-		{
-			String cGroup = c.getGroupID();
-			if (cGroup != null)
-			{
-				IBaseSMComponent[] labels = parentForm.getComponentsInternal(true, Integer.valueOf(IRepositoryConstants.GRAPHICALCOMPONENTS));
-				for (IBaseSMComponent label : labels)
-				{
-					if (label instanceof IBaseSMLabel)
-					{
-						IBaseSMLabel l = (IBaseSMLabel)label;
-						if (cGroup.equals(l.getGroupID()))
-						{
-							// I guess the following if might as well not be; the location thing is for legacy solutions (before the COMPONENT_TITLE existed)
-							if (Boolean.TRUE.equals(getMobileProperties(l).getPropertyValue(IMobileProperties.COMPONENT_TITLE)) || l.getY() < c.getY() ||
-								(l.getY() == c.getY() && l.getX() < c.getX()))
-							{
-								titleLabel = l;
-								break;
-							}
-						}
-					}
-				}
-			}
-
-			if (titleLabel == null && createIfMissing)
-			{
-				if (cGroup == null)
-				{
-					cGroup = createNewGroupId();
-					c.setGroupID(cGroup);
-				}
-				titleLabel = parentForm.newLabel(null, c.getX() - 1, c.getY() - 1, c.getWidth(), c.getHeight());
-				titleLabel.setGroupID(cGroup);
-				getMobileProperties(titleLabel).setPropertyValue(IMobileProperties.COMPONENT_TITLE, Boolean.TRUE);
-			}
-		}
-		return titleLabel;
+		return null;
 	}
-
-	protected abstract boolean supportsTitleLabel(IBaseSMComponent c);
-
-	protected abstract IBaseSMFormInternal getParentForm(IBaseSMComponent c);
 
 	public void setTitleDisplaysTags(IBaseSMComponent c, boolean displaysTags)
 	{
-		IBaseSMLabel l = getTitleForComponent(c, true);
-		if (l != null) l.setDisplaysTags(displaysTags);
+		IBaseSMTitle title = getTitleForComponent(c);
+		if (title != null) title.setDisplaysTags(displaysTags);
 	}
 
 	public boolean getTitleDisplaysTags(IBaseSMComponent c)
 	{
-		IBaseSMLabel l = getTitleForComponent(c, false);
-		return l != null ? l.getDisplaysTags() : false;
+		IBaseSMTitle title = getTitleForComponent(c);
+		return title != null && title.getDisplaysTags();
 	}
 
 	public void setTitleDataProvider(IBaseSMComponent c, String dataProvider)
 	{
-		IBaseSMLabel l = getTitleForComponent(c, true);
-		if (l != null) l.setDataProviderID(dataProvider);
+		IBaseSMTitle title = getTitleForComponent(c);
+		if (title != null) title.setDataProviderID(dataProvider);
 	}
 
 	public String getTitleDataProvider(IBaseSMComponent c)
 	{
-		IBaseSMLabel l = getTitleForComponent(c, false);
-		return l != null ? l.getDataProviderID() : null;
+		IBaseSMTitle title = getTitleForComponent(c);
+		return title == null ? null : title.getDataProviderID();
 	}
 
 	public void setTitleText(IBaseSMComponent c, String titleText)
 	{
-		IBaseSMLabel l = getTitleForComponent(c, true);
-		if (l != null) l.setText(titleText);
+		IBaseSMTitle title = getTitleForComponent(c);
+		if (title != null) title.setText(titleText);
 	}
 
 	public String getTitleText(IBaseSMComponent c)
 	{
-		IBaseSMLabel l = getTitleForComponent(c, false);
-		return l != null ? l.getText() : null;
+		IBaseSMTitle title = getTitleForComponent(c);
+		return title == null ? null : title.getText();
 	}
 
 	public void setTitleVisible(IBaseSMLabel l, boolean titleVisible)
 	{
-		IBaseSMLabel lbl = getTitleForComponent(l, true);
-		if (lbl != null) lbl.setVisible(titleVisible);
+		IBaseSMTitle title = getTitleForComponent(l);
+		if (title != null) title.setVisible(titleVisible);
 	}
 
 	public boolean isTitleVisible(IBaseSMLabel l)
 	{
-		IBaseSMLabel title = getTitleForComponent(l, false);
-		return title != null ? title.getVisible() : false;
+		IBaseSMTitle title = getTitleForComponent(l);
+		return title != null && title.getVisible();
 	}
 
 	@Deprecated
@@ -243,70 +194,24 @@ public abstract class BaseSolutionHelper
 
 	public IBaseSHInsetList createInsetList(IBaseSMForm form, int yLocation, String relationName, String headerText, String textDataProviderID)
 	{
-		String autoGeneratedInsetListName = AUTO_CREATED_LIST_INSETLIST_NAME;
-		int i = 1;
-		while (form.getComponent(autoGeneratedInsetListName) != null)
-		{
-			autoGeneratedInsetListName = AUTO_CREATED_LIST_INSETLIST_NAME + '_' + (i++);
-		}
-
-		// create portal
-		IBaseSMPortal portal = form.newPortal(autoGeneratedInsetListName, relationName, 0, yLocation, 0, 0);
-		getMobileProperties(portal).setPropertyValue(IMobileProperties.LIST_COMPONENT, Boolean.TRUE);
-
-		// create list abstraction
-		IBaseSHInsetList listComponent = instantiateInsetList(portal, this);
-
-		// create other persists for remaining contents of list
-		if (headerText != null) listComponent.setHeaderText(headerText);
-		if (textDataProviderID != null) listComponent.setTextDataProviderID(textDataProviderID);
-
-		return listComponent;
+		return form.newInsetList(yLocation, relationName, headerText, textDataProviderID);
 	}
-
-	protected abstract IBaseSHInsetList instantiateInsetList(IBaseSMPortal portal, BaseSolutionHelper baseSolutionHelper);
 
 	public IBaseSHList createListForm(String formName, String dataSource, String textDataProviderID)
 	{
-		if (solutionModel.getForm(formName) != null) return null; // a form with that name already exists
-
-		// create form
-		IBaseSMForm listForm = solutionModel.newForm(formName, dataSource, null, false, 100, 380);
-		listForm.setView(IBaseSMForm.LOCKED_TABLE_VIEW);
-
-		// create list abstraction
-		IBaseSHList listComponent = instantiateList(listForm, this);
-
-		// create other persists for remaining contents of list
-		if (textDataProviderID != null) listComponent.setTextDataProviderID(textDataProviderID);
-
-		return listComponent;
+		return solutionModel.newListForm(formName, dataSource, textDataProviderID);
 	}
 
 	public IBaseSHList getListForm(String formName)
 	{
-		IBaseSHList listForm = null;
-		IBaseSMForm f = solutionModel.getForm(formName);
-		if (f != null && f.getView() == IBaseSMForm.LOCKED_TABLE_VIEW)
-		{
-			listForm = instantiateList(f, this);
-		}
-		return listForm;
+		return solutionModel.getListForm(formName);
 	}
 
 	public IBaseSHInsetList getInsetList(IBaseSMForm form, String name)
 	{
-		if (form == null || name == null) return null;
-
-		IBaseSMPortal portal = form.getPortal(name);
-		if (portal != null && Boolean.TRUE.equals(getMobileProperties(portal).getPropertyValue(IMobileProperties.LIST_COMPONENT)))
-		{
-			return instantiateInsetList(portal, this);
-		}
-		return null;
+		if (form == null) return null;
+		return form.getInsetList(name);
 	}
-
-	protected abstract IBaseSHList instantiateList(IBaseSMForm listForm, BaseSolutionHelper baseSolutionHelper);
 
 	private IBaseSMButton getHeaderButton(IBaseSMForm form, boolean left)
 	{
@@ -365,48 +270,17 @@ public abstract class BaseSolutionHelper
 
 	public IBaseSHInsetList[] getAllInsetLists(IBaseSMForm form)
 	{
-		List<IBaseSHInsetList> insetListList = new ArrayList<IBaseSHInsetList>();
-		if (form != null)
-		{
-			IBaseSMPortal[] portals = form.getPortals();
-			if (portals != null)
-			{
-				for (IBaseSMPortal portal : portals)
-				{
-					if (Boolean.TRUE.equals(getMobileProperties(portal).getPropertyValue(IMobileProperties.LIST_COMPONENT)))
-					{
-						insetListList.add(instantiateInsetList(portal, this));
-					}
-				}
-			}
-		}
-		return insetListList.toArray(new IBaseSHInsetList[0]);
+		return form.getInsetLists();
 	}
 
 	public IBaseSHList[] getAllListForms()
 	{
-		List<IBaseSHList> listFormsList = new ArrayList<IBaseSHList>();
-		IBaseSMForm[] forms = solutionModel.getForms();
-		if (forms != null)
-		{
-			for (IBaseSMForm form : forms)
-			{
-				if (form.getView() == IBaseSMForm.LOCKED_TABLE_VIEW)
-				{
-					listFormsList.add(instantiateList(form, this));
-				}
-			}
-		}
-		return listFormsList.toArray(new IBaseSHList[0]);
+		return solutionModel.getListForms();
 	}
 
 	public boolean removeInsetList(IBaseSMForm form, String name)
 	{
-		if (form != null)
-		{
-			return form.removePortal(name);
-		}
-		return false;
+		return form != null && form.removeInsetList(name);
 	}
 
 	public void setComponentOrder(IBaseSMComponent[] components)
@@ -437,5 +311,4 @@ public abstract class BaseSolutionHelper
 			}
 		}
 	}
-
 }

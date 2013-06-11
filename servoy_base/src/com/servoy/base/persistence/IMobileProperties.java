@@ -38,8 +38,8 @@ public interface IMobileProperties
 	}
 
 	// other constants relevant to mobile properties
-	public static final int RADIO_STYLE_VERTICAL = 0;
-	public static final int RADIO_STYLE_HORIZONTAL = 1;
+	public static final Integer RADIO_STYLE_VERTICAL = Integer.valueOf(0);
+	public static final Integer RADIO_STYLE_HORIZONTAL = Integer.valueOf(1);
 
 	// mobile properties and their default values
 	// Number is used instead of Integer because JS is not aware of such differences and will always serve Double instead of Integer
@@ -58,7 +58,7 @@ public interface IMobileProperties
 	public final static MobileProperty<Boolean> LIST_ITEM_IMAGE = new MobileProperty<Boolean>("listitemImage", Boolean.FALSE);
 	public final static MobileProperty<Boolean> LIST_ITEM_HEADER = new MobileProperty<Boolean>("listitemHeader", Boolean.FALSE);
 	public final static MobileProperty<Number> HEADER_SIZE = new MobileProperty<Number>("headerSize", Integer.valueOf(4));
-	public final static MobileProperty<Number> RADIO_STYLE = new MobileProperty<Number>("radioStyle", Integer.valueOf(RADIO_STYLE_VERTICAL));
+	public final static MobileProperty<Number> RADIO_STYLE = new MobileProperty<Number>("radioStyle", RADIO_STYLE_VERTICAL);
 	public final static MobileProperty<String> DATA_ICON = new MobileProperty<String>("dataIcon", null);
 	public final static MobileProperty<Boolean> COMPONENT_TITLE = new MobileProperty<Boolean>("componentTitle", Boolean.FALSE);
 

@@ -15,30 +15,27 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.persistence.constants.IPartConstants;
 
 /**
- * Solution model button object (for mobile as well as other clients).
+ * Utility class.
  * 
  * @author rgansevles
  *
- * @since 7.1
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
-public interface IBaseSMButton extends IBaseSMGraphicalComponent, IBaseSMButtonConstants
+public class PersistUtils
 {
-	/**
-	 * Icon shown on a button.
-	 * 
-	 * @sample
-	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, null);
-	 * btn.iconType = JSButton.ICON_STAR
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public String getIconType();
 
-	public void setIconType(String method);
+	public static boolean isHeaderPart(int partType)
+	{
+		return partType == IPartConstants.HEADER || partType == IPartConstants.TITLE_HEADER;
+	}
+
+	public static boolean isFooterPart(int partType)
+	{
+		return partType == IPartConstants.FOOTER || partType == IPartConstants.TITLE_FOOTER;
+	}
 
 }

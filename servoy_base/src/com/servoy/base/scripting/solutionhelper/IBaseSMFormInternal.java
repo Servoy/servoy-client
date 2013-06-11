@@ -17,6 +17,7 @@
 
 package com.servoy.base.scripting.solutionhelper;
 
+import com.servoy.base.persistence.IMobileProperties.MobileProperty;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 
@@ -34,5 +35,10 @@ public interface IBaseSMFormInternal extends IBaseSMForm
 	 * @return the list of components in this form, filtered or not from public API access point of view.
 	 */
 	IBaseSMComponent[] getComponentsInternal(boolean showInternal, Integer componentType);
+
+	<T> T getMobilePropertyValue(IBaseSMComponent c, MobileProperty<T> property);
+
+	<T> void setMobilePropertyValue(IBaseSMComponent c, MobileProperty<T> property, T value);
+
 
 }

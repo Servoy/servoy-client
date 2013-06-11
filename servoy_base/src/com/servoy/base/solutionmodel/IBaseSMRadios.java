@@ -20,25 +20,20 @@ package com.servoy.base.solutionmodel;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
- * Solution model button object (for mobile as well as other clients).
+ * Solution model radios field component.
  * 
  * @author rgansevles
- *
- * @since 7.1
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
-public interface IBaseSMButton extends IBaseSMGraphicalComponent, IBaseSMButtonConstants
+@ServoyClientSupport(mc = true, wc = false, sc = false)
+public interface IBaseSMRadios extends IBaseSMField
 {
 	/**
-	 * Icon shown on a button.
+	 * Flag for horizontal/vertical radios layout.
 	 * 
 	 * @sample
-	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, null);
-	 * btn.iconType = JSButton.ICON_STAR
+	 * radio.horizontal = true;
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public String getIconType();
+	public boolean getHorizontal();
 
-	public void setIconType(String method);
-
+	public void setHorizontal(boolean horizontal);
 }

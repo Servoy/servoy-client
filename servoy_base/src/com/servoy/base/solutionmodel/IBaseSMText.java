@@ -19,26 +19,13 @@ package com.servoy.base.solutionmodel;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
+
 /**
- * Solution model button object (for mobile as well as other clients).
+ * Solution model text field.
  * 
  * @author rgansevles
- *
- * @since 7.1
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true)
-public interface IBaseSMButton extends IBaseSMGraphicalComponent, IBaseSMButtonConstants
+@ServoyClientSupport(mc = true, wc = false, sc = false)
+public interface IBaseSMText extends IBaseSMField
 {
-	/**
-	 * Icon shown on a button.
-	 * 
-	 * @sample
-	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, null);
-	 * btn.iconType = JSButton.ICON_STAR
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public String getIconType();
-
-	public void setIconType(String method);
-
 }

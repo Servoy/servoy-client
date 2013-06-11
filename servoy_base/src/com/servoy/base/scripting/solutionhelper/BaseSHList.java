@@ -32,35 +32,34 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
 public class BaseSHList implements IBaseSHList
 {
 	protected final IBaseSMListContainer container;
-	protected final BaseSolutionHelper solutionHelper;
+	protected final IBaseSMFormInternal contextForm;
 	private IBaseSMButton textAndActionAndIconButton;
 	private IBaseSMGraphicalComponent subtextComponent;
 	private IBaseSMField countComponent;
 	private IBaseSMField iconComponent;
 
-	public BaseSHList(IBaseSMListContainer container, BaseSolutionHelper solutionHelper)
+	public BaseSHList(IBaseSMListContainer container, IBaseSMFormInternal contextForm)
 	{
 		this.container = container;
-		this.solutionHelper = solutionHelper;
+		this.contextForm = contextForm;
 
 		// check for existing relevant components
 		IBaseSMComponent[] components = (container instanceof IBaseSMFormInternal) ? ((IBaseSMFormInternal)container).getComponentsInternal(true, null)
 			: container.getComponents();
 		for (IBaseSMComponent c : components)
 		{
-			if (c instanceof IBaseSMButton && Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_BUTTON)))
+			if (c instanceof IBaseSMButton && Boolean.TRUE.equals(contextForm.getMobilePropertyValue(c, IMobileProperties.LIST_ITEM_BUTTON)))
 			{
 				textAndActionAndIconButton = (IBaseSMButton)c;
 			}
-			else if (c instanceof IBaseSMGraphicalComponent &&
-				Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_SUBTEXT)))
+			else if (c instanceof IBaseSMGraphicalComponent && Boolean.TRUE.equals(contextForm.getMobilePropertyValue(c, IMobileProperties.LIST_ITEM_SUBTEXT)))
 			{
 				subtextComponent = (IBaseSMGraphicalComponent)c;
 			}
 			else if (c instanceof IBaseSMField)
 			{
-				if (Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_COUNT))) countComponent = (IBaseSMField)c;
-				else if (Boolean.TRUE.equals(solutionHelper.getMobileProperties(c).getPropertyValue(IMobileProperties.LIST_ITEM_IMAGE))) iconComponent = (IBaseSMField)c;
+				if (Boolean.TRUE.equals(contextForm.getMobilePropertyValue(c, IMobileProperties.LIST_ITEM_COUNT))) countComponent = (IBaseSMField)c;
+				else if (Boolean.TRUE.equals(contextForm.getMobilePropertyValue(c, IMobileProperties.LIST_ITEM_IMAGE))) iconComponent = (IBaseSMField)c;
 			}
 		}
 	}
@@ -132,12 +131,12 @@ public class BaseSHList implements IBaseSHList
 
 	public String getDataIconType()
 	{
-		return textAndActionAndIconButton != null ? solutionHelper.getIconType(textAndActionAndIconButton) : null;
+		return textAndActionAndIconButton != null ? contextForm.getMobilePropertyValue(textAndActionAndIconButton, IMobileProperties.DATA_ICON) : null;
 	}
 
 	public void setDataIconType(String iconType)
 	{
-		solutionHelper.setIconType(getOrCreateTextAndActionAndIconButton(), iconType);
+		contextForm.setMobilePropertyValue(getOrCreateTextAndActionAndIconButton(), IMobileProperties.DATA_ICON, iconType);
 	}
 
 	public String getDataIconDataProviderID()
@@ -162,7 +161,7 @@ public class BaseSHList implements IBaseSHList
 	protected IBaseSMButton createTextAndActionAndIconButton()
 	{
 		IBaseSMButton button = container.newButton(null, 0, 0, 50, 30, null);
-		solutionHelper.getMobileProperties(button).setPropertyValue(IMobileProperties.LIST_ITEM_BUTTON, Boolean.TRUE);
+		contextForm.setMobilePropertyValue(button, IMobileProperties.LIST_ITEM_BUTTON, Boolean.TRUE);
 		return button;
 	}
 
@@ -178,7 +177,7 @@ public class BaseSHList implements IBaseSHList
 	protected IBaseSMGraphicalComponent createSubtextComponent()
 	{
 		IBaseSMLabel label = container.newLabel(null, 0, 0, 50, 30);
-		solutionHelper.getMobileProperties(label).setPropertyValue(IMobileProperties.LIST_ITEM_SUBTEXT, Boolean.TRUE);
+		contextForm.setMobilePropertyValue(label, IMobileProperties.LIST_ITEM_SUBTEXT, Boolean.TRUE);
 		return label;
 	}
 
@@ -194,7 +193,7 @@ public class BaseSHList implements IBaseSHList
 	protected IBaseSMField createCountComponent()
 	{
 		IBaseSMField field = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 50, 30);
-		solutionHelper.getMobileProperties(field).setPropertyValue(IMobileProperties.LIST_ITEM_COUNT, Boolean.TRUE);
+		contextForm.setMobilePropertyValue(field, IMobileProperties.LIST_ITEM_COUNT, Boolean.TRUE);
 		return field;
 	}
 
@@ -210,7 +209,7 @@ public class BaseSHList implements IBaseSHList
 	protected IBaseSMField createIconComponent()
 	{
 		IBaseSMField field = container.newField(null, IBaseSMField.TEXT_FIELD, 0, 0, 30, 30);
-		solutionHelper.getMobileProperties(field).setPropertyValue(IMobileProperties.LIST_ITEM_IMAGE, Boolean.TRUE);
+		contextForm.setMobilePropertyValue(field, IMobileProperties.LIST_ITEM_IMAGE, Boolean.TRUE);
 		return field;
 	}
 
