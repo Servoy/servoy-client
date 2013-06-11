@@ -16,6 +16,11 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
+import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -28,4 +33,41 @@ public class JSLabel extends JSGraphicalComponent implements ISMLabel
 	{
 		super(parent, gc, application, isNew);
 	}
+
+	@JSGetter
+	public int getLabelSize()
+	{
+		Number labelSize = (Number)getBaseComponent(false).getCustomMobileProperty(IMobileProperties.HEADER_SIZE.propertyName);
+		if (labelSize != null)
+		{
+			return labelSize.intValue();
+		}
+		return IMobileProperties.HEADER_SIZE.defaultValue.intValue();
+	}
+
+	@JSSetter
+	public void setLabelSize(int size)
+	{
+		if (size > 0 && size < 7)
+		{
+			getBaseComponent(true).putCustomDesignTimeProperty(IMobileProperties.HEADER_SIZE.propertyName, Integer.valueOf(size));
+		}
+	}
+
+	/**
+	 * Get title label for the label.
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table');
+	 * var label = form.newLabel('Customers', 1);
+	 * label.getTitle().text = 'Some text'
+	 * forms['someForm'].controller.show()
+	 */
+	@Override
+	@JSFunction
+	public JSTitle getTitle()
+	{
+		return new JSTitle(getJSParent(), JSField.getTitleForComponent(this), false);
+	}
+
 }

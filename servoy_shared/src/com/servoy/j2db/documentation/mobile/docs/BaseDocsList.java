@@ -107,8 +107,10 @@ public class BaseDocsList implements IBaseSHList
 	 *  arrow-r 
 	 *  arrow-u 
 	 *  back 
+	 *  bars 
 	 *  check 
 	 *  delete 
+	 *  edit 
 	 *  forward 
 	 *  gear 
 	 *  grid 

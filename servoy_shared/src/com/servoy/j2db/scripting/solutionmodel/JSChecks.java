@@ -14,52 +14,33 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+package com.servoy.j2db.scripting.solutionmodel;
 
-package com.servoy.j2db.documentation.mobile.docs;
-
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.solutionmodel.ISMChecks;
 
 /**
- * Dummy class for use in the documentation generator.
+ * Solution model checks field component.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsButton extends BaseDocsGraphicalComponent
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+public class JSChecks extends JSField implements ISMChecks
 {
-	/**
-	 * Icon for a button, this must be one of:
-	 * alert
-	 * arrow-d
-	 * arrow-l
-	 * arrow-r
-	 * arrow-u
-	 * back
-	 * bars
-	 * check
-	 * delete
-	 * edit
-	 * forward
-	 * gear
-	 * grid
-	 * home
-	 * info
-	 * minus
-	 * plus
-	 * refresh
-	 * search
-	 * star
-	 */
-	public String getDataIcon()
+	public JSChecks(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)
 	{
-		return null;
+		super(parent, field, application, isNew);
 	}
 
-	@SuppressWarnings("unused")
-	public void setDataIcon(String dataIcon)
+	/**
+	 * @see com.servoy.j2db.scripting.solutionmodel.JSComponent#toString()
+	 */
+	@Override
+	public String toString()
 	{
+		return "Checks: " + getBaseComponent(false).getName(); //$NON-NLS-1$
 	}
+
 }

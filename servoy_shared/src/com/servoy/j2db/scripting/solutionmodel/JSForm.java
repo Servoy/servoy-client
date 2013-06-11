@@ -30,8 +30,11 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.persistence.PersistUtils;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMVariable;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -81,7 +84,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return fs.getScriptMethod((String)function.get("_scopename_", function), (String)function.get("_methodname_", function));
 	}
 
-	private Form form;
+	protected Form form;
 	private final IApplication application;
 	private boolean isCopy;
 
@@ -548,7 +551,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			{
 				field.setDataProviderID(((JSVariable)dataprovider).getScriptVariable().getDataProviderID());
 			}
-			return new JSField(this, field, application, true);
+			return JSField.createField(this, field, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -588,6 +591,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return newField(dataprovider, Field.TEXT_FIELD, x, y, width, height);
 	}
 
+	@JSFunction
+	public JSText newTextField(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSText newTextField(String dataprovidername, int y)
+	{
+		return (JSText)newField(dataprovidername, Field.TEXT_FIELD, 0, y, 10, 10);
+	}
+
 	/**
 	 * Creates a new JSField object on the form with the displayType of TEXT_AREA - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 * 
@@ -612,6 +627,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return newField(dataprovider, Field.TEXT_AREA, x, y, width, height);
 	}
 
+	@JSFunction
+	public JSTextArea newTextArea(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSTextArea newTextArea(String dataprovidername, int y)
+	{
+		return (JSTextArea)newField(dataprovidername, Field.TEXT_AREA, 0, y, 10, 10);
+	}
+
 	/**
 	 * Creates a new JSField object on the form with the displayType of COMBOBOX - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 * 
@@ -632,6 +659,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	public JSField newComboBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.COMBOBOX, x, y, width, height);
+	}
+
+	@JSFunction
+	public JSCombobox newCombobox(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSCombobox newCombobox(String dataprovider, int y)
+	{
+		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
 	}
 
 	/**
@@ -724,6 +763,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return newField(dataprovider, Field.RADIOS, x, y, width, height);
 	}
 
+	@JSFunction
+	public JSRadios newRadios(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSRadios newRadios(String dataprovidername, int y)
+	{
+		return (JSRadios)newField(dataprovidername, Field.RADIOS, 0, y, 10, 10);
+	}
+
 	/**
 	 * Creates a new JSField object on the form with the displayType of CHECK (checkbox) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 * 
@@ -744,6 +795,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	public JSField newCheck(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.CHECKS, x, y, width, height);
+	}
+
+	@JSFunction
+	public JSChecks newCheck(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSChecks newCheck(String dataproviderName, int y)
+	{
+		return (JSChecks)newField(dataproviderName, Field.CHECKS, 0, y, 10, 10);
 	}
 
 	/**
@@ -884,6 +947,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return newField(dataprovider, Field.PASSWORD, x, y, width, height);
 	}
 
+	@JSFunction
+	public JSPassword newPassword(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSPassword newPassword(String dataprovidername, int y)
+	{
+		return (JSPassword)newField(dataprovidername, Field.PASSWORD, 0, y, 10, 10);
+	}
+
 	/**
 	 * Creates a new button on the form with the given text, place, size and JSMethod as the onAction event triggered action.
 	 *
@@ -933,6 +1008,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public JSButton newButton(String txt, int y, IBaseSMMethod jsmethod)
+	{
+		return newButton(txt, 0, y, 10, 10, jsmethod);
 	}
 
 	/**
@@ -1013,6 +1094,12 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public IBaseSMLabel newLabel(String txt, int y)
+	{
+		return newLabel(txt, 0, y, 10, 10, null);
 	}
 
 	protected static int getMethodId(Object action, GraphicalComponent gc, IApplication application)
@@ -1387,7 +1474,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			Part part = parts.next();
 			if (part.getPartType() == partType)
 			{
-				lst.add(new JSPart(this, part, false));
+				lst.add(JSPart.createPart(this, part, false));
 			}
 		}
 		return lst.toArray(new JSPart[lst.size()]);
@@ -1406,7 +1493,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			Part part = parts.next();
 			if (part.getPartType() == partType && (height == -1 || part.getHeight() == height))
 			{
-				return new JSPart(this, part, false);
+				return JSPart.createPart(this, part, false);
 			}
 		}
 		return null;
@@ -1431,7 +1518,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return false;
 	}
 
-	private JSPart getOrCreatePart(int partType, int height)
+	protected JSPart getOrCreatePart(int partType, int height)
 	{
 		checkModification();
 		JSPart part;
@@ -1451,9 +1538,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			}
 			try
 			{
-
-				part = new JSPart(this, form.createNewPart(partType, height), true);
-
+				part = JSPart.createPart(this, form.createNewPart(partType, height), false);
 				int testHeight = 0;
 				Iterator<Part> parts = form.getParts();
 				while (parts.hasNext())
@@ -1539,6 +1624,71 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return getOrCreatePart(Part.HEADER, height);
 	}
 
+	@JSFunction
+	public JSHeader newHeader()
+	{
+		return null; // mobile only
+	}
+
+	@JSFunction
+	public JSHeader getHeader()
+	{
+		return null; // mobile only
+	}
+
+	@JSFunction
+	public JSInsetList newInsetList(int yLocation, String relationName, String headerText, String textDataProviderID)
+	{
+		return null; // mobile only
+	}
+
+	@Override
+	public JSInsetList getInsetList(String name)
+	{
+		return null; // mobile only
+	}
+
+	@Override
+	public JSInsetList[] getInsetLists()
+	{
+		return null; // mobile only
+	}
+
+	@Override
+	public boolean removeInsetList(String name)
+	{
+		return false; // mobile only
+	}
+
+	@Override
+	public void setComponentOrder(IBaseSMComponent[] components)
+	{
+		// mobile only
+	}
+
+	@JSFunction
+	public boolean removeHeader()
+	{
+		return removePart(true);
+	}
+
+	private boolean removePart(boolean header)
+	{
+		checkModification();
+		Iterator<Part> parts = form.getParts();
+		while (parts.hasNext())
+		{
+			Part part = parts.next();
+			if ((header && PersistUtils.isHeaderPart(part.getPartType())) || (!header && PersistUtils.isFooterPart(part.getPartType())))
+			{
+				form.removeChild(part);
+				return true;
+			}
+		}
+		return false;
+	}
+
+
 	/**
 	 * Creates a new Leading Grand Summary part on the form.
 	 * 
@@ -1612,7 +1762,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * 
 	 * @param height The height of the new part
 	 * 
-	 * @return A JSPart instance corresponding to the newly created Footer form part.
+	 * @return A JSFooter instance corresponding to the newly created Footer form part.
 	 */
 	@JSFunction
 	public JSPart newFooterPart(int height)
@@ -1620,6 +1770,23 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		return getOrCreatePart(Part.FOOTER, height);
 	}
 
+	@JSFunction
+	public JSFooter newFooter()
+	{
+		return null; // mobile only
+	}
+
+	@JSFunction
+	public JSFooter getFooter()
+	{
+		return null; // mobile only
+	}
+
+	@JSFunction
+	public boolean removeFooter()
+	{
+		return removePart(false);
+	}
 
 	/**
 	 * Creates a new Title Footer part on the form.
@@ -1658,7 +1825,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		Iterator<Part> parts = form2use.getParts();
 		while (parts.hasNext())
 		{
-			lst.add(new JSPart(this, parts.next(), false));
+			lst.add(JSPart.createPart(this, parts.next(), false));
 		}
 		return lst.toArray(new JSPart[lst.size()]);
 	}
@@ -1994,7 +2161,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 			Field field = fields.next();
 			if (name.equals(field.getName()))
 			{
-				return new JSField(this, field, application, false);
+				return JSField.createField(this, field, application, false);
 			}
 		}
 		return null;
@@ -2059,7 +2226,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		Iterator<Field> iterator = form2use.getFields();
 		while (iterator.hasNext())
 		{
-			fields.add(new JSField(this, iterator.next(), application, false));
+			fields.add(JSField.createField(this, iterator.next(), application, false));
 		}
 		return fields.toArray(new JSField[fields.size()]);
 	}
@@ -2222,7 +2389,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return a JSBean object 
 	 */
 	@JSFunction
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public JSBean newBean(String name, String className, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -2251,7 +2417,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return a JSBean object 
 	 */
 	@JSFunction
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public JSBean getBean(String name)
 	{
 		if (name == null) return null;
@@ -2287,7 +2452,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return true if the JSBean has been removed; false otherwise
 	 */
 	@JSFunction
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public boolean removeBean(String name)
 	{
 		if (name == null) return false;
@@ -3981,7 +4145,6 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		checkModification();
 		setEventHandler(application, form, methodProperty, method);
 	}
-
 
 	static int getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<Integer> methodProperty)
 	{

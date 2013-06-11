@@ -20,22 +20,35 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.base.persistence.PersistUtils;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMPart;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author jcompagner
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSPart extends JSBase<Part> implements IConstantsObject, ISMPart
+//Documented via JSPartWithConstants
+public class JSPart extends JSBase<Part> implements ISMPart
 {
-	public JSPart(JSForm form, Part part, boolean isNew)
+	JSPart(JSForm form, Part part, boolean isNew)
 	{
 		super(form, part, isNew);
+	}
+
+	public static JSPart createPart(JSForm jsForm, Part part, boolean isNew)
+	{
+		int partType = part.getPartType();
+		if (PersistUtils.isHeaderPart(partType))
+		{
+			return new JSHeader(jsForm, part, isNew);
+		}
+		if (PersistUtils.isFooterPart(partType))
+		{
+			return new JSFooter(jsForm, part, isNew);
+		}
+		return new JSPart(jsForm, part, isNew);
 	}
 
 	/**

@@ -127,7 +127,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			{
 				field.setDataProviderID(((JSVariable)dataprovider).getName());
 			}
-			return new JSField(this, field, application, true);
+			return JSField.createField(this, field, application, true);
 		}
 		catch (RepositoryException e)
 		{
@@ -580,7 +580,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			Field field = fields.next();
 			if (name.equals(field.getName()))
 			{
-				return new JSField(this, field, application, false);
+				return JSField.createField(this, field, application, false);
 			}
 		}
 		return null;
@@ -601,7 +601,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		while (iterator.hasNext())
 		{
 			Field field = iterator.next();
-			fields.add(new JSField(this, field, application, false));
+			fields.add(JSField.createField(this, field, application, false));
 		}
 		return fields.toArray(new JSField[fields.size()]);
 	}

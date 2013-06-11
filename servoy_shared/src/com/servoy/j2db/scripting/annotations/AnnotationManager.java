@@ -156,13 +156,17 @@ public class AnnotationManager<A, AC>
 			}
 			else
 			{
-				// for methods and fields first search interfaces
-				for (IAnnotatedClass<A, AC> anInterface : cls.getInterfaces())
+				// for methods and fields first search interfaces in class itself and superclasses
+				for (IAnnotatedClass<A, AC> methodClass = cls; methodClass != null; methodClass = methodClass.getSuperclass())
 				{
-					Pair<IAnnotatedElement<A, AC>, A> pair = getAnnotationFromInterfaces(anInterface, method, field, searchedAnnotation);
-					if (pair != null)
+					// check if the method is part of an interface that has the annotation
+					for (IAnnotatedClass<A, AC> anInterface : methodClass.getInterfaces())
 					{
-						return pair;
+						Pair<IAnnotatedElement<A, AC>, A> pair = getAnnotationFromInterfaces(anInterface, method, field, searchedAnnotation);
+						if (pair != null)
+						{
+							return pair;
+						}
 					}
 				}
 

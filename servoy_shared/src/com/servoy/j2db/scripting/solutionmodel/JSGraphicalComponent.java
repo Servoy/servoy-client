@@ -66,6 +66,27 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	/**
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
+	 * 
+	 * @sample
+	 * // In general the text is specified when creating the component.
+	 * var label = form.newLabel('Initial text', 10, 10, 100, 20);
+	 * // But it can be changed later if needed.
+	 * label.text = 'Changed text';
+	 */
+	@JSGetter
+	public String getText()
+	{
+		return getBaseComponent(false).getText();
+	}
+
+	@JSSetter
+	public void setText(String arg)
+	{
+		getBaseComponent(true).setText(arg);
+	}
+
+	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
 	 * 
 	 * @sample
@@ -85,6 +106,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		getBaseComponent(true).setDisplaysTags(arg);
 	}
 
+
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
 	 * 
@@ -96,12 +118,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
 	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
 	 */
+	@Override
 	@JSGetter
 	public int getHorizontalAlignment()
 	{
 		return getBaseComponent(false).getHorizontalAlignment();
 	}
 
+	@Override
 	@JSSetter
 	public void setHorizontalAlignment(int arg)
 	{
@@ -117,6 +141,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var label = form.newLabel('', 10, 10, 100, 100);
 	 * label.imageMedia = ballImage;
 	 */
+	@Override
 	@JSGetter
 	public JSMedia getImageMedia()
 	{
@@ -134,6 +159,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		doSetImageMedia(media);
 	}
 
+	@Override
 	public void setImageMedia(ISMMedia media)
 	{
 		doSetImageMedia((JSMedia)media);
@@ -181,12 +207,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * label.background = 'yellow';
 	 * label.margin = '10,20,30,40';
 	 */
+	@Override
 	@JSGetter
 	public String getMargin()
 	{
 		return PersistHelper.createInsetsString(getBaseComponent(false).getMargin());
 	}
 
+	@Override
 	@JSSetter
 	public void setMargin(String margin)
 	{
@@ -229,12 +257,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * bigLabelWithSmallImageCrop.background = 'yellow';
 	 * bigLabelWithSmallImageCrop.mediaOptions = SM_MEDIAOPTION.CROP; // This does not do any cropping actually if the label is larger than the image.
 	 */
+	@Override
 	@JSGetter
 	public int getMediaOptions()
 	{
 		return getBaseComponent(false).getMediaOptions();
 	}
 
+	@Override
 	@JSSetter
 	public void setMediaOptions(int i)
 	{
@@ -254,12 +284,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * labelOne.labelFor = 'fieldOne';
 	 * labelOne.mnemonic = 'O'; // When ALT-O is pressed the focus will move to fieldOne.
 	 */
+	@Override
 	@JSGetter
 	public String getMnemonic()
 	{
 		return getBaseComponent(false).getMnemonic();
 	}
 
+	@Override
 	@JSSetter
 	public void setMnemonic(String arg)
 	{
@@ -273,12 +305,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var label = form.newLabel('Move the mouse over me', 10, 10, 200, 200);
 	 * label.rolloverCursor = SM_CURSOR.HAND_CURSOR;
 	 */
+	@Override
 	@JSGetter
 	public int getRolloverCursor()
 	{
 		return getBaseComponent(false).getRolloverCursor();
 	}
 
+	@Override
 	@JSSetter
 	public void setRolloverCursor(int i)
 	{
@@ -297,6 +331,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * label.imageMedia = mapImage;
 	 * label.rolloverImageMedia = ballImage;
 	 */
+	@Override
 	@JSGetter
 	public JSMedia getRolloverImageMedia()
 	{
@@ -308,6 +343,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		return null;
 	}
 
+	@Override
 	@JSSetter
 	public void setRolloverImageMedia(ISMMedia media)
 	{
@@ -331,12 +367,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var btn = form.newButton('And I am a button', 10, 220, 200, 20, m);
 	 * btn.rotation = 180;
 	 */
+	@Override
 	@JSGetter
 	public int getRotation()
 	{
 		return getBaseComponent(false).getRotation();
 	}
 
+	@Override
 	@JSSetter
 	public void setRotation(int i)
 	{
@@ -360,12 +398,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * // Then the button will behave like a label does.
 	 * btn.showClick = false;
 	 */
+	@Override
 	@JSGetter
 	public boolean getShowClick()
 	{
 		return getBaseComponent(false).getShowClick();
 	}
 
+	@Override
 	@JSSetter
 	public void setShowClick(boolean arg)
 	{
@@ -382,12 +422,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var btn = form.newButton('And I am a button', 10, 40, 200, 20, m);
 	 * btn.showFocus = false;
 	 */
+	@Override
 	@JSGetter
 	public boolean getShowFocus()
 	{
 		return getBaseComponent(false).getShowFocus();
 	}
 
+	@Override
 	@JSSetter
 	public void setShowFocus(boolean arg)
 	{
@@ -409,37 +451,18 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
 	 * fieldThree.tabSeq = 1;
 	 */
+	@Override
 	@JSGetter
 	public int getTabSeq()
 	{
 		return getBaseComponent(false).getTabSeq();
 	}
 
+	@Override
 	@JSSetter
 	public void setTabSeq(int i)
 	{
 		getBaseComponent(true).setTabSeq(i);
-	}
-
-	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
-	 * 
-	 * @sample
-	 * // In general the text is specified when creating the component.
-	 * var label = form.newLabel('Initial text', 10, 10, 100, 20);
-	 * // But it can be changed later if needed.
-	 * label.text = 'Changed text';
-	 */
-	@JSGetter
-	public String getText()
-	{
-		return getBaseComponent(false).getText();
-	}
-
-	@JSSetter
-	public void setText(String arg)
-	{
-		getBaseComponent(true).setText(arg);
 	}
 
 	/**
@@ -449,12 +472,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var label = form.newLabel('Stop the mouse over me!', 10, 10, 200, 20);
 	 * label.toolTipText = 'I\'m the tooltip. Do you see me?';
 	 */
+	@Override
 	@JSGetter
 	public String getToolTipText()
 	{
 		return getBaseComponent(false).getToolTipText();
 	}
 
+	@Override
 	@JSSetter
 	public void setToolTipText(String arg)
 	{
@@ -472,12 +497,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var bottomAlignedLabel = form.newLabel('BOTTOM', 520, 10, 50, 300);
 	 * bottomAlignedLabel.verticalAlignment = SM_ALIGNMENT.BOTTOM;
 	 */
+	@Override
 	@JSGetter
 	public int getVerticalAlignment()
 	{
 		return getBaseComponent(false).getVerticalAlignment();
 	}
 
+	@Override
 	@JSSetter
 	public void setVerticalAlignment(int arg)
 	{
@@ -491,12 +518,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var label = form.newLabel('', 10, 10, 100, 100);
 	 * label.format = '$#.00';
 	 */
+	@Override
 	@JSGetter
 	public String getFormat()
 	{
 		return getBaseComponent(false).getFormat();
 	}
 
+	@Override
 	@JSSetter
 	public void setFormat(String arg)
 	{
@@ -568,12 +597,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * btn.onDoubleClick = onDoubleClickMethod;
 	 * btn.onRightClick = onRightClickMethod;
 	 */
+	@Override
 	@JSGetter
 	public JSMethod getOnAction()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
 	}
 
+	@Override
 	@JSSetter
 	public void setOnAction(IBaseSMMethod method)
 	{
@@ -585,12 +616,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * 
 	 * @sampleas getOnAction()
 	 */
+	@Override
 	@JSGetter
 	public JSMethod getOnDoubleClick()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID);
 	}
 
+	@Override
 	@JSSetter
 	public void setOnDoubleClick(ISMMethod method)
 	{
@@ -603,12 +636,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * @sample
 	 * label.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
+	@Override
 	@JSGetter
 	public JSMethod getOnRender()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
+	@Override
 	@JSSetter
 	public void setOnRender(ISMMethod method)
 	{
@@ -620,12 +655,14 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * 
 	 * @sampleas getOnAction()
 	 */
+	@Override
 	@JSGetter
 	public JSMethod getOnRightClick()
 	{
 		return getEventHandler(application, StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID);
 	}
 
+	@Override
 	@JSSetter
 	public void setOnRightClick(ISMMethod method)
 	{

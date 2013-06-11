@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.documentation;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
@@ -33,6 +34,7 @@ public enum ClientSupport
 	private final int bits;
 
 	public static final ClientSupport Default = wc_sc;
+	public static final ClientSupport All = mc_wc_sc;
 
 	private ClientSupport(int bits)
 	{
@@ -98,5 +100,10 @@ public enum ClientSupport
 	public static ClientSupport create(boolean support_mc, boolean support_wc, boolean support_sc)
 	{
 		return fromBits((support_mc ? mc.bits : 0) | (support_wc ? wc.bits : 0) | (support_sc ? sc.bits : 0));
+	}
+
+	public static ClientSupport fromAnnotation(ServoyClientSupport csp)
+	{
+		return csp == null ? null : create(csp.mc(), csp.wc(), csp.sc());
 	}
 }

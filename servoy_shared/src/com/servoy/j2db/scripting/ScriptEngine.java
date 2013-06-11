@@ -51,6 +51,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -335,10 +336,18 @@ public class ScriptEngine implements IScriptSupport
 				{
 					try
 					{
-						toplevelScope.put(element.getSimpleName(), toplevelScope, new NativeJavaClass(toplevelScope, element));
+						String name = element.getSimpleName();
+						ServoyDocumented sd = element.getAnnotation(ServoyDocumented.class);
+						if (sd != null && sd.scriptingName() != null && sd.scriptingName().trim().length() > 0)
+						{
+							// documentation has overridden scripting name
+							name = sd.scriptingName().trim();
+						}
+
+						toplevelScope.put(name, toplevelScope, new NativeJavaClass(toplevelScope, element));
 						if (scriptableAddition != null)
 						{
-							scriptableAddition.addVar(element.getSimpleName(), new NativeJavaClass(scriptableAddition, element));
+							scriptableAddition.addVar(name, new NativeJavaClass(scriptableAddition, element));
 						}
 					}
 					catch (Exception e)

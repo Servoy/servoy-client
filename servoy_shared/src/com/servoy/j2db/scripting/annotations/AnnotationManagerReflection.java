@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.documentation.ClientSupport;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.annotations.AnnotationManager.IAnnotatedClass;
 import com.servoy.j2db.scripting.annotations.AnnotationManager.IAnnotatedField;
 import com.servoy.j2db.scripting.annotations.AnnotationManager.IAnnotatedMethod;
@@ -79,24 +81,37 @@ public class AnnotationManagerReflection
 		return (T)annotationManager.getAnnotation(new ReflectionAnnotatedClass(targetClass), annotationClass);
 	}
 
-	public boolean isAnnotatedForMobile(Method method, Class< ? > originalClass)
+	public boolean supportsClientType(Method method, Class< ? > originalClass, ClientSupport clientType, ClientSupport defaultClientType)
 	{
-		return isMobileClientSupport(getAnnotation(method, originalClass, ServoyClientSupport.class));
+		return getClientSupport(method, originalClass, defaultClientType).supports(clientType);
 	}
 
-	public boolean isAnnotatedForMobile(Class< ? > cls)
+	public boolean supportsClientType(Class< ? extends IScriptable> cls, ClientSupport clientType, ClientSupport defaultClientType)
 	{
-		return isMobileClientSupport(getAnnotation(cls, ServoyClientSupport.class));
+		return getClientSupport(cls, defaultClientType).supports(clientType);
 	}
 
-	public boolean isAnnotatedForMobile(Field field)
+	public boolean supportsClientType(Field field, ClientSupport clientType, ClientSupport defaultClientType)
 	{
-		return isMobileClientSupport(getAnnotation(field, ServoyClientSupport.class));
+		return getClientSupport(field, defaultClientType).supports(clientType);
 	}
 
-	private boolean isMobileClientSupport(ServoyClientSupport csp)
+	public ClientSupport getClientSupport(Method method, Class< ? > originalClass, ClientSupport defaultClientType)
 	{
-		return csp != null && csp.mc();
+		ServoyClientSupport csp = getAnnotation(method, originalClass, ServoyClientSupport.class);
+		return csp == null ? defaultClientType : ClientSupport.fromAnnotation(csp);
+	}
+
+	public ClientSupport getClientSupport(Class< ? > cls, ClientSupport defaultClientType)
+	{
+		ServoyClientSupport csp = getAnnotation(cls, ServoyClientSupport.class);
+		return csp == null ? defaultClientType : ClientSupport.fromAnnotation(csp);
+	}
+
+	public ClientSupport getClientSupport(Field field, ClientSupport defaultClientType)
+	{
+		ServoyClientSupport csp = getAnnotation(field, ServoyClientSupport.class);
+		return csp == null ? defaultClientType : ClientSupport.fromAnnotation(csp);
 	}
 
 	public static void flushCachedItems()

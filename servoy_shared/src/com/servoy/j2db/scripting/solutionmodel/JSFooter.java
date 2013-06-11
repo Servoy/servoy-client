@@ -1,0 +1,446 @@
+/*
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program; if not, see http://www.gnu.org/licenses or write to the Free
+ Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+ */
+package com.servoy.j2db.scripting.solutionmodel;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
+import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.persistence.constants.IPartConstants;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMVariable;
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.solutionmodel.ISMFooter;
+
+/**
+ * Solution model footer object on form.
+ * 
+ * @author rgansevles
+ */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+public class JSFooter extends JSPart implements ISMFooter
+{
+	JSFooter(JSForm form, Part part, boolean isNew)
+	{
+		super(form, part, isNew);
+	}
+
+	@Override
+	public JSForm getJSParent()
+	{
+		return (com.servoy.j2db.scripting.solutionmodel.JSForm)super.getJSParent();
+	}
+
+	/**
+	 * Flag to set a set the header sticky so it will not scroll out of view.
+	 * 
+	 * @sample 
+	 * var form = solutionModel.newForm('newForm1', myDatasource);
+	 * var footer = form.newFooter()
+	 * footer.sticky = false // default: true
+	 */
+	@Override
+	@JSGetter
+	public boolean getSticky()
+	{
+		return getBaseComponent(false).getPartType() == IPartConstants.TITLE_FOOTER;
+	}
+
+	@Override
+	@JSSetter
+	public void setSticky(boolean sticky)
+	{
+		getBaseComponent(true).setPartType(sticky ? TITLE_FOOTER : FOOTER);
+	}
+
+	/** 
+	 * Creates a new IBaseSMField object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newField('myvar', IBaseSMField.TEXT_FIELD, 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param type the display type of the IBaseSMField object (see the Solution Model -> IBaseSMField node for display types)
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new IBaseSMField object (of the specified display type) 
+	 */
+	@JSFunction
+	@Override
+	public JSField newField(IBaseSMVariable dataprovider, int type, int x)
+	{
+		return newField(((JSVariable)dataprovider).getScriptVariable().getDataProviderID(), type, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newField(IBaseSMVariable,int,int)
+	 */
+	@JSFunction
+	@Override
+	public JSField newField(String dataprovidername, int type, int x)
+	{
+		return markForFooter(getJSParent().newField(dataprovidername, type, x, 0, 10, 10));
+	}
+
+	/** 
+	 * Creates a new IBaseSMText object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newTextField('myvar', 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new IBaseSMText element
+	 */
+	@JSFunction
+	@Override
+	public JSText newTextField(IBaseSMVariable dataprovider, int x)
+	{
+		return (JSText)newField(dataprovider, Field.TEXT_FIELD, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newTextField(IBaseSMVariable,int)
+	 */
+	@JSFunction
+	@Override
+	public JSText newTextField(String dataprovidername, int x)
+	{
+		return (JSText)newField(dataprovidername, Field.TEXT_FIELD, x);
+	}
+
+	/** 
+	 * Creates a new IBaseSMTextArea object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newTextArea('myvar', 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new IBaseSMTextArea element
+	 */
+	@JSFunction
+	@Override
+	public JSTextArea newTextArea(IBaseSMVariable dataprovider, int x)
+	{
+		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newTextArea(IBaseSMVariable,int)
+	 */
+	@JSFunction
+	@Override
+	public JSTextArea newTextArea(String dataprovidername, int x)
+	{
+		return (JSTextArea)newField(dataprovidername, Field.TEXT_AREA, x);
+	}
+
+	/** 
+	 * Creates a new ISMCombobox object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newCombobox('myvar', 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new ISMCombobox element
+	 */
+	@JSFunction
+	@Override
+	public JSCombobox newCombobox(IBaseSMVariable dataprovider, int x)
+	{
+		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCombobox(IBaseSMVariable,int)
+	 */
+	@JSFunction
+	@Override
+	public JSCombobox newCombobox(String dataprovidername, int x)
+	{
+		return (JSCombobox)newField(dataprovidername, Field.COMBOBOX, x);
+	}
+
+	/** 
+	 * Creates a new IBaseSMRadios object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newRadios('myvar', 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new IBaseSMRadios element
+	 */
+	@JSFunction
+	@Override
+	public JSRadios newRadios(IBaseSMVariable dataprovider, int x)
+	{
+		return (JSRadios)newField(dataprovider, Field.RADIOS, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newRadios(IBaseSMVariable,int)
+	 */
+	@JSFunction
+	@Override
+	public JSRadios newRadios(String dataprovidername, int x)
+	{
+		return (JSRadios)newField(dataprovidername, Field.RADIOS, x);
+	}
+
+	/** 
+	 * Creates a new IBaseSMChecks object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newCheck('myvar', 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new IBaseSMChecks element
+	 */
+	@JSFunction
+	@Override
+	public JSChecks newCheck(IBaseSMVariable dataprovider, int x)
+	{
+		return (JSChecks)newField(dataprovider, Field.CHECKS, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCheck(IBaseSMVariable,int)
+	 */
+	@JSFunction
+	@Override
+	public JSChecks newCheck(String dataprovidername, int x)
+	{
+		return (JSChecks)newField(dataprovidername, Field.CHECKS, x);
+	}
+
+	/** 
+	 * Creates a new IBaseSMPassword object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newPassword('myvar', 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new IBaseSMPassword element
+	 */
+	@JSFunction
+	@Override
+	public JSPassword newPassword(IBaseSMVariable dataprovider, int x)
+	{
+		return (JSPassword)newField(dataprovider, Field.PASSWORD, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newPassword(IBaseSMVariable,int)
+	 */
+	@JSFunction
+	@Override
+	public JSPassword newPassword(String dataprovidername, int x)
+	{
+		return (JSPassword)newField(dataprovidername, Field.PASSWORD, x);
+	}
+
+	/** 
+	 * Creates a new IBaseSMCalendar object on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newCalendar('myvar', 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 *
+	 * @return a new IBaseSMCalendar element
+	 */
+	@JSFunction
+	@Override
+	public JSCalendar newCalendar(IBaseSMVariable dataprovider, int x)
+	{
+		return (JSCalendar)newField(dataprovider, Field.CALENDAR, x);
+	}
+
+	/**
+	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCalendar(IBaseSMVariable,int)
+	 */
+	@JSFunction
+	@Override
+	public JSCalendar newCalendar(String dataprovidername, int x)
+	{
+		return (JSCalendar)newField(dataprovidername, Field.CALENDAR, x);
+	}
+
+	/** 
+	 * Creates a new button on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newButton('myvar', form.getMethod('doit'));
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param text the text on the button
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 * 
+	 * @param jsmethod the method assigned to handle an onAction event
+	 *
+	 * @return a new IBaseSMCalendar element
+	 */
+	@JSFunction
+	@Override
+	public JSButton newButton(String text, int x, IBaseSMMethod jsmethod)
+	{
+		return markForFooter(getJSParent().newButton(text, x, 0, 10, 10, jsmethod));
+	}
+
+	/** 
+	 * Creates a new label on the footer.
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm('myform')
+	 * var footer = form.getForm('myform').newFooter()
+	 * footer.newButton('myvar', form.getMethod('doit'));
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param text the text on the label
+	 *
+	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
+	 * 
+	 * @return a new IBaseSMCalendar element
+	 */
+	@JSFunction
+	@Override
+	public JSLabel newLabel(String text, int x)
+	{
+		return markForFooter(getJSParent().newLabel(text, x, 0, 10, 10));
+	}
+
+	/**
+	 * Returns a array of all the IBaseSMComponents that a footer has.
+	 *
+	 * @sample
+	 * var form = solutionModel.getForm("myForm");
+	 * var footer = form.getFooter();
+	 * var components = footer.getComponents();
+	 * for (var i in components)
+	 * 	application.output("Component type and name: " + components[i]); 
+	 * 
+	 * @return an array of all the IBaseSMComponents on the footer.
+	 */
+	@JSFunction
+	@Override
+	public IBaseSMComponent[] getComponents()
+	{
+		List<JSComponent< ? >> footerComponents = new ArrayList<JSComponent< ? >>();
+		for (JSComponent< ? > comp : getJSParent().getComponents())
+		{
+			if (Boolean.TRUE.equals(comp.getBaseComponent(false).getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName)))
+			{
+				footerComponents.add(comp);
+			}
+		}
+		return footerComponents.toArray(new IBaseSMComponent[footerComponents.size()]);
+	}
+
+	/**
+	 * Removes a named component from the footer. 
+	 *
+	 * @sample 
+	 * var form = solutionModel.getForm("myForm");
+	 * var footer = form.getFooter();
+	 * footer.removeComponent('myfield1')
+	 *
+	 * @param name the specified name of the component to remove 
+	 * 
+	 * @return true is the component has been successfully removed; false otherwise
+	 */
+	@JSFunction
+	@Override
+	public boolean removeComponent(String name)
+	{
+		JSForm form = getJSParent();
+		form.checkModification();
+		Iterator<GraphicalComponent> graphicalComponents = form.getSupportChild().getGraphicalComponents();
+		while (graphicalComponents.hasNext())
+		{
+			GraphicalComponent gc = graphicalComponents.next();
+			if (name.equals(gc.getName()) && Boolean.TRUE.equals(gc.getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName)))
+			{
+				form.getSupportChild().removeChild(gc);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private <T extends JSBase< ? >> T markForFooter(T comp)
+	{
+		comp.getBaseComponent(true).putCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName, Boolean.TRUE);
+		return comp;
+	}
+}

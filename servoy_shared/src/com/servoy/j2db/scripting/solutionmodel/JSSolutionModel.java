@@ -39,6 +39,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
@@ -82,7 +83,16 @@ public class JSSolutionModel implements ISolutionModel
 			@SuppressWarnings("deprecation")
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, VIEW.class, JSForm.class, JSDataSourceNode.class, JSField.class, JSBean.class, JSButton.class, JSCalculation.class, JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPart.class, JSRelation.class, JSRelationItem.class, JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class };
+				return new Class< ? >[] { ALIGNMENT.class, ANCHOR.class, BEVELTYPE.class, CURSOR.class, DEFAULTS.class, DISPLAYTYPE.class, //
+				FONTSTYLE.class, JOINTYPE.class, MEDIAOPTION.class, PAGEORIENTATION.class, PARTS.class, PRINTSLIDING.class, //
+				SCROLLBAR.class, TITLEJUSTIFICATION.class, TITLEPOSITION.class, UNITS.class, VALUELIST.class, VARIABLETYPE.class, //
+				VIEW.class, JSForm.class, JSDataSourceNode.class, JSBean.class, JSButton.class, JSCalculation.class, //
+				JSFieldWithConstants.class, JSText.class, JSTextArea.class, JSCombobox.class, JSRadios.class, JSChecks.class, JSCalendar.class, JSPassword.class, //
+				JSList.class, JSInsetList.class, //
+				JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
+				JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
+				JSHeader.class, JSFooter.class, JSTitle.class //
+				};
 			}
 		});
 	}
@@ -230,6 +240,32 @@ public class JSSolutionModel implements ISolutionModel
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	@JSFunction
+	public IBaseSMForm newForm(String name, String dataSource)
+	{
+		return newForm(name, dataSource, null, false, 0, 0);
+	}
+
+	@JSFunction
+	public JSList newListForm(String formName, String dataSource, String textDataProviderID)
+	{
+		return null; // mobile only
+	}
+
+	@Override
+	@JSFunction
+	public JSList getListForm(String name)
+	{
+		return null; // mobile only
+	}
+
+	@Override
+	@JSFunction
+	public JSList[] getListForms()
+	{
+		return null; // mobile only
 	}
 
 	protected Form createNewForm(Style style, String name, String dataSource, boolean show_in_menu, Dimension size) throws RepositoryException
@@ -1912,5 +1948,17 @@ public class JSSolutionModel implements ISolutionModel
 	public void destroy()
 	{
 		application = null;
+	}
+
+	/**
+	 * @param parent
+	 * @param field
+	 * @param application2
+	 * @param isNew
+	 * @return
+	 */
+	public JSField createField(IJSParent< ? > parent, Field field, boolean isNew)
+	{
+		return new JSField(parent, field, application, isNew);
 	}
 }

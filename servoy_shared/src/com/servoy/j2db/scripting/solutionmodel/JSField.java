@@ -16,25 +16,32 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import java.awt.Point;
+import java.util.Iterator;
+
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMValueList;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMField;
 import com.servoy.j2db.solutionmodel.ISMMethod;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSField")
-public class JSField extends JSComponent<Field> implements IConstantsObject, ISMField
+// Documented via JSFieldWithConstants
+public class JSField extends JSComponent<Field> implements ISMField
 {
 	private final IApplication application;
 
@@ -48,6 +55,16 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	{
 		super(parent, field, isNew);
 		this.application = application;
+	}
+
+	public static JSField createField(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)
+	{
+		if (field == null)
+		{
+			return null;
+		}
+
+		return application.getScriptEngine().getSolutionModifier().createField(parent, field, isNew);
 	}
 
 	/**
@@ -551,6 +568,55 @@ public class JSField extends JSComponent<Field> implements IConstantsObject, ISM
 	public void setOnFocusLost(IBaseSMMethod method)
 	{
 		setEventHandler(application, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID, (JSMethod)method);
+	}
+
+	@Override
+	@JSFunction
+	public JSTitle getTitle()
+	{
+		return new JSTitle(getJSParent(), getTitleForComponent(this), false);
+	}
+
+	public static GraphicalComponent getTitleForComponent(JSComponent< ? > comp)
+	{
+		JSForm parentForm = (JSForm)comp.getJSParent();
+		String cGroup = comp.getGroupID();
+		if (cGroup != null)
+		{
+			Iterator<GraphicalComponent> comps = parentForm.getSupportChild().getGraphicalComponents();
+			for (GraphicalComponent gc : Utils.iterate(comps))
+			{
+				if (cGroup.equals(gc.getGroupID()))
+				{
+					// I guess the following if might as well not be; the location thing is for legacy solutions (before the COMPONENT_TITLE existed)
+					if (Boolean.TRUE.equals(gc.getCustomMobileProperty(IMobileProperties.COMPONENT_TITLE.propertyName)) || gc.getLocation().y < comp.getY() ||
+						(gc.getLocation().y == comp.getY() && gc.getLocation().x < comp.getX()))
+					{
+						return gc;
+					}
+				}
+			}
+		}
+
+		if (cGroup == null)
+		{
+			comp.setGroupID(cGroup = UUID.randomUUID().toString());
+		}
+
+		parentForm.checkModification();
+		GraphicalComponent titleLabel;
+		try
+		{
+			titleLabel = parentForm.getSupportChild().createNewGraphicalComponent(new Point(comp.getX() - 1, comp.getY() - 1));
+		}
+		catch (RepositoryException e)
+		{
+			// should not happen
+			throw new RuntimeException(e);
+		}
+		titleLabel.setGroupID(cGroup);
+		titleLabel.putCustomMobileProperty(IMobileProperties.COMPONENT_TITLE.propertyName, Boolean.TRUE);
+		return titleLabel;
 	}
 
 	/**

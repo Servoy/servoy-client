@@ -16,17 +16,45 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
+import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMButton;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSButton")
-public class JSButton extends JSGraphicalComponent implements ISMButton
+public class JSButton extends JSGraphicalComponent implements ISMButton, IConstantsObject
 {
 	public JSButton(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
 	{
 		super(parent, gc, application, isNew);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
+	 * 
+	 * @sample 
+	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
+	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
+	 * var hCenteredLabel = form.newLabel('CENTER', 10, 40, 300, 20);
+	 * hCenteredLabel.horizontalAlignment = SM_ALIGNMENT.CENTER;
+	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
+	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
+	 */
+	@JSGetter
+	public String getIconType()
+	{
+		return (String)getBaseComponent(false).getCustomMobileProperty(IMobileProperties.DATA_ICON.propertyName);
+	}
+
+	@JSSetter
+	public void setIconType(String iconType)
+	{
+		getBaseComponent(true).putCustomMobileProperty(IMobileProperties.DATA_ICON.propertyName, iconType);
 	}
 
 	/**
