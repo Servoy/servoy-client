@@ -40,7 +40,7 @@ public class PksAndRecordsHolder
 	private boolean hasDynamicPlaceholder;
 
 	private PksAndRecordsHolder(FoundSet foundSet, SafeArrayList<IRecordInternal> cachedRecords, IDataSet pks, AtomicInteger dbIndexLastPk,
-		QuerySelect querySelect, int chunkSize)
+		QuerySelect querySelect, int chunkSize, boolean hasDynamicPlaceholder)
 	{
 		this(foundSet, chunkSize);
 		this.cachedRecords = cachedRecords;
@@ -51,7 +51,7 @@ public class PksAndRecordsHolder
 		}
 		this.dbIndexLastPk = dbIndexLastPk;
 		this.querySelect = querySelect;
-		this.hasDynamicPlaceholder = checkForDynamicPlaceholder(querySelect);
+		this.hasDynamicPlaceholder = hasDynamicPlaceholder;
 	}
 
 	public PksAndRecordsHolder(FoundSet foundSet, int chunkSize)
@@ -62,7 +62,7 @@ public class PksAndRecordsHolder
 
 	public synchronized PksAndRecordsHolder shallowCopy()
 	{
-		return new PksAndRecordsHolder(foundSet, cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize);
+		return new PksAndRecordsHolder(foundSet, cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize, hasDynamicPlaceholder);
 	}
 
 	public synchronized SafeArrayList<IRecordInternal> setPks(IDataSet bufferedDataSet, int dbIndexLastPk)
