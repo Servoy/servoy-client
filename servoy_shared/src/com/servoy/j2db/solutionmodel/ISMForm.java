@@ -15,6 +15,7 @@
 package com.servoy.j2db.solutionmodel;
 
 import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.IForm;
@@ -155,7 +156,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * myForm.selectionMode = JSForm.SELECTION_MODE_MULTI;
 	 */
 	public static final int SELECTION_MODE_MULTI = IForm.SELECTION_MODE_MULTI;
-
 
 	/**
 	 * Creates a new form JSVariable - based on the name of the variable object and the number type, uses the SolutionModel JSVariable constants.
@@ -346,6 +346,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of TEXT_FIELD
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newTextField(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
@@ -366,6 +367,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of TEXT_AREA
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newTextArea(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
@@ -384,6 +386,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of COMBOBOX
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newComboBox(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
@@ -458,6 +461,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMField object with the displayType of RADIOS (radio buttons)
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newRadios(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
@@ -476,6 +480,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of CHECK (checkbox)
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newCheck(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
@@ -494,6 +499,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of CALENDAR
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newCalendar(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
@@ -590,6 +596,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object on the form with the displayType of PASSWORD
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newPassword(Object dataprovidername, int x, int y, int width, int height);
 
 	/**
@@ -615,6 +622,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMButton object
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMButton newButton(String txt, int x, int y, int width, int height, Object action);
 
 	/**
@@ -637,6 +645,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMLabel object
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMLabel newLabel(String txt, int x, int y, int width, int height);
 
 	/**
@@ -697,6 +706,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMPortal object
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMPortal getPortal(String name);
 
 	/**
@@ -738,6 +748,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @return an array of all ISMPortal objects on this form
 	 *
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMPortal[] getPortals();
 
 	/**
@@ -764,6 +775,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMTabPanel object	
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMTabPanel newTabPanel(String name, int x, int y, int width, int height);
 
 	/**
@@ -780,6 +792,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMTabPanel object
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMTabPanel getTabPanel(String name);
 
 	/**
@@ -821,6 +834,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @return an array of all ISMTabPanel objects on this form			
 	 *		
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMTabPanel[] getTabPanels();
 
 	/**
@@ -844,7 +858,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 */
 	public ISMPart newPart(int type, int height);
 
-
 	/**
 	 * Creates a new Title Header part on the form.
 	 * 
@@ -853,6 +866,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return A ISMPart instance corresponding to the newly created Title Header form part.
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMPart newTitleHeaderPart(int height);
 
 
@@ -864,6 +878,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return A ISMPart instance corresponding to the newly created Header form part.
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMPart newHeaderPart(int height);
 
 	/**
@@ -885,7 +900,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @return A ISMPart instance corresponding to the newly created Leading Subsummary form part.
 	 */
 	public ISMPart newLeadingSubSummaryPart(int height);
-
 
 	/**
 	 * Creates a new Trailing Subsummary part on the form.
@@ -915,8 +929,8 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return A ISMPart instance corresponding to the newly created Footer form part.
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMPart newFooterPart(int height);
-
 
 	/**
 	 * Creates a new Title Footer part on the form.
