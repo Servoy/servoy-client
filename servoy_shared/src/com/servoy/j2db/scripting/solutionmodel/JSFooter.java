@@ -17,7 +17,6 @@
 package com.servoy.j2db.scripting.solutionmodel;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.mozilla.javascript.annotations.JSFunction;
@@ -31,7 +30,6 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
-import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.solutionmodel.ISMFooter;
 
@@ -55,7 +53,7 @@ public class JSFooter extends JSPart implements ISMFooter
 	}
 
 	/**
-	 * Flag to set a set the header sticky so it will not scroll out of view.
+	 * Flag to set a set the footer sticky so it will not scroll out of view.
 	 * 
 	 * @sample 
 	 * var form = solutionModel.newForm('newForm1', myDatasource);
@@ -424,17 +422,15 @@ public class JSFooter extends JSPart implements ISMFooter
 	public boolean removeComponent(String name)
 	{
 		JSForm form = getJSParent();
-		form.checkModification();
-		Iterator<GraphicalComponent> graphicalComponents = form.getSupportChild().getGraphicalComponents();
-		while (graphicalComponents.hasNext())
+		for (JSComponent< ? > comp : form.getComponents())
 		{
-			GraphicalComponent gc = graphicalComponents.next();
-			if (name.equals(gc.getName()) && Boolean.TRUE.equals(gc.getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName)))
+			if (name.equals(comp.getName()) &&
+				Boolean.TRUE.equals(comp.getBaseComponent(false).getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName)))
 			{
-				form.getSupportChild().removeChild(gc);
-				return true;
+				return form.removeComponent(name);
 			}
 		}
+
 		return false;
 	}
 

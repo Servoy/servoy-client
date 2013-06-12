@@ -2405,6 +2405,13 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		}
 	}
 
+	@JSFunction
+	@Override
+	public JSBean newBean(String name, int y)
+	{
+		return null; // only in mobile
+	}
+
 	/**
 	 * Returns a JSBean that has the given name.
 	 *
@@ -2417,6 +2424,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return a JSBean object 
 	 */
 	@JSFunction
+	@Override
 	public JSBean getBean(String name)
 	{
 		if (name == null) return null;
@@ -2452,6 +2460,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * @return true if the JSBean has been removed; false otherwise
 	 */
 	@JSFunction
+	@Override
 	public boolean removeBean(String name)
 	{
 		if (name == null) return false;
@@ -2486,6 +2495,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 *
 	 */
 	@JSFunction
+	@Override
 	public JSBean[] getBeans(boolean returnInheritedElements)
 	{
 		List<JSBean> beans = new ArrayList<JSBean>();
@@ -2513,6 +2523,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 *
 	 */
 	@JSFunction
+	@Override
 	public JSBean[] getBeans()
 	{
 		return getBeans(false);

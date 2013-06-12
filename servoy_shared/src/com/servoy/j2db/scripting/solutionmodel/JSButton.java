@@ -34,17 +34,6 @@ public class JSButton extends JSGraphicalComponent implements ISMButton, IConsta
 		super(parent, gc, application, isNew);
 	}
 
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
-	 * 
-	 * @sample 
-	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
-	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
-	 * var hCenteredLabel = form.newLabel('CENTER', 10, 40, 300, 20);
-	 * hCenteredLabel.horizontalAlignment = SM_ALIGNMENT.CENTER;
-	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
-	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
-	 */
 	@JSGetter
 	public String getIconType()
 	{
