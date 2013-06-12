@@ -1279,6 +1279,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a ISMBean object 
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMBean newBean(String name, String className, int x, int y, int width, int height);
 
 	/**
