@@ -87,4 +87,12 @@ public interface IFormConstants
 	 */
 	public static final int HIDE_ELEMENTS = 32;
 
+
+	// FORM NAVIGATOR TYPES ------------------------
+	/**
+	 * Constants for navigator types
+	 */
+	public static final int NAVIGATOR_DEFAULT = 0;
+	public static final int NAVIGATOR_NONE = -1;
+	public static final int NAVIGATOR_IGNORE = -2;
 }
