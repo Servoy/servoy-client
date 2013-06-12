@@ -1263,6 +1263,25 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMButton[] getButtons();
 
 	/**
+	 * Creates a new ISMBean object on the form - including the name of the ISMBean object; the classname the ISMBean object is based on, the "x" and "y" position of the ISMBean object in pixels, as well as the width and height of the ISMBean object in pixels.
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var bean = form.newBean('bean','com.servoy.extensions.beans.dbtreeview.DBTreeView',200,200,300,300);
+	 * forms['newForm1'].controller.show();
+	 * 
+	 * @param name the specified name of the ISMBean object
+	 * @param className the class name of the ISMBean object
+	 * @param x the horizontal "x" position of the ISMBean object in pixels
+	 * @param y the vertical "y" position of the ISMBean object in pixels
+	 * @param width the width of the ISMBean object in pixels
+	 * @param height the height of the ISMBean object in pixels
+	 * 
+	 * @return a ISMBean object 
+	 */
+	public ISMBean newBean(String name, String className, int x, int y, int width, int height);
+
+	/**
 	 * Returns all ISMBeans of this form.
 	 *
 	 * @sample 
