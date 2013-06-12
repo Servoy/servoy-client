@@ -62,6 +62,10 @@ import com.servoy.j2db.util.ServoyException;
  */
 public class DebugHeadlessClient extends SessionClient implements IDebugHeadlessClient
 {
+	//This is needed for mobile client launch with switch to service option .
+	// switching to service in developer causes a required refresh in a separate thread triggered by activeSolutionChanged
+	// , meanwhile after setActiveSolution is called the mobileClientDelegate opens the browser which causes a get to the service solution which is not fully loaded and debuggable
+	public static Object activeSolutionRefreshLock = new Object();
 
 	public static class DebugWebFormManager extends WebFormManager implements DebugUtils.DebugUpdateFormSupport
 	{
@@ -168,23 +172,54 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	}
 
 	@Override
-	protected void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
+	protected synchronized void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
 	{
-		// ignore given always load the active.
-		if (getSolution() != null)
+		synchronized (activeSolutionRefreshLock)
 		{
-			closeSolution(true, null);
+			if (!isShutDown())
+			{
+				// ignore given always load the active.
+				if (getSolution() != null)
+				{
+					closeSolution(true, null);
+				}
+				if (solution != null)
+				{
+					super.loadSolution(solution);
+				}
+			}
 		}
-		if (solution != null)
+	}
+
+	@Override
+	public void shutDown(boolean force)
+	{
+		synchronized (activeSolutionRefreshLock)
 		{
-			super.loadSolution(solution);
+			super.shutDown(force);
+		}
+	}
+
+	@Override
+	public boolean closeSolution(boolean force, Object[] args)
+	{
+		synchronized (activeSolutionRefreshLock)
+		{
+			return isShutDown() ? true : super.closeSolution(force, args);
 		}
 	}
 
 	public void setCurrent(SolutionMetaData solutionMeta)
 	{
-		solution = solutionMeta;
-		closeSolution(true, null);
+
+		synchronized (activeSolutionRefreshLock)
+		{
+			solution = solutionMeta;
+			if (isSolutionLoaded() && (solutionMeta != null && !getSolution().getName().equals(solutionMeta.getName()) || solutionMeta == null))
+			{
+				closeSolution(true, null);
+			}
+		}
 	}
 
 	private Form form;

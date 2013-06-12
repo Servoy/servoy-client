@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +54,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -74,6 +75,11 @@ import com.servoy.j2db.util.Utils;
 
 public class DebugClientHandler implements IDebugClientHandler, IDesignerCallback
 {
+	//This is needed for mobile client launch with switch to service option .
+	// switching to service in developer causes a required refresh in a separate thread triggered by activeSolutionChanged
+	// , meanwhile after setActiveSolution is called the mobileClientDelegate opens the browser which causes a get to the service solution which is not fully loaded and debuggable
+	public static Lock activeSolutionRefreshLock = new ReentrantLock();
+
 	private volatile DebugHeadlessClient debugHeadlessClient;
 	private volatile DebugAuthenticator debugAuthenticator;
 	private volatile DebugWebClient debugWebClient;
@@ -708,22 +714,10 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		debugHeadlessClient = new DebugHeadlessClient(req, userName, password, method, objects, solutionMetaData, designerCallback)
 		{
 			@Override
-			public synchronized void shutDown(boolean force)
+			public void shutDown(boolean force)
 			{
 				super.shutDown(force);
 				debugHeadlessClient = null;
-			}
-
-			@Override
-			public synchronized void loadSolution(String solutionName) throws RepositoryException
-			{
-				if (!isShutDown()) super.loadSolution(solutionName);
-			}
-
-			@Override
-			public synchronized boolean closeSolution(boolean force)
-			{
-				return isShutDown() ? true : super.closeSolution(force);
 			}
 		};
 		testAndStartDebugger();
