@@ -18,15 +18,22 @@
 package com.servoy.j2db.documentation.mobile.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.persistence.GraphicalComponent;
+
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyClientSupport(mc = true, sc = false, wc = false)
-public class BaseDocsGraphicalComponentWithTitle extends BaseDocsGraphicalComponent
+@ServoyClientSupport(mc = true, wc = false, sc = false)
+public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent
 {
+	protected BaseDocsGraphicalComponentWithTitle()
+	{
+		super(null, 0, null);
+	}
+
 	/**
 	 * Dataprovider for header text to field component
 	 */

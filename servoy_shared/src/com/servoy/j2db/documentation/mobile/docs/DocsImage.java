@@ -23,39 +23,16 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
- * @author rgansevles
+ *  
+ * @author acostache
+ *
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class)
-@ServoyClientSupport(mc = true, wc = true, sc = true)
-public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Image", realClass = GraphicalComponent.class)
+@ServoyClientSupport(mc = false, wc = true, sc = true)
+public class DocsImage extends GraphicalComponent
 {
-
-	/**
-	 * Label (header) size property.
-	 * Sets the header size on a label. Valid values are between 'h1' to 'h6',
-	 * default value is 'h4'.
-	 * The numbers match the heading tags h1 to h6 as used in html.
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public int getLabelSize()
+	protected DocsImage()
 	{
-		return 0;
-	}
-
-	@SuppressWarnings("unused")
-	public void setLabelSize(int labelSize)
-	{
-	}
-
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public boolean getTitleVisible()
-	{
-		return false;
-	}
-
-	@SuppressWarnings("unused")
-	public void setTitleVisible(boolean arg)
-	{
+		super(null, 0, null);
 	}
 }

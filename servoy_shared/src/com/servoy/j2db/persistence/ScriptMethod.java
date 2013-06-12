@@ -67,6 +67,13 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		return getName();
 	}
 
+	// declaration, name, scopeName overrides - needed for docs mc annotation
+	@Override
+	public String getDeclaration()
+	{
+		return super.getDeclaration();
+	}
+
 	@Override
 	public void setDeclaration(String declaration)
 	{
@@ -74,6 +81,30 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 		isPrivate = null;
 		isProtected = null;
 		isConstructor = null;
+	}
+
+	@Override
+	public String getName()
+	{
+		return super.getName();
+	}
+
+	@Override
+	public void setName(String arg)
+	{
+		super.setName(arg);
+	}
+
+	@Override
+	public String getScopeName()
+	{
+		return super.getScopeName();
+	}
+
+	@Override
+	public void setScopeName(String scopeName)
+	{
+		super.setScopeName(scopeName);
 	}
 
 	/**

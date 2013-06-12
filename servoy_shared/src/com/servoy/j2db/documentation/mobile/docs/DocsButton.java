@@ -27,9 +27,14 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
-public class DocsButton extends BaseDocsGraphicalComponent
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public class DocsButton extends GraphicalComponent
 {
+	protected DocsButton()
+	{
+		super(null, 0, null);
+	}
+
 	/**
 	 * Icon for a button, this must be one of:
 	 * alert
@@ -53,6 +58,7 @@ public class DocsButton extends BaseDocsGraphicalComponent
 	 * search
 	 * star
 	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public String getDataIcon()
 	{
 		return null;

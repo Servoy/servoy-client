@@ -38,7 +38,7 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 	/**
 	 * Constructor I
 	 */
-	BaseComponent(int type, ISupportChilds parent, int element_id, UUID uuid)
+	protected BaseComponent(int type, ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(type, parent, element_id, uuid);
 	}
