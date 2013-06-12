@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
@@ -49,17 +50,17 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * @sameas getNavigatorID()
 	 */
-	public static final int NAVIGATOR_DEFAULT = 0;
+	public static final int NAVIGATOR_DEFAULT = IFormConstants.DEFAULT;
 
 	/**
 	 * @sameas getNavigatorID() 
 	 */
-	public static final int NAVIGATOR_NONE = -1;
+	public static final int NAVIGATOR_NONE = IFormConstants.NAVIGATOR_NONE;
 
 	/**
 	 * @sameas getNavigatorID()
 	 */
-	public static final int NAVIGATOR_IGNORE = -2;
+	public static final int NAVIGATOR_IGNORE = IFormConstants.NAVIGATOR_IGNORE;
 
 	/**
 	 * Constant used for form namedFoundset property. The form that uses empty namedFoundset will initially have an empty (cleared) foundset.
