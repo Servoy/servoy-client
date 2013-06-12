@@ -33,7 +33,7 @@ public interface IBaseSMButton extends IBaseSMGraphicalComponent, IBaseSMButtonC
 	 * Icon shown on a button.
 	 * 
 	 * @sample
-	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, null);
+	 * var btn = form.newButton('I am a button', 1, null);
 	 * btn.iconType = JSButton.ICON_STAR
 	 */
 	@ServoyClientSupport(mc = true, wc = false, sc = false)

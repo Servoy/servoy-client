@@ -1230,23 +1230,20 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public boolean removeFooter();
 
 	/**
-	 * Creates a new IBaseSMBean object on the form - including the name of the IBaseSMBean object; the classname the IBaseSMBean object is based on, the "x" and "y" position of the IBaseSMBean object in pixels, as well as the width and height of the IBaseSMBean object in pixels.
+	 * Creates a new IBaseSMBean object on the form.
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
-	 * var bean = form.newBean('bean','com.servoy.extensions.beans.dbtreeview.DBTreeView',200,200,300,300);
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1');
+	 * var bean = form.newBean('bean', 1);
 	 * forms['newForm1'].controller.show();
 	 * 
 	 * @param name the specified name of the IBaseSMBean object
-	 * @param className the class name of the IBaseSMBean object
-	 * @param x the horizontal "x" position of the IBaseSMBean object in pixels
-	 * @param y the vertical "y" position of the IBaseSMBean object in pixels
-	 * @param width the width of the IBaseSMBean object in pixels
-	 * @param height the height of the IBaseSMBean object in pixels
+	 * @param y the vertical "y" position of the IBaseSMBean object, defines the order of elements on the form
 	 * 
 	 * @return a IBaseSMBean object 
 	 */
-	public IBaseSMBean newBean(String name, String className, int x, int y, int width, int height);
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public IBaseSMBean newBean(String name, int y);
 
 	/**
 	 * Returns a IBaseSMBean that has the given name.
