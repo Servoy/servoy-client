@@ -182,21 +182,19 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			String dataProviderID = getDataProviderID(component);
 			if (dataProviderID == null) return;
 
-			if (!((IDisplayData)component).isValueValid() || !Utils.equalObjects(lastRenderedValues.get(component), obj))
+			Object convertedObj = obj;
+			if (component instanceof IResolveObject)
 			{
-				if (component instanceof IResolveObject)
-				{
-					lastRenderedValues.put(component, ((IResolveObject)component).resolveRealValue(obj));
-				}
-				else
-				{
-					lastRenderedValues.put(component, obj);
-					// this is normally called as a result of a change in the browser (so component in browser shows this value already); if this is called manually from server side code, setChanged() might also be needed on that component separately when it needs to be rendered back to the browser;
-					// this is needed not to interfere with components that use lots of JS like type-aheads when field contents change;
-					// if the field uses a formatter for example that would display the value different then it parsed it, setChanged() should be manually called (see FormatConverter use of StateFullSimpleDateFormat)
-				}
+				convertedObj = ((IResolveObject)component).resolveRealValue(obj);
+			}
+			if (!((IDisplayData)component).isValueValid() || !Utils.equalObjects(lastRenderedValues.get(component), convertedObj))
+			{
+				lastRenderedValues.put(component, convertedObj);
+				// this is normally called as a result of a change in the browser (so component in browser shows this value already); if this is called manually from server side code, setChanged() might also be needed on that component separately when it needs to be rendered back to the browser;
+				// this is needed not to interfere with components that use lots of JS like type-aheads when field contents change;
+				// if the field uses a formatter for example that would display the value different then it parsed it, setChanged() should be manually called (see FormatConverter use of StateFullSimpleDateFormat)
 
-				setValue(component, dataProviderID, obj);
+				setValue(component, dataProviderID, convertedObj);
 			}
 		}
 
@@ -260,13 +258,9 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		IRecordInternal record = (IRecordInternal)RecordItemModel.this.getObject();
 
 		// use UI converter to convert from UI value to record value
-		boolean wasConverted = false;
 		if (!(record instanceof FindState))
 		{
-			Object converted = ComponentFormat.applyUIConverterFromObject(component, obj, dataProviderID,
-				webForm.getController().getApplication().getFoundSetManager());
-			wasConverted = obj != converted;
-			obj = converted;
+			obj = ComponentFormat.applyUIConverterFromObject(component, obj, dataProviderID, webForm.getController().getApplication().getFoundSetManager());
 		}
 
 		FormScope fs = webForm.getController().getFormScope();
@@ -299,11 +293,6 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 					{
 						prevValue = record.getValue(dataProviderID);
 						record.setValue(dataProviderID, obj);
-						if (wasConverted)
-						{
-							// update component with converted value
-							((IDisplayData)component).setValueObject(record.getValue(dataProviderID));
-						}
 					}
 					catch (IllegalArgumentException e)
 					{
