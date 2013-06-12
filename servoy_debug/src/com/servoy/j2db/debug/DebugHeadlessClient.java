@@ -172,7 +172,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	}
 
 	@Override
-	protected synchronized void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
+	protected void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
 	{
 		synchronized (activeSolutionRefreshLock)
 		{
