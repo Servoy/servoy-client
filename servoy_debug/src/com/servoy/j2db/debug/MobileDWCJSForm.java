@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.scripting.solutionmodel.JSBase;
+import com.servoy.j2db.scripting.solutionmodel.JSBean;
 import com.servoy.j2db.scripting.solutionmodel.JSButton;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSField;
@@ -189,6 +190,13 @@ public class MobileDWCJSForm extends JSForm implements IBaseSMFormInternal
 	public JSLabel newLabel(String txt, int x, int y, int width, int height, Object action)
 	{
 		return applyDeveloperSettings(super.newLabel(txt, x, y, width, height, action));
+	}
+
+	@Override
+	@JSFunction
+	public JSBean newBean(String name, int y)
+	{
+		return applyDeveloperSettings(newBean(name, null, 0, y, 10, 10));
 	}
 
 	private <T extends ISMComponent> T applyDeveloperSettings(T jscomp)
