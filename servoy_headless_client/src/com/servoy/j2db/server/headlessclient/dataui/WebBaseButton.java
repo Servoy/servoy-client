@@ -956,6 +956,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
 	{
+		return getImageDisplayURL(imageDisplay, true);
+	}
+
+	public static String getImageDisplayURL(IImageDisplay imageDisplay, boolean appendRandomParam)
+	{
 		String imgURL = null;
 
 		if (imageDisplay instanceof Component)
@@ -963,7 +968,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			Component imageDisplayComponent = (Component)imageDisplay;
 			if (imageDisplay.getIcon() != null)
 			{
-				CharSequence url = imageDisplayComponent.urlFor(IResourceListener.INTERFACE) + "&r=" + Math.random(); //$NON-NLS-1$
+				CharSequence url = imageDisplayComponent.urlFor(IResourceListener.INTERFACE);
+				if (appendRandomParam)
+				{
+					url = url + "&r=" + Math.random(); //$NON-NLS-1$
+				}
 				imgURL = Strings.replaceAll(imageDisplayComponent.getResponse().encodeURL(url), "&", "&amp;").toString(); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else if (imageDisplay.getIconReference() != null && imageDisplay.getMedia() != null)
