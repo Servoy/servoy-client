@@ -1685,7 +1685,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 									}
 
 									part.addAnchoredElement(comp.getMarkupId(), anchors, r, hAlign, vAlign, comp.getClass(), (comp instanceof IImageDisplay)
-										? WebBaseButton.getImageDisplayURL((IImageDisplay)comp) : null);
+										? WebBaseButton.getImageDisplayURL((IImageDisplay)comp, false) : null);
 								}
 
 							}
