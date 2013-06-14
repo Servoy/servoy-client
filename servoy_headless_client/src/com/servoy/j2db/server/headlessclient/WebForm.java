@@ -1684,8 +1684,16 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 										vAlign = alignedObj.getVerticalAlignment();
 									}
 
-									part.addAnchoredElement(comp.getMarkupId(), anchors, r, hAlign, vAlign, comp.getClass(), (comp instanceof IImageDisplay)
-										? WebBaseButton.getImageDisplayURL((IImageDisplay)comp, false) : null);
+									String imageDisplayURL = null;
+									boolean isRandomParamRemoved = false;
+									if (comp instanceof IImageDisplay)
+									{
+										Object[] aImageDisplayURL = WebBaseButton.getImageDisplayURL((IImageDisplay)comp, false);
+										imageDisplayURL = (String)aImageDisplayURL[0];
+										isRandomParamRemoved = ((Boolean)aImageDisplayURL[1]).booleanValue();
+									}
+									part.addAnchoredElement(comp.getMarkupId(), anchors, r, hAlign, vAlign, comp.getClass(), imageDisplayURL,
+										isRandomParamRemoved);
 								}
 
 							}
