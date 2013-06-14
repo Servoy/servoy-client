@@ -1011,6 +1011,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@Override
+	@JSFunction
 	public JSButton newButton(String txt, int y, IBaseSMMethod jsmethod)
 	{
 		return newButton(txt, 0, y, 10, 10, jsmethod);
@@ -1097,6 +1098,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@Override
+	@JSFunction
 	public IBaseSMLabel newLabel(String txt, int y)
 	{
 		return newLabel(txt, 0, y, 10, 10, null);
@@ -1643,18 +1645,21 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@Override
+	@JSFunction
 	public JSInsetList getInsetList(String name)
 	{
 		return null; // mobile only
 	}
 
 	@Override
+	@JSFunction
 	public JSInsetList[] getInsetLists()
 	{
 		return null; // mobile only
 	}
 
 	@Override
+	@JSFunction
 	public boolean removeInsetList(String name)
 	{
 		return false; // mobile only
