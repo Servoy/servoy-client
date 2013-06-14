@@ -232,8 +232,10 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 		private final int vAlign;
 		private final String hint;
 		private final String imageURL;
+		private final boolean appendRandomParamToImageUrl;
 
-		public ElementAnchorInfo(String webID, int anchors, Rectangle bounds, int hAlign, int vAlign, String hint, String imageURL)
+		public ElementAnchorInfo(String webID, int anchors, Rectangle bounds, int hAlign, int vAlign, String hint, String imageURL,
+			boolean appendRandomParamToImageUrl)
 		{
 			this.webID = webID;
 			this.anchors = anchors;
@@ -242,6 +244,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 			this.vAlign = vAlign;
 			this.hint = hint;
 			this.imageURL = imageURL;
+			this.appendRandomParamToImageUrl = appendRandomParamToImageUrl;
 		}
 
 		public String getWebID()
@@ -276,7 +279,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 
 		public String getImageUrl()
 		{
-			return imageURL;
+			return (appendRandomParamToImageUrl && imageURL != null) ? imageURL + "&amp;r=" + Math.random() : imageURL; //$NON-NLS-1$
 		}
 
 		@Override
@@ -311,7 +314,8 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 
 		public Map<String, ElementAnchorInfo> elementAnchorInfo;
 
-		public void addAnchoredElement(String webID, int anchors, Rectangle rectangle, int hAlign, int vAlign, Class hintClass, String imageUrl)
+		public void addAnchoredElement(String webID, int anchors, Rectangle rectangle, int hAlign, int vAlign, Class hintClass, String imageUrl,
+			boolean appendRandomParamToImageUrl)
 		{
 			if (elementAnchorInfo == null) elementAnchorInfo = new HashMap<String, ElementAnchorInfo>();
 
@@ -338,7 +342,7 @@ public final class FormAnchorInfo implements Comparable<FormAnchorInfo>
 				hint = "HTMLArea"; //$NON-NLS-1$
 			}
 
-			ElementAnchorInfo elementInfo = new ElementAnchorInfo(webID, anchors, rectangle, hAlign, vAlign, hint, imageUrl);
+			ElementAnchorInfo elementInfo = new ElementAnchorInfo(webID, anchors, rectangle, hAlign, vAlign, hint, imageUrl, appendRandomParamToImageUrl);
 			elementAnchorInfo.put(webID, elementInfo);
 		}
 

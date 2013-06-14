@@ -956,12 +956,13 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 	public static String getImageDisplayURL(IImageDisplay imageDisplay)
 	{
-		return getImageDisplayURL(imageDisplay, true);
+		return (String)getImageDisplayURL(imageDisplay, true)[0];
 	}
 
-	public static String getImageDisplayURL(IImageDisplay imageDisplay, boolean appendRandomParam)
+	public static Object[] getImageDisplayURL(IImageDisplay imageDisplay, boolean appendRandomParam)
 	{
 		String imgURL = null;
+		Boolean isRandomParamRemoved = Boolean.FALSE;
 
 		if (imageDisplay instanceof Component)
 		{
@@ -973,6 +974,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				{
 					url = url + "&r=" + Math.random(); //$NON-NLS-1$
 				}
+				else isRandomParamRemoved = Boolean.TRUE;
 				imgURL = Strings.replaceAll(imageDisplayComponent.getResponse().encodeURL(url), "&", "&amp;").toString(); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else if (imageDisplay.getIconReference() != null && imageDisplay.getMedia() != null)
@@ -1009,7 +1011,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			}
 		}
 
-		return imgURL;
+		return new Object[] { imgURL, isRandomParamRemoved };
 	}
 
 	protected static AttributeModifier getImageDisplayRolloverBehavior(final IImageDisplay imageDisplay)
