@@ -47,26 +47,26 @@ public final class Internalize
 		}
 	}
 
-	public static Object intern(Object obj)
+	@SuppressWarnings("unchecked")
+	public static <T> T intern(T obj)
 	{
 		if (obj == null) return obj;
 		if (obj instanceof Boolean)
 		{
-			return (((Boolean)obj).booleanValue() ? Boolean.TRUE : Boolean.FALSE);
+			return (T)(((Boolean)obj).booleanValue() ? Boolean.TRUE : Boolean.FALSE);
 		}
 		if (maxsize <= 0) return obj;
-		if (obj instanceof String || obj instanceof Number)//ONLY handle immutable objects
+		if (obj instanceof String || obj instanceof Number || obj.getClass() == java.awt.Color.class)//ONLY handle immutable objects
 		{
 			return instance.add(obj);
 		}
-		else if (obj instanceof Object[])
+		if (obj instanceof Object[])
 		{
 			Object[] array = (Object[])obj;
 			for (int i = 0; i < array.length; i++)
 			{
 				array[i] = intern(array[i]);
 			}
-			return array;
 		}
 		return obj;
 	}
@@ -80,7 +80,8 @@ public final class Internalize
 	}
 
 
-	private Object add(Object obj)
+	@SuppressWarnings("unchecked")
+	private <T> T add(T obj)
 	{
 		ObjectHolder retValue = internedMap.get(obj);
 		if (retValue == null)
@@ -93,12 +94,10 @@ public final class Internalize
 			internedMap.put(obj, new ObjectHolder(obj));
 			return obj;
 		}
-		else
-		{
-			// if making room then don't increment.
-			if (!makingroom.get()) retValue.increment();
-			return retValue.object;
-		}
+
+		// if making room then don't increment.
+		if (!makingroom.get()) retValue.increment();
+		return (T)retValue.object;
 	}
 
 	private void makeRoom()

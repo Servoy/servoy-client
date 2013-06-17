@@ -113,6 +113,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
+import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
@@ -871,7 +872,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			red = Math.abs(foregroundColor.getRed() - 255);
 			blue = Math.abs(foregroundColor.getBlue() - 255);
 			green = Math.abs(foregroundColor.getGreen() - 255);
-			return new Color(red, blue, green);
+			return Internalize.intern(new Color(red, blue, green));
 		}
 		return foregroundColor;
 	}

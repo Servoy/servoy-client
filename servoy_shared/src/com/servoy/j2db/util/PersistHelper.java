@@ -320,7 +320,7 @@ public class PersistHelper
 						int g = Utils.getAsInteger(tokenizer.nextToken(), true);
 						int b = Utils.getAsInteger(tokenizer.nextToken(), true);
 						int a = (int)(Utils.getAsFloat(tokenizer.nextToken(), true) * 255);
-						return new Color(r, g, b, a);
+						return Internalize.intern(new Color(r, g, b, a));
 					}
 					catch (Exception ex)
 					{
@@ -359,7 +359,7 @@ public class PersistHelper
 		}
 		if (IStyleSheet.COLOR_TRANSPARENT.equals(s))
 		{
-			retval = COLOR_TRANSPARENT;
+			return COLOR_TRANSPARENT;
 		}
 		if (s != null && retval == null)
 		{
@@ -374,7 +374,7 @@ public class PersistHelper
 				if (basicCssColors.containsKey(s.toLowerCase())) return createColor(basicCssColors.get(s.toLowerCase()));
 			}
 		}
-		return retval;
+		return Internalize.intern(retval);
 	}
 
 	public static String createColorString(Color c)
