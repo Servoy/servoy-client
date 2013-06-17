@@ -129,11 +129,24 @@ public final class QueryFunction implements IQuerySelectValue
 
 	public QueryColumn getColumn()
 	{
-		if (args == null || args.length != 1)
+		if (args != null && args.length == 1)
 		{
-			return null;
+			// for functions that do not change the return type return the column
+			switch (function)
+			{
+				case upper :
+				case lower :
+				case trim :
+				case abs :
+				case mod :
+					return args[0].getColumn();
+
+				default :
+					break;
+			}
 		}
-		return args[0].getColumn();
+
+		return null;
 	}
 
 	@Override
