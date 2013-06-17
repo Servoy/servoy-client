@@ -65,7 +65,12 @@ public class JSVariable implements IConstantsObject, ISMVariable
 			if (!isCopy)
 			{
 				// then get the replace the item with the item of the copied relation.
-				variable = (ScriptVariable)form.getSupportChild().getChild(variable.getUUID());
+				ScriptVariable tempVariable = (ScriptVariable)form.getSupportChild().getChild(variable.getUUID());
+				if (tempVariable == null)
+				{
+					throw new RuntimeException("Cannot find variable '" + getName() + "' to modify. Modifying inherited variables is not allowed.");
+				}
+				variable = tempVariable;
 				isCopy = true;
 			}
 		}
