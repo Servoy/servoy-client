@@ -1642,7 +1642,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			WebClientSession session = WebClientSession.get();
 			// all the current locked pages for this request, that wants to lock this one.
 			List<Page> touchedPages = session.getTouchedPages();
-			if (!touchedPages.contains(this))
+			touched = touchedPages.contains(this);
+			if (!touched)
 			{
 				session.wantsToLock(touchedPages, this);
 
