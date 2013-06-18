@@ -22,6 +22,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +39,6 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -119,49 +120,24 @@ public class TemplateGenerator
 	 */
 	private static class FormCache
 	{
-		private FormCache(boolean monitorCache)
-		{
-			if (monitorCache)
-			{
-				Runnable r = new Runnable()
-				{
-					public void run()
-					{
-						long sleepTime = 4 * 60 * 60 * 1000;
-						try
-						{
-							long time = System.currentTimeMillis();
-							Iterator<CacheItem> it = cache.values().iterator();
-							while (it.hasNext())
-							{
-								CacheItem item = it.next();
-								if ((time - item.lasttouched) > sleepTime)
-								{
-									if (Debug.tracing())
-									{
-										Debug.trace("Removing cache item: " + item.content);
-									}
-									it.remove();
-								}
-							}
+		private final ReferenceQueue<Pair<String, ArrayList<Pair<String, String>>>> queue = new ReferenceQueue<Pair<String, ArrayList<Pair<String, String>>>>();
 
-						}
-						catch (Exception e)
-						{
-							Debug.error("error in FormCacheMonitor", e);
-						}
-					}
-				};
-				ApplicationServerSingleton.get().getExecutor().scheduleWithFixedDelay(r, 4 * 60 * 60, 4 * 60 * 60, TimeUnit.SECONDS);
-			}
-		}
-
-		private static class CacheItem
+		private static class CacheItem extends SoftReference<Pair<String, ArrayList<Pair<String, String>>>>
 		{
 			long lastmodified;
-			long lasttouched = System.currentTimeMillis();
+			private final String key;
 
-			Pair<String, ArrayList<Pair<String, String>>> content;
+			/**
+			 * @param key 
+			 * @param referent
+			 */
+			public CacheItem(String key, long lastModified, Pair<String, ArrayList<Pair<String, String>>> referent,
+				ReferenceQueue<Pair<String, ArrayList<Pair<String, String>>>> queue)
+			{
+				super(referent, queue);
+				this.key = key;
+				this.lastmodified = lastModified;
+			}
 		}
 
 		private final ConcurrentHashMap<String, CacheItem> cache = new ConcurrentHashMap<String, CacheItem>();
@@ -185,8 +161,11 @@ public class TemplateGenerator
 
 			if (cacheItem != null && cacheItem.lastmodified == t)
 			{
-				retval = cacheItem.content;
-				cacheItem.lasttouched = System.currentTimeMillis();
+				retval = cacheItem.get();
+				if (retval == null)
+				{
+					cache.remove(cacheKey);
+				}
 			}
 			else
 			{
@@ -207,12 +186,17 @@ public class TemplateGenerator
 			Pair<String, ArrayList<Pair<String, String>>> formAndCss)
 		{
 			long t = getLastModifiedTime(f.getSolution(), f, overriddenStyleName, repository);
-			CacheItem cacheItem = new CacheItem();
-			cacheItem.lastmodified = t;
-			cacheItem.content = formAndCss;
-			cache.put(System.identityHashCode(f) + ":" + instanceFormName + ":" + overriddenStyleName, cacheItem);
-		}
+			String key = System.identityHashCode(f) + ":" + instanceFormName + ":" + overriddenStyleName;
+			cache.put(key, new CacheItem(key, t, formAndCss, queue));
 
+			// clean the cache.
+			CacheItem ref = (CacheItem)queue.poll();
+			while (ref != null)
+			{
+				cache.remove(ref.key);
+				ref = (CacheItem)queue.poll();
+			}
+		}
 
 		/**
 		 * @param solution
@@ -267,7 +251,7 @@ public class TemplateGenerator
 
 	public static final String WRAPPER_SUFFIX = "_wrapper";
 
-	private static final FormCache formCache = new FormCache(true);
+	private static final FormCache formCache = new FormCache();
 
 	private static final String[] DEFAULT_FONT_ELEMENTS = { "input", "button", "select", "td", "th", "textarea" };
 
@@ -2095,9 +2079,9 @@ public class TemplateGenerator
 			}
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
-				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ 
 				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div></div>"); //$NON-NLS-1$
-			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ 
 				"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div>"); //$NON-NLS-1$ 
 		}
 		else
