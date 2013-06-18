@@ -746,9 +746,13 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 			else
 			{
 				IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(dataProviderID.substring(0, index));
-				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
+				if (relatedFoundSet == null)
 				{
-					list.fill(parentState);
+					list.fill(parentState.getParentFoundSet().getPrototypeState());
+				}
+				else if (relatedFoundSet.getSize() == 0)
+				{
+					list.fill(relatedFoundSet.getPrototypeState());
 				}
 				else
 				{
