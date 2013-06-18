@@ -2594,14 +2594,20 @@ if (typeof(Servoy.Rollover) == "undefined")
 		onMouseOver: function (elementId,imageUrl)
 		{
 			var el = document.getElementById(elementId);
-			imgUrl = el.src;
-			Servoy.Rollover.setImageSrc(el, imageUrl);
+			if (el)
+			{
+				imgUrl = el.src;
+				Servoy.Rollover.setImageSrc(el, imageUrl);
+			}
 		},
 		
 		onMouseOut: function (elementId)
 		{
 			var el = document.getElementById(elementId);
-			Servoy.Rollover.setImageSrc(el, imgUrl);
+			if (el)
+			{
+				Servoy.Rollover.setImageSrc(el, imgUrl);
+			}
 		},
 		
 		setImageSrc: function (el, imgURL)

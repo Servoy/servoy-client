@@ -122,6 +122,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	private final AbstractRuntimeButton<IButton> scriptable;
 	private int anchors = 0;
 
+	private final static ResourceReference TRANSPARENT_IMAGE = new ResourceReference(IApplication.class, "images/transparent.gif"); //$NON-NLS-1$
+
 	public WebBaseButton(IApplication application, AbstractRuntimeButton<IButton> scriptable, String id)
 	{
 		super(id);
@@ -1008,6 +1010,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 					imgURL = StripHTMLTagsConverter.generateBlobloaderUrl(imageDisplayComponent, urlCrypt, mediaName);
 				}
+			}
+			else if (imageDisplay.getRolloverIconReference() != null || imageDisplay.getRolloverUrl() != null || imageDisplay.getRolloverMedia() != null)
+			{
+				imgURL = imageDisplayComponent.urlFor(TRANSPARENT_IMAGE).toString();
 			}
 		}
 
