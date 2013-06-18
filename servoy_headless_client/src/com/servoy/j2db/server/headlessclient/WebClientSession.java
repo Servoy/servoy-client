@@ -17,13 +17,16 @@
 package com.servoy.j2db.server.headlessclient;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
@@ -372,5 +375,83 @@ public class WebClientSession extends WebSession
 	public boolean blockRequest()
 	{
 		return blockInput;
+	}
+
+	private final HashMap<Page, List<Page>> lockedPages = new HashMap<Page, List<Page>>();
+	private final ThreadLocal<List<Page>> toRelease = new ThreadLocal<List<Page>>()
+	{
+		@Override
+		protected java.util.List<Page> initialValue()
+		{
+			return new ArrayList<Page>();
+		};
+	};
+
+	/**
+	 * @param touchedPages
+	 * @param mainPage
+	 */
+	public void wantsToLock(List<Page> touchedPages, MainPage mainPage)
+	{
+		if (toRelease.get().contains(mainPage)) return;
+		synchronized (lockedPages)
+		{
+			boolean found = touchedPages.size() > 0;
+			boolean released = false;
+			while (found)
+			{
+				for (Page touched : touchedPages)
+				{
+					// if the current touched pages are in the locked pages map.
+					// something is waiting for that page to be released.
+					found = lockedPages.containsKey(touched);
+					if (found)
+					{
+						// release first all current pages so that the other thread can go on.
+						releaseLocks();
+						released = true;
+						try
+						{
+							// wait for the other to release the locked pages.
+							lockedPages.wait();
+							break;
+						}
+						catch (InterruptedException e)
+						{
+							Debug.error(e);
+						}
+					}
+				}
+			}
+			// if we did release our own pages, we have to lock them now again.
+			if (released)
+			{
+				for (Page touched : touchedPages)
+				{
+					getPage(touched.getPageMapName(), touched.getPath(), Page.LATEST_VERSION);
+				}
+			}
+			// add them to the threadlocal so that we know what to release for this thread in ondetach.
+			toRelease.get().add(mainPage);
+			// mark the page as locked by the current touched pages.
+			lockedPages.put(mainPage, touchedPages);
+		}
+	}
+
+	@Override
+	protected void detach()
+	{
+		super.detach();
+		synchronized (lockedPages)
+		{
+			// remove all locks this thread has 
+			for (Page page : toRelease.get())
+			{
+				lockedPages.remove(page);
+			}
+			toRelease.remove();
+			// notify other threads that are waiting because they released there own used page lock.
+			lockedPages.notifyAll();
+		}
 	}
 }
