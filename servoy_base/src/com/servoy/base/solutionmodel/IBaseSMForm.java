@@ -201,6 +201,32 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public IBaseSMField newField(Object dataprovidername, int type, int x, int y, int width, int height);
 
 	/**
+	 * Creates a new IBaseSMField object on the form .
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * var variable = form.newVariable('myVar', IBaseSMVariable.TEXT);
+	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
+	 * var field = form.newField(variable, IBaseSMField.TEXT_FIELD, 1);
+	 * forms['newForm1'].controller.show();  	
+	 *
+	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 *
+	 * @param type the display type of the IBaseSMField object (see the Solution Model -> IBaseSMField node for display types)
+	 *
+	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
+	 *
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public IBaseSMField newField(IBaseSMVariable dataprovider, int type, int y);
+
+	/**
+	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newField(IBaseSMVariable,int,int)
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public IBaseSMField newField(String dataproviderName, int type, int y);
+
+	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of TEXT_FIELD - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
 	 *
 	 * @sample 
