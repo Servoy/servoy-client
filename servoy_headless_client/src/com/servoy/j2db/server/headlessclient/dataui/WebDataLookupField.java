@@ -603,14 +603,18 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			else
 			{
 				IFoundSetInternal relatedFoundSet = parentState.getRelatedFoundSet(getDataProviderID().substring(0, index));
-				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
+				if (relatedFoundSet == null)
 				{
-					this.relatedRecord = null;
-					list.fill(parentState);
+					this.relatedRecord = parentState.getParentFoundSet().getPrototypeState();
+					list.fill(relatedRecord);
+				}
+				else if (relatedFoundSet.getSize() == 0)
+				{
+					this.relatedRecord = relatedFoundSet.getPrototypeState();
+					list.fill(relatedRecord);
 				}
 				else
 				{
-
 					IRecordInternal relRecord = relatedFoundSet.getRecord(relatedFoundSet.getSelectedIndex());
 					if (relRecord != relatedRecord)
 					{
