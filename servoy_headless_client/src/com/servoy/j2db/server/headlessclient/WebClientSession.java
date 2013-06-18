@@ -393,7 +393,8 @@ public class WebClientSession extends WebSession
 	 */
 	public void wantsToLock(List<Page> touchedPages, MainPage mainPage)
 	{
-		if (toRelease.get().contains(mainPage)) return;
+		List<Page> ownLockedPages = toRelease.get();
+		if (ownLockedPages.contains(mainPage)) return;
 		synchronized (lockedPages)
 		{
 			boolean found = touchedPages.size() > 0;
@@ -402,9 +403,9 @@ public class WebClientSession extends WebSession
 			{
 				for (Page touched : touchedPages)
 				{
-					// if the current touched pages are in the locked pages map.
+					// if the current touched pages are in the locked pages map and its not on our own locked pages list. 
 					// something is waiting for that page to be released.
-					found = lockedPages.containsKey(touched);
+					found = !ownLockedPages.contains(touched) && lockedPages.containsKey(touched);
 					if (found)
 					{
 						// release first all current pages so that the other thread can go on.
@@ -414,12 +415,12 @@ public class WebClientSession extends WebSession
 						{
 							// wait for the other to release the locked pages.
 							lockedPages.wait();
-							break;
 						}
 						catch (InterruptedException e)
 						{
 							Debug.error(e);
 						}
+						break;
 					}
 				}
 			}
@@ -432,7 +433,7 @@ public class WebClientSession extends WebSession
 				}
 			}
 			// add them to the threadlocal so that we know what to release for this thread in ondetach.
-			toRelease.get().add(mainPage);
+			ownLockedPages.add(mainPage);
 			// mark the page as locked by the current touched pages.
 			lockedPages.put(mainPage, touchedPages);
 		}
