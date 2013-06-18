@@ -444,10 +444,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				}
 
 				/*
-				 * this can't be isEnabled(component) of the behavior itself because IE8
-				 * will constant call this on closed (modal)windows. So then this is marked as disabled
-				 * and an AbortException is thrown what our code sees as a server error and will constantly
-				 * restart the timer.
+				 * this can't be isEnabled(component) of the behavior itself because IE8 will constant call this on closed (modal)windows. So then this is
+				 * marked as disabled and an AbortException is thrown what our code sees as a server error and will constantly restart the timer.
 				 */
 				private boolean isServoyEnabled()
 				{
@@ -1641,23 +1639,31 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		boolean touched = false;
 		if (Session.exists() && RequestCycle.get() != null)
 		{
-			skipAttach.set(Boolean.TRUE);
-			if (onlyIfNotInUse) ((WebClientsApplication)getApplication()).getRequestCycleSettings().overrideTimeout(1);
-			try
+			WebClientSession session = WebClientSession.get();
+			// all the current locked pages for this request, that wants to lock this one.
+			List<Page> touchedPages = session.getTouchedPages();
+			if (!touchedPages.contains(this))
 			{
-				Session.get().getPage(getPageMapName(), getPath(), Page.LATEST_VERSION);
-				touched = true;
-			}
-			catch (WicketRuntimeException e)
-			{
-				// ignore if it is the timeout exception in case we only want to touch if not in use
-				if (!onlyIfNotInUse || e.getCause() != null) throw e;
-				Debug.trace("Touch page ignored.");
-			}
-			finally
-			{
-				skipAttach.remove();
-				if (onlyIfNotInUse) ((WebClientsApplication)getApplication()).getRequestCycleSettings().restoreTimeout();
+				session.wantsToLock(touchedPages, this);
+
+				skipAttach.set(Boolean.TRUE);
+				if (onlyIfNotInUse) ((WebClientsApplication)getApplication()).getRequestCycleSettings().overrideTimeout(1);
+				try
+				{
+					session.getPage(getPageMapName(), getPath(), Page.LATEST_VERSION);
+					touched = true;
+				}
+				catch (WicketRuntimeException e)
+				{
+					// ignore if it is the timeout exception in case we only want to touch if not in use
+					if (!onlyIfNotInUse || e.getCause() != null) throw e;
+					Debug.trace("Touch page ignored.");
+				}
+				finally
+				{
+					skipAttach.remove();
+					if (onlyIfNotInUse) ((WebClientsApplication)getApplication()).getRequestCycleSettings().restoreTimeout();
+				}
 			}
 		}
 		return touched;
