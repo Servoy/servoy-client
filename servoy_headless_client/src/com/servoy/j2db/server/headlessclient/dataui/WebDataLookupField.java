@@ -606,7 +606,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				if (relatedFoundSet == null || relatedFoundSet.getSize() == 0)
 				{
 					this.relatedRecord = null;
-					list.fill(null);
+					list.fill(parentState);
 				}
 				else
 				{
