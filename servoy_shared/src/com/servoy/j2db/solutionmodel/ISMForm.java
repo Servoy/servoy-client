@@ -318,6 +318,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return a new ISMField object (of the specified display type) 
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public ISMField newField(Object dataprovidername, int type, int x, int y, int width, int height);
 
 	/**

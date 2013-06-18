@@ -559,6 +559,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 		}
 	}
 
+	@JSFunction
+	public JSField newField(IBaseSMVariable dataprovider, int type, int y)
+	{
+		return newField(dataprovider, type, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSField newField(String dataprovider, int type, int y)
+	{
+		return newField(dataprovider, type, 0, y, 10, 10);
+	}
+
 	/**
 	 * Creates a new JSField object on the form with the displayType of TEXT_FIELD - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 *
