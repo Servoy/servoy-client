@@ -43,6 +43,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.application.IComponentOnBeforeRenderListener;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
+import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.html.PackageResource;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -431,6 +432,13 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 								{
 									// is updated via ServoyChoiceComponentUpdatingBehavior, this is just for events
 									callback += "&nopostdata=true";
+								}
+								for (IBehavior behavior : targetComponent.getBehaviors())
+								{
+									if (behavior instanceof EventCallbackModifier)
+									{
+										targetComponent.remove(behavior);
+									}
 								}
 								if (hasFocus)
 								{
