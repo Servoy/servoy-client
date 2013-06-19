@@ -781,13 +781,18 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		{
 			parsedFormat.setFormat(format);
 			if (formatAttributeModifier != null) remove(formatAttributeModifier);
+			if (formatPasteBehavior != null) remove(formatPasteBehavior);
 			if (parsedFormat.isAllUpperCase())
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,true);");
+				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
+					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toUpperCase();});");
 			}
 			else if (parsedFormat.isAllLowerCase())
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false);");
+				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
+					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toLowerCase();});");
 			}
 			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask())
 			{
@@ -805,6 +810,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				formatAttributeModifier = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress",
 					("return Servoy.Validation.numbersonly(event, true, '" + dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" +
 						dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');").intern());
+				formatPasteBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onpaste",
+					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.replace(/[^0-9\\-\\,\\.\\$\\%]+/,'');});");
 			}
 			else if (mappedType == IColumnTypes.TEXT)
 			{
@@ -815,6 +822,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				formatAttributeModifier = new MaskBehavior(parsedFormat.getDisplayFormat(), placeHolder, this);
 			}
 			if (formatAttributeModifier != null) add(formatAttributeModifier);
+			if (formatPasteBehavior != null) add(formatPasteBehavior);
 
 		}
 	}
@@ -1278,7 +1286,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
 
-	private IBehavior formatAttributeModifier;
+	private IBehavior formatAttributeModifier, formatPasteBehavior;
 
 	public Dimension getSize()
 	{
