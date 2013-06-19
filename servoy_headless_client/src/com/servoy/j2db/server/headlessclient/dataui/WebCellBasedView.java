@@ -37,6 +37,7 @@ import java.util.Properties;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.WeakHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
@@ -203,7 +204,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private final HashMap<IPersist, Integer> elementTabIndexes = new HashMap<IPersist, Integer>();
 	private final LinkedHashMap<Component, IPersist> cellToElement = new LinkedHashMap<Component, IPersist>(); // each cell component -> IPersist (on the form)
 	private final Map<IPersist, Component> elementToColumnHeader = new HashMap<IPersist, Component>(); // links each column identifier component
-	private final Map<IRuntimeComponent, Map<String, String>> runtimeComponentStyleAttributes = new HashMap<IRuntimeComponent, Map<String, String>>();
+	private final Map<IRuntimeComponent, Map<String, String>> runtimeComponentStyleAttributes = new WeakHashMap<IRuntimeComponent, Map<String, String>>();
 	// to a column header component (if such a component exists)
 
 	private String relationName;
