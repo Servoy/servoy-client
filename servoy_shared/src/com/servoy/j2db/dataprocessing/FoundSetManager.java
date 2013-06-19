@@ -2036,6 +2036,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				inMemDataSources.put(dataSource, table);
 				fireTableEvent(table);
+				refreshFoundSetsFromDB(dataSource, null, false);
 				return dataSource;
 			}
 		}
@@ -2364,6 +2365,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				inMemDataSources.put(dataSource, table);
 				fireTableEvent(table);
+				refreshFoundSetsFromDB(dataSource, null, false);
 				return dataSource;
 			}
 		}
