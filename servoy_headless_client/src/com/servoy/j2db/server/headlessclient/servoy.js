@@ -2533,6 +2533,12 @@ if (typeof(Servoy.Validation) == "undefined")
 				}
 				return false;
 			}
+		},
+		
+		pasteHandler: function(e, f)
+		{
+			var cp = e.value.length - Servoy.Utils.doGetCaretPosition(e);
+			setTimeout(function(){f(e);Servoy.Utils.doSetCaretPosition(e,e.value.length-cp)}, 50);			
 		}
 	};
 }

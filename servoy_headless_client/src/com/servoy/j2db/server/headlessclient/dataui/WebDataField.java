@@ -825,6 +825,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
 		parsedFormat = componentFormat.parsedFormat;
 		if (formatAttributeModifier != null) remove(formatAttributeModifier);
+		if (formatPasteBehavior != null) remove(formatPasteBehavior);
 		addMaxLengthBehavior(-1);
 		if (!componentFormat.parsedFormat.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
@@ -837,11 +838,15 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,true," +
 					maxLength + ");");
+				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
+					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toUpperCase();});");
 			}
 			else if (parsedFormat.isAllLowerCase())
 			{
 				formatAttributeModifier = new ReadOnlyAndEnableTestAttributeModifier("onkeypress", "return Servoy.Validation.changeCase(this,event,false," +
 					maxLength + ");");
+				formatPasteBehavior = new ReadOnlyAndEnableTestAttributeModifier("onpaste",
+					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.toLowerCase();});");
 			}
 			else if (mappedType == IColumnTypes.DATETIME && parsedFormat.isMask())
 			{
@@ -859,6 +864,8 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				formatAttributeModifier = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onkeypress",
 					("return Servoy.Validation.numbersonly(event, true, '" + dfs.getDecimalSeparator() + "','" + dfs.getGroupingSeparator() + "','" +
 						dfs.getCurrencySymbol() + "','" + dfs.getPercent() + "');").intern());
+				formatPasteBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(), "onpaste",
+					"Servoy.Validation.pasteHandler(this, function(el){el.value = el.value.replace(/[^0-9\\-\\,\\.\\$\\%]+/,'');});");
 			}
 			else if (mappedType == IColumnTypes.TEXT && parsedFormat.getDisplayFormat() != null)
 			{
@@ -869,6 +876,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				formatAttributeModifier = new MaskBehavior(parsedFormat.getDisplayFormat(), placeHolder, this, parsedFormat.getAllowedCharacters());
 			}
 			if (formatAttributeModifier != null) add(formatAttributeModifier);
+			if (formatPasteBehavior != null) add(formatPasteBehavior);
 
 		}
 		if (maxLength > 0 && maxLengthBehavior == null)
@@ -1346,7 +1354,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 
 	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
 
-	private IBehavior formatAttributeModifier;
+	private IBehavior formatAttributeModifier, formatPasteBehavior;
 
 	public Dimension getSize()
 	{
