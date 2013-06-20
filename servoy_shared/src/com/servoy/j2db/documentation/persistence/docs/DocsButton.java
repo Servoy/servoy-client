@@ -15,19 +15,57 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "CheckBoxes", scriptingName = "CheckBoxes", displayType = Field.CHECKS, realClass = Field.class)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class DocsCheckBoxes extends BaseDocsField
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public class DocsButton extends GraphicalComponent
 {
+	protected DocsButton()
+	{
+		super(null, 0, null);
+	}
+
+	/**
+	 * Icon for a button, this must be one of:
+	 * alert
+	 * arrow-d
+	 * arrow-l
+	 * arrow-r
+	 * arrow-u
+	 * back
+	 * bars
+	 * check
+	 * delete
+	 * edit
+	 * forward
+	 * gear
+	 * grid
+	 * home
+	 * info
+	 * minus
+	 * plus
+	 * refresh
+	 * search
+	 * star
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public String getDataIcon()
+	{
+		return null;
+	}
+
+	@SuppressWarnings("unused")
+	public void setDataIcon(String dataIcon)
+	{
+	}
 }

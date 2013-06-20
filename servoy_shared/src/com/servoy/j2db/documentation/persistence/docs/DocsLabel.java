@@ -15,51 +15,47 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
-
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent implements IComponentWithTitle
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
 {
 
-	protected BaseDocsGraphicalComponentWithTitle()
+	/**
+	 * Label (header) size property.
+	 * Sets the header size on a label. Valid values are between 'h1' to 'h6',
+	 * default value is 'h4'.
+	 * The numbers match the heading tags h1 to h6 as used in html.
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public int getLabelSize()
 	{
-		super(null, 0, null);
+		return 0;
 	}
 
-	public String getTitleDataProviderID()
-	{
-		return null;
-	}
-
-	public void setTitleDataProviderID(String arg)
+	@SuppressWarnings("unused")
+	public void setLabelSize(int labelSize)
 	{
 	}
 
-	public boolean getTitleDisplaysTags()
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public boolean getTitleVisible()
 	{
 		return false;
 	}
 
-	public void setTitleDisplaysTags(boolean arg)
+	@SuppressWarnings("unused")
+	public void setTitleVisible(boolean arg)
 	{
 	}
-
-	public String getTitleText()
-	{
-		return null;
-	}
-
-	public void setTitleText(String arg)
-	{
-	}
-
 }

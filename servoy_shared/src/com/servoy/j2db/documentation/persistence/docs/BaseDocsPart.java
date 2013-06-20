@@ -15,57 +15,43 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
+import com.servoy.base.persistence.IBasePart;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
-@ServoyClientSupport(mc = true, wc = true, sc = true)
-public class DocsButton extends GraphicalComponent
+@SuppressWarnings("unused")
+public class BaseDocsPart implements IBasePart
 {
-	protected DocsButton()
-	{
-		super(null, 0, null);
-	}
 
 	/**
-	 * Icon for a button, this must be one of:
-	 * alert
-	 * arrow-d
-	 * arrow-l
-	 * arrow-r
-	 * arrow-u
-	 * back
-	 * bars
-	 * check
-	 * delete
-	 * edit
-	 * forward
-	 * gear
-	 * grid
-	 * home
-	 * info
-	 * minus
-	 * plus
-	 * refresh
-	 * search
-	 * star
+	 * The jQuery mobile style (theme) to use for this field.
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public String getDataIcon()
+	public String getStyleClass()
 	{
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	public void setDataIcon(String dataIcon)
+	public void setStyleClass(String arg)
 	{
+	}
+
+	/**
+	 * If true, the part will not move when content is being scrolled.
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public boolean getSticky()
+	{
+		return false;
+	}
+
+	public void setSticky(boolean sticky)
+	{
+
 	}
 }

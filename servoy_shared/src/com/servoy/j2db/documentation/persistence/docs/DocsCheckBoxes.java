@@ -15,43 +15,19 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
-import com.servoy.base.persistence.IBasePart;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Field;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@SuppressWarnings("unused")
-public class BaseDocsPart implements IBasePart
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "CheckBoxes", scriptingName = "CheckBoxes", displayType = Field.CHECKS, realClass = Field.class)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public class DocsCheckBoxes extends BaseDocsField
 {
-
-	/**
-	 * The jQuery mobile style (theme) to use for this field.
-	 */
-	public String getStyleClass()
-	{
-		return null;
-	}
-
-	public void setStyleClass(String arg)
-	{
-	}
-
-	/**
-	 * If true, the part will not move when content is being scrolled.
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public boolean getSticky()
-	{
-		return false;
-	}
-
-	public void setSticky(boolean sticky)
-	{
-
-	}
 }

@@ -16,7 +16,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -28,12 +28,13 @@ import com.servoy.j2db.persistence.Field;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "RadioButtons", scriptingName = "RadioButtons", displayType = Field.RADIOS, realClass = Field.class)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsRadioButtons extends BaseDocsField
 {
 	/**
 	 * Show the radios as horizontal or vertical set.
 	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public boolean getHorizontal()
 	{
 		return false;

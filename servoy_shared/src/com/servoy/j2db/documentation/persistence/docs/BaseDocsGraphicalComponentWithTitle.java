@@ -15,19 +15,47 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.base.scripting.solutionhelper.IBaseSHList;
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.GraphicalComponent;
+
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ListForm", scriptingName = "ListForm")
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class DocsListForm extends BaseDocsList implements IBaseSHList
+public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent implements IComponentWithTitle
 {
+	protected BaseDocsGraphicalComponentWithTitle()
+	{
+		super(null, 0, null);
+	}
+
+	public String getTitleDataProviderID()
+	{
+		return null;
+	}
+
+	public void setTitleDataProviderID(String arg)
+	{
+	}
+
+	public boolean getTitleDisplaysTags()
+	{
+		return false;
+	}
+
+	public void setTitleDisplaysTags(boolean arg)
+	{
+	}
+
+	public String getTitleText()
+	{
+		return null;
+	}
+
+	public void setTitleText(String arg)
+	{
+	}
 }

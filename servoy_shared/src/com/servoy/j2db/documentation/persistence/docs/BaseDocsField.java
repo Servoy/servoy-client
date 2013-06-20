@@ -15,136 +15,34 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import java.awt.Point;
 
-import com.servoy.base.persistence.IBaseField;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.persistence.Field;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
+ * NOTES: 
+ * - we do not have to document this class, as all field types have corresponding classes;
+ * - adding only the needed mobile specific annotations on members
+ *  
+ * 
  * @author rgansevles
  */
-@SuppressWarnings("unused")
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class BaseDocsField implements IBaseField, IComponentWithTitle
+public class BaseDocsField extends Field implements IComponentWithTitle
 {
-	public String getDataProviderID()
+	BaseDocsField()
 	{
-		return null;
+		super(null, 0, null);
 	}
 
-	public void setDataProviderID(String arg)
-	{
-	}
-
-	public int getDisplayType()
-	{
-		return 0;
-	}
-
-	public void setDisplayType(int arg)
-	{
-	}
-
-	public String getPlaceholderText()
-	{
-		return null;
-	}
-
-	public void setPlaceholderText(String arg)
-	{
-	}
-
-	public boolean getVisible()
-	{
-		return false;
-	}
-
-	public void setVisible(boolean args)
-	{
-	}
-
-	public boolean getEnabled()
-	{
-		return false;
-	}
-
-	public void setEnabled(boolean arg)
-	{
-	}
-
-	public String getName()
-	{
-		return null;
-	}
-
-	public void setName(String arg)
-	{
-	}
-
-	public String getGroupID()
-	{
-		return null;
-	}
-
-	public void setGroupID(String arg)
-	{
-	}
-
-// use this instead for mobile client...
-//	/**
-//	 * The jQuery mobile style to use for this field.
-//	 */
-	public String getStyleClass()
-	{
-		return null;
-	}
-
-	public void setStyleClass(String arg)
-	{
-	}
-
-	public int getValuelistID()
-	{
-		return 0;
-	}
-
-	public void setValuelistID(int arg)
-	{
-	}
-
-	public int getOnActionMethodID()
-	{
-		return 0;
-	}
-
-	public void setOnActionMethodID(int arg)
-	{
-	}
-
-	public int getOnDataChangeMethodID()
-	{
-		return 0;
-	}
-
-	public void setOnDataChangeMethodID(int arg)
-	{
-	}
-
-	@Override
-	public String getFormat()
-	{
-		return null;
-	}
-
-	@Override
-	public void setFormat(String format)
-	{
-	}
-
+	/**
+	 * Dataprovider for header text to field component
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public String getTitleDataProviderID()
 	{
 		return null;
@@ -154,6 +52,17 @@ public class BaseDocsField implements IBaseField, IComponentWithTitle
 	{
 	}
 
+	/**
+	 * Flag for header text to field component that enables or disables merging of data inside components using tags (placeholders).
+	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
+	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
+	 * are a set of predefined tags that are made available by the system.
+	 * 
+	 * See the "Merging data" section for more details about tags.
+	 * 
+	 * The default value of this flag is "false", that is merging of data is disabled by default.
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public boolean getTitleDisplaysTags()
 	{
 		return false;
@@ -163,6 +72,10 @@ public class BaseDocsField implements IBaseField, IComponentWithTitle
 	{
 	}
 
+	/**
+	 * Header text to component
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public String getTitleText()
 	{
 		return null;
@@ -175,13 +88,15 @@ public class BaseDocsField implements IBaseField, IComponentWithTitle
 	/**
 	 * The x and y position of the component, in pixels, separated by a comma.
 	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	@Override
 	public Point getLocation()
 	{
 		return null;
 	}
 
+	@Override
 	public void setLocation(Point arg)
 	{
 	}
-
 }

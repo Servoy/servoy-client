@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
@@ -27,7 +26,6 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Rectangle")
-@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class RectShape extends BaseComponent
 {
 	public static final int BORDER_PANEL = 0;

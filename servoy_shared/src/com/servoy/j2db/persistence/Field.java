@@ -22,7 +22,6 @@ import java.awt.Insets;
 import com.servoy.base.persistence.IBaseField;
 import com.servoy.base.persistence.constants.IFieldConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -30,9 +29,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-// in order for mobile wiki docs not to show this class, but the persist still declares some things as available in mobile client - to be able to use them in form designer
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+// this class should not have @ServoyClientSypport annotation directly, methods are annotated via their interfaces
 public class Field extends BaseComponent implements ISupportTextSetup, ISupportText, ISupportDataProviderID, ISupportScrollbars, ISupportTabSeq, IBaseField
 {
 	/*
@@ -62,7 +59,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * Constructor I
 	 */
-	Field(ISupportChilds parent, int element_id, UUID uuid)
+	protected Field(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.FIELDS, parent, element_id, uuid);
 	}
@@ -118,18 +115,21 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT, format);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getFormat()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMAT);
 	}
 
+	/**
+	 * Set the onChangeMethodID
+	 * 
+	 * @param arg the onChangeMethodID
+	 */
 	public void setOnDataChangeMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, arg);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnDataChangeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID).intValue();
@@ -287,12 +287,16 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT).intValue();
 	}
 
+	/**
+	 * Set the valuelist_id
+	 * 
+	 * @param arg the valuelist_id
+	 */
 	public void setValuelistID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID, arg);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getValuelistID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID).intValue();
@@ -308,7 +312,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID, arg);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getDataProviderID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID);
@@ -330,7 +333,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnActionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
@@ -359,7 +361,6 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		return "dataProviderID"; //$NON-NLS-1$
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getDisplayType()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE).intValue();
@@ -436,15 +437,18 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_TEXT, arg);
 	}
 
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getPlaceholderText()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT);
 	}
 
+	/**
+	 * Sets the placeholder text.
+	 * 
+	 * @param arg The text to set
+	 */
 	public void setPlaceholderText(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT, arg);
 	}
-
 }

@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -23,14 +23,15 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
- * @author rgansevles
+ *  
+ * @author acostache
+ *
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "HeaderTitle", scriptingName = "HeaderTitle", realClass = GraphicalComponent.class)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class DocsHeaderTitle extends GraphicalComponent
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Image", realClass = GraphicalComponent.class)
+@ServoyClientSupport(mc = false, wc = true, sc = true)
+public class DocsImage extends GraphicalComponent
 {
-	protected DocsHeaderTitle()
+	protected DocsImage()
 	{
 		super(null, 0, null);
 	}

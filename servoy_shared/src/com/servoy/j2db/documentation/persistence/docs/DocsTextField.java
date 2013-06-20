@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Field;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextField", scriptingName = "TextField", displayType = Field.TEXT_FIELD, realClass = Field.class)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsTextField extends BaseDocsField
 {
 }

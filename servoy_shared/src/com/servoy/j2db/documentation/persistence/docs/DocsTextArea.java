@@ -15,20 +15,19 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.documentation.mobile.docs;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.Field;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Header", scriptingName = "Header", realClass = Part.class)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class DocsHeader extends BaseDocsPart
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextArea", scriptingName = "TextArea", displayType = Field.TEXT_AREA, realClass = Field.class)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public class DocsTextArea extends BaseDocsField
 {
-
 }
