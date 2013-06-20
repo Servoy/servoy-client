@@ -4966,15 +4966,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	 */
 	public void setScrollMode(boolean scrollMode)
 	{
-		ClientProperties cp = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
-		if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() < 8)
+		this.isScrollMode = scrollMode;
+		RequestCycle requestCycle = RequestCycle.get();
+		if (requestCycle != null)
 		{
-			this.isScrollMode = false;
-
-		}
-		else
-		{
-			this.isScrollMode = scrollMode;
+			ClientProperties cp = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties();
+			if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() < 8)
+			{
+				this.isScrollMode = false;
+			}
 		}
 	}
 
