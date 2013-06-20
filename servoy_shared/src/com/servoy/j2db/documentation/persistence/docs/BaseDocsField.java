@@ -42,7 +42,6 @@ public class BaseDocsField extends Field implements IComponentWithTitle
 	/**
 	 * Dataprovider for header text to field component
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public String getTitleDataProviderID()
 	{
 		return null;
@@ -62,7 +61,6 @@ public class BaseDocsField extends Field implements IComponentWithTitle
 	 * 
 	 * The default value of this flag is "false", that is merging of data is disabled by default.
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public boolean getTitleDisplaysTags()
 	{
 		return false;
@@ -75,7 +73,6 @@ public class BaseDocsField extends Field implements IComponentWithTitle
 	/**
 	 * Header text to component
 	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public String getTitleText()
 	{
 		return null;
