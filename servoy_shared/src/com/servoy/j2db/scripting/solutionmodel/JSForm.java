@@ -980,7 +980,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * var button = form.newButton('myButton', 10, 10, 100, 30, method);
 	 * application.output("The new button: " + button.name + " has the following onAction event handling method assigned " + button.onAction.getName());
 	 *
-	 * @param text the text on the button
+	 * @param txt the text on the button
 	 *
 	 * @param x the x coordinate of the button location on the form
 	 *
@@ -990,7 +990,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	 * 
 	 * @param height the height of the button 
 	 *
-	 * @param jsmethod the method assigned to handle an onAction event
+	 * @param action the method assigned to handle an onAction event
 	 * 
 	 * @return a new JSButton object
 	 */

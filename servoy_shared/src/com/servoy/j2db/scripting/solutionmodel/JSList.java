@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  * 
  * @author acostescu
  */
-@ServoyDocumented
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSList extends BaseSHList implements IJavaScriptType, ISHList, IBaseSHFormList
 {
 	public JSList(IBaseSMFormInternal listForm)

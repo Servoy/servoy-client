@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  * 
  * @author acostescu
  */
-@ServoyDocumented
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSInsetList extends BaseSHInsetList implements IJavaScriptType, ISHInsetList
 {
 	public JSInsetList(IBaseSMPortal portal, IBaseSMFormInternal contextForm)
