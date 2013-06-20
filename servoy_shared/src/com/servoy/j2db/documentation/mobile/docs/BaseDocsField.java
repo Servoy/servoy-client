@@ -29,7 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  */
 @SuppressWarnings("unused")
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public class BaseDocsField implements IBaseField, IWithTitle
+public class BaseDocsField implements IBaseField, IComponentWithTitle
 {
 	public String getDataProviderID()
 	{

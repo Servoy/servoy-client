@@ -21,7 +21,7 @@ package com.servoy.j2db.documentation.mobile.docs;
  * Design time properties for components with Title text on mobile (for documentation - dummy interface).
  * @author acostescu
  */
-public interface IWithTitle
+public interface IComponentWithTitle
 {
 
 	/**

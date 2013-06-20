@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent implements IWithTitle
+public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent implements IComponentWithTitle
 {
 
 	protected BaseDocsGraphicalComponentWithTitle()
