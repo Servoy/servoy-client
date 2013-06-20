@@ -28,7 +28,7 @@ import com.servoy.j2db.persistence.Field;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "RadioButtons", scriptingName = "RadioButtons", displayType = Field.RADIOS, realClass = Field.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsRadioButtons extends BaseDocsField
 {
 	/**

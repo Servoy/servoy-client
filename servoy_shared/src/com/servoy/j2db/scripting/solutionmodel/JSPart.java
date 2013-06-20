@@ -21,6 +21,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.PersistUtils;
+import com.servoy.base.solutionmodel.mobile.IMobileSMPart;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.solutionmodel.ISMPart;
@@ -30,7 +31,7 @@ import com.servoy.j2db.util.PersistHelper;
  * @author jcompagner
  */
 //Documented via JSPartWithConstants
-public class JSPart extends JSBase<Part> implements ISMPart
+public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 {
 	JSPart(JSForm form, Part part, boolean isNew)
 	{

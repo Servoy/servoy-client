@@ -15,39 +15,41 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMPart;
 
 /**
- * header part in solution model.
+ * Interface for mobile parts.
  * 
- * @author rgansevles
- *
+ * @author acostescu
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMHeader extends IBaseSMPart
+public interface IMobileSMPart extends IBaseSMPart
 {
-	public boolean getSticky();
 
-	public void setSticky(boolean sticky);
-
-	public IBaseSMButton newLeftButton(String txt, IBaseSMMethod method);
-
-	public IBaseSMButton getLeftButton();
-
-	public boolean removeLeftButton();
-
-	public IBaseSMButton newRightButton(String txt, IBaseSMMethod method);
-
-	public IBaseSMButton getRightButton();
-
-	public boolean removeRightButton();
-
-	public IBaseSMTitle newHeaderText(String txt);
+	/**
+	 * Constant use for specifying the type of form parts. 
+	 * 
+	 * A header that won't changes position when the page content is scrolled 
+	 * 
+	 * @sample
+	 * var stickyHeader = form.newPart(JSPart.STICKY_HEADER);
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public static final int STICKY_HEADER = TITLE_HEADER;
 
 
-	public IBaseSMTitle getHeaderText();
+	/**
+	 * Constant use for specifying the type of form parts. 
+	 * 
+	 * A footer that won't changes position when the page content is scrolled 
+	 * 
+	 * @sample
+	 * var stickyHeader = form.newPart(JSPart.STICKY_FOOTER);
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public static final int STICKY_FOOTER = TITLE_FOOTER;
 
-	public boolean removeHeaderText();
 }

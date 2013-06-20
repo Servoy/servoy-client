@@ -75,21 +75,21 @@ public class JSFooter extends JSPart implements ISMFooter
 	}
 
 	/** 
-	 * Creates a new IBaseSMField object on the footer.
+	 * Creates a new JSField object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
-	 * footer.newField('myvar', IBaseSMField.TEXT_FIELD, 1);
+	 * footer.newField('myvar', JSField.TEXT_FIELD, 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
-	 * @param type the display type of the IBaseSMField object (see the Solution Model -> IBaseSMField node for display types)
+	 * @param type the display type of the JSField object (see the Solution Model -> JSField node for display types)
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new IBaseSMField object (of the specified display type) 
+	 * @return a new JSField object (of the specified display type) 
 	 */
 	@JSFunction
 	@Override
@@ -103,13 +103,13 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSField newField(String dataprovidername, int type, int x)
+	public JSField newField(String dataprovider, int type, int x)
 	{
-		return markForFooter(getJSParent().newField(dataprovidername, type, x, 0, 10, 10));
+		return markForFooter(getJSParent().newField(dataprovider, type, x, 0, 10, 10));
 	}
 
 	/** 
-	 * Creates a new IBaseSMText object on the footer.
+	 * Creates a new JSText object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
@@ -117,11 +117,11 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * footer.newTextField('myvar', 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new IBaseSMText element
+	 * @return a new JSText element
 	 */
 	@JSFunction
 	@Override
@@ -135,13 +135,13 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSText newTextField(String dataprovidername, int x)
+	public JSText newTextField(String dataprovider, int x)
 	{
-		return (JSText)newField(dataprovidername, Field.TEXT_FIELD, x);
+		return (JSText)newField(dataprovider, Field.TEXT_FIELD, x);
 	}
 
 	/** 
-	 * Creates a new IBaseSMTextArea object on the footer.
+	 * Creates a new JSTextArea object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
@@ -149,11 +149,11 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * footer.newTextArea('myvar', 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new IBaseSMTextArea element
+	 * @return a new JSTextArea element
 	 */
 	@JSFunction
 	@Override
@@ -167,13 +167,13 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSTextArea newTextArea(String dataprovidername, int x)
+	public JSTextArea newTextArea(String dataprovider, int x)
 	{
-		return (JSTextArea)newField(dataprovidername, Field.TEXT_AREA, x);
+		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, x);
 	}
 
 	/** 
-	 * Creates a new ISMCombobox object on the footer.
+	 * Creates a new JSCombobox object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
@@ -181,11 +181,11 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * footer.newCombobox('myvar', 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new ISMCombobox element
+	 * @return a new JSCombobox element
 	 */
 	@JSFunction
 	@Override
@@ -199,13 +199,13 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSCombobox newCombobox(String dataprovidername, int x)
+	public JSCombobox newCombobox(String dataprovider, int x)
 	{
-		return (JSCombobox)newField(dataprovidername, Field.COMBOBOX, x);
+		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, x);
 	}
 
 	/** 
-	 * Creates a new IBaseSMRadios object on the footer.
+	 * Creates a new JSRadios object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
@@ -213,11 +213,11 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * footer.newRadios('myvar', 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new IBaseSMRadios element
+	 * @return a new JSRadios element
 	 */
 	@JSFunction
 	@Override
@@ -231,13 +231,13 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSRadios newRadios(String dataprovidername, int x)
+	public JSRadios newRadios(String dataprovider, int x)
 	{
-		return (JSRadios)newField(dataprovidername, Field.RADIOS, x);
+		return (JSRadios)newField(dataprovider, Field.RADIOS, x);
 	}
 
 	/** 
-	 * Creates a new IBaseSMChecks object on the footer.
+	 * Creates a new JSChecks object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
@@ -245,11 +245,11 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * footer.newCheck('myvar', 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new IBaseSMChecks element
+	 * @return a new JSChecks element
 	 */
 	@JSFunction
 	@Override
@@ -263,13 +263,13 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSChecks newCheck(String dataprovidername, int x)
+	public JSChecks newCheck(String dataprovider, int x)
 	{
-		return (JSChecks)newField(dataprovidername, Field.CHECKS, x);
+		return (JSChecks)newField(dataprovider, Field.CHECKS, x);
 	}
 
 	/** 
-	 * Creates a new IBaseSMPassword object on the footer.
+	 * Creates a new JSPassword object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
@@ -277,11 +277,11 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * footer.newPassword('myvar', 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new IBaseSMPassword element
+	 * @return a new JSPassword element
 	 */
 	@JSFunction
 	@Override
@@ -295,13 +295,13 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSPassword newPassword(String dataprovidername, int x)
+	public JSPassword newPassword(String dataprovider, int x)
 	{
-		return (JSPassword)newField(dataprovidername, Field.PASSWORD, x);
+		return (JSPassword)newField(dataprovider, Field.PASSWORD, x);
 	}
 
 	/** 
-	 * Creates a new IBaseSMCalendar object on the footer.
+	 * Creates a new JSCalendar object on the footer.
 	 *
 	 * @sample 
 	 * var form = solutionModel.getForm('myform')
@@ -309,11 +309,11 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * footer.newCalendar('myvar', 1);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new IBaseSMCalendar element
+	 * @return a new JSCalendar element
 	 */
 	@JSFunction
 	@Override
@@ -327,9 +327,9 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public JSCalendar newCalendar(String dataprovidername, int x)
+	public JSCalendar newCalendar(String dataprovider, int x)
 	{
-		return (JSCalendar)newField(dataprovidername, Field.CALENDAR, x);
+		return (JSCalendar)newField(dataprovider, Field.CALENDAR, x);
 	}
 
 	/** 
@@ -347,7 +347,7 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * 
 	 * @param jsmethod the method assigned to handle an onAction event
 	 *
-	 * @return a new IBaseSMCalendar element
+	 * @return a new JSCalendar element
 	 */
 	@JSFunction
 	@Override
@@ -369,7 +369,7 @@ public class JSFooter extends JSPart implements ISMFooter
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 * 
-	 * @return a new IBaseSMCalendar element
+	 * @return a new JSCalendar element
 	 */
 	@JSFunction
 	@Override
@@ -388,7 +388,7 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * for (var i in components)
 	 * 	application.output("Component type and name: " + components[i]); 
 	 * 
-	 * @return an array of all the IBaseSMComponents on the footer.
+	 * @return an array of all the JSComponents on the footer.
 	 */
 	@JSFunction
 	@Override

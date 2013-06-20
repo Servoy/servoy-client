@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Part;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Footer", scriptingName = "Footer", realClass = Part.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsFooter extends BaseDocsPart
 {
 

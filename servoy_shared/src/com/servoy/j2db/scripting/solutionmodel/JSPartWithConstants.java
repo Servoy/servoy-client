@@ -23,7 +23,7 @@ import com.servoy.j2db.scripting.IConstantsObject;
 /**
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSBase", scriptingName = "JSPart")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSBase", publicName = "JSPart", scriptingName = "JSPart")
 public class JSPartWithConstants extends JSPart implements IConstantsObject
 {
 	private JSPartWithConstants(JSForm form, Part part, boolean isNew)

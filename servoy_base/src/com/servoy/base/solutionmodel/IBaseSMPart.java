@@ -130,30 +130,6 @@ public interface IBaseSMPart
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int TRAILING_SUBSUMMARY = IPartConstants.TRAILING_SUBSUMMARY;
 
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A header that won't changes position when the page content is scrolled 
-	 * 
-	 * @sample
-	 * var stickyHeader = form.newPart(JSPart.STICKY_HEADER);
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public static final int STICKY_HEADER = TITLE_HEADER;
-
-
-	/**
-	 * Constant use for specifying the type of form parts. 
-	 * 
-	 * A footer that won't changes position when the page content is scrolled 
-	 * 
-	 * @sample
-	 * var stickyHeader = form.newPart(JSPart.STICKY_FOOTER);
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public static final int STICKY_FOOTER = TITLE_FOOTER;
-
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBasePart#getStyleClass()
 	 * 

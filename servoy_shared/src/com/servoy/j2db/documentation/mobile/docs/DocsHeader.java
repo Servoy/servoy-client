@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Part;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Header", scriptingName = "Header", realClass = Part.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsHeader extends BaseDocsPart
 {
 

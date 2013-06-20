@@ -29,7 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "InsetList", scriptingName = "InsetList")
-@ServoyClientSupport(mc = true, sc = false, wc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsInsetList extends BaseDocsList implements IBaseSHInsetList
 {
 	/**

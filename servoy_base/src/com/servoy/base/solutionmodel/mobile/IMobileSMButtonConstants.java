@@ -15,16 +15,17 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
-/** Solution model constants for JSButton.
+/**
+ * Solution model constants for mobile JSButton.
  * 
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMButtonConstants
+public interface IMobileSMButtonConstants
 {
 
 	/** Constant for specifying a predefined icon type for a button.
@@ -33,79 +34,79 @@ public interface IBaseSMButtonConstants
 	 */
 	public static final String ICON_GEAR = "gear"; // DataIcon.GEAR.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_LEFT = "arrow-l"; // DataIcon.LEFT.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_RIGHT = "arrow-r"; // DataIcon.RIGHT.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_UP = "arrow-u"; // DataIcon.UP.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_DOWN = "arrow-d"; // DataIcon.DOWN.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_DELETE = "delete"; // DataIcon.DELETE.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_PLUS = "plus"; // DataIcon.PLUS.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_MINUS = "minus"; // DataIcon.MINUS.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_CHECK = "check"; // DataIcon.CHECK.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_REFRESH = "refresh"; // DataIcon.REFRESH.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_FORWARD = "forward"; // DataIcon.FORWARD.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_BACK = "back"; // DataIcon.BACK.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_GRID = "grid"; // DataIcon.GRID.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_STAR = "star"; // DataIcon.STAR.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_ALERT = "alert"; // DataIcon.ALERT.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_INFO = "info"; // DataIcon.INFO.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_HOME = "home"; // DataIcon.HOME.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_SEARCH = "search"; // DataIcon.SEARCH.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_BARS = "bars"; // DataIcon.BARS.getJqmValue() //$NON-NLS-1$
 	/**
-	 * @sameas com.servoy.base.scripting.solutionhelper.IPredefinedIconConstants#ICON_GEAR
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMButtonConstants#ICON_GEAR
 	 */
 	public static final String ICON_EDIT = "edit"; // DataIcon.EDIT.getJqmValue() //$NON-NLS-1$
 

@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Field;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextField", scriptingName = "TextField", displayType = Field.TEXT_FIELD, realClass = Field.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsTextField extends BaseDocsField
 {
 }

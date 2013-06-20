@@ -17,13 +17,13 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMRadios;
+import com.servoy.base.solutionmodel.mobile.IMobileSMRadios;
 
 /**
  * Solution model radios field.
  * 
  * @author rgansevles
  */
-public interface ISMRadios extends IBaseSMRadios, ISMField
+public interface ISMRadios extends IMobileSMRadios, ISMField
 {
 }

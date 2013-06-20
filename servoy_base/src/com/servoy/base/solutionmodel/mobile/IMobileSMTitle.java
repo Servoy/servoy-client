@@ -15,20 +15,32 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.ui;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Documentation class for inset list from mobile client.
+ * Title label for elements in mobile form.
  * 
- * @author lvostinar
+ * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeInsetList", extendsComponent = "RuntimeComponent")
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IScriptInsetListComponentMethods extends IScriptPortalComponentMethods
+public interface IMobileSMTitle
 {
+	public String getDataProviderID();
 
+	public void setDataProviderID(String arg);
+
+	public String getText();
+
+	public void setText(String arg);
+
+	public boolean getDisplaysTags();
+
+	public void setDisplaysTags(boolean arg);
+
+	public boolean getVisible();
+
+	public void setVisible(boolean arg);
 }

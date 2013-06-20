@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "HeaderTitle", scriptingName = "HeaderTitle", realClass = GraphicalComponent.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsHeaderTitle extends GraphicalComponent
 {
 	protected DocsHeaderTitle()

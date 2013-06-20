@@ -16,7 +16,6 @@ package com.servoy.base.solutionmodel;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.base.scripting.solutionhelper.IBaseSHInsetList;
 
 
 /**
@@ -184,7 +183,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var field = form.newField(variable, IBaseSMField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 *
 	 * @param type the display type of the IBaseSMField object (see the Solution Model -> IBaseSMField node for display types)
 	 *
@@ -198,33 +197,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object (of the specified display type) 
 	 */
-	public IBaseSMField newField(Object dataprovidername, int type, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMField object on the form .
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * var variable = form.newVariable('myVar', IBaseSMVariable.TEXT);
-	 * variable.defaultValue = "'This is a default value (with triple quotes)!'";
-	 * var field = form.newField(variable, IBaseSMField.TEXT_FIELD, 1);
-	 * forms['newForm1'].controller.show();  	
-	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 *
-	 * @param type the display type of the IBaseSMField object (see the Solution Model -> IBaseSMField node for display types)
-	 *
-	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
-	 *
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMField newField(IBaseSMVariable dataprovider, int type, int y);
-
-	/**
-	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newField(IBaseSMVariable,int,int)
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMField newField(String dataproviderName, int type, int y);
+	public IBaseSMField newField(Object dataprovider, int type, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of TEXT_FIELD - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -244,7 +217,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * //textField.dataProviderID = columnTextDataProvider;
 	 * forms['newForm1'].controller.show();
 	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -252,39 +225,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMField object with the displayType of TEXT_FIELD
 	 */
-	public IBaseSMField newTextField(Object dataprovidername, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMText field on the form.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource); 
-	 * //choose the dataprovider or IBaseSMVariable you want for the Text Field
-	 * var x = null;
-	 * //global IBaseSMVariable as the dataprovider 
-	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a global variable'";
-	 * //or a form IBaseSMVariable as the dataprovider 
-	 * //x = form.newVariable('myFormVar',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a form variable'";
-	 * var textField = form.newTextField(x,1);
-	 * //or a column data provider as the dataprovider
-	 * //textField.dataProviderID = columnTextDataProvider;
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
-	 * 
-	 * @return a new IBaseSMText field
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMText newTextField(IBaseSMVariable dataprovider, int y);
-
-	/**
-	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newTextField(IBaseSMVariable,int)
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMText newTextField(String dataproviderName, int y);
+	public IBaseSMField newTextField(Object dataprovider, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of TEXT_AREA - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -296,7 +237,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var textArea = form.newTextArea(globalVar,100,100,300,150);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMTabPanel object in pixels
 	 * @param y the vertical "y" position of the IBaseSMTabPanel object in pixels
 	 * @param width the width of the IBaseSMTabPanel object in pixels
@@ -304,39 +245,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMField object with the displayType of TEXT_AREA
 	 */
-	public IBaseSMField newTextArea(Object dataprovidername, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMTextArea field on the form.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource); 
-	 * //choose the dataprovider or IBaseSMVariable you want for the field
-	 * var x = null;
-	 * //global IBaseSMVariable as the dataprovider 
-	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a global variable'";
-	 * //or a form IBaseSMVariable as the dataprovider 
-	 * //x = form.newVariable('myFormVar',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a form variable'";
-	 * var field = form.newTextArea(x,1);
-	 * //or a column data provider as the dataprovider
-	 * //field.dataProviderID = columnTextDataProvider;
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
-	 * 
-	 * @return a new IBaseSMTextArea field
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMTextArea newTextArea(IBaseSMVariable dataprovider, int y);
-
-	/**
-	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newTextArea(IBaseSMVariable,int)
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMTextArea newTextArea(String dataprovidername, int y);
+	public IBaseSMField newTextArea(Object dataprovider, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of COMBOBOX - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -346,7 +255,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var calendar = form.newComboBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -354,39 +263,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object on the form with the displayType of COMBOBOX
 	 */
-	public IBaseSMField newComboBox(Object dataprovidername, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMCombobox field on the form.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource); 
-	 * //choose the dataprovider or IBaseSMVariable you want for the field
-	 * var x = null;
-	 * //global IBaseSMVariable as the dataprovider 
-	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a global variable'";
-	 * //or a form IBaseSMVariable as the dataprovider 
-	 * //x = form.newVariable('myFormVar',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a form variable'";
-	 * var field = form.newCombobox(x,1);
-	 * //or a column data provider as the dataprovider
-	 * //field.dataProviderID = columnTextDataProvider;
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
-	 * 
-	 * @return a new IBaseSMCombobox field
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMCombobox newCombobox(IBaseSMVariable dataprovider, int y);
-
-	/**
-	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newCombobox(IBaseSMVariable,int)
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMCombobox newCombobox(String dataproviderName, int y);
+	public IBaseSMField newComboBox(Object dataprovider, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of RADIOS (radio buttons) - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -398,7 +275,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var radios = form.newRadios('columnDataProvider',100,100,200,200);
 	 * radios.valuelist = vlist;
 	 * 
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -406,39 +283,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a IBaseSMField object with the displayType of RADIOS (radio buttons)
 	 */
-	public IBaseSMField newRadios(Object dataprovidername, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMRadios field on the form.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource); 
-	 * //choose the dataprovider or IBaseSMVariable you want for the field
-	 * var x = null;
-	 * //global IBaseSMVariable as the dataprovider 
-	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a global variable'";
-	 * //or a form IBaseSMVariable as the dataprovider 
-	 * //x = form.newVariable('myFormVar',IBaseSMVariable.TEXT);
-	 * //x.defaultValue = "'Text from a form variable'";
-	 * var field = form.newRadios(x,1);
-	 * //or a column data provider as the dataprovider
-	 * //field.dataProviderID = columnTextDataProvider;
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
-	 * 
-	 * @return a new IBaseSMRadios field
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMRadios newRadios(IBaseSMVariable dataprovider, int y);
-
-	/**
-	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newRadios(IBaseSMVariable,int)
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMRadios newRadios(String dataprovidername, int y);
+	public IBaseSMField newRadios(Object dataprovider, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of CHECK (checkbox) - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -448,7 +293,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var calendar = form.newCheck(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -456,39 +301,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object on the form with the displayType of CHECK (checkbox)
 	 */
-	public IBaseSMField newCheck(Object dataprovidername, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMChecks field on the form.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource); 
-	 * //choose the dataprovider or IBaseSMVariable you want for the field
-	 * var x = null;
-	 * //global IBaseSMVariable as the dataprovider 
-	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',IBaseSMVariable.INTEGER);
-	 * //x.defaultValue = "'1'";
-	 * //or a form IBaseSMVariable as the dataprovider 
-	 * //x = form.newVariable('myFormVar',IBaseSMVariable.INTEGER);
-	 * //x.defaultValue = "'1'";
-	 * var field = form.newCheck(x,1);
-	 * //or a column data provider as the dataprovider
-	 * //field.dataProviderID = columnTextDataProvider;
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
-	 * 
-	 * @return a new IBaseSMChecks field
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMChecks newCheck(IBaseSMVariable dataprovidername, int y);
-
-	/**
-	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newCheck(IBaseSMVariable,int)
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMChecks newCheck(String dataprovidername, int y);
+	public IBaseSMField newCheck(Object dataprovider, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new IBaseSMField object on the form with the displayType of PASSWORD - including the dataprovider/IBaseSMVariable of the IBaseSMField object, the "x" and "y" position of the IBaseSMField object in pixels, as well as the width and height of the IBaseSMField object in pixels.
@@ -498,7 +311,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * var pass = form.newPassword(scopes.globals.aVariable, 100, 100, 70, 30);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
+	 * @param dataprovider the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
 	 * @param x the horizontal "x" position of the IBaseSMField object in pixels
 	 * @param y the vertical "y" position of the IBaseSMField object in pixels
 	 * @param width the width of the IBaseSMField object in pixels
@@ -506,37 +319,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * 
 	 * @return a new IBaseSMField object on the form with the displayType of PASSWORD
 	 */
-	public IBaseSMField newPassword(Object dataprovidername, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMPassword field on the form.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1',myDatasource); 
-	 * //choose the dataprovider or IBaseSMVariable you want for the field
-	 * var x = null;
-	 * //global IBaseSMVariable as the dataprovider 
-	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal',IBaseSMVariable.TEXT);
-	 * //or a form IBaseSMVariable as the dataprovider 
-	 * //x = form.newVariable('myFormVar',IBaseSMVariable.TEXT);
-	 * var field = form.newPassword(x,1);
-	 * //or a column data provider as the dataprovider
-	 * //field.dataProviderID = columnTextDataProvider;
-	 * forms['newForm1'].controller.show();
-	 *
-	 * @param dataprovidername the specified dataprovider name/IBaseSMVariable of the IBaseSMField object
-	 * @param y the vertical "y" position of the IBaseSMField object, defines the order of elements on the form
-	 * 
-	 * @return a new IBaseSMPassword field
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMPassword newPassword(IBaseSMVariable dataprovider, int y);
-
-	/**
-	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#newPassword(IBaseSMVariable,int)
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMPassword newPassword(String dataprovidername, int y);
+	public IBaseSMField newPassword(Object dataprovider, int x, int y, int width, int height);
 
 	/**
 	 * Creates a new button on the form with the given text, place, size and IBaseSMMethod as the onAction event triggered action.
@@ -564,25 +347,6 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public IBaseSMButton newButton(String txt, int x, int y, int width, int height, Object action);
 
 	/**
-	 * Creates a new button on the form with the given text.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource);
-	 * var method = form.newMethod('function onAction(event) { application.output("onAction intercepted on " + event.getFormName()); }');
-	 * var button = form.newButton('myButton', 1, method);
-	 * application.output("The new button: " + button.name + " has the following onAction event handling method assigned " + button.onAction.getName());
-	 *
-	 * @param txt the text on the button
-	 *
-	 * @param y the y coordinate of the button location on the form, defines the order of elements on the form
-	 *
-	 * @param jsmethod the method assigned to handle an onAction event
-	 * 
-	 * @return a new IBaseSMButton object
-	 */
-	public IBaseSMButton newButton(String txt, int y, IBaseSMMethod jsmethod);
-
-	/**
 	 * Creates a new IBaseSMLabel object on the form - including the text of the label, the "x" and "y" position of the label object in pixels, the width and height of the label object in pixels.
 	 *
 	 * @sample 
@@ -603,23 +367,6 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * @return a IBaseSMLabel object
 	 */
 	public IBaseSMLabel newLabel(String txt, int x, int y, int width, int height);
-
-	/**
-	 * Creates a new IBaseSMLabel object on the form.
-	 *
-	 * @sample 
-	 * var form = solutionModel.newForm('newForm1', myDatasource);
-	 * var label = form.newLabel('The text on the label', 1);
-	 * forms['newForm1'].controller.show(); 
-	 *
-	 * @param txt the specified text of the label object
-	 *
-	 * @param y the vertical "y" position of the label, defines the order of elements on the form
-	 *
-	 * @return a IBaseSMLabel object
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMLabel newLabel(String txt, int y);
 
 	/**
 	 * Creates a new ISMPortal object on the form - including the name of the ISMPortal object; the relation the ISMPortal object is based on, the "x" and "y" position of the ISMPortal object in pixels, as well as the width and height of the ISMPortal object in pixels.
@@ -1178,40 +925,6 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public IBaseSMPart newHeaderPart(int height);
 
 	/**
-	 * Creates a new Header part on the form.
-	 * 
-	 * @sample
-	 * var header = form.newHeader();
-	 * 
-	 * @return A ISMHeader instance corresponding to the newly created Header form part.
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMHeader newHeader();
-
-	/**
-	 * Get the Header part on the form if it exists.
-	 * 
-	 * @sample
-	 * var header = form.getHeader();
-	 * 
-	 * @return A ISMHeader or null when not found.
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMHeader getHeader();
-
-	/**
-	 * Removes a ISMHeader if it exists.
-	 *
-	 * @sample 
-	 * var form = solutionModel.getForm('myform');
-	 * form.removeHeader()
-	 * 
-	 * @return true if the ISMHeader has successfully been removed; false otherwise
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public boolean removeHeader();
-
-	/**
 	 * Creates a new Footer part on the form.
 	 *
 	 * @sample 
@@ -1220,56 +933,6 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * @return A ISMPart instance corresponding to the newly created Footer form part.
 	 */
 	public IBaseSMPart newFooterPart(int height);
-
-	/**
-	 * Creates a new Footer part on the form.
-	 *
-	 * @sample 
-	 * var footer = form.newFooter();
-	 * 
-	 * @return A IBaseSMFooter instance corresponding to the newly created Footer form part.
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMFooter newFooter();
-
-	/**
-	 * Get the Footer part on the form if it exists.
-	 * 
-	 * @sample
-	 * var footer = form.getFooter();
-	 * 
-	 * @return A IBaseSMFooter or null when not found.
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMFooter getFooter();
-
-	/**
-	 * Removes a ISMFooter if it exists.
-	 *
-	 * @sample 
-	 * var form = solutionModel.getForm('myform');
-	 * form.removeFooter()
-	 * 
-	 * @return true if the ISMFooter has successfully been removed; false otherwise
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public boolean removeFooter();
-
-	/**
-	 * Creates a new IBaseSMBean object on the form.
-	 * 
-	 * @sample
-	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1');
-	 * var bean = form.newBean('bean', 1);
-	 * forms['newForm1'].controller.show();
-	 * 
-	 * @param name the specified name of the IBaseSMBean object
-	 * @param y the vertical "y" position of the IBaseSMBean object, defines the order of elements on the form
-	 * 
-	 * @return a IBaseSMBean object 
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSMBean newBean(String name, int y);
 
 	/**
 	 * Returns a IBaseSMBean that has the given name.
@@ -1297,70 +960,4 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 */
 	public boolean removeBean(String name);
 
-	/**
-	 * Creates a new inset list mobile component in the given form. The inset list will be populated based on the given datasource and relation.
-	 * 
-	 * @param yLocation the vertical location of the inset list in the form's components list.
-	 * @param relationName the relation used to show data, just like it would happen in a related tab-panel.
-	 * @param headerText can be null; it's a convenience argument for setting the title (header text) for the inset list.
-	 * @param textDataProviderID can be null; it's a convenience argument for setting the dataprovider that will be used to populate the main text area of the list's items.
-	 * @return the newly created inset list.
-	 * 
-	 * @sample
-	 * var f = solutionModel.newForm("created_by_sm_1","db:/udm/contacts");
-	 * // create an inset list
-	 * var insetList = f.newInsetList(8,"accountmanager_to_companies","Companies","company_name");
-	 * insetList.subtextDataProviderID = "company_description";
-	 * insetList.onAction = f.newMethod("function buttonPressed() { plugins.dialogs.showWarningDialog('Title', 'inset list clicked','OK'); }");
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSHInsetList newInsetList(int yLocation, String relationName, String headerText, String textDataProviderID);
-
-	/**
-	 * Returns an existing inset list.
-	 * 
-	 * @param name the inset list's name.
-	 * 
-	 * @return the existing inset list, or null if it does not exist.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm("myform");
-	 * var insetList = form.getInsetList('mylist1');
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSHInsetList getInsetList(String name);
-
-	/**
-	 * Gets all insets lists on the form.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm('test');
-	 * var insetLists = form.getInsetLists();
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public IBaseSHInsetList[] getInsetLists();
-
-	/**
-	 * Removes inset list from the form.
-	 * 
-	 * @param name Inset List name.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm('test');
-	 * form.removeInsetList('myinsetlist');
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public boolean removeInsetList(String name);
-
-	/**
-	 * Sets the vertical order of components inside body (ordered by Y coordinate) or horizontal order of components inside footer (ordered by X coordinate).
-	 * 
-	 * @param components The components to order.
-	 * 
-	 * @sample
-	 * var form = solutionModel.getForm('myForm');
-	 * form.setComponentOrder([f.getField('field1'),f.getField('field2'),f.getButton('mybutton')]);
-	 */
-	@ServoyClientSupport(mc = true, wc = false, sc = false)
-	public void setComponentOrder(IBaseSMComponent[] components);
 }

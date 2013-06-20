@@ -15,16 +15,30 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
-import com.servoy.base.solutionmodel.mobile.IMobileSMPassword;
-
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMButton;
 
 /**
- * Solution model password field.
+ * Solution model button object for mobile clients.
  * 
  * @author rgansevles
+ *
+ * @since 7.1
  */
-public interface ISMPassword extends IMobileSMPassword, ISMField
+@ServoyClientSupport(mc = true, wc = false, sc = false)
+public interface IMobileSMButton extends IBaseSMButton, IMobileSMButtonConstants
 {
+	/**
+	 * Icon shown on a button.
+	 * 
+	 * @sample
+	 * var btn = form.newButton('I am a button', 1, null);
+	 * btn.iconType = JSButton.ICON_STAR
+	 */
+	public String getIconType();
+
+	public void setIconType(String method);
+
 }

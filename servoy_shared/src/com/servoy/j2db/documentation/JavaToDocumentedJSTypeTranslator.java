@@ -41,6 +41,9 @@ import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMPart;
+import com.servoy.base.solutionmodel.IBaseSMVariable;
+import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
+import com.servoy.base.solutionmodel.mobile.IMobileSMLabel;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -63,8 +66,19 @@ import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.solutionmodel.JSButton;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSField;
+import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSLabel;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
+import com.servoy.j2db.scripting.solutionmodel.JSPart;
+import com.servoy.j2db.scripting.solutionmodel.JSVariable;
+import com.servoy.j2db.solutionmodel.ISMButton;
+import com.servoy.j2db.solutionmodel.ISMComponent;
+import com.servoy.j2db.solutionmodel.ISMField;
+import com.servoy.j2db.solutionmodel.ISMForm;
+import com.servoy.j2db.solutionmodel.ISMLabel;
+import com.servoy.j2db.solutionmodel.ISMMethod;
+import com.servoy.j2db.solutionmodel.ISMPart;
+import com.servoy.j2db.solutionmodel.ISMVariable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IScriptRenderMethodsWithFormat;
@@ -153,20 +167,32 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(IComponent.class, IRuntimeComponent.class);
 
-		javaClassToDocumentedJavaClass.put(IBaseSMField.class, JSField.class);
+		javaClassToDocumentedJavaClass.put(ISMField.class, JSFieldWithConstants.class);
+		javaClassToDocumentedJavaClass.put(IBaseSMField.class, JSFieldWithConstants.class);
+		javaClassToDocumentedJavaClass.put(JSField.class, JSFieldWithConstants.class);
 
 //		javaClassToDocumentedJavaClass.put(ISMComponent.class, JSComponent.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMComponent.class, JSComponent.class);
+		javaClassToDocumentedJavaClass.put(ISMComponent.class, JSComponent.class);
 
-//		javaClassToDocumentedJavaClass.put(ISMMethod.class, JSMethod.class);
+		javaClassToDocumentedJavaClass.put(ISMMethod.class, JSMethod.class);
+		javaClassToDocumentedJavaClass.put(ISMVariable.class, JSVariable.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMMethod.class, JSMethod.class);
+		javaClassToDocumentedJavaClass.put(IBaseSMVariable.class, JSVariable.class);
 
+		javaClassToDocumentedJavaClass.put(ISMButton.class, JSButton.class);
+		javaClassToDocumentedJavaClass.put(ISMLabel.class, JSLabel.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMButton.class, JSButton.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMLabel.class, JSLabel.class);
-		javaClassToDocumentedJavaClass.put(IBaseSMPart.class, com.servoy.j2db.scripting.solutionmodel.JSPart.class);
+		javaClassToDocumentedJavaClass.put(IMobileSMLabel.class, JSLabel.class);
 
-//		javaClassToDocumentedJavaClass.put(ISMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
+		javaClassToDocumentedJavaClass.put(ISMPart.class, com.servoy.j2db.scripting.solutionmodel.JSPartWithConstants.class);
+		javaClassToDocumentedJavaClass.put(IBaseSMPart.class, com.servoy.j2db.scripting.solutionmodel.JSPartWithConstants.class);
+		javaClassToDocumentedJavaClass.put(JSPart.class, com.servoy.j2db.scripting.solutionmodel.JSPartWithConstants.class);
+
+		javaClassToDocumentedJavaClass.put(ISMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
+		javaClassToDocumentedJavaClass.put(IMobileSMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
 
 		javaClassToDocumentedJavaClass.put(IForm.class, com.servoy.j2db.documentation.scripting.docs.Form.class);
 		javaClassToDocumentedJavaClass.put(FormScope.class, com.servoy.j2db.documentation.scripting.docs.Form.class);

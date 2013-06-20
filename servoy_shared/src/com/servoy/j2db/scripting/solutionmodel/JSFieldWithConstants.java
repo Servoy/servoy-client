@@ -19,7 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IConstantsObject;
 
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSField")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", publicName = "JSField", scriptingName = "JSField")
 public class JSFieldWithConstants extends JSField implements IConstantsObject
 {
 

@@ -123,6 +123,10 @@ public interface IBaseSMComponent
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public String getGroupID();
 
+// TODO use this description for mobile and another sample somehow
+//	/**
+//	 * The jQuery mobile style (theme) to use for this field.
+//	 */
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseComponent#getStyleClass()
 	 * 

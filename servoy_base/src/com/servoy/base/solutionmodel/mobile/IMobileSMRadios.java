@@ -15,17 +15,25 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
-
 /**
- * Solution model combobox field component.
+ * Solution model radios field component.
  * 
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMCombobox extends IBaseSMField
+public interface IMobileSMRadios extends IMobileSMField
 {
+	/**
+	 * Flag for horizontal/vertical radios layout.
+	 * 
+	 * @sample
+	 * radio.horizontal = true;
+	 */
+	public boolean getHorizontal();
+
+	public void setHorizontal(boolean horizontal);
 }

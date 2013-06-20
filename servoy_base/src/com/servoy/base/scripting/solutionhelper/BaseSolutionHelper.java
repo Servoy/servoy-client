@@ -26,11 +26,13 @@ import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMField;
 import com.servoy.base.solutionmodel.IBaseSMForm;
-import com.servoy.base.solutionmodel.IBaseSMHasTitle;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
-import com.servoy.base.solutionmodel.IBaseSMRadios;
-import com.servoy.base.solutionmodel.IBaseSMTitle;
-import com.servoy.base.solutionmodel.IBaseSolutionModel;
+import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
+import com.servoy.base.solutionmodel.mobile.IMobileSMHasTitle;
+import com.servoy.base.solutionmodel.mobile.IMobileSMLabel;
+import com.servoy.base.solutionmodel.mobile.IMobileSMRadios;
+import com.servoy.base.solutionmodel.mobile.IMobileSMTitle;
+import com.servoy.base.solutionmodel.mobile.IMobileSolutionModel;
 
 /**
  * Mobile helper is used as a complementary tool to solution model.
@@ -43,9 +45,9 @@ public abstract class BaseSolutionHelper
 {
 	public static final String AUTO_CREATED_LIST_INSETLIST_NAME = "list"; //$NON-NLS-1$ 
 
-	protected final IBaseSolutionModel solutionModel;
+	protected final IMobileSolutionModel solutionModel;
 
-	public BaseSolutionHelper(IBaseSolutionModel solutionModel)
+	public BaseSolutionHelper(IMobileSolutionModel solutionModel)
 	{
 		this.solutionModel = solutionModel;
 	}
@@ -95,83 +97,83 @@ public abstract class BaseSolutionHelper
 		return getMobileProperties(button).getPropertyValue(IMobileProperties.DATA_ICON);
 	}
 
-	public void setHeaderSize(IBaseSMLabel label, int headerSize)
+	public void setHeaderSize(IMobileSMLabel label, int headerSize)
 	{
 		label.setLabelSize(headerSize);
 	}
 
-	public int getHeaderSize(IBaseSMLabel label)
+	public int getHeaderSize(IMobileSMLabel label)
 	{
 		return label.getLabelSize();
 	}
 
 	public void setRadioFieldHorizontal(IBaseSMField radioField, boolean horizontal)
 	{
-		if (radioField instanceof IBaseSMRadios)
+		if (radioField instanceof IMobileSMRadios)
 		{
-			((IBaseSMRadios)radioField).setHorizontal(horizontal);
+			((IMobileSMRadios)radioField).setHorizontal(horizontal);
 		}
 	}
 
 	public boolean isRadioFieldHorizontal(IBaseSMField radioField)
 	{
-		return radioField instanceof IBaseSMRadios && ((IBaseSMRadios)radioField).getHorizontal();
+		return radioField instanceof IMobileSMRadios && ((IMobileSMRadios)radioField).getHorizontal();
 	}
 
-	private IBaseSMTitle getTitleForComponent(IBaseSMComponent c)
+	private IMobileSMTitle getTitleForComponent(IBaseSMComponent c)
 	{
-		if (c instanceof IBaseSMHasTitle)
+		if (c instanceof IMobileSMHasTitle)
 		{
-			return ((IBaseSMHasTitle)c).getTitle();
+			return ((IMobileSMHasTitle)c).getTitle();
 		}
 		return null;
 	}
 
 	public void setTitleDisplaysTags(IBaseSMComponent c, boolean displaysTags)
 	{
-		IBaseSMTitle title = getTitleForComponent(c);
+		IMobileSMTitle title = getTitleForComponent(c);
 		if (title != null) title.setDisplaysTags(displaysTags);
 	}
 
 	public boolean getTitleDisplaysTags(IBaseSMComponent c)
 	{
-		IBaseSMTitle title = getTitleForComponent(c);
+		IMobileSMTitle title = getTitleForComponent(c);
 		return title != null && title.getDisplaysTags();
 	}
 
 	public void setTitleDataProvider(IBaseSMComponent c, String dataProvider)
 	{
-		IBaseSMTitle title = getTitleForComponent(c);
+		IMobileSMTitle title = getTitleForComponent(c);
 		if (title != null) title.setDataProviderID(dataProvider);
 	}
 
 	public String getTitleDataProvider(IBaseSMComponent c)
 	{
-		IBaseSMTitle title = getTitleForComponent(c);
+		IMobileSMTitle title = getTitleForComponent(c);
 		return title == null ? null : title.getDataProviderID();
 	}
 
 	public void setTitleText(IBaseSMComponent c, String titleText)
 	{
-		IBaseSMTitle title = getTitleForComponent(c);
+		IMobileSMTitle title = getTitleForComponent(c);
 		if (title != null) title.setText(titleText);
 	}
 
 	public String getTitleText(IBaseSMComponent c)
 	{
-		IBaseSMTitle title = getTitleForComponent(c);
+		IMobileSMTitle title = getTitleForComponent(c);
 		return title == null ? null : title.getText();
 	}
 
 	public void setTitleVisible(IBaseSMLabel l, boolean titleVisible)
 	{
-		IBaseSMTitle title = getTitleForComponent(l);
+		IMobileSMTitle title = getTitleForComponent(l);
 		if (title != null) title.setVisible(titleVisible);
 	}
 
 	public boolean isTitleVisible(IBaseSMLabel l)
 	{
-		IBaseSMTitle title = getTitleForComponent(l);
+		IMobileSMTitle title = getTitleForComponent(l);
 		return title != null && title.getVisible();
 	}
 
@@ -192,7 +194,7 @@ public abstract class BaseSolutionHelper
 
 	protected abstract String createNewGroupId();
 
-	public IBaseSHInsetList createInsetList(IBaseSMForm form, int yLocation, String relationName, String headerText, String textDataProviderID)
+	public IBaseSHInsetList createInsetList(IMobileSMForm form, int yLocation, String relationName, String headerText, String textDataProviderID)
 	{
 		return form.newInsetList(yLocation, relationName, headerText, textDataProviderID);
 	}
@@ -207,7 +209,7 @@ public abstract class BaseSolutionHelper
 		return solutionModel.getListForm(formName);
 	}
 
-	public IBaseSHInsetList getInsetList(IBaseSMForm form, String name)
+	public IBaseSHInsetList getInsetList(IMobileSMForm form, String name)
 	{
 		if (form == null) return null;
 		return form.getInsetList(name);
@@ -268,7 +270,7 @@ public abstract class BaseSolutionHelper
 		return components.toArray(new IBaseSMComponent[0]);
 	}
 
-	public IBaseSHInsetList[] getAllInsetLists(IBaseSMForm form)
+	public IBaseSHInsetList[] getAllInsetLists(IMobileSMForm form)
 	{
 		return form.getInsetLists();
 	}
@@ -278,7 +280,7 @@ public abstract class BaseSolutionHelper
 		return solutionModel.getListForms();
 	}
 
-	public boolean removeInsetList(IBaseSMForm form, String name)
+	public boolean removeInsetList(IMobileSMForm form, String name)
 	{
 		return form != null && form.removeInsetList(name);
 	}

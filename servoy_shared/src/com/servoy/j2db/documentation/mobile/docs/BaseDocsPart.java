@@ -18,14 +18,20 @@
 package com.servoy.j2db.documentation.mobile.docs;
 
 import com.servoy.base.persistence.IBasePart;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
+@SuppressWarnings("unused")
 public class BaseDocsPart implements IBasePart
 {
+
+	/**
+	 * The jQuery mobile style (theme) to use for this field.
+	 */
 	public String getStyleClass()
 	{
 		return null;
@@ -33,5 +39,19 @@ public class BaseDocsPart implements IBasePart
 
 	public void setStyleClass(String arg)
 	{
+	}
+
+	/**
+	 * If true, the part will not move when content is being scrolled.
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public boolean getSticky()
+	{
+		return false;
+	}
+
+	public void setSticky(boolean sticky)
+	{
+
 	}
 }

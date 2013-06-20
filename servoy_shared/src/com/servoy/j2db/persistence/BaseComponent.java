@@ -24,7 +24,7 @@ import com.servoy.j2db.util.UUID;
 
 
 /**
- * The base component ,providing default properties for graphical components
+ * The base component, providing default properties for graphical components
  * 
  * @author jblok
  */

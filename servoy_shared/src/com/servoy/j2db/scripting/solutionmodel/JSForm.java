@@ -32,9 +32,9 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.PersistUtils;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
-import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
+import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -77,7 +77,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSForm")
-public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
+public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm
 {
 	public static ScriptMethod getScriptMethod(Function function, FlattenedSolution fs)
 	{
@@ -520,9 +520,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var field = form.newField(variable, JSField.TEXT_FIELD, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();  	
 	 *
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
-	 * @param displaytype the display type of the JSField object (see the Solution Model -> JSField node for display types)
+	 * @param type the display type of the JSField object (see the Solution Model -> JSField node for display types)
 	 *
 	 * @param x the horizontal "x" position of the JSField object in pixels
 	 *
@@ -589,7 +589,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * //textField.dataProviderID = columnTextDataProvider;
 	 * forms['newForm1'].controller.show();
 	 *
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -610,9 +610,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSFunction
-	public JSText newTextField(String dataprovidername, int y)
+	public JSText newTextField(String dataprovider, int y)
 	{
-		return (JSText)newField(dataprovidername, Field.TEXT_FIELD, 0, y, 10, 10);
+		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
 	}
 
 	/**
@@ -625,7 +625,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var textArea = form.newTextArea(globalVar,100,100,300,150);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSTabPanel object in pixels
 	 * @param y the vertical "y" position of the JSTabPanel object in pixels
 	 * @param width the width of the JSTabPanel object in pixels
@@ -646,9 +646,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSFunction
-	public JSTextArea newTextArea(String dataprovidername, int y)
+	public JSTextArea newTextArea(String dataprovider, int y)
 	{
-		return (JSTextArea)newField(dataprovidername, Field.TEXT_AREA, 0, y, 10, 10);
+		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
 	}
 
 	/**
@@ -659,7 +659,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var calendar = form.newComboBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -693,7 +693,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var list = form.newListBox(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -737,7 +737,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var spinner = form.newSpinner(myDataProvider, 10, 460, 100, 20);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -761,7 +761,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var radios = form.newRadios('columnDataProvider',100,100,200,200);
 	 * radios.valuelist = vlist;
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -782,9 +782,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSFunction
-	public JSRadios newRadios(String dataprovidername, int y)
+	public JSRadios newRadios(String dataprovider, int y)
 	{
-		return (JSRadios)newField(dataprovidername, Field.RADIOS, 0, y, 10, 10);
+		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
 	}
 
 	/**
@@ -795,7 +795,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var calendar = form.newCheck(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -816,9 +816,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSFunction
-	public JSChecks newCheck(String dataproviderName, int y)
+	public JSChecks newCheck(String dataprovider, int y)
 	{
-		return (JSChecks)newField(dataproviderName, Field.CHECKS, 0, y, 10, 10);
+		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
 	}
 
 	/**
@@ -829,7 +829,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var calendar = form.newCalendar(myDataProvider, 100, 100, 200, 200);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels 
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -851,7 +851,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var rtf_area = form.newRtfArea('columnDataProvider',100,100,100,100);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -875,7 +875,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var htmlArea = myListViewForm.newHtmlArea(textProvider,100,100,100,100);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -898,7 +898,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var imageMedia = form.newImageMedia(myMediaVar,100,100,200,200)
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -923,7 +923,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * typeAhead.valuelist = vlist;
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -945,7 +945,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	 * var pass = form.newPassword(scopes.globals.aVariable, 100, 100, 70, 30);
 	 * forms['newForm1'].controller.show();
 	 * 
-	 * @param dataprovidername/jsvariable the specified dataprovider name/JSVariable of the JSField object
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 * @param x the horizontal "x" position of the JSfield object in pixels
 	 * @param y the vertical "y" position of the JSField object in pixels
 	 * @param width the width of the JSField object in pixels
@@ -966,9 +966,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 	}
 
 	@JSFunction
-	public JSPassword newPassword(String dataprovidername, int y)
+	public JSPassword newPassword(String dataprovider, int y)
 	{
-		return (JSPassword)newField(dataprovidername, Field.PASSWORD, 0, y, 10, 10);
+		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
 	}
 
 	/**
@@ -1111,7 +1111,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm
 
 	@Override
 	@JSFunction
-	public IBaseSMLabel newLabel(String txt, int y)
+	public JSLabel newLabel(String txt, int y)
 	{
 		return newLabel(txt, 0, y, 10, 10, null);
 	}

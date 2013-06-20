@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMHeader;
+import com.servoy.base.solutionmodel.mobile.IMobileSMHeader;
 
 
 /**
@@ -25,6 +25,6 @@ import com.servoy.base.solutionmodel.IBaseSMHeader;
  * 
  * @author rgansevles
  */
-public interface ISMHeader extends IBaseSMHeader
+public interface ISMHeader extends IMobileSMHeader
 {
 }

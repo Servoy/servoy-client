@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.Field;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "CheckBoxes", scriptingName = "CheckBoxes", displayType = Field.CHECKS, realClass = Field.class)
-@ServoyClientSupport(mc = true, sc = false, wc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsCheckBoxes extends BaseDocsField
 {
 }

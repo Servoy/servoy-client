@@ -15,17 +15,17 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
- * Solution model text area field.
+ * Solution model text field.
  * 
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMTextArea extends IBaseSMField
+public interface IMobileSMText extends IMobileSMField
 {
 }

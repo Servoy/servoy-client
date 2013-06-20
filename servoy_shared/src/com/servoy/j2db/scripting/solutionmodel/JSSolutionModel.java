@@ -34,6 +34,7 @@ import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.mobile.IMobileSolutionModel;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
@@ -74,7 +75,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "SolutionModel", scriptingName = "solutionModel")
-public class JSSolutionModel implements ISolutionModel
+public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 {
 	static
 	{

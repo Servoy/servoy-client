@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMCalendar;
+import com.servoy.base.solutionmodel.mobile.IMobileSMCalendar;
 
 
 /**
@@ -25,6 +25,6 @@ import com.servoy.base.solutionmodel.IBaseSMCalendar;
  * 
  * @author rgansevles
  */
-public interface ISMCalendar extends IBaseSMCalendar, ISMField
+public interface ISMCalendar extends IMobileSMCalendar, ISMField
 {
 }

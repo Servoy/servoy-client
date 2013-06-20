@@ -15,16 +15,28 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
+
 /**
- * Solution model checks field component.
+ * Flagging interface for solution model components that have a separate title.
  * 
  * @author rgansevles
+ *
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMChecks extends IBaseSMField
+public interface IMobileSMHasTitle
 {
+	/**
+	 * Get title label for the field or label.
+	 * 
+	 * @sample
+	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table');
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 1);
+	 * field.getTitle().text = 'Parent table'
+	 * forms['someForm'].controller.show()
+	 */
+	public IMobileSMTitle getTitle();
 }

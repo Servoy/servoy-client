@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMCombobox;
+import com.servoy.base.solutionmodel.mobile.IMobileSMCombobox;
 
 
 /**
@@ -25,6 +25,6 @@ import com.servoy.base.solutionmodel.IBaseSMCombobox;
  * 
  * @author rgansevles
  */
-public interface ISMCombobox extends IBaseSMCombobox, ISMField
+public interface ISMCombobox extends IMobileSMCombobox, ISMField
 {
 }

@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,25 +15,22 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMField;
+
 
 /**
- * Solution model radios field component.
+ * Solution model field component for mobile clients.
  * 
  * @author rgansevles
+ * @author acostescu
+ *
+ * @since 7.0
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMRadios extends IBaseSMField
+public interface IMobileSMField extends IBaseSMField, IMobileSMHasTitle
 {
-	/**
-	 * Flag for horizontal/vertical radios layout.
-	 * 
-	 * @sample
-	 * radio.horizontal = true;
-	 */
-	public boolean getHorizontal();
 
-	public void setHorizontal(boolean horizontal);
 }

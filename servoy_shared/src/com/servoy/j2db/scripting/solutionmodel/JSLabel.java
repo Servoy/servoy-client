@@ -21,13 +21,14 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.solutionmodel.mobile.IMobileSMLabel;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.solutionmodel.ISMLabel;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSLabel")
-public class JSLabel extends JSGraphicalComponent implements ISMLabel
+public class JSLabel extends JSGraphicalComponent implements ISMLabel, IMobileSMLabel
 {
 	public JSLabel(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
 	{

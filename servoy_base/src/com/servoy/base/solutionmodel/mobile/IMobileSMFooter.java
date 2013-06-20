@@ -15,9 +15,15 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMButton;
+import com.servoy.base.solutionmodel.IBaseSMComponent;
+import com.servoy.base.solutionmodel.IBaseSMField;
+import com.servoy.base.solutionmodel.IBaseSMLabel;
+import com.servoy.base.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMVariable;
 
 /**
  * Footer part in solution model.
@@ -26,7 +32,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  *
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMFooter extends IBaseSMPart
+public interface IMobileSMFooter extends IMobileSMPart
 {
 	public boolean getSticky();
 
@@ -36,33 +42,33 @@ public interface IBaseSMFooter extends IBaseSMPart
 
 	public IBaseSMField newField(String dataprovidername, int type, int x);
 
-	public IBaseSMText newTextField(IBaseSMVariable dataprovider, int x);
+	public IMobileSMText newTextField(IBaseSMVariable dataprovider, int x);
 
-	public IBaseSMText newTextField(String dataprovidername, int x);
+	public IMobileSMText newTextField(String dataprovidername, int x);
 
-	public IBaseSMTextArea newTextArea(IBaseSMVariable dataprovider, int x);
+	public IMobileSMTextArea newTextArea(IBaseSMVariable dataprovider, int x);
 
-	public IBaseSMTextArea newTextArea(String dataprovidername, int x);
+	public IMobileSMTextArea newTextArea(String dataprovidername, int x);
 
-	public IBaseSMCombobox newCombobox(IBaseSMVariable dataprovider, int x);
+	public IMobileSMCombobox newCombobox(IBaseSMVariable dataprovider, int x);
 
-	public IBaseSMCombobox newCombobox(String dataprovidername, int x);
+	public IMobileSMCombobox newCombobox(String dataprovidername, int x);
 
-	public IBaseSMRadios newRadios(IBaseSMVariable dataprovider, int x);
+	public IMobileSMRadios newRadios(IBaseSMVariable dataprovider, int x);
 
-	public IBaseSMRadios newRadios(String dataprovidername, int x);
+	public IMobileSMRadios newRadios(String dataprovidername, int x);
 
-	public IBaseSMChecks newCheck(IBaseSMVariable dataprovider, int x);
+	public IMobileSMChecks newCheck(IBaseSMVariable dataprovider, int x);
 
-	public IBaseSMChecks newCheck(String dataprovidername, int x);
+	public IMobileSMChecks newCheck(String dataprovidername, int x);
 
-	public IBaseSMPassword newPassword(IBaseSMVariable dataprovider, int x);
+	public IMobileSMPassword newPassword(IBaseSMVariable dataprovider, int x);
 
-	public IBaseSMPassword newPassword(String dataprovidername, int x);
+	public IMobileSMPassword newPassword(String dataprovidername, int x);
 
-	public IBaseSMCalendar newCalendar(IBaseSMVariable dataprovider, int x);
+	public IMobileSMCalendar newCalendar(IBaseSMVariable dataprovider, int x);
 
-	public IBaseSMCalendar newCalendar(String dataprovidername, int x);
+	public IMobileSMCalendar newCalendar(String dataprovidername, int x);
 
 	public IBaseSMButton newButton(String txt, int x, IBaseSMMethod method);
 

@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMTitle;
+import com.servoy.base.solutionmodel.mobile.IMobileSMTitle;
 
 
 /**
@@ -26,6 +26,6 @@ import com.servoy.base.solutionmodel.IBaseSMTitle;
  * @author rgansevles
  *
  */
-public interface ISMTitle extends IBaseSMTitle
+public interface ISMTitle extends IMobileSMTitle
 {
 }

@@ -20,6 +20,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.solutionmodel.mobile.IMobileSMButton;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -27,7 +28,7 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMButton;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSButton")
-public class JSButton extends JSGraphicalComponent implements ISMButton, IConstantsObject
+public class JSButton extends JSGraphicalComponent implements ISMButton, IMobileSMButton, IConstantsObject
 {
 	public JSButton(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
 	{

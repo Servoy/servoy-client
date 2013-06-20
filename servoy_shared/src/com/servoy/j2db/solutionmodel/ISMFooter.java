@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMFooter;
+import com.servoy.base.solutionmodel.mobile.IMobileSMFooter;
 
 
 /**
@@ -25,6 +25,6 @@ import com.servoy.base.solutionmodel.IBaseSMFooter;
  * 
  * @author rgansevles
  */
-public interface ISMFooter extends IBaseSMFooter
+public interface ISMFooter extends IMobileSMFooter
 {
 }

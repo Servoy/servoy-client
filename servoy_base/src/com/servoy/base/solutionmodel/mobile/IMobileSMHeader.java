@@ -15,32 +15,41 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMButton;
+import com.servoy.base.solutionmodel.IBaseSMMethod;
 
 /**
- * Title label for elements in mobile form.
+ * header part in solution model.
  * 
  * @author rgansevles
  *
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMTitle
+public interface IMobileSMHeader extends IMobileSMPart
 {
-	public String getDataProviderID();
+	public boolean getSticky();
 
-	public void setDataProviderID(String arg);
+	public void setSticky(boolean sticky);
 
-	public String getText();
+	public IBaseSMButton newLeftButton(String txt, IBaseSMMethod method);
 
-	public void setText(String arg);
+	public IBaseSMButton getLeftButton();
 
-	public boolean getDisplaysTags();
+	public boolean removeLeftButton();
 
-	public void setDisplaysTags(boolean arg);
+	public IBaseSMButton newRightButton(String txt, IBaseSMMethod method);
 
-	public boolean getVisible();
+	public IBaseSMButton getRightButton();
 
-	public void setVisible(boolean arg);
+	public boolean removeRightButton();
+
+	public IMobileSMTitle newHeaderText(String txt);
+
+
+	public IMobileSMTitle getHeaderText();
+
+	public boolean removeHeaderText();
 }

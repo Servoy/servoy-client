@@ -19,13 +19,13 @@ package com.servoy.base.scripting.solutionhelper;
 
 import com.servoy.base.persistence.IMobileProperties.MobileProperty;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
-import com.servoy.base.solutionmodel.IBaseSMForm;
+import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
 
 /**
  * Gives access to non-public functionality, such as being able to access hidden content.
  * @author acostescu
  */
-public interface IBaseSMFormInternal extends IBaseSMForm
+public interface IBaseSMFormInternal extends IMobileSMForm
 {
 
 	/**

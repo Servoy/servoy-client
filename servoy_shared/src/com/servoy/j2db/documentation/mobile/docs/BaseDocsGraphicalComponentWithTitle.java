@@ -27,56 +27,39 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent
+public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent implements IWithTitle
 {
+
 	protected BaseDocsGraphicalComponentWithTitle()
 	{
 		super(null, 0, null);
 	}
 
-	/**
-	 * Dataprovider for header text to field component
-	 */
 	public String getTitleDataProviderID()
 	{
 		return null;
 	}
 
-	@SuppressWarnings("unused")
 	public void setTitleDataProviderID(String arg)
 	{
 	}
 
-	/**
-	 * Flag for header text to field component that enables or disables merging of data inside components using tags (placeholders).
-	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
-	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
-	 * are a set of predefined tags that are made available by the system.
-	 * 
-	 * See the "Merging data" section for more details about tags.
-	 * 
-	 * The default value of this flag is "false", that is merging of data is disabled by default.
-	 */
 	public boolean getTitleDisplaysTags()
 	{
 		return false;
 	}
 
-	@SuppressWarnings("unused")
 	public void setTitleDisplaysTags(boolean arg)
 	{
 	}
 
-	/**
-	 * Header text to component
-	 */
 	public String getTitleText()
 	{
 		return null;
 	}
 
-	@SuppressWarnings("unused")
 	public void setTitleText(String arg)
 	{
 	}
+
 }

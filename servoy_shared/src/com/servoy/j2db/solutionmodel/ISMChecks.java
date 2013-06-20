@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMChecks;
+import com.servoy.base.solutionmodel.mobile.IMobileSMChecks;
 
 
 /**
@@ -25,6 +25,6 @@ import com.servoy.base.solutionmodel.IBaseSMChecks;
  * 
  * @author rgansevles
  */
-public interface ISMChecks extends IBaseSMChecks, ISMField
+public interface ISMChecks extends IMobileSMChecks, ISMField
 {
 }

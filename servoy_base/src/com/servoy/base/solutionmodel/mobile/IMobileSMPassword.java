@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
@@ -26,6 +26,6 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMPassword extends IBaseSMField
+public interface IMobileSMPassword extends IMobileSMField
 {
 }

@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.solutionmodel.IBaseSMTextArea;
+import com.servoy.base.solutionmodel.mobile.IMobileSMTextArea;
 
 
 /**
@@ -25,6 +25,6 @@ import com.servoy.base.solutionmodel.IBaseSMTextArea;
  * 
  * @author rgansevles
  */
-public interface ISMTextArea extends IBaseSMTextArea, ISMField
+public interface ISMTextArea extends IMobileSMTextArea, ISMField
 {
 }

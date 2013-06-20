@@ -15,16 +15,17 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
-import com.servoy.base.solutionmodel.mobile.IMobileSMPassword;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
- * Solution model password field.
+ * Solution model text area field.
  * 
  * @author rgansevles
  */
-public interface ISMPassword extends IMobileSMPassword, ISMField
+@ServoyClientSupport(mc = true, wc = false, sc = false)
+public interface IMobileSMTextArea extends IMobileSMField
 {
 }

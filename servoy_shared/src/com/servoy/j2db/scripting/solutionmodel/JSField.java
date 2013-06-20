@@ -27,6 +27,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMValueList;
+import com.servoy.base.solutionmodel.mobile.IMobileSMField;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -41,7 +42,8 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 // Documented via JSFieldWithConstants
-public class JSField extends JSComponent<Field> implements ISMField
+// JSFieldWithConstants was introduced to prevent the duplication of constants like JSRadios.PASSWORD == JSField.PASSWORD
+public class JSField extends JSComponent<Field> implements ISMField, IMobileSMField
 {
 	private final IApplication application;
 

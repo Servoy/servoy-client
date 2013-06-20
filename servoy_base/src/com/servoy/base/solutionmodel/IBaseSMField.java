@@ -30,8 +30,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @since 7.0
  */
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-// TODO ac filter-out unsupported field types from servoy mobile
-public interface IBaseSMField extends IBaseSMComponent, IBaseSMHasTitle
+public interface IBaseSMField extends IBaseSMComponent
 {
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the

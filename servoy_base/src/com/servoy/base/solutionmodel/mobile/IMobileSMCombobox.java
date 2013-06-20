@@ -15,17 +15,17 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
- * Solution model calendar field component.
+ * Solution model combobox field component.
  * 
  * @author rgansevles
  */
 @ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IBaseSMCalendar extends IBaseSMField
+public interface IMobileSMCombobox extends IMobileSMField
 {
 }

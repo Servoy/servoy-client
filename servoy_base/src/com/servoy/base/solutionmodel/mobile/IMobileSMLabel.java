@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,28 +15,31 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel;
+package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-
+import com.servoy.base.solutionmodel.IBaseSMLabel;
 
 /**
- * Flagging interface for solution model components that have a separate title.
+ * Solution model label component for mobile.
  * 
  * @author rgansevles
+ * @author acostescu
  *
+ * @since 7.0
  */
-@ServoyClientSupport(mc = true, sc = false, wc = false)
-public interface IBaseSMHasTitle
+@ServoyClientSupport(mc = true, wc = false, sc = false)
+public interface IMobileSMLabel extends IBaseSMLabel, IMobileSMHasTitle
 {
-	/**
-	 * Get title label for the field or label.
+	/** 
+	 * Size property for a label, values 1 to 60 correspond to header class h1 to h6
 	 * 
 	 * @sample
-	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table');
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 1);
-	 * field.getTitle().text = 'Parent table'
-	 * forms['someForm'].controller.show()
+	 * var label = form.newLabel('Hello', 1);
+	 * label.labelSize = 2 // corresponds to header class h2
 	 */
-	public IBaseSMTitle getTitle();
+	public int getLabelSize();
+
+	public void setLabelSize(int size);
+
 }
