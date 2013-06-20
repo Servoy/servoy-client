@@ -299,9 +299,9 @@ public class String
 	}
 
 	/**
-	 * returns a strings where all matches of the regexp are replaced.
+	 * returns a new string where all matches of the regexp are replaced.
 	 *
-	 * @sample string.replace(regexpr,replacestring);
+	 * @sample string.replace(regexp,newSubStr);
 	 * 
 	 * @param regexp 
 	 * @param newSubStr 
@@ -314,7 +314,52 @@ public class String
 	}
 
 	/**
-	 * returns a index where the first match is found of the regexp
+	 * returns a new string where all matches of the regexp are replaced.
+	 *
+	 * @sample string.replace(regexp,callback);
+	 * 
+	 * @param regexp 
+	 * @param function 
+	 * 
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
+	 */
+	public String js_replace(RegExp regexp, Function function)
+	{
+		return null;
+	}
+
+	/**
+	 * returns a new string where all matches of the string are replaced.
+	 *
+	 * @sample string.replace(substr,newSubStr);
+	 * 
+	 * @param substr
+	 * @param newSubStr 
+	 * 
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
+	 */
+	public String js_replace(String substr, String newSubStr)
+	{
+		return null;
+	}
+
+	/**
+	 * returns a new string where all matches of the string are replaced.
+	 *
+	 * @sample string.replace(substr,callback);
+	 * 
+	 * @param substr
+	 * @param function 
+	 * 
+	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
+	 */
+	public String js_replace(String substr, Function function)
+	{
+		return null;
+	}
+
+	/**
+	 * returns an index where the first match is found of the regexp
 	 *
 	 * @sample string.search(regexpr);
 	 * 
