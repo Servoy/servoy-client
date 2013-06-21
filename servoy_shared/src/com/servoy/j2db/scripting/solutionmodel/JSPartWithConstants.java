@@ -18,16 +18,33 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSBase", publicName = "JSPart", scriptingName = "JSPart")
-public class JSPartWithConstants extends JSPart implements IConstantsObject
+public class JSPartWithConstants extends JSPart implements IPrefixedConstantsObject
 {
+
+	/**
+	 * DO NOT USE - this class SHOULD NOT BE INSTANTIATED (the constructor is for {@link IPrefixedConstantsObject} usage only!)
+	 */
+	@Deprecated
+	public JSPartWithConstants()
+	{
+		super(null, null, false);
+	}
+
 	private JSPartWithConstants(JSForm form, Part part, boolean isNew)
 	{
 		super(form, part, isNew);
 	}
+
+	@Override
+	public String getPrefix()
+	{
+		return JSPart.class.getSimpleName();
+	}
+
 }

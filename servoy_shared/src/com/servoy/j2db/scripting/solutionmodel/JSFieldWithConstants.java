@@ -17,10 +17,24 @@
 package com.servoy.j2db.scripting.solutionmodel;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", publicName = "JSField", scriptingName = "JSField")
-public class JSFieldWithConstants extends JSField implements IConstantsObject
+public class JSFieldWithConstants extends JSField implements IPrefixedConstantsObject
 {
+
+	/**
+	 * DO NOT USE - this class SHOULD NOT BE INSTANTIATED (the constructor is for {@link IPrefixedConstantsObject} usage only!)
+	 */
+	@Deprecated
+	public JSFieldWithConstants()
+	{
+	}
+
+	@Override
+	public String getPrefix()
+	{
+		return JSField.class.getSimpleName();
+	}
 
 }
