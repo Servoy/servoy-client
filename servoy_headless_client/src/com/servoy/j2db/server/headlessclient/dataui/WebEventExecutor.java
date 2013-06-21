@@ -709,7 +709,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				});
 
 
-				mainPage.addWebAnchoringInfoIfNeeded(true);
+				mainPage.addWebAnchoringInfoIfNeeded(false);
 
 				final Set<WebCellBasedView> tableViewsToRender = new HashSet<WebCellBasedView>();
 				final List<String> valueChangedIds = new ArrayList<String>();
