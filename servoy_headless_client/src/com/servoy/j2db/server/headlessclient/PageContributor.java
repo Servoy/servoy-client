@@ -271,7 +271,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		if (formAnchorInfos != null) formAnchorInfos.remove(fai);
 	}
 
-	public void setFormAnchorInfos(SortedSet<FormAnchorInfo> infos, boolean onlyChanged)
+	public void setFormAnchorInfos(SortedSet<FormAnchorInfo> infos)
 	{
 		anchorInfoChanged = !Utils.equalObjects(formAnchorInfos, infos);
 		if (infos == null)
@@ -280,7 +280,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		}
 		else
 		{
-			if (!onlyChanged || anchorInfoChanged)
+			if (anchorInfoChanged)
 			{
 				if (!isResizing) getStylePropertyChanges().setChanged();
 				formAnchorInfos = infos;

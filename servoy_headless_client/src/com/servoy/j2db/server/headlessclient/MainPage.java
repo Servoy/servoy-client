@@ -25,7 +25,6 @@ import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -680,7 +679,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					}
 				});
 
-				addWebAnchoringInfoIfNeeded(false);
+				addWebAnchoringInfoIfNeeded();
 			}
 		};
 		listview.setReuseItems(true);
@@ -818,14 +817,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		}
 	}
 
-	private final java.util.Set<WebForm> formsForFullAnchorRendering = new HashSet<WebForm>();
-
-	public void addFormForFullAnchorRendering(WebForm form)
-	{
-		formsForFullAnchorRendering.add(form);
-	}
-
-	public void addWebAnchoringInfoIfNeeded(final boolean onlyChanged)
+	public void addWebAnchoringInfoIfNeeded()
 	{
 		if (getController() != null)
 		{
@@ -859,9 +851,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					{
 						if (form.isVisibleInHierarchy())
 						{
-							boolean getOnlyChangedControls = onlyChanged;
-							if (formsForFullAnchorRendering.contains(form)) getOnlyChangedControls = false;
-							FormAnchorInfo fai = form.getFormAnchorInfo(getOnlyChangedControls);
+							FormAnchorInfo fai = form.getFormAnchorInfo();
 							if (fai != null)
 							{
 								if (form.isUIRecreated() && fai.isTableView)
@@ -896,14 +886,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				boolean isAjaxRequest = getRequestCycle().getRequestTarget() instanceof AjaxRequestTarget;
 				if (!isAjaxRequest)
 				{
-					pageContributor.setFormAnchorInfos(null, onlyChanged); // reset formAnchorInfo
+					pageContributor.setFormAnchorInfos(null); // reset formAnchorInfo
 				}
-				pageContributor.setFormAnchorInfos(formAnchorInfo, onlyChanged);
-				formsForFullAnchorRendering.clear();
+				pageContributor.setFormAnchorInfos(formAnchorInfo);
 			}
 			else
 			{
-				pageContributor.setFormAnchorInfos(null, onlyChanged);
+				pageContributor.setFormAnchorInfos(null);
 			}
 		}
 	}

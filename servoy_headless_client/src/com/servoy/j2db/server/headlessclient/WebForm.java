@@ -135,7 +135,6 @@ import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
-import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
@@ -1580,7 +1579,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	private boolean uiRecreated;
 
 	@SuppressWarnings("unchecked")
-	public FormAnchorInfo getFormAnchorInfo(final boolean onlyChanged)
+	public FormAnchorInfo getFormAnchorInfo()
 	{
 		formAnchorInfo = new FormAnchorInfo(formController.getName(), formController.getForm().getSize(), formController.getForm().getUUID());
 
@@ -1639,28 +1638,6 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				{
 					public Object component(Component comp)
 					{
-						// tab panels need to go all the time, because they need to have their tabs rearranged.
-						// also buttons need to go all the time, because of lovely FF handling of <button> tags.
-						if (onlyChanged && !(comp instanceof WebTabPanel) && !(comp instanceof IButton))
-						{
-							if (comp instanceof IProviderStylePropertyChanges)
-							{
-								if (!((IProviderStylePropertyChanges)comp).getStylePropertyChanges().isChanged())
-								{
-									boolean hasBgImage = false;
-									if (comp instanceof ILabel && (((ILabel)comp).getMediaIcon() > 0 || comp.getDefaultModelObject() instanceof byte[]))
-									{
-										hasBgImage = true;
-									}
-									if (comp instanceof ILabel && ((ILabel)comp).getImageURL() != null)
-									{
-										hasBgImage = true;
-									}
-									if (!hasBgImage) return IVisitor.CONTINUE_TRAVERSAL;
-								}
-							}
-							else return IVisitor.CONTINUE_TRAVERSAL;
-						}
 						String id = comp.getId();
 						ISupportAnchors obj = elements.get(id);
 						if (obj != null)
