@@ -171,25 +171,11 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 								setActiveTabPanel(holder.getPanel());
 								if (target != null)
 								{
-									if (currentForm != null) addFormForFullAnchorRendering(currentForm.getWebForm(), (MainPage)page);
 									relinkAtTabPanel(WebTabPanel.this);
 									focusedItem = item.getId();
 									WebEventExecutor.generateResponse(target, page);
 								}
 							}
-						}
-
-						private void addFormForFullAnchorRendering(WebForm form, final MainPage mainPage)
-						{
-							mainPage.addFormForFullAnchorRendering(form);
-							form.visitChildren(WebTabPanel.class, new IVisitor<WebTabPanel>()
-							{
-								public Object component(WebTabPanel tabPanel)
-								{
-									if (tabPanel.currentForm != null) addFormForFullAnchorRendering(tabPanel.currentForm.getWebForm(), mainPage);
-									return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-								}
-							});
 						}
 
 						private void relinkAtForm(WebForm form)
