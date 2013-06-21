@@ -41,6 +41,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
+import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
@@ -165,10 +166,14 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 					{
 						public Object component(WebForm form)
 						{
-							if (form.getFormWidth() == 0)
+							if (form.getFormWidth() == 0 && form.isVisibleInHierarchy())
 							{
-								returnValue[0] = true;
-								return IVisitor.STOP_TRAVERSAL;
+								IWebFormContainer formContainer = form.findParent(IWebFormContainer.class);
+								if (!(formContainer instanceof WebSplitPane))
+								{
+									returnValue[0] = true;
+									return IVisitor.STOP_TRAVERSAL;
+								}
 							}
 							return IVisitor.CONTINUE_TRAVERSAL;
 						}
