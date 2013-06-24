@@ -358,6 +358,11 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 	{
 		Object value = null;
 		WebForm webForm = component.findParent(WebForm.class);
+		if (webForm == null)
+		{
+			Debug.error("Component " + component + " with dp: " + dataProviderID + "  already removed from its parent form.", new RuntimeException()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return null;
+		}
 		FormScope fs = webForm.getController().getFormScope();
 		IRecord record = (IRecord)RecordItemModel.this.getObject();
 		if (ScopesUtils.isVariableScope(dataProviderID))
