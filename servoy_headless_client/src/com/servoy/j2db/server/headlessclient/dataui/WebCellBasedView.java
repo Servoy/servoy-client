@@ -2446,8 +2446,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 	}
 
+	@SuppressWarnings("nls")
 	private void initializeComponent(final Component c, AbstractBase view, Object element)
 	{
+		if (dal == null || dal.isDestroyed())
+		{
+			Debug.error("Trying to initialize a component: " + c + " of " + view + " element: " + element + " that is in a destroyed tableview",
+				new RuntimeException());
+			return;
+		}
 		if (view instanceof Portal && c instanceof IDisplayData) // Don't know any other place for this
 		{
 			String id = ((IDisplayData)c).getDataProviderID();
@@ -2712,6 +2719,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	@Override
 	protected void onBeforeRender()
 	{
+		if (dal == null || dal.isDestroyed())
+		{
+			Debug.error("Rendering tableview that is already destroyed," + findParent(WebForm.class)); //$NON-NLS-1$
+		}
 		hasOnRender = null;
 		IWebFormContainer tabPanel = findParent(IWebFormContainer.class);
 		Dimension tabSize = null;
