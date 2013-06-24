@@ -562,8 +562,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				focusRequestingColIdentComponent = null;
 			}
-
-			permitRemovedCellComponentsToBeCollected();
 		}
 
 		/**
@@ -582,40 +580,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			else
 			{
 				return new WebCellBasedViewListItem(index, getListItemModel(getModel(), index));
-			}
-		}
-
-		private void permitRemovedCellComponentsToBeCollected()
-		{
-			// cellToElement hash table remembers the IPersist instance for each cell that was created;
-			// when a cell is no longer used (it's list item is removed), the cell must be deleted from the
-			// hash table as well in order to avoid memory leaks
-			List<Component> validChildren = new ArrayList<Component>();
-
-			int firstIndex = getStartIndex();
-			int index;
-			for (int i = 0; i < getViewSize(); i++)
-			{
-				index = firstIndex + i;
-				WebMarkupContainer item = ((WebCellBasedViewListItem)get(Integer.toString(index))).getListContainer();
-				if (item != null)
-				{
-					Iterator< ? extends Component> children = item.iterator();
-					while (children.hasNext())
-					{
-						Component child = CellContainer.getContentsForCell(children.next());
-						validChildren.add(child);
-					}
-				}
-			}
-
-			Iterator<Component> hashedCells = cellToElement.keySet().iterator();
-			while (hashedCells.hasNext())
-			{
-				if (!validChildren.contains(hashedCells.next()))
-				{
-					hashedCells.remove(); // the cell is no longer used...
-				}
 			}
 		}
 
@@ -1048,12 +1012,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		@Override
 		protected void onRemove()
 		{
-			visitChildren(IDestroyable.class, new IVisitor<Component>()
+			visitChildren(Component.class, new IVisitor<Component>()
 			{
 				@Override
 				public Object component(Component component)
 				{
-					((IDestroyable)component).destroy();
+					if (component instanceof IDestroyable)
+					{
+						((IDestroyable)component).destroy();
+					}
+					if (cellToElement.remove(component) == null)
+					{
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
 					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 				}
 			});
