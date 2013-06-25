@@ -37,7 +37,6 @@ import java.util.Properties;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.WeakHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
@@ -204,7 +203,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private final HashMap<IPersist, Integer> elementTabIndexes = new HashMap<IPersist, Integer>();
 	private final LinkedHashMap<Component, IPersist> cellToElement = new LinkedHashMap<Component, IPersist>(); // each cell component -> IPersist (on the form)
 	private final Map<IPersist, Component> elementToColumnHeader = new HashMap<IPersist, Component>(); // links each column identifier component
-	private final Map<IRuntimeComponent, Map<String, String>> runtimeComponentStyleAttributes = new WeakHashMap<IRuntimeComponent, Map<String, String>>();
 	// to a column header component (if such a component exists)
 
 	private String relationName;
@@ -631,7 +629,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			final IRecordInternal rec = listItem.getModelObject();
 			boolean selected = isRecordSelected(rec);
-
 			Object color = null, fgColor = null, styleFont = null, styleBorder = null;
 
 			if (!isListViewMode())
@@ -703,7 +700,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 									isLeftToRightOrientation, isListViewMode());
 							}
 						}
-						updateRuntimeComponentStyleAttributes(comp);
 						cellToElement.put(comp, element);
 						listItemContainer.add(listItemChild);
 						setUpComponent(comp, rec, compColor, compFgColor, compFont, listItemBorder, visibleRowIndex);
@@ -721,9 +717,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					// and other initializations...
 					initializeComponent(child, listCellview, cellToElement.get(child));
 
-					//we keep track of the current runtime component style attributes for later use when row Selection occurs 
-					//if new row selection -> put the old runtime style on the previously selected row
-					updateRuntimeComponentStyleAttributes(child);
 					setUpComponent(child, rec, color, fgColor, styleFont, styleBorder, visibleRowIndex);
 				}
 			}
@@ -732,27 +725,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			enableChildrenInContainer(this, isEnabled());
 		}
 
-		private void updateRuntimeComponentStyleAttributes(Component child)
-		{
-			if (child instanceof IScriptableProvider)
-			{
-				IScriptable s = ((IScriptableProvider)child).getScriptObject();
-				if (s instanceof IRuntimeComponent)
-				{
-					IRuntimeComponent rtComp = (IRuntimeComponent)s;
-					Map<String, String> rtCompStyle = runtimeComponentStyleAttributes.get(rtComp);
-					if (rtCompStyle == null)
-					{
-						rtCompStyle = new HashMap<String, String>();
-						runtimeComponentStyleAttributes.put(rtComp, rtCompStyle);
-					}
-					rtCompStyle.put(RenderableWrapper.PROPERTY_BGCOLOR, rtComp.getBgcolor());
-					rtCompStyle.put(RenderableWrapper.PROPERTY_FGCOLOR, rtComp.getFgcolor());
-					rtCompStyle.put(RenderableWrapper.PROPERTY_FONT, rtComp.getFont());
-					rtCompStyle.put(RenderableWrapper.PROPERTY_BORDER, rtComp.getBorder());
-				}
-			}
-		}
 
 		private void setUpComponent(Component comp, IRecordInternal record, Object compColor, Object fgColor, Object compFont, Object listItemBorder,
 			int visibleRowIndex)
@@ -3897,9 +3869,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					sbm.setBgcolor(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_BGCOLOR));
+					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
+					sbm.setBgcolor(sbm.getBgcolor());
 					setParentBGcolor(comp, "");
-
 				}
 
 				if (fgColor != null)
@@ -3909,7 +3881,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					sbm.setFgcolor(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_FGCOLOR));
+					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
+					sbm.setFgcolor(sbm.getFgcolor());
+
 				}
 
 				if (compFont != null)
@@ -3919,7 +3893,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					sbm.setFont(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_FONT));
+					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FONT);
+					sbm.setFont(sbm.getFont());
 				}
 
 
@@ -3952,7 +3927,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					sbm.setBorder(runtimeComponentStyleAttributes.get(sbm).get(RenderableWrapper.PROPERTY_BORDER));
+					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BORDER);
+					sbm.setBorder(sbm.getBorder());
 				}
 			}
 		}
@@ -4467,13 +4443,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 										if (scriptableComponent instanceof IRuntimeComponent)
 										{
 											IRuntimeComponent runtimeComponent = (IRuntimeComponent)scriptableComponent;
-											bgRuntimeColorjsArray.add(runtimeComponentStyleAttributes.get(runtimeComponent).get(
-												RenderableWrapper.PROPERTY_BGCOLOR));
-											fgRuntimeColorjsArray.add(runtimeComponentStyleAttributes.get(runtimeComponent).get(
-												RenderableWrapper.PROPERTY_FGCOLOR));
+											//bgcolor
+											bgRuntimeColorjsArray.add(runtimeComponent.getBgcolor());
+											//fgcolor
+											fgRuntimeColorjsArray.add(runtimeComponent.getFgcolor());
 
 											// font style
-											String fontStyle = runtimeComponentStyleAttributes.get(runtimeComponent).get(RenderableWrapper.PROPERTY_FONT);
+											String fontStyle = runtimeComponent.getFont();
 											StringBuilder fstyle = new StringBuilder(""), fweight = new StringBuilder(""), fsize = new StringBuilder(""), ffamily = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 											splitFontStyle(fontStyle, fstyle, fweight, fsize, ffamily);
 											fstyleJsAray.add(fstyle.toString());
@@ -4482,7 +4458,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 											ffamilyJsAray.add(ffamily.toString());
 
 											// border style
-											String borderStyle = runtimeComponentStyleAttributes.get(runtimeComponent).get(RenderableWrapper.PROPERTY_BORDER);
+											String borderStyle = runtimeComponent.getBorder();
 											StringBuilder bstyle = new StringBuilder(""), bwidth = new StringBuilder(""), bcolor = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 											splitBorderStyle(borderStyle, bstyle, bwidth, bcolor);
 											bstyleJsAray.add(bstyle.toString());
@@ -4576,6 +4552,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (rowIdx >= firstRow && rowIdx <= lastRow)
 					{
 						ListItem<IRecordInternal> selectedListItem = (ListItem<IRecordInternal>)table.get(Integer.toString(rowIdx));
+						if (target != null) table.setUpItem(selectedListItem, false);
 						if (selectedListItem instanceof WebCellBasedViewListItem)
 						{
 							((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, newSelectedIndexes, rowIdx);
