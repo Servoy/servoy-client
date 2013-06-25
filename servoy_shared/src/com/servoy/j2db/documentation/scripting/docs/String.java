@@ -299,7 +299,7 @@ public class String
 	}
 
 	/**
-	 * returns a new string where all matches of the regexp are replaced.
+	 * returns a new string where some or all matches of the regexp are replaced.
 	 *
 	 * @sample string.replace(regexp,newSubStr);
 	 * 
@@ -314,7 +314,7 @@ public class String
 	}
 
 	/**
-	 * returns a new string where all matches of the regexp are replaced.
+	 * returns a new string where some or all matches of the regexp are replaced.
 	 *
 	 * @sample string.replace(regexp,callback);
 	 * 
@@ -329,7 +329,7 @@ public class String
 	}
 
 	/**
-	 * returns a new string where all matches of the string are replaced.
+	 * returns a new string where the first match of the string is replaced.
 	 *
 	 * @sample string.replace(substr,newSubStr);
 	 * 
@@ -344,7 +344,7 @@ public class String
 	}
 
 	/**
-	 * returns a new string where all matches of the string are replaced.
+	 * returns a new string where the first match of the string is replaced.
 	 *
 	 * @sample string.replace(substr,callback);
 	 * 
