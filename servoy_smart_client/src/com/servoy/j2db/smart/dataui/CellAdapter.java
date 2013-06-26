@@ -595,6 +595,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		return editor.isVisible() ? editor : empty;
 	}
 
+	private ISwingFoundSet tableViewFoundset = null;
+
 	/*
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)
 	 */
@@ -606,6 +608,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		final ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
+		if (foundset != tableViewFoundset)
+		{
+			// foundset changed
+			this.tableViewFoundset = foundset;
+			rowAndDataprovider.clear();
+		}
 		final IRecordInternal state;
 		try
 		{
