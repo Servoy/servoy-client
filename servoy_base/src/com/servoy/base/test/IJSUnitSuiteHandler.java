@@ -47,6 +47,21 @@ public interface IJSUnitSuiteHandler extends IBridgedTestSuite, IBridgedTestList
 
 	void registerRunStartListener(TestCycleListener l);
 
+	/**
+	 * Returns either null - suggesting that the mobile client should build the suite itself or a String[2] where index 0 is
+	 * the test suite name and index 1 is the whole javascript code of the solution js unit testsuite.
+	 * @return see description.
+	 */
+	String[] getSolutionJsUnitJavascriptCode();
+
+	/**
+	 * Returns either null for no credentials or a String[2] where index 0 is 'username' and index 1 is 'password' - for automatic
+	 * test client authentication.
+	 * @return see description.
+	 */
+	String[] getCredentials();
+
+
 	public static interface TestCycleListener
 	{
 
@@ -55,12 +70,5 @@ public interface IJSUnitSuiteHandler extends IBridgedTestSuite, IBridgedTestList
 		void finished();
 
 	}
-
-	/**
-	 * Returns either - suggesting that the mobile client should build the suite itself null or a String[2] where index 0 is
-	 * the test suite name and index 1 is the whole javascript code of the solution js unit testsuite.
-	 * @return see description.
-	 */
-	String[] getSolutionJsUnitJavascriptCode();
 
 }
