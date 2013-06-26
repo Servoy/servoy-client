@@ -543,6 +543,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		return isVisible;
 	}
 
+	private ISwingFoundSet tableViewFoundset = null;
+
 	private Component getTableCellRendererComponentEx(JTable jtable, Object value, boolean isSelected, boolean hasFocus, final int row, final int column,
 		Color bgColor, Color fgColor, Font font)
 	{
@@ -552,6 +554,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		final ISwingFoundSet foundset = (ISwingFoundSet)jtable.getModel();
+		if (foundset != tableViewFoundset)
+		{
+			// foundset changed
+			this.tableViewFoundset = foundset;
+			rowAndDataprovider.clear();
+		}
 		final IRecordInternal state;
 		try
 		{
