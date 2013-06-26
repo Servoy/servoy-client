@@ -18,7 +18,6 @@
 package com.servoy.j2db.solutionmodel;
 
 import com.servoy.base.solutionmodel.IBaseSMDefaults;
-import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.scripting.solutionmodel.JSMethod;
 
 /**
@@ -37,7 +36,7 @@ public interface ISMDefaults extends IBaseSMDefaults
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.onFindCmd = SM_DEFAULTS.COMMAND_DEFAULT; // This makes the find work like it does by default.
 	 */
-	public static final JSMethod COMMAND_DEFAULT = JSMethod.createDummy();
+	public static final ISMMethod COMMAND_DEFAULT = JSMethod.createDummy();
 
 
 	/**
@@ -47,6 +46,6 @@ public interface ISMDefaults extends IBaseSMDefaults
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.onFindCmd = SM_DEFAULTS.COMMAND_NONE; // This disables the find on the form.
 	 */
-	public static final IBaseSMMethod COMMAND_NONE = null;
+	public static final ISMMethod COMMAND_NONE = null;
 
 }

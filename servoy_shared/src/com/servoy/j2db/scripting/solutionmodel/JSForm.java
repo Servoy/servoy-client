@@ -4153,7 +4153,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		}
 		else if (methodid == 0 && BaseComponent.isCommandProperty(methodProperty.getPropertyName()))
 		{
-			return ISMDefaults.COMMAND_DEFAULT;
+			return (JSMethod)ISMDefaults.COMMAND_DEFAULT;
 		}
 		return null;
 	}
