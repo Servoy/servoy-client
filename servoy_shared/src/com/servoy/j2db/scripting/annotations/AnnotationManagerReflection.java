@@ -213,6 +213,12 @@ public class AnnotationManagerReflection
 			else if (!originalClass.equals(other.originalClass)) return false;
 			return true;
 		}
+
+		@Override
+		public String toString()
+		{
+			return originalClass.toString();
+		}
 	}
 
 
@@ -263,6 +269,12 @@ public class AnnotationManagerReflection
 			else if (!field.equals(other.field)) return false;
 			return true;
 		}
+
+		@Override
+		public String toString()
+		{
+			return field.toString();
+		}
 	}
 
 	private static class ReflectionAnnotatedMethod implements IAnnotatedMethod<Annotation, Class< ? extends Annotation>>
@@ -312,6 +324,12 @@ public class AnnotationManagerReflection
 			else if (!method.equals(other.method)) return false;
 			return true;
 		}
+
+		@Override
+		public String toString()
+		{
+			return method.toString();
+		}
 	}
 
 	private static class ReflectionSignature
@@ -333,6 +351,12 @@ public class AnnotationManagerReflection
 		public Class< ? >[] getParameterTypes()
 		{
 			return parameterTypes;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name + '(' + Arrays.toString(parameterTypes) + ')';
 		}
 	}
 }
