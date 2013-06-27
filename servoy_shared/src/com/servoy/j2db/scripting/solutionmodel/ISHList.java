@@ -34,10 +34,10 @@ public interface ISHList extends IBaseSHList
 	/**
 	 * This dataprovider's value will be presented as a 'count bubble' in each item of the list.
 	 * @sample
-	 * var list = plugins.mobile.solutionHelper.getInsetList(solutionModel.getForm('created_by_sm_1'), 'il1');
+	 * var list = solutionModel.getForm('created_by_sm_1').getInsetList(solutionModel.getForm('il1');
 	 * 
-	 * var newList = plugins.mobile.solutionHelper.createListForm('created_by_sm_3', list.dataSource, list.textDataProviderID);
-	 * newList.onAction = solutionModel.getForm('created_by_sm_3').newMethod('function aMethod(event){application.output("Hello world!");}');
+	 * var newList = solutionModel.newListForm('created_by_sm_3', list.dataSource, list.textDataProviderID);
+	 * newList.onAction = newList.getForm().newMethod('function aMethod(event){application.output("Hello world!");}');
 	 */
 	@JSGetter
 	public String getCountDataProviderID();
@@ -119,9 +119,9 @@ public interface ISHList extends IBaseSHList
 	 * The styleClass of the list. Can have values from 'a' to 'e'.
 	 * 
 	 * @sample
-	 * var list = plugins.mobile.solutionHelper.getInsetList(solutionModel.getForm('created_by_sm_1'), 'il1');
+	 * var list = solutionModel.getForm('created_by_sm_1').getInsetList('il1');
 	 * 
-	 * var newList = plugins.mobile.solutionHelper.createListForm('created_by_sm_3', list.dataSource, list.textDataProviderID);
+	 * var newList = solutionModel.newListForm('created_by_sm_3', list.dataSource, list.textDataProviderID);
 	 * newList.listStyleClass = 'e';
 	 */
 	@JSGetter
