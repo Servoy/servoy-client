@@ -4290,18 +4290,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return newRecord(null, indexToAdd, changeSelection);
 	}
 
-	private IRecordInternal getNewRecord(Row rowData) throws ApplicationException
-	{
-		if (rowData == null || findMode)
-		{
-			return createRecord();
-		}
-		return new Record(this, rowData);
-	}
-
 	protected int newRecord(Row rowData, int indexToAdd, boolean changeSelection) throws ServoyException
 	{
-		IRecordInternal newRecord = getNewRecord(rowData);
+		return newRecord(rowData, indexToAdd, changeSelection, true);
+	}
+
+	protected int newRecord(Row rowData, int indexToAdd, boolean changeSelection, boolean javascriptRecord) throws ServoyException
+	{
+		IRecordInternal newRecord = createRecord(rowData, javascriptRecord);
 		if (newRecord == null) return -1;
 		return addRecord(newRecord, indexToAdd, changeSelection);
 	}
@@ -4390,7 +4386,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return -1;
 	}
 
-	private IRecordInternal createRecord() throws ApplicationException
+	private IRecordInternal createRecord(Row rowData, boolean javascriptRecord) throws ApplicationException
 	{
 		if (findMode)
 		{
@@ -4398,12 +4394,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return new FindState(this);
 		}
 
-		if (!hasAccess(IRepository.INSERT))
+		if (javascriptRecord && !hasAccess(IRepository.INSERT))
 		{
 			throw new ApplicationException(ServoyException.NO_CREATE_ACCESS);
 		}
 
-		if (relationName != null)
+		if (rowData == null && relationName != null)
 		{
 			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 			if (relation != null)
@@ -4423,7 +4419,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, false))
+			if (javascriptRecord && !executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, false))
 			{
 				Debug.trace("New record creation was denied by onCreateRecord method"); //$NON-NLS-1$
 				return null;
@@ -4434,13 +4430,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Debug.error(e);
 			return null;
 		}
-
-		Object[] data = sheet.getNewRecordData(fsm.getApplication(), this);
-		IRecordInternal newRecord = new Record(this, rowManager.createNotYetExistInDBRowObject(data, true));
-		sheet.processCopyValues(newRecord);
+		IRecordInternal newRecord = null;
+		if (rowData == null)
+		{
+			Object[] data = sheet.getNewRecordData(fsm.getApplication(), this);
+			newRecord = new Record(this, rowManager.createNotYetExistInDBRowObject(data, true));
+			sheet.processCopyValues(newRecord);
+		}
+		else
+		{
+			newRecord = new Record(this, rowData);
+		}
 		try
 		{
-			executeFoundsetTrigger(new Object[] { newRecord }, StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, false);
+			if (javascriptRecord)
+			{
+				executeFoundsetTrigger(new Object[] { newRecord }, StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, false);
+			}
 		}
 		catch (ServoyException e)
 		{
@@ -5775,7 +5781,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						Relation r = fsm.getApplication().getFlattenedSolution().getRelation(parts[i]);
 						if (r != null && r.isExactPKRef(fsm.getApplication().getFlattenedSolution()))//TODO add unique column test instead of pk requirement 
 						{
-							((FoundSet)retval).newRecord(record.getRawData(), 0, true);
+							((FoundSet)retval).newRecord(record.getRawData(), 0, true, false);
 						}
 					}
 					retval.addParent(currentRecord);
@@ -5864,7 +5870,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 					else
 					{
-						fs.newRecord(row, 0, true);
+						fs.newRecord(row, 0, true, false);
 					}
 				}
 			}
