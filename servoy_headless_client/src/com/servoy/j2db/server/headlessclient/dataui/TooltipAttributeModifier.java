@@ -24,7 +24,9 @@ import org.apache.wicket.IResourceListener;
 import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
+import org.apache.wicket.behavior.IIgnoreDisabledComponentBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IComponentAssignedModel;
 import org.apache.wicket.model.IModel;
@@ -45,7 +47,7 @@ import com.servoy.j2db.util.Debug;
  * @author jcompagner
  * @since 5.0
  */
-public class TooltipAttributeModifier extends AttributeModifier
+public class TooltipAttributeModifier extends AttributeModifier implements IIgnoreDisabledComponentBehavior
 {
 	private static final long serialVersionUID = 1L;
 
@@ -79,29 +81,67 @@ public class TooltipAttributeModifier extends AttributeModifier
 			@Override
 			public boolean isEnabled(Component component)
 			{
-				if (component instanceof IComponent || component instanceof SortableCellViewHeader || component.getMetaData(TOOLTIP_METADATA) != null)
+				String tooltip = getToolTipForComponent(component);
+				if (tooltip == null)
 				{
-					String tooltip = null;
-					if (component instanceof IComponent)
-					{
-						tooltip = ((IComponent)component).getToolTipText();
-					}
-					if (component instanceof SortableCellViewHeader)
-					{
-						tooltip = ((SortableCellViewHeader)component).getToolTipText();
-					}
-					if (tooltip == null)
-					{
-						tooltip = (String)component.getMetaData(TOOLTIP_METADATA);
-					}
-					if (tooltip == null)
-					{
-						return false;
-					}
+					return false;
 				}
+
 				return super.isEnabled(component);
 			}
 		});
+		// in case the component is disabled 
+		component.add(new SimpleAttributeModifier("title", "dummyTooltip")
+		{
+			@Override
+			public boolean isEnabled(Component component)
+			{
+				if (!component.isEnabledInHierarchy() && getToolTipForComponent(component) != null)
+				{
+					return true;
+				}
+				else return false;
+			}
+
+			@Override
+			public void onComponentTag(Component component, ComponentTag tag)
+			{
+				tag.getAttributes().put("title", getToolTipForComponent(component));
+			}
+		});
+
+	}
+
+	static String getToolTipForComponent(Component component)
+	{
+		String tooltip = null;
+		if (component instanceof IComponent || component instanceof SortableCellViewHeader || component.getMetaData(TOOLTIP_METADATA) != null)
+		{
+			if (component instanceof IComponent)
+			{
+				tooltip = ((IComponent)component).getToolTipText();
+			}
+			if (component instanceof SortableCellViewHeader)
+			{
+				tooltip = ((SortableCellViewHeader)component).getToolTipText();
+			}
+			if (tooltip == null)
+			{
+				tooltip = (String)component.getMetaData(TOOLTIP_METADATA);
+			}
+			return tooltip;
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isEnabled(Component component)
+	{
+		if (!component.isEnabledInHierarchy())
+		{
+			return false;
+		}
+		else return super.isEnabled(component);
 	}
 
 	private static class TooltipModel extends Model implements IComponentAssignedModel
@@ -137,65 +177,50 @@ public class TooltipAttributeModifier extends AttributeModifier
 			@Override
 			public Object getObject()
 			{
-				if (!WebClient.isMobile() &&
-					(component instanceof IComponent || component instanceof SortableCellViewHeader || component.getMetaData(TOOLTIP_METADATA) != null))
+				String tooltip = getToolTipForComponent(component);
+				if (!WebClient.isMobile() && tooltip != null)
 				{
-					String tooltip = null;
-					if (component instanceof IComponent)
+					int initialDelay = 750;
+					int dismissDelay = 5000;
+					if (Session.exists())
 					{
-						tooltip = ((IComponent)component).getToolTipText();
-					}
-					if (component instanceof SortableCellViewHeader)
-					{
-						tooltip = ((SortableCellViewHeader)component).getToolTipText();
-					}
-					if (tooltip == null)
-					{
-						tooltip = (String)component.getMetaData(TOOLTIP_METADATA);
-					}
-					if (tooltip != null)
-					{
-						int initialDelay = 750;
-						int dismissDelay = 5000;
-						if (Session.exists())
+						// blobloaders only works for components that implements IResourceListern (currently only Button/Labels/HtmlArea)
+						if (component instanceof IResourceListener)
 						{
-							// blobloaders only works for components that implements IResourceListern (currently only Button/Labels/HtmlArea)
-							if (component instanceof IResourceListener)
-							{
-								tooltip = StripHTMLTagsConverter.convertBlobLoaderReferences(tooltip, component).toString();
-							}
-							else
-							{
-								if (tooltip.indexOf("media:///servoy_blobloader") != -1)
-								{
-									Debug.log("Component: " + component + " doenst support sevoy_blobloader references " + tooltip);
-								}
-							}
-							WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
-							tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "").toString();
-							Object initialDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_INITIAL_DELAY);
-							if (initialDelayValue instanceof Number) initialDelay = ((Number)initialDelayValue).intValue();
-							Object dismissDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_DISMISS_DELAY);
-							if (dismissDelayValue instanceof Number) dismissDelay = ((Number)dismissDelayValue).intValue();
-
+							tooltip = StripHTMLTagsConverter.convertBlobLoaderReferences(tooltip, component).toString();
 						}
-						boolean isHTMLText = tooltip.trim().toLowerCase().startsWith("<html>");
-
-						tooltip = tooltip.replace("\r\n", isHTMLText ? " " : "<br>");
-						tooltip = tooltip.replace("\n", isHTMLText ? " " : "<br>");
-
-						if (!isHTMLText)
+						else
 						{
-							tooltip = "<html><span style='white-space:nowrap'>" + Strings.escapeMarkup(tooltip, false, false) + "</span></html>";
-							// ' character not handled well
-							tooltip = tooltip.replace("&#039;", "\'");
+							if (tooltip.indexOf("media:///servoy_blobloader") != -1)
+							{
+								Debug.log("Component: " + component + " doenst support sevoy_blobloader references " + tooltip);
+							}
 						}
+						WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
+						tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "").toString();
+						Object initialDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_INITIAL_DELAY);
+						if (initialDelayValue instanceof Number) initialDelay = ((Number)initialDelayValue).intValue();
+						Object dismissDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_DISMISS_DELAY);
+						if (dismissDelayValue instanceof Number) dismissDelay = ((Number)dismissDelayValue).intValue();
 
-						tooltip = tooltip.replace("\\", "\\\\");
-						tooltip = tooltip.replace("\'", "\\\'");
-
-						return "showtip(event, '" + tooltip + "'," + initialDelay + "," + dismissDelay + ");";
 					}
+					boolean isHTMLText = tooltip.trim().toLowerCase().startsWith("<html>");
+
+					tooltip = tooltip.replace("\r\n", isHTMLText ? " " : "<br>");
+					tooltip = tooltip.replace("\n", isHTMLText ? " " : "<br>");
+
+					if (!isHTMLText)
+					{
+						tooltip = "<html><span style='white-space:nowrap'>" + Strings.escapeMarkup(tooltip, false, false) + "</span></html>";
+						// ' character not handled well
+						tooltip = tooltip.replace("&#039;", "\'");
+					}
+
+					tooltip = tooltip.replace("\\", "\\\\");
+					tooltip = tooltip.replace("\'", "\\\'");
+
+					return "showtip(event, '" + tooltip + "'," + initialDelay + "," + dismissDelay + ");";
+
 				}
 				return null;
 			}
