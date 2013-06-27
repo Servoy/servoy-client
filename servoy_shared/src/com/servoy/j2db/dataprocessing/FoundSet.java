@@ -2556,6 +2556,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * The function based sorting does not work with printing.
 	 * It is just a temporary in-memory sort.
 	 * 
+	 * NOTE: starting with 7.2 release this function doesn't save the data anymore
+	 * 
 	 * @sample
 	 * %%prefix%%foundset.sort(mySortFunction);
 	 * 
@@ -4833,12 +4835,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void sort(Comparator<Object[]> recordPKComparator)
 	{
-		if (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED)
-		{
-			fsm.getApplication().reportJSError("Couldn't do a sort because there are edited records on this foundset", null); //$NON-NLS-1$
-			return;
-		}
-
 		if (findMode) return;
 		PksAndRecordsHolder pksAndRecordsHolderCopy;
 		IDataSet pks;

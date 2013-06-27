@@ -1218,6 +1218,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * The comparator function is called to compare two rows, that are passed as arguments, and
 	 * it will return -1/0/1 if the first row is less/equal/greater then the second row.
 	 *
+	 * NOTE: starting with 7.2 release this function doesn't save the data anymore
+	 * 
 	 * @sample
 	 * //sort using comparator
 	 * dataset.sort(mySortFunction);
