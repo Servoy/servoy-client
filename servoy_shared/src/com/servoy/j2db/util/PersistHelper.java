@@ -64,6 +64,7 @@ public class PersistHelper
 
 	private static final Map<String, String> basicCssColors = new HashMap<String, String>();
 
+	static
 	{
 		basicCssColors.put("black", "#000000"); //$NON-NLS-1$ //$NON-NLS-2$
 		basicCssColors.put("silver", "#C0C0C0");//$NON-NLS-1$ //$NON-NLS-2$
