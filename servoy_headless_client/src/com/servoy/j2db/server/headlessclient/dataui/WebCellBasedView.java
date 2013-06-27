@@ -2449,7 +2449,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	@SuppressWarnings("nls")
 	private void initializeComponent(final Component c, AbstractBase view, Object element)
 	{
-		if (dal == null || dal.isDestroyed())
+		if (dal != null && dal.isDestroyed())
 		{
 			Debug.error("Trying to initialize a component: " + c + " of " + view + " element: " + element + " that is in a destroyed tableview",
 				new RuntimeException());
