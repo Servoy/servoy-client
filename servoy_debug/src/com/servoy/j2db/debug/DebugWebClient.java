@@ -187,7 +187,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 				if (form.getView() == IForm.RECORD_VIEW && SolutionMetaData.isServoyMobileSolution(getSolution()))
 				{
 					JSForm jsform = new JSForm(application, form, false);
-					if (jsform.getPart(Part.HEADER) == null)
+					if (jsform.getPart(Part.HEADER) == null && jsform.getPart(Part.TITLE_HEADER) == null)
 					{
 						// check if there are header items
 						for (IPersist persist : form.getAllObjectsAsList())
@@ -204,7 +204,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 						}
 					}
 
-					if (jsform.getPart(Part.FOOTER) == null)
+					if (jsform.getPart(Part.FOOTER) == null && jsform.getPart(Part.TITLE_FOOTER) == null)
 					{
 						// check if there are footer items
 						for (IPersist persist : form.getAllObjectsAsList())
@@ -241,6 +241,10 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 						List<ILayoutWrapper> elements = new ArrayList<ILayoutWrapper>();
 
 						JSPart header = jsform.getPart(Part.HEADER);
+						if (header == null)
+						{
+							header = jsform.getPart(Part.TITLE_HEADER);
+						}
 						if (header != null)
 						{
 							elements.add(new PartLayoutWrapper(header, jsform));
@@ -257,6 +261,10 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 						}
 
 						JSPart footer = jsform.getPart(Part.FOOTER);
+						if (footer == null)
+						{
+							footer = jsform.getPart(Part.TITLE_FOOTER);
+						}
 						if (footer != null)
 						{
 							elements.add(new PartLayoutWrapper(footer, jsform));
