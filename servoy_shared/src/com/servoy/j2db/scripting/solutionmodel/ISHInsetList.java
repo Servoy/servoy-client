@@ -34,9 +34,9 @@ public interface ISHInsetList extends IBaseSHInsetList, ISHList
 	/**
 	 * Name of the relation to be used by the inset list.
 	 * @sample
-	 * var insetList = plugins.mobile.solutionHelper.getInsetList(f,'il1');
+	 * var insetList = jsform.getInsetList('il1');
 	 * 
-	 * var newInsetList = plugins.mobile.solutionHelper.createInsetList(f,8,insetList.dataSource,insetList.relationName,insetList.headerText,insetList.textDataProviderID);
+	 * var newInsetList = jsform.newInsetList(8,insetList.dataSource,insetList.relationName,insetList.headerText,insetList.textDataProviderID);
 	 * newInsetList.name = 'il2';
 	 */
 	@JSGetter
@@ -79,7 +79,7 @@ public interface ISHInsetList extends IBaseSHInsetList, ISHList
 	 * The styleClass of the list header. Can have values from 'a' to 'e'.
 	 * 
 	 * @sample
-	 * var newInsetList = plugins.mobile.solutionHelper.createInsetList(f,8,insetList.dataSource,insetList.relationName,insetList.headerText,insetList.textDataProviderID);
+	 * var newInsetList = jsform.newInsetList(8,insetList.dataSource,insetList.relationName,insetList.headerText,insetList.textDataProviderID);
 	 * newInsetList.headerStyleClass = 'e';
 	 */
 	@JSGetter
