@@ -245,6 +245,12 @@ public class EditListUI extends BasicListUI
 			 * selection is updated IF requestFocus() is synchronous (it is on Windows). See bug 4122345
 			 */
 			//			int row = convertLocationToModel(e.getX(), e.getY());
+			if (list.getLayoutOrientation() == JList.HORIZONTAL_WRAP || list.getLayoutOrientation() == JList.VERTICAL_WRAP)
+			{
+				// make sure layout state is correct before calculating the editing row
+				updateLayoutState();
+			}
+
 			final int row = locationToIndex(list, new Point(e.getX(), e.getY()));
 			if (row == -1)
 			{
@@ -360,7 +366,14 @@ public class EditListUI extends BasicListUI
 			Point p2 = SwingUtilities.convertPoint(list, p, editorComponent);
 			if (editorComponent instanceof Container)
 			{
-				dispatchComponent = ((Container)editorComponent).findComponentAt(p2.x, p2.y);
+				if (((Container)editorComponent).getComponentCount() > 0)
+				{
+					dispatchComponent = ((Container)editorComponent).findComponentAt(p2.x, p2.y);
+				}
+				else
+				{
+					dispatchComponent = editorComponent;
+				}
 			}
 			else
 			{
