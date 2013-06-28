@@ -863,7 +863,7 @@ public class ComponentFactory
 		{
 			try
 			{
-				Debug.error(Thread.currentThread().getContextClassLoader());
+				Debug.log(Thread.currentThread().getContextClassLoader());
 				if (Thread.currentThread().getContextClassLoader() == null)
 				{
 					Thread.currentThread().setContextClassLoader(ComponentFactory.class.getClassLoader());
