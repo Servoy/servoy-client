@@ -44,6 +44,7 @@ import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 
@@ -880,6 +881,36 @@ public class PersistHelper
 	public static boolean isOverrideElement(ISupportExtendsID persist)
 	{
 		return ((AbstractBase)persist).hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && persist.getExtendsID() > 0;
+	}
+
+	/**
+	 * Example if a superform has a tabPanel with a tab, and a derived form adds another tab to the tabpannel then  hasOverrideChildren(derivedTabPanel) returns true
+	 */
+	public static boolean hasOverrideChildren(IPersist persist)
+	{
+		if (persist instanceof ISupportChilds && persist instanceof ISupportExtendsID)
+		{
+			ISupportChilds p = (ISupportChilds)persist;
+			ISupportChilds superPersist = (ISupportChilds)PersistHelper.getSuperPersist((ISupportExtendsID)persist);
+			if (superPersist == null)
+			{
+				return false;
+			}
+			for (IPersist child : Utils.iterate(p.getAllObjects()))
+			{
+				if (child instanceof ISupportExtendsID && !PersistHelper.isOverrideElement((ISupportExtendsID)child))
+				{ // is is an etra child element compared to it's super child elements
+					return true;
+				}
+				else if (((AbstractBase)child).hasOverrideProperties() || ((AbstractBase)child).hasOverrideCustomProperty())
+				{
+					return true;
+				}
+			}
+
+		}
+		return false;
+
 	}
 
 	/**
