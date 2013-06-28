@@ -94,21 +94,26 @@ public class RenderEventExecutor
 		if (!isOnRenderExecuting && isRenderStateChanged && renderScriptExecuter != null && renderCallback != null)
 		{
 			isOnRenderExecuting = true;
+			try
+			{
+				IScriptRenderMethods renderable = onRenderComponent.getRenderable();
+				if (renderable instanceof RenderableWrapper) ((RenderableWrapper)renderable).resetProperties();
 
-			IScriptRenderMethods renderable = onRenderComponent.getRenderable();
-			if (renderable instanceof RenderableWrapper) ((RenderableWrapper)renderable).resetProperties();
+				JSRenderEvent event = new JSRenderEvent();
+				event.setElement(onRenderComponent);
+				event.setHasFocus(hasFocus);
+				event.setRecord(renderRecord);
+				event.setIndex(renderIndex);
+				event.setSelected(renderIsSelected);
 
-			JSRenderEvent event = new JSRenderEvent();
-			event.setElement(onRenderComponent);
-			event.setHasFocus(hasFocus);
-			event.setRecord(renderRecord);
-			event.setIndex(renderIndex);
-			event.setSelected(renderIsSelected);
-
-			renderScriptExecuter.executeFunction(renderCallback, Utils.arrayMerge(new Object[] { event }, renderCallbackArgs), false,
-				onRenderComponent.getComponent(), false, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
-			isRenderStateChanged = false;
-			isOnRenderExecuting = false;
+				renderScriptExecuter.executeFunction(renderCallback, Utils.arrayMerge(new Object[] { event }, renderCallbackArgs), false,
+					onRenderComponent.getComponent(), false, StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID.getPropertyName(), true);
+				isRenderStateChanged = false;
+			}
+			finally
+			{
+				isOnRenderExecuting = false;
+			}
 		}
 	}
 }
