@@ -286,6 +286,10 @@ public class JavaToDocumentedJSTypeTranslator
 					if (jsType == null || jsType.trim().length() == 0) jsType = translatedClassAndName.getLeft().getSimpleName();
 					if (jsType != null) jsType = jsType.trim();
 				}
+				else if (translatedClassAndName.getRight() != null && translatedClassAndName.getRight().startsWith("Packages."))
+				{
+					jsType = translatedClassAndName.getRight();
+				}
 				else
 				{
 					jsType = translatedClassAndName.getLeft().getSimpleName();
