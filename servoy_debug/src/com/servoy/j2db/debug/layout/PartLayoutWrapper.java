@@ -22,7 +22,7 @@ import java.util.List;
 
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.persistence.IMobileProperties.MobileProperty;
-import com.servoy.j2db.persistence.Part;
+import com.servoy.base.persistence.PersistUtils;
 import com.servoy.j2db.scripting.solutionmodel.JSComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSPart;
@@ -48,11 +48,11 @@ public class PartLayoutWrapper implements ILayoutWrapper
 	public void setBounds(int x, int y, int width, int height)
 	{
 		part.setHeight(y + height);
-		if (part.getPartType() == Part.HEADER)
+		if (PersistUtils.isHeaderPart(part.getPartType()))
 		{
 			MobileFormLayout.layoutHeader(getLayoutElements(part.getPartType()), x, y, width);
 		}
-		else if (part.getPartType() == Part.FOOTER)
+		else if (PersistUtils.isFooterPart(part.getPartType()))
 		{
 			// Adjust body
 			JSPart bodyPart = ((JSForm)part.getJSParent()).getBodyPart();
@@ -69,8 +69,8 @@ public class PartLayoutWrapper implements ILayoutWrapper
 		List<ILayoutWrapper> elements = new ArrayList<ILayoutWrapper>();
 		for (JSComponent< ? > comp : jsform.getComponents())
 		{
-			if ((partType == Part.HEADER && comp.getBaseComponent(false).getCustomMobileProperty(IMobileProperties.HEADER_ITEM.propertyName) != null) ||
-				(partType == Part.FOOTER && comp.getBaseComponent(false).getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName) != null))
+			if ((PersistUtils.isHeaderPart(partType) && comp.getBaseComponent(false).getCustomMobileProperty(IMobileProperties.HEADER_ITEM.propertyName) != null) ||
+				(PersistUtils.isFooterPart(partType) && comp.getBaseComponent(false).getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName) != null))
 			{
 				elements.add(new ComponentLayoutWrapper(comp));
 			}
@@ -111,7 +111,7 @@ public class PartLayoutWrapper implements ILayoutWrapper
 	@Override
 	public MobileFormSection getElementType()
 	{
-		return part.getPartType() == Part.HEADER ? MobileFormSection.Header : MobileFormSection.Footer;
+		return PersistUtils.isHeaderPart(part.getPartType()) ? MobileFormSection.Header : MobileFormSection.Footer;
 	}
 
 	@SuppressWarnings("unchecked")

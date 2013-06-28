@@ -858,6 +858,11 @@ public class ComponentFactory
 		{
 			try
 			{
+				Debug.log(Thread.currentThread().getContextClassLoader());
+				if (Thread.currentThread().getContextClassLoader() == null)
+				{
+					Thread.currentThread().setContextClassLoader(ComponentFactory.class.getClassLoader());
+				}
 				XMLDecoder decoder = new XMLDecoder(beanXML);
 				retValue = decoder.readObject();
 				decoder.close();
@@ -2384,7 +2389,7 @@ public class ComponentFactory
 	{
 		if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES &&
 			valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS && valuelist.getCustomValues() != null &&
-			valuelist.getCustomValues().split(System.getProperty("line.separator")).length == 1)
+			!valuelist.getCustomValues().contains("\n") && !valuelist.getCustomValues().contains("\r"))
 		{
 			return true;
 		}
