@@ -327,9 +327,10 @@ public class JavaToDocumentedJSTypeTranslator
 					}
 					else
 					{
-						Debug.trace("Undocumented/non-scriptable type exposed to JS: " + cls.getName() + ". Changed into Object."); //$NON-NLS-1$ //$NON-NLS-2$
-						cls = com.servoy.j2db.documentation.scripting.docs.Object.class;
-						translatedClassName = com.servoy.j2db.documentation.scripting.docs.Object.class.getName();
+						Debug.trace("Undocumented/non-scriptable type exposed to JS: " + cls.getName() + ". Changed into the rhino 'Packages.' notation"); //$NON-NLS-1$ //$NON-NLS-2$
+//						cls = com.servoy.j2db.documentation.scripting.docs.Object.class;
+//						translatedClassName = com.servoy.j2db.documentation.scripting.docs.Object.class.getName();
+						translatedClassName = "Packages." + cls.getName();
 					}
 				}
 			}
