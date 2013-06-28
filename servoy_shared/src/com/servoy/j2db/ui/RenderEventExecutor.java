@@ -91,7 +91,7 @@ public class RenderEventExecutor
 
 	public void fireOnRender(boolean hasFocus)
 	{
-		if (isRenderStateChanged && renderScriptExecuter != null && renderCallback != null)
+		if (!isOnRenderExecuting && isRenderStateChanged && renderScriptExecuter != null && renderCallback != null)
 		{
 			isOnRenderExecuting = true;
 
