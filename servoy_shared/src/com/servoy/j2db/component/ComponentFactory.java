@@ -858,6 +858,11 @@ public class ComponentFactory
 		{
 			try
 			{
+				Debug.log(Thread.currentThread().getContextClassLoader());
+				if (Thread.currentThread().getContextClassLoader() == null)
+				{
+					Thread.currentThread().setContextClassLoader(ComponentFactory.class.getClassLoader());
+				}
 				XMLDecoder decoder = new XMLDecoder(beanXML);
 				retValue = decoder.readObject();
 				decoder.close();
