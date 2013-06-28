@@ -2384,7 +2384,7 @@ public class ComponentFactory
 	{
 		if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES &&
 			valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS && valuelist.getCustomValues() != null &&
-			valuelist.getCustomValues().split(System.getProperty("line.separator")).length == 1)
+			!valuelist.getCustomValues().contains("\n") && !valuelist.getCustomValues().contains("\r"))
 		{
 			return true;
 		}
