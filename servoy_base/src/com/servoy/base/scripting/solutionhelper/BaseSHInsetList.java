@@ -89,7 +89,6 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 	protected IBaseSMLabel createHeaderComponent()
 	{
 		IBaseSMLabel header = container.newLabel(null, 0, 0, 50, 30);
-		header.setDisplaysTags(true);
 		contextForm.setMobilePropertyValue(header, IMobileProperties.LIST_ITEM_HEADER, Boolean.TRUE);
 		return header;
 	}
