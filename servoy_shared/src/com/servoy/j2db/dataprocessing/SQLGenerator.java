@@ -37,9 +37,7 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.FindState.RelatedFindState;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -649,12 +647,8 @@ public class SQLGenerator
 		return "<html><body>" + ds.js_getAsHTML(Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private static final int NULLCHECK_NONE = 0;
-	private static final int NULLCHECK_NULL = 1;
-	private static final int NULLCHECK_NULL_EMPTY = 2;
-
 	private ISQLCondition createConditionFromFindState(FindState s, QuerySelect sqlSelect, IGlobalValueEntry provider, List<IQuerySelectValue> pkQueryColumns)
-		throws ApplicationException, RepositoryException
+		throws RepositoryException
 	{
 		ISQLCondition and = null;
 
@@ -768,8 +762,8 @@ public class SQLGenerator
 						}
 						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString)) 
 						// and once to convert for query (getAsType(c.getDataProviderType(), null))
-						Object converted = convertFromObject(columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(),
-							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false));
+						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(),
+							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false), false);
 						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false);
 					}
 					// where qCol in (e1, e2, ..., en)
@@ -786,7 +780,8 @@ public class SQLGenerator
 							@Override
 							public Object convertFromObject(Object value)
 							{
-								return SQLGenerator.convertFromObject(fColumnConverter, fColumnConverterInfo, dataProviderID, fDataProviderType, value);
+								return SQLGenerator.convertFromObject(application, fColumnConverter, fColumnConverterInfo, dataProviderID, fDataProviderType,
+									value, false);
 							}
 						}, new ITypeConverter()
 						{
@@ -826,23 +821,29 @@ public class SQLGenerator
 		return and;
 	}
 
-	public static Object convertFromObject(IColumnConverter columnConverter, ConverterInfo columnConverterInfo, String dataProviderID, int columnType,
-		Object obj)
+	public static Object convertFromObject(IServiceProvider application, IColumnConverter columnConverter, ConverterInfo columnConverterInfo,
+		String dataProviderID, int columnType, Object obj, boolean throwOnFail)
 	{
-		if (columnConverter == null)
+		if (columnConverter != null)
 		{
-			return obj;
+			try
+			{
+				return columnConverter.convertFromObject(columnConverterInfo.props, columnType, obj);
+			}
+			catch (Exception e)
+			{
+				IllegalArgumentException illarg = new IllegalArgumentException("Could not convert value '" + obj + "' for dataprovider '" + dataProviderID +
+					"'", e); //$NON-NLS-1$
+				if (throwOnFail)
+				{
+					throw illarg;
+				}
+
+				// don't throw, just log and return original object
+				application.reportJSError(illarg.getMessage(), illarg);
+			}
 		}
-		try
-		{
-			return columnConverter.convertFromObject(columnConverterInfo.props, columnType, obj);
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-			throw new IllegalArgumentException(Messages.getString(
-				"servoy.record.error.settingDataprovider", new Object[] { dataProviderID, Column.getDisplayTypeString(columnType), obj }), e); //$NON-NLS-1$
-		}
+		return obj;
 	}
 
 	public static ISQLCondition createExistsCondition(IDataProviderHandler flattenedSolution, QuerySelect sqlSelect, ISQLCondition condition,
