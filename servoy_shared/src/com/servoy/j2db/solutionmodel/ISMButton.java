@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMButton;
 
 /**
@@ -28,5 +29,13 @@ import com.servoy.base.solutionmodel.IBaseSMButton;
  */
 public interface ISMButton extends IBaseSMButton, ISMGraphicalComponent
 {
+	/**
+	 * @sameas {@link com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()} 
+	 */
+	@Override
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	public String getStyleClass();
 
+	@Override
+	public void setStyleClass(String arg);
 }

@@ -137,6 +137,7 @@ public interface IBaseSMComponent
 	 * form.styleName = 'myStyle'; // First set the style on the form.
 	 * field.styleClass = 'fancy'; // Then set the style class on the field.
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public String getStyleClass();
 
 	public void setX(int x);

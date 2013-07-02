@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.mobile.IMobileSMCombobox;
 
 
@@ -27,4 +28,13 @@ import com.servoy.base.solutionmodel.mobile.IMobileSMCombobox;
  */
 public interface ISMCombobox extends IMobileSMCombobox, ISMField
 {
+	/**
+	 * @sameas {@link com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()} 
+	 */
+	@Override
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	public String getStyleClass();
+
+	@Override
+	public void setStyleClass(String arg);
 }

@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.mobile.IMobileSMChecks;
 
 
@@ -27,4 +28,14 @@ import com.servoy.base.solutionmodel.mobile.IMobileSMChecks;
  */
 public interface ISMChecks extends IMobileSMChecks, ISMField
 {
+	/**
+	 * @sameas {@link com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()} 
+	 */
+	@Override
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	public String getStyleClass();
+
+	@Override
+	public void setStyleClass(String arg);
+
 }
