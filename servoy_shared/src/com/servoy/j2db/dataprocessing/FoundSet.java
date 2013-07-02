@@ -4290,7 +4290,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return newRecord(null, indexToAdd, changeSelection);
 	}
 
-	protected int newRecord(Row rowData, int indexToAdd, boolean changeSelection) throws ServoyException
+	private int newRecord(Row rowData, int indexToAdd, boolean changeSelection) throws ServoyException
 	{
 		return newRecord(rowData, indexToAdd, changeSelection, true);
 	}

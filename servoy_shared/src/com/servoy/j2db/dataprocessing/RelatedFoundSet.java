@@ -383,13 +383,6 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	@Override
-	protected int newRecord(Row rowData, int index, boolean changeSelection) throws ServoyException
-	{
-		checkQueryForUpdates();
-		return super.newRecord(rowData, index, changeSelection);
-	}
-
-	@Override
 	protected int newRecord(Row rowData, int indexToAdd, boolean changeSelection, boolean javascriptRecord) throws ServoyException
 	{
 		checkQueryForUpdates();
