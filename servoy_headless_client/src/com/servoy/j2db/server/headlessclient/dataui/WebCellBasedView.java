@@ -5095,7 +5095,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int pageViewSize = 3 * maxRowsPerPage;
 			int tableSize = table.getList().size();
 
-			Integer selectedIndex = WebCellBasedView.this.getSelectedIndexes() == null ? null : WebCellBasedView.this.getSelectedIndexes()[0];
+			Integer selectedIndex = null;
+			if (WebCellBasedView.this.getSelectedIndexes() != null && WebCellBasedView.this.getSelectedIndexes().length > 0)
+			{
+				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
+			}
 			if (selectedIndex == null || selectedIndex > tableSize) return;
 
 			{// this block handles the case where there is not need to render new rows
