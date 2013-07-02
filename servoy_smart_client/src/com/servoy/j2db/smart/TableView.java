@@ -1338,35 +1338,53 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			}
 		}
 		super.configureEnclosingScrollPane();
-		if ((headerCache != null) || (leadingGrandSummaryCache != null))
+
+		JScrollPane scrollPane = null;
+		JViewport viewport = null;
+		Container p = getParent();
+		if (p instanceof JViewport)
 		{
-			setTableHeader(null);
-			Container p = getParent();
-			if (p instanceof JViewport)
+			Container gp = p.getParent();
+			if (gp instanceof JScrollPane)
 			{
-				Container gp = p.getParent();
-				if (gp instanceof JScrollPane)
+				scrollPane = (JScrollPane)gp;
+				// Make certain we are the viewPort's view and not, for
+				// example, the rowHeaderView of the scrollPane -
+				// an implementor of fixed columns might do this.
+				viewport = scrollPane.getViewport();
+				if (viewport != null && viewport.getView() != this)
 				{
-					JScrollPane scrollPane = (JScrollPane)gp;
-					// Make certain we are the viewPort's view and not, for
-					// example, the rowHeaderView of the scrollPane -
-					// an implementor of fixed columns might do this.
-					JViewport viewport = scrollPane.getViewport();
-					if (viewport == null || viewport.getView() != this)
-					{
-						return;
-					}
-					EnablePanel ep = new EnablePanel();
-					ep.setOpaque(false);
-					ep.setLayout(new BorderLayout());
-					if (headerCache != null) ep.add((Component)headerCache, BorderLayout.CENTER);
-					if (leadingGrandSummaryCache != null) ep.add((Component)leadingGrandSummaryCache, BorderLayout.SOUTH);
-					scrollPane.setColumnHeaderView(ep);
+					viewport = null;
 				}
 			}
 		}
-	}
 
+		if ((headerCache != null) || (leadingGrandSummaryCache != null))
+		{
+			setTableHeader(null);
+			if (viewport != null)
+			{
+				EnablePanel ep = new EnablePanel();
+				ep.setOpaque(false);
+				ep.setLayout(new BorderLayout());
+				if (headerCache != null) ep.add((Component)headerCache, BorderLayout.CENTER);
+				if (leadingGrandSummaryCache != null) ep.add((Component)leadingGrandSummaryCache, BorderLayout.SOUTH);
+				scrollPane.setColumnHeaderView(ep);
+			}
+		}
+
+		// need this to have the right bgcolor in the header above the content scrollbar
+		if (viewport != null)
+		{
+			JViewport columnHeader = scrollPane.getColumnHeader();
+			if (columnHeader != null)
+			{
+				columnHeader.setOpaque(false);
+				Component columnHeaderView = columnHeader.getView();
+				if (columnHeaderView instanceof JComponent) ((JComponent)columnHeaderView).setOpaque(false);
+			}
+		}
+	}
 
 	int previousRow = -1;
 	int previousColumn = -1;

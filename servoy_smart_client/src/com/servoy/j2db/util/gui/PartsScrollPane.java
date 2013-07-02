@@ -245,6 +245,8 @@ public class PartsScrollPane extends EnablePanel implements javax.swing.plaf.UIR
 			scrollColumnHeaderPanel.add(c, BorderLayout.CENTER);
 			scrollColumnHeaderPanel.validate();
 			this.header = c;
+			// need this to have the right bgcolor in the header above the content scrollbar
+			scroll.setBackground(this.header.getBackground());
 		}
 	}
 
@@ -253,6 +255,8 @@ public class PartsScrollPane extends EnablePanel implements javax.swing.plaf.UIR
 		if (c != null)
 		{
 			scroll.setViewportView(c);
+			// need this to have the right bgcolor in the header above the content scrollbar
+			scroll.setBackground(header != null ? header.getBackground() : scroll.getViewport().getBackground());
 		}
 	}
 
