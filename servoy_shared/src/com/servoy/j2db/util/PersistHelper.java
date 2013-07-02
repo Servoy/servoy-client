@@ -902,7 +902,7 @@ public class PersistHelper
 				{ // is is an etra child element compared to it's super child elements
 					return true;
 				}
-				else if (((AbstractBase)child).hasOverrideProperties() || ((AbstractBase)child).hasOverrideCustomProperty())
+				else if (((AbstractBase)child).hasOverrideProperties())
 				{
 					return true;
 				}
