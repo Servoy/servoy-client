@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
@@ -62,7 +63,6 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.IQueryElement;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
@@ -1037,7 +1037,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		dataprovider = dataprovider.trim();
 
-		int op = RelationItem.getValidOperator(operator.trim(), ISQLCondition.ALL_DEFINED_OPERATORS, ISQLCondition.ALL_MODIFIERS);
+		int op = RelationItem.getValidOperator(operator.trim(), IBaseSQLCondition.ALL_DEFINED_OPERATORS, IBaseSQLCondition.ALL_MODIFIERS);
 		if (op == -1)
 		{
 			return null;
@@ -1094,15 +1094,16 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					for (int i = 0; i < array.length; i++)
 					{
-						array[i] = SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, column.getDataProviderID(),
-							column.getDataProviderType(), array[i]);
+						array[i] = SQLGenerator.convertFromObject(application, columnConverter, columnConverterInfo, column.getDataProviderID(),
+							column.getDataProviderType(), array[i], false);
 					}
 					return array;
 				}
 
 				if (value == null || !value.toString().trim().toLowerCase().startsWith(SQLGenerator.STRING_SELECT))
 				{
-					return SQLGenerator.convertFromObject(columnConverter, columnConverterInfo, column.getDataProviderID(), column.getDataProviderType(), value);
+					return SQLGenerator.convertFromObject(application, columnConverter, columnConverterInfo, column.getDataProviderID(),
+						column.getDataProviderType(), value, false);
 				}
 				// else add as subquery
 			}

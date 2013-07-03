@@ -859,7 +859,8 @@ public class ComponentFactory
 			try
 			{
 				Debug.log(Thread.currentThread().getContextClassLoader());
-				if (Thread.currentThread().getContextClassLoader() == null)
+				if (Thread.currentThread().getContextClassLoader() == null ||
+					Thread.currentThread().getContextClassLoader() == ClassLoader.getSystemClassLoader())
 				{
 					Thread.currentThread().setContextClassLoader(ComponentFactory.class.getClassLoader());
 				}

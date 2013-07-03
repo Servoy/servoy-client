@@ -364,7 +364,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newBodyWidthHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyWidth")); //$NON-NLS-1$ 
 			int newBodyHeightHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyHeight")); //$NON-NLS-1$ 
 
-			if (isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue())
+			int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
+			boolean hasVerticalScrollbarsAlwways = (ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS & scrollbars) != 0 ? true : false;
+
+			if ((isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue()) || hasVerticalScrollbarsAlwways)
 			{
 				newBodyWidthHint -= SCROLLBAR_SIZE; // extract the vertical scrollbar width
 			}
@@ -1451,7 +1454,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			public String getObject()
 			{
-				if (isScrollMode() && currentData != null && currentData.getSize() > 0) return "overflow-x: hidden; overflow-y: hidden;"; //$NON-NLS-1$
 				if (findParent(IWebFormContainer.class) != null)
 				{
 					return ""; //$NON-NLS-1$
@@ -5095,7 +5097,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int pageViewSize = 3 * maxRowsPerPage;
 			int tableSize = table.getList().size();
 
-			Integer selectedIndex = WebCellBasedView.this.getSelectedIndexes() == null ? null : WebCellBasedView.this.getSelectedIndexes()[0];
+			Integer selectedIndex = null;
+			if (WebCellBasedView.this.getSelectedIndexes() != null && WebCellBasedView.this.getSelectedIndexes().length > 0)
+			{
+				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
+			}
 			if (selectedIndex == null || selectedIndex > tableSize) return;
 
 			{// this block handles the case where there is not need to render new rows
