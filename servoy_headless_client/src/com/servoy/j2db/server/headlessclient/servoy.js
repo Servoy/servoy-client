@@ -173,7 +173,8 @@ function restoreValueAndCursorAfterUpdate()
 		&& element.id == focusedElement.id 
 		&& typeof(element) != "undefined")
 	{
-		if(element.value != focusedValue)
+		var sameValueWithFormat = (element.displayValue && element.editValue && element.value == element.displayValue && focusedValue == element.editValue );
+		if(element.value != focusedValue && !sameValueWithFormat)
 		{
 			if (element.SERVOY_DONT_UPDATE_THIS_BECAUSE_ITS_NOT_CHANGED)
 			{
@@ -198,6 +199,11 @@ function restoreValueAndCursorAfterUpdate()
 					element.onfocus = null;
 					if (focusedElementSelection && focusedElementSelection.begin != focusedElementSelection.end)
 					{
+						if (sameValueWithFormat && focusedElementSelection.begin == 0 && focusedElementSelection.end == focusedValue.length)
+						{
+							// select all
+							focusedElementSelection.end = element.value.length;
+						}
 						Servoy.Utils.createSelection(element,focusedElementSelection.begin,focusedElementSelection.end);
 					}
 					else
@@ -2321,10 +2327,8 @@ if (typeof(Servoy.Utils) == "undefined")
 	  {
 	  	if(Servoy.Utils.isChrome || Servoy.Utils.isSafari || Servoy.Utils.isFirefox)
 	  	{
-	  		var delay = 0;
-	  		if (Servoy.Utils.isFirefox) delay = 200;
 	  		var x= el;
-	  		setTimeout(function(){x.select();},delay);
+	  		setTimeout(function(){x.select();},0);
 	  	}
 	  	else
 	  	{
@@ -2445,8 +2449,21 @@ if (typeof(Servoy.Validation) == "undefined")
 				if (this.editValue != '')
 				{
 					var caret = Servoy.Utils.doGetCaretPosition(this);
+					var pos = Servoy.Utils.getSelection(this);
+					var selectAll = null;
+					if (pos && pos.begin != pos.end && pos.begin == 0 && pos.end == this.value.length)
+					{
+						selectAll = true;
+					}
 					this.value = this.editValue;
-					Servoy.Utils.doSetCaretPosition(this,caret);
+					if (selectAll)
+					{
+						Servoy.Utils.doSelect(this);
+					}
+					else
+					{
+						Servoy.Utils.doSetCaretPosition(this,caret);
+					}
 					if (this.displayValue == '')
 					{
 						setTimeout(function(){
