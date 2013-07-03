@@ -262,7 +262,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	{
 		destroyed = false;
 		Solution solution = s;
-		boolean isHeadlessClient = true; //application.getApplicationType() == IApplication.HEADLESS_CLIENT;
+		boolean isHeadlessClient = application.getApplicationType() == IApplication.HEADLESS_CLIENT;
 
 		Iterator<Form> e = application.getFlattenedSolution().getForms(true);
 		// add all forms first, they may be referred to in the login form
