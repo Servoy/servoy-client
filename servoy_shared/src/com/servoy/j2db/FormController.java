@@ -5178,7 +5178,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	private void executeOnShowMethod()
 	{
-		if (application.getApplicationType() != IApplication.HEADLESS_CLIENT && !executingOnLoad && form.getOnShowMethodID() > 0)
+		if (!executingOnLoad && form.getOnShowMethodID() > 0)
 		{
 			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope) };//isFirstTime
 			didOnShowOnce = true;
