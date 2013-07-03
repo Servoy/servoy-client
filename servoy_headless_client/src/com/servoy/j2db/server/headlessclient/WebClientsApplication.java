@@ -278,6 +278,8 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 	@Override
 	protected void init()
 	{
+		if (ApplicationServerSingleton.get() == null) return; // TODO this is a workaround to allow mobile test client that only starts Tomcat not to give exceptions (please remove if mobile test client initialises a full app. server in the future)
+
 		getResourceSettings().setResourceWatcher(new ServoyModificationWatcher(Duration.seconds(5)));
 //		getResourceSettings().setResourcePollFrequency(Duration.seconds(5));
 		getResourceSettings().setAddLastModifiedTimeToResourceReferenceUrl(true);

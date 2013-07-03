@@ -35,24 +35,11 @@ public interface IJSUnitSuiteHandler extends IBridgedTestSuite, IBridgedTestList
 	int getId();
 
 	/**
-	 * Returns an array of strings. Each string in the array represents javascript code that will need to be evaluated in the client context
-	 * in order to use JSUnit. (For example JsUnit.js, JsUtil.js and JsUnitToJava.js; more could be added if needed in the future)
-	 */
-	String[] getJsUnitJavascriptCode();
-
-	/**
 	 * When this gets called, the test session should end with an error.
 	 */
 	void reportUnexpectedThrowable(String msg, Throwable t);
 
 	void registerRunStartListener(TestCycleListener l);
-
-	/**
-	 * Returns either null - suggesting that the mobile client should build the suite itself or a String[2] where index 0 is
-	 * the test suite name and index 1 is the whole javascript code of the solution js unit testsuite.
-	 * @return see description.
-	 */
-	String[] getSolutionJsUnitJavascriptCode();
 
 	/**
 	 * Returns either null for no credentials or a String[2] where index 0 is 'username' and index 1 is 'password' - for automatic
