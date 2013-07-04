@@ -367,7 +367,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
 			boolean hasVerticalScrollbarsAlwways = (ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS & scrollbars) != 0 ? true : false;
 
-			if ((isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue()) || hasVerticalScrollbarsAlwways)
+			if ((isScrollMode() && (needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue() || hasVerticalScrollbarsAlwways)))
 			{
 				newBodyWidthHint -= SCROLLBAR_SIZE; // extract the vertical scrollbar width
 			}
