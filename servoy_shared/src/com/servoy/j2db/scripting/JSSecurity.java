@@ -24,6 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
+import com.servoy.base.scripting.api.IJSSecurity;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
@@ -54,7 +57,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner,seb,jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Security", scriptingName = "security")
-public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
+public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJSSecurity
 {
 	static
 	{
@@ -1278,14 +1281,22 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 * 
 	 * // if no authenticator name is used, the credentials are checked using the Servoy built-in user management
 	 * ok = security.authenticate(null, null, [scopes.globals.userName, scopes.globals.passWord])
-	 *
+	 * 
+	 * @description-mc
+	 * Authenticate the given credentials against the mobile service solution. First two parameters are not used in mobile solution, just the credentials.
+	 * 
+	 * @sample-mc
+	 * // method will return null in mobile client, the same flow as for default login page will happen after calling this method
+	 * security.authenticate(null, null, ['myusername', 'mypassword']);
+	 * 
 	 * @param authenticator_solution authenticator solution installed on the Servoy Server, null for servoy built-in authentication
 	 * @param method authenticator method, null for servoy built-in authentication
 	 * @param credentials array whose elements are passed as arguments to the authenticator method, in case of servoy built-in authentication this should be [username, password]
 	 * 
 	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
 	 */
-	public Object js_authenticate(String authenticator_solution, String method, Object[] credentials)
+	@JSFunction
+	public Object authenticate(String authenticator_solution, String method, Object[] credentials)
 	{
 		try
 		{
@@ -1321,7 +1332,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject
 	 */
 	public Object js_authenticate(String authenticator_solution, String method)
 	{
-		return js_authenticate(authenticator_solution, method, null);
+		return authenticate(authenticator_solution, method, null);
 	}
 
 	/**

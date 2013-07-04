@@ -1057,6 +1057,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * The name of the login form that loads when a solution is deployed.
 	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getLoginFormID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID).intValue();
