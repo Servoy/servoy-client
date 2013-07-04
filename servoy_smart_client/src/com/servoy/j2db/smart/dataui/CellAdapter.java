@@ -660,38 +660,45 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				tableSelectionColor = adjustColorDifference(bgColor, tableSelectionColor);
 			}
 
-			if (!(isRenderWithOnRender && ((RenderableWrapper)renderable).getProperty(RenderableWrapper.PROPERTY_FGCOLOR) != null)) renderer.setForeground(fgColor != null
-				? fgColor : tableSelectionColor);
-			if (!(isRenderWithOnRender && ((RenderableWrapper)renderable).getProperty(RenderableWrapper.PROPERTY_BGCOLOR) != null)) renderer.setBackground(bgColor != null
-				? bgColor : jtable.getSelectionBackground());
+			((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
+			renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
+			((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
+			renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
 
-			if (font != null) renderer.setFont(font);
+			if (font != null)
+			{
+				((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FONT);
+				renderer.setFont(font);
+			}
 		}
 		else
 		{
 			if (isRenderWithOnRender)
 			{
-				Color newBGColor = bgColor != null ? bgColor : componentBgColor;
-				if (newBGColor != null)
+				if (renderEventExecutor.isDifferentRenderState(state, row, isSelected))
 				{
-					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
-					renderer.setBackground(newBGColor);
-				}
-				Color newFGColor = fgColor != null ? fgColor : componentFgColor;
-				if (newFGColor != null)
-				{
-					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
-					renderer.setForeground(newFGColor);
-				}
-				else if (newBGColor != null)
-				{
-					renderer.setForeground(adjustColorDifference(newBGColor, jtable.getForeground()));
-				}
-				Font newFont = font != null ? font : componentFont;
-				if (newFont != null)
-				{
-					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FONT);
-					renderer.setFont(newFont);
+					Color newBGColor = bgColor != null ? bgColor : componentBgColor;
+					if (newBGColor != null)
+					{
+						((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
+						renderer.setBackground(newBGColor);
+					}
+					Color newFGColor = fgColor != null ? fgColor : componentFgColor;
+					if (newFGColor != null)
+					{
+						((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
+						renderer.setForeground(newFGColor);
+					}
+					else if (newBGColor != null)
+					{
+						renderer.setForeground(adjustColorDifference(newBGColor, jtable.getForeground()));
+					}
+					Font newFont = font != null ? font : componentFont;
+					if (newFont != null)
+					{
+						((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FONT);
+						renderer.setFont(newFont);
+					}
 				}
 			}
 			else
