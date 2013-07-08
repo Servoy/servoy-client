@@ -871,6 +871,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
 					WebCellBasedView.this.setSelectionMadeByCellAction();
 					modelFs.setSelectedIndex(recIndex);
+					currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
 					WebEventExecutor.generateResponse(target, getPage());
 				}
 
@@ -878,6 +879,38 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				protected String enhanceFunctionScript(String newEh)
 				{
 					return "if(event.target && (event.target.id == componentId || (event.target.tagName && (event.target.tagName.toLowerCase() == 'div' || event.target.tagName.toLowerCase() == 'span' || event.target.tagName.toLowerCase() == 'label')) )) {" + newEh + '}'; //$NON-NLS-1$
+				}
+
+
+				/**
+				 * generateCallbackScript  and getAjaxCallDecorator is used decorate the wicket on click event script with the current scroll top
+				 * It may happen that a user rapidly scrolls and clicks on the list items , before the scroll update timer has a chance to fire  
+				 * and the scrollIntoView thinks this is a selection outside the viewport
+				 */
+				@Override
+				protected CharSequence generateCallbackScript(final CharSequence partialCall)
+				{
+					return super.generateCallbackScript(partialCall + "+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$
+				}
+
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxPostprocessingCallDecorator(null)
+					{
+						private static final long serialVersionUID = 1L;
+
+						@SuppressWarnings("nls")
+						@Override
+						public CharSequence postDecorateScript(CharSequence script)
+						{
+							StringBuilder scriptBuilder = new StringBuilder();
+							scriptBuilder.append("var currentScrollTop = $('#").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append(
+								"').scrollTop();");
+							scriptBuilder.append(script);
+							return scriptBuilder.toString();
+						}
+					};
 				}
 			});
 
@@ -5114,15 +5147,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else if (isKeepLoadedRowsInScrollMode && (cellScroll < currentScrollTop + 2 * bodyHeightHint))
 				{
+					Boolean alignWithTop = cellScroll < currentScrollTop;
 					//selection was in the loaded rows but not visible in the viewport, scroll without loading records
-					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1);");
+					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
 					return;
 				}
 				else if (!isKeepLoadedRowsInScrollMode &&
 					(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
 				{
+					Boolean alignWithTop = cellScroll < currentScrollTop;
 					//selection was within the loaded viewSize
-					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1);");
+					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
 					return;
 				}
 			}
@@ -5191,6 +5226,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(table.getStartIndex());
 			int maxHeight = -1;
+
+			if (WebCellBasedView.this.isListViewMode())
+			{
+				return WebCellBasedView.this.formBodySize.height;
+			}
+
 			Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
 			for (Component c : it)
 			{

@@ -1056,11 +1056,11 @@ if (typeof(Servoy.TableView) == "undefined")
 			return Servoy.TableView.isAppendingRows ? nrRows : 0;
 		},
 		
-		scrollIntoView : function (markupId, delay){
-			var del = 1000;
-			if (!(typeof variable === 'undefined')) del =delay;
+		scrollIntoView : function (markupId, delay,alignWithTop){
+			delay = typeof delay !== 'undefined' ? delay : 1000;
+			alignWithTop = typeof alignWithTop !== 'undefined' ? alignWithTop : true;
 			if(Servoy.TableView.selectIndexTimer) clearTimeout(Servoy.TableView.selectIndexTimer);
-			Servoy.TableView.selectIndexTimer = setTimeout(function (){$('#'+markupId)[0].scrollIntoView(true);} , del);
+			Servoy.TableView.selectIndexTimer = setTimeout(function (){$('#'+markupId)[0].scrollIntoView(alignWithTop);} , delay);
 		},
 		scrollToTop: function(rowContainerBodyId)
 		{
