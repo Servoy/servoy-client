@@ -654,21 +654,24 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		boolean isRenderWithOnRender = renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && renderable instanceof RenderableWrapper;
 		if (isSelected)
 		{
-			Color tableSelectionColor = jtable.getSelectionForeground();
-			if (bgColor != null)
+			if (!isRenderWithOnRender || renderEventExecutor.isDifferentRenderState(state, row, isSelected))
 			{
-				tableSelectionColor = adjustColorDifference(bgColor, tableSelectionColor);
-			}
+				Color tableSelectionColor = jtable.getSelectionForeground();
+				if (bgColor != null)
+				{
+					tableSelectionColor = adjustColorDifference(bgColor, tableSelectionColor);
+				}
 
-			((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
-			renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
-			((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
-			renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
+				((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
+				renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
+				((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
+				renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
 
-			if (font != null)
-			{
-				((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FONT);
-				renderer.setFont(font);
+				if (font != null)
+				{
+					((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FONT);
+					renderer.setFont(font);
+				}
 			}
 		}
 		else
