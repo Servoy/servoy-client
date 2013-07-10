@@ -5115,8 +5115,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/**
 		 * called each time a new selection is applied  , </br>
-		 *  - if the selection is in the viewPort does nothing </br>
-		 *  - if the selection is in the rendered view but not in the viewport scrolls to that position</br>
+		 *  - if the selection is in the viewPort ,it does nothing </br>
+		 *  - if the selection is in the rendered view but not in the viewport ,it scrolls to that position</br>
 		 *  + if the selection is outside of the view and viewport:</br>
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is active then it loads records until the selection and scrolls to that position 
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
@@ -5136,21 +5136,23 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
 			}
-			if (selectedIndex == null || selectedIndex > tableSize) return;
+			boolean needToRenderRows = true;
+			if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false;
 
-			{// this block handles the case where there is not need to render new rows
-				int cellScroll = getCellHeight() * (selectedIndex.intValue() + 1);
+			if (needToRenderRows)
+			{// this block handles the case where there is not need to render new rows , only to scroll into viewPort
+				int cellHeight = getCellHeight();
+				int cellScroll = cellHeight * (selectedIndex.intValue() + 1);
 				if (cellScroll > currentScrollTop && (cellScroll < currentScrollTop + bodyHeightHint))
 				{
-					//selection was in the current view
-					return;
+					needToRenderRows = false;
 				}
-				else if (isKeepLoadedRowsInScrollMode && (cellScroll < currentScrollTop + 2 * bodyHeightHint))
+				else if (isKeepLoadedRowsInScrollMode && (cellScroll < viewSize * cellHeight))
 				{
 					Boolean alignWithTop = cellScroll < currentScrollTop;
 					//selection was in the loaded rows but not visible in the viewport, scroll without loading records
 					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
-					return;
+					needToRenderRows = false;
 				}
 				else if (!isKeepLoadedRowsInScrollMode &&
 					(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
@@ -5158,8 +5160,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					Boolean alignWithTop = cellScroll < currentScrollTop;
 					//selection was within the loaded viewSize
 					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
-					return;
+					needToRenderRows = false;
 				}
+			}
+			if (!needToRenderRows)
+			{
+				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
+				return;
 			}
 
 			if (isKeepLoadedRowsInScrollMode)
