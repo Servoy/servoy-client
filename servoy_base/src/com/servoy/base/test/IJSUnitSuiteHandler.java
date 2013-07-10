@@ -48,6 +48,11 @@ public interface IJSUnitSuiteHandler extends IBridgedTestSuite, IBridgedTestList
 	 */
 	String[] getCredentials();
 
+	/**
+	 * Returns an array of strings. Each string in the array represents javascript code that will need to be evaluated in the client context
+	 * in order to use JSUnit. (For example JsUnit.js, JsUtil.js and JsUnitToJava.js; more could be added if needed in the future)
+	 */
+	String[] getJsUnitJavascriptCode();
 
 	public static interface TestCycleListener
 	{
