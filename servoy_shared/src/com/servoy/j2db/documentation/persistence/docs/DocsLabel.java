@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
+import java.awt.Dimension;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -57,5 +59,12 @@ public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
 	@SuppressWarnings("unused")
 	public void setTitleVisible(boolean arg)
 	{
+	}
+
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@Override
+	public Dimension getSize()
+	{
+		return super.getSize();
 	}
 }

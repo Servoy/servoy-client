@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
+import java.awt.Dimension;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -67,5 +69,12 @@ public class DocsButton extends GraphicalComponent
 	@SuppressWarnings("unused")
 	public void setDataIcon(String dataIcon)
 	{
+	}
+
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@Override
+	public Dimension getSize()
+	{
+		return super.getSize();
 	}
 }

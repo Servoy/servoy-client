@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import com.servoy.j2db.documentation.persistence.docs.DocsInsetList;
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -452,7 +453,7 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("relationName") && !(Portal.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass))) //$NON-NLS-1$
+		if (name.equals("relationName") && !(DocsInsetList.class.isAssignableFrom(persistClass) || Portal.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass))) //$NON-NLS-1$
 		{
 			return false;
 		}
@@ -592,14 +593,13 @@ public class RepositoryHelper
 		// there is no style support for labels & text fields on mobile client
 		if (name.equals(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()))
 		{
-			if ((GraphicalComponent.class.isAssignableFrom(persistClass) && isButton))
+			if (GraphicalComponent.class.isAssignableFrom(persistClass))
 			{
-				return false;
+				return !isButton;
 			}
-			if (Field.class.isAssignableFrom(persistClass) &&
-				(displayType == Field.CHECKS || displayType == Field.RADIOS || displayType == Field.COMBOBOX || displayType < 0))
+			if (Field.class.isAssignableFrom(persistClass))
 			{
-				return false;
+				return displayType != Field.CHECKS && displayType != Field.RADIOS && displayType != Field.COMBOBOX && displayType >= 0;
 			}
 			if (Part.class.isAssignableFrom(persistClass))
 			{

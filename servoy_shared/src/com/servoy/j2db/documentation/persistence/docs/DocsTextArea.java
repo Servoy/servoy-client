@@ -30,4 +30,10 @@ import com.servoy.j2db.persistence.Field;
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsTextArea extends BaseDocsField
 {
+	@Override
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	public String getFormat()
+	{
+		return super.getFormat();
+	}
 }
