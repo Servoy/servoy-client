@@ -232,6 +232,8 @@ public class Ident
 		"window", "Window", "Worker", "XMLDocument", "XMLHttpRequest", "XMLHttpRequestException", "XMLHttpRequestProgressEvent", "XMLHttpRequestUpload",
 		"XMLSerializer", "XPathEvaluator", "XPathException", "XPathResult", "XSLTProcessor"));
 
+	private static final Set<String> mobile_window_gwt_used_words = new HashSet<String>(Arrays.asList("i"));
+
 	public static boolean checkIfKeyword(String name)
 	{
 		return checkName(java_js_keywords, name) || checkName(servoy_keywords, name);
@@ -250,7 +252,7 @@ public class Ident
 	public static boolean checkIfReservedBrowserWindowObjectWord(String name)
 	{
 		// case sensitive search
-		return name != null && mobile_window_reserved_words.contains(name.trim());
+		return name != null && (mobile_window_reserved_words.contains(name.trim()) || mobile_window_gwt_used_words.contains(name.trim()));
 	}
 
 	private static boolean checkName(String[] names, String name)
