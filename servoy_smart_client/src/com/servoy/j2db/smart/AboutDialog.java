@@ -350,7 +350,7 @@ public class AboutDialog extends JEscapeDialog implements ActionListener
 		sb.append("\n");
 
 		sb.append("Acrobat Forms Data Format (FDF) Toolkit\n");
-		sb.append("ADOBE\u00AE FDF SOFTWARE DEVELOPER’S KIT SOFTWARE LICENSE AGREEMENT\n");
+		sb.append("ADOBE\u00AE FDF SOFTWARE DEVELOPER'S KIT SOFTWARE LICENSE AGREEMENT\n");
 		sb.append("http://www.adobe.com/devnet/acrobat/fdftoolkit.html\n");
 		sb.append("\n");
 
