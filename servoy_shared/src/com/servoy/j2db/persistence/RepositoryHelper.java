@@ -171,6 +171,16 @@ public class RepositoryHelper
 				return "style"; //$NON-NLS-1$
 			case IRepository.TEMPLATES :
 				return "template"; //$NON-NLS-1$
+			case IRepository.FORMS :
+				return "form"; //$NON-NLS-1$
+			case IRepository.FIELDS :
+				return "field"; //$NON-NLS-1$
+			case IRepository.GRAPHICALCOMPONENTS :
+				return "graphical component"; //$NON-NLS-1$
+			case IRepository.TABPANELS :
+				return "tab panel"; //$NON-NLS-1$
+			case IRepository.PORTALS :
+				return "portal"; //$NON-NLS-1$
 			default :
 				// TODO: add other known object types if this method ever becomes used
 				// for objects which are not root objects.
