@@ -632,7 +632,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 					}
 					catch (Exception e)
 					{
-						Debug.error("Cannot create DebugJ2DBClient", e);
+						Debug.error("Cannot create DebugJ2DBClient - test client", e);
 					}
 				}
 			};
