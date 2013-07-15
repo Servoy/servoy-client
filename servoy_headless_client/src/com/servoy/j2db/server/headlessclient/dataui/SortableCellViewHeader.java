@@ -291,6 +291,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		headerColumnTable = new WebMarkupContainer("headerColumnTable"); //$NON-NLS-1$
 		headerColumnTable.add(labelResolver = new LabelResolverLink("sortLink", useAJAX, group, id)); //$NON-NLS-1$
 		labelResolver.add(new AttributeModifier("class", true, group)); //$NON-NLS-1$
+		labelResolver.add(new StyleAppendingModifier(new Model<String>("white-space: nowrap;text-overflow: clip;")));
 
 		// append background image in case of labelFor for the current label (goes through all labelFor components in the map to get the component by name )
 		GraphicalComponent labelFor = getLabelComponent();
