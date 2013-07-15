@@ -54,7 +54,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord", scriptingName = "JSRecord")
 public class Record implements Scriptable, IRecordInternal
 {
 	public static final String JS_RECORD = "JSRecord"; //$NON-NLS-1$
