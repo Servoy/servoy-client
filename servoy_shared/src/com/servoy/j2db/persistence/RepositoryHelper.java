@@ -589,12 +589,6 @@ public class RepositoryHelper
 			return true;
 		}
 
-		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && Field.class.isAssignableFrom(persistClass) && displayType >= 0 &&
-			displayType != Field.TEXT_FIELD && displayType != Field.TEXT_AREA && displayType != Field.PASSWORD)
-		{
-			return true;
-		}
-
 		if (name.equals(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()) && !isButton)
 		{
 			return true;
