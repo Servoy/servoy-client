@@ -41,6 +41,7 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 	private final ServoyDebugger debugger;
 	private final ServoyDebugFrame parent;
 	private final List<DataCallProfileData> dataCallProfileDatas = new ArrayList<DataCallProfileData>();
+	final IServiceProvider client;
 
 	/**
 	 * @param ct
@@ -54,6 +55,7 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 		this.node = node;
 		this.debugger = debugger;
 		this.parent = parent;
+		this.client = J2DBGlobals.getServiceProvider();
 	}
 
 	/*
@@ -120,5 +122,15 @@ public class ServoyDebugFrame extends DBGPDebugFrame implements IDataCallListene
 		}
 
 		return new ProfileData(name, (endTime - startTime), args, node.getSourceName(), parentSource, innerFunction, lineNumbers, dataCallProfileDatas);
+	}
+
+	@Override
+	public Object eval(String value)
+	{
+		if (client != null && J2DBGlobals.getServiceProvider() == null)
+		{
+			J2DBGlobals.setServiceProvider(client);
+		}
+		return super.eval(value);
 	}
 }

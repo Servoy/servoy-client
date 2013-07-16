@@ -46,6 +46,7 @@ public class J2DBGlobals
 		return singletonServiceProvider;
 	}
 
+	// DO NOT change these methods: this is now used in jasper reports plugin
 	public static void setServiceProvider(IServiceProvider provider)
 	{
 		serviceprovider.set(provider);

@@ -23,10 +23,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.debug.DebugFrame;
 import org.mozilla.javascript.debug.DebuggableScript;
+
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.J2DBGlobals;
 
 
 /**
@@ -126,12 +130,24 @@ public class ServoyDebugger extends DBGPDebugger
 	@Override
 	public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript)
 	{
+		final IServiceProvider client = J2DBGlobals.getServiceProvider();
 		if (profilelisteners.size() > 0)
 		{
 			ProfileInfo info = profileInfo.get();
 			return new ServoyDebugFrame(cx, fnOrScript, this, info != null ? info.peek() : null);
 		}
-		return super.getFrame(cx, fnOrScript);
+		return new DBGPDebugFrame(cx, fnOrScript, this)
+		{
+			@Override
+			public Object eval(String value)
+			{
+				if (client != null && J2DBGlobals.getServiceProvider() == null)
+				{
+					J2DBGlobals.setServiceProvider(client);
+				}
+				return super.eval(value);
+			}
+		};
 	}
 
 	public void onenter(ServoyDebugFrame servoyDebugFrame)
