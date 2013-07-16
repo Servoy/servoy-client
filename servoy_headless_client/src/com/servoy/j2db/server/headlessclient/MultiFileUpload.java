@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.wicket.ResourceReference;
@@ -28,8 +29,11 @@ import org.apache.wicket.markup.html.internal.HeaderResponse;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.IMultipartWebRequest;
+import org.apache.wicket.util.convert.ConversionException;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.server.headlessclient.MediaUploadPage.ServoyFileUpload;
 
 /**
  * @author jcompagner
@@ -80,6 +84,36 @@ public class MultiFileUpload extends MultiFileUploadField
 				return null;
 			}
 		});
+	}
+
+
+	/**
+	 * this method is identical to it's super except it creates a ServoyFileUpload.
+	 * ServoyFileUpload is again identical to FileUpload except it has access to the FileItem object
+	 */
+	@Override
+	protected Collection<FileUpload> convertValue(String[] value) throws ConversionException
+	{
+		// convert the array of filenames into a collection of FileItems
+
+		Collection<FileUpload> uploads = null;
+
+		final String[] filenames = getInputAsArray();
+
+		if (filenames != null)
+		{
+			final IMultipartWebRequest request = (IMultipartWebRequest)getRequest();
+
+			uploads = new ArrayList<FileUpload>(filenames.length);
+
+			for (String filename : filenames)
+			{
+				uploads.add(new ServoyFileUpload(request.getFile(filename)));
+			}
+		}
+
+		return uploads;
+
 	}
 
 }

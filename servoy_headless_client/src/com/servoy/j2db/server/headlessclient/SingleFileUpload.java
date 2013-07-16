@@ -16,23 +16,31 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import org.apache.wicket.Request;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.MarkupStream;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.IMultipartWebRequest;
+import org.apache.wicket.util.upload.FileItem;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.server.headlessclient.MediaUploadPage.ServoyFileUpload;
 
 /**
  * @author jcompagner
  *
  */
-public class SingleFileUpload extends Panel
+public class SingleFileUpload extends Panel implements IHeaderContributor
 {
-
+	private static final ResourceReference JS = new JavascriptResourceReference(MultiFileUpload.class, "MultiFileUpload.js");
 	private final FileUploadField fuf;
 
 	/**
@@ -43,6 +51,8 @@ public class SingleFileUpload extends Panel
 		super(id);
 		fuf = new FileUploadField("fileupload")
 		{
+			protected ServoyFileUpload overriddenFileUpload;
+
 			/**
 			 * @see org.apache.wicket.MarkupContainer#onRender(org.apache.wicket.markup.MarkupStream)
 			 */
@@ -51,6 +61,56 @@ public class SingleFileUpload extends Panel
 			{
 				// TODO Auto-generated method stub
 				super.onRender(markupStream);
+			}
+
+			/**
+			 * this method is identical to it's super except it uses overridenFileUpload fild 
+			 * This field is of type ServoyFileUpload which is again identical to FileUpload except it has access to the FileItem object
+			 */
+			@Override
+			public FileUpload getFileUpload()
+			{
+				// Get request
+				final Request request = getRequest();
+
+				// If we successfully installed a multipart request
+				if (request instanceof IMultipartWebRequest)
+				{
+					// Get the item for the path
+					final FileItem item = ((IMultipartWebRequest)request).getFile(getInputName());
+
+					// Only update the model when there is a file (larger than zero
+					// bytes)
+					if (item != null && item.getSize() > 0)
+					{
+						if (overriddenFileUpload == null)
+						{
+							overriddenFileUpload = new ServoyFileUpload(item);
+						}
+
+						return overriddenFileUpload;
+					}
+				}
+				return null;
+			}
+
+			/**
+			 * Identical with super except for overriddenFileUplod
+			 */
+			@Override
+			protected void onDetach()
+			{
+				if ((overriddenFileUpload != null) && forceCloseStreamsOnDetach())
+				{
+					overriddenFileUpload.closeStreams();
+					overriddenFileUpload = null;
+
+					if (getModel() != null)
+					{
+						getModel().setObject(null);
+					}
+				}
+				super.onDetach();
 			}
 		};
 		add(fuf);
@@ -66,4 +126,10 @@ public class SingleFileUpload extends Panel
 		return fuf.getFileUpload();
 	}
 
+	@Override
+	public void renderHead(IHeaderResponse response)
+	{
+		response.renderJavascriptReference(JS);
+		response.renderOnLoadJavascript("addInputChangeListener()");
+	}
 }

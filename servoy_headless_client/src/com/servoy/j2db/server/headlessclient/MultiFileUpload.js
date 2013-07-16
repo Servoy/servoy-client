@@ -15,6 +15,17 @@ function MultipleFileUploadInterceptor(multiSelector)
 				element.type = 'button';
 				element.type = 'file';
 			}
+			element.addEventListener("change", function () {
+                if (element.files.length > 0) {
+                    if (typeof this.files[0].lastModifiedDate === 'undefined') {
+                        // the browser doesn\'t support the lastModifiedDate property so last modified date will not be available');
+                    } else {
+                    	var actionURL = element.form.getAttribute("action");
+                    	actionURL+="&last_modified_"+element.getAttribute("name")+"="+element.files[0].lastModifiedDate.getTime();
+                    	element.form.setAttribute("action",actionURL)
+                    }
+                }
+            });
 		}
 		oldAddElement.call(this, element);
 	}.bind(multiSelector);
@@ -27,6 +38,8 @@ function MultipleFileUploadInterceptor(multiSelector)
 		var buttonColumn = document.createElement('td');
 
 		// Delete button
+		var capturedForm = element.form;
+		var lastModifiedParamName = "&last_modified_" + element.name;
 		var new_row_button = document.createElement( 'input' );
 		new_row_button.type = 'button';
 		new_row_button.value = this.delete_label;
@@ -48,7 +61,14 @@ function MultipleFileUploadInterceptor(multiSelector)
 
 			// Re-enable input element (if it's disabled)
 			this.parentNode.parentNode.element.multi_selector.current_element.disabled = false;
-
+			
+			if(capturedForm !=null){
+				var actionURL = capturedForm.getAttribute("action");
+				var regex = new RegExp(lastModifiedParamName+"=[0-9]+");
+				actionURL =actionURL.replace(regex,"");
+				capturedForm.setAttribute("action",actionURL)
+			}
+			
 			// Appease Safari
 			//    without it Safari wants to reload the browser window
 			//    which nixes your already queued uploads
@@ -96,4 +116,25 @@ function MultipleFileUploadInterceptor(multiSelector)
 	}.bind(multiSelector);
 	
 	return multiSelector;
+}
+/**
+ * called by SigleFileUpload
+*/
+function addInputChangeListener(){
+var upload = document.getElementById("upload");
+upload.addEventListener("change", function () {
+	if (this.files.length > 0) {
+       if (typeof this.files[0].lastModifiedDate === 'undefined') {
+                     //the browser doesn\'t support the lastModifiedDate property so last modified date will not be available');
+            } else {
+            	var actionURL = this.form.getAttribute("action");
+            	if(actionURL.indexOf('&last_modified_') > 0){
+				     actionURL =actionURL.substring(0,actionURL.indexOf('&last_modified_'));
+            	}
+                actionURL+="&last_modified_"+this.getAttribute("name")+"="+this.files[0].lastModifiedDate.getTime();
+				this.form.setAttribute("action",actionURL)
+            }
+    }
+});
+
 }

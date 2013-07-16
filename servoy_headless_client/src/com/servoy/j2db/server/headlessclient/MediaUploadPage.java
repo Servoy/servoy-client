@@ -200,8 +200,23 @@ public class MediaUploadPage extends WebPage
 								{
 									adjustedFieldName = fieldName + "_additionalFile_" + (i++);
 								}
+								String timestampStr = req.getParameter("last_modified_" + fieldName);
+								long timestamp = System.currentTimeMillis();
+								if (timestampStr != null)
+								{
+									try
+									{
+										timestamp = Long.parseLong(timestampStr);
+									}
+									catch (NumberFormatException ex)
+									{
+										timestamp = System.currentTimeMillis();
+									}
+								}
+
 								fieldNames.add(adjustedFieldName);
-								return new DiskFileItem(adjustedFieldName, contentType, isFormField, fileName, getSizeThreshold(), getRepository());
+								return new ServoyDiskFileItem(adjustedFieldName, contentType, isFormField, fileName, getSizeThreshold(), getRepository(),
+									timestamp);
 							}
 
 						});
@@ -257,6 +272,42 @@ public class MediaUploadPage extends WebPage
 		add(panel);
 	}
 
+	public static class ServoyDiskFileItem extends DiskFileItem
+	{
+		long timestamp = 0;
+
+		public ServoyDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName, int sizeThreshold, File repository, long timestamp)
+		{
+			super(fieldName, contentType, isFormField, fileName, sizeThreshold, repository);
+			this.timestamp = timestamp;
+		}
+
+		public long getLastModified()
+		{
+			return timestamp;
+		}
+	}
+
+	public static class ServoyFileUpload extends FileUpload
+	{
+
+		FileItem diskItem = null;
+
+		public ServoyFileUpload(FileItem item)
+		{
+			super(item);
+			diskItem = item;
+		}
+
+		public long lastModified()
+		{
+			if (diskItem instanceof ServoyDiskFileItem)
+			{
+				return ((ServoyDiskFileItem)diskItem).getLastModified();
+			}
+			return System.currentTimeMillis();
+		}
+	}
 	private static final class FileUploadData implements IUploadData
 	{
 		private final FileUpload fu;
@@ -303,6 +354,16 @@ public class MediaUploadPage extends WebPage
 			return fu.getInputStream();
 		}
 
+		@Override
+		public long lastModified()
+		{
+			if (fu instanceof ServoyFileUpload)
+			{
+				return ((ServoyFileUpload)fu).lastModified();
+			}
+			;
+			return System.currentTimeMillis();
+		}
 
 	}
 

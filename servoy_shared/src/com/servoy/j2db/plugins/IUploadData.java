@@ -62,4 +62,11 @@ public interface IUploadData
 	 * @return the inputStream on the data
 	 */
 	InputStream getInputStream() throws IOException;
+
+	/**
+	 * @return the last modified date/time as a long
+	 */
+	long lastModified();
+
+
 }

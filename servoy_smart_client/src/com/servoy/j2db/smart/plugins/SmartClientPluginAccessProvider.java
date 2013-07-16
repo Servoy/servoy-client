@@ -228,6 +228,15 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 		{
 			return new BufferedInputStream(new FileInputStream(f));
 		}
+
+		/**
+		 * Currently never called
+		 */
+		@Override
+		public long lastModified()
+		{
+			return f.lastModified();
+		}
 	}
 
 }
