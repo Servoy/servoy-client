@@ -233,8 +233,6 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	 */
 	public int getVerticalAlignment();
 
-	public void setFormat(String arg);
-
 	public void setHorizontalAlignment(int arg);
 
 	public void setImageMedia(ISMMedia media);
@@ -304,14 +302,5 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	 * @sampleas getOnAction()
 	 */
 	public ISMMethod getOnRightClick();
-
-	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getFormat()
-	 * 
-	 * @sample
-	 * var label = form.newLabel('', 10, 10, 100, 100);
-	 * label.format = '$#.00';
-	 */
-	public String getFormat();
 
 }

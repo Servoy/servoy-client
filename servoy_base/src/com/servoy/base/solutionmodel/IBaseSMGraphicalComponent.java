@@ -88,4 +88,14 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	 */
 	public IBaseSMMethod getOnAction();
 
+	/**
+	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getFormat()
+	 * 
+	 * @sample
+	 * var label = form.newLabel('', 10, 10, 100, 100);
+	 * label.format = '$#.00';
+	 */
+	public String getFormat();
+
+	public void setFormat(String arg);
 }

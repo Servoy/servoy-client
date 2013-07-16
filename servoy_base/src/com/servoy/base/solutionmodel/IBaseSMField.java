@@ -224,6 +224,10 @@ public interface IBaseSMField extends IBaseSMComponent
 	 */
 	public IBaseSMValueList getValuelist();
 
+	public String getFormat();
+
+	public void setFormat(String arg);
+
 	public void setDataProviderID(String arg);
 
 	public void setDisplayType(int arg);
