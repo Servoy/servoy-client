@@ -436,7 +436,7 @@ public class RepositoryHelper
 		return false;
 	}
 
-	public static boolean shouldShow(String name, Element element, Class< ? > persistClass)
+	public static boolean shouldShow(String name, Element element, Class< ? > persistClass, int displayType)
 	{
 		if (element == null)
 		{
@@ -575,6 +575,12 @@ public class RepositoryHelper
 			(Portal.class.isAssignableFrom(persistClass) || TabPanel.class.isAssignableFrom(persistClass) || Bean.class.isAssignableFrom(persistClass) ||
 				Field.class.isAssignableFrom(persistClass) || GraphicalComponent.class.isAssignableFrom(persistClass) ||
 				Tab.class.isAssignableFrom(persistClass) || Shape.class.isAssignableFrom(persistClass) || RectShape.class.isAssignableFrom(persistClass) || Part.class.isAssignableFrom(persistClass)))
+		{
+			return false;
+		}
+
+		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && displayType != Field.TEXT_FIELD &&
+			displayType != Field.PASSWORD && displayType != Field.TYPE_AHEAD && displayType != Field.TEXT_AREA && displayType >= 0)
 		{
 			return false;
 		}
