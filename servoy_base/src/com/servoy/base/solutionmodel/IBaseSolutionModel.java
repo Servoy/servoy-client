@@ -64,6 +64,7 @@ public interface IBaseSolutionModel
 	 * 
 	 * @return a new IBaseSMForm object
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMForm newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height);
 
 	/**
@@ -93,6 +94,7 @@ public interface IBaseSolutionModel
 	 * 
 	 * @return a new ISMForm object
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMForm newForm(String name, String dataSource, String styleName, boolean show_in_menu, int width, int height);
 
 	/**
