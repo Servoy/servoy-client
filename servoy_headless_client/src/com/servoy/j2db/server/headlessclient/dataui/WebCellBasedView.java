@@ -522,6 +522,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		private final int listStartY, listEndY;
 		private final Form form;
 
+		private final ArrayList<ListItem<IRecordInternal>> removedListItems = new ArrayList<ListItem<IRecordInternal>>();
+
 		public WebCellBasedViewListView(String id, IModel<FoundSetListWrapper> model, int rowsPerPage, AbstractBase cellview,
 			IDataProviderLookup dataProviderLookup, IScriptExecuter el, int startY, int endY, Form form)
 		{
@@ -578,11 +580,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			if (WebCellBasedView.this.addHeaders)
 			{
-				return new ReorderableListItem(index, getListItemModel(getModel(), index));
+				return new ReorderableListItem(this, index, getListItemModel(getModel(), index));
 			}
 			else
 			{
-				return new WebCellBasedViewListItem(index, getListItemModel(getModel(), index));
+				return new WebCellBasedViewListItem(this, index, getListItemModel(getModel(), index));
 			}
 		}
 
@@ -849,6 +851,41 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			return listItem;
 		}
+
+		@Override
+		protected void onDetach()
+		{
+			super.onDetach();
+
+			for (ListItem<IRecordInternal> listItem : removedListItems)
+			{
+				if (listItem.getParent() == null)
+				{
+					listItem.visitChildren(Component.class, new IVisitor<Component>()
+					{
+						@Override
+						public Object component(Component component)
+						{
+							if (component instanceof IDestroyable)
+							{
+								((IDestroyable)component).destroy();
+							}
+							if (cellToElement.remove(component) == null)
+							{
+								return IVisitor.CONTINUE_TRAVERSAL;
+							}
+							return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+						}
+					});
+				}
+			}
+			removedListItems.clear();
+		}
+
+		void addRemovedListItem(ListItem<IRecordInternal> listItem)
+		{
+			removedListItems.add(listItem);
+		}
 	}
 
 	public class WebCellBasedViewListViewItem extends WebMarkupContainer implements IProviderStylePropertyChanges
@@ -1004,38 +1041,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private class WebCellBasedViewListItem extends ListItem<IRecordInternal>
 	{
 		private WebMarkupContainer listContainer;
+		protected WebCellBasedViewListView parentView;
 
-		public WebCellBasedViewListItem(int index, IModel<IRecordInternal> model)
+		public WebCellBasedViewListItem(WebCellBasedViewListView parentView, int index, IModel<IRecordInternal> model)
 		{
 			super(index, model);
+			this.parentView = parentView;
 			setOutputMarkupId(true);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.apache.wicket.Component#onRemove()
-		 */
-		@Override
-		protected void onRemove()
-		{
-			visitChildren(Component.class, new IVisitor<Component>()
-			{
-				@Override
-				public Object component(Component component)
-				{
-					if (component instanceof IDestroyable)
-					{
-						((IDestroyable)component).destroy();
-					}
-					if (cellToElement.remove(component) == null)
-					{
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-				}
-			});
-			super.onRemove();
 		}
 
 		@Override
@@ -1165,13 +1177,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			return listContainer;
 		}
+
+		@Override
+		protected void onRemove()
+		{
+			super.onRemove();
+			parentView.addRemovedListItem(this);
+		}
 	}
 
 	private class ReorderableListItem extends WebCellBasedViewListItem
 	{
-		public ReorderableListItem(int index, IModel<IRecordInternal> model)
+		public ReorderableListItem(WebCellBasedViewListView parentView, int index, IModel<IRecordInternal> model)
 		{
-			super(index, model);
+			super(parentView, index, model);
 		}
 
 		@Override
