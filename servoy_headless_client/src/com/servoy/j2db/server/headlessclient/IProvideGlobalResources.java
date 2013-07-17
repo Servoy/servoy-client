@@ -38,6 +38,13 @@ public interface IProvideGlobalResources
 	public void addGlobalResourceReference(ResourceReference resource);
 
 	/**
+	 * Add a css or js file reference in all html pages.
+	 * 
+	 * @param url url to resource (can be media url)
+	 */
+	public void addGlobalResourceReference(String url);
+
+	/**
 	 * Remove a previously added resource from the page. 
 	 * 
 	 * @param resource Resource to be removed.
@@ -45,7 +52,14 @@ public interface IProvideGlobalResources
 	public void removeGlobalResourceReference(ResourceReference resource);
 
 	/**
-	 * 	Gets all defined global resources.
+	 * Remove a previously added resource from the page. 
+	 * 
+	 * @param url url to be removed.
 	 */
-	public List<ResourceReference> getGlobalResources();
+	public void removeGlobalResourceReference(String url);
+
+	/**
+	 * 	Gets all defined global resources (ResourceReference or url).
+	 */
+	public List<Object> getGlobalResources();
 }

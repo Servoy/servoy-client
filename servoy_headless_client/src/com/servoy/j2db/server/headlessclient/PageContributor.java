@@ -26,6 +26,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
@@ -38,10 +39,12 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
+import com.servoy.j2db.server.headlessclient.dataui.StripHTMLTagsConverter;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
@@ -196,17 +199,30 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			response.renderOnLoadJavascript(djs);
 		}
-		for (ResourceReference resource : getGlobalResources())
+		for (Object resource : getGlobalResources())
 		{
-			if (resource.getName() != null)
+			String url = null;
+			if (resource instanceof ResourceReference)
 			{
-				if (resource.getName().endsWith(".js"))
+				url = RequestCycle.get().urlFor((ResourceReference)resource).toString();
+			}
+			else if (resource instanceof String)
+			{
+				url = (String)resource;
+				if (url.contains(MediaURLStreamHandler.MEDIA_URL_DEF))
 				{
-					response.renderJavascriptReference(resource);
+					url = StripHTMLTagsConverter.convertMediaReferences(url, application.getSolution().getName(), new ResourceReference("media"), "").toString(); //$NON-NLS-1$//$NON-NLS-2$
 				}
-				else if (resource.getName().endsWith(".css"))
+			}
+			if (url != null)
+			{
+				if (url.endsWith(".js"))
 				{
-					response.renderCSSReference(resource);
+					response.renderJavascriptReference(url);
+				}
+				else if (url.endsWith(".css"))
+				{
+					response.renderCSSReference(url);
 				}
 			}
 		}
@@ -386,6 +402,15 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	}
 
 	@Override
+	public void addGlobalResourceReference(String url)
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			((IProvideGlobalResources)application.getFormManager()).addGlobalResourceReference(url);
+		}
+	}
+
+	@Override
 	public void removeGlobalResourceReference(ResourceReference resource)
 	{
 		if (application.getFormManager() instanceof IProvideGlobalResources)
@@ -395,13 +420,22 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	}
 
 	@Override
-	public List<ResourceReference> getGlobalResources()
+	public void removeGlobalResourceReference(String url)
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			((IProvideGlobalResources)application.getFormManager()).removeGlobalResourceReference(url);
+		}
+	}
+
+	@Override
+	public List<Object> getGlobalResources()
 	{
 		if (application.getFormManager() instanceof IProvideGlobalResources)
 		{
 			return ((IProvideGlobalResources)application.getFormManager()).getGlobalResources();
 		}
-		return new ArrayList<ResourceReference>();
+		return new ArrayList<Object>();
 	}
 
 	public IBehavior getBehavior(String name)

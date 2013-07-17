@@ -56,7 +56,7 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 {
 	private final int maxForms;
 	// resources that must be present on all forms
-	private final List<ResourceReference> addedResources = new ArrayList<ResourceReference>();
+	private final List<Object> addedResources = new ArrayList<Object>();
 
 	@SuppressWarnings("nls")
 	public WebFormManager(IApplication app, IMainContainer mainp)
@@ -363,6 +363,15 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 	}
 
 	@Override
+	public void addGlobalResourceReference(String url)
+	{
+		if (url != null && !addedResources.contains(url))
+		{
+			addedResources.add(url);
+		}
+	}
+
+	@Override
 	public void removeGlobalResourceReference(ResourceReference resource)
 	{
 		if (resource != null)
@@ -372,8 +381,17 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 	}
 
 	@Override
-	public List<ResourceReference> getGlobalResources()
+	public void removeGlobalResourceReference(String url)
 	{
-		return new ArrayList<ResourceReference>(addedResources);
+		if (url != null)
+		{
+			addedResources.remove(url);
+		}
+	}
+
+	@Override
+	public List<Object> getGlobalResources()
+	{
+		return new ArrayList<Object>(addedResources);
 	}
 }
