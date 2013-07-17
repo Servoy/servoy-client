@@ -28,6 +28,7 @@ import org.apache.wicket.IPageMap;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageMap;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
 
 import com.servoy.j2db.FormController;
@@ -51,9 +52,11 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebFormManager extends FormManager
+public class WebFormManager extends FormManager implements IProvideGlobalResources
 {
 	private final int maxForms;
+	// resources that must be present on all forms
+	private final List<ResourceReference> addedResources = new ArrayList<ResourceReference>();
 
 	@SuppressWarnings("nls")
 	public WebFormManager(IApplication app, IMainContainer mainp)
@@ -350,4 +353,27 @@ public class WebFormManager extends FormManager
 		if (RequestCycle.get() != null) Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses. 
 	}
 
+	@Override
+	public void addGlobalResourceReference(ResourceReference resource)
+	{
+		if (resource != null && !addedResources.contains(resource))
+		{
+			addedResources.add(resource);
+		}
+	}
+
+	@Override
+	public void removeGlobalResourceReference(ResourceReference resource)
+	{
+		if (resource != null)
+		{
+			addedResources.remove(resource);
+		}
+	}
+
+	@Override
+	public List<ResourceReference> getGlobalResources()
+	{
+		return new ArrayList<ResourceReference>(addedResources);
+	}
 }

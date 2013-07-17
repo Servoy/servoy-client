@@ -196,6 +196,21 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			response.renderOnLoadJavascript(djs);
 		}
+		for (ResourceReference resource : getGlobalResources())
+		{
+			if (resource.getName() != null)
+			{
+				if (resource.getName().endsWith(".js"))
+				{
+					response.renderJavascriptReference(resource);
+				}
+				else if (resource.getName().endsWith(".css"))
+				{
+					response.renderCSSReference(resource);
+				}
+			}
+		}
+
 		Page page = findPage();
 		if (page instanceof MainPage)
 		{
@@ -359,6 +374,34 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		if (dynamicJS != null) retval = dynamicJS.toString();
 		dynamicJS = null;
 		return retval;
+	}
+
+	@Override
+	public void addGlobalResourceReference(ResourceReference resource)
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			((IProvideGlobalResources)application.getFormManager()).addGlobalResourceReference(resource);
+		}
+	}
+
+	@Override
+	public void removeGlobalResourceReference(ResourceReference resource)
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			((IProvideGlobalResources)application.getFormManager()).removeGlobalResourceReference(resource);
+		}
+	}
+
+	@Override
+	public List<ResourceReference> getGlobalResources()
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			return ((IProvideGlobalResources)application.getFormManager()).getGlobalResources();
+		}
+		return new ArrayList<ResourceReference>();
 	}
 
 	public IBehavior getBehavior(String name)

@@ -27,7 +27,7 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
  * @author jcompagner,jblok
  * @since 3.5
  */
-public interface IPageContributor extends IProviderStylePropertyChanges
+public interface IPageContributor extends IProviderStylePropertyChanges, IProvideGlobalResources
 {
 	/**
 	 * Get a behaviour with a name
@@ -61,4 +61,5 @@ public interface IPageContributor extends IProviderStylePropertyChanges
 	 * @param js
 	 */
 	public void addDynamicJavaScript(String js);
+
 }
