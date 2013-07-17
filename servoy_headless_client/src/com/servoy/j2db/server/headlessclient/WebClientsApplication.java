@@ -591,10 +591,13 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 						boolean invalidPage = false;
 						try
 						{
-							Page page2 = target.findParent(Page.class); // test if it has a page.
-							if (page2 == null)
+							if (!(target instanceof Page))
 							{
-								invalidPage = true;
+								Page page2 = target.findParent(Page.class); // test if it has a page.
+								if (page2 == null)
+								{
+									invalidPage = true;
+								}
 							}
 						}
 						catch (Exception e)
