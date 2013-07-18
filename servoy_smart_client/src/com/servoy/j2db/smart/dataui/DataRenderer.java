@@ -549,6 +549,7 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			{
 				setOpaque(true);
 			}
+			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(hasFocus());
 		}
 
 //		setFont(list.getFont());

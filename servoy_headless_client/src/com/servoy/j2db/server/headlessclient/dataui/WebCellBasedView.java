@@ -928,7 +928,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected void onEvent(AjaxRequestTarget target)
 				{
-					markSelected(target);
+					if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+					{
+						WebCellBasedViewListView listView = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedViewListView.class);
+						if (listView != null)
+						{
+							WebCellBasedViewListViewItem listItemObj;
+							int listViewSize = listView.size();
+							for (int i = 0; i < listViewSize; i++)
+							{
+								listItemObj = (WebCellBasedViewListViewItem)((WebCellBasedViewListItem)listView.get(i)).getListContainer();
+								if (listItemObj.isVisibleInHierarchy()) listItemObj.getStylePropertyChanges().setChanged();
+							}
+						}
+					}
+					else markSelected(target);
 					IFoundSetInternal modelFs = WebCellBasedViewListViewItem.this.listItem.getModelObject().getParentFoundSet();
 					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
 					WebCellBasedView.this.setSelectionMadeByCellAction();
@@ -953,6 +967,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					Object color = view.getStyleAttributeForListItem(WebCellBasedViewListViewItem.this.listItem, isSelectedEl,
 						ISupportRowStyling.ATTRIBUTE.BGCOLOR, false);
+
+					boolean isColorSetByOnRender = false;
+					String onRenderBorder = null;
+					if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+					{
+						dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(WebCellBasedViewListViewItem.this.listItem.getModelObject(),
+							WebCellBasedViewListViewItem.this.listItem.getIndex(), isSelectedEl, false);
+						dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
+						if (WebCellBasedView.this.getBackground() != null)
+						{
+							color = PersistHelper.createColorString(WebCellBasedView.this.getBackground());
+							isColorSetByOnRender = true;
+						}
+						if (WebCellBasedView.this.getBorder() != null)
+						{
+							onRenderBorder = ComponentFactoryHelper.createBorderString(WebCellBasedView.this.getBorder());
+						}
+					}
+
 					// this should be in synch with markSelected
 					if (cellview instanceof Portal)
 					{
@@ -960,8 +993,29 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					}
 					else
 					{
-						return color != null && !"".equals(color)
-							? "background-color: " + color : (isSelectedEl ? "border-left: 3px solid black" : "margin-left: 3px"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+						StringBuilder rowStyle = new StringBuilder();
+						if (onRenderBorder != null)
+						{
+							Properties borderStyle = new Properties();
+							ComponentFactoryHelper.createBorderCSSProperties(onRenderBorder, borderStyle);
+							Iterator<Map.Entry<Object, Object>> borderSetIte = borderStyle.entrySet().iterator();
+							Map.Entry<Object, Object> e;
+							while (borderSetIte.hasNext())
+							{
+								e = borderSetIte.next();
+								rowStyle.append(e.getKey()).append(":").append(e.getValue()).append(";"); //$NON-NLS-1$ //$NON-NLS-2$	
+							}
+						}
+
+						if (color != null && !"".equals(color)) //$NON-NLS-1$
+						{
+							rowStyle.append("background-color: ").append(color).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
+							if (!isColorSetByOnRender) return rowStyle.toString();
+						}
+
+						return onRenderBorder != null ? rowStyle.toString() : rowStyle.append(
+							isSelectedEl ? "border-left: 3px solid black;" : "margin-left: 3px;").toString(); //$NON-NLS-1$ //$NON-NLS-2$ 
+
 					}
 				}
 			}));
@@ -2860,7 +2914,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		selectedIndexes = null;
 		updateRowSelection(null);
-		if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+		if (!isListViewMode() && dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
 		{
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderState(null, -1, false, false);
 			dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
