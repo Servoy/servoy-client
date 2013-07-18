@@ -31,18 +31,32 @@ import org.apache.wicket.ResourceReference;
 public interface IProvideGlobalResources
 {
 	/**
-	 * Add a css or js file reference in all html pages.
+	 * Add a js file reference in all html pages.
 	 * 
-	 * @param resource Reference to css or js file.
+	 * @param resource Reference to js file.
 	 */
-	public void addGlobalResourceReference(ResourceReference resource);
+	public void addGlobalJSResourceReference(ResourceReference resource);
 
 	/**
-	 * Add a css or js file reference in all html pages.
+	 * Add a css file reference in all html pages.
+	 * 
+	 * @param resource Reference to css file.
+	 */
+	public void addGlobalCSSResourceReference(ResourceReference resource);
+
+	/**
+	 * Add a js file reference in all html pages.
 	 * 
 	 * @param url url to resource (can be media url)
 	 */
-	public void addGlobalResourceReference(String url);
+	public void addGlobalJSResourceReference(String url);
+
+	/**
+	 * Add a css file reference in all html pages.
+	 * 
+	 * @param url url to resource (can be media url)
+	 */
+	public void addGlobalCSSResourceReference(String url);
 
 	/**
 	 * Remove a previously added resource from the page. 
@@ -59,7 +73,12 @@ public interface IProvideGlobalResources
 	public void removeGlobalResourceReference(String url);
 
 	/**
-	 * 	Gets all defined global resources (ResourceReference or url).
+	 * 	Gets all defined css global resources (ResourceReference or url).
 	 */
-	public List<Object> getGlobalResources();
+	public List<Object> getGlobalCSSResources();
+
+	/**
+	 * 	Gets all defined js global resources (ResourceReference or url).
+	 */
+	public List<Object> getGlobalJSResources();
 }

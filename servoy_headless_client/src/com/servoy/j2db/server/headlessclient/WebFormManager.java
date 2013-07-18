@@ -55,8 +55,9 @@ import com.servoy.j2db.util.Utils;
 public class WebFormManager extends FormManager implements IProvideGlobalResources
 {
 	private final int maxForms;
-	// resources that must be present on all forms
-	private final List<Object> addedResources = new ArrayList<Object>();
+	// resources that must be present on all pages
+	private final List<Object> addedJSResources = new ArrayList<Object>();
+	private final List<Object> addedCSSResources = new ArrayList<Object>();
 
 	@SuppressWarnings("nls")
 	public WebFormManager(IApplication app, IMainContainer mainp)
@@ -354,20 +355,38 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 	}
 
 	@Override
-	public void addGlobalResourceReference(ResourceReference resource)
+	public void addGlobalJSResourceReference(ResourceReference resource)
 	{
-		if (resource != null && !addedResources.contains(resource))
+		if (resource != null && !addedJSResources.contains(resource))
 		{
-			addedResources.add(resource);
+			addedJSResources.add(resource);
 		}
 	}
 
 	@Override
-	public void addGlobalResourceReference(String url)
+	public void addGlobalJSResourceReference(String url)
 	{
-		if (url != null && !addedResources.contains(url))
+		if (url != null && !addedJSResources.contains(url))
 		{
-			addedResources.add(url);
+			addedJSResources.add(url);
+		}
+	}
+
+	@Override
+	public void addGlobalCSSResourceReference(ResourceReference resource)
+	{
+		if (resource != null && !addedCSSResources.contains(resource))
+		{
+			addedCSSResources.add(resource);
+		}
+	}
+
+	@Override
+	public void addGlobalCSSResourceReference(String url)
+	{
+		if (url != null && !addedCSSResources.contains(url))
+		{
+			addedCSSResources.add(url);
 		}
 	}
 
@@ -376,7 +395,8 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 	{
 		if (resource != null)
 		{
-			addedResources.remove(resource);
+			addedCSSResources.remove(resource);
+			addedJSResources.remove(resource);
 		}
 	}
 
@@ -385,13 +405,20 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 	{
 		if (url != null)
 		{
-			addedResources.remove(url);
+			addedCSSResources.remove(url);
+			addedJSResources.remove(url);
 		}
 	}
 
 	@Override
-	public List<Object> getGlobalResources()
+	public List<Object> getGlobalJSResources()
 	{
-		return new ArrayList<Object>(addedResources);
+		return new ArrayList<Object>(addedJSResources);
+	}
+
+	@Override
+	public List<Object> getGlobalCSSResources()
+	{
+		return new ArrayList<Object>(addedCSSResources);
 	}
 }

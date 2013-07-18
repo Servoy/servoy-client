@@ -199,33 +199,8 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			response.renderOnLoadJavascript(djs);
 		}
-		for (Object resource : getGlobalResources())
-		{
-			String url = null;
-			if (resource instanceof ResourceReference)
-			{
-				url = RequestCycle.get().urlFor((ResourceReference)resource).toString();
-			}
-			else if (resource instanceof String)
-			{
-				url = (String)resource;
-				if (url.contains(MediaURLStreamHandler.MEDIA_URL_DEF))
-				{
-					url = StripHTMLTagsConverter.convertMediaReferences(url, application.getSolution().getName(), new ResourceReference("media"), "").toString(); //$NON-NLS-1$//$NON-NLS-2$
-				}
-			}
-			if (url != null)
-			{
-				if (url.endsWith(".js"))
-				{
-					response.renderJavascriptReference(url);
-				}
-				else if (url.endsWith(".css"))
-				{
-					response.renderCSSReference(url);
-				}
-			}
-		}
+		addReferences(response, true);
+		addReferences(response, false);
 
 		Page page = findPage();
 		if (page instanceof MainPage)
@@ -288,6 +263,38 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 
 		// Enable this for Firebug debugging under IE/Safari/etc.
 		//response.renderJavascriptReference("http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"); //$NON-NLS-1$
+	}
+
+	private void addReferences(IHeaderResponse response, boolean isJavascript)
+	{
+		List<Object> resources = isJavascript ? getGlobalJSResources() : getGlobalCSSResources();
+		for (Object resource : resources)
+		{
+			String url = null;
+			if (resource instanceof ResourceReference)
+			{
+				url = RequestCycle.get().urlFor((ResourceReference)resource).toString();
+			}
+			else if (resource instanceof String)
+			{
+				url = (String)resource;
+				if (url.contains(MediaURLStreamHandler.MEDIA_URL_DEF))
+				{
+					url = StripHTMLTagsConverter.convertMediaReferences(url, application.getSolution().getName(), new ResourceReference("media"), "").toString(); //$NON-NLS-1$//$NON-NLS-2$
+				}
+			}
+			if (url != null)
+			{
+				if (isJavascript)
+				{
+					response.renderJavascriptReference(url);
+				}
+				else
+				{
+					response.renderCSSReference(url);
+				}
+			}
+		}
 	}
 
 	private String getOrientation()
@@ -393,20 +400,42 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 	}
 
 	@Override
-	public void addGlobalResourceReference(ResourceReference resource)
+	public void addGlobalCSSResourceReference(ResourceReference resource)
 	{
 		if (application.getFormManager() instanceof IProvideGlobalResources)
 		{
-			((IProvideGlobalResources)application.getFormManager()).addGlobalResourceReference(resource);
+			((IProvideGlobalResources)application.getFormManager()).addGlobalCSSResourceReference(resource);
+			getStylePropertyChanges().setChanged();
 		}
 	}
 
 	@Override
-	public void addGlobalResourceReference(String url)
+	public void addGlobalJSResourceReference(String url)
 	{
 		if (application.getFormManager() instanceof IProvideGlobalResources)
 		{
-			((IProvideGlobalResources)application.getFormManager()).addGlobalResourceReference(url);
+			((IProvideGlobalResources)application.getFormManager()).addGlobalJSResourceReference(url);
+			getStylePropertyChanges().setChanged();
+		}
+	}
+
+	@Override
+	public void addGlobalJSResourceReference(ResourceReference resource)
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			((IProvideGlobalResources)application.getFormManager()).addGlobalJSResourceReference(resource);
+			getStylePropertyChanges().setChanged();
+		}
+	}
+
+	@Override
+	public void addGlobalCSSResourceReference(String url)
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			((IProvideGlobalResources)application.getFormManager()).addGlobalCSSResourceReference(url);
+			getStylePropertyChanges().setChanged();
 		}
 	}
 
@@ -416,6 +445,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		if (application.getFormManager() instanceof IProvideGlobalResources)
 		{
 			((IProvideGlobalResources)application.getFormManager()).removeGlobalResourceReference(resource);
+			getStylePropertyChanges().setChanged();
 		}
 	}
 
@@ -425,15 +455,26 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		if (application.getFormManager() instanceof IProvideGlobalResources)
 		{
 			((IProvideGlobalResources)application.getFormManager()).removeGlobalResourceReference(url);
+			getStylePropertyChanges().setChanged();
 		}
 	}
 
 	@Override
-	public List<Object> getGlobalResources()
+	public List<Object> getGlobalCSSResources()
 	{
 		if (application.getFormManager() instanceof IProvideGlobalResources)
 		{
-			return ((IProvideGlobalResources)application.getFormManager()).getGlobalResources();
+			return ((IProvideGlobalResources)application.getFormManager()).getGlobalCSSResources();
+		}
+		return new ArrayList<Object>();
+	}
+
+	@Override
+	public List<Object> getGlobalJSResources()
+	{
+		if (application.getFormManager() instanceof IProvideGlobalResources)
+		{
+			return ((IProvideGlobalResources)application.getFormManager()).getGlobalJSResources();
 		}
 		return new ArrayList<Object>();
 	}
