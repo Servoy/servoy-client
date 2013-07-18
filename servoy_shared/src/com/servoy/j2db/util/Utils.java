@@ -1483,6 +1483,16 @@ public class Utils
 		return sb.toByteArray();
 	}
 
+	public static byte[] getBytesFromInputStream(InputStream is) throws IOException
+	{
+		ByteArrayOutputStream sb = new ByteArrayOutputStream();
+		BufferedInputStream bis = new BufferedInputStream(is);
+		Utils.streamCopy(bis, sb);
+		bis.close();
+		is.close();
+		return sb.toByteArray();
+	}
+
 	//if you want to be notified every x bytes
 	public static int streamCopy(InputStream is, OutputStream os, ActionListener l, int actionSize) throws IOException
 	{
