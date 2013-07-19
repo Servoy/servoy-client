@@ -1483,13 +1483,16 @@ public class Utils
 		return sb.toByteArray();
 	}
 
+	/**
+	 * Doesn't close the input stream.
+	 * @param is
+	 */
 	public static byte[] getBytesFromInputStream(InputStream is) throws IOException
 	{
 		ByteArrayOutputStream sb = new ByteArrayOutputStream();
 		BufferedInputStream bis = new BufferedInputStream(is);
 		Utils.streamCopy(bis, sb);
 		bis.close();
-		is.close();
 		return sb.toByteArray();
 	}
 
