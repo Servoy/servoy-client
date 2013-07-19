@@ -90,7 +90,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSField object (of the specified display type) 
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSField newField(IBaseSMVariable dataprovider, int type, int x)
@@ -100,7 +103,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newField(IBaseSMVariable,int,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSField newField(String dataprovider, int type, int x)
@@ -122,7 +128,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSText element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSText newTextField(IBaseSMVariable dataprovider, int x)
@@ -132,7 +141,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newTextField(IBaseSMVariable,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSText newTextField(String dataprovider, int x)
@@ -154,7 +166,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSTextArea element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSTextArea newTextArea(IBaseSMVariable dataprovider, int x)
@@ -164,7 +179,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newTextArea(IBaseSMVariable,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSTextArea newTextArea(String dataprovider, int x)
@@ -186,7 +204,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSCombobox element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSCombobox newCombobox(IBaseSMVariable dataprovider, int x)
@@ -196,7 +217,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCombobox(IBaseSMVariable,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSCombobox newCombobox(String dataprovider, int x)
@@ -218,7 +242,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSRadios element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSRadios newRadios(IBaseSMVariable dataprovider, int x)
@@ -228,7 +255,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newRadios(IBaseSMVariable,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSRadios newRadios(String dataprovider, int x)
@@ -250,7 +280,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSChecks element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSChecks newCheck(IBaseSMVariable dataprovider, int x)
@@ -260,7 +293,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCheck(IBaseSMVariable,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSChecks newCheck(String dataprovider, int x)
@@ -282,7 +318,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSPassword element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSPassword newPassword(IBaseSMVariable dataprovider, int x)
@@ -292,7 +331,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newPassword(IBaseSMVariable,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSPassword newPassword(String dataprovider, int x)
@@ -314,7 +356,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSCalendar element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSCalendar newCalendar(IBaseSMVariable dataprovider, int x)
@@ -324,7 +369,10 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCalendar(IBaseSMVariable,int)
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSCalendar newCalendar(String dataprovider, int x)
@@ -370,7 +418,10 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 * 
 	 * @return a new JSCalendar element
+	 * 
+	 * @deprecated Possible future api
 	 */
+	@Deprecated
 	@JSFunction
 	@Override
 	public JSLabel newLabel(String text, int x)

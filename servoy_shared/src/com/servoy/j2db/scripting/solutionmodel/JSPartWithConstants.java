@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
@@ -24,6 +25,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSBase", publicName = "JSPart", scriptingName = "JSPart")
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class JSPartWithConstants extends JSPart implements IPrefixedConstantsObject
 {
 

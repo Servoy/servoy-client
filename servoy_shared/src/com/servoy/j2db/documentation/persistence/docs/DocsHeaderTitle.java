@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
+import java.awt.Dimension;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -33,5 +35,12 @@ public class DocsHeaderTitle extends GraphicalComponent
 	protected DocsHeaderTitle()
 	{
 		super(null, 0, null);
+	}
+
+	@Override
+	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	public Dimension getSize()
+	{
+		return super.getSize();
 	}
 }

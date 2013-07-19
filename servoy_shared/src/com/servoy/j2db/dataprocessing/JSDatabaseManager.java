@@ -72,6 +72,7 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
@@ -635,7 +636,21 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (getInOneQuery && columnMap.size() > 0)
 			{
 				// large foundset, query the columns in 1 go
-				QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
+				// do a 'select dpcolumns from tab where pk in (foundsetquery)
+				QuerySelect sqlSelectsub = AbstractBaseQuery.deepClone(fs.getSqlSelect());
+				QuerySelect sqlSelect = new QuerySelect(sqlSelectsub.getTable());
+
+				List<Column> rowIdentColumns = ((Table)fs.getTable()).getRowIdentColumns();
+				QueryColumn[] pkQueryColumns = new QueryColumn[rowIdentColumns.size()];
+
+				// getPrimaryKeys from table
+				for (int i = 0; i < rowIdentColumns.size(); i++)
+				{
+					Column column = rowIdentColumns.get(i);
+					pkQueryColumns[i] = new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
+				}
+				sqlSelect.addCondition("subselect", new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, sqlSelectsub, true));
+
 				ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
 				for (String dpname : dpnames)
 				{

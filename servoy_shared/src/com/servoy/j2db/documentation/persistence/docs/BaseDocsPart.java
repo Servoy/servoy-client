@@ -32,6 +32,7 @@ public class BaseDocsPart implements IBasePart
 	/**
 	 * The jQuery mobile style (theme) to use for this field.
 	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getStyleClass()
 	{
 		return null;

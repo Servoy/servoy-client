@@ -52,7 +52,14 @@ public class VersionStringUtils
 	 */
 	public static String getCurrentServoyVersion()
 	{
-		return ClientVersion.getVersion();
+		String s = ClientVersion.getVersion().trim();
+		char lastChar = s.charAt(s.length() - 1);
+		if (lastChar < '0' || lastChar > '9')
+		{
+			s += " 0"; // don't fail on new version styles such as "6.1.6 rc" // TODO should we change the schema/patterns/comparison code to handle this directly?
+		}
+
+		return s;
 	}
 
 	/**

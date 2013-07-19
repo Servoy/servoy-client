@@ -1367,9 +1367,20 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 
 	private List<ILabel> labels;
 
+	/**
+	 * This method is only used by DataCalendar to initialize the JDateChooser format
+	 */
 	public String getFormat()
 	{
-		return fp == null ? null : fp.getEditFormat();
+		if (fp == null) return null;
+		if (fp.hasEditFormat())
+		{
+			return fp.getEditFormat();
+		}
+		else
+		{
+			return fp.getDisplayFormat();
+		}
 	}
 
 	protected ParsedFormat fp;

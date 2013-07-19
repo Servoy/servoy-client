@@ -30,7 +30,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +54,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.gui.JDateChooser;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -151,11 +151,11 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 		if (componentFormat.parsedFormat.isEmpty())
 		{
 			// use default locale short date/time format
-			cf = new ComponentFormat(FormatParser.parseFormatProperty(new SimpleDateFormat().toPattern()), Types.DATE, componentFormat.uiType);
+			cf = new ComponentFormat(FormatParser.parseFormatProperty(new SimpleDateFormat().toPattern()), IColumnTypes.DATETIME, componentFormat.uiType);
 		}
 		else
 		{
-			cf = new ComponentFormat(componentFormat.parsedFormat, Types.DATE, componentFormat.uiType);
+			cf = new ComponentFormat(componentFormat.parsedFormat, IColumnTypes.DATETIME, componentFormat.uiType);
 		}
 		enclosedComponent.installFormat(cf);
 	}

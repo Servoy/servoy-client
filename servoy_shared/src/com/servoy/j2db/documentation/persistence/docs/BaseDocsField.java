@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
+import java.awt.Dimension;
 import java.awt.Point;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -95,5 +96,12 @@ public class BaseDocsField extends Field implements IComponentWithTitle
 	@Override
 	public void setLocation(Point arg)
 	{
+	}
+
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@Override
+	public Dimension getSize()
+	{
+		return super.getSize();
 	}
 }

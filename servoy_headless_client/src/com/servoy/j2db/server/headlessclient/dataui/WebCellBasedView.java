@@ -522,6 +522,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		private final int listStartY, listEndY;
 		private final Form form;
 
+		private final ArrayList<ListItem<IRecordInternal>> removedListItems = new ArrayList<ListItem<IRecordInternal>>();
+
 		public WebCellBasedViewListView(String id, IModel<FoundSetListWrapper> model, int rowsPerPage, AbstractBase cellview,
 			IDataProviderLookup dataProviderLookup, IScriptExecuter el, int startY, int endY, Form form)
 		{
@@ -578,11 +580,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			if (WebCellBasedView.this.addHeaders)
 			{
-				return new ReorderableListItem(index, getListItemModel(getModel(), index));
+				return new ReorderableListItem(this, index, getListItemModel(getModel(), index));
 			}
 			else
 			{
-				return new WebCellBasedViewListItem(index, getListItemModel(getModel(), index));
+				return new WebCellBasedViewListItem(this, index, getListItemModel(getModel(), index));
 			}
 		}
 
@@ -849,6 +851,41 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			return listItem;
 		}
+
+		@Override
+		protected void onDetach()
+		{
+			super.onDetach();
+
+			for (ListItem<IRecordInternal> listItem : removedListItems)
+			{
+				if (listItem.getParent() == null)
+				{
+					listItem.visitChildren(Component.class, new IVisitor<Component>()
+					{
+						@Override
+						public Object component(Component component)
+						{
+							if (component instanceof IDestroyable)
+							{
+								((IDestroyable)component).destroy();
+							}
+							if (cellToElement.remove(component) == null)
+							{
+								return IVisitor.CONTINUE_TRAVERSAL;
+							}
+							return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+						}
+					});
+				}
+			}
+			removedListItems.clear();
+		}
+
+		void addRemovedListItem(ListItem<IRecordInternal> listItem)
+		{
+			removedListItems.add(listItem);
+		}
 	}
 
 	public class WebCellBasedViewListViewItem extends WebMarkupContainer implements IProviderStylePropertyChanges
@@ -871,6 +908,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
 					WebCellBasedView.this.setSelectionMadeByCellAction();
 					modelFs.setSelectedIndex(recIndex);
+					currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
 					WebEventExecutor.generateResponse(target, getPage());
 				}
 
@@ -878,6 +916,38 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				protected String enhanceFunctionScript(String newEh)
 				{
 					return "if(event.target && (event.target.id == componentId || (event.target.tagName && (event.target.tagName.toLowerCase() == 'div' || event.target.tagName.toLowerCase() == 'span' || event.target.tagName.toLowerCase() == 'label')) )) {" + newEh + '}'; //$NON-NLS-1$
+				}
+
+
+				/**
+				 * generateCallbackScript  and getAjaxCallDecorator is used decorate the wicket on click event script with the current scroll top
+				 * It may happen that a user rapidly scrolls and clicks on the list items , before the scroll update timer has a chance to fire  
+				 * and the scrollIntoView thinks this is a selection outside the viewport
+				 */
+				@Override
+				protected CharSequence generateCallbackScript(final CharSequence partialCall)
+				{
+					return super.generateCallbackScript(partialCall + "+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$
+				}
+
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxPostprocessingCallDecorator(null)
+					{
+						private static final long serialVersionUID = 1L;
+
+						@SuppressWarnings("nls")
+						@Override
+						public CharSequence postDecorateScript(CharSequence script)
+						{
+							StringBuilder scriptBuilder = new StringBuilder();
+							scriptBuilder.append("var currentScrollTop = $('#").append(WebCellBasedView.this.tableContainerBody.getMarkupId()).append(
+								"').scrollTop();");
+							scriptBuilder.append(script);
+							return scriptBuilder.toString();
+						}
+					};
 				}
 			});
 
@@ -971,38 +1041,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	private class WebCellBasedViewListItem extends ListItem<IRecordInternal>
 	{
 		private WebMarkupContainer listContainer;
+		protected WebCellBasedViewListView parentView;
 
-		public WebCellBasedViewListItem(int index, IModel<IRecordInternal> model)
+		public WebCellBasedViewListItem(WebCellBasedViewListView parentView, int index, IModel<IRecordInternal> model)
 		{
 			super(index, model);
+			this.parentView = parentView;
 			setOutputMarkupId(true);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.apache.wicket.Component#onRemove()
-		 */
-		@Override
-		protected void onRemove()
-		{
-			visitChildren(Component.class, new IVisitor<Component>()
-			{
-				@Override
-				public Object component(Component component)
-				{
-					if (component instanceof IDestroyable)
-					{
-						((IDestroyable)component).destroy();
-					}
-					if (cellToElement.remove(component) == null)
-					{
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-				}
-			});
-			super.onRemove();
 		}
 
 		@Override
@@ -1132,13 +1177,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 			return listContainer;
 		}
+
+		@Override
+		protected void onRemove()
+		{
+			super.onRemove();
+			parentView.addRemovedListItem(this);
+		}
 	}
 
 	private class ReorderableListItem extends WebCellBasedViewListItem
 	{
-		public ReorderableListItem(int index, IModel<IRecordInternal> model)
+		public ReorderableListItem(WebCellBasedViewListView parentView, int index, IModel<IRecordInternal> model)
 		{
-			super(index, model);
+			super(parentView, index, model);
 		}
 
 		@Override
@@ -5082,8 +5134,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/**
 		 * called each time a new selection is applied  , </br>
-		 *  - if the selection is in the viewPort does nothing </br>
-		 *  - if the selection is in the rendered view but not in the viewport scrolls to that position</br>
+		 *  - if the selection is in the viewPort ,it does nothing </br>
+		 *  - if the selection is in the rendered view but not in the viewport ,it scrolls to that position</br>
 		 *  + if the selection is outside of the view and viewport:</br>
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is active then it loads records until the selection and scrolls to that position 
 		 *    &nbsp;&nbsp;&nbsp;-if isKeepLoadedRowsInScrollMode is not activated it still loads all records until the selection but discards the client side rows and renders only 3 * maxRowsPerPage
@@ -5103,28 +5155,37 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
 			}
-			if (selectedIndex == null || selectedIndex > tableSize) return;
+			boolean needToRenderRows = true;
+			if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false;
 
-			{// this block handles the case where there is not need to render new rows
-				int cellScroll = getCellHeight() * (selectedIndex.intValue() + 1);
+			if (needToRenderRows)
+			{// this block handles the case where there is not need to render new rows , only to scroll into viewPort
+				int cellHeight = getCellHeight();
+				int cellScroll = cellHeight * (selectedIndex.intValue() + 1);
 				if (cellScroll > currentScrollTop && (cellScroll < currentScrollTop + bodyHeightHint))
 				{
-					//selection was in the current view
-					return;
+					needToRenderRows = false;
 				}
-				else if (isKeepLoadedRowsInScrollMode && (cellScroll < currentScrollTop + 2 * bodyHeightHint))
+				else if (isKeepLoadedRowsInScrollMode && (cellScroll < viewSize * cellHeight))
 				{
+					Boolean alignWithTop = cellScroll < currentScrollTop;
 					//selection was in the loaded rows but not visible in the viewport, scroll without loading records
-					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1);");
-					return;
+					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
+					needToRenderRows = false;
 				}
 				else if (!isKeepLoadedRowsInScrollMode &&
 					(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
 				{
+					Boolean alignWithTop = cellScroll < currentScrollTop;
 					//selection was within the loaded viewSize
-					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1);");
-					return;
+					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
+					needToRenderRows = false;
 				}
+			}
+			if (!needToRenderRows)
+			{
+				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
+				return;
 			}
 
 			if (isKeepLoadedRowsInScrollMode)
@@ -5191,6 +5252,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		{
 			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(table.getStartIndex());
 			int maxHeight = -1;
+
+			if (WebCellBasedView.this.isListViewMode())
+			{
+				return WebCellBasedView.this.formBodySize.height;
+			}
+
 			Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
 			for (Component c : it)
 			{

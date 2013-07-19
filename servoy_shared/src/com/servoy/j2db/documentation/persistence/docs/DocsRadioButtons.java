@@ -44,4 +44,11 @@ public class DocsRadioButtons extends BaseDocsField
 	public void setHorizontal(boolean arg)
 	{
 	}
+
+	@Override
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	public String getFormat()
+	{
+		return super.getFormat();
+	}
 }
