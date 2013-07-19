@@ -147,4 +147,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public Object[][] getTableFilterParams(String serverName, String filterName);
 
 	public boolean removeTableFilterParam(String serverName, String filterName);
+
+	public boolean hasTableFilter(String serverName, String tableName);
 }

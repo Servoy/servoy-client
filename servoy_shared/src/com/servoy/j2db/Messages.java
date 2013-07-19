@@ -30,6 +30,7 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -42,7 +43,6 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.CompareCondition;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
@@ -121,7 +121,20 @@ public class Messages
 		Properties properties = new Properties();
 		// only called by the smart client, where the default is set
 		Locale language = Locale.getDefault();
-		if (callback.isRunningRemote())
+		boolean isTableFilterInUse = false;
+		if (solution != null && fm != null)
+		{
+			String i18nDatasource = solution.getI18nDataSource();
+			String[] names = getServerTableNames(i18nDatasource, callback.getSettings());
+			String serverName = names[0];
+			String tableName = names[1];
+			if (serverName != null && tableName != null)
+			{
+				isTableFilterInUse = fm.hasTableFilter(serverName, tableName);
+			}
+		}
+
+		if (callback.isRunningRemote() && !isTableFilterInUse)
 		{
 			File parent = new File(System.getProperty("user.home"), J2DBGlobals.CLIENT_LOCAL_DIR); //$NON-NLS-1$
 			parent.mkdirs();
@@ -404,14 +417,14 @@ public class Messages
 			sql.addColumn(msgVal);
 
 			String condMessages = "MESSAGES"; //$NON-NLS-1$
-			sql.addCondition(condMessages, new CompareCondition(ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, msgLang, new QueryColumnValue(
-				"", null)));
+			sql.addCondition(condMessages, new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR | IBaseSQLCondition.ORNULL_MODIFIER, msgLang,
+				new QueryColumnValue("", null)));
 
 			if (filterColumn != null)
 			{
 				QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
 					filterColumn.getLength());
-				CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(singleColumnValueFilter, null));
+				CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(singleColumnValueFilter, null));
 				sql.addCondition(condMessages, cc);
 			}
 
@@ -427,21 +440,21 @@ public class Messages
 				String condSearch = "SEARCH"; //$NON-NLS-1$
 				if (searchKey != null)
 				{
-					subselect.addCondition(condSearch, new CompareCondition(ISQLCondition.LIKE_OPERATOR, msgKeySub, new QueryColumnValue('%' + searchKey + '%',
-						null)));
+					subselect.addCondition(condSearch, new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, msgKeySub, new QueryColumnValue(
+						'%' + searchKey + '%', null)));
 				}
 				if (searchText != null)
 				{
-					subselect.addConditionOr(condSearch, new CompareCondition(ISQLCondition.LIKE_OPERATOR, msgValueSub, new QueryColumnValue(
+					subselect.addConditionOr(condSearch, new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, msgValueSub, new QueryColumnValue(
 						'%' + searchText + '%', null)));
 				}
 				String condLang = "LANGUAGE"; //$NON-NLS-1$
-				subselect.addCondition(condLang, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLangSub, new QueryColumnValue(localeToString(language),
-					null)));
-				subselect.addConditionOr(condLang, new CompareCondition(ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, msgLangSub,
+				subselect.addCondition(condLang, new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgLangSub, new QueryColumnValue(
+					localeToString(language), null)));
+				subselect.addConditionOr(condLang, new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR | IBaseSQLCondition.ORNULL_MODIFIER, msgLangSub,
 					new QueryColumnValue("", null))); //$NON-NLS-1$
 
-				sql.addCondition(condMessages, new SetCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn[] { msgKey }, subselect, true));
+				sql.addCondition(condMessages, new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn[] { msgKey }, subselect, true));
 			}
 			if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
 
@@ -485,13 +498,13 @@ public class Messages
 		String condMessages = "MESSAGES"; //$NON-NLS-1$
 		String langValue = (loadingType == SPECIFIED_LOCALE) ? localeToString(language) : language.getLanguage();
 
-		sql.addCondition(condMessages, new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgLang, new QueryColumnValue(langValue, null))); // default
+		sql.addCondition(condMessages, new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgLang, new QueryColumnValue(langValue, null))); // default
 
 		if (filterColumn != null)
 		{
 			QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
 				filterColumn.getLength());
-			CompareCondition cc = new CompareCondition(ISQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(columnValueFilter, null));
+			CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(columnValueFilter, null));
 			sql.addCondition(condMessages, cc);
 		}
 
@@ -507,16 +520,16 @@ public class Messages
 			String condSearch = "SEARCH"; //$NON-NLS-1$
 			if (searchKey != null)
 			{
-				subselect.addCondition(condSearch, new CompareCondition(ISQLCondition.LIKE_OPERATOR, msgKeySub, new QueryColumnValue('%' + searchKey + '%',
+				subselect.addCondition(condSearch, new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, msgKeySub, new QueryColumnValue('%' + searchKey + '%',
 					null)));
 			}
 			if (searchText != null)
 			{
-				subselect.addConditionOr(condSearch, new CompareCondition(ISQLCondition.LIKE_OPERATOR, msgValueSub, new QueryColumnValue(
+				subselect.addConditionOr(condSearch, new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, msgValueSub, new QueryColumnValue(
 					'%' + searchText + '%', null)));
 			}
 
-			sql.addCondition(condMessages, new SetCondition(ISQLCondition.EQUALS_OPERATOR, new QueryColumn[] { msgKey }, subselect, true));
+			sql.addCondition(condMessages, new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new QueryColumn[] { msgKey }, subselect, true));
 		}
 
 		if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
@@ -650,7 +663,7 @@ public class Messages
 				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150); //$NON-NLS-1$
 				QueryDelete delete = new QueryDelete(messagesTable);
-				delete.addCondition(new CompareCondition(ISQLCondition.EQUALS_OPERATOR, msgKey, key));
+				delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, key));
 
 				ISQLStatement sqlStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, serverName, tableName, null, null, delete, fm != null
 					? fm.getTableFilterParams(serverName, delete) : null);

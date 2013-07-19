@@ -43,6 +43,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.util.DataSourceUtilsBase;
+import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
@@ -1136,6 +1137,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				fireTableEvent(affectedtable);
 			}
 		}
+		((ClientState)application).refreshI18NMessages();
 		return true;
 	}
 
@@ -1281,6 +1283,30 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		});
 
 		return filters[0];
+	}
+
+	/**
+	 * Checks if the specified table has filter defined
+	 * 
+	 * @param serverName
+	 * @param tableName
+	 * @return true if there is a filter defined for the table, otherwise false
+	 */	
+	public boolean hasTableFilter(String serverName, String tableName)
+	{
+		if (serverName == null || tableName == null) return false;
+		List<TableFilter> serverFilters = tableFilterParams.get(serverName);
+		if (serverFilters == null) return false;
+
+		Iterator<TableFilter> serverFiltersIte = serverFilters.iterator();
+		TableFilter tableFilter;
+		while (serverFiltersIte.hasNext())
+		{
+			tableFilter = serverFiltersIte.next();
+			if (tableName.equals(tableFilter.getTableName())) return true;
+		}
+
+		return false;
 	}
 
 	public IFoundSetInternal getSeparateFoundSet(IFoundSetListener l, List<SortColumn> defaultSortColumns) throws ServoyException

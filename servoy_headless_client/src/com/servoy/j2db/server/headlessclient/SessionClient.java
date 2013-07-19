@@ -434,7 +434,7 @@ public class SessionClient extends ClientState implements ISessionClient
 	 * @see com.servoy.j2db.smart.J2DBClient#refreshI18NMessages()
 	 */
 	@Override
-	protected void refreshI18NMessages()
+	public void refreshI18NMessages()
 	{
 		messages.clear();
 	}

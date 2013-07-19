@@ -1342,7 +1342,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return pluginAccess;
 	}
 
-	protected abstract void refreshI18NMessages();
+	public abstract void refreshI18NMessages();
 
 	protected void registerListeners()
 	{

@@ -3707,7 +3707,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	 * @see com.servoy.j2db.ClientState#refreshI18NMessages()
 	 */
 	@Override
-	protected void refreshI18NMessages()
+	public void refreshI18NMessages()
 	{
 		Messages.loadInternal(this, getFoundSetManager());
 	}
