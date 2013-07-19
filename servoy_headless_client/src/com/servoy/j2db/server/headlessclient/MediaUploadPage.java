@@ -200,7 +200,7 @@ public class MediaUploadPage extends WebPage
 								{
 									adjustedFieldName = fieldName + "_additionalFile_" + (i++);
 								}
-								String timestampStr = req.getParameter("last_modified_" + fieldName);
+								String timestampStr = req.getParameter("last_modified_" + fieldName + "_" + fileName);
 								long timestamp = System.currentTimeMillis();
 								if (timestampStr != null)
 								{

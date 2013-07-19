@@ -16,13 +16,15 @@ function MultipleFileUploadInterceptor(multiSelector)
 				element.type = 'file';
 			}
 			element.addEventListener("change", function () {
-                if (element.files.length > 0) {
-                    if (typeof this.files[0].lastModifiedDate === 'undefined') {
+                if (element.files && element.files.length > 0) {
+                    if (typeof element.files[0].lastModifiedDate === 'undefined') {
                         // the browser doesn\'t support the lastModifiedDate property so last modified date will not be available');
                     } else {
-                    	var actionURL = element.form.getAttribute("action");
-                    	actionURL+="&last_modified_"+element.getAttribute("name")+"="+element.files[0].lastModifiedDate.getTime();
-                    	element.form.setAttribute("action",actionURL)
+                    	for (var i=0; i<element.files.length; i++){
+                    		var actionURL = element.form.getAttribute("action");
+                    		actionURL+="&last_modified_"+element.getAttribute("name")+"_"+element.files[i].name+"="+element.files[i].lastModifiedDate.getTime();
+                    		element.form.setAttribute("action",actionURL)
+                    	}
                     }
                 }
             });
@@ -40,15 +42,15 @@ function MultipleFileUploadInterceptor(multiSelector)
 		// Delete button
 		var capturedForm = element.form;
 		var lastModifiedParamName = "&last_modified_" + element.name;
-		var new_row_button = document.createElement( 'input' );
-		new_row_button.type = 'button';
-		new_row_button.value = this.delete_label;
+		var delete_button = document.createElement( 'input' );
+		delete_button.type = 'button';
+		delete_button.value = this.delete_label;
 
 		// References
 		new_row.element = element;
 
 		// Delete function
-		new_row_button.onclick= function(){
+		delete_button.onclick= function(){
 
 			// Remove element from form
 			this.parentNode.parentNode.element.parentNode.removeChild( this.parentNode.parentNode.element );
@@ -62,11 +64,13 @@ function MultipleFileUploadInterceptor(multiSelector)
 			// Re-enable input element (if it's disabled)
 			this.parentNode.parentNode.element.multi_selector.current_element.disabled = false;
 			
-			if(capturedForm !=null){
-				var actionURL = capturedForm.getAttribute("action");
-				var regex = new RegExp(lastModifiedParamName+"=[0-9]+");
-				actionURL =actionURL.replace(regex,"");
-				capturedForm.setAttribute("action",actionURL)
+			if(element.files && capturedForm !=null ){
+				for (var i=0; i<element.files.length; i++){
+					var actionURL = capturedForm.getAttribute("action");
+					var regex = new RegExp(lastModifiedParamName+"_"+element.files[i].name +"=[0-9]+");
+					actionURL =actionURL.replace(regex,"");
+					capturedForm.setAttribute("action",actionURL)
+				}
 			}
 			
 			// Appease Safari
@@ -81,7 +85,7 @@ function MultipleFileUploadInterceptor(multiSelector)
 		
 		// Add button
 		buttonColumn.innerHTML = "&nbsp&nbsp&nbsp";
-		buttonColumn.appendChild( new_row_button );
+		buttonColumn.appendChild( delete_button );
 		new_row.appendChild( buttonColumn );
 
 		// Add it to the list
@@ -116,25 +120,4 @@ function MultipleFileUploadInterceptor(multiSelector)
 	}.bind(multiSelector);
 	
 	return multiSelector;
-}
-/**
- * called by SigleFileUpload
-*/
-function addInputChangeListener(){
-var upload = document.getElementById("upload");
-upload.addEventListener("change", function () {
-	if (this.files.length > 0) {
-       if (typeof this.files[0].lastModifiedDate === 'undefined') {
-                     //the browser doesn\'t support the lastModifiedDate property so last modified date will not be available');
-            } else {
-            	var actionURL = this.form.getAttribute("action");
-            	if(actionURL.indexOf('&last_modified_') > 0){
-				     actionURL =actionURL.substring(0,actionURL.indexOf('&last_modified_'));
-            	}
-                actionURL+="&last_modified_"+this.getAttribute("name")+"="+this.files[0].lastModifiedDate.getTime();
-				this.form.setAttribute("action",actionURL)
-            }
-    }
-});
-
 }

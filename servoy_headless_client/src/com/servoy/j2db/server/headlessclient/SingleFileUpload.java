@@ -40,7 +40,7 @@ import com.servoy.j2db.server.headlessclient.MediaUploadPage.ServoyFileUpload;
  */
 public class SingleFileUpload extends Panel implements IHeaderContributor
 {
-	private static final ResourceReference JS = new JavascriptResourceReference(MultiFileUpload.class, "MultiFileUpload.js");
+	private static final ResourceReference JS = new JavascriptResourceReference(SingleFileUpload.class, "SingleFileUpload.js");
 	private final FileUploadField fuf;
 
 	/**
