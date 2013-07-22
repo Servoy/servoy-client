@@ -1291,7 +1291,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @param serverName
 	 * @param tableName
 	 * @return true if there is a filter defined for the table, otherwise false
-	 */	
+	 */
 	public boolean hasTableFilter(String serverName, String tableName)
 	{
 		if (serverName == null || tableName == null) return false;
@@ -2019,7 +2019,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return set;
 	}
 
-	public String createDataSourceFromQuery(String name, String serverName, ISQLSelect sqlSelect, int maxNumberOfRowsToRetrieve, int[] types)
+	public String createDataSourceFromQuery(String name, String serverName, ISQLSelect sqlSelect, int maxNumberOfRowsToRetrieve, int[] types, String[] pkNames)
 		throws ServoyException
 	{
 		if (name == null)
@@ -2058,7 +2058,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			table = application.getDataServer().insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
 				getTableFilterParams(serverName, sqlSelect), false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY, dataSource,
 				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
-				targetTid, types);
+				targetTid, types, pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);
@@ -2347,7 +2347,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		nullColumnValidatorEnabled = enable;
 	}
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, int[] intTypes) throws ServoyException
+	public String createDataSourceFromDataSet(String name, IDataSet dataSet, int[] intTypes, String[] pkNames) throws ServoyException
 	{
 		if (name == null)
 		{
@@ -2387,7 +2387,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			table = application.getDataServer().insertDataSet(application.getClientID(), dataSet, dataSource,
 				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-				intTypes /* inferred from dataset when null */);
+				intTypes /* inferred from dataset when null */, pkNames);
 			if (table != null)
 			{
 				inMemDataSources.put(dataSource, table);

@@ -624,6 +624,32 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public String js_createDataSource(String name, Object types) throws ServoyException
 	{
+		return js_createDataSource(name, types, null);
+	}
+
+	/**RAGTEST
+	 * Create a data source from the data set with specified name and using specified types, add .
+	 *
+	 * @sample
+	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
+	 * ds.addColumn('my_label');
+	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
+	 * var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
+	 * 
+	 * var query = 'select customerid, address, city, country  from customers';
+	 * var ds2 = databaseManager.getDataSetByQuery('example_data', query, null, 999);
+	 * var uri2 = ds2.createDataSource('mydata2', null, ['customerid']); // types are inferred from query result, use customerid as pk
+	 *
+	 * @param name data source name
+	 * 
+	 * @param types array of types as defined in JSColumn, when null types are inferred from the query result
+	 * 
+	 * @param pkNames array of pk names, when null a hidden pk-column will be added
+	 * 
+	 * @return String uri reference to the created data source.
+	 */
+	public String js_createDataSource(String name, Object types, String[] pkNames) throws ServoyException
+	{
 		if (set == null) return null;
 
 		if (set instanceof FoundsetDataSet)
@@ -645,7 +671,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			}
 		}
 
-		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, intTypes /* inferred from dataset when null */);
+		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, intTypes /* inferred from dataset when null */, pkNames);
 		if (dataSource != null)
 		{
 			// create a new foundSet for the temp table
@@ -653,7 +679,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			foundSet.loadAllRecords();
 
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet
-			set = new FoundsetDataSet(foundSet, dataSource);
+			set = new FoundsetDataSet(foundSet, dataSource, pkNames);
 		}
 		return dataSource;
 	}
@@ -1260,16 +1286,19 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 							if (foundset instanceof FoundSet)
 							{
 								param1 = ((FoundSet)foundset).getRecord(o1).getRawData().getRawColumnData();
-								// hide servoy internal pk column
-								Object[] res = new Object[param1.length - 1];
-								System.arraycopy(param1, 1, res, 0, res.length);
-								param1 = res;
-
 								param2 = ((FoundSet)foundset).getRecord(o2).getRawData().getRawColumnData();
-								// hide servoy internal pk column
-								res = new Object[param2.length - 1];
-								System.arraycopy(param2, 1, res, 0, res.length);
-								param2 = res;
+
+								if (((FoundsetDataSet)set).pkNames == null)
+								{
+									// hide servoy internal pk column when pknames is null
+									Object[] res = new Object[param1.length - 1];
+									System.arraycopy(param1, 1, res, 0, res.length);
+									param1 = res;
+
+									res = new Object[param2.length - 1];
+									System.arraycopy(param2, 1, res, 0, res.length);
+									param2 = res;
+								}
 							}
 						}
 						Object compareResult = scriptEngine.executeFunction(comparator, rowComparatorScope, rowComparatorScope,
@@ -1644,12 +1673,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		private final String dataSource;
 
 		private Integer rowCount = null;
+		private final String[] pkNames;
 
 
-		public FoundsetDataSet(IFoundSetInternal foundSet, String dataSource)
+		public FoundsetDataSet(IFoundSetInternal foundSet, String dataSource, String[] pkNames)
 		{
 			this.foundSet = foundSet;
 			this.dataSource = dataSource;
+			this.pkNames = pkNames;
 			// note that this will also creates a reference from the foundSet to this FoundsetDataSet, when GC'ed both go at the same time
 			foundSet.addFoundSetEventListener(this);
 		}
@@ -1662,7 +1693,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		@Override
 		public FoundsetDataSet clone()
 		{
-			return new FoundsetDataSet(foundSet, dataSource);
+			return new FoundsetDataSet(foundSet, dataSource, pkNames);
 		}
 
 		public String getDataSource()
@@ -1723,13 +1754,19 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 		public int getColumnCount()
 		{
-			return foundSet.getTable().getColumnNames().length - 1; // hide servoy internal pk column
+			int offset = pkNames == null ? 1 : 0;
+			return foundSet.getTable().getColumnNames().length - offset; // hide servoy internal pk column when pknames is null
 		}
 
 		public String[] getColumnNames()
 		{
 			String[] columnNames = foundSet.getTable().getColumnNames();
-			// hide servoy internal pk column
+			if (pkNames != null)
+			{
+				return columnNames;
+			}
+
+			// hide servoy internal pk column when pknames is null
 			String[] res = new String[columnNames.length - 1];
 			System.arraycopy(columnNames, 1, res, 0, res.length);
 			return res;
@@ -1739,11 +1776,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		{
 			ITable table = foundSet.getTable();
 			String[] columnNames = table.getColumnNames();
-			// hide servoy internal pk column
-			int[] res = new int[columnNames.length - 1];
-			for (int i = 1; i < columnNames.length; i++)
+
+			int offset = pkNames == null ? 1 : 0;
+
+			// hide servoy internal pk column when pknames is null
+			int[] res = new int[columnNames.length - offset];
+			for (int i = offset; i < columnNames.length; i++)
 			{
-				res[i - 1] = table.getColumnType(columnNames[i]);
+				res[i - offset] = table.getColumnType(columnNames[i]);
 			}
 			return res;
 		}
@@ -1756,11 +1796,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				return null;
 			}
 			String[] columnNames = foundSet.getTable().getColumnNames();
-			// hide servoy internal pk column
-			Object[] res = new Object[columnNames.length - 1];
-			for (int i = 1; i < columnNames.length; i++)
+
+			int offset = pkNames == null ? 1 : 0;
+			// hide servoy internal pk column when pknames is null
+			Object[] res = new Object[columnNames.length - offset];
+			for (int i = offset; i < columnNames.length; i++)
 			{
-				res[i - 1] = record.getValue(columnNames[i]); // get value via record so that conversion is done
+				res[i - offset] = record.getValue(columnNames[i]); // get value via record so that conversion is done
 			}
 			return res;
 		}
@@ -1811,18 +1853,20 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			{
 				String[] columnNames = foundSet.getTable().getColumnNames();
 
-				// hide servoy internal pk column
-				for (int i = 0; i < array.length && (i + 1) < columnNames.length; i++)
+				int offset = pkNames == null ? 1 : 0;
+				// hide servoy internal pk column when pknames is null
+				for (int i = 0; i < array.length && (i + offset) < columnNames.length; i++)
 				{
-					record.setValue(columnNames[i + 1], array[i]);
+					record.setValue(columnNames[i + offset], array[i]);
 				}
 			}
 		}
 
 		public void sort(int column, boolean ascending)
 		{
-			// hide servoy internal pk column
-			IColumn c = (IColumn)((Table)foundSet.getTable()).getColumns().toArray()[column + 1];
+			int offset = pkNames == null ? 1 : 0;
+			// hide servoy internal pk column when pknames is null
+			IColumn c = (IColumn)((Table)foundSet.getTable()).getColumns().toArray()[column + offset];
 			SortColumn sortColumn = new SortColumn(c);
 			sortColumn.setSortOrder(ascending ? SortColumn.ASCENDING : SortColumn.DESCENDING);
 			List<SortColumn> sortColumns = new ArrayList<SortColumn>(1);

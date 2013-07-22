@@ -173,19 +173,21 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	/**
 	 * Insert a data set in a table. When tableName is null a temporary table will be created
 	 * 
-	 * @param client_ide
+	 * @param client_id
 	 * @param set
 	 * @param dataSource
 	 * @param serverName
 	 * @param tableName when null a temporary table will be created
 	 * @param tid transaction id
 	 * @param types see java.sql.Types
+	 * @param pkNames
 	 * @return the table where the set was inserted into
+	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types)
-		throws ServoyException, RemoteException;
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
+		String[] pkNames) throws ServoyException, RemoteException;
 
 	/**
 	 * Insert a data from a query in a table. When tableName is null a temporary table will be created
@@ -204,13 +206,14 @@ public interface IDataServer extends ILockServer, IMaintenanceServer, Remote
 	 * @param targetTableName when null a temporary table will be created
 	 * @param targetTid transaction id
 	 * @param types the column types
+	 * @param pkNames
 	 * @return the table where the set was inserted into
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, int[] types) throws ServoyException, RemoteException;
+		String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException;
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException;
 

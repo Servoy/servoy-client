@@ -236,18 +236,18 @@ public class DataServerProxy implements IDataServer
 		ds.logMessage(msg);
 	}
 
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types)
-		throws ServoyException, RemoteException
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
+		String[] pkNames) throws ServoyException, RemoteException
 	{
-		return ds.insertDataSet(client_id, set, dataSource, getMappedServerName(serverName), tableName, tid, types);
+		return ds.insertDataSet(client_id, set, dataSource, getMappedServerName(serverName), tableName, tid, types, pkNames);
 	}
 
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, int[] types) throws ServoyException, RemoteException
+		String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException
 	{
 		return ds.insertQueryResult(client_id, getMappedServerName(queryServerName), queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
-			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid, types);
+			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid, types, pkNames);
 	}
 
 	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException

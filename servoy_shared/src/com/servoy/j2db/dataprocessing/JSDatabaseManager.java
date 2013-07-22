@@ -1049,6 +1049,42 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows, int[] types)
 		throws ServoyException
 	{
+		return js_createDataSourceByQuery(name, server_name, sql_query, arguments, max_returned_rows, types, null);
+	}
+
+	/**  
+	 * Performs a sql query on the specified server, saves the the result in a datasource.
+	 * Will throw an exception if anything went wrong when executing the query.
+	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
+	 * 
+	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be disregarded.
+	 * 
+	 * @sample
+	 * var query = 'select address, city, country  from customers';
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999);
+	 * //var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999,RAGTEST [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]);
+	 * 
+	 * // the uri can be used to create a form using solution model
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
+	 * myForm.newTextField('city', 140, 20, 140,20)
+	 * 
+	 * // the uri can be used to acces a foundset directly
+	 * var fs = databaseManager.getFoundSet(uri)
+	 * fs.loadAllRecords();
+	 *
+	 * @param name data source name
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query. 
+	 * @param types The column types 
+	 * @param pkNames array of pk names, when null a hidden pk-column will be added
+	 * 
+	 * @return datasource containing the results of the query or null if the parameters are wrong. 
+	 */
+	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows, int[] types,
+		String[] pkNames) throws ServoyException
+	{
 		checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
 
@@ -1064,7 +1100,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		try
 		{
 			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, server_name,
-				new QueryCustomSelect(sql_query, arguments), max_returned_rows, types);
+				new QueryCustomSelect(sql_query, arguments), max_returned_rows, types, pkNames);
 		}
 		catch (ServoyException e)
 		{
@@ -1120,6 +1156,43 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows, int[] types) throws ServoyException
 	{
+		return js_createDataSourceByQuery(name, query, max_returned_rows, types, null);
+	}
+
+	/**  
+	 * Performs a query and saves the result in a datasource.
+	 * Will throw an exception if anything went wrong when executing the query.
+	 * Column types in the datasource are inferred from the query result or can be explicitly specified.
+	 * 
+	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be taken into account.
+	 *
+	 * @sample RAGTEST
+	 * // select customer data for order 1234
+	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
+	 * var q = databaseManager.createSelect("db:/example_data/customers");
+	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country);
+	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999); 
+	 * //var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]); 
+	 * 
+	 * // the uri can be used to create a form using solution model
+	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600);
+	 * myForm.newTextField('city', 140, 20, 140,20);
+	 * 
+	 * // the uri can be used to acces a foundset directly
+	 * var fs = databaseManager.getFoundSet(uri);
+	 * fs.loadAllRecords();
+	 *
+	 * @param name Data source name
+	 * @param query The query builder to be executed.
+	 * @param max_returned_rows The maximum number of rows returned by the query. 
+	 * @param types The column types  
+	 * @param pkNames array of pk names, when null a hidden pk-column will be added
+	 * 
+	 * @return datasource containing the results of the query or null if the parameters are wrong. 
+	 */
+	public String js_createDataSourceByQuery(String name, QBSelect query, Number max_returned_rows, int[] types, String[] pkNames) throws ServoyException
+	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		checkAuthorized();
 
@@ -1136,7 +1209,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, _max_returned_rows, types);
+			return ((FoundSetManager)application.getFoundSetManager()).createDataSourceFromQuery(name, serverName, select, _max_returned_rows, types, pkNames);
 		}
 		catch (ServoyException e)
 		{
@@ -3624,7 +3697,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 				try
 				{
-					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], intTypes);
+					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], intTypes, null);
 				}
 				catch (ServoyException e)
 				{

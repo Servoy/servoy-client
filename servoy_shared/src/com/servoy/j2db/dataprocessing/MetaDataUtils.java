@@ -288,7 +288,7 @@ public class MetaDataUtils
 			});
 		// insert the data
 		ApplicationServerSingleton.get().getDataServer().insertDataSet(ApplicationServerSingleton.get().getClientId(), dataSet, table.getDataSource(),
-			table.getServerName(), table.getName(), null, null);
+			table.getServerName(), table.getName(), null, null, null);
 
 		return dataSet.getRowCount();
 	}
