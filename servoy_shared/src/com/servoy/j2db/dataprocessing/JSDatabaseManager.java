@@ -1060,9 +1060,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be disregarded.
 	 * 
 	 * @sample
-	 * var query = 'select address, city, country  from customers';
+	 * var query = 'select customer_id, address, city, country  from customers';
 	 * var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999);
-	 * //var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999,RAGTEST [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]);
+	 * //var uri = databaseManager.createDataSourceByQuery('mydata', 'example_data', query, null, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT], ['customer_id']);
 	 * 
 	 * // the uri can be used to create a form using solution model
 	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600)
@@ -1166,14 +1166,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * Using this variation of createDataSourceByQuery any Tablefilter on the involved tables will be taken into account.
 	 *
-	 * @sample RAGTEST
+	 * @sample
 	 * // select customer data for order 1234
 	 * /** @type {QBSelect<db:/example_data/customers>} *&#47;
 	 * var q = databaseManager.createSelect("db:/example_data/customers");
-	 * q.result.add(q.columns.address).add(q.columns.city).add(q.columns.country);
+	 * q.result.add(q.columns.customer_id).add(q.columns.city).add(q.columns.country);
 	 * q.where.add(q.joins.customers_to_orders.columns.orderid.eq(1234));
-	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999); 
-	 * //var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT]); 
+	 * var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, null, ['customer_id']); 
+	 * //var uri = databaseManager.createDataSourceByQuery('mydata', q, 999, [JSColumn.TEXT, JSColumn.TEXT, JSColumn.TEXT], ['customer_id']); 
 	 * 
 	 * // the uri can be used to create a form using solution model
 	 * var myForm = solutionModel.newForm('newForm', uri, 'myStyleName', false, 800, 600);

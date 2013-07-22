@@ -627,13 +627,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		return js_createDataSource(name, types, null);
 	}
 
-	/**RAGTEST
+	/**
 	 * Create a data source from the data set with specified name and using specified types, add .
 	 *
 	 * @sample
 	 * ds.addColumn('my_id'); // note: use regular javascript identifiers so they can be used in scripting
 	 * ds.addColumn('my_label');
-	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT]);
+	 * var uri = ds.createDataSource('mydata', [JSColumn.INTEGER, JSColumn.TEXT], ['my_id']);
 	 * var jsform = solutionModel.newForm(fname, uri, null, true, 300, 300);
 	 * 
 	 * var query = 'select customerid, address, city, country  from customers';
