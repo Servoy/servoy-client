@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -281,7 +282,8 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 
 	private URLConnection ws_getConnection(String action, String acceptContentType, String extensionId, String version) throws Exception
 	{
-		URL mpURL = new URL(MARKETPLACE_WS + action + "/" + extensionId + (version != null ? "/" + version : "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String unescapedURL = MARKETPLACE_WS + action + "/" + extensionId + (version != null ? "/" + version : "");
+		URL mpURL = new URI(null, null, unescapedURL, null).toURL(); // the URI should escape it correctly
 		URLConnection urlConnection = mpURL.openConnection();
 
 		urlConnection.addRequestProperty("accept", acceptContentType); //$NON-NLS-1$

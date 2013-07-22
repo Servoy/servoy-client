@@ -109,7 +109,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
 public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scriptable, Cloneable //, Wrapper
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$

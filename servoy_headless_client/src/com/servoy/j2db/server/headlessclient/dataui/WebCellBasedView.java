@@ -364,7 +364,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			int newBodyWidthHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyWidth")); //$NON-NLS-1$ 
 			int newBodyHeightHint = Integer.parseInt(getComponent().getRequest().getParameter("bodyHeight")); //$NON-NLS-1$ 
 
-			if (isScrollMode() && needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue())
+			int scrollbars = (cellview instanceof ISupportScrollbars) ? ((ISupportScrollbars)cellview).getScrollbars() : 0;
+			boolean hasVerticalScrollbarsAlwways = (ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS & scrollbars) != 0 ? true : false;
+
+			if ((isScrollMode() && (needsMoreThanOnePage(newBodyHeightHint).getLeft().booleanValue() || hasVerticalScrollbarsAlwways)))
 			{
 				newBodyWidthHint -= SCROLLBAR_SIZE; // extract the vertical scrollbar width
 			}
@@ -1499,7 +1502,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			@Override
 			public String getObject()
 			{
-				if (isScrollMode() && currentData != null && currentData.getSize() > 0) return "overflow-x: hidden; overflow-y: hidden;"; //$NON-NLS-1$
+				if (isScrollMode()) return "overflow-x: auto; overflow-y: auto;"; //$NON-NLS-1$
 				if (findParent(IWebFormContainer.class) != null)
 				{
 					return ""; //$NON-NLS-1$
@@ -1844,10 +1847,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				public String getObject()
 				{
-					int scrollPadding;
+					int scrollPadding = 0;
 					ClientInfo info = Session.get().getClientInfo();
-					if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer()) scrollPadding = 0;
-					else scrollPadding = SCROLLBAR_SIZE;
+					//if (info instanceof WebClientInfo && ((WebClientInfo)info).getProperties().isBrowserInternetExplorer()) scrollPadding = 0;
+					//else scrollPadding = SCROLLBAR_SIZE;
 					return scrollBarDefinitionToOverflowAttribute(scrollbars) +
 						"position: absolute; left: 0px; right: 0px; bottom: 0px; border-spacing: 0px; -webkit-overflow-scrolling: touch; " + (scrollableHeaderHeight == -1 ? "display:none;" : "top:" + scrollableHeaderHeight + "px;") + " padding-right:" + scrollPadding + "px;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 				}

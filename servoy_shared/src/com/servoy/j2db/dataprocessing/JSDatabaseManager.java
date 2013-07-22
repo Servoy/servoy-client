@@ -66,7 +66,6 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
@@ -625,21 +624,7 @@ public class JSDatabaseManager
 			if (getInOneQuery && columnMap.size() > 0)
 			{
 				// large foundset, query the columns in 1 go
-				// do a 'select dpcolumns from tab where pk in (foundsetquery)
-				QuerySelect sqlSelectsub = AbstractBaseQuery.deepClone(fs.getSqlSelect());
-				QuerySelect sqlSelect = new QuerySelect(sqlSelectsub.getTable());
-
-				List<Column> rowIdentColumns = ((Table)fs.getTable()).getRowIdentColumns();
-				QueryColumn[] pkQueryColumns = new QueryColumn[rowIdentColumns.size()];
-
-				// getPrimaryKeys from table
-				for (int i = 0; i < rowIdentColumns.size(); i++)
-				{
-					Column column = rowIdentColumns.get(i);
-					pkQueryColumns[i] = new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength());
-				}
-				sqlSelect.addCondition("subselect", new SetCondition(ISQLCondition.EQUALS_OPERATOR, pkQueryColumns, sqlSelectsub, true));
-
+				QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getSqlSelect());
 				ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
 				for (String dpname : dpnames)
 				{
@@ -649,6 +634,21 @@ public class JSDatabaseManager
 						cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
 					}
 				}
+
+				boolean hasJoins = sqlSelect.getJoins() != null;
+				if (hasJoins)
+				{
+					// add pk columns so distinct-in-memory can be used
+					List<Column> rowIdentColumns = ((Table)fs.getTable()).getRowIdentColumns();
+					for (Column column : rowIdentColumns)
+					{
+						if (!columnMap.containsKey(column.getDataProviderID()))
+						{
+							cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength()));
+						}
+					}
+				}
+
 				sqlSelect.setColumns(cols);
 				try
 				{
@@ -662,13 +662,13 @@ public class JSDatabaseManager
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
 					IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-						sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+						sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 
 					lst = new ArrayList<Object[]>(dataSet.getRowCount());
 					for (int i = 0; i < dataSet.getRowCount(); i++)
 					{
 						Object[] row = new Object[dpnames.length];
-						Object[] dataseRow = dataSet.getRow(i);
+						Object[] dataseRow = dataSet.getRow(i); // may contain more data: pk columns for distinct-in-memory
 						int dr = 0;
 						for (int j = 0; j < dpnames.length; j++)
 						{
