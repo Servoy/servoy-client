@@ -627,15 +627,15 @@ public class ProfileDataServer implements IDataServer
 	 * @return
 	 * @throws ServoyException
 	 * @throws RemoteException
-	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[])
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[], String[])
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types)
-		throws ServoyException, RemoteException
+	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, int[] types,
+		String[] pkNames) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, types);
+			return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, types, pkNames);
 		}
 		finally
 		{
@@ -664,13 +664,13 @@ public class ProfileDataServer implements IDataServer
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, int[] types) throws ServoyException, RemoteException
+		String targetTid, int[] types, String[] pkNames) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
 			return dataserver.insertQueryResult(client_id, queryServerName, queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
-				dataSource, targetServerName, targetTableName, targetTid, types);
+				dataSource, targetServerName, targetTableName, targetTid, types, pkNames);
 		}
 		finally
 		{
