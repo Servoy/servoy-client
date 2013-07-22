@@ -3419,6 +3419,21 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		isCapturingErrors = cap;
 	}
 
+	/**
+	 * Sets the application server URL for mobile client to connect to.
+	 *
+	 * @sample
+	 * // if server URL is not set at mobile solution export, setServerURL should be called from custom login form, before authentication is done
+	 * application.setServerURL('http://localhost:8080');
+	 *
+	 * @param applicationServerURL The URL to connect.
+	 */
+	@JSFunction
+	public void setServerURL(String applicationServerURL)
+	{
+		//only for mobile
+	}
+
 	@Override
 	public String toString()
 	{

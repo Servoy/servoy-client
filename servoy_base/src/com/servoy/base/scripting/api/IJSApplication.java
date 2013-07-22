@@ -33,4 +33,7 @@ public interface IJSApplication
 	public void setValueListItems(String name, Object[] displayValues);
 
 	public void setValueListItems(String name, Object[] displayValues, Object[] realValues);
+
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	void setServerURL(String applicationServerURL);
 }
