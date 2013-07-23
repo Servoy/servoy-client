@@ -219,7 +219,6 @@ public class DebugUtils
 	public static void invokeAndWaitWhileDispatchingOnSWT(final Runnable run) throws InterruptedException, InvocationTargetException
 	{
 		// apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
-		final AtomicBoolean awtFinished = new AtomicBoolean(false);
 		if (EventQueue.isDispatchThread())
 		{// called from AWT dispatch thread
 			run.run();
@@ -230,6 +229,7 @@ public class DebugUtils
 		}
 		else
 		{
+			final AtomicBoolean awtFinished = new AtomicBoolean(false);
 			final org.eclipse.swt.widgets.Display display = org.eclipse.swt.widgets.Display.getDefault();
 			SwingUtilities.invokeLater(new Runnable()
 			{
