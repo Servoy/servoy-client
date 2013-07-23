@@ -23,13 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -68,21 +68,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	Relation(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.RELATIONS, parent, element_id, uuid);
-	}
-
-	public boolean isRuntimeReadonly()
-	{
-		return primary != null || foreign != null || operators != null;
-	}
-
-	public void setChanged(IDataProviderHandler dataProviderHandler) throws RepositoryException
-	{
-		isChanged = true;
-		IDataProvider[] dataproviders = getPrimaryDataProviders(dataProviderHandler);
-		int[] ops = getOperators();
-		Column[] columns = getForeignColumns();
-		createNewRelationItems(dataproviders, ops, columns);
-
 	}
 
 	/*
@@ -147,15 +132,10 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			}
 		}
 
-
-		//if (relation_items.size() != 0) makeColumns(relation_items); //slow
+		flushCashedItems();
 		primary = primaryDataProvider; //faster
 		foreign = foreignColumns; //faster
 		operators = ops; //faster
-		isGlobal = null;
-		isLiteral = null;
-		valid = null;
-		usedScopes = null;
 	}
 
 
@@ -177,13 +157,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			addChild(obj);
 		}
 
-		primary = null;
-		foreign = null;
-		operators = null;
-		isGlobal = null;
-		isLiteral = null;
-		valid = null;
-		usedScopes = null;
+		flushCashedItems();
 
 		return obj;
 	}
@@ -668,7 +642,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{ // outer joins icw or-null modifiers do not work (oracle) or looses outer join (ansi)
 			for (int operator : getOperators())
 			{
-				if ((operator & ISQLCondition.ORNULL_MODIFIER) != 0)
+				if ((operator & IBaseSQLCondition.ORNULL_MODIFIER) != 0)
 				{
 					return false;
 				}
@@ -831,16 +805,22 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public void setValid(boolean b)
 	{
-		valid = Boolean.valueOf(b);
 		if (b)//clear so they are checked again
 		{
-			primary = null;
-			foreign = null;
-			operators = null;
-			isGlobal = null;
-			usedScopes = null;
-			isLiteral = null;
+			flushCashedItems();
 		}
+		valid = Boolean.valueOf(b);
+	}
+
+	public void flushCashedItems()
+	{
+		primary = null;
+		foreign = null;
+		operators = null;
+		isGlobal = null;
+		usedScopes = null;
+		isLiteral = null;
+		valid = null;
 	}
 
 	public int[] getOperators()
@@ -906,7 +886,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		getOperators();
 		for (int element : operators)
 		{
-			if (element != ISQLCondition.EQUALS_OPERATOR)
+			if (element != IBaseSQLCondition.EQUALS_OPERATOR)
 			{
 				return false;
 			}

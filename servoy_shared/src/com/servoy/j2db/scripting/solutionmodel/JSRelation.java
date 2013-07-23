@@ -28,7 +28,6 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
-import com.servoy.j2db.dataprocessing.SQLSheet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -527,12 +526,13 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 */
 	public final void checkModification()
 	{
-		SQLSheet relatedSheet;
 		try
 		{
-			relatedSheet = ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(relation.getForeignDataSource());
-			if (relation.isRuntimeReadonly() || relatedSheet.getRelatedSQLDescription(relation.getName()) != null) throw new RuntimeException(
-				"Cant modify a relation that is already used in the application: " + relation.getName()); //$NON-NLS-1$
+			if (((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(relation.getForeignDataSource()).getRelatedSQLDescription(
+				relation.getName()) != null)
+			{
+				throw new RuntimeException("Cant modify a relation that is already used in the application: " + relation.getName()); //$NON-NLS-1$
+			}
 		}
 		catch (Exception e)
 		{
@@ -543,6 +543,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 			relation = application.getFlattenedSolution().createPersistCopy(relation);
 			isCopy = true;
 		}
+		relation.flushCashedItems();
 	}
 
 	/**
