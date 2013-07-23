@@ -903,21 +903,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected void onEvent(AjaxRequestTarget target)
 				{
-					if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
-					{
-						WebCellBasedViewListView listView = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedViewListView.class);
-						if (listView != null)
-						{
-							WebCellBasedViewListViewItem listItemObj;
-							int listViewSize = listView.size();
-							for (int i = 0; i < listViewSize; i++)
-							{
-								listItemObj = (WebCellBasedViewListViewItem)((WebCellBasedViewListItem)listView.get(i)).getListContainer();
-								if (listItemObj.isVisibleInHierarchy()) listItemObj.getStylePropertyChanges().setChanged();
-							}
-						}
-					}
-					else markSelected(target);
+					markSelected(target);
 					IFoundSetInternal modelFs = WebCellBasedViewListViewItem.this.listItem.getModelObject().getParentFoundSet();
 					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
 					WebCellBasedView.this.setSelectionMadeByCellAction();
@@ -1037,7 +1023,21 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		public void markSelected(AjaxRequestTarget target)
 		{
-			if (!isSelected())
+			if (dataRendererOnRenderWrapper.getRenderEventExecutor().hasRenderCallback())
+			{
+				WebCellBasedViewListView listView = WebCellBasedViewListViewItem.this.listItem.findParent(WebCellBasedViewListView.class);
+				if (listView != null)
+				{
+					WebCellBasedViewListViewItem listItemObj;
+					int listViewSize = listView.size();
+					for (int i = 0; i < listViewSize; i++)
+					{
+						listItemObj = (WebCellBasedViewListViewItem)((WebCellBasedViewListItem)listView.get(i)).getListContainer();
+						if (listItemObj.isVisibleInHierarchy()) listItemObj.getStylePropertyChanges().setChanged();
+					}
+				}
+			}
+			else if (!isSelected())
 			{
 				if (!(cellview instanceof Portal))
 				{
