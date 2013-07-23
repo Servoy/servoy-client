@@ -115,6 +115,21 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		return null;
 	}
 
+	public static String getDataSourceTableName(String dataSource)
+	{
+		if (dataSource == null) return null;
+		String[] stn = getDBServernameTablename(dataSource);
+		if (stn != null && stn[1] != null)
+		{
+			return stn[1];
+		}
+		if (dataSource.startsWith(INMEM_DATASOURCE_SCHEME_COLON))
+		{
+			return dataSource.substring(INMEM_DATASOURCE_SCHEME_COLON.length());
+		}
+		return null;
+	}
+
 	/**
 	 * Get the sorted set of server names used server names in the data sources list
 	 * 
