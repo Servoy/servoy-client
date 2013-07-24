@@ -248,7 +248,7 @@ public class TemplateGenerator
 
 	public static final Color DEFAULT_FORM_BG_COLOR = Color.WHITE;
 	public static final String TABLE_VIEW_CELL_CLASS = "tableviewcell"; // this value is also used in servoy.js; if you change/remove it please update servoy.js
-
+	public static final String COMBOBOX_CLASS = "select_wrapper";
 	public static final String WRAPPER_SUFFIX = "_wrapper";
 
 	private static final FormCache formCache = new FormCache();
@@ -975,7 +975,12 @@ public class TemplateGenerator
 							}
 							//					columns.append("valign='middle' ");
 							columns.append('>');
-							columns.append("<div class='" + TABLE_VIEW_CELL_CLASS + "'>");
+							String cssClass = TABLE_VIEW_CELL_CLASS;
+							if (element instanceof Field && ((Field)element).getDisplayType() == Field.COMBOBOX)
+							{
+								cssClass += " " + COMBOBOX_CLASS;
+							}
+							columns.append("<div class='" + cssClass + "'>");
 							TextualStyle classBasedStyle = createTableViewComponentHTMLAndStyles(element, form, columns, css, bgColor, startY, endY, false, sp);
 							if (element instanceof Field)
 							{
@@ -2444,7 +2449,7 @@ public class TemplateGenerator
 			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
 			if (field.getDisplayType() == Field.COMBOBOX)
 			{
-				html.append(getCSSClassParameter("select_wrapper"));
+				html.append(getCSSClassParameter(COMBOBOX_CLASS));
 			}
 			html.append(">");
 		}
