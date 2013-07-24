@@ -68,6 +68,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 	private String tagText;
 	//private String tooltip;
 	private String inputId;
+	private boolean hasHTML;
 
 	public WebDataSubmitLink(IApplication application, AbstractRuntimeBaseComponent scriptable, String id)
 	{
@@ -141,6 +142,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		strippedText = new StripHTMLTagsConverter.StrippedText();
 
 		IModel< ? > model = getInnermostModel();
+		hasHTML = false;
 
 		bodyText = null;
 		if (needEntireState && model instanceof RecordItemModel)
@@ -225,6 +227,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		if (HtmlUtils.startsWithHtml(bodyText))
 		{
 			strippedText = StripHTMLTagsConverter.convertBodyText(this, bodyText, application.getFlattenedSolution());
+			hasHTML = true;
 		}
 		else
 		{
@@ -309,11 +312,12 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		instrumentAndReplaceBody(markupStream, openTag, bodyText);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#getBodyText()
-	 */
+	@Override
+	protected boolean hasHtmlOrImage()
+	{
+		return hasHTML || super.hasHtmlOrImage();
+	}
+
 	@Override
 	protected CharSequence getBodyText()
 	{
