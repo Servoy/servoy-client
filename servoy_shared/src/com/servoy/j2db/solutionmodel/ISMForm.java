@@ -1445,22 +1445,6 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public String getInitialSort();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getNavigatorID()
-	 *
-	 * @sample 
-	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set, or SM_DEFAULTS.DEFAULT to have the default servoy navigator.
-	 * // here we assign an other new form as the navigator.
-	 * var aNavigator = solutionModel.newForm('navForm', myDatasource, null, false, 800, 600);
-	 * // set the navigators navigator to NONE
-	 * aNavigator.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form. 
-	 * myListViewForm.navigator = aNavigator;
-	 * application.output(myListViewForm.navigator.name);
-	 * 
-	 */
-	public Object getNavigator();
-
-	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getPaperPrintScale()
 	 * 
 	 * @sample
