@@ -465,7 +465,7 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 			timeField.setVisible(false);
 			timePattern = null;
 		}
-		sdf.applyPattern(pat);
+		sdf.applyPattern(pat.trim());
 		updateLabel();
 		returnValue = ERROR_OPTION;
 		setVisible(true);

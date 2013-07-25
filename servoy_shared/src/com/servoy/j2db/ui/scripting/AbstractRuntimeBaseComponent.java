@@ -122,7 +122,11 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	public void setBgcolor(String clr)
 	{
 		// always set in changesrecorder, has old value check as well
-		if (getComponent().isOpaque()) getChangesRecorder().setBgcolor(clr);
+		getChangesRecorder().setBgcolor(clr);
+		if (!getComponent().isOpaque())
+		{
+			getChangesRecorder().setTransparent(true);
+		}
 
 		String old = getBgcolor();
 		if (!Utils.stringSafeEquals(old, clr))
@@ -141,7 +145,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	{
 		// always set in changesrecorder, has old value check as well
 		getChangesRecorder().setFgcolor(clr);
-		
+
 		String old = getFgcolor();
 		if (!Utils.stringSafeEquals(old, clr))
 		{

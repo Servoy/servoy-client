@@ -843,6 +843,18 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		return newField(dataprovider, Field.CALENDAR, x, y, width, height);
 	}
 
+	@JSFunction
+	public JSCalendar newCalendar(IBaseSMVariable dataprovider, int y)
+	{
+		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
+	}
+
+	@JSFunction
+	public JSCalendar newCalendar(String dataprovider, int y)
+	{
+		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
+	}
+
 	/**
 	 * Creates a new JSField object on the form with the displayType of RTF_AREA (enables more than one line of text to be displayed in a field) - including the dataprovider/JSVariable of the JSField object, the "x" and "y" position of the JSField object in pixels, as well as the width and height of the JSField object in pixels.
 	 * 

@@ -241,6 +241,34 @@ public interface IMobileSMForm extends IBaseSMForm
 	public IMobileSMPassword newPassword(String dataprovider, int y);
 
 	/**
+	 * Creates a new JSCalendar field on the form.
+	 *
+	 * @sample 
+	 * var form = solutionModel.newForm('newForm1',myDatasource); 
+	 * //choose the dataprovider or JSVariable you want for the field
+	 * var x = null;
+	 * //global JSVariable as the dataprovider 
+	 * //x = solutionModel.newGlobalVariable('globals', 'myGlobal', JSVariable.DATETIME);
+	 * //or a form JSVariable as the dataprovider 
+	 * //x = form.newVariable('myFormVar', JSVariable.DATETIME);
+	 * var field = form.newCalendar(x,1);
+	 * //or a column data provider as the dataprovider
+	 * //field.dataProviderID = columnTextDataProvider;
+	 * forms['newForm1'].controller.show();
+	 *
+	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
+	 * @param y the vertical "y" position of the JSField object, defines the order of elements on the form
+	 * 
+	 * @return a new JSCalendar field
+	 */
+	public IMobileSMCalendar newCalendar(IBaseSMVariable dataprovider, int y);
+
+	/**
+	 * @sameas com.servoy.base.solutionmodel.mobile.IMobileSMForm#newCalendar(IBaseSMVariable,int)
+	 */
+	public IMobileSMCalendar newCalendar(String dataprovider, int y);
+
+	/**
 	 * Creates a new button on the form with the given text.
 	 *
 	 * @sample 

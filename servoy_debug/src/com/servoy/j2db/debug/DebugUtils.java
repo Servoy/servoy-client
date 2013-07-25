@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.debug;
 
+import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -219,7 +220,11 @@ public class DebugUtils
 	{
 		// apply workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=291326   plus read and dispatch
 		final AtomicBoolean awtFinished = new AtomicBoolean(false);
-		if (org.eclipse.swt.widgets.Display.getCurrent() == null)
+		if (EventQueue.isDispatchThread())
+		{// called from AWT dispatch thread
+			run.run();
+		}
+		else if (org.eclipse.swt.widgets.Display.getCurrent() == null)
 		{// called from non SWT thread
 			SwingUtilities.invokeAndWait(run);
 		}
