@@ -17,6 +17,8 @@
 
 package com.servoy.base.solutionmodel;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
+
 
 /**
  * Default/none/ignore constants for some property types.
@@ -24,6 +26,7 @@ package com.servoy.base.solutionmodel;
  * @since 7.0
  * @author acostescu
  */
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseSMDefaults
 {
 
@@ -34,10 +37,15 @@ public interface IBaseSMDefaults
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.navigator = SM_DEFAULTS.DEFAULT; // Show the default navigator on the form.
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int DEFAULT = 0;
 
 	/**
 	 * Constant used in various places to set properties to "none".
+	 * 
+	 * @sample-mc
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table');
+	 * form.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
@@ -46,7 +54,14 @@ public interface IBaseSMDefaults
 	public static final int NONE = -1;
 
 	/**
-	 * Constant used to remove a component from the tab sequence.
+	 * Constant used to remove a component from the tab sequence or set form navigator to IGNORE value.
+	 * 
+	 * @description-mc
+	 * Constant used for form navigator, will reuse the current form navigator.
+	 * 
+	 * @sample-mc
+	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table');
+	 * form.navigator = SM_DEFAULTS.IGNORE; // reuse the navigator from current form.
 	 * 
 	 * @sample
 	 * // Create three fields. Based on how they are placed, by default they will come one

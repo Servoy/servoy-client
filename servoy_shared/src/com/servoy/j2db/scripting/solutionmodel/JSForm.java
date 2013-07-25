@@ -2939,7 +2939,17 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getNavigatorID()
-	 *
+	 * 
+	 * @description-mc
+	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value NONE (no navigator) or IGNORE (reuse current form navigator). 
+	 * 
+	 * @sample-mc
+	 * var aForm = solutionModel.newForm('newForm1', myDatasource);
+	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set.
+	 * // here we assign an other new form as the navigator.
+	 * var aNavigator = solutionModel.newForm('navForm', myDatasource);
+	 * aForm.navigator = aNavigator;
+	 * 
 	 * @sample 
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set, or SM_DEFAULTS.DEFAULT to have the default servoy navigator.
