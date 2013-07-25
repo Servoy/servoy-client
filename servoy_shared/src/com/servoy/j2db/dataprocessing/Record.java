@@ -286,7 +286,15 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			// when the value of a database column is set, the record must be in editing mode (not for unstored calcs)
 			if (checkIsEditing && parent.getSQLSheet().getColumnIndex(dataProviderID) != -1 && !isEditing()) throw new IllegalStateException(
 				"Record is not in edit, call startEditing() first"); //$NON-NLS-1$
-			return row.setValue(this, dataProviderID, managebleValue);
+			boolean mustRecalculate = row.mustRecalculate(dataProviderID, true);
+			Object prevValue = row.setValue(this, dataProviderID, managebleValue);
+			if (mustRecalculate && row.containsCalculation(dataProviderID))
+			{
+				// if a calculation is set, then just flag this row for recalculation so that it will be recalculated when it is asked for.
+				// but only if it was in a mustRecalculate mode before (so it was it was never calculated or some depedency was changed)
+				row.getRowManager().flagRowCalcForRecalculation(getPKHashKey(), dataProviderID);
+			}
+			return prevValue;
 		}
 		else if (parent.containsDataProvider(dataProviderID)) //as shared (global or aggregate)
 		{
