@@ -22,7 +22,7 @@ function MultipleFileUploadInterceptor(multiSelector)
                     } else {
                     	for (var i=0; i<element.files.length; i++){
                     		var actionURL = element.form.getAttribute("action");
-                    		actionURL+="&last_modified_"+element.getAttribute("name")+"_"+element.files[i].name+"="+element.files[i].lastModifiedDate.getTime();
+                    		actionURL+="&last_modified_"+element.getAttribute("name")+"_"+encodeURIComponent(element.files[i].name)+"="+element.files[i].lastModifiedDate.getTime();
                     		element.form.setAttribute("action",actionURL)
                     	}
                     }
@@ -67,7 +67,7 @@ function MultipleFileUploadInterceptor(multiSelector)
 			if(element.files && capturedForm !=null ){
 				for (var i=0; i<element.files.length; i++){
 					var actionURL = capturedForm.getAttribute("action");
-					var regex = new RegExp(lastModifiedParamName+"_"+element.files[i].name +"=[0-9]+");
+					var regex = new RegExp((lastModifiedParamName+"_"+encodeURIComponent(element.files[i].name)).replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1")+"=[0-9]+");
 					actionURL =actionURL.replace(regex,"");
 					capturedForm.setAttribute("action",actionURL)
 				}

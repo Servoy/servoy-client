@@ -130,6 +130,6 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 	public void renderHead(IHeaderResponse response)
 	{
 		response.renderJavascriptReference(JS);
-		response.renderOnLoadJavascript("addInputChangeListener()");
+		response.renderOnLoadJavascript("addSFUInputChangeListener()");
 	}
 }
