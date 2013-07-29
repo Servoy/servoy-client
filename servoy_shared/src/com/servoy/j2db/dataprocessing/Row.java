@@ -534,6 +534,7 @@ public class Row
 			{
 				if (!Utils.equalObjects(oldValues[i], columndata[i])) return true;
 			}
+			oldValues = null;
 		}
 		return false;
 	}
