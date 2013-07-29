@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
@@ -528,7 +527,15 @@ public class Row
 
 	public boolean isChanged()
 	{
-		return (oldValues != null || !existInDB);
+		if (!existInDB) return true;
+		if (oldValues != null)
+		{
+			for (int i = 0; i < oldValues.length; i++)
+			{
+				if (!Utils.equalObjects(oldValues[i], columndata[i])) return true;
+			}
+		}
+		return false;
 	}
 
 	public Object[] getRawColumnData()
