@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.scripting.info;
 
-import com.servoy.base.solutionmodel.IBaseApplicationTypes;
+import com.servoy.base.persistence.constants.IBaseApplicationTypes;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 

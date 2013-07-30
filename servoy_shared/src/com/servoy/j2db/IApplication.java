@@ -23,6 +23,7 @@ import java.rmi.Remote;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import com.servoy.base.persistence.constants.IBaseApplicationTypes;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
@@ -41,14 +42,14 @@ import com.servoy.j2db.util.RendererParentWrapper;
  */
 public interface IApplication extends IBasicApplication, IServiceProvider, ILogLevel
 {
-	public static final int SERVER = ClientInfo.SERVER;
-	public static final int CLIENT = ClientInfo.CLIENT; //smart, rich
-	public static final int HEADLESS_CLIENT = ClientInfo.HEADLESS_CLIENT;
-	public static final int WEB_CLIENT = ClientInfo.WEB_CLIENT;
-	public static final int RUNTIME = ClientInfo.RUNTIME;
-	public static final int OFFLINE = ClientInfo.OFFLINE;
-	public static final int MOBILE = ClientInfo.MOBILE;
-	public static final int TYPES_COUNT = ClientInfo.TYPES_COUNT;
+	public static final int SERVER = 1;
+	public static final int CLIENT = IBaseApplicationTypes.SMART_CLIENT; //smart, rich
+	public static final int HEADLESS_CLIENT = IBaseApplicationTypes.HEADLESS_CLIENT;
+	public static final int WEB_CLIENT = IBaseApplicationTypes.WEB_CLIENT;
+	public static final int RUNTIME = IBaseApplicationTypes.RUNTIME_CLIENT;
+	public static final int OFFLINE = 7;
+	public static final int MOBILE = IBaseApplicationTypes.MOBILE_CLIENT;
+	public static final int TYPES_COUNT = 9;
 
 	// UI properties defined/used by Servoy
 	/**

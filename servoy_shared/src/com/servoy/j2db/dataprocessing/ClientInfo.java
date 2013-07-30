@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.servoy.base.solutionmodel.IBaseApplicationTypes;
 import com.servoy.j2db.server.annotations.TerracottaAutolockRead;
 import com.servoy.j2db.server.annotations.TerracottaAutolockWrite;
 import com.servoy.j2db.server.annotations.TerracottaInstrumentedClass;
@@ -40,15 +39,6 @@ import com.servoy.j2db.util.SerializableObject;
 public final class ClientInfo implements Serializable
 {
 	private static final long serialVersionUID = 1L;
-
-	public static final int SERVER = 1;
-	public static final int CLIENT = IBaseApplicationTypes.SMART_CLIENT; //smart, rich
-	public static final int HEADLESS_CLIENT = IBaseApplicationTypes.HEADLESS_CLIENT;
-	public static final int WEB_CLIENT = IBaseApplicationTypes.WEB_CLIENT;
-	public static final int RUNTIME = IBaseApplicationTypes.RUNTIME_CLIENT;
-	public static final int OFFLINE = 7;
-	public static final int MOBILE = IBaseApplicationTypes.MOBILE_CLIENT;
-	public static final int TYPES_COUNT = 9;
 
 	private String clientId;
 	private String hostIdentifier;
