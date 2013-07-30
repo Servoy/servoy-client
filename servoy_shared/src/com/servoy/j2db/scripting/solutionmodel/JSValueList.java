@@ -734,13 +734,13 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	public void setFallbackValueList(IBaseSMValueList vl)
 	{
 		checkModification();
-		if (valuelist == null)
+		if (vl == null)
 		{
-			((JSValueList)vl).getValueList().setFallbackValueListID(0);
+			valuelist.setFallbackValueListID(0);
 		}
 		else
 		{
-			((JSValueList)vl).getValueList().setFallbackValueListID(((JSValueList)vl).getValueList().getID());
+			valuelist.setFallbackValueListID(((JSValueList)vl).getValueList().getID());
 		}
 	}
 
