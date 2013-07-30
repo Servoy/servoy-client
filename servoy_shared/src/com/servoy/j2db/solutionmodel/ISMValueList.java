@@ -379,7 +379,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * vlist.globalMethod = listProvider;
 	 */
 
-	public ISMMethod getGlobalMethod();
+	public IBaseSMMethod getGlobalMethod();
 
 	/**
 	 * Gets or sets the fallback valuelist .
@@ -390,9 +390,9 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * var fallbackValueList = myValueList.fallbackValueList 
 	 * 
 	 */
-	public ISMValueList getFallbackValueList();
+	public IBaseSMValueList getFallbackValueList();
 
-	public void setFallbackValueList(ISMValueList vl);
+	public void setFallbackValueList(IBaseSMValueList vl);
 
 	public void setName(String arg);
 

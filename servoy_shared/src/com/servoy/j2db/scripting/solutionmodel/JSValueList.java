@@ -26,6 +26,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
+import com.servoy.base.solutionmodel.IBaseSMValueList;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -715,24 +716,33 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	@JSGetter
 	public JSValueList getFallbackValueList()
 	{
-		if (valuelist != null)
+
+		FlattenedSolution fs = application.getFlattenedSolution();
+		int fallbackVLID = valuelist.getFallbackValueListID();
+		ValueList fallbackVL = fs.getValueList(fallbackVLID);
+		if (fallbackVL != null)
 		{
-			FlattenedSolution fs = application.getFlattenedSolution();
-			int fallbackVLID = valuelist.getFallbackValueListID();
-			ValueList fallbackVL = fs.getValueList(fallbackVLID);
-			if (fallbackVL != null) return new JSValueList(fallbackVL, application, false);
+			return new JSValueList(fallbackVL, application, false);
 		}
-		return null;
+		else
+		{
+			return null;
+		}
 	}
 
 	@JSGetter
-	public void setFallbackValueList(ISMValueList vl)
+	public void setFallbackValueList(IBaseSMValueList vl)
 	{
+		checkModification();
 		if (vl != null)
 		{
 			FlattenedSolution fs = application.getFlattenedSolution();
 			ValueList rawVL = fs.getValueList(vl.getName());
 			valuelist.setFallbackValueListID(rawVL.getID());
+		}
+		else
+		{
+			valuelist.setFallbackValueListID(0);
 		}
 	}
 
