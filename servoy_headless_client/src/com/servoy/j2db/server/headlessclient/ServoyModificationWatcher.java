@@ -163,6 +163,8 @@ public class ServoyModificationWatcher implements IModificationWatcher
 				Iterator<Entry> iter = new ArrayList<Entry>(modifiableToEntry.values()).iterator();
 				while (iter.hasNext())
 				{
+					if (Thread.currentThread().isInterrupted()) return;
+
 					final Entry entry = iter.next();
 
 					// If the modifiable has been modified after the last known
