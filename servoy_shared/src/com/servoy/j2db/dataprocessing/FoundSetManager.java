@@ -232,14 +232,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	/**
 	 * 
-	 * @param foundset
+	 * @param table
 	 * @param dataSource
 	 * @param columnName when not null, only return true if the table has the column
 	 */
-	private boolean mustRefresh(FoundSet foundset, String dataSource, String columnName)
+	private boolean mustRefresh(ITable table, String dataSource, String columnName)
 	{
-		ITable fsTable = foundset.getTable();
-		if (columnName != null && fsTable instanceof Table && ((Table)fsTable).getColumn(columnName) == null)
+		if (columnName != null && table instanceof Table && ((Table)table).getColumn(columnName) == null)
 		{
 			// does not have specified column not
 			return false;
@@ -255,9 +254,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			Debug.error(e);
 		}
 
-		if (fsTable != null && dsTable != null)
+		if (table != null && dsTable != null)
 		{
-			return (fsTable.getServerName().equals(dsTable.getServerName()) && fsTable.getName().equals(dsTable.getName()));
+			return (table.getServerName().equals(dsTable.getServerName()) && table.getName().equals(dsTable.getName()));
 		}
 		return true;
 	}
@@ -282,7 +281,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			try
 			{
-				if (mustRefresh(fs, dataSource, columnName))
+				if (mustRefresh(fs.getTable(), dataSource, columnName))
 				{
 					if (fs.isInitialized())
 					{
@@ -313,7 +312,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					try
 					{
-						if (mustRefresh(element, dataSource, columnName))
+						if (mustRefresh(element.getTable(), dataSource, columnName))
 						{
 							//element.refreshFromDB(false);
 							// this call is somewhat different then a complete refresh from db.
@@ -337,6 +336,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		getEditRecordList().fireEvents();
 
 		return affectedTables;
+	}
+
+	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, String columnName)
+	{
+		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, columnName, false);
+
+		// also add tables that have listeners but no foundsets
+		Iterator<ITable> tableListeneresIte = tableListeners.keySet().iterator();
+		ITable tableKey;
+		while (tableListeneresIte.hasNext())
+		{
+			tableKey = tableListeneresIte.next();
+			if (!affectedtableList.contains(tableKey) && mustRefresh(tableKey, dataSource, columnName))
+			{
+				affectedtableList.add(tableKey);
+			}
+		}
+
+		return affectedtableList;
 	}
 
 	/*
@@ -1132,7 +1150,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (!filter.isContainedIn(params)) // do not add the same filter, will add same AND-condition anyway
 		{
 			params.add(filter);
-			for (ITable affectedtable : refreshFoundSetsFromDB(getDataSource(table), filter.getDataprovider(), false))
+
+			for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), filter.getDataprovider()))
 			{
 				fireTableEvent(affectedtable);
 			}
@@ -1170,7 +1189,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					dataSource = DataSourceUtils.createDBTableDataSource(filter.getServerName(), filter.getTableName());
 				}
-				for (ITable affectedtable : refreshFoundSetsFromDB(dataSource, filter.getDataprovider(), false))
+
+				for (ITable affectedtable : getFilterUpdateAffectedTables(dataSource, filter.getDataprovider()))
 				{
 					if (firedTables.add(affectedtable))
 					{

@@ -204,11 +204,6 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		}
 	}
 
-	// we need to keep a reference to the foundset used when filling the valuelist,
-	// so it will not be removed from the FoundSetManager weak map of foundsets, that would result
-	// in loosing tableChange events from table filter changing
-	private FoundSet fs;
-
 	//also called by universal field valueChanged
 	@SuppressWarnings("nls")
 	private void fill()
@@ -219,7 +214,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 
 			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
 			List<SortColumn> sortColumns = foundSetManager.getSortColumns(table, valueList.getSortOptions());
-			fs = (FoundSet)foundSetManager.getNewFoundSet(table, null, sortColumns);
+			FoundSet fs = (FoundSet)foundSetManager.getNewFoundSet(table, null, sortColumns);
 			if (fs == null)
 			{
 				return;
