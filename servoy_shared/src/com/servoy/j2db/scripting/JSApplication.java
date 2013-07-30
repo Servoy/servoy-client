@@ -1268,7 +1268,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Constant application type
 	 */
-	public int js_getApplicationType()
+	@JSFunction
+	public int getApplicationType()
 	{
 		return application.getApplicationType();
 	}

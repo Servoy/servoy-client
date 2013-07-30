@@ -34,6 +34,8 @@ public interface IJSApplication
 
 	public void setValueListItems(String name, Object[] displayValues, Object[] realValues);
 
+	public int getApplicationType();
+
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	void setServerURL(String applicationServerURL);
 }

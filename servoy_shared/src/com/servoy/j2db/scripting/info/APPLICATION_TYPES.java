@@ -16,57 +16,13 @@
  */
 package com.servoy.j2db.scripting.info;
 
-import com.servoy.j2db.IApplication;
+import com.servoy.base.solutionmodel.IBaseApplicationTypes;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class APPLICATION_TYPES implements IPrefixedConstantsObject
+public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
 {
-	/**
-	 * Constant for application type smart_client.
-	 *
-	 * @sample
-	 * if (application.getApplicationType() == APPLICATION_TYPES.SMART_CLIENT)
-	 * {
-	 * 	//we are in smart_client
-	 * }
-	 */
-	public static final int SMART_CLIENT = IApplication.CLIENT; //smart, rich
-
-	/**
-	 * Constant for application type headless_client.
-	 *
-	 * @sample
-	 * if (application.getApplicationType() == APPLICATION_TYPES.HEADLESS_CLIENT)
-	 * {
-	 * 	//we are in headless_client
-	 * }
-	 */
-	public static final int HEADLESS_CLIENT = IApplication.HEADLESS_CLIENT;
-
-	/**
-	 * Constant for application type web_client.
-	 *
-	 * @sample
-	 * if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT)
-	 * {
-	 * 	//we are in web_client
-	 * }
-	 */
-	public static final int WEB_CLIENT = IApplication.WEB_CLIENT;
-
-	/**
-	 * Constant for application type runtime_client.
-	 *
-	 * @sample
-	 * if (application.getApplicationType() == APPLICATION_TYPES.RUNTIME_CLIENT)
-	 * {
-	 * 	//we are in runtime_client
-	 * }
-	 */
-	public static final int RUNTIME_CLIENT = IApplication.RUNTIME;
-
 	public String getPrefix()
 	{
 		return "APPLICATION_TYPES";
