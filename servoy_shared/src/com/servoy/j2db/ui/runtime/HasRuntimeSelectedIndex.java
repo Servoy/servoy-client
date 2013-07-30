@@ -44,6 +44,7 @@ public interface HasRuntimeSelectedIndex
 	 * Sets the selected record index in the current cached foundset in the specified portal.
 	 * 
 	 * @sampleas getSelectedIndex()
+	 * @see #getSelectedIndex()
 	 * 
 	 * @param index the specified record index
 	 */

@@ -29,7 +29,7 @@ package com.servoy.base.persistence;
 public interface IBasePart
 {
 	/**
-	 * The Cascading Style Sheet (CSS) class name applied to the part. 
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMPart#getStyleClass() 
 	 */
 	String getStyleClass();
 

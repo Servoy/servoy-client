@@ -48,6 +48,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 
 	/**
 	 * @sameas INNER_JOIN
+	 * @see #INNER_JOIN
 	 */
 	public static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
 
@@ -65,6 +66,7 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 
 	/**
 	 * @sameas RIGHT_OUTER_JOIN
+	 * @see #RIGHT_OUTER_JOIN
 	 */
 	public static final int FULL_JOIN = IJoinConstants.FULL_JOIN;
 
@@ -91,7 +93,9 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	public void removeRelationItem(String primaryDataProviderID, String operator, String foreignColumnName);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowCreationRelatedRecords()
+	 * Flag that tells if related records can be created through this relation.
+	 * 
+	 * The default value of this flag is "false".
 	 * 
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
@@ -100,7 +104,9 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	public boolean getAllowCreationRelatedRecords();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowParentDeleteWhenHavingRelatedRecords()
+	 * Flag that tells if the parent record can be deleted while it has related records.
+	 * 
+	 * The default value of this flag is "true".
 	 * 
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
@@ -109,7 +115,9 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	public boolean getAllowParentDeleteWhenHavingRelatedRecords();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getDeleteRelatedRecords()
+	 * Flag that tells if related records should be deleted or not when a parent record is deleted.
+	 * 
+	 * The default value of this flag is "false".
 	 * 
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
@@ -118,31 +126,36 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	public boolean getDeleteRelatedRecords();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getForeignDataSource()
-	 * 
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSRelation#getPrimaryDataSource()
-	 */
-	public String getForeignDataSource();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getJoinType()
-	 * 
-	 * @sampleas INNER_JOIN
-	 */
-	public int getJoinType();
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getPrimaryDataSource()
+	 * Qualified name of the foreign data source. Contains both the name of the foreign
+	 * server and the name of the foreign table.
 	 * 
 	 * @sample
 	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.primaryDataSource = 'db:/user_data/another_parent_table';
 	 * relation.foreignDataSource = 'db:/user_data/another_child_table';
 	 */
+	public String getForeignDataSource();
+
+	/**
+	 * The join type that is performed between the primary table and the foreign table.
+	 * Can be "inner join" or "left outer join".
+	 * 
+	 * @sampleas INNER_JOIN
+	 * @see #INNER_JOIN
+	 */
+	public int getJoinType();
+
+	/**
+	 * Qualified name of the primary data source. Contains both the name of the primary server
+	 * and the name of the primary table.
+	 * 
+	 * @sampleas getForeignDataSource()
+	 * @see #getForeignDataSource()
+	 */
 	public String getPrimaryDataSource();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getName()
+	 * The name of the relation.
 	 * 
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
@@ -203,7 +216,10 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	public ISMRelationItem newRelationItem(String dataprovider, String operator, String foreinColumnName);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getInitialSort()
+	 * A String which specified a set of sort options for the initial sorting of data
+	 * retrieved through this relation.
+	 * 
+	 * Has the form "column_name asc, another_column_name desc, ...".
 	 * 
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);

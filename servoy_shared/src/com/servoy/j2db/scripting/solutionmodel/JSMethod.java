@@ -112,13 +112,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
 	 * 
-	 * @sample
-	 * var method = form.newMethod('function original() { application.output("Original function."); }');
-	 * application.output('original method name: ' + method.getName());
-	 * application.output('original method code: ' + method.code);
-	 * method.code = 'function changed() { application.output("This is another function."); }';
-	 * method.showInMenu = false;
-	 * var button = form.newButton('Click me!', 10, 10, 100, 30, method);
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMMethod#getShowInMenu()
 	 */
 	@JSGetter
 	public String getCode()

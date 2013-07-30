@@ -27,18 +27,22 @@ package com.servoy.j2db.solutionmodel;
 public interface ISMMedia extends ISMHasUUID
 {
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Media#getMimeType()
+	 * The MIME type of the Media object.
+	 * 
+	 * Some examples are: 'image/jpg', 'image/png', etc.
 	 * 
 	 * @sampleas getBytes()
+	 * @see #getBytes()
 	 */
 	public String getMimeType();
 
 	public void setMimeType(String type);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Media#getName()
+	 * The name of the Media object.
 	 * 
 	 * @sampleas getBytes()
+	 * @see #getBytes()
 	 * 
 	 * @return A String holding the name of this Media object.
 	 */

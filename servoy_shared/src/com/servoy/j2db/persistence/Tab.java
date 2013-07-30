@@ -96,7 +96,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	}
 
 	/**
-	 * The name of the form displayed in the tab.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMTab#getContainsForm()
 	 */
 	public int getContainsFormID()
 	{
@@ -114,8 +114,7 @@ public class Tab extends AbstractBase implements ISupportBounds, IPersistCloneab
 	}
 
 	/**
-	 * The name of the relation that links the form which contains the tab 
-	 * with the form displayed in the tab.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMTab#getRelationName()
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getRelationName()

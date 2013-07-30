@@ -448,12 +448,9 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Relation#getPrimaryDataSource()
+	 * @clonedesc com.servoy.j2db.solutionmodel.ISMRelation#getPrimaryDataSource()
 	 * 
-	 * @sample
-	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
-	 * relation.primaryDataSource = 'db:/user_data/another_parent_table';
-	 * relation.foreignDataSource = 'db:/user_data/another_child_table';
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMRelation#getForeignDataSource()
 	 */
 	@JSGetter
 	public String getPrimaryDataSource()

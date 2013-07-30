@@ -63,12 +63,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public static final int NAVIGATOR_IGNORE = IFormConstants.NAVIGATOR_IGNORE;
 
 	/**
-	 * Constant used for form namedFoundset property. The form that uses empty namedFoundset will initially have an empty (cleared) foundset.
+	 * @clonedesc com.servoy.j2db.solutionmodel.ISMForm#EMPTY_FOUNDSET
 	 */
 	public static final String NAMED_FOUNDSET_EMPTY = "empty"; //$NON-NLS-1$
 
 	/**
-	 * Constant used for form namedFoundset property. The form that uses a separate namedFoundset will initially have an separate (not shared with other forms) foundset.
+	 * @clonedesc com.servoy.j2db.solutionmodel.ISMForm#SEPARATE_FOUNDSET
 	 */
 	public static final String NAMED_FOUNDSET_SEPARATE = "separate"; //$NON-NLS-1$
 

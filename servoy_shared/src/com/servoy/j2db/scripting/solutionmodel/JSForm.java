@@ -1862,12 +1862,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	/**
 	 * Gets all the parts from the form (not including the parts of the parent form), ordered by there height (lowerbound) property, from top == 0 to bottom.
 	 *
-	 * @sample 
-	 * var allParts = form.getParts()
-	 * for (var i=0; i<allParts.length; i++) {
-	 *	if (allParts[i].getPartType() == JSPart.BODY)
-	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
-	 * }
+	 * @sampleas com.servoy.j2db.solutionmodel.ISMPart#getPartYOffset()
 	 * 
 	 * @return An array of JSPart instances corresponding to the parts of the form.
 	 */

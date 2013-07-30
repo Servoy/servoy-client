@@ -466,11 +466,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getToolTipText()
-	 * 
-	 * @sample
-	 * var label = form.newLabel('Stop the mouse over me!', 10, 10, 200, 20);
-	 * label.toolTipText = 'I\'m the tooltip. Do you see me?';
+	 * @sameas com.servoy.j2db.solutionmodel.ISMField#getToolTipText()
 	 */
 	@Override
 	@JSGetter
@@ -584,18 +580,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	}
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
-	 * 
-	 * @sample
-	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
-	 * var onClickMethod = form.newMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
-	 * var onDoubleClickMethod = form.newMethod('function onDoubleClick(event) { application.output("I was double-clicked at " + event.getTimestamp()); }');
-	 * var onRightClickMethod = form.newMethod('function onRightClick(event) { application.output("I was right-clicked at " + event.getTimestamp()); }');
-	 * // At creation the button has the 'doNothing' method as onClick handler, but we'll change that later.
-	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, doNothingMethod);
-	 * btn.onAction = onClickMethod;
-	 * btn.onDoubleClick = onDoubleClickMethod;
-	 * btn.onRightClick = onRightClickMethod;
+	 * @sameas com.servoy.base.solutionmodel.IBaseSMField#getOnAction()
 	 */
 	@Override
 	@JSGetter

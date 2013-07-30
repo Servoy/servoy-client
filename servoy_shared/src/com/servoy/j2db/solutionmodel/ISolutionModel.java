@@ -546,6 +546,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * @clonedesc getGlobalVariables()
 	 * @sampleas getGlobalVariables()
+	 * @see #getGlobalVariables()
 	 * @param scopeName limit to global vars of specified scope name
 	 * 
 	 * @return an array of ISMVariable type elements
@@ -617,6 +618,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * @clonedesc getGlobalMethods()
 	 * @sampleas getGlobalMethods()
+	 * @see #getGlobalMethods()
 	 * @param scopeName limit to global methods of specified scope name
 	 * @return an array of ISMMethod type elements
 	 */
@@ -676,6 +678,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * @clonedesc getRelations(String)
 	 * @sampleas getRelations(String)
+	 * @see #getRelations(String)
 	 * @param servername the specified name of the server for the specified table
 	 * @param tablename the specified name of the table
 	 * 
@@ -704,6 +707,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * clonedesc createPageFormat(double, double, double, double, double, double)
 	 * @sampleas createPageFormat(double, double, double, double, double, double)
+	 * @see #createPageFormat(double, double, double, double, double, double)
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.
 	 * @param leftmargin the specified left margin of the page to be printed.
@@ -717,6 +721,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	/**
 	 * clonedesc createPageFormat(double, double, double, double, double, double)
 	 * @sampleas createPageFormat(double, double, double, double, double, double)
+	 * @see #createPageFormat(double, double, double, double, double, double)
 	 * @param width the specified width of the page to be printed.
 	 * @param height the specified height of the page to be printed.
 	 * @param leftmargin the specified left margin of the page to be printed.

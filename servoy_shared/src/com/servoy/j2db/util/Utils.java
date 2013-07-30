@@ -2759,7 +2759,7 @@ public class Utils
 
 	/**
 	 * returns a js/json string representation of the given Array that can have {@link Scriptable} objects inside it
-	 * @param obj
+	 * @param array
 	 * @return
 	 */
 	public static String getScriptableString(Object[] array)

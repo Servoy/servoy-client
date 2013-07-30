@@ -32,6 +32,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getHorizontalAlignment()
 	 * 
 	 * @sample 
 	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
@@ -44,7 +45,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getHorizontalAlignment();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getImageMediaID()
+	 * The image Media object that should be displayed inside the component.
 	 * 
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
@@ -55,7 +56,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public ISMMedia getImageMedia();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMargin()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getMargin()
 	 * 
 	 * @sample
 	 * var label = form.newLabel('Label', 10, 10, 150, 150);
@@ -65,7 +66,18 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public String getMargin();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMediaOptions()
+	 * Options to scale the image Media object that is displayed inside the component.
+	 * Can be set to one or a combination of CROP, REDUCE, ENLARGE and KEEPASPECT.
+	 * 
+	 * REDUCE will scale down the image if the component is smaller than the image.
+	 * REDUCE combined with KEEPASPECT will reduce the image, but keep its aspect ratio. 
+	 * This is useful when the component has other proportions than the image.
+	 * 
+	 * ENLARGE will scale up the image if the component is larger than the image.
+	 * ENLARGE combined with KEEPASPECT will scale up the image while keeping its aspect ratio.
+	 * 
+	 * CROP will leave the image at its original size. If the component is smaller than
+	 * the image this will result in only a part of the image showing up.
 	 *
 	 * @sample
 	 * 	// Load two images, a big one and a small one.
@@ -103,7 +115,13 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getMediaOptions();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMnemonic()
+	 * The keyboard shortcut that activates this component. A letter must be specified, 
+	 * and the actual shortcut will be combination of ALT + the specified letter.
+	 * 
+	 * This property can be used in two ways. Normally the keyboard shortcut activates 
+	 * the onClick event of the component. But if the "labelFor" property is set for the
+	 * component, then the keyboard shortcut will move the focus to the component whose
+	 * label this component is.
 	 * 
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
@@ -118,7 +136,8 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public String getMnemonic();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRolloverCursor()
+	 * The cursor that is shown as the mouse is rolled over the component.
+	 * Possible options are DEFAULT and HAND. Note that roll over cursor is not supported in Smart client for list view and tableview forms.
 	 *
 	 * @sample 
 	 * var label = form.newLabel('Move the mouse over me', 10, 10, 200, 200);
@@ -127,7 +146,10 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getRolloverCursor();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRolloverImageMediaID()
+	 * The roll over image Media object used. It will only work if a property image is also used.
+	 * When the mouse is moved over the component, this image Media will be displayed. 
+	 * When the mouse is moved out of the component, whatever text or image was being initially 
+	 * displayed will be restored. Note that roll over image is not supported in Smart client for list view and tableview forms.
 	 * 
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
@@ -141,7 +163,8 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public ISMMedia getRolloverImageMedia();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRotation()
+	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.  
+	 * This property also applies to buttons and images.
 	 * 
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
@@ -153,7 +176,8 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getRotation();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getShowClick()
+	 * When set, the element will show the clicked state when selected. 
+	 * Applies to labels and buttons and images only.
 	 * 
 	 * @sample
 	 * // Create a form method.
@@ -172,7 +196,12 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public boolean getShowClick();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getShowFocus()
+	 * When set the text of an element will showfocus when selected.
+	 * Applies to labels and buttons only. 
+	 * The text property for the element MUST be filled in first. 
+	 *
+	 * NOTE: The TAB key may also be used to select the element, depending 
+	 * on the operating system being used and the selected LAF. 
 	 * 
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
@@ -185,6 +214,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getTabSeq()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getTabSeq()
 	 *
 	 * @sample
 	 * // Create three fields. Based on how they are placed, by default they will come one
@@ -201,7 +231,8 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getTabSeq();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMGraphicalComponent#getText()
+	 * @see com.servoy.base.solutionmodel.IBaseSMGraphicalComponent#getText()
 	 * 
 	 * @sample
 	 * // In general the text is specified when creating the component.
@@ -213,6 +244,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getToolTipText()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getToolTipText()
 	 * 
 	 * @sample
 	 * var label = form.newLabel('Stop the mouse over me!', 10, 10, 200, 20);
@@ -221,7 +253,11 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public String getToolTipText();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getVerticalAlignment()
+	 * The vertical alignment of the text inside the component. Can be one of
+	 * TOP, CENTER or BOTTOM.
+	 * 
+	 * Note that this property does not refer to the vertical alignment of the
+	 * component inside the form.
 	 *
 	 * @sample 
 	 * var topAlignedLabel = form.newLabel('TOP', 400, 10, 50, 300);
@@ -261,6 +297,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
+	 * @see com.servoy.base.solutionmodel.IBaseSMField#getOnAction()
 	 * 
 	 * @sample
 	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
@@ -278,16 +315,17 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public void setOnDoubleClick(ISMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnDoubleClickMethodID()
+	 * The method that is executed when the component is double clicked.
 	 * 
 	 * @sampleas getOnAction()
+	 * @see #getOnAction()
 	 */
 	public ISMMethod getOnDoubleClick();
 
 	public void setOnRender(ISMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRenderMethodID()
+	 * The method that is executed when the component is rendered.
 	 * 
 	 * @sample
 	 * label.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
@@ -298,8 +336,10 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRightClickMethodID()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getOnRightClick()
 	 * 
 	 * @sampleas getOnAction()
+	 * @see #getOnAction()
 	 */
 	public ISMMethod getOnRightClick();
 

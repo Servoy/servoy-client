@@ -196,13 +196,22 @@ public interface IBaseSMField extends IBaseSMComponent
 	public static final int SPINNER = IFieldConstants.SPINNER;
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getDataProviderID()
+	 * The dataprovider of the component.
+	 * 
+	 * @sample
+	 * // Normally the dataprovider is specified when a component is created.
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
+	 * // But it can be modified later if needed.
+	 * field.dataProviderID = 'parent_table_id';
+	 * 
 	 */
 	public String getDataProviderID();
 
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getDisplayType()
+	 * The type of display used by the field. Can be one of CALENDAR, CHECKS,
+	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
+	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTISELECT_LISTBOX or SPINNER.
 	 *
 	 * @sample 
 	 * // The display type is specified when the field is created.
@@ -214,7 +223,8 @@ public interface IBaseSMField extends IBaseSMComponent
 	public int getDisplayType();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseField#getValuelistID()
+	 * The valuelist that is used by this field when displaying data. Can be used
+	 * with fields of type CHECKS, COMBOBOX, RADIOS and TYPE_AHEAD.
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
@@ -237,14 +247,25 @@ public interface IBaseSMField extends IBaseSMComponent
 	public void setOnAction(IBaseSMMethod method);
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnAction()
+	 * The method that is executed when the component is clicked.
+	 * 
+	 * @sample
+	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
+	 * var onClickMethod = form.newMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
+	 * var onDoubleClickMethod = form.newMethod('function onDoubleClick(event) { application.output("I was double-clicked at " + event.getTimestamp()); }');
+	 * var onRightClickMethod = form.newMethod('function onRightClick(event) { application.output("I was right-clicked at " + event.getTimestamp()); }');
+	 * // At creation the button has the 'doNothing' method as onClick handler, but we'll change that later.
+	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, doNothingMethod);
+	 * btn.onAction = onClickMethod;
+	 * btn.onDoubleClick = onDoubleClickMethod;
+	 * btn.onRightClick = onRightClickMethod;
 	 */
 	public IBaseSMMethod getOnAction();
 
 	public void setOnDataChange(IBaseSMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseField#getOnDataChangeMethodID()
+	 * Method that is executed when the data in the component is successfully changed.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
@@ -256,7 +277,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	public IBaseSMMethod getOnDataChange();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getPlaceholderText()
+	 * The text that is displayed in field when the field doesn't have a text value.
 	 * 
 	 * @sample
 	 * field.placeholderText = 'Search';

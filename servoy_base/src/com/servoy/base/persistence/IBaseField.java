@@ -31,8 +31,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 public interface IBaseField extends IBaseFieldCommon
 {
 	/**
-	 * The valuelist that is used by this field when displaying data. Can be used
-	 * with fields of type CHECKS, COMBOBOX, RADIOS and TYPE_AHEAD.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getValuelist()
 	 */
 	int getValuelistID();
 
@@ -51,7 +50,7 @@ public interface IBaseField extends IBaseFieldCommon
 	void setOnActionMethodID(int arg);
 
 	/**
-	 * Method that is executed when the data in the component is successfully changed.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
 	 * 
 	 * @templatedescription Handle changed data
 	 * @templatename onDataChange

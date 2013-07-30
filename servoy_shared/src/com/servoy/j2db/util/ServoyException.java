@@ -49,6 +49,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when an unrecognized database exception has occurred.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int UNKNOWN_DATABASE_EXCEPTION = 100;
 	/**
@@ -57,6 +58,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a database exception is recognized as an integrity exception (like constraint violation).
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int DATA_INTEGRITY_VIOLATION = 101;
 	/**
@@ -65,6 +67,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a database exception is recognized as an sql syntax error.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int BAD_SQL_SYNTAX = 102;
 	/**
@@ -73,6 +76,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a database exception is recognized as a authorization error.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int PERMISSION_DENIED = 103;
 	/**
@@ -81,6 +85,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a deadlock is detected by the database.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int DEADLOCK = 104;
 	/**
@@ -89,6 +94,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a database exception received an error accessing storage devices.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int DATA_ACCESS_RESOURCE_FAILURE = 105;
 	/**
@@ -97,6 +103,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a database failed to lock a row or table.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int ACQUIRE_LOCK_FAILURE = 106;
 	/**
@@ -105,6 +112,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a data is requested that is not selected in the sql.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int INVALID_RESULTSET_ACCESS = 107;
 	/**
@@ -114,6 +122,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * when a record was deleted outside Servoy and a Servoy client wants to update the record).
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int UNEXPECTED_UPDATE_COUNT = 108;
 
@@ -127,6 +136,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a client could not be registered with the server because of license limitations.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int NO_LICENSE = 307;
 	/**
@@ -135,6 +145,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a record could not be updated or deleted because it is locked by another client.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int RECORD_LOCKED = 308;
 	/**
@@ -152,6 +163,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when the user enters data that could not be validated.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int INVALID_INPUT = 310;
 	/**
@@ -160,6 +172,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when an external program was not executed correctly.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int EXECUTE_PROGRAM_FAILED = 311;
 	/**
@@ -168,6 +181,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when the user enters invalid credentials.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int INCORRECT_LOGIN = 312;
 	/**
@@ -176,6 +190,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a user wants to update data and this is disallowed by security settings.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int NO_MODIFY_ACCESS = 319;
 	/**
@@ -184,6 +199,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a user wants to view data and this is disallowed by security settings.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int NO_ACCESS = 320;
 	/**
@@ -192,6 +208,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a user wants to delete data and this is disallowed by security settings.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int NO_DELETE_ACCESS = 322;
 	/**
@@ -200,6 +217,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a user wants to create new records and this is disallowed by security settings.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int NO_CREATE_ACCESS = 323;
 	/**
@@ -208,6 +226,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a user wants to create new related records and this is disallowed by security settings.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int NO_RELATED_CREATE_ACCESS = 324;
 //	public static final int VALIDATOR_NOT_FOUND = 327;
@@ -218,6 +237,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a javascript exception occurred during saving data to the database.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int SAVE_FAILED = 330;
 	/**
@@ -226,6 +246,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a record could not be deleted because a non-empty relation exists for the record that does not allow parent delete when having related records.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int NO_PARENT_DELETE_WITH_RELATED_RECORDS = 331;
 	/**
@@ -234,6 +255,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a record deletion was rejected by a pre-delete Servoy trigger.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int DELETE_NOT_GRANTED = 332;
 	/**
@@ -242,6 +264,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a client could not be registered with the server because the server is in maintenance mode.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int MAINTENANCE_MODE = 333;
 	/**
@@ -250,6 +273,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a form, that cannot be created, is shown (for example, a form without parts).
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int ABSTRACT_FORM = 334;
 	/**
@@ -258,6 +282,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when a record update/insert was rejected by a pre-update/insert Servoy trigger.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int RECORD_VALIDATION_FAILED = 335;
 	/**
@@ -266,6 +291,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * This code is used when an client performs an action that requires the user to be logged in and the user has not logged in yet.
 	 * 
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 */
 	public static final int CLIENT_NOT_AUTHORIZED = 336;
 
@@ -342,6 +368,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	/**
 	 * Always true; it makes the distinction between ServoyException and DataException.
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 * @return true.
 	 * @deprecated Use "typeof" operator instead.
 	 */
@@ -561,6 +588,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Returns the string message for this ServoyException. 
 	 *
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 * @return the string message for this ServoyException. 
 	 */
 	public String js_getMessage()
@@ -572,6 +600,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Returns the stack trace for this ServoyException. 
 	 *
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 * @return the string stack trace for this ServoyException. 
 	 */
 	public String js_getStackTrace()
@@ -585,6 +614,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * Returns the script stack trace for this ServoyException if this could be created.
 	 *
 	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
 	 * @return the string stack trace for this ServoyException. 
 	 */
 	@JSFunction

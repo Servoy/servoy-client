@@ -101,7 +101,6 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return builderColumns;
 	}
 
-
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderTableClause#joins()
 	 * @sample

@@ -73,6 +73,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	/**
 	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
 	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * @see #addTab(String, String, String, String, String, String, String, String, int)
 	 * 
 	 * @param formName the specified form/form name you wish to add as a tab
 	 * @param tabName the specified name for the tab or NULL (default is null)
@@ -90,6 +91,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	/**
 	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
 	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * @see #addTab(String, String, String, String, String, String, String, String, int)
 	 * 
 	 * @param formName the specified form/form name you wish to add as a tab
 	 * @param tabName the specified name for the tab or NULL (default is null)
@@ -107,6 +109,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	/**
 	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
 	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * @see #addTab(String, String, String, String, String, String, String, String, int)
 	 * 
 	 * @param formName the specified form/form name you wish to add as a tab
 	 * @param tabName the specified name for the tab or NULL (default is null)
@@ -123,6 +126,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	/**
 	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
 	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * @see #addTab(String, String, String, String, String, String, String, String, int)
 	 * 
 	 * @param formName the specified form/form name you wish to add as a tab
 	 * @param tabName the specified name for the tab or NULL (default is null)
@@ -137,6 +141,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	/**
 	 * @clonedesc addTab(String, String, String, String, String, String, String, String, int)
 	 * @sampleas addTab(String, String, String, String, String, String, String, String, int)
+	 * @see #addTab(String, String, String, String, String, String, String, String, int)
 	 * 
 	 * @param formName the specified form/form name you wish to add as a tab
 	 * @param tabName the specified name for the tab or NULL (default is null)

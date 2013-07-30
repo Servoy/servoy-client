@@ -38,16 +38,14 @@ public interface IBaseFieldCommon extends IBaseComponent
 	void setDataProviderID(String arg);
 
 	/**
-	 * The type of display used by the field. Can be one of CALENDAR, CHECKS,
-	 * COMBOBOX, HTML_AREA, IMAGE_MEDIA, PASSWORD, RADIOS, RTF_AREA, TEXT_AREA,
-	 * TEXT_FIELD, TYPE_AHEAD, LIST_BOX, MULTISELECT_LISTBOX or SPINNER.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getDisplayType()
 	 */
 	int getDisplayType();
 
 	void setDisplayType(int arg);
 
 	/**
-	 * The text that is displayed in field when the field doesn't have a text value.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getPlaceholderText()
 	 */
 	String getPlaceholderText();
 

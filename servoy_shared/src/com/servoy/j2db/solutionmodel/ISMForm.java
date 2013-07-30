@@ -35,11 +35,13 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	/**
 	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#LIST_VIEW
+	 * @see com.servoy.base.solutionmodel.IBaseSMForm#LIST_VIEW
 	 */
 	public static final int LOCKED_LIST_VIEW = IFormConstants.VIEW_TYPE_LIST_LOCKED;
 
 	/**
 	 * @sameas com.servoy.base.solutionmodel.IBaseSMForm#LIST_VIEW
+	 * @see com.servoy.base.solutionmodel.IBaseSMForm#LIST_VIEW
 	 */
 	public static final int LOCKED_RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD_LOCKED;
 
@@ -73,36 +75,42 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
+	 * @see #DEFAULT_ENCAPSULATION
 	 */
 	public static final int PRIVATE_ENCAPSULATION = IFormConstants.PRIVATE;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
+	 * @see #DEFAULT_ENCAPSULATION
 	 */
 	public static final int MODULE_PRIVATE_ENCAPSULATION = IFormConstants.MODULE_PRIVATE;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
+	 * @see #DEFAULT_ENCAPSULATION
 	 */
 	public static final int HIDE_DATAPROVIDERS_ENCAPSULATION = IFormConstants.HIDE_DATAPROVIDERS;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
+	 * @see #DEFAULT_ENCAPSULATION
 	 */
 	public static final int HIDE_FOUNDSET_ENCAPSULATION = IFormConstants.HIDE_FOUNDSET;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
+	 * @see #DEFAULT_ENCAPSULATION
 	 */
 	public static final int HIDE_CONTROLLER_ENCAPSULATION = IFormConstants.HIDE_CONTROLLER;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
+	 * @see #DEFAULT_ENCAPSULATION
 	 */
 	public static final int HIDE_ELEMENTS_ENCAPSULATION = IFormConstants.HIDE_ELEMENTS;
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#NAMED_FOUNDSET_EMPTY
+	 * Constant used for form namedFoundset property. The form that uses empty namedFoundset will initially have an empty (cleared) foundset.
 	 * 
 	 * @sample
 	 * // form with empty foundset
@@ -115,7 +123,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public static final String EMPTY_FOUNDSET = Form.NAMED_FOUNDSET_EMPTY;
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#NAMED_FOUNDSET_SEPARATE
+	 * Constant used for form namedFoundset property. The form that uses a separate namedFoundset will initially have an separate (not shared with other forms) foundset.
 	 * 
 	 * @sample
 	 * // form with separate foundset
@@ -132,6 +140,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	/**
 	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_DEFAULT
+	 * @see com.servoy.j2db.IForm#SELECTION_MODE_DEFAULT
 	 * 
 	 * @sample
 	 * var myForm = solutionModel.getForm('my_form_name');
@@ -141,6 +150,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	/**
 	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_SINGLE
+	 * @see com.servoy.j2db.IForm#SELECTION_MODE_SINGLE
 	 * 
 	 * @sample
 	 * var myForm = solutionModel.getForm('my_form_name');
@@ -150,6 +160,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	/**
 	 * @clonedesc com.servoy.j2db.IForm#SELECTION_MODE_MULTI
+	 * @see com.servoy.j2db.IForm#SELECTION_MODE_MULTI
 	 * 
 	 * @sample
 	 * var myForm = solutionModel.getForm('my_form_name');
@@ -161,6 +172,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * Creates a new form JSVariable - based on the name of the variable object and the number type, uses the SolutionModel JSVariable constants.
 	 *
 	 * @sampleas newVariable(String,int,String)
+	 * @see #newVariable(String,int,String)
 	 *
 	 * @param name the specified name of the variable
 	 *
@@ -1410,11 +1422,12 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 
 	/**
 	 * @sameas com.servoy.j2db.solutionmodel.ISMComponent#getBorderType()
+	 * @see com.servoy.j2db.solutionmodel.ISMComponent#getBorderType()
 	 */
 	public String getBorderType();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getDefaultPageFormat()
+	 * The default page format for the form.
 	 * 
 	 * @sample
 	 * var form = solutionModel.getForm("someForm");
@@ -1435,7 +1448,8 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMForm getExtendsForm();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getInitialSort()
+	 * The default sort order only when the form loads.
+	 * This is applied each time an internal SQL query is being executed (find, find-all, open form); and is only executed when no other manual sort has been performed on the foundset.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
@@ -1445,7 +1459,33 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public String getInitialSort();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getPaperPrintScale()
+	 * The navigator (previously named "controller")
+	 * that is used to control/navigate to the form. The navigator is shown at
+	 * the left or at the right side of the form, depending on the page orientation. 
+	 * 
+	 * The following options are available: 
+	 * -none- - no navigator is assigned. 
+	 * DEFAULT - the Servoy default navigator is assigned. 
+	 * IGNORE - the navigator last assigned to a previous form. 
+	 * Custom - a custom navigator based on a selected form.
+	 *
+	 * @sample 
+	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * // you can also use SM_DEFAULTS.INGORE to just reuse the navigator that is already set, or SM_DEFAULTS.DEFAULT to have the default servoy navigator.
+	 * // here we assign an other new form as the navigator.
+	 * var aNavigator = solutionModel.newForm('navForm', myDatasource, null, false, 800, 600);
+	 * // set the navigators navigator to NONE
+	 * aNavigator.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form. 
+	 * myListViewForm.navigator = aNavigator;
+	 * application.output(myListViewForm.navigator.name);
+	 * 
+	 */
+	public Object getNavigator();
+
+	/**
+	 * The percentage value the printed page is enlarged or reduced to; the size of the printed form 
+	 * is inversely proportional. For example, if the paperPrintScale is 50, the printed form will be 
+	 * enlarged 200%.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
@@ -1456,7 +1496,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public int getPaperPrintScale();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getScrollbars()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getScrollbars()
 	 *
 	 * @sample 
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,1000,600);
@@ -1466,7 +1506,10 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public int getScrollbars();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getShowInMenu()
+	 * When set, the form is displayed under the Window menu. 
+	 * If it is not set, the form will be 'hidden'. 
+	 * NOTE: This is only applicable for Servoy Client. Servoy Developer always shows all forms so that
+	 * developers have access to all forms within a solution during development.
 	 * 
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
@@ -1481,7 +1524,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public boolean getShowInMenu();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getStyleClass()
+	 * The Cascading Style Sheet (CSS) class name applied to the form.
 	 * 
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
@@ -1493,7 +1536,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public String getStyleClass();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getStyleName()
+	 * The name of the Servoy style that is being used on the form.
 	 *
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
@@ -1506,7 +1549,8 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public String getStyleName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getTitleText()
+	 * The text that displays in the title bar of the form window. 
+	 * NOTE: Data tags and Servoy tags can be used as part of the title text.
 	 * 
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/a_server/a_table', 'aStyleName', false, 800, 600)
@@ -1523,7 +1567,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public String getTitleText();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getTransparent()
+	 * When set, the form is transparent.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,1000,800);
@@ -1626,21 +1670,25 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public void setNamedFoundSet(Object arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDeleteAllRecordsCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Delete All. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 *
 	 * @sampleas getOnNewRecordCmd()
+	 * @see #getOnNewRecordCmd()
 	 */
 	public ISMMethod getOnDeleteAllRecordsCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDeleteRecordCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Delete Record (or keyboard shortcut). 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sampleas getOnNewRecordCmd()
+	 * @see #getOnNewRecordCmd()
 	 */
 	public ISMMethod getOnDeleteRecordCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragMethodID()
+	 * The method that is triggered when (non Design Mode) dragging occurs.
 	 * 
 	 * @sample
 	 * form.onDrag = form.newMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
@@ -1651,28 +1699,31 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnDrag();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragEndMethodID()
+	 * The method that is triggered when (non Design Mode) dragging end occurs.
 	 * 
 	 * @sampleas getOnDrag()
+	 * @see #getOnDrag()
 	 */
 	public ISMMethod getOnDragEnd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDragOverMethodID()
+	 * The method that is triggered when (non Design Mode) dragging over a component occurs.
 	 * 
 	 * @sampleas getOnDrag()
+	 * @see #getOnDrag()
 	 */
 	public ISMMethod getOnDragOver();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDropMethodID()
+	 * The method that is triggered when (non Design Mode) dropping occurs.
 	 * 
 	 * @sampleas getOnDrag()
+	 * @see #getOnDrag()
 	 */
 	public ISMMethod getOnDrop();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementFocusGainedMethodID()
+	 * The method that is triggered when focus is gained by a component inside the form.
 	 * 
 	 * @sample
 	 * form.onElementFocusGained = form.newMethod('function onElementFocusGained(event) { application.output("onElementFocusGained intercepted from " + event.getSource()); }');
@@ -1681,21 +1732,25 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnElementFocusGained();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnElementFocusLostMethodID()
+	 * The method that gets triggered when focus is lost by a component inside the form.
 	 * 
 	 * @sampleas getOnElementFocusGained()
+	 * @see #getOnElementFocusGained()
 	 */
 	public ISMMethod getOnElementFocusLost();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnDuplicateRecordCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Duplicate Record (or keyboard shortcut).
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sampleas getOnNewRecordCmd()
+	 * @see #getOnNewRecordCmd()
 	 */
 	public ISMMethod getOnDuplicateRecordCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnFindCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Find (or keyboard shortcut) in Data (ready) mode. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sample
 	 * form.onFindCmd = form.newMethod('function onFindCmd(event) { application.output("onFindCmd intercepted on " + event.getFormName()); }');
@@ -1705,21 +1760,26 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnFindCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnHideMethodID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMForm#getOnHide()
+	 * @see com.servoy.base.solutionmodel.IBaseSMForm#getOnHide()
 	 *
 	 * @sampleas getOnShow()
+	 * @see #getOnShow()
 	 */
 	public ISMMethod getOnHide();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnInvertRecordsCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Invert Records. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sampleas getOnOmitRecordCmd()
+	 * @see #getOnOmitRecordCmd()
 	 */
 	public ISMMethod getOnInvertRecordsCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnLoadMethodID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMForm#getOnLoad()
+	 * @see com.servoy.base.solutionmodel.IBaseSMForm#getOnLoad()
 	 * 
 	 * @sample
 	 * form.onLoad = form.newMethod('function onLoad(event) { application.output("onLoad intercepted on " + event.getFormName()); }');
@@ -1728,7 +1788,8 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnLoad();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnNewRecordCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > New Record (or keyboard shortcut). 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sample
 	 * form.onNewRecordCmd = form.newMethod('function onNewRecordCmd(event) { application.output("onNewRecordCmd intercepted on " + event.getFormName()); }');
@@ -1739,14 +1800,17 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnNewRecordCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnNextRecordCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Next Record. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sampleas getOnPreviousRecordCmd()
+	 * @see #getOnPreviousRecordCmd()
 	 */
 	public ISMMethod getOnNextRecordCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnOmitRecordCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Omit Record. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sample
 	 * form.onOmitRecordCmd = form.newMethod('function onOmitRecordCmd(event) { application.output("onOmitRecordCmd intercepted on " + event.getFormName()); }');
@@ -1756,7 +1820,8 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnOmitRecordCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnPreviousRecordCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Previous Record. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sample
 	 * form.onPreviousRecordCmd = form.newMethod('function onPreviousRecordCmd(event) { application.output("onPreviousRecordCmd intercepted on " + event.getFormName()); }');
@@ -1765,7 +1830,8 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnPreviousRecordCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnPrintPreviewCmdMethodID()
+	 * The method that overrides the Servoy menu item File > Print Preview. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sample
 	 * form.onPrintPreviewCmd = form.newMethod('function onPrintPreviewCmd(event) { application.output("onPrintPreviewCmd intercepted on " + event.getFormName()); }');
@@ -1773,7 +1839,8 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnPrintPreviewCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordEditStartMethodID()
+	 * The method that is triggered when a user clicks into a column on the form.
+	 * NOTE: There is a small "e" displayed in the lower left side of the Servoy Client screen in the status area at the bottom of the window when the record is being edited.
 	 * 
 	 * @sample
 	 * form.onRecordEditStart = form.newMethod('function onRecordEditStart(event) { application.output("onRecordEditStart intercepted on " + event.getFormName()); }');
@@ -1783,35 +1850,46 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnRecordEditStart();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordEditStopMethodID()
+	 * The method that is triggered when a record is being saved. 
+	 * A record is saved when a user clicks out of it (for example on an empty part of the layout or to another form).
+	 * When the method returns false (for example as part of a validation), the user cannot leave the record, for example in
+	 * a table view a user cannot move to another record when the callback returns false.
 	 * 
 	 * @sampleas getOnRecordEditStart()
+	 * @see #getOnRecordEditStart()
 	 */
 	public ISMMethod getOnRecordEditStop();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordSelectionMethodID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMForm#getOnRecordSelection()
+	 * @see com.servoy.base.solutionmodel.IBaseSMForm#getOnRecordSelection()
 	 * 
 	 * @sampleas getOnRecordEditStart()
+	 * @see #getOnRecordEditStart()
 	 */
 	public ISMMethod getOnRecordSelection();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnSearchCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Search (or keyboard shortcut) in Find mode. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sampleas getOnFindCmd()
+	 * @see #getOnFindCmd()
 	 */
 	public ISMMethod getOnSearchCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowAllRecordsCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Show All (or keyboard shortcut). 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sampleas getOnFindCmd()
+	 * @see #getOnFindCmd()
 	 */
 	public ISMMethod getOnShowAllRecordsCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowMethodID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMForm#getOnShow()
+	 * @see com.servoy.base.solutionmodel.IBaseSMForm#getOnShow()
 	 * 
 	 * @sample
 	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
@@ -1820,14 +1898,17 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnShow();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowOmittedRecordsCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Show Omitted Records. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sampleas getOnOmitRecordCmd()
+	 * @see #getOnOmitRecordCmd()
 	 */
 	public ISMMethod getOnShowOmittedRecordsCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnSortCmdMethodID()
+	 * The method that overrides the Servoy menu item Select > Sort. 
+	 * This property is automatically set to "DEFAULT" (no override) when the form is created.
 	 * 
 	 * @sample
 	 * form.onSortCmd = form.newMethod('function onSortCmd(dataProviderID, asc, event) { application.output("onSortCmd intercepted on " + event.getFormName() + ". data provider: " + dataProviderID + ". asc: " + asc); }');
@@ -1835,14 +1916,17 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnSortCmd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnUnLoadMethodID()
+	 * The method that is triggered when a form is unloaded from the repository. 
+	 * NOTE: Forms can be prevented from being removed from memory by referencing the form object in a global variable or inside an array inside a global variable. Do take care using this technique.
+	 * Forms take up memory and if too many forms are in memory and cannot be unloaded, there is a possibility of running out of memory.
 	 * 
 	 * @sampleas getOnLoad()
+	 * @see #getOnLoad()
 	 */
 	public ISMMethod getOnUnLoad();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnResizeMethodID()
+	 * The method that gets triggered when resize occurs.
 	 * 
 	 * @sample
 	 * form.onResize = form.newMethod('function onResize(event) { application.output("onResize intercepted on " + event.getFormName()); }');
@@ -1850,7 +1934,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public ISMMethod getOnResize();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRenderMethodID()
+	 * The method that is executed when the component is rendered.
 	 * 
 	 * @sample
 	 * form.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
@@ -1930,7 +2014,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	public void setEncapsulation(int arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
+	 * The width of the form in pixels.
 	 * 
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);

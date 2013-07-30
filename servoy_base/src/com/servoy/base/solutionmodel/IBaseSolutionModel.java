@@ -322,6 +322,7 @@ public interface IBaseSolutionModel
 
 	/**
 	 * @clonedesc getGlobalVariables()
+	 * @see #getGlobalVariables()
 	 * @sampleas getGlobalVariables()
 	 * @param scopeName limit to global vars of specified scope name
 	 * 
@@ -373,6 +374,7 @@ public interface IBaseSolutionModel
 	/**
 	 * @clonedesc getGlobalMethods()
 	 * @sampleas getGlobalMethods()
+	 * @see #getGlobalMethods()
 	 * @param scopeName limit to global methods of specified scope name
 	 * @return an array of IBaseSMMethod type elements
 	 */

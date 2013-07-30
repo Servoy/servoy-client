@@ -33,7 +33,8 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 {
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDataProviderID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getDataProviderID()
+	 * @see com.servoy.base.solutionmodel.IBaseSMField#getDataProviderID()
 	 * 
 	 * @sample
 	 * // Normally the dataprovider is specified when a component is created.
@@ -44,7 +45,14 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	public String getDataProviderID();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
+	 * Flag that enables or disables merging of data inside components using tags (placeholders).
+	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
+	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
+	 * are a set of predefined tags that are made available by the system.
+	 * 
+	 * See the "Merging data" section for more details about tags.
+	 * 
+	 * The default value of this flag is "false", that is merging of data is disabled by default.
 	 * 
 	 * @sample
 	 * var label = form.newLabel('You are viewing record no. %%parent_table_id%%. You are running on server %%serverURL%%.', 
@@ -54,7 +62,7 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	public boolean getDisplaysTags();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
+	 * The text that is displayed inside the component.
 	 * 
 	 * @sample
 	 * // In general the text is specified when creating the component.
@@ -73,7 +81,8 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	public void setOnAction(IBaseSMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnAction()
+	 * @see com.servoy.base.solutionmodel.IBaseSMField#getOnAction()
 	 * 
 	 * @sample
 	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
@@ -89,7 +98,8 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	public IBaseSMMethod getOnAction();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getFormat()
+	 * The format that should be applied when displaying data(using dataProviderID) in the label/button.
+	 * Some examples are "#%", "dd-MM-yyyy", "MM-dd-yyyy", etc.
 	 * 
 	 * @sample
 	 * var label = form.newLabel('', 10, 10, 100, 100);

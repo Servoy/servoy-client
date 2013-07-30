@@ -41,6 +41,7 @@ public interface ISMDataSourceNode
 	 * @param name The name of the calculation
 	 * 
 	 * @sampleas newCalculation(String, int)
+	 * @see #newCalculation(String, int)
 	 * 
 	 */
 	public ISMCalculation getCalculation(String name);
@@ -49,6 +50,7 @@ public interface ISMDataSourceNode
 	 * Gets all the calculations for the datasource node.
 	 * 
 	 * @sampleas newCalculation(String, int)
+	 * @see #newCalculation(String, int)
 	 */
 	public ISMCalculation[] getCalculations();
 
@@ -59,6 +61,7 @@ public interface ISMDataSourceNode
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 * 
 	 * @sampleas newCalculation(String, int)
+	 * @see #newCalculation(String, int)
 	 * 
 	 */
 	public ISMCalculation newCalculation(String code);
@@ -132,6 +135,7 @@ public interface ISMDataSourceNode
 	 * @param name The name of the method
 	 * 
 	 * @sampleas newMethod(String)
+	 * @see #newMethod(String)
 	 * 
 	 */
 	public ISMMethod getMethod(String name);
@@ -140,6 +144,7 @@ public interface ISMDataSourceNode
 	 * Gets all the foundset methods for the datasource node.
 	 * 
 	 * @sampleas newMethod(String)
+	 * @see #newMethod(String)
 	 */
 	public ISMMethod[] getMethods();
 

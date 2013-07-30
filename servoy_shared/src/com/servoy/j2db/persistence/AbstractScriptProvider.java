@@ -99,7 +99,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	}
 
 	/**
-	 * The name of the method.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMMethod#getName()
 	 */
 	public String getName()
 	{
@@ -178,7 +178,7 @@ public abstract class AbstractScriptProvider extends AbstractBase implements ISc
 	}
 
 	/**
-	 * The full source code of this method (including doc and function declaration).
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMMethod#getCode()
 	 */
 	public String getDeclaration()
 	{

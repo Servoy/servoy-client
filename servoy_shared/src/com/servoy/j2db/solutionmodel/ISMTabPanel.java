@@ -173,14 +173,15 @@ public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 	public ISMTab[] getTabs();
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getTabSeq()
+	 * @sameas com.servoy.j2db.solutionmodel.ISMField#getTabSeq()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getTabSeq()
 	 */
 	public int getTabSeq();
 
 	public void setOnChange(ISMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getOnChangeMethodID()
+	 * Method to be executed when the selected tab is changed in the tab panel or divider position is changed in split pane.
 	 *
 	 * @sample 
 	 * var onChangeMethod = form.newMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
@@ -194,7 +195,10 @@ public interface ISMTabPanel extends IBaseSMTabPanel, ISMComponent
 	public void setTabSeq(int tabSeq);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getScrollTabs()
+	 * Flag that tells how to arrange the tabs if they don't fit on a single line.
+	 * If this flag is set, then the tabs will stay on a single line, but there will
+	 * be the possibility to scroll them to the left and to the right. If this flag
+	 * is not set, then the tabs will be arranged on multiple lines.
 	 * 
 	 * @sample
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 200, 200);

@@ -42,7 +42,8 @@ public interface ISMRelationItem extends ISMHasUUID
 
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getForeignColumnName()
+	 * The name of the column from the destination table
+	 * that this relation item is based on.
 	 * 
 	 * @sample
 	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
@@ -54,16 +55,20 @@ public interface ISMRelationItem extends ISMHasUUID
 	public String getForeignColumnName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getOperator()
+	 * The operator that defines the relationship between the primary dataprovider
+	 * and the foreign column.
 	 * 
 	 * @sampleas getForeignColumnName()
+	 * @see #getForeignColumnName()
 	 */
 	public String getOperator();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getPrimaryDataProviderID()
+	 * The name of the column from the source table 
+	 * that this relation item is based on.
 	 * 
 	 * @sampleas getForeignColumnName()
+	 * @see #getForeignColumnName()
 	 */
 	public String getPrimaryDataProviderID();
 

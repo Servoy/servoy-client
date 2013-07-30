@@ -83,9 +83,7 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 	}
 
 	/**
-	 * The name of the value list.
-	 * 
-	 * It is relevant when the "useTableFilter" property is set.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMValueList#getName()
 	 */
 	public String getName()
 	{

@@ -418,8 +418,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	}
 
 	/**
-	 * The text that is displayed in the column header associated with the component when the form
-	 * is in table view.
+	 * @clonedesc com.servoy.j2db.solutionmodel.ISMField#getTitleText()
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getText()

@@ -30,7 +30,7 @@ public interface IBaseSMTab
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getContainsFormID()
+	 * The name of the form displayed in the tab.
 	 * 
 	 * @sample
 	 * var childForm = solutionModel.newForm('childForm', 'db:/example_data/child_table', null, false, 400, 300);
@@ -43,7 +43,8 @@ public interface IBaseSMTab
 	public void setContainsForm(IBaseSMForm form);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getRelationName()
+	 * The name of the relation that links the form which contains the tab 
+	 * with the form displayed in the tab.
 	 * 
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm);

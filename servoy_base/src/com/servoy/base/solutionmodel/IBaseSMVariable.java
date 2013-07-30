@@ -44,6 +44,7 @@ public interface IBaseSMVariable
 	public static final int DATETIME = IColumnTypeConstants.DATETIME;
 	/**
 	 * @clonedesc DATETIME
+	 * @see #DATETIME
 	 * 
 	 * @sample
 	 * var txtVar = solutionModel.newGlobalVariable('globals', 'gText', JSVariable.TEXT);
@@ -53,6 +54,7 @@ public interface IBaseSMVariable
 	public static final int TEXT = IColumnTypeConstants.TEXT;
 	/**
 	 * @clonedesc DATETIME
+	 * @see #DATETIME
 	 * 
 	 * @sample
 	 * var numberVar = solutionModel.newGlobalVariable('globals', 'gNumber', JSVariable.NUMBER);
@@ -62,6 +64,7 @@ public interface IBaseSMVariable
 	public static final int NUMBER = IColumnTypeConstants.NUMBER;
 	/**
 	 * @clonedesc DATETIME
+	 * @see #DATETIME
 	 * 
 	 * @sample
 	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
@@ -71,6 +74,7 @@ public interface IBaseSMVariable
 	public static final int INTEGER = IColumnTypeConstants.INTEGER;
 	/**
 	 * @clonedesc DATETIME
+	 * @see #DATETIME
 	 * 
 	 * @sample
 	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
@@ -80,7 +84,17 @@ public interface IBaseSMVariable
 	public static final int MEDIA = IColumnTypeConstants.MEDIA;
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getDefaultValue()
+	 * The default value of the variable. 
+	 * 
+	 * It is interpreted as a JS expression.
+	 * 
+	 * For form variables ,setting this property requires the form instances to be destroyed (history.remove("formName")). 
+	 * If you want to use a default value for a newly created variable  create the variable using the 3 parameter version newVariable(name,type,defaultValue).
+	 * 
+	 * For INTEGER variables it can be an integer constant, like 10 for example.
+	 * For NUMBER variables it can be a real constant, like 22.41. For DATETIME
+	 * variables it can be "now", or a JS expression like "new Date()". For TEXT 
+	 * variables it can be any string surrounded with quotes, like "'some text'".
 	 *
 	 * @sample 
 	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
@@ -102,7 +116,8 @@ public interface IBaseSMVariable
 	public String getDefaultValue();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getDefaultValue()
+	 * @clonedesc getDefaultValue()
+	 * @see #getDefaultValue()
 	 *
 	 * @sample 
 	 * var intVar = solutionModel.newGlobalVariable('globals', 'gInt', JSVariable.INTEGER);
@@ -124,7 +139,7 @@ public interface IBaseSMVariable
 	public void setDefaultValue(String arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getName()
+	 * The name of the variable.
 	 *
 	 * @sample 
 	 * var gVar = solutionModel.newGlobalVariable('globals', 'gtext', JSVariable.TEXT);
@@ -137,7 +152,8 @@ public interface IBaseSMVariable
 	public String getName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMMethod#getScopeName()
+	 * @see com.servoy.base.solutionmodel.IBaseSMMethod#getScopeName()
 	 * 
 	 * @sample 
 	 * var globalVariables = solutionModel.getGlobalVariables();
@@ -147,7 +163,7 @@ public interface IBaseSMVariable
 	public String getScopeName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ScriptVariable#getVariableType()
+	 * The type of the variable. Can be one of: TEXT, INTEGER, NUMBER, DATETIME or MEDIA.
 	 *
 	 * @sample 
 	 * var g = solutionModel.newGlobalVariable('globals', 'gtext',JSVariable.TEXT);

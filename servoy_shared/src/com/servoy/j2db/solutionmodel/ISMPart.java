@@ -30,7 +30,11 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getAllowBreakAcrossPageBounds()
+	 * When set, the remainder of a selected part that does not fit on the page currently 
+	 * being printed, will not be transported to the next page - it will break where the page 
+	 * ends and continue on the next page. 
+	 * 
+	 * NOTE: Make sure to set this option when you are printing more than one page per record.
 	 * 
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
@@ -40,7 +44,11 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public boolean getAllowBreakAcrossPageBounds();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getBackground()
+	 * The background color of the form part. 
+	 * 
+	 * NOTE: When no background color has been set, the default background 
+	 * color will be determined by the Look and Feel (LAF) that has been selected 
+	 * in Application Preferences.
 	 * 
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
@@ -49,14 +57,19 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public String getBackground();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getDiscardRemainderAfterBreak()
+	 * When set, the remainder of a selected part that is broken due to the page 
+	 * ending will not be printed on the next page - it will be discarded.
 	 * 
 	 * @sampleas getAllowBreakAcrossPageBounds()
+	 * @see #getAllowBreakAcrossPageBounds()
 	 */
 	public boolean getDiscardRemainderAfterBreak();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getGroupbyDataProviderIDs()
+	 * For Leading Subsummary or Trailing Subsummary parts, one or more
+	 * dataproviders can be added as Break (GroupBy) dataproviders. The
+	 * Leading/Trailing Subsummary parts will be displayed once for each
+	 * resulted group of data.
 	 * 
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
@@ -65,7 +78,9 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public String getGroupbyDataProviderIDs();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getHeight()
+	 * The height of a selected part; specified in pixels. 
+	 * 
+	 * This height property is the lowerbound as its ending Y value (0 == top of the form).
 	 *
 	 * @sample 
 	 * var part = form.newPart(JSPart.HEADER, 100);
@@ -74,7 +89,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public int getHeight();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getPageBreakAfterOccurrence()
+	 * A page break will be inserted after a specified number of occurences of a selected part.
 	 * 
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
@@ -83,7 +98,7 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public int getPageBreakAfterOccurrence();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getPageBreakBefore()
+	 * When set, a page break will be inserted before each occurrence of a selected part.
 	 * 
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
@@ -95,23 +110,29 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	/**
 	 * The Y offset of the part on the form, this will include all the super forms parts if this form extends a form.
 	 *
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#getParts()
+	 * @sample 
+	 * var allParts = form.getParts()
+	 * for (var i=0; i<allParts.length; i++) {
+	 *	if (allParts[i].getPartType() == JSPart.BODY)
+	 *		application.output('body Y offset: ' + allParts[i].getPartYOffset());
+	 * }
 	 * 
 	 * @return A number holding the Y offset of the form part.
 	 */
 	public int getPartYOffset();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getPartType()
+	 * The type of this part.
 	 * 
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#getParts()
+	 * @sampleas getPartYOffset()
+	 * @see #getPartYOffset()
 	 * 
 	 * @return A number representing the type of the form part.
 	 */
 	public int getPartType();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getRestartPageNumber()
+	 * When set, page numbering will be restarted after each occurrence of a selected part.
 	 * 
 	 * @sample
 	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
@@ -121,7 +142,8 @@ public interface ISMPart extends ISMHasUUID, IBaseSMPart
 	public boolean getRestartPageNumber();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Part#getSinkWhenLast()
+	 * When set, the last part on a page (such as a Trailing Grand Summary part) will 
+	 * "sink" to the lowest part of the page when there is free space.
 	 * 
 	 * @sample
 	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);

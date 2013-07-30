@@ -45,6 +45,7 @@ public interface ISMStyle extends ISMHasUUID
 	 * The textual content of the style.
 	 * 
 	 * @sampleas getName()
+	 * @see #getName()
 	 */
 	public String getText();
 

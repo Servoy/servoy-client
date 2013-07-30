@@ -59,8 +59,7 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	}
 
 	/**
-	 * The name of the relationship between the table related to the currently active 
-	 * form and the table you want to show data from in the portal.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMPortal#getRelationName()
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getRelationName()

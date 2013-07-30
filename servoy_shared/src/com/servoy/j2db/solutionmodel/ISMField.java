@@ -30,7 +30,8 @@ public interface ISMField extends IBaseSMField, ISMComponent
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getEditable()
+	 * Flag that tells if the content of the field can be edited or not. 
+	 * The default value of this flag is "true", that is the content can be edited.
 	 * 
 	 * @sample
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -39,7 +40,18 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public boolean getEditable();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getFormat()
+	 * The format that should be applied when displaying the data in the component.
+	 * There are different options for the different dataprovider types that are assigned to this field.
+	 * For Integer fields, there is a display and an edit format, using http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html and the max (string) length can be set.
+	 * For Text/String fields, there are options to force uppercase,lowercase or only numbers. Or a mask can be set that restrict the input the pattern chars can be found here: http://docs.oracle.com/javase/7/docs/api/javax/swing/text/MaskFormatter.html
+	 * A mask can have a placehoder (what is shown when there is no data) and if the data must be stored raw (without literals of the mask). A max text length can also be set to force
+	 * the max text length input, this doesn't work on mask because that max length is controlled with the mask.
+	 * For Date fields a display and edit format can be set by using a pattern from here: http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html, you can also say this must behave like a mask (the edit format)
+	 * A mask only works with when the edit format is exactly that mask (1 char is 1 number/char), because for example MM then only 2 numbers are allowed MMM that displays the month as a string is not supported as a mask.
+	 * Some examples are "dd-MM-yyyy", "MM-dd-yyyy", etc.
+	 * The format property is also used to set the UI Converter, this means that you can convert the value object to something else before it gets set into the field, this can also result in a type change of the data. 
+	 * So a string in scripting/db is converted to a integer in the ui, then you have to set an integer format. 
+	 * This property is applicable only for types: TEXT_FIELD, COMBOBOX, TYPE_AHEAD, CALENDAR and SPINNER.
 	 * 
 	 * @sample
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -48,18 +60,38 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public String getFormat();
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getHorizontalAlignment()
+	 * Horizontal alignment of the text inside the component. Can be one of
+	 * LEFT, CENTER or RIGHT.
+	 * 
+	 * Note that this property does not refer to the horizontal alignment
+	 * of the component inside the form.
+	 * 
+	 * @sample 
+	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
+	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
+	 * var hCenteredLabel = form.newLabel('CENTER', 10, 40, 300, 20);
+	 * hCenteredLabel.horizontalAlignment = SM_ALIGNMENT.CENTER;
+	 * var rightAlignedLabel = form.newLabel('RIGHT', 10, 70, 300, 20);
+	 * rightAlignedLabel.horizontalAlignment = SM_ALIGNMENT.RIGHT;
 	 */
 
 	public int getHorizontalAlignment();
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getMargin()
+	 * The margins of the component. They are specified in this order, 
+	 * separated by commas: top, left, bottom, right.
+	 * 
+	 * @sample
+	 * var label = form.newLabel('Label', 10, 10, 150, 150);
+	 * label.background = 'yellow';
+	 * label.margin = '10,20,30,40';
 	 */
 	public String getMargin();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getScrollbars()
+	 * Scrollbar options for the vertical and horizontal scrollbars. Each of the
+	 * vertical and horizontal scrollbars can be configured to display all the time,
+	 * to display only when needed or to never display.
 	 *
 	 * @sample
 	 * var noScrollbars = form.newField('my_table_text', JSField.TEXT_AREA, 10, 10, 100, 100);
@@ -72,7 +104,8 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public int getScrollbars();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getSelectOnEnter()
+	 * Flag that tells if the content of the field should be automatically selected
+	 * when the field receives focus. The default value of this field is "false".
 	 * 
 	 * @sample
 	 * // Create two fields and set one of them to have "selectOnEnter" true. As you tab
@@ -85,12 +118,28 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public boolean getSelectOnEnter();
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getTabSeq()
+	 * An index that specifies the position of the component in the tab sequence. The components 
+	 * are put into the tab sequence in increasing order of this property. A value of 0 means
+	 * to use the default mechanism of building the tab sequence (based on their location on the form).
+	 * A value of -2 means to remove the component from the tab sequence.
+	 * 
+	 * @sample
+	 * // Create three fields. Based on how they are placed, by default they will come one
+	 * // after another in the tab sequence.
+	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * var fieldTwo = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
+	 * var fieldThree = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 70, 100, 20);
+	 * // Set the third field come before the first in the tab sequence, and remove the 
+	 * // second field from the tab sequence.
+	 * fieldOne.tabSeq = 2;
+	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
+	 * fieldThree.tabSeq = 1;
 	 */
 	public int getTabSeq();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getText()
+	 * The text that is displayed in the column header associated with the component when the form
+	 * is in table view.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/my_table', null, false, 640, 480);
@@ -102,12 +151,23 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public String getTitleText();
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getToolTipText()
+	 * The text displayed when hovering over the component with a mouse cursor.
+	 * 
+	 * NOTE:
+	 * HTML should be used for multi-line tooltips; you can also use any
+	 * valid HTML tags to format tooltip text. For example: 
+	 * <html>This includes<b>bolded text</b> and 
+	 * <font color='blue'>BLUE</font> text as well.</html>
+	 * 
+	 * @sample
+	 * var label = form.newLabel('Stop the mouse over me!', 10, 10, 200, 20);
+	 * label.toolTipText = 'I\'m the tooltip. Do you see me?';
 	 */
 	public String getToolTipText();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseField#getValuelistID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getValuelist()
+	 * @see com.servoy.base.solutionmodel.IBaseSMField#getValuelist()
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
@@ -142,12 +202,14 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public void setToolTipText(String arg);
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnAction()
+	 * @sameas com.servoy.base.solutionmodel.IBaseSMField#getOnAction()
+	 * @see com.servoy.base.solutionmodel.IBaseSMField#getOnAction()
 	 */
 	public ISMMethod getOnAction();
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseField#getOnDataChangeMethodID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
+	 * @see com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
@@ -161,7 +223,7 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public void setOnRender(ISMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnRenderMethodID()
+	 * The method that is executed when the component is rendered.
 	 * 
 	 * @sample
 	 * field.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
@@ -171,12 +233,15 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public void setOnRightClick(ISMMethod method);
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnRightClick()
+	 * The method that is executed when the component is right clicked.
+	 * 
+	 * @see #getOnAction()
 	 */
 	public ISMMethod getOnRightClick();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusGainedMethodID()
+	 * The method that is executed when the component gains focus.
+	 * NOTE: Do not call methods that will influence the focus itself.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
@@ -190,14 +255,14 @@ public interface ISMField extends IBaseSMField, ISMComponent
 	public ISMMethod getOnFocusGained();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusLostMethodID()
+	 * The method that is executed when the component looses focus.
 	 * 
-	 * @sampleas getOnFocusGained()
+	 * @see #getOnFocusGained()
 	 */
 	public ISMMethod getOnFocusLost();
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSComponent#toString()
+	 * @see java.lang.Object#toString()
 	 */
 	public String toString();
 

@@ -50,6 +50,7 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 	 * Constant for copy drag operation.
 	 *
 	 * @sampleas NONE
+	 * @see #NONE
 	 */
 	public static final int COPY = DnDConstants.ACTION_COPY;
 
@@ -57,6 +58,7 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 	 * Constant for move drag operation.
 	 *
 	 * @sampleas NONE
+	 * @see #NONE
 	 */
 	public static final int MOVE = DnDConstants.ACTION_MOVE;
 
@@ -80,6 +82,7 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 	 * Constant used as mime type for servoy record objects.
 	 * 
 	 * @sampleas MIME_TYPE_SERVOY
+	 * @see #MIME_TYPE_SERVOY
 	 * 
 	 */
 	public static final String MIME_TYPE_SERVOY_RECORD = "application/x-servoy-record-object; class=com.servoy.j2db.dataprocessing.Record";

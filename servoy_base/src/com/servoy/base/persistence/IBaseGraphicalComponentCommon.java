@@ -38,29 +38,21 @@ public interface IBaseGraphicalComponentCommon extends IBaseComponent
 	void setDataProviderID(String arg);
 
 	/**
-	 * The text that is displayed inside the component.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMGraphicalComponent#getText()
 	 */
 	String getText();
 
 	void setText(String arg);
 
 	/**
-	 * Flag that enables or disables merging of data inside components using tags (placeholders).
-	 * Tags (or placeholders) are words surrounded by %% on each side. There are data tags and
-	 * standard tags. Data tags consist in names of dataproviders surrounded by %%. Standard tags
-	 * are a set of predefined tags that are made available by the system.
-	 * 
-	 * See the "Merging data" section for more details about tags.
-	 * 
-	 * The default value of this flag is "false", that is merging of data is disabled by default.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMGraphicalComponent#getDisplaysTags()
 	 */
 	boolean getDisplaysTags();
 
 	void setDisplaysTags(boolean arg);
 
 	/**
-	 * The format that should be applied when displaying data(using dataProviderID) in the label/button.
-	 * Some examples are "#%", "dd-MM-yyyy", "MM-dd-yyyy", etc.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMGraphicalComponent#getFormat()
 	 */
 	public String getFormat();
 

@@ -31,7 +31,7 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getBackground()
+	 * The background color of the component.
 	 * 
 	 * @sample
 	 * // This property can be used on all types of components.
@@ -44,7 +44,7 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public String getBackground();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getBorderType()
+	 * The type, color and style of border of the component.
 	 * 
 	 * @sample
 	 * //HINT: To know exactly the notation of this property set it in the designer and then read it once out through the solution model.
@@ -54,7 +54,7 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public String getBorderType();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getFontType()
+	 * The font type of the component.
 	 * 
 	 * @sample
 	 * var label = form.newLabel('Text here', 10, 50, 100, 20);
@@ -63,7 +63,7 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public String getFontType();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getForeground()
+	 * The foreground color of the component.
 	 * 
 	 * @sample 
 	 * // This property can be used on all types of components.
@@ -76,7 +76,10 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public String getForeground();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintSliding()
+	 * Enables an element to resize based on its content and/or move when printing.
+	 * The component can move horizontally or vertically and can grow or shrink in 
+	 * height and width, based on its content and the content of neighboring 
+	 * components.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
@@ -88,7 +91,10 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public int getPrintSliding();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getTransparent()
+	 * Flag that tells if the component is transparent or not.
+	 * 
+	 * The default value is "false", that is the components 
+	 * are not transparent.
 	 * 
 	 * @sample
 	 * // Load an image from disk an create a Media object based on it.
@@ -106,7 +112,18 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public boolean getTransparent();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getAnchors()
+	 * Enables a component to stick to a specific side of form and/or to 
+	 * grow or shrink when a window is resized. 
+	 * 
+	 * If opposite anchors are activated then the component with grow or 
+	 * shrink with the window. For example if Top and Bottom are activated, 
+	 * then the component will grow/shrink when the window is vertically 
+	 * resized. If Left and Right are activated then the component
+	 * will grow/shrink when the window is horizontally resized. 
+	 * 
+	 * If opposite anchors are not activated, then the component will 
+	 * keep a constant distance from the sides of the window which
+	 * correspond to the activated anchors.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('mediaForm', 'db:/example_data/parent_table', null, false, 400, 300);
@@ -146,7 +163,9 @@ public interface ISMComponent extends IBaseSMComponent, ISMHasUUID, ISMHasDesign
 	public void setFormIndex(int arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getPrintable()
+	 * Flag that tells if the component should be printed or not when the form is printed.
+	 * 
+	 * By default components are printable.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);

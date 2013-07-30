@@ -30,7 +30,8 @@ import com.servoy.base.solutionmodel.IBaseSMButton;
 public interface ISMButton extends IBaseSMButton, ISMGraphicalComponent
 {
 	/**
-	 * @sameas {@link com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()} 
+	 * @sameas {@link com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()}
+	 * @see com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()
 	 */
 	@Override
 	@ServoyClientSupport(mc = true, wc = true, sc = true)

@@ -31,7 +31,8 @@ public interface ISMTab extends IBaseSMTab, ISMHasUUID
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getContainsFormID()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMTab#getContainsForm()
+	 * @see com.servoy.base.solutionmodel.IBaseSMTab#getContainsForm()
 	 * 
 	 * @sample
 	 * var childForm = solutionModel.newForm('childForm', 'db:/example_data/child_table', null, false, 400, 300);
@@ -42,7 +43,7 @@ public interface ISMTab extends IBaseSMTab, ISMHasUUID
 	public ISMForm getContainsForm();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getForeground()
+	 * The foreground color of the tab.
 	 * 
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
@@ -53,7 +54,7 @@ public interface ISMTab extends IBaseSMTab, ISMHasUUID
 	public void setForeground(String arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getImageMediaID()
+	 * The name of the image Media file used.
 	 * 
 	 * @sample
 	 * var bytes = plugins.file.readFile('d:/ball.jpg');
@@ -66,7 +67,8 @@ public interface ISMTab extends IBaseSMTab, ISMHasUUID
 	public void setImageMedia(ISMMedia media);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getToolTipText()
+	 * @clonedesc com.servoy.j2db.solutionmodel.ISMField#getToolTipText()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getToolTipText()
 	 * 
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
@@ -77,7 +79,7 @@ public interface ISMTab extends IBaseSMTab, ISMHasUUID
 	public void setToolTipText(String arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getMnemonic()
+	 * Mnemonic used to switch to tab.
 	 * 
 	 * @sample
 	 * var childForm = solutionModel.newForm('childForm', 'db:/example_data/child_table', null, false, 400, 300);
@@ -127,7 +129,7 @@ public interface ISMTab extends IBaseSMTab, ISMHasUUID
 	public void setY(int y);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getName()
+	 * The name of the tab.
 	 * 
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
@@ -138,7 +140,7 @@ public interface ISMTab extends IBaseSMTab, ISMHasUUID
 	public void setName(String arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Tab#getText()
+	 * The text on the tab.
 	 * 
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);

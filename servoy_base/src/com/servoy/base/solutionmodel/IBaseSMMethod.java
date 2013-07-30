@@ -33,7 +33,7 @@ public interface IBaseSMMethod
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
+	 * The full source code of this method (including doc and function declaration).
 	 * 
 	 * @sample
 	 * var method = form.newMethod('function original() { application.output("Original function."); }');
@@ -46,16 +46,17 @@ public interface IBaseSMMethod
 	public String getCode();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getName()
+	 * The name of the method.
 	 * 
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
+	 * @see com.servoy.j2db.solutionmodel.ISMMethod#getShowInMenu()
 	 * 
 	 * @return A String holding the name of this method.
 	 */
 	public String getName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ISupportScope#getScopeName()
+	 * Get scope name
 	 * 
 	 * @sample 
 	 * var methods = solutionModel.getGlobalMethods(); 

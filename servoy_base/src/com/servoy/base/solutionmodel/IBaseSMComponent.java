@@ -48,11 +48,13 @@ public interface IBaseSMComponent
 	 * The y coordinate of the component on the form.
 	 * 
 	 * @sampleas getX()
+	 * @see #getX()
 	 */
 	public int getY();
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.BaseComponent#getName()
+	 * @see com.servoy.j2db.persistence.ISupportName#getName()
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
@@ -102,6 +104,7 @@ public interface IBaseSMComponent
 	 * The height in pixels of the component.
 	 * 
 	 * @sampleas getWidth()
+	 * @see #getWidth()
 	 */
 	public int getHeight();
 
@@ -128,7 +131,15 @@ public interface IBaseSMComponent
 //	 * The jQuery mobile style (theme) to use for this field.
 //	 */
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBaseComponent#getStyleClass()
+	 * The name of the style class that should be applied to this component.
+	 * 
+	 * When defining style classes for specific component types, their names
+	 * must be prefixed according to the type of the component. For example 
+	 * in order to define a class names 'fancy' for fields, in the style
+	 * definition the class must be named 'field.fancy'. If it would be 
+	 * intended for labels, then it would be named 'label.fancy'. When specifying
+	 * the class name for a component, the prefix is dropped however. Thus the
+	 * field or the label will have its styleClass property set to 'fancy' only.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);

@@ -71,6 +71,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public static final int EMPTY_VALUE_ALWAYS = IValueListConstants.EMPTY_VALUE_ALWAYS;
 	/**
 	 * @clonedesc EMPTY_VALUE_ALWAYS
+	 * @see #EMPTY_VALUE_ALWAYS
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
@@ -82,7 +83,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public static final int EMPTY_VALUE_NEVER = IValueListConstants.EMPTY_VALUE_NEVER;
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getAddEmptyValue()
+	 * Property that tells if an empty value must be shown next to the items in the value list.
 	 *
 	 * @sample 
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
@@ -95,14 +96,18 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	/**
 	 * @clonedesc setDisplayDataProviderIds(String, String, String)
+	 * @see #setDisplayDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 *
 	 */
 	public void setDisplayDataProviderIds();
 
 	/**
 	 * @clonedesc setDisplayDataProviderIds(String, String, String)
+	 * @see #setDisplayDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 */
@@ -110,7 +115,9 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	/**
 	 * @clonedesc setDisplayDataProviderIds(String, String, String)
+	 * @see #setDisplayDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 *
@@ -124,6 +131,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * by the valuelist.
 	 *
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first display dataprovider.
 	 *
@@ -154,13 +162,17 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	/**
 	 * @clonedesc setReturnDataProviderIds(String, String, String)
+	 * @see #setReturnDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 */
 	public void setReturnDataProviderIds();
 
 	/**
 	 * @clonedesc setReturnDataProviderIds(String, String, String)
+	 * @see #setReturnDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 */
@@ -168,7 +180,9 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	/**
 	 * @clonedesc setReturnDataProviderIds(String, String, String)
+	 * @see #setReturnDataProviderIds(String, String, String)
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
@@ -182,6 +196,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * by the valuelist.
 	 *
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 *
 	 * @param dataprovider1 The first return dataprovider.
 	 *
@@ -194,14 +209,18 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	/**
 	 * Returns an array of the dataproviders that will be used to define the valuelist value that is saved.
 	 *
-	 * @sampleas getDisplayDataProviderIds() 
+	 * @sampleas getDisplayDataProviderIds()
+	 * @see #getDisplayDataProviderIds() 
 	 *
 	 * @return An array of Strings representing the names of the return dataprovider.
 	 */
 	public Object[] getReturnDataProviderIds();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getCustomValues()
+	 * A string with the elements in the valuelist. The elements 
+	 * can be separated by linefeeds (custom1
+	 * custom2), optional with realvalues ((custom1|1
+	 * custom2|2)).
 	 *
 	 * @sample
 	 * var vl1 = solutionModel.newValueList("customtext",JSValueList.CUSTOM_VALUES);
@@ -217,7 +236,7 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public String getCustomValues();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getRelationName()
+	 * The name of the relation that is used for loading data from the database.
 	 * 
 	 * @sample
 	 * var rel = solutionModel.newRelation('parent_to_child', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
@@ -232,35 +251,45 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public String getRelationName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getSeparator()
+	 * A String representing the separator that should be used when multiple
+	 * display dataproviders are set, when the value list has the type set to
+	 * database values.
 	 * 
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 */
 	public String getSeparator();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getServerName()
+	 * The name of the database server that is used for loading the values when 
+	 * the value list has the type set to database values.
 	 * 
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 */
 	public String getServerName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getSortOptions()
+	 * Sort options that are applied when the valuelist loads its data
+	 * from the database.
 	 * 
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 */
 	public String getSortOptions();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getTableName()
+	 * The name of the database table that is used for loading the values when 
+	 * the value list has the type set to database values.
 	 * 
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 */
 	public String getTableName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getDataSource()
+	 * Compact representation of the names of the server and table that 
+	 * are used for loading the data from the database.
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
@@ -271,7 +300,8 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public String getDataSource();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getUseTableFilter()
+	 * Flag that tells if the name of the valuelist should be applied as a filter on the
+	 * 'valuelist_name' column when retrieving the data from the database.
 	 * 
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
@@ -284,9 +314,10 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public boolean getUseTableFilter();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getValueListType()
+	 * The type of the valuelist. Can be either custom values or database values.
 	 * 
 	 * @sampleas DATABASE_VALUES
+	 * @see #DATABASE_VALUES
 	 */
 	public int getValueListType();
 

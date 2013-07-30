@@ -55,12 +55,14 @@ public interface IBaseSMForm extends IBaseSMListContainer
 
 	/**
 	 * @sameas LIST_VIEW
+	 * @see #LIST_VIEW
 	 */
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int LOCKED_TABLE_VIEW = IFormConstants.VIEW_TYPE_TABLE_LOCKED;
 
 	/**
 	 * @sameas LIST_VIEW
+	 * @see #LIST_VIEW
 	 */
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public static final int RECORD_VIEW = IFormConstants.VIEW_TYPE_RECORD;
@@ -69,6 +71,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 * Creates a new form JSVariable - based on the name of the variable object and the number type, uses the SolutionModel JSVariable constants.
 	 *
 	 * @sampleas newVariable(String,int,String)
+	 * @see #newVariable(String,int,String)
 	 *
 	 * @param name the specified name of the variable
 	 *
@@ -780,7 +783,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public IBaseSMLabel[] getLabels();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getName()
+	 * The name of the form.
 	 * 
 	 * @sample
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
@@ -791,7 +794,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public String getName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getServerName()
+	 * Get the server name used by this form.
 	 * 
 	 * @sample 
 	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
@@ -802,7 +805,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public String getServerName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getTableName()
+	 * The [name of the table/SQL view].[the name of the database server connection] the form is based on.
 	 * 
 	 * @sample
 	 * var aForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
@@ -817,7 +820,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public String getTableName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getDataSource()
+	 * The names of the database server and table that this form is linked to.
 	 * 
 	 * @sample
 	 * var myForm = solutionModel.newForm('newForm', 'db:/a_server/a_table', 'aStyleName', false, 800, 600)
@@ -874,7 +877,18 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public boolean removeMethod(String name);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getView()
+	 * The default form view mode. 
+	 * 
+	 * The view can be changed using a method at runtime. The following views are available: 
+	 * - Record view 
+	 * - List view 
+	 * - Record view (locked) 
+	 * - List view (locked) 
+	 * - Table View (locked) 
+	 * 
+	 * NOTE: Only Table View (locked) uses asynchronized related data loading. 
+	 * This feature defers all related foundset data loading to the background - enhancing 
+	 * the visual display of a related foundset.
 	 *
 	 * @sample 
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
@@ -887,7 +901,11 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public void setView(int arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnShowMethodID()
+	 * The method that is triggered EVERY TIME the form is displayed; an argument must be passed to the method if this is the first time the form is displayed. 
+	 * 
+	 * NOTE: onShow can be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded. 
+	 * 
+	 * NOTE: the onShow event bubbles down, meaning that the onShow event of a form displayed in a tabPanel is fired after the onShow event of the parent.
 	 * 
 	 * @sample
 	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
@@ -898,7 +916,12 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public void setOnShow(IBaseSMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnLoadMethodID()
+	 * The method that is triggered when a form is loaded/reloaded from the repository; used to alter elements, set globals, hide toolbars, 
+	 * etc; onShow method can also be assigned.
+	 * NOTE: onShow should be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded. 
+	 * Also calls to loadRecords() should be done in the onShow method and not in the onLoad method
+	 * If you call loadRecords() in the onShow method, you may want to set the namedFoundSet property of the form to 'empty' to prevent the first default form query.
+	 * NOTE: the onLoad event bubbles down, meaning that the onLoad is first fired on the parent then on a tab in a tabpanel (and in tab of that tab panels if you are 3 deep)
 	 * 
 	 * @sample
 	 * form.onLoad = form.newMethod('function onLoad(event) { application.output("onLoad intercepted on " + event.getFormName()); }');
@@ -909,16 +932,22 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	public void setOnLoad(IBaseSMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnHideMethodID()
+	 * The method that is triggered when another form is being activated. 
+	 * NOTE: If the onHide method returns false, the form can be prevented from hiding. 
+	 * For example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X).
 	 *
 	 * @sampleas getOnShow()
+	 * @see #getOnShow()
 	 */
 	public IBaseSMMethod getOnHide();
 
 	public void setOnHide(IBaseSMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Form#getOnRecordSelectionMethodID()
+	 * The method that is triggered each time a record is selected. 
+	 * If a form is in List view or Special table view - when the user clicks on it.
+	 * In Record view - after the user navigates to another record using the slider or clicks up or down for next/previous record. 
+	 * NOTE: Data and Servoy tag values are returned when the onRecordSelection method is executed.
 	 * 
 	 * @sample
 	 * form.onRecordSelection = form.newMethod('function onRecordSelection(event) { application.output("onRecordSelection intercepted on " + event.getFormName()); }');

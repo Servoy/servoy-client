@@ -31,7 +31,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 public interface IBaseGraphicalComponent extends IBaseComponent, IBaseGraphicalComponentCommon
 {
 	/**
-	 * The method that is executed when the component is clicked.
+	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnAction()
 	 */
 	int getOnActionMethodID();
 

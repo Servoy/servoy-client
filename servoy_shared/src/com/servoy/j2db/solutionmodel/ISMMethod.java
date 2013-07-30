@@ -31,9 +31,15 @@ public interface ISMMethod extends IBaseSMMethod, ISMHasUUID
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
+	 * Flag that tells if the method appears or not in the "Methods" menu of Servoy Client.
 	 * 
-	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
+	 * @sample
+	 * var method = form.newMethod('function original() { application.output("Original function."); }');
+	 * application.output('original method name: ' + method.getName());
+	 * application.output('original method code: ' + method.code);
+	 * method.code = 'function changed() { application.output("This is another function."); }';
+	 * method.showInMenu = false;
+	 * var button = form.newButton('Click me!', 10, 10, 100, 30, method);
 	 */
 	public boolean getShowInMenu();
 

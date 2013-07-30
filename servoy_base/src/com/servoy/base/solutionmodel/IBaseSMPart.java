@@ -131,7 +131,7 @@ public interface IBaseSMPart
 	public static final int TRAILING_SUBSUMMARY = IPartConstants.TRAILING_SUBSUMMARY;
 
 	/**
-	 * @clonedesc com.servoy.base.persistence.IBasePart#getStyleClass()
+	 * The Cascading Style Sheet (CSS) class name applied to the part.
 	 * 
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);

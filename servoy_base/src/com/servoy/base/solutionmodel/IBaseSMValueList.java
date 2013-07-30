@@ -33,9 +33,9 @@ public interface IBaseSMValueList
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.ValueList#getName()
+	 * The name of the value list.
 	 * 
-	 * @sampleas getUseTableFilter()
+	 * It is relevant when the "useTableFilter" property is set.
 	 */
 	public String getName();
 

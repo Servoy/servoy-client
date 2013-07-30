@@ -398,6 +398,7 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	 * Retrieves an array with all fields in a portal.
 	 * 
 	 * @sampleas getField(String)
+	 * @see #getField(String)
 	 * 
 	 * @return An array with JSField instances corresponding to all fields in the portal.
 	 */
@@ -429,6 +430,7 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	 * Retrieves an array with all buttons in the portal.
 	 * 
 	 * @sampleas getButton(String)
+	 * @see #getButton(String)
 	 * 
 	 * @return An array with all buttons in the portal.
 	 */
@@ -459,13 +461,14 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	 * Retrieves all labels from the portal.
 	 * 
 	 * @sampleas getLabel(String)
+	 * @see #getLabel(String)
 	 * 
 	 * @return An array of JSLabel instances corresponding to all labels in the portal.
 	 */
 	public ISMLabel[] getLabels();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getInitialSort()
+	 * The default sort order for the rows displayed in the portal.
 	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp',rel,10,10,620,460);
@@ -477,7 +480,8 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public String getInitialSort();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getIntercellSpacing()
+	 * The additional spacing between cell rows. Is composed from the horizontal spacing
+	 * and the vertical spacing.
 	 * 
 	 * @sample
 	 * var spacing = childrenPortal.getIntercellSpacing();
@@ -489,7 +493,8 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public Dimension getIntercellSpacing();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getMultiLine()
+	 * When set, portal rows can have a custom layout of fields, buttons, etc. displayed for each 
+	 * matching row (rather than the default "grid").
 	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp',rel,10,10,620,460);
@@ -508,7 +513,8 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public boolean getMultiLine();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getRelationName()
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMPortal#getRelationName()
+	 * @see com.servoy.base.solutionmodel.IBaseSMPortal#getRelationName()
 	 * 
 	 * @sample
 	 * // Create the portal based on one relation.
@@ -522,7 +528,7 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public String getRelationName();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getReorderable()
+	 * When set, the portal rows can be re-ordered by dragging the column headers.
 	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
@@ -534,7 +540,7 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public boolean getReorderable();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getResizable()
+	 * When set the portal rows can be resized by users.
 	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
@@ -547,7 +553,7 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public boolean getResizable();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getRowHeight()
+	 * The height of each row in pixels. If 0 or not set, the height defaults to 10.
 	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
@@ -560,11 +566,17 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSField#getScrollbars()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getScrollbars()
 	 */
 	public int getScrollbars();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getShowHorizontalLines()
+	 * When set, the portal displays horizontal lines between the rows. 
+	 * 
+	 * NOTE: 
+	 * In a multi-line portal, a horizontal line is only displayed 
+	 * in the selected row; to display a horizontal line in all rows, add a 
+	 * line to the portal.
 	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
@@ -577,14 +589,20 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public boolean getShowHorizontalLines();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getShowVerticalLines()
+	 * When set the portal displays vertical lines between the columns. 
+	 * 
+	 * NOTE: 
+	 * In a multi-line portal, a vertical line is only displayed 
+	 * in the selected row; to display a vertical line in all rows, add 
+	 * a line to the portal.
 	 * 
 	 * @sampleas getShowHorizontalLines()
+	 * @see #getShowHorizontalLines()
 	 */
 	public boolean getShowVerticalLines();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getSortable()
+	 * When set, users can sort the contents of the portal by clicking on the column headings.
 	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
@@ -596,14 +614,16 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public boolean getSortable();
 
 	/**
-	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getTabSeq()
+	 * @sameas com.servoy.j2db.solutionmodel.ISMField#getTabSeq()
+	 * @see com.servoy.j2db.solutionmodel.ISMField#getTabSeq()
 	 */
 	public int getTabSeq();
 
 	public void setInitialSort(String arg);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getIntercellSpacing()
+	 * @clonedesc getIntercellSpacing()
+	 * @see #getIntercellSpacing()
 	 * 
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp',rel,10,10,620,460);
@@ -639,17 +659,26 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public void setTabSeq(int arg);
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSComponent#setX(int)
+	 * The x coordinate of the component on the form.
+	 * 
+	 * @sample
+	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
+	 * application.output('original location: ' + field.x + ', ' + field.y);
+	 * field.x = 90;
+	 * field.y = 90;
+	 * application.output('changed location: ' + field.x + ', ' + field.y);
 	 */
 	public void setX(int x);
 
 	/**
-	 * @see com.servoy.j2db.scripting.solutionmodel.JSComponent#setY(int)
+	 * The y coordinate of the component on the form.
+	 * 
+	 * @see #setX(int)
 	 */
 	public void setY(int y);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnRenderMethodID()
+	 * The method that is executed when the component is rendered.
 	 * 
 	 * @sample
 	 * portal.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
@@ -659,7 +688,7 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public void setOnRender(ISMMethod method);
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragMethodID()
+	 * The method that is triggered when (non Design Mode) dragging occurs.
 	 * 
 	 * @sample
 	 * form.onDrag = form.newMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
@@ -670,23 +699,26 @@ public interface ISMPortal extends IBaseSMPortal, ISMComponent
 	public ISMMethod getOnDrag();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragEndMethodID()
+	 * The method that is triggered when (non Design Mode) dragging end occurs.
 	 * 
 	 * @sampleas getOnDrag()
+	 * @see #getOnDrag()
 	 */
 	public ISMMethod getOnDragEnd();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragOverMethodID()
+	 * The method that is triggered when (non Design Mode) dragging over a component occurs.
 	 * 
 	 * @sampleas getOnDrag()
+	 * @see #getOnDrag()
 	 */
 	public ISMMethod getOnDragOver();
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDropMethodID()
+	 * The method that is triggered when (non Design Mode) dropping occurs.
 	 * 
 	 * @sampleas getOnDrag()
+	 * @see #getOnDrag()
 	 */
 	public ISMMethod getOnDrop();
 

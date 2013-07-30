@@ -288,14 +288,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	/**
-	 * The x coordinate of the component on the form.
-	 * 
-	 * @sample
-	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
-	 * application.output('original location: ' + field.x + ', ' + field.y);
-	 * field.x = 90;
-	 * field.y = 90;
-	 * application.output('changed location: ' + field.x + ', ' + field.y);
+	 * @sameas com.servoy.j2db.solutionmodel.ISMPortal#setX(int)
 	 */
 	@JSGetter
 	public int getX()
@@ -310,7 +303,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	/**
-	 * The y coordinate of the component on the form.
+	 * @clonedesc com.servoy.j2db.solutionmodel.ISMPortal#setY(int)
 	 * 
 	 * @sampleas getX()
 	 */

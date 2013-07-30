@@ -66,15 +66,7 @@ public interface IBaseComponent
 	void setGroupID(String arg);
 
 	/**
-	 * The name of the style class that should be applied to this component.
-	 * 
-	 * When defining style classes for specific component types, their names
-	 * must be prefixed according to the type of the component. For example 
-	 * in order to define a class names 'fancy' for fields, in the style
-	 * definition the class must be named 'field.fancy'. If it would be 
-	 * intended for labels, then it would be named 'label.fancy'. When specifying
-	 * the class name for a component, the prefix is dropped however. Thus the
-	 * field or the label will have its styleClass property set to 'fancy' only.
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()
 	 */
 	String getStyleClass();
 

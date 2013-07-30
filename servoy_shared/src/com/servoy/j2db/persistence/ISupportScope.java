@@ -28,7 +28,7 @@ package com.servoy.j2db.persistence;
 public interface ISupportScope extends ISupportName
 {
 	/**
-	 * Get scope name
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMMethod#getScopeName()
 	 */
 	String getScopeName();
 

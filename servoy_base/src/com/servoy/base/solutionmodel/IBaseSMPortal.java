@@ -28,7 +28,8 @@ package com.servoy.base.solutionmodel;
 public interface IBaseSMPortal extends IBaseSMComponent, IBaseSMListContainer
 {
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.Portal#getRelationName()
+	 * The name of the relationship between the table related to the currently active 
+	 * form and the table you want to show data from in the portal.
 	 * 
 	 * @sample
 	 * portal.relationName = 'parent_table_to_child_table';
