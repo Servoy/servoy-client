@@ -26,6 +26,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -700,6 +701,38 @@ public class JSValueList implements IConstantsObject, ISMValueList
 			{
 				throw new RuntimeException("Only global methods are supported for a valuelist"); //$NON-NLS-1$
 			}
+		}
+	}
+
+	/**
+	 * Gets or sets the fallback valuelist.
+	 *
+	 * @sample
+	 * var myValueList = solutionModel.getValueList('myValueListHere')
+	 *  //get fallback value list
+	 * var fallbackValueList = myValueList.fallbackValueList 
+	 */
+	@JSGetter
+	public JSValueList getFallbackValueList()
+	{
+		if (valuelist != null)
+		{
+			FlattenedSolution fs = application.getFlattenedSolution();
+			int fallbackVLID = valuelist.getFallbackValueListID();
+			ValueList fallbackVL = fs.getValueList(fallbackVLID);
+			if (fallbackVL != null) return new JSValueList(fallbackVL, application, false);
+		}
+		return null;
+	}
+
+	@JSGetter
+	public void setFallbackValueList(ISMValueList vl)
+	{
+		if (vl != null)
+		{
+			FlattenedSolution fs = application.getFlattenedSolution();
+			ValueList rawVL = fs.getValueList(vl.getName());
+			valuelist.setFallbackValueListID(rawVL.getID());
 		}
 	}
 

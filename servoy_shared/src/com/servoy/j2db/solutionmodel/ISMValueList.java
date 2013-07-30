@@ -381,6 +381,19 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 
 	public ISMMethod getGlobalMethod();
 
+	/**
+	 * Gets or sets the fallback valuelist .
+	 *
+	 * @sample
+	 * var myValueList = solutionModel.getValueList('myValueListHere')
+	 *  //get fallback value list
+	 * var fallbackValueList = myValueList.fallbackValueList 
+	 * 
+	 */
+	public ISMValueList getFallbackValueList();
+
+	public void setFallbackValueList(ISMValueList vl);
+
 	public void setName(String arg);
 
 	public void setRelationName(String arg);
