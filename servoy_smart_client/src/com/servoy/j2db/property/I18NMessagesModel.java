@@ -17,6 +17,7 @@
 package com.servoy.j2db.property;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -184,6 +185,11 @@ public class I18NMessagesModel
 		addKeys(tm, messageDefault, messageLocale);
 
 		return tm.values();
+	}
+
+	public Map<String, I18NMessagesModelEntry> getDefaultMap()
+	{
+		return new HashMap<String, I18NMessagesModelEntry>(defaultMap);
 	}
 
 	public static class I18NMessagesModelEntry
