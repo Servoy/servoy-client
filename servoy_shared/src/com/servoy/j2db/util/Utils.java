@@ -53,6 +53,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -89,6 +90,8 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.Record;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
@@ -713,23 +716,58 @@ public class Utils
 	 */
 	public static Object parseJSExpression(Object o)
 	{
+		return parseJSExpression(o, Types.OTHER);
+	}
+
+	/**
+	 *   The same as parseJSExpression but try to convert the object to the given type parameter
+	 * @param  type from java.sql.Types  ,  java.sql.Types.OTHER to get the behavior of parseJSExpression(Object o) 
+	 */
+	public static Object parseJSExpression(Object o, int type)
+	{
 		if (o instanceof String)
 		{
+			int tp = Column.mapToDefaultType(type);
+
 			String s = ((String)o).trim();
 			if ("".equals(s)) return null;
-			if ("true".equals(s)) return Boolean.TRUE;
-			if ("false".equals(s)) return Boolean.FALSE;
-			try
+			if (tp == Types.OTHER)
 			{
-				return Double.valueOf(s);
+				if ("true".equals(s)) return Boolean.TRUE;
+				if ("false".equals(s)) return Boolean.FALSE;
 			}
-			catch (NumberFormatException e)
+			if (tp == Types.OTHER || tp == IColumnTypes.NUMBER)
+			{
+				try
+				{
+					return Double.valueOf(s);
+				}
+				catch (NumberFormatException e)
+				{
+					if (tp != Types.OTHER) return null;
+				}
+			}
+
+			if (tp == IColumnTypes.INTEGER)
+			{
+				try
+				{
+					return Integer.valueOf(s);
+				}
+				catch (NumberFormatException e)
+				{
+					return null;
+				}
+			}
+
+			if (tp == Types.OTHER || tp == IColumnTypes.TEXT)
 			{
 				if ((s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'') || (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"'))
 				{
 					return s.substring(1, s.length() - 1);
 				}
 			}
+
 			return null;
 		}
 
