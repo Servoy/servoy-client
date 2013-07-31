@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.persistence;
 
+import java.sql.Types;
+
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -53,6 +55,11 @@ public class LiteralDataprovider implements IDataProvider
 		return literalWithPrefix;
 	}
 
+	public String getLiteral()
+	{
+		return literalWithPrefix.substring(LITERAL_PREFIX.length());
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -65,8 +72,13 @@ public class LiteralDataprovider implements IDataProvider
 
 	public Object getValue()
 	{
+		return getValue(Types.OTHER);
+	}
+
+	public Object getValue(int type)
+	{
 		String value = literalWithPrefix.substring(LITERAL_PREFIX.length());
-		return Utils.parseJSExpression(value);
+		return Utils.parseJSExpression(value, type);
 	}
 
 	/*

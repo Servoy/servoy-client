@@ -914,16 +914,20 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				}
 				if (primary[i] instanceof LiteralDataprovider)
 				{
-					Object value = ((LiteralDataprovider)primary[i]).getValue();
+					Object value = ((LiteralDataprovider)primary[i]).getValue(foreign[i].getDataProviderType());
 					try
 					{
-						Column.getAsRightType(foreign[i].getDataProviderType(), foreign[i].getFlags(), value, foreign[i].getLength(), true);
+						if (value != null)
+						{
+							Column.getAsRightType(foreign[i].getDataProviderType(), foreign[i].getFlags(), value, foreign[i].getLength(), true);
+							continue;
+						}
 					}
 					catch (Exception e)
 					{
-						return Messages.getString("servoy.relation.error.typeDoesntMatch", new Object[] { value, foreign[i].getDataProviderID() }); //$NON-NLS-1$
 					}
-					continue;
+					return Messages.getString(
+						"servoy.relation.error.literalInvalidForColumn", new Object[] { ((LiteralDataprovider)primary[i]).getLiteral(), foreign[i].getDataProviderID() }); //$NON-NLS-1$
 				}
 
 				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
