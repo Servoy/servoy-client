@@ -966,7 +966,10 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(new GlobalAutoScrollerFocusListener());
 
 		// create status
-		mainPanel.add(createStatusPanel(), BorderLayout.SOUTH);
+		JPanel statusPanel = createStatusPanel();
+		String showStatusBar = settings.getProperty("servoy.smartclient.showStatusBar"); //$NON-NLS-1$
+		if (showStatusBar != null && showStatusBar.equals("false")) statusPanel.setVisible(false); //$NON-NLS-1$
+		mainPanel.add(statusPanel, BorderLayout.SOUTH);
 
 		// first set the default locale if set.
 		String str = getSettings().getProperty("locale.default"); //$NON-NLS-1$
@@ -1000,9 +1003,13 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		toolbarsPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
 		mainPanel.add(toolbarsPanel, BorderLayout.NORTH);
 		fillToolbar(actions);
+		String showToolBar = settings.getProperty("servoy.smartclient.showToolBar"); //$NON-NLS-1$
+		if (showToolBar != null && showToolBar.equals("false")) toolbarsPanel.setVisible(false); //$NON-NLS-1$
 
 		// load menu
 		JMenuBar menu = createMenuBar(actions);
+		String showMenuBar = settings.getProperty("servoy.smartclient.showMenuBar"); //$NON-NLS-1$
+		if (showMenuBar != null && showMenuBar.equals("false")) menu.setVisible(false); //$NON-NLS-1$
 		frame.setJMenuBar(menu);
 		((SwingRuntimeWindow)jsWindowManager.getWindow(null)).setJMenuBar(menu);
 		if (Utils.isAppleMacOS())

@@ -52,7 +52,6 @@ import javax.swing.InputMap;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -110,10 +109,10 @@ import com.servoy.j2db.smart.dataui.FormLookupPanel;
 import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.ThreadingRemoteInvocationHandler;
@@ -728,7 +727,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 		else
 		{
-			Debug.error("Tried adding protocol: " + protocolName + " as an url stream handler in debug client, please implement the IDeveloperURLStreamHandler interface");
+			Debug.error("Tried adding protocol: " + protocolName +
+				" as an url stream handler in debug client, please implement the IDeveloperURLStreamHandler interface");
 		}
 	}
 
@@ -800,8 +800,13 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				// don't create for close
 				createMenuBar(actions);
 				fillToolbar(actions);
-				frame.getJMenuBar().setVisible(true);
-				((JPanel)super.getToolbarPanel()).setVisible(true);
+
+				String showMenuBar = settings.getProperty("servoy.smartclient.showMenuBar"); //$NON-NLS-1$
+				if (showMenuBar != null && showMenuBar.equals("false")) frame.getJMenuBar().setVisible(false); //$NON-NLS-1$
+				else frame.getJMenuBar().setVisible(true);
+				String showToolBar = settings.getProperty("servoy.smartclient.showToolBar"); //$NON-NLS-1$
+				if (showToolBar != null && showToolBar.equals("false")) toolbarsPanel.setVisible(false); //$NON-NLS-1$
+				else toolbarsPanel.setVisible(true);
 			}
 			if (getMainApplicationFrame().isVisible())
 			{
