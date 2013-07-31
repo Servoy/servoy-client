@@ -299,9 +299,14 @@ public class String
 	}
 
 	/**
-	 * returns a new string where some or all matches of the regexp are replaced.
+	 * returns a new string where the matches of the given regexp are replaced by newSubStr.
 	 *
-	 * @sample string.replace(regexp,newSubStr);
+	 * @sample 
+	 * string.replace(regexp,newSubStr);
+	 * //var re = /(\w+)\s(\w+)/;
+	 * //var str = "John Smith";
+	 * //var newstr = str.replace(re, "$2, $1");
+	 * //application.output(newstr);
 	 * 
 	 * @param regexp 
 	 * @param newSubStr 
@@ -314,9 +319,20 @@ public class String
 	}
 
 	/**
-	 * returns a new string where some or all matches of the regexp are replaced.
+	 * returns a new string where the matches of the given regexp are replaced by the return value of the function.
+	 * The function parameter is the function to be invoked to create the new substring (to put in place of the substring received from parameter #1).
 	 *
-	 * @sample string.replace(regexp,callback);
+	 * @sample 
+	 * //the callback definition
+	 * function replacer(match, p1, p2, p3, offset, string){
+	 * 		// match is the matched substring
+	 * 		// p1 is non-digits, p2 digits, and p3 non-alphanumerics
+	 * 		// offset is the offset of the matched substring within the total string being examined
+	 * 		// string is the total string being examined
+	 *  	return [p1, p2, p3].join(' - ');
+	 * }
+	 * // using replace method with replacer callback
+	 * newString = "abc12345#$*%".replace(/([^\d]*)(\d*)([^\w]*)/, replacer);
 	 * 
 	 * @param regexp 
 	 * @param function 
@@ -329,7 +345,7 @@ public class String
 	}
 
 	/**
-	 * returns a new string where the first match of the string is replaced.
+	 * returns a new string where the first match of the given substr is replaced by newSubStr.
 	 *
 	 * @sample string.replace(substr,newSubStr);
 	 * 
@@ -344,9 +360,16 @@ public class String
 	}
 
 	/**
-	 * returns a new string where the first match of the string is replaced.
+	 * returns a new string where the first match of the given substr is replaced by the return value of the function.
+	 * The function parameter is the function to be invoked to create the new substring (to put in place of the substring received from parameter #1).
 	 *
-	 * @sample string.replace(substr,callback);
+	 * @sample 
+	 * // the callback definition
+	 * function replacer(match){
+	 * 		return match.toUpperCase()
+	 * }
+	 * // using replace method with replacer callback
+	 * var newString = "abc".replace("a", replacer);
 	 * 
 	 * @param substr
 	 * @param function 
