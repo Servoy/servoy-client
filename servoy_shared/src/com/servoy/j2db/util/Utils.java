@@ -731,10 +731,11 @@ public class Utils
 
 			String s = ((String)o).trim();
 			if ("".equals(s)) return null;
-			if (tp == Types.OTHER)
+			if (tp == Types.OTHER || type == Types.BOOLEAN || type == Types.BIT)
 			{
 				if ("true".equals(s)) return Boolean.TRUE;
 				if ("false".equals(s)) return Boolean.FALSE;
+				if (type == Types.BOOLEAN || type == Types.BIT) return null;
 			}
 			if (tp == Types.OTHER || tp == IColumnTypes.NUMBER)
 			{
