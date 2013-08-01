@@ -288,7 +288,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 								catch (RuntimeException ex)
 								{
 									Debug.error("Value List '" + getName() + "' has real value '" + str[1] + "' which cannot be converted to type:" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-										Column.getDisplayTypeString(valueType));
+										Column.getDisplayTypeString(valueType), ex);
 								}
 								// check if it is a global var
 							}
