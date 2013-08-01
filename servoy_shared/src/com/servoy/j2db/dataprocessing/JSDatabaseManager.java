@@ -2455,9 +2455,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record. 
-	 * Optionally, by specifying a record or foundset, can save a single record or all reacords from foundset instead of all the data.
+	 * Optionally, by specifying a record or foundset, can save a single record or all records from foundset instead of all the data.
 	 * 
-	 * NOTE: The fields focus may be lost in user interface in order to determine the edits. 
+	 * NOTE: The fields focus may be lost in user interface in order to determine the edits.
+	 * 		 SaveData called from table events (like afterRecordInsert) is only partially supported depeding on how first saveData (that triggers the event) is called. 
+	 * 		 If first saveData is called with no arguments, all saveData from table events are returning immediatelly with true value and records will be saved as part of first save.
+	 *       If first saveData is called with record(s) as arguments, saveData from table event will try to save record(s) from arguments that are different than those in first call. 
+	 *       SaveData with no arguments inside table events will always return true without saving anything.
 	 * 
 	 * @sample
 	 * databaseManager.saveData();

@@ -281,14 +281,7 @@ public class EditRecordList
 
 		if (recordsToSave != null && savingRecords.size() > 0)
 		{
-			for (IRecord record : recordsToSave)
-			{
-				if (savingRecords.contains(record))
-				{
-					// prevent infinite cycles; what can we do here ?
-					return ISaveConstants.STOPPED;
-				}
-			}
+			recordsToSave.removeAll(savingRecords);
 		}
 
 		if (recordsToSave != null)
