@@ -211,7 +211,8 @@ public class EditRecordList
 	}
 
 
-	private boolean isSaving = false;
+	private boolean isSavingAll = false;
+	private List<IRecord> savingRecords = new ArrayList<IRecord>();
 	private Exception lastStopEditingException;
 
 	private boolean ignoreSave;
@@ -266,10 +267,28 @@ public class EditRecordList
 			return ISaveConstants.AUTO_SAVE_BLOCKED;
 		}
 
-		//prevent recursive calls
-		if (isSaving)
+		if (isSavingAll)
 		{
+			// we are saving all, no need to save anything more
 			return ISaveConstants.STOPPED;
+		}
+
+		if (recordsToSave == null && savingRecords.size() > 0)
+		{
+			// we are saving some records, cannot call save all now, not supported
+			return ISaveConstants.STOPPED;
+		}
+
+		if (recordsToSave != null && savingRecords.size() > 0)
+		{
+			for (IRecord record : recordsToSave)
+			{
+				if (savingRecords.contains(record))
+				{
+					// prevent infinite cycles; what can we do here ?
+					return ISaveConstants.STOPPED;
+				}
+			}
 		}
 
 		if (recordsToSave != null)
@@ -341,7 +360,14 @@ public class EditRecordList
 			{
 				return p;
 			}
-			isSaving = true;
+			if (recordsToSave == null)
+			{
+				isSavingAll = true;
+			}
+			else
+			{
+				savingRecords.addAll(recordsToSave);
+			}
 
 			//remove any non referenced failed records
 			boolean fireChange = false;
@@ -820,7 +846,14 @@ public class EditRecordList
 		}
 		finally
 		{
-			isSaving = false;
+			if (recordsToSave == null)
+			{
+				isSavingAll = false;
+			}
+			else
+			{
+				savingRecords.removeAll(recordsToSave);
+			}
 			fireEvents();
 		}
 
@@ -1186,7 +1219,7 @@ public class EditRecordList
 		Map<FoundSet, int[]> map = null;
 		synchronized (this)
 		{
-			if (fsEventMap == null || isSaving) return;
+			if (fsEventMap == null || isSavingAll || savingRecords.size() > 0) return;
 			map = fsEventMap;
 			fsEventMap = null;
 		}
@@ -1421,7 +1454,8 @@ public class EditRecordList
 			accessMap.clear();//per table (could be per column in future)
 			autoSave = true;
 			preparingForSave = false;
-			isSaving = false;
+			isSavingAll = false;
+			savingRecords = new ArrayList<IRecord>();
 
 			editedRecords.clear();
 			failedRecords.clear();
