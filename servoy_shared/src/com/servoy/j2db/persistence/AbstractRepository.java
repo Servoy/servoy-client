@@ -616,7 +616,28 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	public IServer[] getValidDataModelCloneServers(String name)
 	{
 		if (name == null) return null;
-		return serverManager.getValidDataModelCloneServers(name);
+		IServer[] clones = serverManager.getDataModelCloneServers(name);
+		List<IServer> validClones = new ArrayList<IServer>();
+		if (clones != null && clones.length > 0)
+		{
+			for (IServer clone : clones)
+			{
+				try
+				{
+					if (serverManager.getServer(clone.getName(), true, true) != null)
+					{
+						// valid server
+						validClones.add(clone);
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+			}
+		}
+		return validClones.toArray(new IServer[0]);
+
 	}
 
 	public Map<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RepositoryException
