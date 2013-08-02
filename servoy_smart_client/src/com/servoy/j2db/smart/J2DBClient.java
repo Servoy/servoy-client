@@ -2890,6 +2890,15 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	protected void attachAppleMenu(Map<String, Action> actions)
 	{
+		String mrjVersion = null;
+		// on java 1.7 we need to use mrj version from 1.6
+		// in order to use MRJAdapter
+		if (System.getProperty("java.version").startsWith("1.7"))
+		{
+			mrjVersion = System.getProperty("mrj.version");
+			System.setProperty("mrj.version", "1070.1.6.0_45-451");
+		}
+
 		Object appleObject;
 		try
 		{
@@ -2924,6 +2933,12 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		catch (Throwable e)
 		{
 			Debug.error(e);
+		}
+
+		// if mrjVersion was changed, restore the original one
+		if (mrjVersion != null)
+		{
+			System.setProperty("mrj.version", mrjVersion);
 		}
 	}
 
