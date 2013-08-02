@@ -255,7 +255,7 @@ public class EditRecordList
 		return stopEditing(javascriptStop, recordsToSave, 0);
 	}
 
-	private int stopEditing(final boolean javascriptStop, final List<IRecord> recordsToSave, int recursionDepth)
+	private int stopEditing(final boolean javascriptStop, List<IRecord> recordsToSave, int recursionDepth)
 	{
 		if (recursionDepth > 50)
 		{
@@ -281,6 +281,8 @@ public class EditRecordList
 
 		if (recordsToSave != null && savingRecords.size() > 0)
 		{
+			// make a copy to be sure that removeAll is supported
+			recordsToSave = new ArrayList<IRecord>(recordsToSave);
 			recordsToSave.removeAll(savingRecords);
 		}
 
@@ -309,7 +311,7 @@ public class EditRecordList
 		// here we can't have a test if editedRecords is empty (and return stop)
 		// because for just globals or findstates (or deleted records)
 		// we need to pass prepareForSave.
-
+		final List<IRecord> recordsToSaveFinal = recordsToSave;
 		if (!fsm.getApplication().isEventDispatchThread())
 		{
 			// only the event dispatch thread can stop an current edit.
@@ -325,7 +327,8 @@ public class EditRecordList
 					editRecordsLock.lock();
 					try
 					{
-						stop = editedRecords.size() == 1 && recordsToSave != null && recordsToSave.size() == 1 && editedRecords.get(0) == recordsToSave.get(0);
+						stop = editedRecords.size() == 1 && recordsToSaveFinal != null && recordsToSaveFinal.size() == 1 &&
+							editedRecords.get(0) == recordsToSaveFinal.get(0);
 					}
 					finally
 					{
@@ -333,7 +336,7 @@ public class EditRecordList
 					}
 					if (stop)
 					{
-						stopEditing(javascriptStop, recordsToSave);
+						stopEditing(javascriptStop, recordsToSaveFinal);
 					}
 					else
 					{
