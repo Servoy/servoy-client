@@ -230,7 +230,7 @@ public class DebugUtils
 		else
 		{
 			final AtomicBoolean awtFinished = new AtomicBoolean(false);
-			final org.eclipse.swt.widgets.Display display = org.eclipse.swt.widgets.Display.getDefault();
+			final org.eclipse.swt.widgets.Display display = org.eclipse.swt.widgets.Display.getCurrent();
 			SwingUtilities.invokeLater(new Runnable()
 			{
 				public void run()
