@@ -757,6 +757,8 @@ public class Utils
 				}
 				catch (NumberFormatException e)
 				{
+					if ("true".equals(s)) return Boolean.TRUE;
+					if ("false".equals(s)) return Boolean.FALSE;
 					return null;
 				}
 			}
