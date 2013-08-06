@@ -282,12 +282,13 @@ public class MarketPlaceExtensionProvider extends CachingExtensionProvider
 
 	private URLConnection ws_getConnection(String action, String acceptContentType, String extensionId, String version) throws Exception
 	{
-		String unescapedURL = MARKETPLACE_WS + action + "/" + extensionId + (version != null ? "/" + version : "");
+		String unescapedURL = MARKETPLACE_WS + action + "/" + extensionId + (version != null ? "/" + version : "")/* + "?nodebug=true" */; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		URL mpURL = new URI(null, null, unescapedURL, null).toURL(); // the URI should escape it correctly
 		URLConnection urlConnection = mpURL.openConnection();
 
 		urlConnection.addRequestProperty("accept", acceptContentType); //$NON-NLS-1$
 		urlConnection.setConnectTimeout(30 * 1000); // don't make an unstoppable job if the network connection is down
+		urlConnection.setReadTimeout(30 * 1000); // don't make an unstoppable job if the network connection is down or server doesn't want to respond
 
 		return urlConnection;
 	}
