@@ -42,4 +42,8 @@ public interface IBaseSMButton extends IBaseSMGraphicalComponent, IMobileSMButto
 
 	public void setIconType(String method);
 
+	@Override
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	public IBaseSMMethod getOnAction();
+
 }

@@ -18,6 +18,7 @@
 package com.servoy.base.scripting.solutionhelper;
 
 import com.servoy.base.persistence.IMobileProperties;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMGraphicalComponent;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
@@ -111,5 +112,27 @@ public class BaseSHInsetList extends BaseSHList implements IBaseSHInsetList
 	public void setHeaderStyleClass(String styleClass)
 	{
 		getOrCreateHeaderComponent().setStyleClass(styleClass);
+	}
+
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public int getX()
+	{
+		return getPortal().getX();
+	}
+
+	public void setX(int x)
+	{
+		getPortal().setX(x);
+	}
+
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public int getY()
+	{
+		return getPortal().getY();
+	}
+
+	public void setY(int y)
+	{
+		getPortal().setY(y);
 	}
 }

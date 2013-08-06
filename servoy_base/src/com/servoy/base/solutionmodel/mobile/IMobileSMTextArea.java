@@ -28,4 +28,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public interface IMobileSMTextArea extends IMobileSMField
 {
+	@Override
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public String getPlaceholderText();
 }

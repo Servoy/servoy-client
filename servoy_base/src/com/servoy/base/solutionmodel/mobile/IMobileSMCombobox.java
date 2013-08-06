@@ -18,6 +18,7 @@
 package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMValueList;
 
 
 /**
@@ -28,4 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public interface IMobileSMCombobox extends IMobileSMField
 {
+	@Override
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public IBaseSMValueList getValuelist();
 }

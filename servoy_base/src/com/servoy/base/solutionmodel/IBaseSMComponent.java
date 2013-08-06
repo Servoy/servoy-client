@@ -98,6 +98,7 @@ public interface IBaseSMComponent
 	 * application.output('modified width: ' + field.width);
 	 * application.output('modified height: ' + field.height);
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public int getWidth();
 
 	/**
@@ -106,6 +107,7 @@ public interface IBaseSMComponent
 	 * @sampleas getWidth()
 	 * @see #getWidth()
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public int getHeight();
 
 	/**

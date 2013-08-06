@@ -95,6 +95,7 @@ public interface IBaseSMGraphicalComponent extends IBaseSMComponent
 	 * btn.onDoubleClick = onDoubleClickMethod;
 	 * btn.onRightClick = onRightClickMethod;
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMMethod getOnAction();
 
 	/**

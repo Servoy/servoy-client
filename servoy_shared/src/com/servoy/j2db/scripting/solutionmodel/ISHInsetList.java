@@ -88,4 +88,27 @@ public interface ISHInsetList extends IBaseSHInsetList, ISHList
 	@JSSetter
 	public void setHeaderStyleClass(String styleClass);
 
+	/** The x coordinate of the component on the form.
+	 * 
+	 * @sample
+	 * var newInsetList = jsform.newInsetList(8,insetList.dataSource,insetList.relationName,insetList.headerText,insetList.textDataProviderID);
+	 * newInsetList.x = 90;
+	 * newInsetList.y = 90;
+	 * application.output('location of newInsetList: ' + newInsetList.x + ', ' + newInsetList.y);
+	 */
+	@JSGetter
+	public int getX();
+
+	@JSSetter
+	public void setX(int x);
+
+	/** The y coordinate of the component on the form.
+	 * 
+	 * @sampleas {@link #getX()}
+	 */
+	@JSGetter
+	public int getY();
+
+	@JSSetter
+	public void setY(int Y);
 }

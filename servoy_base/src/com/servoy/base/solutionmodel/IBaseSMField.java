@@ -232,6 +232,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * var cmb = form.newField('my_table_options', JSField.COMBOBOX, 10, 100, 100, 20);
 	 * cmb.valuelist = vlist;
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public IBaseSMValueList getValuelist();
 
 	public String getFormat();
@@ -282,6 +283,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample
 	 * field.placeholderText = 'Search';
 	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public String getPlaceholderText();
 
 	public void setPlaceholderText(String arg);

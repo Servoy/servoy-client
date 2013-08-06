@@ -18,6 +18,7 @@
 package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMValueList;
 
 /**
  * Solution model checks field component.
@@ -27,4 +28,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public interface IMobileSMChecks extends IMobileSMField
 {
+	@Override
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public IBaseSMValueList getValuelist();
 }

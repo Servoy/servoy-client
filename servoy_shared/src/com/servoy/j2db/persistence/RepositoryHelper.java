@@ -595,7 +595,8 @@ public class RepositoryHelper
 			return true;
 		}
 
-		if (name.equals(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()) && !isButton)
+		if (GraphicalComponent.class.isAssignableFrom(persistClass) && name.equals(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()) &&
+			!isButton)
 		{
 			return true;
 		}
@@ -615,6 +616,12 @@ public class RepositoryHelper
 			{
 				return false;
 			}
+			return true;
+		}
+
+		if (name.equals(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()) && Field.class.isAssignableFrom(persistClass) &&
+			(displayType == Field.TEXT_FIELD || displayType == Field.TEXT_AREA || displayType == Field.PASSWORD))
+		{
 			return true;
 		}
 
