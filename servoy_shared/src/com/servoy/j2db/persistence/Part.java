@@ -441,6 +441,7 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}
 
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getStyleClass()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS);
