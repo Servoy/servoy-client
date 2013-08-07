@@ -44,7 +44,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @param fg the HTML RGB Hexadecimal foreground color for the tab (default is null)
 	 * @param bg the HTML RGB Hexadecimal background color for the tab (default is null)
 	 * @param relation the specified name of the related foundset (default is null)
-	 * @param tabIndex the specified index of a tab, default is -1, will add tab to the end, this index is 0 based
+	 * @param tabIndex the specified index of a tab, default is -1, will add tab to the end
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
@@ -63,7 +63,7 @@ public interface IRuntimeTabPaneAlike extends HasRuntimeReadOnly, IRuntimeCompon
 	 * @param fg the HTML RGB Hexadecimal foreground color for the tab (default is null)
 	 * @param bg the HTML RGB Hexadecimal background color for the tab (default is null)
 	 * @param relation the specified name of the related foundset (default is null)
-	 * @param tabIndex the specified index of a tab, default is -1, will add tab to the end, , this index is 0 based
+	 * @param tabIndex the specified index of a tab, default is -1, will add tab to the end
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
