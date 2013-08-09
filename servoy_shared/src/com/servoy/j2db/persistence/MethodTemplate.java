@@ -210,7 +210,7 @@ public class MethodTemplate implements IMethodTemplate
 			for (MethodArgument element : args)
 			{
 				sb.append(" * @param "); //$NON-NLS-1$
-				if (element.getType() != null && element.getType() != ArgumentType.Object)
+				if (element.getType() != null && element.getType() != ArgumentType.Object && !"Any".equals(String.valueOf(element.getType())))
 				{
 					String typeString = String.valueOf(element.getType());
 					if (!typeString.startsWith("${") || !typeString.endsWith("}") ||
