@@ -2072,7 +2072,7 @@ public class TemplateGenerator
 				"'><div servoy:id='tabs'");
 			html.append("><h3 style='text-align:");
 			html.append(styleAlignment);
-			html.append(";'><a servoy:id='tablink' href='#'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
+			html.append(";' onclick='this.getElementsByTagName(\"a\")[0].click()'><a servoy:id='tablink' href='#'><div servoy:id='icon'></div><span style=\"white-space: nowrap;\" servoy:id='linktext'>");
 			html.append(getSafeText(text));
 			html.append("</span></a></h3><div servoy:id='webform' ");
 			//html.append(getCSSClassParameter("webform"));
