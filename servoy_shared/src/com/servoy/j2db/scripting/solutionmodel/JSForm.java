@@ -4178,8 +4178,9 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IBaseSMMethod method)
 	{
 		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
-		persist.putInstanceMethodArguments(methodProperty.getPropertyName(),
-			method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
+		persist.putInstanceMethodParameters(methodProperty.getPropertyName(),
+		//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
+			new ArrayList(), method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
 	}
 
 	/**

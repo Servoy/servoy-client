@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
@@ -1087,6 +1088,29 @@ public abstract class AbstractBase implements IPersist
 		{
 			return (List<Object>)putCustomProperty(new String[] { "methods", methodKey, "arguments" }, args == null ? null : Collections.unmodifiableList(args)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Pair<List<Object>, List<Object>> getInstanceMethodParameters(String methodKey)
+	{
+		if (methodKey != null)
+		{
+			List<Object> params = (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "parameters" }); //$NON-NLS-1$ //$NON-NLS-2$
+			List<Object> args = (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
+			return new Pair<List<Object>, List<Object>>(params, args);
+		}
+		return null;
+	}
+
+	public List<Object> putInstanceMethodParameters(String methodKey, List<Object> paramNames, List<Object> args)
+	{
+		if (methodKey != null)
+		{
+			putCustomProperty(new String[] { "methods", methodKey, "parameters" }, args == null ? null : Collections.unmodifiableList(paramNames));
+			putCustomProperty(new String[] { "methods", methodKey, "arguments" }, args == null ? null : Collections.unmodifiableList(args));
+		}
+
 		return null;
 	}
 
