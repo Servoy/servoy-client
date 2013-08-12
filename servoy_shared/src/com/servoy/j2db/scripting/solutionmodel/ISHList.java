@@ -31,34 +31,18 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public interface ISHList extends IBaseSHList
 {
-	/**
-	 * This dataprovider's value will be presented as a 'count bubble' in each item of the list.
-	 * @sample
-	 * var list = solutionModel.getForm('created_by_sm_1').getInsetList(solutionModel.getForm('il1');
-	 * 
-	 * var newList = solutionModel.newListForm('created_by_sm_3', list.dataSource, list.textDataProviderID);
-	 * newList.onAction = newList.getForm().newMethod('function aMethod(event){application.output("Hello world!");}');
-	 */
 	@JSGetter
 	public String getCountDataProviderID();
 
 	@JSSetter
 	public void setCountDataProviderID(String countDataProviderID);
 
-	/**
-	 * This text will appear as the main text of items in the list if 'textDataProviderID' is not set.
-	 * @sampleas {@link #getCountDataProviderID()}
-	 */
 	@JSGetter
 	public String getText();
 
 	@JSSetter
 	public void setText(String text);
 
-	/**
-	 * The text of this data-provider will appear as the main text of items in the list; if not specified, 'text' will be used instead.
-	 * @sampleas {@link #getCountDataProviderID()}
-	 */
 	@JSGetter
 	public String getTextDataProviderID();
 
@@ -68,62 +52,33 @@ public interface ISHList extends IBaseSHList
 	@JSSetter
 	public void setOnAction(IBaseSMMethod method);
 
-	/**
-	 * This action will be executed when an item in the list is clicked.
-	 * @sampleas {@link #getCountDataProviderID()}
-	 */
 	@JSGetter
 	public IBaseSMMethod getOnAction();
 
-	/**
-	 * This text will appear as the secondary (smaller) text of items in the list if 'subtextDataProviderID' is not set.
-	 * @sampleas {@link #getCountDataProviderID()}
-	 */
 	@JSGetter
 	public String getSubtext();
 
 	@JSSetter
 	public void setSubtext(String subtext);
 
-	/**
-	 * The text of this data-provider will appear as the secondary (smaller) text of items in the list; if not specified, 'subtext' will be used instead.
-	 * @sampleas {@link #getCountDataProviderID()}
-	 */
 	@JSGetter
 	public String getSubtextDataProviderID();
 
 	@JSSetter
 	public void setSubtextDataProviderID(String subtextDataProviderID);
 
-	/**
-	 * This predefined icon will appear on items in the list if 'dataIconDataProviderID' is not set.
-	 * @sampleas {@link #getCountDataProviderID()}
-	 */
 	@JSGetter
 	public String getDataIconType();
 
 	@JSSetter
 	public void setDataIconType(String iconType);
 
-	/**
-	 * The predefined icon of this data-provider will appear on items in the list; if not specified, 'dataIconType' will be used instead.
-	 * @sampleas {@link #getCountDataProviderID()}
-	 */
 	@JSGetter
 	public String getDataIconDataProviderID();
 
 	@JSSetter
 	public void setDataIconDataProviderID(String dataIconDataProviderID);
 
-	/**
-	 * The styleClass of the list. Can have values from 'a' to 'e'.
-	 * 
-	 * @sample
-	 * var list = solutionModel.getForm('created_by_sm_1').getInsetList('il1');
-	 * 
-	 * var newList = solutionModel.newListForm('created_by_sm_3', list.dataSource, list.textDataProviderID);
-	 * newList.listStyleClass = 'e';
-	 */
 	@JSGetter
 	public String getListStyleClass();
 
