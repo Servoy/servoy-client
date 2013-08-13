@@ -32,6 +32,7 @@ import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBeh
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Class used to add drag and drop support for web components 
@@ -321,13 +322,13 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 
 		if (ACTION_DRAG_START.equals(action))
 		{
-			boolean dragStartReturn = onDragStart(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)),
-				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), modifiers, ajaxRequestTarget);
+			boolean dragStartReturn = onDragStart(id, Utils.getAsInteger(componentRequest.getParameter(PARAM_X)),
+				Utils.getAsInteger(componentRequest.getParameter(PARAM_Y)), modifiers, ajaxRequestTarget);
 			if (!dragStartReturn) ajaxRequestTarget.appendJavascript("YAHOO.util.DragDropMgr.stopDrag(Servoy.DD.mouseDownEvent, false);");
 		}
 		else if (ACTION_DRAG_END.equals(action))
 		{
-			onDragEnd(id, Integer.parseInt(componentRequest.getParameter(PARAM_X)), Integer.parseInt(componentRequest.getParameter(PARAM_Y)), modifiers,
+			onDragEnd(id, Utils.getAsInteger(componentRequest.getParameter(PARAM_X)), Utils.getAsInteger(componentRequest.getParameter(PARAM_Y)), modifiers,
 				ajaxRequestTarget);
 		}
 		else if (ACTION_DROP_HOVER.equals(action))
@@ -336,8 +337,8 @@ public abstract class DraggableBehavior extends AbstractServoyDefaultAjaxBehavio
 		}
 		else if (ACTION_DROP.equals(action))
 		{
-			onDrop(id, componentRequest.getParameter(PARAM_TARGET_ID), Integer.parseInt(componentRequest.getParameter(PARAM_X)),
-				Integer.parseInt(componentRequest.getParameter(PARAM_Y)), modifiers, ajaxRequestTarget);
+			onDrop(id, componentRequest.getParameter(PARAM_TARGET_ID), Utils.getAsInteger(componentRequest.getParameter(PARAM_X)),
+				Utils.getAsInteger(componentRequest.getParameter(PARAM_Y)), modifiers, ajaxRequestTarget);
 		}
 
 		WebEventExecutor.generateResponse(ajaxRequestTarget, componentPage);
