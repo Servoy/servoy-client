@@ -313,10 +313,15 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 								}
 								else
 								{
-									Object value;
+									Object value = strval;
+									if (strval.startsWith("%%") && ScopesUtils.isVariableScope(strval.substring(2)) && strval.endsWith("%%")) //$NON-NLS-1$//$NON-NLS-2$
+									{
+										value = application.getFoundSetManager().getScopesScopeProvider().getDataProviderValue(
+											strval.substring(2, strval.length() - 2));
+									}
 									try
 									{
-										value = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, strval,
+										value = Column.getAsRightType(valueType, Column.NORMAL_COLUMN, value,
 											format == null ? null : format.getDisplayFormat(), Integer.MAX_VALUE, null, true);
 									}
 									catch (Exception e)
