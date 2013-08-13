@@ -32,7 +32,9 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.util.value.ValueMap;
 
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 public class SignIn extends WebPage
 {
@@ -85,6 +87,12 @@ public class SignIn extends WebPage
 	 */
 	public final class SignInForm extends Form
 	{
+		private static final String PROPERTY_USERNAME = "username"; //$NON-NLS-1$
+		private static final String PROPERTY_PASSWORD = "password"; //$NON-NLS-1$
+		private static final String PROPERTY_REMEMBER_ME = "rememberMe"; //$NON-NLS-1$
+		private String cookieKeyPassword;
+		private static final String K = "7serVoY#";
+
 		/** El-cheapo model for form. */
 		private final ValueMap properties = new ValueMap();
 
@@ -97,11 +105,12 @@ public class SignIn extends WebPage
 		public SignInForm(final String id)
 		{
 			super(id);
+			cookieKeyPassword = id + ':' + PROPERTY_PASSWORD;
 
 			// Attach textfield components that edit properties map
 			// in lieu of a formal beans model
-			add(username = new TextField("username", new PropertyModel(properties, "username"), String.class));
-			add(password = new PasswordTextField("password", new PropertyModel(properties, "password"))
+			add(username = new TextField(PROPERTY_USERNAME, new PropertyModel(properties, PROPERTY_USERNAME), String.class));
+			add(password = new PasswordTextField(PROPERTY_PASSWORD, new PropertyModel(properties, PROPERTY_PASSWORD))
 			{
 				private static final long serialVersionUID = 1L;
 
@@ -118,7 +127,7 @@ public class SignIn extends WebPage
 			add(rememberMeRow);
 
 			// Add rememberMe checkbox
-			rememberMeRow.add(new CheckBox("rememberMe", new PropertyModel(SignIn.this, "rememberMe")));
+			rememberMeRow.add(new CheckBox(PROPERTY_REMEMBER_ME, new PropertyModel(SignIn.this, PROPERTY_REMEMBER_ME)));
 
 			// Make form values persistent
 			setPersistent(rememberMe);
@@ -160,9 +169,47 @@ public class SignIn extends WebPage
 			settings.setSecure(Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.webclient.enforceSecureCookies", "false")) ||
 				((WebRequestCycle)RequestCycle.get()).getWebRequest().getHttpServletRequest().isSecure());
 
-			return new CookieValuePersister(settings);
-		}
+			return new CookieValuePersister(settings)
+			{
+				@Override
+				public String load(final String key)
+				{
+					String cookieValue = super.load(key);
+					if (cookieKeyPassword.equals(key))
+					{
+						try
+						{
+							cookieValue = Utils.decrypt(K, cookieValue);
+						}
+						catch (Exception ex)
+						{
+							Debug.error("Cannot decrypt password when loading it from a cookie", ex);
+							cookieValue = null;
+						}
+					}
+					return cookieValue;
+				}
 
+				@Override
+				public void save(String key, final String value)
+				{
+					String cookieValue = value;
+					if (cookieKeyPassword.equals(key))
+					{
+						try
+						{
+							cookieValue = Utils.encrypt(K, cookieValue);
+							super.save(key, cookieValue);
+						}
+						catch (Exception ex)
+						{
+							Debug.error("Cannot encrypt password when saving it into a cookie", ex);
+						}
+					}
+					else super.save(key, cookieValue);
+				}
+			};
+		}
 	}
 
 	/**

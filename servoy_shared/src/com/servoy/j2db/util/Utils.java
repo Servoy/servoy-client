@@ -45,9 +45,11 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,6 +74,13 @@ import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
 
@@ -1810,6 +1819,32 @@ public class Utils
 			Debug.error(e);
 		}
 		return result;
+	}
+
+	@SuppressWarnings("nls")
+	public static String encrypt(String key, String value) throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException,
+		InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException
+	{
+		if (key == null || value == null) return value;
+		DESKeySpec keySpec = new DESKeySpec(key.getBytes("UTF8"));
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+		SecretKey secretKey = keyFactory.generateSecret(keySpec);
+		Cipher cipher = Cipher.getInstance("DES");
+		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+		return encodeBASE64(cipher.doFinal(value.getBytes("UTF8")));
+	}
+
+	@SuppressWarnings("nls")
+	public static String decrypt(String key, String value) throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException,
+		InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException
+	{
+		if (key == null || value == null) return value;
+		DESKeySpec keySpec = new DESKeySpec(key.getBytes("UTF8"));
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+		SecretKey secretKey = keyFactory.generateSecret(keySpec);
+		Cipher cipher = Cipher.getInstance("DES");
+		cipher.init(Cipher.DECRYPT_MODE, secretKey);
+		return new String(cipher.doFinal(decodeBASE64(value)));
 	}
 
 	/**
