@@ -32,7 +32,7 @@ public interface ISMCombobox extends IMobileSMCombobox, ISMField
 	 * @sameas {@link com.servoy.base.solutionmodel.IBaseSMComponent#getStyleClass()} 
 	 */
 	@Override
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getStyleClass();
 
 	@Override
