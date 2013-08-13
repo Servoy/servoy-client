@@ -1431,10 +1431,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	 * @param name
 	 * @param bs
 	 */
-	public String serveResource(String fname, byte[] bs, String mimetype)
+	public String serveResource(String fname, byte[] bs, String mimetype, String contentDisposition)
 	{
 		WebClientSession session = (WebClientSession)getSession();
-		session.serveResource(fname, bs, mimetype);
+		session.serveResource(fname, bs, mimetype, contentDisposition);
 		return urlFor(serveResourceReference).toString();
 	}
 

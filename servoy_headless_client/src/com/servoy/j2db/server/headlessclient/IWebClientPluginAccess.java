@@ -39,6 +39,17 @@ public interface IWebClientPluginAccess extends IClientPluginAccess
 	public String serveResource(String filename, byte[] array, String mimetype);
 
 	/**
+	 * Server a resource, returns the url under which the resource is served, can be shown with showURL. After that it is served the content will be cleaned.
+	 * 
+	 * @param filename
+	 * @param array the resource as byte array
+	 * @param mimetype
+	 * @param contentDisposition attachment to save or inline to show it
+	 * @return url
+	 */
+	public String serveResource(String filename, byte[] array, String mimetype, String contentDisposition);
+
+	/**
 	 * Show a url in the browser.
 	 * 
 	 * @param url the url

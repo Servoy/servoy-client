@@ -262,9 +262,9 @@ public class WebClientSession extends WebSession
 		return solutionLastModifiedTime;
 	}
 
-	public void serveResource(String fname, byte[] bs, String mimetype)
+	public void serveResource(String fname, byte[] bs, String mimetype, String contentDisposition)
 	{
-		serveInfo = new Object[] { fname, bs, mimetype };
+		serveInfo = new Object[] { fname, bs, mimetype, contentDisposition };
 	}
 
 	/**
@@ -275,7 +275,7 @@ public class WebClientSession extends WebSession
 		DynamicWebResource.ResourceState resourceState = null;
 		if (serveInfo[0] != null && serveInfo[1] != null)
 		{
-			((WebResponse)RequestCycle.get().getResponse()).setHeader("Content-disposition", "attachment; filename=\"" + serveInfo[0] + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			((WebResponse)RequestCycle.get().getResponse()).setHeader("Content-disposition", serveInfo[3] + "; filename=\"" + serveInfo[0] + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resourceState = new DynamicWebResource.ResourceState()
 			{
 				private final byte[] data = (byte[])serveInfo[1];
