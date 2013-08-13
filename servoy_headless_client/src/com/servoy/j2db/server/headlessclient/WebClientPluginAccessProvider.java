@@ -66,7 +66,7 @@ public class WebClientPluginAccessProvider extends ClientPluginAccessProvider im
 
 	public String serveResource(String filename, byte[] bs, String mimetype)
 	{
-		return serveResource(filename, bs, mimetype, "attachment"); //$NON-NLS-1$
+		return serveResource(filename, bs, mimetype, null);
 	}
 
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)

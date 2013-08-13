@@ -264,7 +264,7 @@ public class WebClientSession extends WebSession
 
 	public void serveResource(String fname, byte[] bs, String mimetype, String contentDisposition)
 	{
-		serveInfo = new Object[] { fname, bs, mimetype, contentDisposition };
+		serveInfo = new Object[] { fname, bs, mimetype, contentDisposition == null ? "attachment" : contentDisposition }; //$NON-NLS-1$
 	}
 
 	/**

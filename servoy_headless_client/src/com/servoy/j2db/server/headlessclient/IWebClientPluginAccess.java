@@ -30,6 +30,7 @@ public interface IWebClientPluginAccess extends IClientPluginAccess
 {
 	/**
 	 * Server a resource, returns the url under which the resource is served, can be shown with showURL. After that it is served the content will be cleaned.
+	 * The "Content-disposition" header parameter is set to "attachment", so the clients will know this resource is for downloading
 	 * 
 	 * @param filename
 	 * @param array the resource as byte array
@@ -44,8 +45,14 @@ public interface IWebClientPluginAccess extends IClientPluginAccess
 	 * @param filename
 	 * @param array the resource as byte array
 	 * @param mimetype
-	 * @param contentDisposition attachment to save or inline to show it
+	 * @param contentDisposition value used for the "Content-disposition" header parameter; this can be "attachment", if the resource is for downloading,
+	 * or "inline" if it is for viewing; if null, it is considered to be "attachment"
 	 * @return url
+	 * 
+	 * @sample
+	 *  boolean hintDownload = true;
+	 * 	String url = ((IWebClientPluginAccess)access).serveResource(fileName, data, ImageLoader.getContentType(data, fileName), hintDownload ? "attachment" : "inline");
+		((IWebClientPluginAccess)access).showURL(url, hintDownload ? "_self" : "_blank", null, 0, false);
 	 */
 	public String serveResource(String filename, byte[] array, String mimetype, String contentDisposition);
 
