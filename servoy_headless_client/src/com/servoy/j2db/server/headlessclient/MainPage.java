@@ -1646,7 +1646,8 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				catch (WicketRuntimeException e)
 				{
 					// ignore if it is the timeout exception in case we only want to touch if not in use
-					if (!onlyIfNotInUse || e.getCause() != null) throw e;
+					if (!onlyIfNotInUse || e.getCause() != null) throw new RuntimeException("Touching page " + getPageMapName() + "/" + getPath() +
+						" couldn't be done in thread: " + Thread.currentThread().getName(), e);
 					Debug.trace("Touch page ignored.");
 				}
 				finally

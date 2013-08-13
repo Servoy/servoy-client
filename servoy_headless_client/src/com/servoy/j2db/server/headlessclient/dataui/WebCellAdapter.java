@@ -32,6 +32,7 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
+import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -103,19 +104,24 @@ public class WebCellAdapter implements IDataAdapter
 						cell = CellContainer.getContentsForCell((Component)cell);
 						if (cell instanceof IProviderStylePropertyChanges && cell instanceof IDisplayData)
 						{
-							IModel innermostModel = ((Component)cell).getInnermostModel();
-							if (innermostModel instanceof RecordItemModel)
+							// only test if it is not already changed
+							IStylePropertyChanges spc = ((IProviderStylePropertyChanges)cell).getStylePropertyChanges();
+							if (!spc.isChanged() && !spc.isValueChanged())
 							{
-								Object lastRenderedValue = ((RecordItemModel)innermostModel).getLastRenderedValue((Component)cell);
-								Object object = ((Component)cell).getDefaultModelObject();
-								if (!Utils.equalObjects(lastRenderedValue, object))
+								IModel innermostModel = ((Component)cell).getInnermostModel();
+								if (innermostModel instanceof RecordItemModel)
 								{
-									((IProviderStylePropertyChanges)cell).getStylePropertyChanges().setValueChanged();
+									Object lastRenderedValue = ((RecordItemModel)innermostModel).getLastRenderedValue((Component)cell);
+									Object object = ((Component)cell).getDefaultModelObject();
+									if (!Utils.equalObjects(lastRenderedValue, object))
+									{
+										spc.setValueChanged();
+									}
 								}
-							}
-							else
-							{
-								((IProviderStylePropertyChanges)cell).getStylePropertyChanges().setChanged();
+								else
+								{
+									spc.setChanged();
+								}
 							}
 						}
 					}
