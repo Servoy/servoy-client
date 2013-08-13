@@ -73,6 +73,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.TabSequenceHelper;
 
@@ -537,7 +538,14 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	public void output(Object msg, int level)
 	{
 		super.output(msg, level);
-		stdoutToDebugger(msg);
+		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
+		{
+			errorToDebugger(msg.toString(), null);
+		}
+		else
+		{
+			stdoutToDebugger(msg);
+		}
 	}
 
 	protected void stdoutToDebugger(Object message)

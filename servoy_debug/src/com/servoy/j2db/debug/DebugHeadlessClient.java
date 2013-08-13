@@ -54,6 +54,7 @@ import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -294,14 +295,26 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	public void output(Object msg, int level)
 	{
 		super.output(msg, level);
-		DBGPDebugger debugger = getDebugger();
-		if (debugger != null)
+		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			debugger.outputStdOut((msg == null ? "<null>" : msg.toString()) + '\n'); //$NON-NLS-1$
+			errorToDebugger(msg.toString(), null);
 		}
 		else
 		{
-			Debug.error("No debugger found, for msg report: " + msg); //$NON-NLS-1$
+			stdoutToDebugger(msg);
+		}
+	}
+
+	protected void stdoutToDebugger(Object message)
+	{
+		DBGPDebugger debugger = getDebugger();
+		if (debugger != null)
+		{
+			debugger.outputStdOut((message == null ? "<null>" : message.toString()) + '\n');
+		}
+		else
+		{
+			Debug.error("No debugger found, for msg report: " + message);
 		}
 	}
 

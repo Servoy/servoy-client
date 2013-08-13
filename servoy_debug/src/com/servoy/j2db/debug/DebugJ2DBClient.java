@@ -110,6 +110,7 @@ import com.servoy.j2db.smart.plugins.SmartClientPluginAccessProvider;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDeveloperURLStreamHandler;
+import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
@@ -954,7 +955,14 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void output(Object message, int level)
 	{
 		super.output(message, level);
-		stdoutToDebugger(message);
+		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
+		{
+			errorToDebugger(message.toString(), null);
+		}
+		else
+		{
+			stdoutToDebugger(message);
+		}
 	}
 
 	@SuppressWarnings("nls")
