@@ -33,8 +33,8 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.util.value.ValueMap;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.Utils;
 
 public class SignIn extends WebPage
 {
@@ -91,7 +91,6 @@ public class SignIn extends WebPage
 		private static final String PROPERTY_PASSWORD = "password"; //$NON-NLS-1$
 		private static final String PROPERTY_REMEMBER_ME = "rememberMe"; //$NON-NLS-1$
 		private String cookieKeyPassword;
-		private static final String K = "7serVoY#";
 
 		/** El-cheapo model for form. */
 		private final ValueMap properties = new ValueMap();
@@ -179,7 +178,7 @@ public class SignIn extends WebPage
 					{
 						try
 						{
-							cookieValue = Utils.decrypt(K, cookieValue);
+							cookieValue = SecuritySupport.decrypt(Settings.getInstance(), cookieValue);
 						}
 						catch (Exception ex)
 						{
@@ -198,7 +197,7 @@ public class SignIn extends WebPage
 					{
 						try
 						{
-							cookieValue = Utils.encrypt(K, cookieValue);
+							cookieValue = SecuritySupport.encrypt(Settings.getInstance(), cookieValue);
 							super.save(key, cookieValue);
 						}
 						catch (Exception ex)

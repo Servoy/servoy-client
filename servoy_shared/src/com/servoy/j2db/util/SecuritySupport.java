@@ -23,6 +23,7 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.util.Enumeration;
 
+import javax.crypto.Cipher;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.KeyManagerFactory;
@@ -116,6 +117,24 @@ public class SecuritySupport
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings("nls")
+	public static String encrypt(Settings settings, String value) throws Exception
+	{
+		if (value == null) return value;
+		Cipher cipher = Cipher.getInstance("DESede");
+		cipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(settings));
+		return Utils.encodeBASE64(cipher.doFinal(value.getBytes()));
+	}
+
+	@SuppressWarnings("nls")
+	public static String decrypt(Settings settings, String value) throws Exception
+	{
+		if (value == null) return value;
+		Cipher cipher = Cipher.getInstance("DESede");
+		cipher.init(Cipher.DECRYPT_MODE, SecuritySupport.getCryptKey(settings));
+		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
 	}
 
 	@SuppressWarnings("nls")
