@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
@@ -150,15 +152,21 @@ public class ServoyStyleSheet implements IStyleSheet
 		return ss.hasFont(s);
 	}
 
+	private final Map<String, IStyleRule> ruleCache = new ConcurrentHashMap<String, IStyleRule>();
+
 	public IStyleRule getCSSRule(String selector)
 	{
+		IStyleRule styleRule = ruleCache.get(selector);
+		if (styleRule != null) return styleRule;
+
 		if (styleSheet != null)
 		{
 			Matcher matcher = new Matcher(new ServoyTreeResolver(), new ServoyAttributeResolver(), new ServoyStylesheetFactor(errorHandler),
 				Arrays.asList(styleSheet), null);
-			return new ServoyStyleRule(matcher.getCascadedStyle(selector, true));
+			styleRule = new ServoyStyleRule(matcher.getCascadedStyle(selector, true));
+			ruleCache.put(selector, styleRule);
 		}
-		return null;
+		return styleRule;
 	}
 
 	public Font getFont(IStyleRule a)
