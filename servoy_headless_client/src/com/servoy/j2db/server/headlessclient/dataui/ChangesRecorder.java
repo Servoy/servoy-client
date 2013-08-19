@@ -240,10 +240,10 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		setSize(width, height, border, margin, fontSize, false, SwingConstants.CENTER);
 	}
 
-	public void setSize(int width, int height, Border border, Insets margin, int fontSize, boolean isButton, int valign)
+	public void setSize(int width, int height, Border border, Insets margin, int fontSize, boolean isButtonOrSelect, int valign)
 	{
 		setChanged();
-		calculateWebSize(width, height, border, margin, fontSize, changedProperties, isButton, valign);
+		calculateWebSize(width, height, border, margin, fontSize, changedProperties, isButtonOrSelect, valign);
 	}
 
 	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties)
@@ -251,18 +251,19 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		return calculateWebSize(width, height, border, margin, fontSize, properties, false, SwingConstants.CENTER);
 	}
 
-	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)
+	public Dimension calculateWebSize(int width, int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButtonOrSelect,
+		int valign)
 	{
 		if (properties != null)
 		{
 			properties.put("offsetWidth", getSizeString(width)); //$NON-NLS-1$ 
 			properties.put("offsetHeight", getSizeString(height)); //$NON-NLS-1$ 
 		}
-		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, isButton, valign);
+		Insets insets = getPaddingAndBorder(height, border, margin, fontSize, properties, isButtonOrSelect, valign);
 		int realWidth = width;
 		int realheight = height;
-		// for <button> tags the border is drawn inside the component, regardless of the box model
-		if (insets != null && !isButton)
+		// for <button> and <select> tags the border is drawn inside the component, regardless of the box model
+		if (insets != null && !isButtonOrSelect)
 		{
 			realWidth -= (insets.left + insets.right);
 			realheight -= (insets.top + insets.bottom);
@@ -290,7 +291,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 * @return
 	 */
 	@SuppressWarnings("nls")
-	public Insets getPaddingAndBorder(int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButton, int valign)
+	public Insets getPaddingAndBorder(int height, Border border, Insets margin, int fontSize, Properties properties, boolean isButtonOrSelect, int valign)
 	{
 		Insets insets = null;
 		Insets borderMargin = margin;
@@ -340,7 +341,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			int innerHeight = height;
 			if (borderAndPadding != null) innerHeight -= borderAndPadding.top + borderAndPadding.bottom;
 			int bottomPaddingExtra = 0;
-			if (isButton && valign != ISupportTextSetup.CENTER)
+			if (isButtonOrSelect && valign != ISupportTextSetup.CENTER)
 			{
 				bottomPaddingExtra = innerHeight;
 			}

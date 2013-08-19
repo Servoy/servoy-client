@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
@@ -833,8 +834,13 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	public Rectangle getWebBounds()
 	{
-		Dimension d = ((ChangesRecorder)getStylePropertyChanges()).calculateWebSize(size.width, size.height, border, margin, 0, null);
-		return new Rectangle(location, d);
+		if (size != null)
+		{
+			Dimension d = ((ChangesRecorder)scriptable.getChangesRecorder()).calculateWebSize(size.width, size.height, border, margin, 0, null, true,
+				SwingConstants.CENTER);
+			return new Rectangle(location, d);
+		}
+		return null;
 	}
 
 	/**
@@ -842,7 +848,8 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	 */
 	public Insets getPaddingAndBorder()
 	{
-		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
+		return ((ChangesRecorder)scriptable.getChangesRecorder()).getPaddingAndBorder(size == null ? 0 : size.height, border, margin, 0, null, true,
+			SwingConstants.CENTER);
 	}
 
 

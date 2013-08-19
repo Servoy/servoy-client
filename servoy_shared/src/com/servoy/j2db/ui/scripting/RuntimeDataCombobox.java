@@ -20,6 +20,7 @@ package com.servoy.j2db.ui.scripting;
 import java.awt.Dimension;
 
 import javax.swing.JComponent;
+import javax.swing.SwingConstants;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -58,6 +59,14 @@ public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistCompon
 		{
 			((JComponent)getComponent()).validate();
 		}
-		getChangesRecorder().setSize(x, y, null, null, 0);
+		getChangesRecorder().setSize(x, y, getComponent().getBorder(), getComponent().getMargin(), 0, true, SwingConstants.CENTER);
+	}
+
+	@Override
+	public void js_setBorder(String spec)
+	{
+		super.js_setBorder(spec);
+		getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(), getComponent().getMargin(),
+			0, true, SwingConstants.CENTER);
 	}
 }
