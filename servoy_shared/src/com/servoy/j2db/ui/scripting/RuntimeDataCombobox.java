@@ -19,11 +19,14 @@ package com.servoy.j2db.ui.scripting;
 
 import java.awt.Dimension;
 
+import javax.swing.SwingConstants;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.runtime.IRuntimeCombobox;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Scriptable combobox component.
@@ -48,6 +51,17 @@ public class RuntimeDataCombobox extends AbstractRuntimeFormattedValuelistCompon
 	{
 		Dimension newSize = new Dimension(width, height);
 		setComponentSize(newSize);
-		getChangesRecorder().setSize(width, height, null, null, 0);
+		getChangesRecorder().setSize(width, height, getComponent().getBorder(), getComponent().getMargin(), 0, true, SwingConstants.CENTER);
+	}
+
+	@Override
+	public void setBorder(String spec)
+	{
+		if (!Utils.safeEquals(getBorder(), spec))
+		{
+			super.setBorder(spec);
+			getChangesRecorder().setSize(getComponent().getSize().width, getComponent().getSize().height, getComponent().getBorder(),
+				getComponent().getMargin(), 0, true, SwingConstants.CENTER);
+		}
 	}
 }
