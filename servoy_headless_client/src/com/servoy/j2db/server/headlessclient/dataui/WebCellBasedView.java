@@ -181,6 +181,7 @@ import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
@@ -5058,11 +5059,22 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private class ScrollBehavior extends ServoyAjaxEventBehavior implements IIgnoreDisabledComponentBehavior
 	{
+		private final double NEW_PAGE_MULITPLIER;
+
 		private boolean isGettingRows;
 
 		public ScrollBehavior(String event)
 		{
 			super(event);
+			double multiplier = Utils.getAsDouble(Settings.getInstance().getProperty("servoy.webclient.scrolling.tableview.multiplier", "2"));
+			if (multiplier > 0)
+			{
+				NEW_PAGE_MULITPLIER = multiplier;
+			}
+			else
+			{
+				NEW_PAGE_MULITPLIER = 2;
+			}
 		}
 
 		private static final long serialVersionUID = 1L;
@@ -5106,7 +5118,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 					if (viewStartIdx + viewSize < tableSize)
 					{
-						newRowsCount = Math.min(2 * maxRowsPerPage, tableSize - (viewStartIdx + viewSize));
+						newRowsCount = Math.min((int)(NEW_PAGE_MULITPLIER * maxRowsPerPage), tableSize - (viewStartIdx + viewSize));
 						if (!doNotRemoveHeadRows && viewSize > pageViewSize) rowsToRemove = maxRowsPerPage;
 
 						table.setStartIndex(viewStartIdx + rowsToRemove);
