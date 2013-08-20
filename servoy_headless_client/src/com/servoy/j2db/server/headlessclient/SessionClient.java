@@ -48,7 +48,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionEvent;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -125,7 +127,7 @@ import com.servoy.j2db.util.toolbar.Toolbar;
  * 
  * @author jblok
  */
-public class SessionClient extends ClientState implements ISessionClient
+public class SessionClient extends ClientState implements ISessionClient, HttpSessionActivationListener
 {
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
 
@@ -1745,5 +1747,26 @@ public class SessionClient extends ClientState implements ISessionClient
 	public boolean isFormElementsEditableInFindMode()
 	{
 		return isFormElementsEditableInFindMode;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
+	 */
+	@Override
+	public void sessionDidActivate(HttpSessionEvent arg0)
+	{
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
+	 */
+	@Override
+	public void sessionWillPassivate(HttpSessionEvent arg0)
+	{
+		shutDown(true);
 	}
 }
