@@ -38,6 +38,7 @@ import org.apache.wicket.markup.html.DynamicWebResource.ResourceState;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WebSession;
+import org.apache.wicket.util.crypt.ICrypt;
 
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
@@ -75,6 +76,8 @@ public class WebClientSession extends WebSession
 	private String keepCredentialsSolutionName;
 
 	private final boolean blockInput;
+
+	private transient ICrypt crypt;
 
 	public static WebClientSession get()
 	{
@@ -454,5 +457,21 @@ public class WebClientSession extends WebSession
 			// notify other threads that are waiting because they released there own used page lock.
 			lockedPages.notifyAll();
 		}
+	}
+
+	/**
+	 * @return
+	 */
+	public ICrypt getCrypt()
+	{
+		return crypt;
+	}
+
+	/**
+	 * @param crypt the crypt to set
+	 */
+	public void setCrypt(ICrypt crypt)
+	{
+		this.crypt = crypt;
 	}
 }

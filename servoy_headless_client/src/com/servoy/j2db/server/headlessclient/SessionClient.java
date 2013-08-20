@@ -1023,7 +1023,12 @@ public class SessionClient extends ClientState implements ISessionClient
 		String message = null;
 		try
 		{
-			if (jar != null)
+			message = msg.getProperty(realKey);
+			if (message != null)
+			{
+				message = Utils.stringReplace(message, "'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else if (jar != null)
 			{
 				try
 				{
@@ -1033,7 +1038,7 @@ public class SessionClient extends ClientState implements ISessionClient
 				{
 				}
 			}
-			if (message != null && msg.getProperty(realKey) == null)
+			if (message != null)
 			{
 				if (args == null || args.length == 0)
 				{
@@ -1044,10 +1049,7 @@ public class SessionClient extends ClientState implements ISessionClient
 					return getFormattedText(message, loc, args);
 				}
 			}
-			message = msg.getProperty(realKey);
-			if (message == null) return '!' + realKey + '!';
-			message = Utils.stringReplace(message, "'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
-			return getFormattedText(message, loc, args);
+			return '!' + realKey + '!';
 		}
 		catch (MissingResourceException e)
 		{

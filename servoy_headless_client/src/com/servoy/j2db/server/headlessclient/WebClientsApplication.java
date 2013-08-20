@@ -295,6 +295,8 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		getSessionSettings().setMaxPageMaps(15);
 //		getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 
+		getSecuritySettings().setCryptFactory(new CachingKeyInSessionSunJceCryptFactory());
+
 		Settings settings = Settings.getInstance();
 		getDebugSettings().setOutputComponentPath(Utils.getAsBoolean(settings.getProperty("servoy.webclient.debug.wicketpath", "false"))); //$NON-NLS-1$ //$NON-NLS-2$
 		if (Utils.getAsBoolean(settings.getProperty("servoy.webclient.nice.urls", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
