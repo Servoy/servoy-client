@@ -22,6 +22,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ClientSupport;
@@ -46,8 +48,22 @@ public class AnnotationManagerReflection
 
 	private final AnnotationManager<Annotation, Class< ? extends Annotation>> annotationManager = new AnnotationManager<Annotation, Class< ? extends Annotation>>();
 
+	private final ConcurrentMap<Class, ReflectionAnnotatedClass> reflectionAnnotatedClassCache = new ConcurrentHashMap<Class, ReflectionAnnotatedClass>();
+
 	private AnnotationManagerReflection()
 	{
+	}
+
+	ReflectionAnnotatedClass getReflectionAnnotatedClass(Class< ? > cls)
+	{
+		ReflectionAnnotatedClass reflectionAnnotatedClass = reflectionAnnotatedClassCache.get(cls);
+		if (reflectionAnnotatedClass == null)
+		{
+			reflectionAnnotatedClass = new ReflectionAnnotatedClass(cls);
+			ReflectionAnnotatedClass old = reflectionAnnotatedClassCache.putIfAbsent(cls, reflectionAnnotatedClass);
+			if (old != null) reflectionAnnotatedClass = old;
+		}
+		return reflectionAnnotatedClass;
 	}
 
 	public static AnnotationManagerReflection getInstance()
@@ -64,7 +80,7 @@ public class AnnotationManagerReflection
 	public <T extends Annotation> T getAnnotation(Method method, Class< ? > originalClass, Class<T> annotationClass)
 	{
 		if (method == null) return null;
-		return (T)annotationManager.getAnnotation(new ReflectionAnnotatedMethod(method), new ReflectionAnnotatedClass(originalClass), annotationClass);
+		return (T)annotationManager.getAnnotation(new ReflectionAnnotatedMethod(method), getReflectionAnnotatedClass(originalClass), annotationClass);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -78,7 +94,7 @@ public class AnnotationManagerReflection
 	public <T extends Annotation> T getAnnotation(Class< ? > targetClass, Class<T> annotationClass)
 	{
 		if (targetClass == null) return null;
-		return (T)annotationManager.getAnnotation(new ReflectionAnnotatedClass(targetClass), annotationClass);
+		return (T)annotationManager.getAnnotation(getReflectionAnnotatedClass(targetClass), annotationClass);
 	}
 
 	public boolean hasSupportForClientType(Method method, Class< ? > originalClass, ClientSupport clientType, ClientSupport defaultClientType)
@@ -121,9 +137,12 @@ public class AnnotationManagerReflection
 
 	/////////////// Wrapper classes ///////////////////
 
-	private static class ReflectionAnnotatedClass implements IAnnotatedClass<Annotation, Class< ? extends Annotation>>
+	private class ReflectionAnnotatedClass implements IAnnotatedClass<Annotation, Class< ? extends Annotation>>
 	{
 		private final Class< ? > originalClass;
+		private final ConcurrentMap<Object, ReflectionAnnotatedMethod> methodCache = new ConcurrentHashMap<Object, AnnotationManagerReflection.ReflectionAnnotatedMethod>();
+
+		private final ReflectionAnnotatedMethod NULL = new ReflectionAnnotatedMethod(null);
 
 		private ReflectionAnnotatedClass(Class< ? > originalClass)
 		{
@@ -145,7 +164,7 @@ public class AnnotationManagerReflection
 		public IAnnotatedClass<Annotation, Class< ? extends Annotation>> getSuperclass()
 		{
 			Class< ? > superclass = originalClass.getSuperclass();
-			return superclass == null || superclass == Object.class ? null : new ReflectionAnnotatedClass(superclass);
+			return superclass == null || superclass == Object.class ? null : getReflectionAnnotatedClass(superclass);
 		}
 
 		@Override
@@ -153,11 +172,20 @@ public class AnnotationManagerReflection
 		{
 			try
 			{
-				return new ReflectionAnnotatedMethod(originalClass.getMethod(((ReflectionSignature)signature).getName(),
-					((ReflectionSignature)signature).getParameterTypes()));
+				ReflectionAnnotatedMethod reflectionAnnotatedMethod = methodCache.get(signature);
+				if (reflectionAnnotatedMethod == null)
+				{
+					reflectionAnnotatedMethod = new ReflectionAnnotatedMethod(originalClass.getMethod(((ReflectionSignature)signature).getName(),
+						((ReflectionSignature)signature).getParameterTypes()));
+					ReflectionAnnotatedMethod old = methodCache.putIfAbsent(signature, reflectionAnnotatedMethod);
+					if (old != null) reflectionAnnotatedMethod = old;
+
+				}
+				return reflectionAnnotatedMethod == NULL ? null : reflectionAnnotatedMethod;
 			}
 			catch (NoSuchMethodException e)
 			{
+				methodCache.put(signature, NULL);
 				return null;
 			}
 		}
@@ -182,7 +210,7 @@ public class AnnotationManagerReflection
 			IAnnotatedClass<Annotation, Class< ? extends Annotation>>[] interfaces = new ReflectionAnnotatedClass[intfs.length];
 			for (int i = 0; i < intfs.length; i++)
 			{
-				interfaces[i] = new ReflectionAnnotatedClass(intfs[i]);
+				interfaces[i] = getReflectionAnnotatedClass(intfs[i]);
 			}
 			return Arrays.asList(interfaces);
 		}
@@ -222,7 +250,7 @@ public class AnnotationManagerReflection
 	}
 
 
-	private static class ReflectionAnnotatedField implements IAnnotatedField<Annotation, Class< ? extends Annotation>>
+	private class ReflectionAnnotatedField implements IAnnotatedField<Annotation, Class< ? extends Annotation>>
 	{
 		private final Field field;
 
@@ -246,7 +274,7 @@ public class AnnotationManagerReflection
 		@Override
 		public IAnnotatedClass<Annotation, Class< ? extends Annotation>> getDeclaringClass()
 		{
-			return new ReflectionAnnotatedClass(field.getDeclaringClass());
+			return getReflectionAnnotatedClass(field.getDeclaringClass());
 		}
 
 		@Override
@@ -277,7 +305,7 @@ public class AnnotationManagerReflection
 		}
 	}
 
-	private static class ReflectionAnnotatedMethod implements IAnnotatedMethod<Annotation, Class< ? extends Annotation>>
+	private class ReflectionAnnotatedMethod implements IAnnotatedMethod<Annotation, Class< ? extends Annotation>>
 	{
 		private final Method method;
 
@@ -301,7 +329,7 @@ public class AnnotationManagerReflection
 		@Override
 		public IAnnotatedClass<Annotation, Class< ? extends Annotation>> getDeclaringClass()
 		{
-			return new ReflectionAnnotatedClass(method.getDeclaringClass());
+			return getReflectionAnnotatedClass(method.getDeclaringClass());
 		}
 
 		@Override
@@ -357,6 +385,34 @@ public class AnnotationManagerReflection
 		public String toString()
 		{
 			return name + '(' + Arrays.toString(parameterTypes) + ')';
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (obj == this) return true;
+			if (obj instanceof ReflectionSignature)
+			{
+				ReflectionSignature rs = (ReflectionSignature)obj;
+				return rs.name.equals(name) && Arrays.equals(rs.parameterTypes, parameterTypes);
+			}
+			return false;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode()
+		{
+			return name.hashCode();
 		}
 	}
 }
