@@ -150,6 +150,7 @@ public final class ServoyWrapFactory extends WrapFactory
 	@Override
 	public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, Class< ? > staticType)
 	{
-		return new NativeJavaObject(scope, javaObject, ScriptObjectRegistry.getJavaMembers(staticType, scope));
+		return new NativeJavaObject(scope, javaObject, javaObject != null ? ScriptObjectRegistry.getJavaMembers(javaObject.getClass(), scope)
+			: ScriptObjectRegistry.getJavaMembers(staticType, scope));
 	}
 }
