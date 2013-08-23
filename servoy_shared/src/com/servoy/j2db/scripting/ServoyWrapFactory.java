@@ -140,4 +140,16 @@ public final class ServoyWrapFactory extends WrapFactory
 		}
 		return super.wrap(cx, scope, obj, staticType);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mozilla.javascript.WrapFactory#wrapAsJavaObject(org.mozilla.javascript.Context, org.mozilla.javascript.Scriptable, java.lang.Object,
+	 * java.lang.Class)
+	 */
+	@Override
+	public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, Class< ? > staticType)
+	{
+		return new NativeJavaObject(scope, javaObject, ScriptObjectRegistry.getJavaMembers(staticType, scope));
+	}
 }
