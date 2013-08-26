@@ -215,6 +215,24 @@ public class String
 	}
 
 	/**
+	 * returns a string created by using the specified sequence of Unicode values.
+	 * 
+	 * @sample 
+	 * String.fromCharCode(num)
+	 * // String.fromCharCode(num1,num2,num3)
+	 * 
+	 * @return
+	 * 
+	 * @param num
+	 * 
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCharCode
+	 */
+	public String js_fromCharCode(Number... num)
+	{
+		return null;
+	}
+
+	/**
 	 * returns the found index of the given string in string.
 	 *
 	 * @sample string.indexOf(string,startPosition);
