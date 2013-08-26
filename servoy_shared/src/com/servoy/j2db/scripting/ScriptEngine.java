@@ -125,6 +125,16 @@ public class ScriptEngine implements IScriptSupport
 	};
 	static
 	{
+		class ServoyContextFactory extends ContextFactory
+		{
+			@Override
+			protected boolean hasFeature(Context context, int featureIndex)
+			{
+				if (featureIndex == Context.FEATURE_LOCATION_INFORMATION_IN_ERROR) return true;
+				return super.hasFeature(context, featureIndex);
+			}
+		}
+		ContextFactory.initGlobal(new ServoyContextFactory());
 		ContextFactory.getGlobal().addListener(contextListener);
 	}
 
