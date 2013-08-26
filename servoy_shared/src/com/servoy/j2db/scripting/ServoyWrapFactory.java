@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -150,7 +151,12 @@ public final class ServoyWrapFactory extends WrapFactory
 	@Override
 	public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, Class< ? > staticType)
 	{
-		return new NativeJavaObject(scope, javaObject, javaObject != null ? ScriptObjectRegistry.getJavaMembers(javaObject.getClass(), scope)
-			: ScriptObjectRegistry.getJavaMembers(staticType, scope));
+		JavaMembers members = javaObject != null ? ScriptObjectRegistry.getJavaMembers(javaObject.getClass(), scope) : ScriptObjectRegistry.getJavaMembers(
+			staticType, scope);
+		if (members != null)
+		{
+			return new NativeJavaObject(scope, javaObject, members);
+		}
+		return super.wrapAsJavaObject(cx, scope, javaObject, staticType);
 	}
 }
