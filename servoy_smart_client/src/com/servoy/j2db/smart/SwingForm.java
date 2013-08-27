@@ -152,6 +152,7 @@ import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.IFocusCycleRoot;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
@@ -905,7 +906,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		{
 			for (Component child : ((Container)parent).getComponents())
 			{
-				if ((child instanceof IScriptableProvider || child instanceof IScriptable || child instanceof ListView || child instanceof TableView) &&
+				if ((child instanceof IScriptableProvider || child instanceof IScriptable || child instanceof ListView || child instanceof TableView ||
+					child instanceof EnablePanel || child instanceof DataRenderer || child instanceof SwingForm || child instanceof RecordView) &&
 					(child.isEnabled() || (child instanceof DataComboBox && ((DataComboBox)child).isComponentEnabled())))
 				{
 					components.add(child);
