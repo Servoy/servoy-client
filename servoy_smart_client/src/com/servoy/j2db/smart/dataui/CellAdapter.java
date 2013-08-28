@@ -673,6 +673,12 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					renderer.setFont(font);
 				}
 			}
+			else if (isRenderWithOnRender && foundset.getSize() == 1)
+			{
+				// if the foundset contains a single record, we need to force trigger onRender 
+				// because renderEventExecutor refers already to the changed render state
+				renderEventExecutor.setRenderStateChanged();
+			}
 		}
 		else
 		{
