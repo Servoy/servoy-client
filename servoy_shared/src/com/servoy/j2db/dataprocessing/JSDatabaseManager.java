@@ -218,6 +218,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
 	 * var success = databaseManager.addTableFilterParam('crm', 'companies', 'companyname', '#^||=', 'servoy')
 	 * 
+	 * // the value may be null, this will result in 'column is null' sql condition.
+	 * var success = databaseManager.addTableFilterParam('crm', 'companies', 'verified', '=', null)
+	 * 
 	 * //if you want to add a filter for a column (created by you) in the i18n table 
 	 * databaseManager.addTableFilterParam('database', 'your_i18n_table', 'message_variant', 'in', [1, 2])
 	 *  
