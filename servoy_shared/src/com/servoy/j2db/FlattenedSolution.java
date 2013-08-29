@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -1229,12 +1230,20 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	public IDataProvider getGlobalDataProvider(String id) throws RepositoryException
 	{
+		return getGlobalDataProvider(id, false);
+	}
+
+	/**
+	 * @param quiet don't throw exceptions if tables/servers are not found; just do best effort search
+	 */
+	public IDataProvider getGlobalDataProvider(String id, boolean quiet) throws RepositoryException
+	{
 		if (id == null) return null;
 
 		IDataProvider retval = globalProviders.get(id);
 		if (retval == null)
 		{
-			retval = getGlobalDataProviderEx(id);
+			retval = getGlobalDataProviderEx(id, quiet);
 			if (retval != null)
 			{
 				globalProviders.put(id, retval);
@@ -1247,7 +1256,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return retval == NULL ? null : retval;
 	}
 
-	private IDataProvider getGlobalDataProviderEx(String id) throws RepositoryException
+	private IDataProvider getGlobalDataProviderEx(String id, boolean quiet) throws RepositoryException
 	{
 		if (id == null) return null;
 
@@ -1271,6 +1280,30 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 			}
 
 			Relation r = relations[relations.length - 1];
+
+			if (quiet)
+			{
+				boolean missingSrv = true;
+
+				String ds = r.getForeignDataSource();
+				if (ds != null)
+				{
+					String[] st = DataSourceUtilsBase.getDBServernameTablename(ds);
+					if (st != null && st.length == 2)
+					{
+						try
+						{
+							missingSrv = (r.getRootObject().getServer(st[0]) == null);
+						}
+						catch (RemoteException e)
+						{
+							// we are in developer here - shouldn't happen
+						}
+					}
+				}
+				if (missingSrv) return null;
+			}
+
 			Column[] cols = r.getForeignColumns();
 			if (cols == null || cols.length == 0) return null;
 
@@ -1818,7 +1851,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (user_created_styles != null && user_created_styles.containsKey(name))
 		{
 			Style style = user_created_styles.remove(name);
-			if (style != null)  ComponentFactory.flushStyle(null, style);
+			if (style != null) ComponentFactory.flushStyle(null, style);
 		}
 		else if (!deletedStyles.contains(name))
 		{
