@@ -122,30 +122,60 @@ public class XMLUtils
 			return null;
 		}
 
-		int length = string.length();
-		StringBuffer buffer = new StringBuffer(length * 2);
-
-		for (int i = 0; i < length; i++)
+		StringBuilder sb = new StringBuilder(string.length() * 2);
+		int index = 0;
+		while (index < string.length())
 		{
-			char c = string.charAt(i);
-			switch (c)
+			int point = string.codePointAt(index);
+			int count = Character.charCount(point);
+
+			if (isValidCharCode(point))
 			{
-				case '<' :
-					buffer.append("&lt;"); //$NON-NLS-1$
-					break;
-				case '>' :
-					buffer.append("&gt;"); //$NON-NLS-1$
-					break;
-				case '&' :
-					buffer.append("&amp;"); //$NON-NLS-1$
-					break;
-				default :
-					if (c >= ' ' || c == '\n' || c == '\t' || c == '\r') buffer.append(c);
-					else Debug.error("Invalid character '" + c + "' found in string '" + string + "', deleting..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				String value = quoteCharCode(point);
+				if (value != null)
+				{
+					sb.append(value);
+				}
+				else
+				{
+					sb.appendCodePoint(point);
+				}
 			}
+			else
+			{
+				// we could in the future map these as well to a separate custom tag that puts the code as string and we can decode that afterwards (or use BASE64 instead)
+				Debug.error("Invalid XML 1.0 / UTF-8 character '" + new StringBuilder().appendCodePoint(point).toString() + "' found in string '" + string + "', deleting..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+			index += count;
 		}
 
-		return buffer.toString();
+		return sb.toString();
+	}
+
+	private static String quoteCharCode(int code)
+	{
+		switch (code)
+		{
+			case '&' :
+				return "&amp;";
+			case '<' :
+				return "&lt;";
+			case '>' :
+				return "&gt;";
+
+			default :
+				return null;
+		}
+	}
+
+	/**
+	 * Checks for valid UTF-8 chars in XML 1.0 standard. All chars that are not in this ranges should be escaped &decimal; or &#hexa;
+	 * @param code the char code.
+	 */
+	private static boolean isValidCharCode(int code)
+	{
+		return (0x0020 <= code && code <= 0xD7FF) || (0x000A == code) || (0x0009 == code) || (0x000D == code) || (0xE000 <= code && code <= 0xFFFD) ||
+			(0x10000 <= code && code <= 0x10ffff);
 	}
 
 	/**
