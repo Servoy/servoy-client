@@ -35,7 +35,7 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractRepository extends AbstractPersistFactory implements IDeveloperRepository
 {
-	public static final int repository_version = 43;
+	public static final int repository_version = 43; // RepositoryUpater already contains upgrade code to repo version 44
 
 	/**
 	 * This repository is used by client
