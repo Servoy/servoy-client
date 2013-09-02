@@ -362,6 +362,11 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		return false;
 	}
 
+	public boolean find()
+	{
+		return false;
+	}
+
 	public static class PrintState extends Record
 	{
 		PrintState(IFoundSetInternal parent, Row columndata)

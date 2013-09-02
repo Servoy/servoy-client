@@ -122,6 +122,13 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
 	public boolean isInFindMode();
 
 	/**
+	 *  Set the foundset in find mode. (Start a find request), use the "search" function to perform/exit the find.
+	 *  
+	 * @return false if this foundset didn't go into find mode.
+	 */
+	public boolean find();
+
+	/**
 	 * Load the initial records inside (back into) this foundset from datasource
 	 */
 	public void loadAllRecords() throws ServoyException;
