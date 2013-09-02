@@ -431,13 +431,14 @@ public class WebDataListBox extends ListMultipleChoice implements IDisplayData, 
 			int row = list.realValueIndexOf(value);
 			if (row >= 0) selectedRows.add(Integer.valueOf(row));
 		}
+		// first select then unselect because list cannot remain without selection
+		for (Integer selectedRow : selectedRows)
+		{
+			list.setElementAt(Boolean.TRUE, selectedRow.intValue());
+		}
 		for (int i = 0; i < list.size(); i++)
 		{
-			if (selectedRows.contains(Integer.valueOf(i)))
-			{
-				list.setElementAt(Boolean.TRUE, i);
-			}
-			else
+			if (!selectedRows.contains(Integer.valueOf(i)))
 			{
 				list.setElementAt(Boolean.FALSE, i);
 			}

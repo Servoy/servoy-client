@@ -194,7 +194,7 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 				// this is needed not to interfere with components that use lots of JS like type-aheads when field contents change;
 				// if the field uses a formatter for example that would display the value different then it parsed it, setChanged() should be manually called (see FormatConverter use of StateFullSimpleDateFormat)
 
-				setValue(component, dataProviderID, convertedObj);
+				setValue(component, dataProviderID, obj);
 			}
 		}
 
