@@ -302,6 +302,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						{
 							return getAsRightType(type, flags, obj, l, throwOnFail);
 						}
+						else if (obj instanceof Number)
+						{
+							return getAsRightType(type, flags, new Date(((Number)obj).longValue()), l, throwOnFail);
+						}
 						else
 						{
 							return getAsRightType(type, flags, obj.toString(), format, l, timeZone, throwOnFail);
@@ -644,6 +648,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return columnType;
 	}
 
+	@Override
 	public int getType()
 	{
 		return columnType.getSqlType();
@@ -681,6 +686,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
  * _____________________________________________________________ The methods below belong to interface <interfacename>
  */
 
+	@Override
 	public String getSQLName()//can be camelcasing
 	{
 		return plainSQLName;
@@ -750,6 +756,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 /*
  * _____________________________________________________________ The methods below belong to this class
  */
+	@Override
 	public int getID()
 	{
 		if (columnInfo == null)
@@ -837,6 +844,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		table.fireIColumnChanged(this);
 	}
 
+	@Override
 	public int getScale()
 	{
 		return columnType.getScale();
