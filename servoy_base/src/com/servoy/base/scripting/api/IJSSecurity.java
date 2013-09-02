@@ -28,4 +28,6 @@ public interface IJSSecurity
 {
 
 	Object authenticate(String authenticator_solution, String method, Object[] credentials);
+
+	void logout();
 }

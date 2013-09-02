@@ -946,7 +946,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @sampleas js_logout(String,String,Object)
 	 * 
 	 */
-	public void js_logout()
+	@JSFunction
+	public void logout()
 	{
 		js_logout(null, null, null);
 	}
