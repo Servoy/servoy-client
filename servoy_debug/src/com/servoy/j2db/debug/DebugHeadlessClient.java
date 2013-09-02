@@ -349,39 +349,58 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	 * @param message
 	 * @param detail
 	 */
-	private void errorToDebugger(String message, Object detail)
+	private void errorToDebugger(String message, Object errorDetail)
 	{
-		DBGPDebugger debugger = getDebugger();
-		if (debugger != null)
+		Object detail = errorDetail;
+		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
+		if (engine != null)
 		{
-			String msg = message;
-			if (detail instanceof RhinoException)
+			DBGPDebugger debugger = engine.getDebugger();
+			if (debugger != null)
 			{
-				RhinoException re = (RhinoException)detail;
-				if (msg == null)
+				RhinoException rhinoException = null;
+				if (detail instanceof Exception)
 				{
-					msg = re.getCause().getLocalizedMessage();
+					Throwable exception = (Exception)detail;
+					while (exception != null)
+					{
+						if (exception instanceof RhinoException)
+						{
+							rhinoException = (RhinoException)exception;
+							break;
+						}
+						exception = exception.getCause();
+					}
 				}
-				msg += "\n > " + re.getScriptStackTrace(); //$NON-NLS-1$
-			}
-			else if (detail instanceof Exception)
-			{
-				Object e = ((Exception)detail).getCause();
-				msg += "\n > " + ((e == null ? detail : e).toString()); // complete stack? //$NON-NLS-1$
-				if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+				String msg = message;
+				if (rhinoException != null)
 				{
-					msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+					if (msg == null)
+					{
+						msg = rhinoException.getLocalizedMessage();
+					}
+					else msg += '\n' + rhinoException.getLocalizedMessage();
+					msg += '\n' + rhinoException.getScriptStackTrace();
 				}
+				else if (detail instanceof Exception)
+				{
+					Object e = ((Exception)detail).getCause();
+					if (e != null)
+					{
+						detail = e;
+					}
+					msg += "\n > " + detail.toString(); // complete stack? 
+					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+					{
+						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+					}
+				}
+				else if (detail != null)
+				{
+					msg += "\n" + detail;
+				}
+				debugger.outputStdErr(msg.toString() + '\n');
 			}
-			else if (detail != null)
-			{
-				msg = msg + '\n' + detail;
-			}
-			debugger.outputStdErr(msg.toString() + '\n');
-		}
-		else
-		{
-			Debug.error("No debugger found, for error report: " + message); //$NON-NLS-1$
 		}
 	}
 
