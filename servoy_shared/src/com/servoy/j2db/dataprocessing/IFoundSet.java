@@ -129,6 +129,18 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
 	public boolean find();
 
 	/**
+	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
+	 * Clear results from previous searches.
+	 *
+	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
+	 * 
+	 * @return the recordCount
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 */
+	public int search() throws Exception;
+
+	/**
 	 * Load the initial records inside (back into) this foundset from datasource
 	 */
 	public void loadAllRecords() throws ServoyException;

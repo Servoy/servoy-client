@@ -367,6 +367,12 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		return false;
 	}
 
+	@Override
+	public int search() throws Exception
+	{
+		return 0;
+	}
+
 	public static class PrintState extends Record
 	{
 		PrintState(IFoundSetInternal parent, Row columndata)
