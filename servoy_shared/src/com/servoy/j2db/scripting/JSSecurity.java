@@ -255,7 +255,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * 
 	 * @return the user name
 	 */
-	public String js_getUserName() throws ServoyException
+	@JSFunction
+	public String getUserName() throws ServoyException
 	{
 		return js_getUserName(null);
 	}
