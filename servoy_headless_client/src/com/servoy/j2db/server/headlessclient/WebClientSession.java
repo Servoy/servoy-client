@@ -390,6 +390,11 @@ public class WebClientSession extends WebSession
 		};
 	};
 
+	public List<Page> getPagesToRelease()
+	{
+		return toRelease.get();
+	}
+
 	/**
 	 * @param touchedPages
 	 * @param mainPage

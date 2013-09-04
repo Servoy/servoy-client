@@ -32,6 +32,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.server.headlessclient.ServoyRequestCycle;
 import com.servoy.j2db.server.headlessclient.WebClient;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -59,6 +60,7 @@ final class WicketEvent extends Event
 	private final IServiceProvider serviceProvider;
 	private volatile List<Runnable> events;
 	private final WebClient client;
+	private final List<Page> pagesToRelease;
 
 	/**
 	 * @param f
@@ -80,6 +82,7 @@ final class WicketEvent extends Event
 		dirtyObjectsList = session.getDirtyObjectsList();
 		touchedPages = session.getTouchedPages();
 		httpThread = Thread.currentThread();
+		pagesToRelease = ((WebClientSession)session).getPagesToRelease();
 	}
 
 
@@ -157,6 +160,15 @@ final class WicketEvent extends Event
 		}
 		pages.clear();
 
+		List<Page> toReleasePages = ((WebClientSession)session).getPagesToRelease();
+		for (Page page : toReleasePages)
+		{
+			if (!pagesToRelease.contains(page))
+			{
+				pagesToRelease.add(page);
+			}
+		}
+		toReleasePages.clear();
 		session.moveUsedPage(Thread.currentThread(), httpThread);
 
 	}
