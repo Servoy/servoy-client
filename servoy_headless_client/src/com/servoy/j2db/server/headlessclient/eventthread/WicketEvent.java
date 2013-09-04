@@ -83,6 +83,10 @@ final class WicketEvent extends Event
 		touchedPages = session.getTouchedPages();
 		httpThread = Thread.currentThread();
 		pagesToRelease = ((WebClientSession)session).getPagesToRelease();
+		if (pagesToRelease.size() > 0)
+		{
+			Debug.error("there are already locked pages for the wicket event, expect to be 0 " + pagesToRelease);
+		}
 	}
 
 
@@ -111,6 +115,14 @@ final class WicketEvent extends Event
 			Session.set(session);
 			Application.set(application);
 			J2DBGlobals.setServiceProvider(serviceProvider);
+
+			// if somehow there where already locked pages copy them over to the current execute thread. 
+			// so that this thread has them as there own lock.
+			if (pagesToRelease.size() > 0)
+			{
+				List<Page> toReleasePages = ((WebClientSession)session).getPagesToRelease();
+				toReleasePages.addAll(pagesToRelease);
+			}
 
 			session.moveUsedPage(httpThread, Thread.currentThread());
 
@@ -160,6 +172,7 @@ final class WicketEvent extends Event
 		}
 		pages.clear();
 
+		// copy over the current owned pages to the http threads list so that it owns and will release it.
 		List<Page> toReleasePages = ((WebClientSession)session).getPagesToRelease();
 		for (Page page : toReleasePages)
 		{
