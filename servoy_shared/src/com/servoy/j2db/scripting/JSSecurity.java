@@ -268,6 +268,15 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * //gets the current loggedIn username
 	 * var userName = security.getUserName(); 
 	 *
+	 * @description-mc
+	 * returns the current logged in username of that is used when doing a sync. 
+	 * 
+	 * @sample-mc
+	 * var username = security.getUserName();
+	 * if (username != null) {
+	 *   // user is logged in 
+	 * }
+	 * 
 	 * @param userUID the user UID used to retrieve the name
 	 * 
 	 * @return the user name
@@ -992,6 +1001,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
 	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
 	 *
+	 * @description-mc
+	 * Clears the current credentials that the user specified when doing a sync. When the next sync happens the login form will be shown. 
+	 * 
+	 * @sample-mc
+	 * security.logout();
+	 * plugins.mobile.sync();
+	 * 
 	 * @param solutionToLoad the solution to load after logout
 	 * @param method the method to run in the solution to load
 	 * @param argument the argument to pass to the method to run
@@ -1285,7 +1301,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * ok = security.authenticate(null, null, [scopes.globals.userName, scopes.globals.passWord])
 	 * 
 	 * @description-mc
-	 * Authenticate the given credentials against the mobile service solution. First two parameters are not used in mobile solution, just the credentials.
+	 * Authenticate the given credentials against the mobile service solution. First two parameters are not used in mobile solution, just the credentials. 
+	 * It will set the credentials and then do a sync call to the server.
 	 * 
 	 * @sample-mc
 	 * // method will return null in mobile client, the same flow as for default login page will happen after calling this method
