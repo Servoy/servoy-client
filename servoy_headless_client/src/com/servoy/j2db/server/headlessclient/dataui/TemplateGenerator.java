@@ -2880,12 +2880,35 @@ public class TemplateGenerator
 
 	private static void applyScrolling(TextualStyle styleObj, ISupportScrollbars field)
 	{
-		String overflow = "auto";
-		if (field.getScrollbars() == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER + ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
+		String overflowX = getCSSScrolling(field.getScrollbars(), true);
+		String overflowY = getCSSScrolling(field.getScrollbars(), false);
+		if (Utils.equalObjects(overflowX, overflowY))
 		{
-			overflow = "hidden";
+			styleObj.setProperty("overflow", overflowX);
 		}
-		styleObj.setProperty("overflow", overflow);
+		else
+		{
+			styleObj.setProperty("overflow-x", overflowX);
+			styleObj.setProperty("overflow-y", overflowY);
+		}
+	}
+
+	public static String getCSSScrolling(int scrollBars, boolean horizontal)
+	{
+		if (horizontal)
+		{
+			String overflowX = "auto"; //$NON-NLS-1$
+			if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) overflowX = "hidden"; //$NON-NLS-1$ 
+			else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) overflowX = "scroll"; //$NON-NLS-1$
+			return overflowX;
+		}
+		else
+		{
+			String overflowY = "auto"; //$NON-NLS-1$
+			if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) overflowY = "hidden"; //$NON-NLS-1$
+			else if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) overflowY = "scroll"; //$NON-NLS-1$
+			return overflowY;
+		}
 	}
 
 	public static Insets sumInsets(Insets a, Insets b)
