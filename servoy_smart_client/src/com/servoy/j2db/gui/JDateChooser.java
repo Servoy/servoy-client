@@ -420,6 +420,10 @@ public class JDateChooser extends JEscapeDialog implements ActionListener, DaySe
 	{
 		String pat = getDisplayPattern(pattern);
 		int tmp = pat.toLowerCase().indexOf("hh:mm"); //$NON-NLS-1$
+		if (tmp == -1)
+		{
+			tmp = pat.toLowerCase().indexOf("hhmm"); //$NON-NLS-1$
+		}
 		if (tmp != -1)
 		{
 			int space = pat.indexOf(" ", tmp); //$NON-NLS-1$
