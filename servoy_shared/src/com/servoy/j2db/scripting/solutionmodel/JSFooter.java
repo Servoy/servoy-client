@@ -25,7 +25,6 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.persistence.constants.IPartConstants;
-import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -443,7 +442,7 @@ public class JSFooter extends JSPart implements ISMFooter
 	 */
 	@JSFunction
 	@Override
-	public IBaseSMComponent[] getComponents()
+	public JSComponent[] getComponents()
 	{
 		List<JSComponent< ? >> footerComponents = new ArrayList<JSComponent< ? >>();
 		for (JSComponent< ? > comp : getJSParent().getComponents())
@@ -453,7 +452,7 @@ public class JSFooter extends JSPart implements ISMFooter
 				footerComponents.add(comp);
 			}
 		}
-		return footerComponents.toArray(new IBaseSMComponent[footerComponents.size()]);
+		return footerComponents.toArray(new JSComponent[footerComponents.size()]);
 	}
 
 	/**
