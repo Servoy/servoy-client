@@ -103,6 +103,7 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 	{
 		if (relatedFoundSet instanceof RelatedFoundSet)
 		{
+			testTabName(tabName);
 			return getComponent().addTab(formController, formController.getName(), tabName, tabText, toolTip, iconURL, fg, bg,
 				relatedFoundSet.getRelationName(), (RelatedFoundSet)relatedFoundSet, tabIndex);
 		}
@@ -112,6 +113,7 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 	public boolean addTab(String formName, String tabName, String tabText, String toolTip, String iconURL, String fg, String bg, String relationName,
 		int tabIndex)
 	{
+		testTabName(tabName);
 		return getComponent().addTab(null, formName, tabName, tabText, toolTip, iconURL, fg, bg, relationName, null, tabIndex);
 	}
 
@@ -120,6 +122,7 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 	{
 		if (relatedFoundSet instanceof RelatedFoundSet)
 		{
+			testTabName(tabName);
 			return getComponent().addTab(null, formName, tabName, tabText, toolTip, iconURL, fg, bg, relatedFoundSet.getRelationName(),
 				(RelatedFoundSet)relatedFoundSet, tabIndex);
 		}
@@ -158,6 +161,7 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		return addTab(formName, tabName, tabText, tooltip, iconURL, fg, bg, relationName, tabIndex >= 1 ? tabIndex - 1 : -1);
 	}
 
+	@SuppressWarnings("nls")
 	public boolean js_addTab(Object[] vargs)
 	{
 		if (vargs.length < 1) return false;
@@ -193,12 +197,12 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		{
 			tabText = (String)vargs[index++];
 		}
-		String tooltip = ""; //$NON-NLS-1$
+		String tooltip = "";
 		if (vargs.length >= 4)
 		{
 			tooltip = (String)vargs[index++];
 		}
-		String iconURL = ""; //$NON-NLS-1$
+		String iconURL = "";
 		if (vargs.length >= 5)
 		{
 			iconURL = (String)vargs[index++];
@@ -246,7 +250,27 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 			tabIndex = Utils.getAsInteger(vargs[index++]);
 		}
 
+		testTabName(tabName);
 		return getComponent().addTab(formController, formName, tabName, tabText, tooltip, iconURL, fg, bg, relationName, relatedFs, tabIndex);
+	}
+
+	/**
+	 * @param tabName
+	 */
+	@SuppressWarnings("nls")
+	private void testTabName(String tabName)
+	{
+		if (tabName != null && !"".equals(tabName))
+		{
+			ITabPanel tabPanel = getComponent();
+			for (int i = 0; i < tabPanel.getMaxTabIndex(); i++)
+			{
+				if (tabName.equals(tabPanel.getTabNameAt(i)))
+				{
+					application.reportJSWarning("Tabpanel: " + getName() + " addTab() called with a tabname: " + tabName + " that is already used");
+				}
+			}
+		}
 	}
 
 	@Override
