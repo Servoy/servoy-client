@@ -609,7 +609,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		GraphicalComponent titleLabel;
 		try
 		{
-			titleLabel = parentForm.getSupportChild().createNewGraphicalComponent(new Point(comp.getX() - 1, comp.getY() - 1));
+			titleLabel = parentForm.getSupportChild().createNewGraphicalComponent(new Point(comp.getX(), comp.getY()));
 		}
 		catch (RepositoryException e)
 		{
