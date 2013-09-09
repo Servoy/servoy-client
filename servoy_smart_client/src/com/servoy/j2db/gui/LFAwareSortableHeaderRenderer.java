@@ -260,7 +260,6 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 					if (!text.equals(label.getText())) label.setText(text);
 					if (!Utils.equalObjects(getIcon(), label.getIcon())) label.setIcon(getIcon());
 					if (label.isOpaque() != isOpaque()) label.setOpaque(isOpaque());
-					//label.setOpaque(false);
 					if (!Utils.equalObjects(getToolTipText(), label.getToolTipText())) label.setToolTipText(getToolTipText());
 					if (label.getHorizontalTextPosition() != SwingConstants.LEADING) label.setHorizontalTextPosition(SwingConstants.LEADING);
 				}
