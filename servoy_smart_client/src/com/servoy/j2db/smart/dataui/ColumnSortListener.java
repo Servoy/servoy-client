@@ -217,7 +217,7 @@ public class ColumnSortListener extends MouseAdapter
 										Utils.arrayMerge((new Object[] { getJavaScriptEvent(e, JSEvent.EventType.action, renderer.getName()) }),
 											Utils.parseJSExpressions(renderer.getInstanceMethodArguments("onActionMethodID"))), true, null, false, "onActionMethodID"); //$NON-NLS-1$//$NON-NLS-2$
 								}
-								else if (fc != null && fc.getForm().getOnSortCmdMethodID() != 0 && fc.getForm().getOnSortCmdMethodID() != -1)
+								else if (fc != null && fc.getForm().getOnSortCmdMethodID() > 0)
 								{
 									// Also execute the on sort command on none data providers (like a label) then they can do there own sort.
 									fc.executeFunction(
