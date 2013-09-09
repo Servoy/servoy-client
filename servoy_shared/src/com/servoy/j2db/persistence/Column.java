@@ -78,7 +78,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private String plainSQLName;
 	private ColumnType columnType; // as returned by current database, columnInfo holds column type as configured by developer
 	private boolean existInDB;
-	private boolean dbPK = false;
+	private boolean dbPK = false; // please only use this if column exists in database (use existInDB to find out)
 	private String databaseDefaultValue = null;
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
@@ -896,13 +896,20 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 		// dbPK dictates the value of the PK_COLUMN flag and can disable USER_ROWID_COLUMN
 		int colIdentFlags;
-		if ((f & IDENT_COLUMNS) == USER_ROWID_COLUMN && !dbPK)
+		if (existInDB)
 		{
-			colIdentFlags = USER_ROWID_COLUMN; // only set user row ident if it is not already pk
+			if ((f & IDENT_COLUMNS) == USER_ROWID_COLUMN && !dbPK)
+			{
+				colIdentFlags = USER_ROWID_COLUMN; // only set user row ident if it is not already pk
+			}
+			else
+			{
+				colIdentFlags = dbPK ? PK_COLUMN : NORMAL_COLUMN;
+			}
 		}
 		else
 		{
-			colIdentFlags = dbPK ? PK_COLUMN : NORMAL_COLUMN;
+			colIdentFlags = f & IDENT_COLUMNS;
 		}
 		// use computed identity flags combined with other flags from columnInfo
 		int newFlags = (f & NON_IDENT_COLUMNS) | colIdentFlags;
@@ -966,7 +973,14 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public boolean isDatabasePK()
 	{
-		return dbPK;
+		if (!existInDB)
+		{
+			return (getFlags() & PK_COLUMN) != 0;
+		}
+		else
+		{
+			return dbPK;
+		}
 	}
 
 	/**
