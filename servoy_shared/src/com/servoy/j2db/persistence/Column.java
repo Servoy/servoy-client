@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.servoy.base.persistence.BaseColumn;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -40,6 +41,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.AliasKeyMap.ISupportAlias;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
@@ -512,7 +514,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							return new Timestamp(application.getClientHost().getServerTime(application.getClientID()).getTime());
 
 						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME :
-							return new Timestamp(new Date().getTime());
+							return getConvertedClientTime(application);
 
 						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_USERNAME :
 							return application.getUserName();
@@ -558,8 +560,8 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							return new Timestamp(application.getClientHost().getServerTime(application.getClientID()).getTime());
 
 						case ColumnInfo.SYSTEM_VALUE_CREATION_DATETIME :
-//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME://makes it possible to search for non modified records
-							return new Timestamp(new Date().getTime());
+//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME://makes it possible to search for non modified records 
+							return getConvertedClientTime(application);
 
 						case ColumnInfo.SYSTEM_VALUE_CREATION_USERNAME :
 //						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_NAME://makes it possible to search for non modified records
@@ -637,6 +639,19 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param application
+	 * @return
+	 */
+	private Object getConvertedClientTime(IServiceProvider application)
+	{
+		if (application instanceof IApplication && Utils.isSwingClient(((IApplication)application).getApplicationType()))
+		{
+			return new Timestamp(new Date().getTime());
+		}
+		return new Timestamp(TimezoneUtils.convertToTimezone(System.currentTimeMillis(), application.getTimeZone(), TimeZone.getDefault()));
 	}
 
 
