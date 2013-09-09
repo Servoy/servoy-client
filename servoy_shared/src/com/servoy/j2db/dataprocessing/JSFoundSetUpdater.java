@@ -128,6 +128,9 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	 *    When a single sql statement is done, modification columns will not be updated, because it does the update directly in the database, without getting the records.
 	 * 2) update part of foundset, for example the first 4 row (starts with selected row)
 	 * 3) safely loop through foundset (starts with selected row)
+	 * 
+	 * after the perform update call there are no records in edit mode, that where not already in edit mode, because all of them are saved directly to the database, 
+	 * or in mode 1 the records are not touched at all and the database is updated directly.
 	 *
 	 * @sample
 	 * //1) update entire foundset
