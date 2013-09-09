@@ -91,8 +91,7 @@ public interface IBaseSMField extends IBaseSMComponent
 	 * @sample 
 	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
 	 */
-	// to be included in mobile in future versions
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public static final int CALENDAR = IFieldConstants.CALENDAR;
 	/**
 	 * Constant for specifying the display type of a JSField. Sets the display type of the

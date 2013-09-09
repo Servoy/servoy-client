@@ -420,6 +420,9 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * DEFAULT - the Servoy default navigator is assigned. 
 	 * IGNORE - the navigator last assigned to a previous form. 
 	 * Custom - a custom navigator based on a selected form.
+	 * 
+	 * @description-mc
+	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value SM_DEFAULTS.NONE (no navigator) or SM_DEFAULTS.IGNORE (reuse current form navigator). 
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getNavigatorID()
