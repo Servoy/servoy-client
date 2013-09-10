@@ -96,11 +96,6 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 	{
 		this.scriptable = scriptable;
 		application = app;
-		// trap mouse events, even if we have no action defined, so
-		// clicks don't go through, making components underneath focusable 
-		this.addMouseListener(new MouseAdapter()
-		{
-		});
 		eventExecutor = new EventExecutor(this);
 	}
 
