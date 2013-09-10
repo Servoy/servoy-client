@@ -87,6 +87,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 	private FormLookupPanel currentForm;//reference to test if not already showing
 	private ITabPaneAlike enclosingComponent;
 	private final List<String> originalTabText;
+	private final List<String> originalTabTooltip;
 	private final List<String> allRelationNames = new ArrayList<String>();
 	private final List<ISwingFoundSet> related = new ArrayList<ISwingFoundSet>();
 
@@ -110,6 +111,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		super();
 		application = app;
 		originalTabText = new ArrayList<String>();
+		originalTabTooltip = new ArrayList<String>();
 		setLayout(new BorderLayout());
 
 		if (enclosingComponent == null)
@@ -249,6 +251,14 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 				enclosingComponent.setTitleAt(i, Text.processTags(element, resolver));
 			}
 		}
+		for (int i = 0; i < originalTabTooltip.size(); i++)
+		{
+			String tooltip = originalTabTooltip.get(i);
+			if (tooltip != null)
+			{
+				enclosingComponent.setToolTipTextAt(i, Text.processTags(tooltip, resolver));
+			}
+		}
 	}
 
 	protected void showFoundSet(FormLookupPanel flp, IRecordInternal parentState, List<SortColumn> sort)
@@ -275,6 +285,11 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			if (element != null)
 			{
 				enclosingComponent.setTitleAt(i, Text.processTags(element, resolver));
+			}
+			String tooltip = i < originalTabTooltip.size() ? originalTabTooltip.get(i) : null;
+			if (tooltip != null)
+			{
+				enclosingComponent.setToolTipTextAt(i, Text.processTags(tooltip, resolver));
 			}
 		}
 		catch (RuntimeException re)
@@ -436,6 +451,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			if (retval)
 			{
 				originalTabText.clear();
+				originalTabTooltip.clear();
 				allRelationNames.clear();
 
 				//safety
@@ -714,6 +730,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		{
 			onTabChangeMethod = null;
 			originalTabText.add(((text == null || text.indexOf("%%") == -1) ? null : text)); //$NON-NLS-1$
+			originalTabTooltip.add(((tip == null || tip.indexOf("%%") == -1) ? null : tip)); //$NON-NLS-1$
 			allRelationNames.add(flp.getRelationName());
 			enclosingComponent.addTab(flp.getName(), text, icon, (Component)flp, tip);
 		}
@@ -730,6 +747,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		try
 		{
 			originalTabText.add(index, ((text == null || text.indexOf("%%") == -1) ? null : text)); //$NON-NLS-1$
+			originalTabTooltip.add(((tip == null || tip.indexOf("%%") == -1) ? null : tip)); //$NON-NLS-1$
 			allRelationNames.add(index, flp.getRelationName());
 			enclosingComponent.insertTab(flp.getName(), text, icon, (Component)flp, tip, index);
 		}
@@ -750,6 +768,7 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 			if (retval)
 			{
 				if (index < originalTabText.size()) originalTabText.remove(index);
+				if (index < originalTabTooltip.size()) originalTabTooltip.remove(index);
 				allRelationNames.remove(index);
 
 				// safety

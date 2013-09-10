@@ -89,7 +89,6 @@ import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -228,7 +227,13 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 						focusedItem = null;
 					}
 
+					if (holder.getTooltip() != null)
+					{
+						link.setMetaData(TooltipAttributeModifier.TOOLTIP_METADATA, holder.getTooltip());
+					}
+
 					TabIndexHelper.setUpTabIndexAttributeModifier(link, tabSequenceIndex);
+					link.add(TooltipAttributeModifier.INSTANCE);
 
 					if (item.getIteration() == 0) link.add(new AttributeModifier("firsttab", true, new Model<Boolean>(Boolean.TRUE))); //$NON-NLS-1$
 					link.setEnabled(holder.isEnabled() && WebTabPanel.this.isEnabled());
@@ -693,15 +698,9 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		for (int i = 0; i < allTabs.size(); i++)
 		{
 			WebTabHolder element = allTabs.get(i);
-			if (element.getTagText() != null)
+			if (element.refreshTagStrings(resolver))
 			{
-				String t = Text.processTags(element.getTagText(), resolver);
-				String elementNewText = Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-				if (!element.getText().equals(elementNewText))
-				{
-					element.setText(elementNewText);
-					getStylePropertyChanges().setChanged();
-				}
+				getStylePropertyChanges().setChanged();
 			}
 		}
 	}
@@ -746,11 +745,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			WebTabHolder element = allTabs.get(i);
 			if (element.getPanel() == flp)
 			{
-				if (element.getTagText() != null)
-				{
-					String t = Text.processTags(element.getTagText(), resolver);
-					element.setText(Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;")); //$NON-NLS-1$ //$NON-NLS-2$
-				}
+				element.refreshTagStrings(resolver);
 				break;
 			}
 		}

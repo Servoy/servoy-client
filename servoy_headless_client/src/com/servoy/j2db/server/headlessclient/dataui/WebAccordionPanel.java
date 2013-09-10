@@ -86,7 +86,6 @@ import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -650,15 +649,9 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		for (int i = 0; i < allTabs.size(); i++)
 		{
 			WebTabHolder element = allTabs.get(i);
-			if (element.getTagText() != null)
+			if (element.refreshTagStrings(resolver))
 			{
-				String t = Text.processTags(element.getTagText(), resolver);
-				String elementNewText = Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-				if (!element.getText().equals(elementNewText))
-				{
-					element.setText(elementNewText);
-					getStylePropertyChanges().setChanged();
-				}
+				getStylePropertyChanges().setChanged();
 			}
 		}
 	}
@@ -699,11 +692,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			WebTabHolder element = allTabs.get(i);
 			if (element.getPanel() == flp)
 			{
-				if (element.getTagText() != null)
-				{
-					String t = Text.processTags(element.getTagText(), resolver);
-					element.setText(Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;")); //$NON-NLS-1$ //$NON-NLS-2$
-				}
+				element.refreshTagStrings(resolver);
 				break;
 			}
 		}

@@ -18,7 +18,9 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ui.IFormLookupPanel;
+import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -31,9 +33,10 @@ public class WebTabHolder
 	private final WebTabFormLookup panel;
 	private final byte[] iconData;
 	private MediaResource icon;
-	private final String tooltip;
+	private String tooltip;
 	private String text;
 	private String tagText;
+	private String tagTooltip;
 	public int mnemonic;
 	private boolean enabled;
 	private Color foreground = null;
@@ -50,6 +53,10 @@ public class WebTabHolder
 		if (t != null && t.indexOf("%%") != -1) //$NON-NLS-1$
 		{
 			tagText = t;
+		}
+		if (tooltip != null && tooltip.indexOf("%%") != -1) //$NON-NLS-1$
+		{
+			tagTooltip = tooltip;
 		}
 		this.text = Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
 		this.enabled = true;
@@ -94,11 +101,6 @@ public class WebTabHolder
 		this.mnemonic = m;
 	}
 
-	String getTagText()
-	{
-		return tagText;
-	}
-
 	public MediaResource getIcon()
 	{
 		return icon;
@@ -126,5 +128,31 @@ public class WebTabHolder
 	public String getTooltip()
 	{
 		return tooltip;
+	}
+
+	boolean refreshTagStrings(ITagResolver resolver)
+	{
+		boolean changed = false;
+		if (tagText != null)
+		{
+			String t = Text.processTags(tagText, resolver);
+			String elementNewText = Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (!Utils.equalObjects(text, elementNewText))
+			{
+				text = elementNewText;
+				changed = true;
+			}
+		}
+
+		if (tagTooltip != null)
+		{
+			String t = Text.processTags(tagTooltip, resolver);
+			if (!Utils.equalObjects(t, tooltip))
+			{
+				tooltip = t;
+				changed = true;
+			}
+		}
+		return changed;
 	}
 }

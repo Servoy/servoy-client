@@ -172,4 +172,8 @@ public interface ITabPaneAlike extends IFocusCycleRoot<Component>, ISupportReadO
 	public void putClientProperty(Object key, Object value);
 
 	public Object getClientProperty(Object key);
+
+	public void setToolTipTextAt(int index, String text);
+
+	public String getToolTipTextAt(int index);
 }

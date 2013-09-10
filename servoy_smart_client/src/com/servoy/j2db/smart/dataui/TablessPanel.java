@@ -467,4 +467,21 @@ public class TablessPanel extends EnablePanel implements ITabPaneAlike
 	{
 		return getFirstFocusableField();
 	}
+
+	@Override
+	public void setToolTipTextAt(int index, String text)
+	{
+		Component c = getComponent(index);
+		if (c != null) ((JComponent)c).setToolTipText(text);
+	}
+
+	@Override
+	public String getToolTipTextAt(int index)
+	{
+		Component c = getComponent(index);
+		if (c != null) return ((JComponent)c).getToolTipText();
+		return null;
+	}
+
+
 }
