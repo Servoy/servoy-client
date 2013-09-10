@@ -89,6 +89,9 @@ import com.servoy.j2db.server.headlessclient.dataui.WebBaseLabel;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataComboBox;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataListBox;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataLookupField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
@@ -432,9 +435,10 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 							if (eventCallback != null)
 							{
 								String callback = eventCallback.getCallbackUrl().toString();
-								if (component instanceof WebDataRadioChoice || component instanceof WebDataCheckBoxChoice)
+								if (component instanceof WebDataRadioChoice || component instanceof WebDataCheckBoxChoice ||
+									component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof WebDataListBox)
 								{
-									// is updated via ServoyChoiceComponentUpdatingBehavior, this is just for events
+									// is updated via ServoyChoiceComponentUpdatingBehavior or ServoyFormComponentUpdatingBehavior, this is just for events
 									callback += "&nopostdata=true";
 								}
 								for (IBehavior behavior : targetComponent.getBehaviors())

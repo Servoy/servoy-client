@@ -19,6 +19,8 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 
 import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -48,5 +50,26 @@ public class ConsumeEnterAttributeModifier extends ServoyActionEventBehavior
 	{
 		eventExecutor.onEvent(EventType.none, target, getComponent(),
 			Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)));
+	}
+
+	@Override
+	protected IAjaxCallDecorator getAjaxCallDecorator()
+	{
+		return new AjaxCallDecorator()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public CharSequence decorateScript(CharSequence script)
+			{
+				return "return testEnterKey(event, function() {event.target.blur();" + script + "});"; //$NON-NLS-1$ //$NON-NLS-2$ 
+			}
+		};
+	}
+
+	@Override
+	protected boolean getUpdateModel()
+	{
+		return false;
 	}
 }
