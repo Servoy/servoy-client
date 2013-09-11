@@ -3625,7 +3625,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * //	databaseManager.saveData();
 	 * //} 
 	 *
-	 * @param source The source record or object to be copied.
+	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * 
 	 * @return true if no errors happened.
@@ -3640,7 +3640,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @sampleas js_copyMatchingFields(Object,IRecordInternal) 
 	 * 
-	 * @param source The source record or object to be copied.
+	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param overwrite Boolean values to overwrite all values.
 	 
@@ -3657,7 +3657,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 
 	 * @sampleas js_copyMatchingFields(Object,IRecordInternal) 
 	 * 
-	 * @param source The source record or object to be copied.
+	 * @param source The source record or (java/javascript)object to be copied.
 	 * @param destination The destination record to copy to.
 	 * @param names The property names that shouldn't be overriden.
 	 
