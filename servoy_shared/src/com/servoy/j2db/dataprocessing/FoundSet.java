@@ -1623,6 +1623,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				getSQLSheet().getTable().getRowIdentColumns(), (Object[][])dynamicPKplaceholder.getValue())));
 		}
 
+		if (sqlSelect.getSorts() == null)
+		{
+			// query does not define sort, use last sorts
+			fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns == null ? defaultSort : lastSortColumns,
+				true);
+		}
+
 		return loadByQuery(addFilterConditions(sqlSelect, foundSetFilters));
 	}
 

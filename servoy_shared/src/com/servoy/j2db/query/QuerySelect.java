@@ -129,7 +129,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public void setSorts(ArrayList< ? extends IQuerySort> srts)
 	{
-		if (srts != null)
+		if (srts != null && srts.size() > 0)
 		{
 			sorts = new ArrayList<IQuerySort>(srts.size());
 			for (int i = 0; i < srts.size(); i++)
