@@ -314,4 +314,15 @@ public interface IJSFoundSet
 	 * @return true if records are loaded, false otherwise.
 	 */
 	public boolean js_loadAllRecords() throws Exception;
+
+	/**
+	 * Get the record index. Will return -1 if the record can't be found.
+	 *
+	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
+	 *
+	 * @param record Record
+	 * 
+	 * @return int index. 
+	 */
+	int js_getRecordIndex(IJSRecord record);
 }

@@ -2975,9 +2975,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @return int index. 
 	 */
-	public int js_getRecordIndex(IRecordInternal record)
+	public int js_getRecordIndex(IJSRecord record)
 	{
-		int recordIndex = getRecordIndex(record);
+		int recordIndex = getRecordIndex((IRecord)record);
 		if (recordIndex == -1) return -1;
 		return recordIndex + 1;
 	}
