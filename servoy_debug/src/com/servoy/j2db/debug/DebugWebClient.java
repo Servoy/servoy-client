@@ -28,54 +28,32 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.swing.SwingUtilities;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 
-import com.servoy.base.persistence.IMobileProperties;
-import com.servoy.j2db.ControllerUndoManager;
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
-import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormManager;
-import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.debug.layout.ILayoutWrapper;
-import com.servoy.j2db.debug.layout.ILayoutWrapper.MobileFormSection;
-import com.servoy.j2db.debug.layout.MobileFormLayout;
-import com.servoy.j2db.debug.layout.PartLayoutWrapper;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.scripting.solutionmodel.JSForm;
-import com.servoy.j2db.scripting.solutionmodel.JSPart;
-import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.headlessclient.WebFormManager;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.TabSequenceHelper;
 
 /**
  * @author jcompagner
@@ -177,246 +155,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		solution = sol;
 	}
 
-	@Override
-	protected WebDataRendererFactory createDataRenderFactory()
-	{
-		return new WebDataRendererFactory()
-		{
-			@Override
-			public void prepareRenderers(IApplication application, Form form)
-			{
-				if (form.getView() == IForm.RECORD_VIEW && SolutionMetaData.isServoyMobileSolution(getSolution()))
-				{
-					JSForm jsform = new JSForm(application, form, false);
-					if (jsform.getPart(Part.HEADER) == null && jsform.getPart(Part.TITLE_HEADER) == null)
-					{
-						// check if there are header items
-						for (IPersist persist : form.getAllObjectsAsList())
-						{
-							if (persist instanceof IFormElement && persist instanceof AbstractBase)
-							{
-								if (((AbstractBase)persist).getCustomMobileProperty(IMobileProperties.HEADER_ITEM.propertyName) != null)
-								{
-									// add missing header
-									jsform.newHeaderPart(40).setStyleClass("b"); // default theme
-									break;
-								}
-							}
-						}
-					}
-
-					if (jsform.getPart(Part.FOOTER) == null && jsform.getPart(Part.TITLE_FOOTER) == null)
-					{
-						// check if there are footer items
-						for (IPersist persist : form.getAllObjectsAsList())
-						{
-							if (persist instanceof IFormElement && persist instanceof AbstractBase)
-							{
-								if (((AbstractBase)persist).getCustomMobileProperty(IMobileProperties.FOOTER_ITEM.propertyName) != null)
-								{
-									// add missing footer
-									jsform.newFooterPart(40).setStyleClass("b"); // default theme
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				super.prepareRenderers(application, form);
-			}
-
-			@Override
-			public Map completeRenderers(IApplication application, Form form, IScriptExecuter scriptExecuter, Map emptyDataRenderers, int width,
-				boolean printing, ControllerUndoManager undoManager, TabSequenceHelper<Component> tabSequence) throws Exception
-			{
-				if (form.getView() == IForm.RECORD_VIEW && SolutionMetaData.isServoyMobileSolution(getSolution()))
-				{
-					// When the form was modified using solution model, relayout the form using same layout managers as mobile form editor.
-					Solution solutionCopy = getFlattenedSolution().getSolutionCopy(false);
-					if (solutionCopy != null && solutionCopy.getChild(form.getUUID()) != null)
-					{
-						JSForm jsform = new JSForm(application, form, false);
-
-						// layout the form
-						List<ILayoutWrapper> elements = new ArrayList<ILayoutWrapper>();
-
-						JSPart header = jsform.getPart(Part.HEADER);
-						if (header == null)
-						{
-							header = jsform.getPart(Part.TITLE_HEADER);
-						}
-						if (header != null)
-						{
-							elements.add(new PartLayoutWrapper(header, jsform));
-						}
-
-						// sort on y-pos
-						for (ISupportBounds element : MobileFormLayout.getBodyElementsForRecordView(getFlattenedSolution(), form))
-						{
-							ILayoutWrapper wrapper = MobileFormLayout.createLayoutWrapper(element, jsform);
-							if (wrapper != null)
-							{
-								elements.add(wrapper);
-							}
-						}
-
-						JSPart footer = jsform.getPart(Part.FOOTER);
-						if (footer == null)
-						{
-							footer = jsform.getPart(Part.TITLE_FOOTER);
-						}
-						if (footer != null)
-						{
-							elements.add(new PartLayoutWrapper(footer, jsform));
-						}
-
-						MobileFormLayout.layoutForm(elements);
-
-						// update body height when there is no footer
-						if (footer == null)
-						{
-							JSPart body = jsform.getPart(Part.BODY);
-							if (body != null)
-							{
-								int max = 0;
-								for (ILayoutWrapper elem : elements)
-								{
-									if (elem.getElementType() == MobileFormSection.ContentElement)
-									{
-										max = Math.max(max, elem.getY() + elem.getHeight());
-									}
-								}
-								if (max > 0) body.setHeight(max);
-							}
-						}
-
-						getFlattenedSolution().deregisterLiveForm(form, form.getName());
-					}
-				}
-				return super.completeRenderers(application, form, scriptExecuter, emptyDataRenderers, width, printing, undoManager, tabSequence);
-			}
-		};
-	}
-
-	public static void installServoyMobileInternalStyle(FlattenedSolution flattenedSolution)
-	{
-		if (flattenedSolution == null) return;
-
-		SolutionMetaData mainSolutionMetaData = flattenedSolution.getMainSolutionMetaData();
-		if (mainSolutionMetaData != null && mainSolutionMetaData.getSolutionType() == SolutionMetaData.MOBILE)
-		{
-			// Add a built-in style for mobile schemes
-			if (flattenedSolution.getStyle("_servoy_mobile") == null)
-			{
-				String servoyMobileStyle = //
-
-				"label, label.a, label.b, label.c, label.d, label.e {"//
-					+ "color: #101010;" //  
-					+ "margin-left:5px;" //
-					+ "background-color: #414141;" //
-					+ "}"//
-
-					+ "headertext, headertext.a {"//
-					+ "color: #ffffff;" //
-					+ "background-color: #414141;" //
-					+ "font-weight:bold;" //
-					+ "}"//
-
-					+ "field {"//
-					+ "color: #101010;" //
-					+ "background-color: #F9F9F9;" //
-					+ "}"//
-
-					+ "button, button.a, combobox.a, check.a, radio.a, portal.a {"//
-					+ "color: #FFFFFF;" //
-					+ "background-color: #414141;" + "font-weight:bold;" //
-					+ "}"//
-
-					+ "header, header.a, footer.a,  title_header, title_header.a, title_footer.a {" //
-					+ "background-color: #262626;" //
-					+ "}" //
-
-					+ "headertext.b {"//
-					+ "color: #ffffff;" //
-					+ "background-color: #4C83B1;" //
-					+ "font-weight:bold;" //
-					+ "}" //
-
-					+ "button.b, combobox.b, check.b, radio.b, portal.b {"//
-					+ "color: #FFFFFF;" //
-					+ "background-color: #4C83B1;" //
-					+ "font-weight:bold;" //
-					+ "}" //
-
-					+ "header.b, footer.b, title_header.b, title_footer.b {" //
-					+ "background-color: #5A91BF;" //
-					+ "}" //
-
-					+ "headertext.c {"//
-					+ "color: #101010;" //
-					+ "background-color: #4C83B1;" //
-					+ "font-weight:bold;" //
-					+ "}" //
-
-					+ "button.c, combobox.c, check.c, radio.c, portal.c {" //
-					+ "color: #363636;" //
-					+ "background-color: #F6F6F6;"//
-					+ "font-weight:bold;" //
-					+ "}"//
-
-					+ "header.c, footer.c, title_header.c, title_footer.c {" //
-					+ "background-color: #E4E4E4;" //
-					+ "}" //
-
-					+ "headertext.d {"//
-					+ "color: #101010;" //
-					+ "background-color: #4C83B1;" //
-					+ "font-weight:bold;" //
-					+ "}" //
-
-					+ "button.d, combobox.d, check.d, radio.d, portal.d {" //
-					+ "color: #363636;" //
-					+ "background-color: #F8F8F8;" //
-					+ "font-weight:bold;" //
-					+ "}"//
-
-					+ "header.d, footer.d, title_header.d, title_footer.d {" //
-					+ "background-color: #C7C7C7;" //
-					+ "}" //
-
-					+ "headertext.e {"//
-					+ "color: #101010;" //
-					+ "background-color: #4C83B1;" //
-					+ "font-weight:bold;" //
-					+ "}" //
-
-					+ "button.e, combobox.e, check.e, radio.e, portal.e {" //
-					+ "color: #363636;" //
-					+ "background-color: #FFE87C;" //
-					+ "font-weight:bold;" //
-					+ "}" //
-
-					+ "header.e, footer.e, title_header.e, title_footer.e {" //
-					+ "background-color: #FBEE90;" //
-					+ "}" //
-				;
-				flattenedSolution.createStyle("_servoy_mobile", servoyMobileStyle);
-			}
-		}
-		else
-		{
-			flattenedSolution.removeStyle("_servoy_mobile");
-		}
-	}
-
-	@Override
-	protected void solutionLoaded(Solution s)
-	{
-		super.solutionLoaded(s);
-		installServoyMobileInternalStyle(solutionRoot);
-	}
-
 	private Form form;
 
 	private final List<List<IPersist>> changesQueue = Collections.synchronizedList(new ArrayList<List<IPersist>>());
@@ -443,7 +181,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	private void performRefresh(List<IPersist> changes)
 	{
-
 		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
 		for (FormController controller : scopesAndFormsToReload[0])
@@ -484,24 +221,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected IExecutingEnviroment createScriptEngine()
 	{
-		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this)
-		{
-			{
-				ScriptObjectRegistry.getJavaMembers(MobileDWCJSSolutionModel.class, getToplevelScope());
-				ScriptObjectRegistry.getJavaMembers(MobileDWCJSForm.class, getToplevelScope());
-			}
-
-			@Override
-			protected JSSolutionModel createSolutionModifier()
-			{
-				if (SolutionMetaData.isServoyMobileSolution(getSolution()))
-				{
-					return new MobileDWCJSSolutionModel(application);
-				}
-
-				return super.createSolutionModifier();
-			}
-		};
+		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
 
 		if (designerCallBack != null)
 		{
@@ -776,6 +496,6 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	protected int getSolutionTypeFilter()
 	{
-		return super.getSolutionTypeFilter() | SolutionMetaData.MOBILE;
+		return super.getSolutionTypeFilter();
 	}
 }
