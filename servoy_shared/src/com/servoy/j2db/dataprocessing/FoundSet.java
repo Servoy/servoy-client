@@ -6295,7 +6295,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (dataSet != null)
 		{
 			// just return empty data set, prevent 'where 1=2' queries
-			fsm.getApplication().reportJSInfo("Skipping reload query on cleared foundset for data source " + getDataSource());
+			if (Debug.tracing())
+			{
+				Debug.trace("Skipping reload query on cleared foundset for data source " + getDataSource());
+			}
 			return dataSet;
 		}
 
