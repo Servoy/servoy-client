@@ -38,6 +38,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.behavior.IBehavior;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.Form;
@@ -239,6 +240,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				return super.isEnabled(component) && scriptable.getPlaceholderText() != null;
 			}
 		});
+		add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		focusIfInvalidAttributeModifier = new FocusIfInvalidAttributeModifier(this);
 		add(focusIfInvalidAttributeModifier);
