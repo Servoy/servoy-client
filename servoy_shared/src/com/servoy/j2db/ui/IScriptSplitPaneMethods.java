@@ -118,13 +118,6 @@ public interface IScriptSplitPaneMethods extends IRuntimeSplitPane, IScriptTabPa
 	 * @deprecated
 	 */
 	@Deprecated
-	public boolean insertTab(String formName, String tabName, String tabText, String tooltip, String iconURL, String fg, String bg, String relationName,
-		int tabIndex);
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated
 	public int js_getMaxTabIndex();
 
 	/**

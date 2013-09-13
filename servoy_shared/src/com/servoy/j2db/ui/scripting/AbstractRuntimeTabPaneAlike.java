@@ -154,13 +154,6 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		return addTab(formName, tabName, tabName, "", "", null, null, (String)null, -1);
 	}
 
-	@Override
-	public boolean insertTab(String formName, String tabName, String tabText, String tooltip, String iconURL, String fg, String bg, String relationName,
-		int tabIndex)
-	{
-		return addTab(formName, tabName, tabText, tooltip, iconURL, fg, bg, relationName, tabIndex >= 1 ? tabIndex - 1 : -1);
-	}
-
 	@SuppressWarnings("nls")
 	public boolean js_addTab(Object[] vargs)
 	{

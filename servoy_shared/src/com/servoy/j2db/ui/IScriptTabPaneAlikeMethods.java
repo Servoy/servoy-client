@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.ui;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 
 /**
  * JS Methods for tabpanel like components that are not shared with java api.
@@ -41,31 +39,11 @@ public interface IScriptTabPaneAlikeMethods
 	 * @param fg optional the HTML RGB Hexadecimal foreground color for the tab (default is null)
 	 * @param bg optional the HTML RGB Hexadecimal background color for the tab (default is null)
 	 * @param relatedfoundset/relationname optional the specified name of the related foundset (default is null)
+	 * @param index optional the specified index of a tab, default is -1, will add tab to the end, this index is 0 based
 	 * 
 	 * @return a boolean value indicating if tab was successfully added
 	 */
 	boolean js_addTab(Object[] vargs);
-
-
-	/**
-	 * Adds a relationless or related form as a tab in a specified tabpanel at specified index. The difference to addTab method is that tabIndex is 1 based.
-	 * 
-	 * @sample %%prefix%%%%elementName%%.insertTab('orders','ordersTab','Orders',null,null,'#000000','#BBCCEE',null,1);
-	 *
-	 * @param formName the specified form/form name you wish to add as a tab
-	 * @param tabName the specified name for the tab or null
-	 * @param tabText the specified text for the tab
-	 * @param tooltip a specified tooltip for the tab
-	 * @param iconURL a specified icon image or icon URL for the tab
-	 * @param fg the HTML RGB Hexadecimal foreground color for the tab
-	 * @param bg the HTML RGB Hexadecimal background color for the tab
-	 * @param relationName the specified name of the related foundset or null
-	 * @param tabIndex the specified index of a tab, -1 will add tab to the end; is 1 based
-	 * 
-	 * @return a boolean value indicating if tab was successfully added
-	 */
-	@JSFunction
-	boolean insertTab(String formName, String tabName, String tabText, String tooltip, String iconURL, String fg, String bg, String relationName, int tabIndex);
 
 	/**
 	 * Removes a specified tab in a tabpanel; can be based on a relation or relationless.
