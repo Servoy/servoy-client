@@ -25,6 +25,7 @@ import java.net.URLStreamHandler;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -718,5 +719,33 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	public void setValueListItems(String name, Object[] displayValues)
 	{
 		application.setValueListItems(name, displayValues, null, true);
+	}
+
+	@Override
+	public Map<String, String> getUserProperties()
+	{
+		Map<String, String> map = new HashMap<String, String>();
+		String[] userPropNames = application.getUserPropertyNames();
+		if (userPropNames != null)
+		{
+			for (String propName : userPropNames)
+			{
+				map.put(propName, application.getUserProperty(propName));
+			}
+		}
+		return map;
+	}
+
+
+	@Override
+	public void setUserProperties(Map<String, String> properties)
+	{
+		if (properties != null)
+		{
+			for (String propName : properties.keySet())
+			{
+				application.setUserProperty(propName, properties.get(propName));
+			}
+		}
 	}
 }

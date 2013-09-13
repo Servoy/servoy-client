@@ -1485,8 +1485,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	public String getUserProperty(String a_name)
 	{
 		if (a_name == null) return null;
-		String defaultUserProperty = getDefaultUserProperties().get(a_name);
-		if (defaultUserProperty != null) return defaultUserProperty;
 		CharSequence name = Utils.stringLimitLenght(a_name, 255);
 		if (session != null)
 		{
@@ -1494,7 +1492,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		}
 		else
 		{
-			return settings.getProperty(Settings.USER + name);
+			return getDefaultUserProperties().get(a_name);
 		}
 	}
 
@@ -1528,7 +1526,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	public void setUserProperty(String a_name, String value)
 	{
 		if (a_name == null) return;
-		getDefaultUserProperties().remove(a_name); // clear
 		CharSequence name = Utils.stringLimitLenght(a_name, 255);
 		if (session != null)
 		{
@@ -1545,11 +1542,11 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		{
 			if (value == null)
 			{
-				settings.remove(Settings.USER + name);
+				getDefaultUserProperties().remove(a_name); // clear
 			}
 			else
 			{
-				settings.setProperty(Settings.USER + name, Utils.stringLimitLenght(value, 255).toString());
+				getDefaultUserProperties().put(name.toString(), Utils.stringLimitLenght(value, 255).toString()); // clear
 			}
 		}
 	}
