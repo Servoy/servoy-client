@@ -1013,6 +1013,7 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * @return A ISMPart instance representing the retrieved form part.
 	 */
+	@ServoyClientSupport(mc = false, sc = true, wc = true)
 	public ISMPart getPart(int type, int height);
 
 	/**

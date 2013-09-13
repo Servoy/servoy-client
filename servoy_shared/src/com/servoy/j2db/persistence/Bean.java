@@ -295,5 +295,5 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 		}
 		return name + " [" + getBeanClassName() + ']'; //$NON-NLS-1$
 	}
-
+	
 }

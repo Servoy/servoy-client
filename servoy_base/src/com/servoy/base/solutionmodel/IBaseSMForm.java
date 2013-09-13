@@ -964,6 +964,7 @@ public interface IBaseSMForm extends IBaseSMListContainer
 	 *
 	 * @return A IBaseSMPart instance representing the retrieved form part.
 	 */
+	@ServoyClientSupport(mc = false, sc = true, wc = true)
 	public IBaseSMPart getPart(int type);
 
 	/**

@@ -74,6 +74,7 @@ public class BaseDocsField extends Field implements IComponentWithTitle
 	/**
 	 * Header text to component
 	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getTitleText()
 	{
 		return null;
