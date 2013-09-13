@@ -33,32 +33,6 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 {
 
 	/**
-	 * Constant to set the valueListType of a JSValueList.
-	 * Sets the value list to use a custom list of values.
-	 * Also used in solutionModel.newValueList(...) to create new valuelists
-	 *
-	 * @sample 
-	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
-	 * vlist.valueListType = JSValueList.CUSTOM_VALUES; // Change the type to custom values.
-	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 */
-	public static final int CUSTOM_VALUES = IValueListConstants.CUSTOM_VALUES;
-	/**
-	 * Constant to set the valueListType of a JSValueList.
-	 * Sets the value list to use values loaded from a database.
-	 * Also used in solutionModel.newValueList(...) to create new valuelists
-	 *
-	 * @sample 
-	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
-	 * vlist.valueListType = JSValueList.DATABASE_VALUES; // Change the type to database values.
-	 * vlist.dataSource = 'db:/example_data/parent_table';
-	 * vlist.setDisplayDataProviderIds('parent_table_text');
-	 * vlist.setReturnDataProviderIds('parent_table_text', 'parent_table_id');
-	 * vlist.separator = ' ## ';
-	 * vlist.sortOptions = 'parent_table_text desc';
-	 */
-	public static final int DATABASE_VALUES = IValueListConstants.DATABASE_VALUES;
-	/**
 	 * Constant to set/get the addEmptyValue property of a JSValueList.
 	 *
 	 * @sample 
@@ -217,25 +191,6 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	public Object[] getReturnDataProviderIds();
 
 	/**
-	 * A string with the elements in the valuelist. The elements 
-	 * can be separated by linefeeds (custom1
-	 * custom2), optional with realvalues ((custom1|1
-	 * custom2|2)).
-	 *
-	 * @sample
-	 * var vl1 = solutionModel.newValueList("customtext",JSValueList.CUSTOM_VALUES);
-	 * vl1.customValues = "customvalue1\ncustomvalue2";
-	 * var vl2 = solutionModel.newValueList("customid",JSValueList.CUSTOM_VALUES);
-	 * vl2.customValues = "customvalue1|1\ncustomvalue2|2";
-	 * var form = solutionModel.newForm("customvaluelistform",controller.getDataSource(),null,true,300,300);
-	 * var combo1 = form.newComboBox("scopes.globals.text",10,10,120,20);
-	 * combo1.valuelist = vl1;
-	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
-	 * combo2.valuelist = vl2;
-	 */
-	public String getCustomValues();
-
-	/**
 	 * The name of the relation that is used for loading data from the database.
 	 * 
 	 * @sample
@@ -325,8 +280,6 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * Property if an empty value must be shown, set one of the JSValueList.EMPTY_VALUE_ALWAYS or JSValueList.EMPTY_VALUE_NEVER constants
 	 */
 	public void setAddEmptyValue(int arg);
-
-	public void setCustomValues(String arg);
 
 	/**
 	 * Sets the global method for this valuelist, this method will then be called to get the values for this valuelist.

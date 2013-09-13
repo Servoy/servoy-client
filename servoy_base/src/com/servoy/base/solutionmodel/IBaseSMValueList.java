@@ -17,6 +17,7 @@
 
 package com.servoy.base.solutionmodel;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
@@ -31,6 +32,55 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IBaseSMValueList
 {
+
+	/**
+	 * Constant to set the valueListType of a JSValueList.
+	 * Sets the value list to use a custom list of values.
+	 * Also used in solutionModel.newValueList(...) to create new valuelists
+	 *
+	 * @sample 
+	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
+	 * vlist.valueListType = JSValueList.CUSTOM_VALUES; // Change the type to custom values.
+	 * vlist.customValues = "one\ntwo\nthree\nfour";
+	 */
+	public static final int CUSTOM_VALUES = IValueListConstants.CUSTOM_VALUES;
+	/**
+	 * Constant to set the valueListType of a JSValueList.
+	 * Sets the value list to use values loaded from a database.
+	 * Also used in solutionModel.newValueList(...) to create new valuelists
+	 *
+	 * @sample 
+	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
+	 * vlist.valueListType = JSValueList.DATABASE_VALUES; // Change the type to database values.
+	 * vlist.dataSource = 'db:/example_data/parent_table';
+	 * vlist.setDisplayDataProviderIds('parent_table_text');
+	 * vlist.setReturnDataProviderIds('parent_table_text', 'parent_table_id');
+	 * vlist.separator = ' ## ';
+	 * vlist.sortOptions = 'parent_table_text desc';
+	 */
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	public static final int DATABASE_VALUES = IValueListConstants.DATABASE_VALUES;
+
+	/**
+	 * A string with the elements in the valuelist. The elements 
+	 * can be separated by linefeeds (custom1
+	 * custom2), optional with realvalues ((custom1|1
+	 * custom2|2)).
+	 *
+	 * @sample
+	 * var vl1 = solutionModel.newValueList("customtext",JSValueList.CUSTOM_VALUES);
+	 * vl1.customValues = "customvalue1\ncustomvalue2";
+	 * var vl2 = solutionModel.newValueList("customid",JSValueList.CUSTOM_VALUES);
+	 * vl2.customValues = "customvalue1|1\ncustomvalue2|2";
+	 * var form = solutionModel.newForm("customvaluelistform",controller.getDataSource(),null,true,300,300);
+	 * var combo1 = form.newComboBox("scopes.globals.text",10,10,120,20);
+	 * combo1.valuelist = vl1;
+	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
+	 * combo2.valuelist = vl2;
+	 */
+	public String getCustomValues();
+
+	public void setCustomValues(String arg);
 
 	/**
 	 * The name of the value list.

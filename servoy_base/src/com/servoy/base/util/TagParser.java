@@ -110,7 +110,7 @@ public class TagParser
 		return changed ? retval.toString() : s;
 	}
 
-	private static String[] split(String s, char tag)
+	public static String[] split(String s, char tag)
 	{
 		ArrayList<String> result = new ArrayList<String>();
 		char currentChar;

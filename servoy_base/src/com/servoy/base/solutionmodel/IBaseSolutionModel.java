@@ -380,4 +380,26 @@ public interface IBaseSolutionModel
 	 */
 	public IBaseSMMethod[] getGlobalMethods(String scopeName);
 
+	/**
+	 * Creates a new valuelist with the specified name and number type.
+	 *
+	 * @sample
+	 * var vl1 = solutionModel.newValueList("customText",JSValueList.CUSTOM_VALUES);
+	 * vl1.customValues = "customvalue1\ncustomvalue2";
+	 * var vl2 = solutionModel.newValueList("customid",JSValueList.CUSTOM_VALUES);
+	 * vl2.customValues = "customvalue1|1\ncustomvalue2|2";
+	 * var form = solutionModel.newForm("customValueListForm",controller.getDataSource(),null,true,300,300);
+	 * var combo1 = form.newComboBox("scopes.globals.text",10,10,120,20);
+	 * combo1.valuelist = vl1;
+	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
+	 * combo2.valuelist = vl2;
+	 *
+	 * @param name the specified name for the valuelist
+	 *
+	 * @param type the specified number type for the valuelist; may be JSValueList.CUSTOM_VALUES, JSValueList.DATABASE_VALUES, JSValueList.EMPTY_VALUE_ALWAYS, JSValueList.EMPTY_VALUE_NEVER
+	 * 
+	 * @return a JSValueList object
+	 */
+	public IBaseSMValueList newValueList(String name, int type);
+
 }
