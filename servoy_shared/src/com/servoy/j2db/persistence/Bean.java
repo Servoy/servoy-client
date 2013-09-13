@@ -88,6 +88,29 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	}
 
 	/**
+	 * Get the mobile bean innerHTML.
+	 * 
+	 * @return a String object containing the mobile bean innerHTML
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public String getInnerHTML()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML);
+	}
+
+
+	/**
+	 * Set the mobile bean innerHTML
+	 * 
+	 * @param innerHTML the mobile bean innerHTML
+	 */
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public void setInnerHTML(String innerHTML)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML, innerHTML);
+	}
+
+	/**
 	 * Set the beanClassName
 	 * 
 	 * @param arg the beanClassName

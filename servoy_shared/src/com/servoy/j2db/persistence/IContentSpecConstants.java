@@ -160,7 +160,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_WIDTH = "width"; //$NON-NLS-1$
 	public static final String PROPERTY_ALIASES = "aliases"; //$NON-NLS-1$
 	public static final String PROPERTY_BEANCLASSNAME = "beanClassName"; //$NON-NLS-1$
-	public static final String PROPERTY_BEANXML = "beanXML"; //$NON-NLS-1$
 	public static final String PROPERTY_BORDERTYPE = "borderType"; //$NON-NLS-1$
 	public static final String PROPERTY_COMMENT = "comment"; //$NON-NLS-1$
 	public static final String PROPERTY_CONTENT = "content"; //$NON-NLS-1$;

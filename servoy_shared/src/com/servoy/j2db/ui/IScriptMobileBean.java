@@ -41,10 +41,31 @@ public interface IScriptMobileBean extends IRuntimeComponent
 	 *
 	 * //sets the text of the element
 	 * %%prefix%%%%elementName%%.text = my_text + 'is cool';
+	 * 
+	 * @deprecated by innerHTML property
 	 */
 	@JSGetter
+	@Deprecated
 	public String getText();
 
 	@JSSetter
+	@Deprecated
 	public void setText(String txt);
+
+
+	/**
+	 * Gets or sets the innerHTML that is displayed on the bean's div
+	 * 
+	 * @sample
+	 * //gets the innerHTML of the element
+	 * var my_bean_innerHTML = %%prefix%%%%elementName%%.innerHTML;
+	 *
+	 * //sets the innerHTML of the element
+	 * %%prefix%%%%elementName%%.innerHTML = '<div>my inner HTML</div>';
+	 */
+	@JSGetter
+	public String getInnerHTML();
+
+	@JSSetter
+	public void setInnerHTML(String innerHTML);
 }
