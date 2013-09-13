@@ -17,10 +17,10 @@
 package com.servoy.j2db.util.xmlxport;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.InfoChannel;
-import com.servoy.j2db.util.SortedList;
 
 
 /**
@@ -30,13 +30,13 @@ import com.servoy.j2db.util.SortedList;
 public interface IXMLExportUserChannel extends InfoChannel
 {
 	/**
-	 * Return the modules names which must be included in the export. The argument is a sorted list of all modules which the solution references. The result
+	 * Return the modules names which must be included in the export. The argument is a (sorted) list of all modules which the solution references. The result
 	 * should be a subset of the supplied list.
 	 * 
 	 * @param allModules names of all modules of exported solution. This list may be altered and returned.
 	 * @return the modules names which must be included in the export.
 	 */
-	public SortedList<String> getModuleIncludeList(SortedList<String> allModules);
+	public <T extends List<String>> T getModuleIncludeList(T allModules);
 
 	/**
 	 * Return a protection password for export.
