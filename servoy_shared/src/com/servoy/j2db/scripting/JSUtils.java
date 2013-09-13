@@ -913,7 +913,7 @@ public class JSUtils implements IJSUtils
 	 */
 	public boolean js_validatePBKDF2Hash(String password, String hash)
 	{
-		if (hash != null && !"".equals(hash))
+		if (password != null && !"".equals(password) && hash != null)
 		{
 			return Utils.validatePBKDF2Hash(password, hash);
 		}
