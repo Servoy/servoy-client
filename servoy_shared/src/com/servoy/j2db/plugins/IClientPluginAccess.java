@@ -462,14 +462,17 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public void setValueListItems(String name, Object[] displayValues, Object[] realValues);
 
 	/**
-	 * 
+	 * Gets the user properties for this client.
 	 * @return a map of key value pairs of user properties
+	 * @since 7.3
 	 */
 	public Map<String, String> getUserProperties();
 
 	/**
+	 * Sets the user properties for this client ,merging the properties with the existing user porperties
 	 * 
 	 * @param a map of key value pairs of user properties to be set 
+	 * @since 7.3
 	 */
 	public void setUserProperties(Map<String, String> properties);
 }
