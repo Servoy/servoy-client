@@ -479,6 +479,26 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	}
 
 	/**
+	 * Get the column names of a dataset.
+	 * 
+	 * @sample
+	 * var query = 'select * from customers';
+	 * var dataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), query, null, 100);
+	 * var columnNames = dataset.getColumnNames();
+	 * 
+	 * @return String[] column names
+	 */
+	public String[] js_getColumnNames()
+	{
+		if (set != null)
+		{
+			String[] columnNames = set.getColumnNames();
+			return columnNames;
+		}
+		return null;
+	}
+
+	/**
 	 * Set a column name based on index.
 	 *
 	 * @sample
