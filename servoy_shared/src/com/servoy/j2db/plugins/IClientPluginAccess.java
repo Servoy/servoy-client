@@ -126,7 +126,9 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public ResourceBundle getResourceBundle(Locale locale);
 
 	/**
-	 * set a status text in the status area.
+	 * Set a status text in the status area.
+	 * 
+	 * @param txt the text to show on status, please note for webclient the status bar is obsolete in most browsers
 	 */
 	public void setStatusText(String txt);
 
