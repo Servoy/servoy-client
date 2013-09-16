@@ -459,6 +459,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Set a new password for the given userUID.
+	 * Note: this method can be called only after login.
 	 *
 	 * @sample
 	 * if(security.checkPassword(security.getUserUID(), 'password1'))
@@ -562,11 +563,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Creates a group, returns the groupname (or null when group couldn't be created).
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sample
 	 * var deleteGroup = true;
 	 * //ceate a group
-	 * var groupName = security.creategroup('myGroup');
+	 * var groupName = security.createGroup('myGroup');
 	 * if (groupName)
 	 * {
 	 *	//create a user
@@ -620,6 +622,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Creates a new user, returns new uid (or null when group couldn't be created or user alreay exist).
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sample
 	 * var removeUser = true;
@@ -693,6 +696,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Deletes an user. returns true if no error was reported.
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sampleas js_createUser(String, String, Object)
 	 *
@@ -719,6 +723,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Deletes a group, returns true if no error was reported.
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sampleas js_createGroup(String)
 	 *
@@ -751,6 +756,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Changes the username of the specified userUID.
+	 * Note: this method can be called only after login.
 	 *
 	 * @sample
 	 * if(security.changeUserName(security.getUserUID('name1'), 'name2'))
@@ -782,6 +788,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Changes the groupname of a group.
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sample security.changeGroupName('oldGroup', 'newGroup');
 	 *
@@ -878,6 +885,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Adds an user to a named group.
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sample
 	 * var userUID = security.getUserUID();
@@ -917,6 +925,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Removes an user from a group.
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sampleas js_createUser(String, String, Object)
 	 *
