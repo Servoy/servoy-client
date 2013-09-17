@@ -16,10 +16,12 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -109,6 +111,49 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 	{
 		checkModification();
 		getBaseComponent(true).setPrimaryDataProviderID(arg);
+	}
+
+	/**
+	 * Get the literal.
+	 * 
+	 * @sampleas setPrimaryLiteral()
+	 * 
+	 * @return the literal
+	 */
+	@JSFunction
+	public String getPrimaryLiteral()
+	{
+		return getPrimaryDataProviderID();
+	}
+
+	/**
+	 * Set the literal.
+	 * 
+	 * @sample
+	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
+	 * var criteria = relation.newRelationItem(JSRelationItem.LITERAL_PREFIX + "'hello'",'=', 'myTextField');
+	 * criteria.setPrimaryLiteral("'literal_text'");
+	 * //criteria.setPrimaryLiteral(number);
+	 * var primaryLiteral = criteria.getPrimaryLiteral();
+	 * criteria.foreignColumnName = 'child_table_text';
+	 * criteria.operator = '<';
+	 * 
+	 * @parameter arg the literal
+	 */
+	@JSFunction
+	public void setPrimaryLiteral(Object arg)
+	{
+		checkModification();
+		String argString = String.valueOf(arg);
+		if (!argString.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+		{
+			if (arg instanceof Double && (Double)arg == ((Double)arg).intValue())
+			{
+				argString = String.valueOf(((Double)arg).intValue());
+			}
+			argString = LiteralDataprovider.LITERAL_PREFIX + argString;
+		}
+		getBaseComponent(true).setPrimaryDataProviderID(argString);
 	}
 
 	/**
