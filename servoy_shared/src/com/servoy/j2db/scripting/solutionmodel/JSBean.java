@@ -176,7 +176,7 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public String getInnerHTML()
 	{
-		return getBaseComponent(true).getBeanXML();
+		return getBaseComponent(false).getBeanXML();
 	}
 
 	@Override
