@@ -16,7 +16,6 @@ package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.solutionhelper.IBaseSHInsetList;
-import com.servoy.base.solutionmodel.IBaseSMBean;
 import com.servoy.base.solutionmodel.IBaseSMButton;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMField;
@@ -378,7 +377,7 @@ public interface IMobileSMForm extends IBaseSMForm
 	 * 
 	 * @return a JSBean object 
 	 */
-	public IBaseSMBean newBean(String name, int y);
+	public IMobileSMBean newBean(String name, int y);
 
 	/**
 	 * Creates a new inset list mobile component in the given form. The inset list will be populated based on the given datasource and relation.

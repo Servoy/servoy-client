@@ -21,6 +21,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.mobile.IMobileSMBean;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -32,7 +33,7 @@ import com.servoy.j2db.solutionmodel.ISMBean;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBean
+public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBean, IMobileSMBean
 {
 	public JSBean(IJSParent< ? > parent, Bean baseComponent, boolean isNew)
 	{
@@ -168,5 +169,21 @@ public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBea
 	public String toString()
 	{
 		return "JSBean[name:" + getName() + ",classname:" + getClassName() + ']';
+	}
+
+	@Override
+	@JSGetter
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public String getInnerHTML()
+	{
+		return getBaseComponent(true).getBeanXML();
+	}
+
+	@Override
+	@JSSetter
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public void setInnerHTML(String innerHTML)
+	{
+		getBaseComponent(true).setBeanXML(innerHTML);
 	}
 }
