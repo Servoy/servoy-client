@@ -18,6 +18,7 @@
 package com.servoy.base.solutionmodel.mobile;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.base.solutionmodel.IBaseSMValueList;
 
 /**
  * Solution model radios field component.
@@ -36,4 +37,8 @@ public interface IMobileSMRadios extends IMobileSMField
 	public boolean getHorizontal();
 
 	public void setHorizontal(boolean horizontal);
+
+	@Override
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	public IBaseSMValueList getValuelist();
 }

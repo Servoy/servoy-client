@@ -37,7 +37,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Variable")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Variable", typeCode = IRepository.SCRIPTVARIABLES)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class ScriptVariable extends AbstractBase implements IVariable, IDataProvider, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
 	IPersistCloneable, ICloneable, ISupportScope, ISupportDeprecatedAnnotation

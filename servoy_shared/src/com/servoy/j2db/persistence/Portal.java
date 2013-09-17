@@ -23,7 +23,6 @@ import java.util.Iterator;
 
 import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -31,14 +30,12 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Portal extends BaseComponent implements ISupportFormElements, ISupportScrollbars, ISupportTabSeq
 {
 	/**
 	 * Constructor I
 	 */
-	Portal(ISupportChilds parent, int element_id, UUID uuid)
+	protected Portal(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.PORTALS, parent, element_id, uuid);
 	}

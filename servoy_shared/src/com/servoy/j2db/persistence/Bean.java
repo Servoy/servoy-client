@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -30,13 +29,12 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class Bean extends BaseComponent implements ISupportTabSeq
 {
 	/**
 	 * Constructor I
 	 */
-	Bean(ISupportChilds parent, int element_id, UUID uuid)
+	protected Bean(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.BEANS, parent, element_id, uuid);
 	}
@@ -295,5 +293,5 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 		}
 		return name + " [" + getBeanClassName() + ']'; //$NON-NLS-1$
 	}
-	
+
 }

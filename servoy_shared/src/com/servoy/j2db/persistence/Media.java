@@ -26,7 +26,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.MEDIA)
 public class Media extends AbstractBase implements ISupportName, ICloneable
 {
 	public static final long serialVersionUID = 468097341226347599L;

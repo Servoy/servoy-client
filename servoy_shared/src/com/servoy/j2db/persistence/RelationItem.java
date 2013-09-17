@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ISQLCondition;
@@ -25,7 +26,7 @@ import com.servoy.j2db.util.UUID;
 /**
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.RELATION_ITEMS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class RelationItem extends AbstractBase implements ISupportContentEquals, IPersistCloneable, ICloneable
 {
@@ -99,20 +100,20 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	public static String getOperatorAsString(int op)
 	{
-		if ((op & ISQLCondition.OPERATOR_MASK) == op)
+		if ((op & IBaseSQLCondition.OPERATOR_MASK) == op)
 		{
 			// no modifiers
-			return ISQLCondition.OPERATOR_STRINGS[op];
+			return IBaseSQLCondition.OPERATOR_STRINGS[op];
 		}
 		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < ISQLCondition.ALL_MODIFIERS.length; i++)
+		for (int i = 0; i < IBaseSQLCondition.ALL_MODIFIERS.length; i++)
 		{
-			if ((op & ISQLCondition.ALL_MODIFIERS[i]) != 0)
+			if ((op & IBaseSQLCondition.ALL_MODIFIERS[i]) != 0)
 			{
-				sb.append(ISQLCondition.MODIFIER_STRINGS[i]);
+				sb.append(IBaseSQLCondition.MODIFIER_STRINGS[i]);
 			}
 		}
-		sb.append(ISQLCondition.OPERATOR_STRINGS[op & ISQLCondition.OPERATOR_MASK]);
+		sb.append(IBaseSQLCondition.OPERATOR_STRINGS[op & IBaseSQLCondition.OPERATOR_MASK]);
 		return sb.toString();
 	}
 
@@ -125,45 +126,45 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	public static int swapOperator(int op)
 	{
 		int swapped;
-		switch (op & ISQLCondition.OPERATOR_MASK)
+		switch (op & IBaseSQLCondition.OPERATOR_MASK)
 		{
-			case ISQLCondition.GT_OPERATOR :
-				swapped = ISQLCondition.LT_OPERATOR;
+			case IBaseSQLCondition.GT_OPERATOR :
+				swapped = IBaseSQLCondition.LT_OPERATOR;
 				break;
 
-			case ISQLCondition.LT_OPERATOR :
-				swapped = ISQLCondition.GT_OPERATOR;
+			case IBaseSQLCondition.LT_OPERATOR :
+				swapped = IBaseSQLCondition.GT_OPERATOR;
 				break;
 
-			case ISQLCondition.GTE_OPERATOR :
-				swapped = ISQLCondition.LTE_OPERATOR;
+			case IBaseSQLCondition.GTE_OPERATOR :
+				swapped = IBaseSQLCondition.LTE_OPERATOR;
 				break;
 
-			case ISQLCondition.LTE_OPERATOR :
-				swapped = ISQLCondition.GTE_OPERATOR;
+			case IBaseSQLCondition.LTE_OPERATOR :
+				swapped = IBaseSQLCondition.GTE_OPERATOR;
 				break;
 
-			case ISQLCondition.NOT_OPERATOR :
-				swapped = ISQLCondition.NOT_OPERATOR;
+			case IBaseSQLCondition.NOT_OPERATOR :
+				swapped = IBaseSQLCondition.NOT_OPERATOR;
 				break;
 
-			case ISQLCondition.EQUALS_OPERATOR :
-				swapped = ISQLCondition.EQUALS_OPERATOR;
+			case IBaseSQLCondition.EQUALS_OPERATOR :
+				swapped = IBaseSQLCondition.EQUALS_OPERATOR;
 				break;
 
 			//we have made like an exception since global like column doesn't make any sense.
-			case ISQLCondition.LIKE_OPERATOR :
-				swapped = ISQLCondition.LIKE_OPERATOR;
+			case IBaseSQLCondition.LIKE_OPERATOR :
+				swapped = IBaseSQLCondition.LIKE_OPERATOR;
 				break;
 
-			case ISQLCondition.NOT_LIKE_OPERATOR :
-				swapped = ISQLCondition.NOT_LIKE_OPERATOR;
+			case IBaseSQLCondition.NOT_LIKE_OPERATOR :
+				swapped = IBaseSQLCondition.NOT_LIKE_OPERATOR;
 				break;
 
 			default :
 				return -1;
 		}
-		return swapped | (op & ~ISQLCondition.OPERATOR_MASK);
+		return swapped | (op & ~IBaseSQLCondition.OPERATOR_MASK);
 	}
 
 	public static boolean checkIfValidOperator(String op)
@@ -183,23 +184,23 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		while (foundModifiers)
 		{
 			foundModifiers = false;
-			for (int m = 0; m < ISQLCondition.ALL_MODIFIERS.length; m++)
+			for (int m = 0; m < IBaseSQLCondition.ALL_MODIFIERS.length; m++)
 			{
-				if (opString.startsWith(ISQLCondition.MODIFIER_STRINGS[m]))
+				if (opString.startsWith(IBaseSQLCondition.MODIFIER_STRINGS[m]))
 				{
 					foundModifiers = true;
-					opString = opString.substring(ISQLCondition.MODIFIER_STRINGS[m].length());
-					mod |= ISQLCondition.ALL_MODIFIERS[m];
+					opString = opString.substring(IBaseSQLCondition.MODIFIER_STRINGS[m].length());
+					mod |= IBaseSQLCondition.ALL_MODIFIERS[m];
 					break;
 				}
 			}
 		}
 
-		for (int i = 0; i < ISQLCondition.OPERATOR_STRINGS.length; i++)
+		for (int i = 0; i < IBaseSQLCondition.OPERATOR_STRINGS.length; i++)
 		{
-			if (ISQLCondition.OPERATOR_STRINGS[i].equalsIgnoreCase(opString))
+			if (IBaseSQLCondition.OPERATOR_STRINGS[i].equalsIgnoreCase(opString))
 			{
-				return ISQLCondition.ALL_DEFINED_OPERATORS[i] | mod;
+				return IBaseSQLCondition.ALL_DEFINED_OPERATORS[i] | mod;
 			}
 		}
 
@@ -237,8 +238,8 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		}
 
 		// operators and modifiers are separate
-		int mod = operator & ~ISQLCondition.OPERATOR_MASK;
-		for (int x : ISQLCondition.ALL_MODIFIERS)
+		int mod = operator & ~IBaseSQLCondition.OPERATOR_MASK;
+		for (int x : IBaseSQLCondition.ALL_MODIFIERS)
 		{
 			mod &= ~x;
 		}
@@ -248,7 +249,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 			return -1;
 		}
 
-		int op = operator & ISQLCondition.OPERATOR_MASK;
+		int op = operator & IBaseSQLCondition.OPERATOR_MASK;
 		for (int x : operators)
 		{
 			if (x == op)

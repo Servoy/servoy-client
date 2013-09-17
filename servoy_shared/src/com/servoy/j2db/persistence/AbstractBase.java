@@ -34,8 +34,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONException;
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -944,12 +942,6 @@ public abstract class AbstractBase implements IPersist
 		return old;
 	}
 
-	/**
-	 * Property to get and add design-time properties for a component. 
-	 * 
-	 * @return
-	 */
-	@JSGetter
 	public Map<String, Object> getCustomDesignTimeProperties()
 	{
 		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { "design" });
@@ -1022,7 +1014,6 @@ public abstract class AbstractBase implements IPersist
 		setCustomDesignTimeProperties(map);
 	}
 
-	@JSSetter
 	public Map<String, Object> setCustomDesignTimeProperties(Map<String, Object> map)
 	{
 		return (Map<String, Object>)putCustomProperty(new String[] { "design" }, map);

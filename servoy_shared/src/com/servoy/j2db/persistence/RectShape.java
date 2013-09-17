@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 
@@ -26,8 +24,6 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Rectangle")
-@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class RectShape extends BaseComponent
 {
 	public static final int BORDER_PANEL = 0;
@@ -42,7 +38,7 @@ public class RectShape extends BaseComponent
 	/**
 	 * Constructor I
 	 */
-	RectShape(ISupportChilds parent, int element_id, UUID uuid)
+	protected RectShape(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.RECTSHAPES, parent, element_id, uuid);
 	}

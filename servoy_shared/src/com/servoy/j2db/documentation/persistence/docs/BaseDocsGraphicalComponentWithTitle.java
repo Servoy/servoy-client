@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
-import com.servoy.j2db.persistence.GraphicalComponent;
 
 
 /**
@@ -25,7 +24,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  * 
  * @author rgansevles
  */
-public class BaseDocsGraphicalComponentWithTitle extends GraphicalComponent implements IComponentWithTitle
+public class BaseDocsGraphicalComponentWithTitle extends BaseDocsGraphicalComponent implements IComponentWithTitle
 {
 	protected BaseDocsGraphicalComponentWithTitle()
 	{

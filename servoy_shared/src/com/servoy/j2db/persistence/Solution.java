@@ -47,7 +47,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.SOLUTIONS)
 public class Solution extends AbstractRootObject implements ISupportChilds, ICloneable, ISupportUpdateableName, IMediaProvider
 {
 	// iterating & changing this map's contents will happen in synchronize blocks (the easier way would

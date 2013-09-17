@@ -22,13 +22,14 @@ import java.awt.Dimension;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Label", scriptingName = "Label", realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsLabel extends BaseDocsGraphicalComponentWithTitle
 {

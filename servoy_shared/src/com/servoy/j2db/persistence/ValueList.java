@@ -34,7 +34,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.VALUELISTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ICloneable
 {

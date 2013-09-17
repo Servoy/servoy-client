@@ -20,6 +20,7 @@ package com.servoy.j2db.documentation.persistence.docs;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
@@ -27,9 +28,9 @@ import com.servoy.j2db.persistence.GraphicalComponent;
  * @author acostache
  *
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Image", realClass = GraphicalComponent.class)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Image", realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
 @ServoyClientSupport(mc = false, wc = true, sc = true)
-public class DocsImage extends GraphicalComponent
+public class DocsImage extends BaseDocsGraphicalComponent
 {
 	protected DocsImage()
 	{

@@ -19,6 +19,7 @@ package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 
 /**
@@ -26,7 +27,7 @@ import com.servoy.j2db.persistence.Part;
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Footer", scriptingName = "Footer", realClass = Part.class)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Footer", scriptingName = "Footer", realClass = Part.class, typeCode = IRepository.PARTS)
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsFooter extends BaseDocsPart
 {

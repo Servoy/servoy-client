@@ -324,10 +324,6 @@ public class RepositoryHelper
 	@SuppressWarnings("nls")
 	public static boolean forceShowInDocs(String name, Class< ? > persistClass)
 	{
-		if (name.contains("customDesignTimeProperties")) //$NON-NLS-1$
-		{
-			return true;
-		}
 		if (persistClass.equals(Tab.class) && name.equals("containsFormID")) // handled in combined property table //$NON-NLS-1$
 		{
 			return true;
@@ -654,10 +650,6 @@ public class RepositoryHelper
 		if (Field.class.isAssignableFrom(persistClass) && displayName.equals("text")) //$NON-NLS-1$
 		{
 			return "titleText"; //$NON-NLS-1$
-		}
-		if (displayName.equals("CustomDesignTimeProperties")) //$NON-NLS-1$
-		{
-			return "designTimeProperties";//$NON-NLS-1$
 		}
 		return displayName;
 	}

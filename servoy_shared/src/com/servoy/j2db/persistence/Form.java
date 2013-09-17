@@ -30,7 +30,6 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.JSONWrapperMap;
@@ -43,7 +42,6 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok,jcompagner
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
 public class Form extends AbstractBase implements ISupportFormElements, ITableDisplay, ISupportUpdateableName, ISupportScrollbars, IPersistCloneable,
 	ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID
 {
@@ -92,7 +90,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	/**
 	 * Constructor I
 	 */
-	Form(ISupportChilds parent, int element_id, UUID uuid)
+	protected Form(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.FORMS, parent, element_id, uuid);
 	}

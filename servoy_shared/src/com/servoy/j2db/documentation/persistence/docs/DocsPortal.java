@@ -17,19 +17,44 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
+import java.util.Map;
+
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.Portal;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
- * @author rgansevles
+ * @author acostache
+ *
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Header", scriptingName = "Header", realClass = Part.class, typeCode = IRepository.PARTS)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class DocsHeader extends BaseDocsPart
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Portal", scriptingName = "Portal", realClass = Portal.class, typeCode = IRepository.PORTALS)
+@ServoyClientSupport(mc = false, wc = true, sc = true)
+public class DocsPortal extends Portal implements IBaseDocsComponent
 {
+	protected DocsPortal(ISupportChilds parent, int element_id, UUID uuid)
+	{
+		super(parent, element_id, uuid);
+	}
 
+	@JSGetter
+	@Override
+	public Map<String, Object> getDesignTimeProperties()
+	{
+		return null;
+	}
+
+	@JSSetter
+	@Override
+	public Map<String, Object> setDesignTimeProperties(Map<String, Object> map)
+	{
+		return null;
+	}
 }

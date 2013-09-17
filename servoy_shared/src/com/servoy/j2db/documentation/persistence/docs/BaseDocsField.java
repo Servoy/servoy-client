@@ -19,6 +19,10 @@ package com.servoy.j2db.documentation.persistence.docs;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Map;
+
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.persistence.Field;
@@ -33,7 +37,7 @@ import com.servoy.j2db.persistence.Field;
  * 
  * @author rgansevles
  */
-public class BaseDocsField extends Field implements IComponentWithTitle
+public class BaseDocsField extends Field implements IComponentWithTitle, IBaseDocsComponent
 {
 	BaseDocsField()
 	{
@@ -104,5 +108,20 @@ public class BaseDocsField extends Field implements IComponentWithTitle
 	public Dimension getSize()
 	{
 		return super.getSize();
+	}
+
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@JSGetter
+	@Override
+	public Map<String, Object> getDesignTimeProperties()
+	{
+		return null;
+	}
+
+	@JSSetter
+	@Override
+	public Map<String, Object> setDesignTimeProperties(Map<String, Object> map)
+	{
+		return null;
 	}
 }

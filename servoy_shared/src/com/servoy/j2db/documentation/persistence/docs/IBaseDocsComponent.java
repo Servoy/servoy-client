@@ -17,19 +17,23 @@
 
 package com.servoy.j2db.documentation.persistence.docs;
 
+import java.util.Map;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.Part;
 
 /**
- * Dummy class for use in the documentation generator.
- * 
- * @author rgansevles
+ * @author acostache
+ *
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Header", scriptingName = "Header", realClass = Part.class, typeCode = IRepository.PARTS)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public class DocsHeader extends BaseDocsPart
+@ServoyClientSupport(mc = false, sc = true, wc = true)
+public interface IBaseDocsComponent
 {
+	/**
+	 * Property to get and add design-time properties for a component. 
+	 * 
+	 * @return map of the design-time properties
+	 */
+	public Map<String, Object> getDesignTimeProperties();
 
+	public Map<String, Object> setDesignTimeProperties(Map<String, Object> map);
 }

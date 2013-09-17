@@ -20,13 +20,14 @@ package com.servoy.j2db.documentation.persistence.docs;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextArea", scriptingName = "TextArea", displayType = Field.TEXT_AREA, realClass = Field.class)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextArea", scriptingName = "TextArea", displayType = Field.TEXT_AREA, realClass = Field.class, typeCode = IRepository.FIELDS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsTextArea extends BaseDocsField
 {

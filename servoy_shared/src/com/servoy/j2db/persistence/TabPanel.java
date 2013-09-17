@@ -19,8 +19,6 @@ package com.servoy.j2db.persistence;
 
 import java.util.Iterator;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -29,8 +27,6 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
-@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class TabPanel extends BaseComponent implements ISupportChilds, ISupportTabSeq
 {
 	//orientations, see also SwingConstants.TOP,RIGHT,BOTTOM,LEFT
@@ -43,7 +39,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	/**
 	 * Constructor I
 	 */
-	TabPanel(ISupportChilds parent, int element_id, UUID uuid)
+	protected TabPanel(ISupportChilds parent, int element_id, UUID uuid)
 	{
 		super(IRepository.TABPANELS, parent, element_id, uuid);
 	}

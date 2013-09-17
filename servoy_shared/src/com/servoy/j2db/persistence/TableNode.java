@@ -33,7 +33,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Table")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Table", typeCode = IRepository.TABLENODES)
 public class TableNode extends AbstractBase implements ISupportChilds
 {
 /*

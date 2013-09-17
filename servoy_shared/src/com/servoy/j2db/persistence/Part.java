@@ -32,7 +32,7 @@ import com.servoy.j2db.util.UUID;
  * 
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.PARTS)
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID, IBasePart
 {

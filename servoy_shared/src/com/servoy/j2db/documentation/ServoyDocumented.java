@@ -78,4 +78,9 @@ public @interface ServoyDocumented
 	 * for documenting class, which class is the real class
 	 */
 	Class< ? > realClass() default Object.class;
+
+	/**
+	 * The type code of the element
+	 */
+	int typeCode() default -1;
 }

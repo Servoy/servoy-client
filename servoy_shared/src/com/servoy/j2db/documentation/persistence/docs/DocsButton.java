@@ -22,15 +22,16 @@ import java.awt.Dimension;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class)
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public class DocsButton extends GraphicalComponent
+public class DocsButton extends BaseDocsGraphicalComponent
 {
 	protected DocsButton()
 	{

@@ -22,13 +22,14 @@ import java.awt.Point;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.solutionhelper.IBaseSHInsetList;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
  * 
  * @author rgansevles
  */
-@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "InsetList", scriptingName = "InsetList")
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "InsetList", scriptingName = "InsetList", typeCode = IRepository.PORTALS)
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsInsetList extends BaseDocsList implements IBaseSHInsetList
 {
