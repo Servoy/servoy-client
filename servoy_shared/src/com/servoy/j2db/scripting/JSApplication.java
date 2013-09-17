@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-import java.util.TimeZone;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -1801,7 +1800,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * //webclient specific additional parameters...
 	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window
 	 * //3rd parameter: dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
-	 * //3th or 4th parameter: a timeout in seconds when the url should be shown, immediantly/0 is default'
+	 * //3rd or 4th parameter: a timeout in seconds when the url should be shown, immediately/0 is default'
 	 *
 	 * @param url URL to show 
 	 * 
@@ -2047,26 +2046,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public Date js_getTimeStamp()
 	{
-		try
-		{
-			// because of the fact that in non-SC dates format is applied on server timezone, if clients are set to display dates according
-			// to their timezone info, non-SC dates are shifted by the time zone difference when used in JS; see ClientManager.getConversionTimezone()...
-			// so simle new Date() in this case would really be wrong (unfortunately this problem also manifests when using simple new Date() as JS object...)
-			if (Utils.isSwingClient(application.getApplicationType()))
-			{
-				return new Date();
-			}
-			else
-			{
-				return new Date(TimezoneUtils.convertToTimezone(System.currentTimeMillis(), application.getTimeZone(), TimeZone.getDefault()));
-			}
-		}
-		catch (Exception e)
-		{
-			// should never happen (remote exception for non RMI client)
-			Debug.warn(e);
-			return new Date();
-		}
+		return TimezoneUtils.getClientDate(application);
 	}
 
 	/**

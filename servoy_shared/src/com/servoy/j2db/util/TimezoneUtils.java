@@ -23,6 +23,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IServiceProvider;
+
 /**
  * This class contains utility methods for handling time zones. WC and SC need different conversions at SQLEngine level.
  * @see ClientManager#showStringDatesTheSameOnAllClients.
@@ -89,6 +92,30 @@ public class TimezoneUtils
 			return new java.sql.Date(ms);
 		}
 		else return new Date(ms);
+	}
+
+	public static Date getClientDate(IServiceProvider application)
+	{
+		try
+		{
+			// because of the fact that in non-SC dates format is applied on server timezone, if clients are set to display dates according
+			// to their timezone info, non-SC dates are shifted by the time zone difference when used in JS; see ClientManager.getConversionTimezone()...
+			// so simle new Date() in this case would really be wrong (unfortunately this problem also manifests when using simple new Date() as JS object...)
+			if (application instanceof IApplication && Utils.isSwingClient(((IApplication)application).getApplicationType()))
+			{
+				return new Date();
+			}
+			else
+			{
+				return new Date(TimezoneUtils.convertToTimezone(System.currentTimeMillis(), application.getTimeZone(), TimeZone.getDefault()));
+			}
+		}
+		catch (Exception e)
+		{
+			// should never happen (remote exception for non RMI client)
+			Debug.warn(e);
+			return new Date();
+		}
 	}
 
 }

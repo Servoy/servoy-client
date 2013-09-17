@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.servoy.base.persistence.BaseColumn;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -514,7 +513,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							return new Timestamp(application.getClientHost().getServerTime(application.getClientID()).getTime());
 
 						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME :
-							return getConvertedClientTime(application);
+							return new Timestamp(TimezoneUtils.getClientDate(application).getTime());
 
 						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_USERNAME :
 							return application.getUserName();
@@ -561,7 +560,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 						case ColumnInfo.SYSTEM_VALUE_CREATION_DATETIME :
 //						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME://makes it possible to search for non modified records 
-							return getConvertedClientTime(application);
+							return new Timestamp(TimezoneUtils.getClientDate(application).getTime());
 
 						case ColumnInfo.SYSTEM_VALUE_CREATION_USERNAME :
 //						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_NAME://makes it possible to search for non modified records
@@ -640,20 +639,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		return null;
 	}
-
-	/**
-	 * @param application
-	 * @return
-	 */
-	private Object getConvertedClientTime(IServiceProvider application)
-	{
-		if (application instanceof IApplication && Utils.isSwingClient(((IApplication)application).getApplicationType()))
-		{
-			return new Timestamp(new Date().getTime());
-		}
-		return new Timestamp(TimezoneUtils.convertToTimezone(System.currentTimeMillis(), application.getTimeZone(), TimeZone.getDefault()));
-	}
-
 
 	/**
 	 * Get the column type as defined by the db.
