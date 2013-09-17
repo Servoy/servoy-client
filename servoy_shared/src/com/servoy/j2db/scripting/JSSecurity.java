@@ -757,7 +757,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Changes the username of the specified userUID.
-	 * Note: this method can only be called by an admin user or a normal logged in user changing its own password.
+	 * Note: this method can only be called by an admin user or a normal logged in user changing its own userName.
 	 *
 	 * @sample
 	 * if(security.changeUserName(security.getUserUID('name1'), 'name2'))
