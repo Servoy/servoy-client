@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -4801,6 +4802,24 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	{
 		checkModification();
 		return Utils.parseJSExpression(form.putCustomDesignTimeProperty(key, Utils.makeJSExpression(value)));
+	}
+
+	/** Get the design-time properties of a form.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var propNames = frm.getDesignTimePropertyNames()	
+	 */
+	@JSFunction
+	public String[] getDesignTimePropertyNames()
+	{
+		String[] designTimePropertyNames = null;
+		Map<String, Object> propsMap = form.getCustomDesignTimeProperties();
+		if (propsMap != null)
+		{
+			designTimePropertyNames = propsMap.keySet().toArray(new String[propsMap.size()]);
+		}
+		return designTimePropertyNames;
 	}
 
 	/** Clear a design-time property of a form.
