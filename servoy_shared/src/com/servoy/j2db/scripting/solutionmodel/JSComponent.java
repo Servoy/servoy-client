@@ -18,6 +18,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
@@ -510,6 +511,25 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	public Object removeDesignTimeProperty(String key)
 	{
 		return putDesignTimeProperty(key, null);
+	}
+
+	/** Get the design-time properties of an element.
+	 *
+	 * @sample 
+	 * var frm = solutionModel.getForm('orders')
+	 * var fld = frm.getField('fld')
+	 * var propNames = fld.getDesignTimePropertyNames()	
+	 */
+	@JSFunction
+	public String[] getDesignTimePropertyNames()
+	{
+		String[] designTimePropertyNames = null;
+		Map<String, Object> propsMap = getBaseComponent(false).getCustomDesignTimeProperties();
+		if (propsMap != null)
+		{
+			designTimePropertyNames = propsMap.keySet().toArray(new String[propsMap.size()]);
+		}
+		return designTimePropertyNames;
 	}
 
 	/**
