@@ -76,6 +76,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_ANCHORS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ANCHORS);
 	public static final TypedProperty<Integer> PROPERTY_BLOBID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_BLOBID);
 	public static final TypedProperty<Integer> PROPERTY_CONTAINSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_CONTAINSFORMID);
+	public static final TypedProperty<Integer> PROPERTY_DEPRECATED = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_DEPRECATED);
 	public static final TypedProperty<Integer> PROPERTY_DISPLAYTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_DISPLAYTYPE);
 	public static final TypedProperty<Integer> PROPERTY_EXTENDSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSFORMID);
 	public static final TypedProperty<Integer> PROPERTY_EXTENDSID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSID);
@@ -223,6 +224,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_I18NDATASOURCE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_I18NDATASOURCE);
 	public static final TypedProperty<String> PROPERTY_INITIALSORT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_INITIALSORT);
 	public static final TypedProperty<String> PROPERTY_LABELFOR = new TypedProperty<String>(IContentSpecConstants.PROPERTY_LABELFOR);
+	public static final TypedProperty<String> PROPERTY_LABELS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_LABELS);
 	public static final TypedProperty<String> PROPERTY_METHODCODE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_METHODCODE);
 	public static final TypedProperty<String> PROPERTY_MIMETYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_MIMETYPE);
 	public static final TypedProperty<String> PROPERTY_MNEMONIC = new TypedProperty<String>(IContentSpecConstants.PROPERTY_MNEMONIC);
@@ -805,12 +807,23 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(401, IRepository.PARTS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
 			cs.new Element(402, IRepository.TABS, PROPERTY_MNEMONIC.getPropertyName(), IRepository.STRING);
 		}
-		//##add property adds here
 		if (old_repository_version < 43)
 		{
 			cs.new Element(403, IRepository.FIELDS, PROPERTY_PLACEHOLDERTEXT.getPropertyName(), IRepository.STRING);
 			cs.new Element(404, IRepository.GRAPHICALCOMPONENTS, PROPERTY_TEXTROTATION.getPropertyName(), IRepository.INTEGER);
 		}
+		if (old_repository_version < 44)
+		{
+			cs.new Element(405, IRepository.VALUELISTS, PROPERTY_ENCAPSULATION.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(406, IRepository.RELATIONS, PROPERTY_ENCAPSULATION.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(407, IRepository.MEDIA, PROPERTY_ENCAPSULATION.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(408, IRepository.FORMS, PROPERTY_LABELS.getPropertyName(), IRepository.STRING);
+			cs.new Element(409, IRepository.VALUELISTS, PROPERTY_DEPRECATED.getPropertyName(), IRepository.STRING);
+			cs.new Element(410, IRepository.RELATIONS, PROPERTY_DEPRECATED.getPropertyName(), IRepository.STRING);
+			cs.new Element(411, IRepository.MEDIA, PROPERTY_DEPRECATED.getPropertyName(), IRepository.STRING);
+			cs.new Element(412, IRepository.FORMS, PROPERTY_DEPRECATED.getPropertyName(), IRepository.STRING);
+		}
+		//##add property adds here
 		return cs;
 	}
 

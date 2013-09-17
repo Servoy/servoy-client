@@ -45,8 +45,8 @@ import com.servoy.j2db.util.UUID;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.RELATIONS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public class Relation extends AbstractBase implements ISupportChilds, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals, ICloneable,
-	IRelation
+public class Relation extends AbstractBase implements ISupportChilds, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
+	ISupportEncapsulation, ICloneable, IRelation
 {
 	public static final String INTERNAL_PREFIX = "-int-";
 
@@ -1106,5 +1106,26 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	public void setJoinType(int JoinType)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_JOINTYPE, JoinType);
+	}
+
+	@Override
+	public void setEncapsulation(int arg)
+	{
+		int newAccess = arg;
+		int access = getEncapsulation();
+		if ((newAccess & PersistEncapsulation.MODULE_PRIVATE) == PersistEncapsulation.MODULE_PRIVATE &&
+			(newAccess & PersistEncapsulation.PRIVATE) == PersistEncapsulation.PRIVATE)
+		{
+			if ((access & PersistEncapsulation.MODULE_PRIVATE) == PersistEncapsulation.MODULE_PRIVATE) newAccess = newAccess ^
+				PersistEncapsulation.MODULE_PRIVATE;
+			else newAccess = newAccess ^ PersistEncapsulation.PRIVATE;
+		}
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, newAccess);
+	}
+
+	@Override
+	public int getEncapsulation()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
 	}
 }

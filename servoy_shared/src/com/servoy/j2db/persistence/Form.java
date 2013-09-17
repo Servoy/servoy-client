@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok,jcompagner
  */
 public class Form extends AbstractBase implements ISupportFormElements, ITableDisplay, ISupportUpdateableName, ISupportScrollbars, IPersistCloneable,
-	ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID
+	ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID, ISupportEncapsulation
 {
 	/**
 	 * @sameas getNavigatorID()
@@ -2182,11 +2182,11 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	{
 		int newAccess = arg;
 		int access = getEncapsulation();
-		if ((newAccess & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE &&
-			(newAccess & FormEncapsulation.PRIVATE) == FormEncapsulation.PRIVATE)
+		if ((newAccess & PersistEncapsulation.MODULE_PRIVATE) == PersistEncapsulation.MODULE_PRIVATE &&
+			(newAccess & PersistEncapsulation.PRIVATE) == PersistEncapsulation.PRIVATE)
 		{
-			if ((access & FormEncapsulation.MODULE_PRIVATE) == FormEncapsulation.MODULE_PRIVATE) newAccess = newAccess ^ FormEncapsulation.MODULE_PRIVATE;
-			else newAccess = newAccess ^ FormEncapsulation.PRIVATE;
+			if ((access & PersistEncapsulation.MODULE_PRIVATE) == PersistEncapsulation.MODULE_PRIVATE) newAccess = newAccess ^ PersistEncapsulation.MODULE_PRIVATE;
+			else newAccess = newAccess ^ PersistEncapsulation.PRIVATE;
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, newAccess);
 

@@ -181,6 +181,12 @@ public class RepositoryHelper
 				return "tab panel"; //$NON-NLS-1$
 			case IRepository.PORTALS :
 				return "portal"; //$NON-NLS-1$
+			case IRepository.RELATIONS :
+				return "relation"; //$NON-NLS-1$
+			case IRepository.VALUELISTS :
+				return "valuelist"; //$NON-NLS-1$
+			case IRepository.MEDIA :
+				return "media"; //$NON-NLS-1$
 			default :
 				// TODO: add other known object types if this method ever becomes used
 				// for objects which are not root objects.
@@ -563,7 +569,8 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (ValueList.class.isAssignableFrom(persistClass) && !"name".equals(name)) //$NON-NLS-1$
+		if (ValueList.class.isAssignableFrom(persistClass) &&
+			!"name".equals(name) && !StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name)) //$NON-NLS-1$
 		{
 			return false;
 		}
@@ -582,6 +589,16 @@ public class RepositoryHelper
 		}
 
 		if ("selectOnEnter".equals(name) && (displayType == Field.CHECKS || displayType == Field.RADIOS)) //$NON-NLS-1$
+		{
+			return false;
+		}
+
+		if (StaticContentSpecLoader.PROPERTY_LABELS.getPropertyName().equals(name))
+		{
+			return false;
+		}
+
+		if (StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name))
 		{
 			return false;
 		}

@@ -27,7 +27,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.MEDIA)
-public class Media extends AbstractBase implements ISupportName, ICloneable
+public class Media extends AbstractBase implements ISupportName, ISupportEncapsulation, ICloneable
 {
 	public static final long serialVersionUID = 468097341226347599L;
 
@@ -136,5 +136,17 @@ public class Media extends AbstractBase implements ISupportName, ICloneable
 	{
 		perm_media_data = fileContent;
 		media_data = null;
+	}
+
+	@Override
+	public void setEncapsulation(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, arg);
+	}
+
+	@Override
+	public int getEncapsulation()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
 	}
 }

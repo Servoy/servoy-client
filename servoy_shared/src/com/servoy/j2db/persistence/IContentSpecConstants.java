@@ -63,8 +63,10 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_MARGIN = "margin"; //$NON-NLS-1$
 	public static final String PROPERTY_SELECTIONMODE = "selectionMode"; //$NON-NLS-1$ //
 	public static final String PROPERTY_ENCAPSULATION = "encapsulation"; //$NON-NLS-1$
+	public static final String PROPERTY_DEPRECATED = "deprecated"; //$NON-NLS-1$
 	public static final String PROPERTY_ADDEMPTYVALUE = "addEmptyValue"; //$NON-NLS-1$
 	public static final String PROPERTY_ANCHORS = "anchors"; //$NON-NLS-1$
+	public static final String PROPERTY_LABELS = "labels"; //$NON-NLS-1$
 	public static final String PROPERTY_BLOBID = "blobId"; //$NON-NLS-1$
 	public static final String PROPERTY_CONTAINSFORMID = "containsFormID"; //$NON-NLS-1$
 	public static final String PROPERTY_EXTENDSFORMID = "extendsFormID"; //$NON-NLS-1$

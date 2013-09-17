@@ -36,7 +36,7 @@ import com.servoy.j2db.util.UUID;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.VALUELISTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ICloneable
+public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable
 {
 
 	/**
@@ -564,5 +564,17 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 	public void setFallbackValueListID(int id)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID, id);
+	}
+
+	@Override
+	public void setEncapsulation(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, arg);
+	}
+
+	@Override
+	public int getEncapsulation()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
 	}
 }

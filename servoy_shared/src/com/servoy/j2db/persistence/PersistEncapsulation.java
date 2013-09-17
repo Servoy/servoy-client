@@ -21,12 +21,12 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.FlattenedSolution;
 
 /**
- * Interface that specifies the encapsulation flags of the {@link Form#getEncapsulation()}
+ * Interface that specifies the encapsulation flags of the {@link ISupportEncapsulation#getEncapsulation()}
  * 
  * @author jcompagner
  *
  */
-public final class FormEncapsulation
+public final class PersistEncapsulation
 {
 	/**
 	 * Everything is public.
@@ -34,13 +34,13 @@ public final class FormEncapsulation
 	public static final int DEFAULT = IFormConstants.DEFAULT;
 
 	/**
-	 * Completely private form, only used for example in designer in a related tab.
+	 * Completely private persist, only used for example in designer in a related tab.
 	 * Doesn't show up in the code completion (forms.xxx) at all
 	 */
 	public static final int PRIVATE = IFormConstants.PRIVATE;
 
 	/**
-	 * Flags the form as module private, only the module itself will see the form, solutions/modules
+	 * Flags the persist as module private, only the module itself will see the form, solutions/modules
 	 * that have included the module of this form will not see this form in the code completion or 
 	 * any other dialog like place tab.
 	 */
@@ -66,20 +66,20 @@ public final class FormEncapsulation
 	 */
 	public static final int HIDE_ELEMENTS = IFormConstants.HIDE_ELEMENTS;
 
-	public static boolean isPrivate(Form form, FlattenedSolution fs)
+	public static boolean isPrivate(ISupportEncapsulation persist, FlattenedSolution fs)
 	{
-		if (!isModulePrivate(form, fs))
+		if (!isModulePrivate(persist, fs.getSolution()))
 		{
-			return (form.getEncapsulation() & PRIVATE) == PRIVATE;
+			return (persist.getEncapsulation() & PRIVATE) == PRIVATE;
 		}
 		return true;
 	}
 
-	public static boolean isModulePrivate(Form form, FlattenedSolution fs)
+	public static boolean isModulePrivate(ISupportEncapsulation persist, Solution solution)
 	{
-		if ((form.getEncapsulation() & MODULE_PRIVATE) == MODULE_PRIVATE || (form.getEncapsulation() & PRIVATE) == PRIVATE)
+		if ((persist.getEncapsulation() & MODULE_PRIVATE) == MODULE_PRIVATE || (persist.getEncapsulation() & PRIVATE) == PRIVATE)
 		{
-			return !fs.getSolution().equals(form.getSolution());
+			return !((IPersist)persist).getRootObject().equals(solution);
 		}
 		return false;
 	}
