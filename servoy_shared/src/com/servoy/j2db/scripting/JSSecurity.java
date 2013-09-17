@@ -503,6 +503,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Set a new userUID for the given userUID.
+	 * Note: this method can only be called by an admin.
 	 *
 	 * @sampleas js_createGroup(String)
 	 *
