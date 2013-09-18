@@ -66,16 +66,16 @@ public final class PersistEncapsulation
 	 */
 	public static final int HIDE_ELEMENTS = IFormConstants.HIDE_ELEMENTS;
 
-	public static boolean isPrivate(ISupportEncapsulation persist, FlattenedSolution fs)
+	public static boolean isHideInScriptingModuleScope(ISupportEncapsulation persist, FlattenedSolution fs)
 	{
-		if (!isModulePrivate(persist, fs.getSolution()))
+		if (!isModuleScope(persist, fs.getSolution()))
 		{
 			return (persist.getEncapsulation() & HIDE_IN_SCRIPTING_MODULE_SCOPE) == HIDE_IN_SCRIPTING_MODULE_SCOPE;
 		}
 		return true;
 	}
 
-	public static boolean isModulePrivate(ISupportEncapsulation persist, Solution solution)
+	public static boolean isModuleScope(ISupportEncapsulation persist, Solution solution)
 	{
 		if ((persist.getEncapsulation() & MODULE_SCOPE) == MODULE_SCOPE ||
 			(persist.getEncapsulation() & HIDE_IN_SCRIPTING_MODULE_SCOPE) == HIDE_IN_SCRIPTING_MODULE_SCOPE)
