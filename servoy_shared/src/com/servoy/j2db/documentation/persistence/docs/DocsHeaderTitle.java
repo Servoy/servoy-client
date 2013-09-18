@@ -33,9 +33,9 @@ import com.servoy.j2db.persistence.IRepository;
 @ServoyClientSupport(mc = true, wc = false, sc = false)
 public class DocsHeaderTitle extends BaseDocsGraphicalComponent
 {
-	protected DocsHeaderTitle()
+	DocsHeaderTitle()
 	{
-		super(null, 0, null);
+		super();
 	}
 
 	@Override

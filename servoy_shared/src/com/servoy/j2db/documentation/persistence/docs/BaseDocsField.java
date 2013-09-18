@@ -18,11 +18,7 @@
 package com.servoy.j2db.documentation.persistence.docs;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.util.Map;
-
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.persistence.Field;
@@ -88,21 +84,6 @@ public class BaseDocsField extends Field implements IComponentWithTitle, IBaseDo
 	{
 	}
 
-	/**
-	 * The x and y position of the component, in pixels, separated by a comma.
-	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	@Override
-	public Point getLocation()
-	{
-		return null;
-	}
-
-	@Override
-	public void setLocation(Point arg)
-	{
-	}
-
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	@Override
 	public Dimension getSize()
@@ -110,18 +91,14 @@ public class BaseDocsField extends Field implements IComponentWithTitle, IBaseDo
 		return super.getSize();
 	}
 
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
-	@JSGetter
 	@Override
 	public Map<String, Object> getDesignTimeProperties()
 	{
 		return null;
 	}
 
-	@JSSetter
 	@Override
-	public Map<String, Object> setDesignTimeProperties(Map<String, Object> map)
+	public void setDesignTimeProperties(Map<String, Object> map)
 	{
-		return null;
 	}
 }

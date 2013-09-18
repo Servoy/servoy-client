@@ -25,7 +25,6 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author acostache
  *
  */
-@ServoyClientSupport(mc = false, sc = true, wc = true)
 public interface IBaseDocsComponent
 {
 	/**
@@ -33,7 +32,8 @@ public interface IBaseDocsComponent
 	 * 
 	 * @return map of the design-time properties
 	 */
+	@ServoyClientSupport(mc = false, sc = true, wc = true)
 	public Map<String, Object> getDesignTimeProperties();
 
-	public Map<String, Object> setDesignTimeProperties(Map<String, Object> map);
+	public void setDesignTimeProperties(Map<String, Object> map);
 }

@@ -19,15 +19,10 @@ package com.servoy.j2db.documentation.persistence.docs;
 
 import java.util.Map;
 
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
-
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Dummy class for use in the documentation generator.
@@ -39,24 +34,19 @@ import com.servoy.j2db.util.UUID;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsTabPanel extends TabPanel implements IBaseDocsComponent
 {
-
-	protected DocsTabPanel(ISupportChilds parent, int element_id, UUID uuid)
+	DocsTabPanel()
 	{
-		super(parent, element_id, uuid);
+		super(null, 0, null);
 	}
 
-	@JSGetter
 	@Override
 	public Map<String, Object> getDesignTimeProperties()
 	{
 		return null;
 	}
 
-	@JSSetter
 	@Override
-	public Map<String, Object> setDesignTimeProperties(Map<String, Object> map)
+	public void setDesignTimeProperties(Map<String, Object> map)
 	{
-		return null;
 	}
-
 }

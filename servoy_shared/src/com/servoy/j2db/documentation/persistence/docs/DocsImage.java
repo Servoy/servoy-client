@@ -32,8 +32,8 @@ import com.servoy.j2db.persistence.IRepository;
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsImage extends BaseDocsGraphicalComponent
 {
-	protected DocsImage()
+	DocsImage()
 	{
-		super(null, 0, null);
+		super();
 	}
 }

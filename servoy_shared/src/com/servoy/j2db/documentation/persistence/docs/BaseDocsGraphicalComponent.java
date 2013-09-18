@@ -19,13 +19,7 @@ package com.servoy.j2db.documentation.persistence.docs;
 
 import java.util.Map;
 
-import org.mozilla.javascript.annotations.JSGetter;
-import org.mozilla.javascript.annotations.JSSetter;
-
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.ISupportChilds;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Dummy class for use in the documentation generator.
@@ -36,24 +30,20 @@ import com.servoy.j2db.util.UUID;
 public class BaseDocsGraphicalComponent extends GraphicalComponent implements IBaseDocsComponent
 {
 
-	protected BaseDocsGraphicalComponent(ISupportChilds parent, int element_id, UUID uuid)
+	BaseDocsGraphicalComponent()
 	{
-		super(parent, element_id, uuid);
+		super(null, 0, null);
 	}
 
-	@ServoyClientSupport(mc = false, wc = true, sc = true)
-	@JSGetter
 	@Override
 	public Map<String, Object> getDesignTimeProperties()
 	{
 		return null;
 	}
 
-	@JSSetter
 	@Override
-	public Map<String, Object> setDesignTimeProperties(Map<String, Object> map)
+	public void setDesignTimeProperties(Map<String, Object> map)
 	{
-		return null;
 	}
 
 }

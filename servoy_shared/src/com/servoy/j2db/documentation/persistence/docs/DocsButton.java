@@ -33,9 +33,8 @@ import com.servoy.j2db.persistence.IRepository;
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsButton extends BaseDocsGraphicalComponent
 {
-	protected DocsButton()
+	DocsButton()
 	{
-		super(null, 0, null);
 	}
 
 	/**

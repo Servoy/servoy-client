@@ -18,7 +18,6 @@
 package com.servoy.j2db.documentation.persistence.docs;
 
 
-
 /**
  * Dummy class for use in the documentation generator.
  * 
@@ -26,9 +25,8 @@ package com.servoy.j2db.documentation.persistence.docs;
  */
 public class BaseDocsGraphicalComponentWithTitle extends BaseDocsGraphicalComponent implements IComponentWithTitle
 {
-	protected BaseDocsGraphicalComponentWithTitle()
+	BaseDocsGraphicalComponentWithTitle()
 	{
-		super(null, 0, null);
 	}
 
 	public String getTitleDataProviderID()
