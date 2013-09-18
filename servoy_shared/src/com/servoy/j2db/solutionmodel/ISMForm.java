@@ -70,43 +70,65 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * 
 	 * var myHideElementsForm = solutionModel.newForm('newForm7', myDatasource, myStyleName, false, 800, 600);
 	 * myHideElementsForm.encapsulation = JSForm.HIDE_ELEMENTS_ENCAPSULATION;
+	 * 
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
+	@Deprecated
 	public static final int DEFAULT_ENCAPSULATION = IFormConstants.DEFAULT;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
 	 * @see #DEFAULT_ENCAPSULATION
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
-	public static final int PRIVATE_ENCAPSULATION = IFormConstants.PRIVATE;
+	@Deprecated
+	public static final int PRIVATE_ENCAPSULATION = IFormConstants.HIDE_IN_SCRIPTING_MODULE_SCOPE;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
 	 * @see #DEFAULT_ENCAPSULATION
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
-	public static final int MODULE_PRIVATE_ENCAPSULATION = IFormConstants.MODULE_PRIVATE;
+	@Deprecated
+	public static final int MODULE_PRIVATE_ENCAPSULATION = IFormConstants.MODULE_SCOPE;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
 	 * @see #DEFAULT_ENCAPSULATION
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
+	@Deprecated
 	public static final int HIDE_DATAPROVIDERS_ENCAPSULATION = IFormConstants.HIDE_DATAPROVIDERS;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
 	 * @see #DEFAULT_ENCAPSULATION
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
+	@Deprecated
 	public static final int HIDE_FOUNDSET_ENCAPSULATION = IFormConstants.HIDE_FOUNDSET;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
 	 * @see #DEFAULT_ENCAPSULATION
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
+	@Deprecated
 	public static final int HIDE_CONTROLLER_ENCAPSULATION = IFormConstants.HIDE_CONTROLLER;
 
 	/**
 	 * @sameas DEFAULT_ENCAPSULATION
 	 * @see #DEFAULT_ENCAPSULATION
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
+	@Deprecated
 	public static final int HIDE_ELEMENTS_ENCAPSULATION = IFormConstants.HIDE_ELEMENTS;
 
 	/**
@@ -2009,9 +2031,13 @@ public interface ISMForm extends IBaseSMForm, ISMHasDesignTimeProperty, ISMHasUU
 	 * @sample 
 	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
 	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
+	 * @deprecated really only useful in developer - when working with the solution. Not so much at runtime, maybe just
+	 * if developer save form solution model api is used...
 	 */
+	@Deprecated
 	public int getEncapsulation();
 
+	@Deprecated
 	public void setEncapsulation(int arg);
 
 	/**

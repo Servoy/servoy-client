@@ -2182,11 +2182,11 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	{
 		int newAccess = arg;
 		int access = getEncapsulation();
-		if ((newAccess & PersistEncapsulation.MODULE_PRIVATE) == PersistEncapsulation.MODULE_PRIVATE &&
-			(newAccess & PersistEncapsulation.PRIVATE) == PersistEncapsulation.PRIVATE)
+		if ((newAccess & PersistEncapsulation.MODULE_SCOPE) == PersistEncapsulation.MODULE_SCOPE &&
+			(newAccess & PersistEncapsulation.HIDE_IN_SCRIPTING_MODULE_SCOPE) == PersistEncapsulation.HIDE_IN_SCRIPTING_MODULE_SCOPE)
 		{
-			if ((access & PersistEncapsulation.MODULE_PRIVATE) == PersistEncapsulation.MODULE_PRIVATE) newAccess = newAccess ^ PersistEncapsulation.MODULE_PRIVATE;
-			else newAccess = newAccess ^ PersistEncapsulation.PRIVATE;
+			if ((access & PersistEncapsulation.MODULE_SCOPE) == PersistEncapsulation.MODULE_SCOPE) newAccess = newAccess ^ PersistEncapsulation.MODULE_SCOPE;
+			else newAccess = newAccess ^ PersistEncapsulation.HIDE_IN_SCRIPTING_MODULE_SCOPE;
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, newAccess);
 

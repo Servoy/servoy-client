@@ -34,17 +34,17 @@ public final class PersistEncapsulation
 	public static final int DEFAULT = IFormConstants.DEFAULT;
 
 	/**
-	 * Completely private persist, only used for example in designer in a related tab.
+	 * Completely private persist as scripting is concerned, only used for example in designer in a related tab (identical to MODULE_SCOPE as far as designer is concerned).
 	 * Doesn't show up in the code completion (forms.xxx) at all
 	 */
-	public static final int PRIVATE = IFormConstants.PRIVATE;
+	public static final int HIDE_IN_SCRIPTING_MODULE_SCOPE = IFormConstants.HIDE_IN_SCRIPTING_MODULE_SCOPE;
 
 	/**
-	 * Flags the persist as module private, only the module itself will see the form, solutions/modules
-	 * that have included the module of this form will not see this form in the code completion or 
+	 * Flags the persist as module scope, only the module itself will see the persist, solutions/modules
+	 * that have included the module of this persist will not see this persist in the code completion or 
 	 * any other dialog like place tab.
 	 */
-	public static final int MODULE_PRIVATE = IFormConstants.MODULE_PRIVATE;
+	public static final int MODULE_SCOPE = IFormConstants.MODULE_SCOPE;
 
 	/**
 	 * Hides the selected record dataproviders (columns,calculations and relations) from code completion. 
@@ -70,14 +70,15 @@ public final class PersistEncapsulation
 	{
 		if (!isModulePrivate(persist, fs.getSolution()))
 		{
-			return (persist.getEncapsulation() & PRIVATE) == PRIVATE;
+			return (persist.getEncapsulation() & HIDE_IN_SCRIPTING_MODULE_SCOPE) == HIDE_IN_SCRIPTING_MODULE_SCOPE;
 		}
 		return true;
 	}
 
 	public static boolean isModulePrivate(ISupportEncapsulation persist, Solution solution)
 	{
-		if ((persist.getEncapsulation() & MODULE_PRIVATE) == MODULE_PRIVATE || (persist.getEncapsulation() & PRIVATE) == PRIVATE)
+		if ((persist.getEncapsulation() & MODULE_SCOPE) == MODULE_SCOPE ||
+			(persist.getEncapsulation() & HIDE_IN_SCRIPTING_MODULE_SCOPE) == HIDE_IN_SCRIPTING_MODULE_SCOPE)
 		{
 			return !((IPersist)persist).getRootObject().equals(solution);
 		}

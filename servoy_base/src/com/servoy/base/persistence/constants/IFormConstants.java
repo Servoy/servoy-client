@@ -55,17 +55,17 @@ public interface IFormConstants
 	public static final int DEFAULT = 0;
 
 	/**
-	 * Completely private form, only used for example in designer in a related tab.
+	 * Completely private persist as far as scripting is concerned, only used for example in designer in a related tab (identical to MODULE_SCOPE as far as designer is concerned).
 	 * Doesn't show up in the code completion (forms.xxx) at all
 	 */
-	public static final int PRIVATE = 1;
+	public static final int HIDE_IN_SCRIPTING_MODULE_SCOPE = 1;
 
 	/**
-	 * Flags the form as module private, only the module itself will see the form, solutions/modules
-	 * that have included the module of this form will not see this form in the code completion or 
+	 * Flags the persist as module scope, only the module itself will see the persist, solutions/modules
+	 * that have included the module of this persist will not see this persist in the code completion or 
 	 * any other dialog like place tab.
 	 */
-	public static final int MODULE_PRIVATE = 2;
+	public static final int MODULE_SCOPE = 2;
 
 	/**
 	 * Hides the selected record dataproviders (columns,calculations and relations) from code completion. 
