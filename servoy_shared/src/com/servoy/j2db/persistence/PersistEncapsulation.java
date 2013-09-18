@@ -104,4 +104,10 @@ public final class PersistEncapsulation
 		return (form.getEncapsulation() & HIDE_DATAPROVIDERS) == HIDE_DATAPROVIDERS;
 	}
 
+	public static boolean hasEncapsulation(ISupportEncapsulation persist, int encapsulation)
+	{
+		if ((encapsulation & persist.getEncapsulation()) == encapsulation) return true;
+		return false;
+	}
+
 }
