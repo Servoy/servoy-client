@@ -402,4 +402,31 @@ public interface IBaseSolutionModel
 	 */
 	public IBaseSMValueList newValueList(String name, int type);
 
+	/**
+	 * Removes the specified valuelist.
+	 * 
+	 * @sample
+	 * var vlName = "customValueList";
+	 * var vl = solutionModel.newValueList(vlName,JSValueList.CUSTOM_VALUES);
+	 * vl.customValues = "customvalue1\ncustomvalue2";
+	 * 
+	 * var status = solutionModel.removeValueList(vlName);
+	 * if (status) application.output("Removal has been done.");
+	 * else application.output("ValueList not removed.");
+	 * 
+	 * var vls = solutionModel.getValueLists();
+	 * if (vls != null) {
+	 * 	for (var i = 0; i < vls.length; i++) {
+	 * 		application.output(vls[i]);
+	 * 	}
+	 * 	application.output("");
+	 * }
+	 * 
+	 * 
+	 * @param name name of the valuelist to be removed
+	 * 
+	 * @return true if the removal was successful, false otherwise
+	 */
+	public boolean removeValueList(String name);
+
 }
