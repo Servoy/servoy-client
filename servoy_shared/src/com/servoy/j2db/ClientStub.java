@@ -44,11 +44,17 @@ public class ClientStub implements IUserClient
 
 	public void alert(final String msg)
 	{
-		client.invokeLater(new Runnable()
+		client.getScheduledExecutor().execute(new Runnable()
 		{
 			public void run()
 			{
-				client.reportInfo(msg); //Messages.getString("servoy.userClient.message.fromServer")
+				client.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						client.reportInfo(msg); //Messages.getString("servoy.userClient.message.fromServer")
+					}
+				});
 			}
 		});
 	}
@@ -60,36 +66,49 @@ public class ClientStub implements IUserClient
 
 	public void shutDown()
 	{
-		client.invokeLater(new Runnable()
+		client.getScheduledExecutor().execute(new Runnable()
 		{
 			public void run()
 			{
-				synchronized (ClientStub.this)
+				client.invokeLater(new Runnable()
 				{
-					client.shutDown(true);
-				}
+					public void run()
+					{
+						synchronized (ClientStub.this)
+						{
+							client.shutDown(true);
+						}
+					}
+				}, true);
 			}
-		}, true);
+		});
 	}
 
 	public void closeSolution()
 	{
-		client.invokeLater(new Runnable()
+		client.getScheduledExecutor().execute(new Runnable()
 		{
 			public void run()
 			{
-				synchronized (ClientStub.this)
+				client.invokeLater(new Runnable()
 				{
-					client.closeSolution(true, null);
-					client.reportInfo(client.getI18NMessage("servoy.client.message.remotesolutionclose")); //$NON-NLS-1$
-				}
+					public void run()
+					{
+						synchronized (ClientStub.this)
+						{
+							client.closeSolution(true, null);
+							client.reportInfo(client.getI18NMessage("servoy.client.message.remotesolutionclose")); //$NON-NLS-1$
+						}
+					}
+				}, true);
 			}
-		}, true);
+		});
 	}
 
 	public void flushCachedDatabaseData(final String dataSource)
 	{
 		if (client.isShutDown()) return;
+
 		client.getScheduledExecutor().execute(new Runnable()
 		{
 			public void run()
@@ -129,7 +148,7 @@ public class ClientStub implements IUserClient
 	private final Stack<Object[]> datachanges = new Stack<Object[]>();
 	private Runnable datachangesHandler;
 
-	public void notifyDataChange(final String server_name, final String table_name, final IDataSet pks, final int action, final Object[] insertColumnData)
+	public void notifyDataChange(final String server_name, final String table_name, final IDataSet pks, final int sql_action, final Object[] insertColumnData)
 	{
 		if (client.isShutDown()) return;
 		if (Debug.tracing())
@@ -138,7 +157,7 @@ public class ClientStub implements IUserClient
 		}
 		synchronized (datachanges)
 		{
-			datachanges.push(new Object[] { server_name, table_name, pks, new Integer(action), insertColumnData });
+			datachanges.push(new Object[] { server_name, table_name, pks, new Integer(sql_action), insertColumnData });
 			if (datachangesHandler == null)
 			{
 				datachangesHandler = new Runnable()
@@ -162,19 +181,19 @@ public class ClientStub implements IUserClient
 							{
 								public void run()
 								{
-									String server_name = (String)array[0];
-									String table_name = (String)array[1];
-									IDataSet pks = (IDataSet)array[2];
+									String sname = (String)array[0];
+									String tname = (String)array[1];
+									IDataSet pksDataSet = (IDataSet)array[2];
 									int action = ((Integer)array[3]).intValue();
-									Object[] insertColumnData = (Object[])array[4];
+									Object[] insertColumndata = (Object[])array[4];
 
 									IDataServer ds = client.getDataServer();
 									if (ds instanceof DataServerProxy)
 									{
-										server_name = ((DataServerProxy)ds).getReverseMappedServerName(server_name);
+										sname = ((DataServerProxy)ds).getReverseMappedServerName(sname);
 									}
-									((FoundSetManager)client.getFoundSetManager()).notifyDataChange(
-										DataSourceUtils.createDBTableDataSource(server_name, table_name), pks, action, insertColumnData);
+									((FoundSetManager)client.getFoundSetManager()).notifyDataChange(DataSourceUtils.createDBTableDataSource(sname, tname),
+										pksDataSet, action, insertColumndata);
 								}
 							});
 						}
@@ -187,11 +206,17 @@ public class ClientStub implements IUserClient
 
 	public void activateSolutionMethod(final String globalMethodName, final StartupArguments argumentsScope)
 	{
-		client.invokeLater(new Runnable()
+		client.getScheduledExecutor().execute(new Runnable()
 		{
 			public void run()
 			{
-				client.activateSolutionMethod(globalMethodName, argumentsScope);
+				client.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						client.activateSolutionMethod(globalMethodName, argumentsScope);
+					}
+				});
 			}
 		});
 	}
