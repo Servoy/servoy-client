@@ -25,7 +25,25 @@ package com.servoy.j2db.persistence;
  */
 public interface ISupportEncapsulation
 {
+
+	/**
+	 * @param arg the encapsulation mode/level of the persist.
+	 */
 	void setEncapsulation(int arg);
 
+	/**
+	 * The encapsulation mode of this persist. The following can be used/checked:
+	 * 
+	 * - Public (not a separate option - if none of the below options are selected)
+	 * - Hide in scripting; Module Scope - not available in scripting from any other context except the form itself. Available in designer for the same module.
+	 * - Module Scope - available in both scripting and designer but only in the same module.
+	 * - Hide Dataproviders (checked by default)
+	 * - Hide Foundset (checked by default)
+	 * - Hide Controller (checked by default)
+	 * - Hide Elements (checked by default)
+	 * 
+	 * @return the encapsulation mode/level of the persist.
+	 */
 	int getEncapsulation();
+
 }

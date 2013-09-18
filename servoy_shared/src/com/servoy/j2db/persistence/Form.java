@@ -2175,9 +2175,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
 
-	/**
-	 * @param arg the level of encapsulation of the form
-	 */
 	public void setEncapsulation(int arg)
 	{
 		int newAccess = arg;
@@ -2192,15 +2189,6 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	}
 
-	/**
-	 * The encapsulation mode for the form (see JSForm constants for encapsulation mode constants).
-	 * 
-	 * @sample
-	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
-	 * myForm.encapsulation = JSForm.HIDE_CONTROLLER_ENCAPSULATION;
-	 * 
-	 * @return the encapsulation mode/level for the form
-	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getEncapsulation()
 	{
