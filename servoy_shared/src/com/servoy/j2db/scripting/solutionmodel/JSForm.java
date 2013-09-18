@@ -4813,8 +4813,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
 	{
-		String[] designTimePropertyNames = null;
 		Map<String, Object> propsMap = form.getCustomDesignTimeProperties();
+		String[] designTimePropertyNames = new String[0];
 		if (propsMap != null)
 		{
 			designTimePropertyNames = propsMap.keySet().toArray(new String[propsMap.size()]);

@@ -523,8 +523,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
 	{
-		String[] designTimePropertyNames = null;
 		Map<String, Object> propsMap = getBaseComponent(false).getCustomDesignTimeProperties();
+		String[] designTimePropertyNames = new String[0];
 		if (propsMap != null)
 		{
 			designTimePropertyNames = propsMap.keySet().toArray(new String[propsMap.size()]);
