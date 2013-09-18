@@ -76,7 +76,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_ANCHORS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ANCHORS);
 	public static final TypedProperty<Integer> PROPERTY_BLOBID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_BLOBID);
 	public static final TypedProperty<Integer> PROPERTY_CONTAINSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_CONTAINSFORMID);
-	public static final TypedProperty<Integer> PROPERTY_DEPRECATED = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_DEPRECATED);
+	public static final TypedProperty<String> PROPERTY_DEPRECATED = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DEPRECATED);
 	public static final TypedProperty<Integer> PROPERTY_DISPLAYTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_DISPLAYTYPE);
 	public static final TypedProperty<Integer> PROPERTY_EXTENDSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSFORMID);
 	public static final TypedProperty<Integer> PROPERTY_EXTENDSID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSID);
