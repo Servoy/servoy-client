@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
-import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
@@ -28,6 +27,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.solutionmodel.ISMRelationItem;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -116,43 +116,35 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 	/**
 	 * Get the literal.
 	 * 
-	 * @sampleas setPrimaryLiteral()
-	 * 
-	 * @return the literal
-	 */
-	@JSFunction
-	public String getPrimaryLiteral()
-	{
-		return getPrimaryDataProviderID();
-	}
-
-	/**
-	 * Set the literal.
-	 * 
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * var criteria = relation.newRelationItem(JSRelationItem.LITERAL_PREFIX + "'hello'",'=', 'myTextField');
-	 * criteria.setPrimaryLiteral("'literal_text'");
-	 * //criteria.setPrimaryLiteral(number);
-	 * var primaryLiteral = criteria.getPrimaryLiteral();
-	 * criteria.foreignColumnName = 'child_table_text';
-	 * criteria.operator = '<';
+	 * criteria.primaryLiteral = 'literal_text';
+	 * //criteria.primaryLiteral = number;
+	 * var primaryLiteral = criteria.primaryLiteral;
 	 * 
-	 * @parameter arg the literal
 	 */
-	@JSFunction
+	@JSGetter
+	public Object getPrimaryLiteral()
+	{
+		String primaryLiteral = getPrimaryDataProviderID();
+		if (primaryLiteral.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+		{
+			return Utils.parseJSExpression(primaryLiteral.substring(LiteralDataprovider.LITERAL_PREFIX.length()));
+		}
+		return null;
+	}
+
+	@JSSetter
 	public void setPrimaryLiteral(Object arg)
 	{
 		checkModification();
 		String argString = String.valueOf(arg);
-		if (!argString.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+		if (arg instanceof Double)
 		{
-			if (arg instanceof Double && (Double)arg == ((Double)arg).intValue())
-			{
-				argString = String.valueOf(((Double)arg).intValue());
-			}
-			argString = LiteralDataprovider.LITERAL_PREFIX + argString;
+			argString = LiteralDataprovider.LITERAL_PREFIX + String.valueOf(((Double)arg).intValue());
 		}
+		else argString = LiteralDataprovider.LITERAL_PREFIX + Utils.makeJSExpression(argString);
 		getBaseComponent(true).setPrimaryDataProviderID(argString);
 	}
 

@@ -168,6 +168,10 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 			else if (dataprovider.startsWith(LiteralDataprovider.LITERAL_PREFIX))
 			{
 				primaryDataProvider = new LiteralDataprovider(dataprovider);
+				if (((LiteralDataprovider)primaryDataProvider).getValue() == null)
+				{
+					throw new IllegalArgumentException("primary data provider " + dataprovider + " is not a valid relation primary data provider"); //$NON-NLS-1$
+				}
 			}
 			else
 			{
