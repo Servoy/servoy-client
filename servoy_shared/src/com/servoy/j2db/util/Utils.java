@@ -2788,9 +2788,9 @@ public class Utils
 	}
 
 	/**
-	 * returns a js/json string representation of the given {@link Scriptable}
+	 * Returns a js/json string representation of the given {@link Scriptable}
 	 * @param obj
-	 * @return
+	 * @return the scriptable as string
 	 */
 	public static String getScriptableString(Scriptable obj)
 	{
@@ -2799,9 +2799,9 @@ public class Utils
 	}
 
 	/**
-	 * returns a js/json string representation of the given Array that can have {@link Scriptable} objects inside it
+	 * Returns a js/json string representation of the given Array, that can have {@link Scriptable} objects inside it.
 	 * @param array
-	 * @return
+	 * @return the scriptable as string
 	 */
 	public static String getScriptableString(Object[] array)
 	{
@@ -2810,10 +2810,11 @@ public class Utils
 	}
 
 	/**
+	 * Returns a js/json string representation of the given array.
 	 * @param a
-	 * @return
+	 * @return the array as string
 	 */
-	private static StringBuilder getArrayString(Object[] a)
+	private static CharSequence getArrayString(Object[] a)
 	{
 		StringBuilder buf = new StringBuilder();
 		buf.append('[');
@@ -2829,10 +2830,12 @@ public class Utils
 	}
 
 	/**
+	 * Returns a js/json string representation of the given {@link Scriptable}
 	 * @param scriptable
-	 * @return
+	 * @param processed map to prevent loops in graph
+	 * @return the scriptable as string
 	 */
-	private static CharSequence getScriptableString(Scriptable scriptable, HashMap<Scriptable, CharSequence> processed)
+	private static CharSequence getScriptableString(Scriptable scriptable, Map<Scriptable, CharSequence> processed)
 	{
 		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
 		if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();
