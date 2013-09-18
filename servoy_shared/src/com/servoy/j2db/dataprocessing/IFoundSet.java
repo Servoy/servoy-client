@@ -136,7 +136,7 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
 	 * 
 	 * @return the recordCount
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 * @see com.servoy.j2db.dataprocessing.IFoundSet#find()
 	 */
 	public int search() throws Exception;
 

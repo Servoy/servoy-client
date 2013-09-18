@@ -105,7 +105,7 @@ import de.rtner.security.auth.spi.PBKDF2Parameters;
  * 
  * @author jblok
  */
-public class Utils
+public final class Utils
 {
 	/**
 	 * The password hash prefix if it is the new PBKDF2 password or a md5 hash. 
