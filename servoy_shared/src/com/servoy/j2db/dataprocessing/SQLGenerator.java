@@ -33,7 +33,6 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.dataprocessing.BaseSQLGenerator;
 import com.servoy.base.dataprocessing.ITypeConverter;
 import com.servoy.base.dataprocessing.IValueConverter;
-import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
@@ -957,7 +956,7 @@ public class SQLGenerator
 					// no need to query, dummy condition (where 1=2) here
 					List<IQuerySelectValue> columns = ((QuerySelect)sqlSelect).getColumns();
 					String[] columnNames = new String[columns.size()];
-					BaseColumnType[] columnTypes = new ColumnType[columns.size()];
+					ColumnType[] columnTypes = new ColumnType[columns.size()];
 					for (int i = 0; i < columns.size(); i++)
 					{
 						IQuerySelectValue col = columns.get(i);
@@ -973,7 +972,8 @@ public class SQLGenerator
 						}
 
 						columnNames[i] = colname;
-						columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : qcol.getColumnType();
+						columnTypes[i] = qcol == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : ColumnType.getInstance(qcol.getColumnType().getSqlType(),
+							qcol.getColumnType().getLength(), qcol.getColumnType().getScale());
 					}
 
 					return new BufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
