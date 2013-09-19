@@ -1150,4 +1150,9 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return new WicketEventDispatcher(this);
 	}
 
+	@Override
+	protected void reinitializeDefaultProperties()
+	{
+	}
+
 }

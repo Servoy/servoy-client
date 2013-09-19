@@ -270,7 +270,18 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	public boolean closeSolution(boolean force)
 	{
-		return super.closeSolution(force, null);
+		return closeSolution(force, null);
+	}
+
+	@Override
+	public boolean closeSolution(boolean force, Object[] args)
+	{
+		if (super.closeSolution(force, args))
+		{
+			reinitializeDefaultProperties();
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -1521,6 +1532,15 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		}
 
 		return retval.toArray(new String[retval.size()]);
+	}
+
+	/**
+	 * Overwrite this method with an empty definition if the derived client doens't want user properties reset at solution close. 
+	 */
+	protected void reinitializeDefaultProperties()
+	{
+		defaultUserProperties.clear();
+		((Settings)settings).loadUserProperties(defaultUserProperties);
 	}
 
 	public void setUserProperty(String a_name, String value)
