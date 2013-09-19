@@ -139,13 +139,7 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 	public void setPrimaryLiteral(Object arg)
 	{
 		checkModification();
-		String argString = String.valueOf(arg);
-		if (arg instanceof Double)
-		{
-			argString = LiteralDataprovider.LITERAL_PREFIX + String.valueOf(((Double)arg).intValue());
-		}
-		else argString = LiteralDataprovider.LITERAL_PREFIX + Utils.makeJSExpression(argString);
-		getBaseComponent(true).setPrimaryDataProviderID(argString);
+		getBaseComponent(true).setPrimaryDataProviderID(LiteralDataprovider.LITERAL_PREFIX + Utils.makeJSExpression(arg));
 	}
 
 	/**
