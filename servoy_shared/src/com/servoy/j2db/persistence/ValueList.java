@@ -36,7 +36,8 @@ import com.servoy.j2db.util.UUID;
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.VALUELISTS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
-public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable
+public class ValueList extends AbstractBase implements IValueListConstants, ISupportUpdateableName, ISupportContentEquals, ISupportEncapsulation, ICloneable,
+	ISupportDeprecated
 {
 
 	/**
@@ -576,5 +577,23 @@ public class ValueList extends AbstractBase implements IValueListConstants, ISup
 	public int getEncapsulation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#getDeprecated()
+	 */
+	@Override
+	public String getDeprecated()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED);
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#setDeprecated(String)
+	 */
+	@Override
+	public void setDeprecated(String deprecatedInfo)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
 	}
 }

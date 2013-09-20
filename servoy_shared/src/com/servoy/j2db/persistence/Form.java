@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok,jcompagner
  */
 public class Form extends AbstractBase implements ISupportFormElements, ITableDisplay, ISupportUpdateableName, ISupportScrollbars, IPersistCloneable,
-	ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID, ISupportEncapsulation
+	ISupportSize, ISupportScriptProviders, ICloneable, ISupportExtendsID, ISupportEncapsulation, ISupportDeprecated
 {
 	/**
 	 * @sameas getNavigatorID()
@@ -2239,5 +2239,23 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	public int getExtendsID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#getDeprecated()
+	 */
+	@Override
+	public String getDeprecated()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED);
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#setDeprecated(String)
+	 */
+	@Override
+	public void setDeprecated(String deprecatedInfo)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
 	}
 }

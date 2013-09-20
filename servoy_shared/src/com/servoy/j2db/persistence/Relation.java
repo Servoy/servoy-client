@@ -46,7 +46,7 @@ import com.servoy.j2db.util.UUID;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.RELATIONS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class Relation extends AbstractBase implements ISupportChilds, ISupportUpdateableName, ISupportHTMLToolTipText, ISupportContentEquals,
-	ISupportEncapsulation, ICloneable, IRelation
+	ISupportEncapsulation, ICloneable, IRelation, ISupportDeprecated
 {
 	public static final String INTERNAL_PREFIX = "-int-";
 
@@ -1116,8 +1116,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		if ((newAccess & PersistEncapsulation.MODULE_SCOPE) == PersistEncapsulation.MODULE_SCOPE &&
 			(newAccess & PersistEncapsulation.HIDE_IN_SCRIPTING_MODULE_SCOPE) == PersistEncapsulation.HIDE_IN_SCRIPTING_MODULE_SCOPE)
 		{
-			if ((access & PersistEncapsulation.MODULE_SCOPE) == PersistEncapsulation.MODULE_SCOPE) newAccess = newAccess ^
-				PersistEncapsulation.MODULE_SCOPE;
+			if ((access & PersistEncapsulation.MODULE_SCOPE) == PersistEncapsulation.MODULE_SCOPE) newAccess = newAccess ^ PersistEncapsulation.MODULE_SCOPE;
 			else newAccess = newAccess ^ PersistEncapsulation.HIDE_IN_SCRIPTING_MODULE_SCOPE;
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, newAccess);
@@ -1127,5 +1126,23 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	public int getEncapsulation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#getDeprecated()
+	 */
+	@Override
+	public String getDeprecated()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED);
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#setDeprecated(String)
+	 */
+	@Override
+	public void setDeprecated(String deprecatedInfo)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
 	}
 }

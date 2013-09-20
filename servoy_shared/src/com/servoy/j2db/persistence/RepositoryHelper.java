@@ -570,7 +570,7 @@ public class RepositoryHelper
 			return false;
 		}
 		if (ValueList.class.isAssignableFrom(persistClass) &&
-			!"name".equals(name) && !StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name)) //$NON-NLS-1$
+			!"name".equals(name) && !StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name) && !StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name)) //$NON-NLS-1$
 		{
 			return false;
 		}
@@ -594,11 +594,6 @@ public class RepositoryHelper
 		}
 
 		if (StaticContentSpecLoader.PROPERTY_LABELS.getPropertyName().equals(name))
-		{
-			return false;
-		}
-
-		if (StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name))
 		{
 			return false;
 		}
