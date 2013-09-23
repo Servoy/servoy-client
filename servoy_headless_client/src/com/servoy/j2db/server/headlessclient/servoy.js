@@ -1175,7 +1175,6 @@ if (typeof(Servoy.DD) == "undefined")
 		attachDrag: function (array, callback , bUseProxy, bResizeProxyFrame, bXConstraint, bYConstraint)
 		{
 			YAHOO.util.DDM.mode = YAHOO.util.DDM.INTERSECT;
-			YAHOO.util.DDM.preventDefault = false;
 			if(Servoy.DD.klEsc == null)
 			{
 				Servoy.DD.klEsc = new YAHOO.util.KeyListener(document, {keys:27}, {fn:Servoy.DD.cancelDrag,scope:Servoy.DD,correctScope:true }, "keyup" );
@@ -1211,8 +1210,12 @@ if (typeof(Servoy.DD) == "undefined")
 
 				dd.on('b4MouseDownEvent', function(ev)
 				{
-					if(Servoy.DD.isTargetDraggable(YAHOO.util.Event.getTarget(ev)))
+					var dragTarget = YAHOO.util.Event.getTarget(ev);
+					if(Servoy.DD.isTargetDraggable(dragTarget))
 					{
+						// we do want the click for input, so it can be edited
+						if(dragTarget.tagName.toLowerCase() == 'input') YAHOO.util.DDM.preventDefault = false;
+							
 						Servoy.DD.mouseDownEvent = ev;
 						return true;
 					}
@@ -1255,6 +1258,8 @@ if (typeof(Servoy.DD) == "undefined")
 					Servoy.DD.clearHover();
 					Servoy.DD.dragStopped();
 					Servoy.DD.currentElement = new Array();
+					//reset preventDefault to 'true'
+					if(!YAHOO.util.DDM.preventDefault) YAHOO.util.DDM.preventDefault = true;
 					var x = YAHOO.util.Event.getPageX(e);
 					var y = YAHOO.util.Event.getPageY(e);				
 					var m = Servoy.Utils.getModifiers(e);	
