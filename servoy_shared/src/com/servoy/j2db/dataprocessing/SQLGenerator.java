@@ -976,7 +976,7 @@ public class SQLGenerator
 							qcol.getColumnType().getLength(), qcol.getColumnType().getScale());
 					}
 
-					return new BufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
+					return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
 				}
 			}
 		}

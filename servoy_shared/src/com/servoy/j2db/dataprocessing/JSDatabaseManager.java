@@ -726,7 +726,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 		}
-		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
+		return new JSDataSet(application, BufferedDataSetInternal.createBufferedDataSet(dpnames, dptypes, lst, false));
 	}
 
 	/**
@@ -758,7 +758,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			lst.add(new Object[] { o });
 		}
-		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
+		return new JSDataSet(application, BufferedDataSetInternal.createBufferedDataSet(dpnames, dptypes, lst, false));
 	}
 
 	/**
@@ -848,7 +848,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 		}
 
-		return new JSDataSet(application, new BufferedDataSet(dpnames, dptypes, lst, false));
+		return new JSDataSet(application, BufferedDataSetInternal.createBufferedDataSet(dpnames, dptypes, lst, false));
 	}
 
 	/**
