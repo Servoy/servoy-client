@@ -467,7 +467,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Property value
 	 */
-	public String js_getUserProperty(String name)
+	@JSFunction
+	public String getUserProperty(String name)
 	{
 		return application.getUserProperty(name);
 	}
@@ -480,7 +481,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param name Name of the user property
 	 * @param value New value of the user property
 	 */
-	public void js_setUserProperty(String name, String value)
+	@JSFunction
+	public void setUserProperty(String name, String value)
 	{
 		application.setUserProperty(name, value);
 	}
