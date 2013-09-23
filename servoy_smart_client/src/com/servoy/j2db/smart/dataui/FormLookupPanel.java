@@ -134,8 +134,9 @@ public class FormLookupPanel extends EnablePanel implements IFormLookupPanel
 				fp.setReadOnly(fm.isFormReadOnly(formName));
 
 				Container con = getParent();
-				if (con != null && (con instanceof ITabPaneAlike))
-				{// reaply the isEnabled state of the tabpannel to its child tabs (tabs are added after enabled state is set)
+				if (con != null && (con instanceof ITabPaneAlike) && !con.isEnabled())
+				{
+					// reaply the isEnabled state of the tabpanel to its child tabs (tabs are added after enabled state is set); only if the tabpanel is disabled
 					this.setEnabled(con.isEnabled());
 				}
 				while (con != null)

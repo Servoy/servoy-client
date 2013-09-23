@@ -27,7 +27,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.MEDIA)
-public class Media extends AbstractBase implements ISupportName, ISupportEncapsulation, ICloneable
+public class Media extends AbstractBase implements ISupportName, ISupportEncapsulation, ICloneable, ISupportDeprecated
 {
 	public static final long serialVersionUID = 468097341226347599L;
 
@@ -148,5 +148,23 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 	public int getEncapsulation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION).intValue();
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#getDeprecated()
+	 */
+	@Override
+	public String getDeprecated()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED);
+	}
+
+	/*
+	 * @see com.servoy.j2db.persistence.ISupportDeprecated#setDeprecated(String)
+	 */
+	@Override
+	public void setDeprecated(String deprecatedInfo)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_DEPRECATED, deprecatedInfo);
 	}
 }

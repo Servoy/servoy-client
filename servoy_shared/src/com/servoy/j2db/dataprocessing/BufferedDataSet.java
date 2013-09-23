@@ -72,7 +72,8 @@ public class BufferedDataSet implements IDataSet
 		setColumnTypes(columnTypes);
 	}
 
-	public BufferedDataSet(String[] columnNames, ColumnType[] columnTypes, List<Object[]> rows, boolean hadMore)
+	/* package scope so it does not end up in javadoc */
+	BufferedDataSet(String[] columnNames, ColumnType[] columnTypes, List<Object[]> rows, boolean hadMore)
 	{
 		this.columnNames = columnNames;
 		this.columnTypes = columnTypes;
@@ -278,7 +279,8 @@ public class BufferedDataSet implements IDataSet
 	/**
 	 * @return the column types
 	 */
-	public ColumnType[] getColumnTypeInfo()
+	/* package scope so it does not end up in javadoc */
+	ColumnType[] getColumnTypeInfo()
 	{
 		return columnTypes == null ? null : columnTypes.clone();
 	}

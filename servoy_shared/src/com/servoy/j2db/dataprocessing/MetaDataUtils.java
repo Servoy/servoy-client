@@ -96,7 +96,7 @@ public class MetaDataUtils
 		// columns
 		JSONArray jsonColumns = new JSONArray();
 		String[] columnNames = dataSet.getColumnNames();
-		BaseColumnType[] columnTypes = dataSet.getColumnTypeInfo();
+		BaseColumnType[] columnTypes = BufferedDataSetInternal.getColumnTypeInfo(dataSet);
 		for (int c = 0; c < columnNames.length; c++)
 		{
 			JSONObject jsonColumn = new JSONObject();
@@ -197,7 +197,7 @@ public class MetaDataUtils
 			rows.add(row);
 		}
 
-		return new BufferedDataSet(columnNames, columnTypes, rows, false);
+		return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, rows, false);
 	}
 
 	public static String generateMetaDataFileContents(Table table, int max) throws RemoteException, ServoyException, JSONException, TooManyRowsException
