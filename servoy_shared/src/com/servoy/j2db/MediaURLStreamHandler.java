@@ -20,11 +20,14 @@ package com.servoy.j2db;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.wicket.RequestCycle;
@@ -69,6 +72,10 @@ public class MediaURLStreamHandler extends URLStreamHandler
 		if (fname.startsWith("/")) //$NON-NLS-1$
 		{
 			fname = fname.substring(1);
+		}
+		if (fname.indexOf("?") != -1) //$NON-NLS-1$
+		{
+			fname = fname.substring(0, fname.indexOf("?"));
 		}
 		final String filename = fname;
 		if (filename.startsWith(MEDIA_URL_BLOBLOADER))
@@ -156,10 +163,12 @@ public class MediaURLStreamHandler extends URLStreamHandler
 		}
 		else
 		{
-			URLConnection urlc = new URLConnection(u)
+			URLConnection urlc = new HttpURLConnection(u)
 			{
 				private Media m;
 				private byte[] array;
+				private String etag;
+				private boolean useCachedVersion = false;
 
 				@Override
 				public void connect() throws IOException
@@ -169,6 +178,16 @@ public class MediaURLStreamHandler extends URLStreamHandler
 					if (m != null)
 					{
 						array = m.getMediaData();
+						etag = getRequestProperty("If-None-Match");
+						if (("" + array.hashCode()).equals(etag))
+						{
+							array = null;
+							useCachedVersion = true;
+						}
+						else
+						{
+							etag = "" + array.hashCode();
+						}
 						connected = true;
 					}
 				}
@@ -234,6 +253,59 @@ public class MediaURLStreamHandler extends URLStreamHandler
 				public String toString()
 				{
 					return "MediaURL:" + url; //$NON-NLS-1$
+				}
+
+				@Override
+				public String getHeaderField(int n)
+				{
+					if (n == 0)
+					{
+						return "HTTP/1.1 200 OK";
+					}
+					return super.getHeaderField(n);
+				}
+
+				@Override
+				public Map<String, List<String>> getHeaderFields()
+				{
+					HashMap<String, List<String>> mp = new HashMap<String, List<String>>();
+
+					ArrayList<String> al;
+
+					al = new ArrayList<String>();
+					al.add(etag);
+					mp.put("ETag", al); //$NON-NLS-1$
+
+					al = new ArrayList<String>();
+					al.add("no-cache"); //$NON-NLS-1$
+					mp.put("Cache-Control", al); //$NON-NLS-1$
+
+					return mp;
+				}
+				
+				@Override
+				public int getResponseCode() throws IOException
+				{
+					if (useCachedVersion)
+					{
+						return HTTP_NOT_MODIFIED;
+					}
+					else if (m == null)
+					{
+						return HTTP_NOT_FOUND;
+					}
+					return HTTP_OK;
+				}
+
+				@Override
+				public void disconnect()
+				{
+				}
+
+				@Override
+				public boolean usingProxy()
+				{
+					return false;
 				}
 			};
 			return urlc;
