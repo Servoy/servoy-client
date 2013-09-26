@@ -526,9 +526,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@SuppressWarnings("nls")
 	public static void main(final String[] args)
 	{
-		System.err.println("default timezone: " + TimeZone.getDefault());
 		String userTimeZone = System.getProperty("user.timezone");
-		System.err.println("user.timezone: " + userTimeZone);
 		// Bug around java when downloading the first time (pack or gzip seems to alter the timezone and don't set it back)
 		if (userTimeZone != null && !userTimeZone.equals(TimeZone.getDefault().getID()))
 		{
@@ -536,7 +534,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			if (userTimeZone.equals(timeZone.getID()))
 			{
 				TimeZone.setDefault(timeZone);
-				System.err.println("setting default to " + timeZone);
 			}
 		}
 
