@@ -2492,34 +2492,37 @@ if (typeof(Servoy.Validation) == "undefined")
 		
 		detachDisplayEditFormat: function(elementId)
 		{
-			var element = document.getElementById(elementId);
-
-			if(element)
+			if(Servoy.Validation.displayEditFormOnFocus[elementId] || Servoy.Validation.displayEditFormOnBlur[elementId])
 			{
-				if(Servoy.Validation.displayEditFormOnFocus[elementId])
-				{
-					if(element.removeEventListener)
-					{
-						element.removeEventListener('focus', Servoy.Validation.displayEditFormOnFocus[elementId], false);
-					}
-					else if(element.detachEvent)
-					{
-						element.detachEvent('onfocus', Servoy.Validation.displayEditFormOnFocus[elementId]);
-					}
-					Servoy.Validation.displayEditFormOnFocus[elementId] = null;
-				}
+				var element = document.getElementById(elementId);
 	
-				if(Servoy.Validation.displayEditFormOnBlur[elementId])
+				if(element)
 				{
-					if(element.removeEventListener)
+					if(Servoy.Validation.displayEditFormOnFocus[elementId])
 					{
-						element.removeEventListener('blur', Servoy.Validation.displayEditFormOnBlur[elementId], false);
+						if(element.removeEventListener)
+						{
+							element.removeEventListener('focus', Servoy.Validation.displayEditFormOnFocus[elementId], false);
+						}
+						else if(element.detachEvent)
+						{
+							element.detachEvent('onfocus', Servoy.Validation.displayEditFormOnFocus[elementId]);
+						}
+						Servoy.Validation.displayEditFormOnFocus[elementId] = null;
 					}
-					else if (element.detachEvent)
+		
+					if(Servoy.Validation.displayEditFormOnBlur[elementId])
 					{
-						element.detachEvent('onblur', Servoy.Validation.displayEditFormOnBlur[elementId]);
+						if(element.removeEventListener)
+						{
+							element.removeEventListener('blur', Servoy.Validation.displayEditFormOnBlur[elementId], false);
+						}
+						else if (element.detachEvent)
+						{
+							element.detachEvent('onblur', Servoy.Validation.displayEditFormOnBlur[elementId]);
+						}
+						Servoy.Validation.displayEditFormOnBlur[elementId] = null;
 					}
-					Servoy.Validation.displayEditFormOnBlur[elementId] = null;
 				}
 			}
 		},
