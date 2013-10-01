@@ -1241,12 +1241,16 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Gets the HTTP server url.
+	 * 
+	 * @description-mc
+	 * Gets the application server URL for mobile client to connect to.
 	 *
 	 * @sample var url = application.getServerURL();
 	 * 
 	 * @return HTTP server URL
 	 */
-	public String js_getServerURL()
+	@JSFunction
+	public String getServerURL()
 	{
 		String url = application.getServerURL().toString();
 		// if it does has a / in it (after http(s)://) and it doesn't end with /

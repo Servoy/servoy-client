@@ -39,6 +39,8 @@ public interface IJSApplication
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	void setServerURL(String applicationServerURL);
 
+	String getServerURL();
+
 	public String getUserProperty(String name);
 
 	public void setUserProperty(String name, String value);
