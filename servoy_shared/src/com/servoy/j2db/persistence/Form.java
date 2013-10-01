@@ -1244,6 +1244,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * If a form is in List view or Special table view - when the user clicks on it.
 	 * In Record view - after the user navigates to another record using the slider or clicks up or down for next/previous record. 
 	 * NOTE: Data and Servoy tag values are returned when the onRecordSelection method is executed.
+	 * NOTE: this will also fire if the selection goes to -1 because the foundset is cleared. So foundset.getSelectedRecord() can return null.
 	 * 
 	 * @templatedescription Handle record selected
 	 * @templatename onRecordSelection
