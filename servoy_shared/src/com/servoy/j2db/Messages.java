@@ -111,6 +111,21 @@ public class Messages
 		callback.messagesLoaded();
 	}
 
+	public static boolean isI18NTable(String serverName, String tableName, IApplication application)
+	{
+		Solution solution = application.getSolution();
+		IFoundSetManagerInternal fm = application.getFoundSetManager();
+
+		if (solution != null && fm != null)
+		{
+			String i18nDatasource = solution.getI18nDataSource();
+			String[] names = getServerTableNames(i18nDatasource, application.getSettings());
+
+			return names[0] != null && names[0].equals(serverName) && names[1] != null && names[1].equals(tableName);
+		}
+		return false;
+	}
+
 	/**
 	 * CURRENTLY FOR INTERNAL USE ONLY, DO NOT CALL.
 	 * 
