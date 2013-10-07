@@ -1592,6 +1592,23 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return modules;
 	}
 
+	public String[] getSolutionNames()
+	{
+		List<String> names = new ArrayList<String>();
+		if (mainSolution != null)
+		{
+			names.add(mainSolution.getName());
+		}
+		if (modules != null)
+		{
+			for (Solution module : modules)
+			{
+				names.add(module.getName());
+			}
+		}
+		return names.toArray(new String[0]);
+	}
+
 	public boolean hasModule(String moduleName)
 	{
 		if (modules != null)
