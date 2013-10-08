@@ -3809,14 +3809,16 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	 */
 	public void reconnectedToServer()
 	{
+		if (reconnecting) return;
 		getScheduledExecutor().execute(new Runnable()
 		{
 			@SuppressWarnings("nls")
 			public void run()
 			{
 				if (reconnecting) return;
-				final String prevClientId = getClientInfo().getClientId();
 				reconnecting = true;
+				final String prevClientId = getClientInfo().getClientId();
+
 				try
 				{
 					if (Debug.tracing())
@@ -3877,6 +3879,26 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 				if (prevClientId == null || !prevClientId.equals(getClientInfo().getClientId()))
 				{
+					Runnable closeAndLogout = new Runnable()
+					{
+						public void run()
+						{
+							JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"),
+								Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
+							if (Debug.tracing())
+							{
+								Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
+							}
+							if (Debug.tracing())
+							{
+								Debug.trace("Setting disconnect dialog to false.");
+							}
+							disconnectDialog.setVisible(false);
+							closeSolution(true, null);
+							// logout to make sure the login solution is reloaded in case the main solution needs state from the login solution
+							logout(null);
+						}
+					};
 					if (((FoundSetManager)getFoundSetManager()).hasLocks(null) || ((FoundSetManager)getFoundSetManager()).hasTransaction() ||
 						!((FoundSetManager)getFoundSetManager()).testClientDataSources())
 					{
@@ -3888,29 +3910,39 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						{
 							// ignore
 						}
-
-						invokeLater(new Runnable()
-						{
-							public void run()
-							{
-								JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"),
-									Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
-								if (Debug.tracing())
-								{
-									Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
-								}
-								if (Debug.tracing())
-								{
-									Debug.trace("Setting disconnect dialog to false.");
-								}
-								disconnectDialog.setVisible(false);
-								closeSolution(true, startupArguments);
-								// logout to make sure the login solution is reloaded in case the main solution needs state from the login solution
-								logout(null);
-							}
-						});
+						invokeLater(closeAndLogout);
 						return;
 					}
+					// if logged in, login again
+					if (getClientInfo().getUserUid() != null)
+					{
+						try
+						{
+							authenticate(new Credentials(getClientInfo().getClientId(), getClientInfo().getAuthenticatorType(),
+								getClientInfo().getAuthenticatorMethod(), getClientInfo().getJsCredentials()));
+						}
+						catch (RepositoryException e)
+						{
+							Debug.error(e);
+						}
+						if (getClientInfo().getUserUid() == null)
+						{
+							try
+							{
+								getDataServer().logMessage(
+									"Client reconnected with id " + getClientID() + " from id " + prevClientId +
+										", relogin with old credentials failed, restarting client");
+							}
+							catch (Exception ex)
+							{
+								// ignore
+							}
+							invokeLater(closeAndLogout);
+							return;
+						}
+					}
+
+
 					try
 					{
 						((FoundSetManager)getFoundSetManager()).registerClientTables();
