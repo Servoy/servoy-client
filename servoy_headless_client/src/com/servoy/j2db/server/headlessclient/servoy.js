@@ -1438,9 +1438,9 @@ if (typeof(Servoy.DD) == "undefined")
 			else if (typeof target.style.MozUserSelect!="undefined") //Firefox
 				target.style.MozUserSelect="none";
 			else if(typeof target.style.MsUserSelect!="undefined") //IE 10+
+				target.style.MsUserSelect="none";
 			else if(typeof target.onselectstart!="undefined")
 				target.onselectstart = function () { return false; }; //old IE
-				target.style.MsUserSelect="none";
 			else if(typeof target.style.unselectable!="undefined") //Opera
 				target.style.unselectable="on";
 		},
