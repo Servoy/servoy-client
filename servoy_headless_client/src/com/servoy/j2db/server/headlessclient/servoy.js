@@ -1192,6 +1192,8 @@ if (typeof(Servoy.DD) == "undefined")
 				else
 					dd = new YAHOO.util.DD(array[i]);
 
+				Servoy.DD.disableSelection(document.getElementById(dd.id));
+
 				if(bXConstraint)
 				{
 					dd.setXConstraint(0, 0);
@@ -1428,6 +1430,19 @@ if (typeof(Servoy.DD) == "undefined")
 			}
 
 			return false;
+		},
+		
+		disableSelection: function(target) {
+			if(typeof target.style.webkitUserSelect!="undefined") //Chrome,Safari
+				target.style.webkitUserSelect="none";
+			else if (typeof target.style.MozUserSelect!="undefined") //Firefox
+				target.style.MozUserSelect="none";
+			else if(typeof target.style.MsUserSelect!="undefined") //IE 10+
+			else if(typeof target.onselectstart!="undefined")
+				target.onselectstart = function () { return false; }; //old IE
+				target.style.MsUserSelect="none";
+			else if(typeof target.style.unselectable!="undefined") //Opera
+				target.style.unselectable="on";
 		},
 		
 		isDragDropContainer: function(target)
