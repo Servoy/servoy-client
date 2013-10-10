@@ -104,7 +104,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 	private boolean consumeEnterReleased;
 
 
-	private static Timer timer = new Timer("Lookup ValueList Timer", true); //$NON-NLS-1$
+	private static Timer timer;
 
 	private final IWindowVisibleChangeListener popupParentVisibleChangeListener = new IWindowVisibleChangeListener()
 	{
@@ -436,6 +436,14 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		}
 		else
 		{
+			synchronized (DataLookupField.class)
+			{
+				if (timer == null)
+				{
+					timer = new Timer("Lookup ValueList Timer", true); //$NON-NLS-1$
+				}
+			}
+
 			synchronized (this)
 			{
 				task = new TimerTask()
