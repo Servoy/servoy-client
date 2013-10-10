@@ -16,6 +16,9 @@ function MultipleFileUploadInterceptor(multiSelector)
 				element.type = 'file';
 			}
 			element.addEventListener("change", function () {
+				var temp_message_element = document.createElement('div');
+				temp_message_element.id = "temp_message";
+                temp_message_element.textContent = "Add more files";
                 if (element.files && element.files.length > 0) {
                     if (typeof element.files[0].lastModifiedDate === 'undefined') {
                         // the browser doesn\'t support the lastModifiedDate property so last modified date will not be available');
@@ -25,6 +28,10 @@ function MultipleFileUploadInterceptor(multiSelector)
                     		actionURL+="&last_modified_"+element.getAttribute("name")+"_"+encodeURIComponent(element.files[i].name)+"="+element.files[i].lastModifiedDate.getTime();
                     		element.form.setAttribute("action",actionURL)
                     	}
+                    }
+                    if (!(element.parentNode.lastElementChild.lastElementChild.id == "file_list")){
+                    	// add temporary message
+                    	element.parentNode.insertBefore(temp_message_element, element);
                     }
                 }
             });
@@ -36,6 +43,7 @@ function MultipleFileUploadInterceptor(multiSelector)
 
 		// Row div
 		var new_row = document.createElement('tr');
+		new_row.id = "file_list";
 		var contentsColumn = document.createElement('td');
 		var buttonColumn = document.createElement('td');
 
@@ -52,6 +60,9 @@ function MultipleFileUploadInterceptor(multiSelector)
 		// Delete function
 		delete_button.onclick= function(){
 
+			// retrieve the parent panel
+			var panel = this.parentNode.parentNode.parentNode.parentNode;
+			
 			// Remove element from form
 			this.parentNode.parentNode.element.parentNode.removeChild( this.parentNode.parentNode.element );
 
@@ -60,7 +71,12 @@ function MultipleFileUploadInterceptor(multiSelector)
 
 			// Decrement counter
 			this.parentNode.parentNode.element.multi_selector.count--;
-
+			
+			// remove temporary message
+			if(!(panel.lastElementChild.lastElementChild.id == "file_list")) {
+				panel.removeChild(document.getElementById("temp_message"));
+			}
+			
 			// Re-enable input element (if it's disabled)
 			this.parentNode.parentNode.element.multi_selector.current_element.disabled = false;
 			

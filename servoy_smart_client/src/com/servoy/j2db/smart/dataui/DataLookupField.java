@@ -254,6 +254,12 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		}
 	}
 
+	@Override
+	protected boolean canLooseFocus()
+	{
+		return hasFocus();
+	}
+
 	/*
 	 * @see javax.swing.text.JTextComponent#removeNotify()
 	 */

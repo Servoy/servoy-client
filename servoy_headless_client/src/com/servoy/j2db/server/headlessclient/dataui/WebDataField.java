@@ -460,7 +460,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	public void renderHead(final HtmlHeaderContainer container)
 	{
 		super.renderHead(container);
-		if (eventExecutor.getValidationEnabled())
+		if (eventExecutor.getValidationEnabled() && isEnabled() && isEditable())
 		{
 			container.getHeaderResponse().renderOnDomReadyJavascript("Servoy.Validation.detachDisplayEditFormat('" + getMarkupId() + "');"); //$NON-NLS-1$ //$NON-NLS-2$
 			testFormats(new ITestFormatsCallback()
@@ -472,8 +472,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 				}
 			}, false);
 		}
-		container.getHeaderResponse().renderOnDomReadyJavascript(
-			"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (isEnabled() && isEditable() && Column.mapToDefaultType(dataType) == IColumnTypes.NUMBER)
+		{
+			container.getHeaderResponse().renderOnDomReadyJavascript(
+				"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		if (scriptable.getPlaceholderText() != null)
 		{
 			container.getHeaderResponse().renderOnLoadJavascript("$('#" + getMarkupId() + "').placeholder();");

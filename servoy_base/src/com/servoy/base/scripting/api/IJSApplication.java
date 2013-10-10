@@ -38,4 +38,6 @@ public interface IJSApplication
 
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	void setServerURL(String applicationServerURL);
+	
+	String getServerURL();
 }

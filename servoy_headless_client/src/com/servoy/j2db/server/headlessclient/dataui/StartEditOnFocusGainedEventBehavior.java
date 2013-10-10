@@ -50,6 +50,12 @@ public class StartEditOnFocusGainedEventBehavior extends ServoyAjaxEventBehavior
 		startEditing(getComponent(), target);
 	}
 
+	@Override
+	protected boolean blockRequest()
+	{
+		return false;
+	}
+
 	/**
 	 * Add a focus gained behavior when it is not there yet.
 	 * 

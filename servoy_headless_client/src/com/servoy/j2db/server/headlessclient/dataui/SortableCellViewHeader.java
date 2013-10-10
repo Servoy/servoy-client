@@ -292,7 +292,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		headerColumnTable.add(labelResolver = new LabelResolverLink("sortLink", useAJAX, group, id)); //$NON-NLS-1$
 		labelResolver.add(new AttributeModifier("class", true, group)); //$NON-NLS-1$
 		labelResolver.add(new StyleAppendingModifier(new Model<String>("white-space: nowrap;text-overflow: clip;")));
-
+		boolean hasBgImage = false;
 		// append background image in case of labelFor for the current label (goes through all labelFor components in the map to get the component by name )
 		GraphicalComponent labelFor = getLabelComponent();
 		if (labelFor != null)
@@ -304,6 +304,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 				TextualStyle headerStyle = new TextualStyle();
 				headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), cssRule.getValues(CSS.Attribute.BACKGROUND_IMAGE.toString()), true);
 				add(new StyleAppendingModifier(new Model<String>(headerStyle.getValuesAsString(null))));
+				hasBgImage = true;
 			}
 		}
 
@@ -472,6 +473,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 						final Media media = application.getFlattenedSolution().getMedia(media_id);
 						if (media != null)
 						{
+							hasBgImage = true;
 							final int headerHeight = height;
 							add(new StyleAppendingModifier(new Model<String>()
 							{
@@ -552,6 +554,10 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		catch (Exception ex)
 		{
 			Debug.error(ex);
+		}
+		if (labelFor != null && hasBgImage && labelFor.getOnActionMethodID() > 0)
+		{
+			add(new AttributeModifier("onclick", true, new Model<String>("this.getElementsByTagName('a')[0].click()")));
 		}
 		Boolean dir = group.get(id);
 		if (dir != null && form.getOnSortCmdMethodID() >= 0)

@@ -468,7 +468,7 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 		private int curOffset;
 		private Point clickPoint;
 
-		// cannot use mouseClicked callback as the must also track mouse events that
+		// cannot use mouseClicked callback as we must also track mouse events that
 		// are repost from EditListUI, and that is ignoring reposting mouseClicked events
 		// so, we try to figure out if it is a click from mousePressed & mouseReleased
 
@@ -481,10 +481,19 @@ public class FixedHTMLEditorKit extends StyledEditorKit implements ISupportAsync
 		@Override
 		public void mouseReleased(MouseEvent e)
 		{
-			if (clickPoint.equals(e.getPoint())) // it is a mouse click
+			// sometimes EditListUI will ignore reposting the mousePressed event, so also
+			// handle the case when we have no clickPoint
+			if (clickPoint == null || clickPoint.equals(e.getPoint())) // it is a mouse click
 			{
 				handleMouseClick(e);
 			}
+			clickPoint = null;
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e)
+		{
+			clickPoint = null;
 		}
 
 		/**

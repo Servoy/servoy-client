@@ -473,7 +473,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Set a persistent user property.
+	 * Sets a user property for this client: <br>
+	 * For heedless clients((including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
+	 * <br>
+	 * For Web client the user property will be stored in a persistent cookie
+	 * <br>
+	 * For Smart Client it will be stored in client local properties file
 	 *
 	 * @sample application.setUserProperty('showOrders','1');
 	 *
@@ -1239,12 +1244,16 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Gets the HTTP server url.
+	 * 
+	 * @description-mc
+	 * Gets the application server URL for mobile client to connect to.
 	 *
 	 * @sample var url = application.getServerURL();
 	 * 
 	 * @return HTTP server URL
 	 */
-	public String js_getServerURL()
+	@JSFunction
+	public String getServerURL()
 	{
 		String url = application.getServerURL().toString();
 		// if it does has a / in it (after http(s)://) and it doesn't end with /
