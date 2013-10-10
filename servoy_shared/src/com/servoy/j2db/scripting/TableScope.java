@@ -42,6 +42,9 @@ import com.servoy.j2db.util.Debug;
  */
 public class TableScope extends LazyCompilationScope
 {
+	private final static ThreadLocal<Object[]> values = new ThreadLocal<Object[]>();
+	private final static ThreadLocal<UsedDataProviderTracker> usedDataProviderTracker = new ThreadLocal<UsedDataProviderTracker>();
+
 	private final Table table;
 	private final FlattenedSolution solution;
 
@@ -53,9 +56,6 @@ public class TableScope extends LazyCompilationScope
 		setFunctionParentScriptable(new RecordingScriptable(null, this));
 	}
 
-	ThreadLocal<Object[]> values = new ThreadLocal<Object[]>();
-	private final ThreadLocal<UsedDataProviderTracker> usedDataProviderTracker = new ThreadLocal<UsedDataProviderTracker>();
-
 	public void setArguments(Object[] vargs)
 	{
 		Object[] array = getThreadLocalArray();
@@ -64,7 +64,14 @@ public class TableScope extends LazyCompilationScope
 
 	public void setUsedDataProviderTracker(UsedDataProviderTracker usedDataProviderTracker)
 	{
-		this.usedDataProviderTracker.set(usedDataProviderTracker);
+		if (usedDataProviderTracker == null)
+		{
+			TableScope.usedDataProviderTracker.remove();
+		}
+		else
+		{
+			TableScope.usedDataProviderTracker.set(usedDataProviderTracker);
+		}
 	}
 
 	private Object[] getThreadLocalArray()
@@ -172,7 +179,7 @@ public class TableScope extends LazyCompilationScope
 			if (tracker != null)
 			{
 				((RecordingScriptable)getFunctionParentScriptable()).pushRecordingTracker(tracker);
-				usedDataProviderTracker.set(null);
+				setUsedDataProviderTracker(null);
 			}
 
 			Object o = scriptEngine.executeFunction(calculation, this, calculation, (Object[])array[1], false, false);
@@ -190,6 +197,11 @@ public class TableScope extends LazyCompilationScope
 				((RecordingScriptable)getFunctionParentScriptable()).popRecordingTracker();
 			}
 			callStack.remove(callStackName);
+			if (callStack.size() == 0)
+			{
+				// clear the thread locals.
+				values.remove();
+			}
 		}
 	}
 
