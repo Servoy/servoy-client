@@ -39,6 +39,8 @@ public interface IMobileSMBean extends IBaseSMBean
 	 * Set the mobile bean innerHTML
 	 * 
 	 * @param innerHTML the mobile bean innerHTML
+	 * @sample
+	 * solutionModel.getForm('orders').getBean('signatureBean').innerHTML = '<div><span>My Bean</span></div>'; 
 	 */
 	public void setInnerHTML(String innerHTML);
 }
