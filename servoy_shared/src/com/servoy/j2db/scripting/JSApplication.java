@@ -475,7 +475,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Sets a user property for this client: <br>
-	 * For heedless clients((including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
+	 * For headless clients((including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
 	 * <br>
 	 * For Web client the user property will be stored in a persistent cookie
 	 * <br>
