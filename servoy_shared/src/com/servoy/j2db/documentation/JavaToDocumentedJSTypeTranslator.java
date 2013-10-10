@@ -42,6 +42,7 @@ import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMLabel;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMPart;
+import com.servoy.base.solutionmodel.IBaseSMValueList;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
 import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
 import com.servoy.base.solutionmodel.mobile.IMobileSMLabel;
@@ -151,6 +152,8 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(Scriptable.class, com.servoy.j2db.documentation.scripting.docs.Object.class);
 		javaClassToDocumentedJavaClass.put(JSMap.class, com.servoy.j2db.documentation.scripting.docs.Object.class);
 
+		javaClassToDocumentedJavaClass.put(Map.class, com.servoy.j2db.documentation.scripting.docs.Object.class);
+
 		javaClassToDocumentedJavaClass.put(org.mozilla.javascript.Function.class, com.servoy.j2db.documentation.scripting.docs.Function.class);
 
 		javaClassToDocumentedJavaClass.put(Exception.class, ServoyException.class);
@@ -195,6 +198,8 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(ISMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
 		javaClassToDocumentedJavaClass.put(IBaseSMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
 		javaClassToDocumentedJavaClass.put(IMobileSMForm.class, com.servoy.j2db.scripting.solutionmodel.JSForm.class);
+
+		javaClassToDocumentedJavaClass.put(IBaseSMValueList.class, com.servoy.j2db.scripting.solutionmodel.JSValueList.class);
 
 		javaClassToDocumentedJavaClass.put(IForm.class, com.servoy.j2db.documentation.scripting.docs.Form.class);
 		javaClassToDocumentedJavaClass.put(FormScope.class, com.servoy.j2db.documentation.scripting.docs.Form.class);
