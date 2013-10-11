@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.test;
+package com.servoy.base.nongwt.test;
 
 /**
  * Maps mobile js line numbers to developer JS files. 

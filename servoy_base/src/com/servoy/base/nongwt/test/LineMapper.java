@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.test;
+package com.servoy.base.nongwt.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.servoy.base.nongwt.test.ILineMapper.LineMapping;
 
 /**
  * Class that holds mappings from mobile generated solution JS to lines in the developer scope/form js files.
