@@ -144,6 +144,14 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ENCAPSULATION, arg);
 	}
 
+	/**
+	 * The encapsulation mode of this Media. The following can be used:
+	 * 
+	 * - Public (available in both scripting and designer  from any module)
+	 * - Module Scope - available in both scripting and designer but only in the same module.
+	 * 
+	 * @return the encapsulation mode/level of the persist.
+	 */
 	@Override
 	public int getEncapsulation()
 	{
