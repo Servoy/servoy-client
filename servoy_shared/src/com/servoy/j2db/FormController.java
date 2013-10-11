@@ -3806,9 +3806,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public boolean prepareForSave(boolean looseFocus)//save any changed data to database
 	{
-		// only valid if the current form is the main one.
-		// because stopUIEditing already cascades.
-		if (application.getFormManager() != null && application.getFormManager().getCurrentForm() == this)
+		// only valid if the current form is the main one in any window/dialog
+		// because stopUIEditing already cascades to the rest of forms
+		if (getFormUI().getContainerName() != null)
 		{
 			if (looseFocus)
 			{

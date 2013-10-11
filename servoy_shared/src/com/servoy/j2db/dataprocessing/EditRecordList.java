@@ -184,6 +184,7 @@ public class EditRecordList
 
 	public boolean hasEditedRecords(IFoundSetInternal foundset, boolean testForRemoves)
 	{
+		// TODO don't we have to check for any related foundset edits here as well?
 		if (testForRemoves)
 		{
 			removeUnChangedRecords(false, false, foundset);
