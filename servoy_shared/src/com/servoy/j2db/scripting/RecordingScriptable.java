@@ -68,7 +68,12 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 			// should never happen
 			throw new IllegalStateException("Cannot pop calculation recording tracker"); //$NON-NLS-1$
 		}
-		return stack.remove(stack.size() - 1);
+		UsedDataProviderTracker obj = stack.remove(stack.size() - 1);
+		if (stack.size() == 0)
+		{
+			recordedThreadLocal.remove();
+		}
+		return obj;
 	}
 
 	public UsedDataProviderTracker peekRecordingTracker()

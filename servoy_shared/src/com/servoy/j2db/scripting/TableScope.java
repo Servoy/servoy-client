@@ -62,8 +62,9 @@ public class TableScope extends LazyCompilationScope
 		array[1] = vargs;
 	}
 
-	public void setUsedDataProviderTracker(UsedDataProviderTracker usedDataProviderTracker)
+	public UsedDataProviderTracker setUsedDataProviderTracker(UsedDataProviderTracker usedDataProviderTracker)
 	{
+		UsedDataProviderTracker current = TableScope.usedDataProviderTracker.get();
 		if (usedDataProviderTracker == null)
 		{
 			TableScope.usedDataProviderTracker.remove();
@@ -72,6 +73,7 @@ public class TableScope extends LazyCompilationScope
 		{
 			TableScope.usedDataProviderTracker.set(usedDataProviderTracker);
 		}
+		return current;
 	}
 
 	private Object[] getThreadLocalArray()

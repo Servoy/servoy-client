@@ -3297,12 +3297,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public Object getCalculationValue(IRecordInternal state, String dataProviderID, Object[] vargs, UsedDataProviderTracker usedDataProviderTracker)
 	{
+		UsedDataProviderTracker current = null;
 		try
 		{
 			Object obj;
 			TableScope tableScope = (TableScope)fsm.getScriptEngine().getTableScope(sheet.getTable());
 			tableScope.setArguments(vargs);
-			tableScope.setUsedDataProviderTracker(usedDataProviderTracker);
+			current = tableScope.setUsedDataProviderTracker(usedDataProviderTracker);
 			Scriptable previous = tableScope.getPrototype();
 			try
 			{
@@ -3339,6 +3340,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			finally
 			{
 				tableScope.setPrototype(previous);
+				tableScope.setUsedDataProviderTracker(current);
 			}
 			return obj;
 		}
