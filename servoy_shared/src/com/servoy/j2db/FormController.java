@@ -2602,9 +2602,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 	}
 
 	/**
-	 * Returns the name of the window/dialog in which this form is showing. In case of main application window, it will return {@link IApplication#APP_WINDOW_NAME} to differentiate from the case where
+	 * Returns the name of the window/dialog in which this form is showing. In case of main application window, it will return IApplication.APP_WINDOW_NAME to differentiate from the case where
 	 * no container is found. (null)
-	 * @return the name of the window/dialog in which this form is showing. If there is no such dialog/window returns null. In case of main application window, it will return {@link IApplication#APP_WINDOW_NAME} to differentiate from the case where
+	 * @return the name of the window/dialog in which this form is showing. If there is no such dialog/window returns null. In case of main application window, it will return IApplication.APP_WINDOW_NAME to differentiate from the case where
 	 * no dialog/window is found.
 	 */
 	public String getContainerName()
@@ -3806,9 +3806,9 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 
 	public boolean prepareForSave(boolean looseFocus)//save any changed data to database
 	{
-		// only valid if the current form is the main one in any window/dialog
-		// because stopUIEditing already cascades to the rest of forms
-		if (getFormUI().getRootContainerController() == this)
+		// only valid if the current form is the main one.
+		// because stopUIEditing already cascades.
+		if (application.getFormManager() != null && application.getFormManager().getCurrentForm() == this)
 		{
 			if (looseFocus)
 			{

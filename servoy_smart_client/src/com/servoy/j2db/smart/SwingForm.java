@@ -1346,35 +1346,19 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	public String getContainerName()
 	{
 		String name = null;
-		MainPanel mainPanel = getContainer();
-		if (mainPanel != null)
-		{
-			name = mainPanel.getContainerName();
-			if (name == null) name = IApplication.APP_WINDOW_NAME; // main container name is null for main app. window
-		}
-
-		return name;
-	}
-
-	@Override
-	public FormController getRootContainerController()
-	{
-		MainPanel mainPanel = getContainer();
-		return mainPanel != null ? mainPanel.getController() : null;
-	}
-
-	protected MainPanel getContainer()
-	{
 		Container parent = getParent();
 		while (parent != null)
 		{
 			if (parent instanceof MainPanel)
 			{
-				return ((MainPanel)parent);
+				MainPanel mainPanel = ((MainPanel)parent);
+				name = mainPanel.getContainerName();
+				if (name == null) name = IApplication.APP_WINDOW_NAME; // main container name is null for main app. window
+				break;
 			}
 			parent = parent.getParent();
 		}
-		return null;
+		return name;
 	}
 
 	/**
@@ -2633,5 +2617,4 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			selectedPanel = designPanel;
 		}
 	}
-
 }
