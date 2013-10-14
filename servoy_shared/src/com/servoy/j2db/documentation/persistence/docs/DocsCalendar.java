@@ -15,33 +15,20 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.base.solutionmodel.mobile;
+package com.servoy.j2db.documentation.persistence.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.base.solutionmodel.IBaseSMBean;
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Field;
+import com.servoy.j2db.persistence.IRepository;
 
 /**
- * Solution model bean component
+ * Dummy class for use in the documentation generator.
  * 
- * @author gboros
+ * @author jcompagner
  */
-@ServoyClientSupport(mc = true, wc = false, sc = false)
-public interface IMobileSMBean extends IBaseSMBean
+@ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Calendar", scriptingName = "Calendar", displayType = Field.CALENDAR, realClass = Field.class, typeCode = IRepository.FIELDS)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
+public class DocsCalendar extends BaseDocsField
 {
-	/**
-	 * The mobile bean innerHTML.
-	 *
-	 * @sample
-	 * solutionModel.getForm('orders').getBean('signatureBean').innerHTML = '<div><span>My Bean</span></div>';
-	 * 
-	 * @return a String object containing the mobile bean innerHTML
-	 */
-	public String getInnerHTML();
-
-	/**
-	 * Set the mobile bean innerHTML
-	 * 
-	 * @param innerHTML the mobile bean innerHTML
-	 */
-	public void setInnerHTML(String innerHTML);
 }

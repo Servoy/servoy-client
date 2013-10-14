@@ -102,6 +102,9 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = "webClientTableViewScrollableKeepLoadedRows"; //$NON-NLS-1$	
 
 
+	/**
+	 * Non-null name for the first (main) window.
+	 */
 	public static final String APP_WINDOW_NAME = "Application_frame";
 
 	/**

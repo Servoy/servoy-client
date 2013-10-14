@@ -467,25 +467,27 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * 
 	 * @return Property value
 	 */
-	public String js_getUserProperty(String name)
+	@JSFunction
+	public String getUserProperty(String name)
 	{
 		return application.getUserProperty(name);
 	}
 
 	/**
 	 * Sets a user property for this client: <br>
-	 * For heedless clients((including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
+	 * For headless clients(including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
 	 * <br>
-	 * For Web client the user property will be stored in a persistent cookie
+	 * For Web Client the user property will be stored in a persistent cookie
 	 * <br>
-	 * For Smart Client it will be stored in client local properties file
+	 * For Smart Client it will be stored in a properties file on the client machine.
 	 *
 	 * @sample application.setUserProperty('showOrders','1');
 	 *
 	 * @param name Name of the user property
 	 * @param value New value of the user property
 	 */
-	public void js_setUserProperty(String name, String value)
+	@JSFunction
+	public void setUserProperty(String name, String value)
 	{
 		application.setUserProperty(name, value);
 	}
@@ -2258,7 +2260,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
 	 * 
-	 * @param windowName the name of the window.
+	 * @param windowName the name of the window. Should not be null.
 	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
 	 * @return the newly created window.
 	 */
@@ -2282,7 +2284,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
 	 * 
-	 * @param windowName the name of the window.
+	 * @param windowName the name of the window. Should not be null.
 	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
 	 * @param parentWindow the parent JSWindow object. If it is not specified, the current window will be used as parent. This parameter is only used by dialogs.
 	 * @return the newly created window.

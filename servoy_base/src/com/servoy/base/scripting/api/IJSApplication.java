@@ -40,4 +40,8 @@ public interface IJSApplication
 	void setServerURL(String applicationServerURL);
 	
 	String getServerURL();
+
+	public String getUserProperty(String name);
+
+	public void setUserProperty(String name, String value);
 }

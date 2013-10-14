@@ -4534,14 +4534,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		int oldSize = getSize();
 		pksAndRecords.setPks(new BufferedDataSet(), 0);//return to 0
+
+		//let the List know the model changed
+		fireDifference(oldSize, 0);
+//		selectionModel.setSelectedRow(-1);
+
 		boolean oldFindMode = findMode;
 		clearInternalState(false);
 		findMode = true;
 		if (oldFindMode == false) fireFindModeChange();
 
-		//let the List know the model changed
-		fireDifference(oldSize, 0);
-//		selectionModel.setSelectedRow(-1);
 
 		try
 		{
