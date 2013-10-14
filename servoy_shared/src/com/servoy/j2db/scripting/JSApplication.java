@@ -2260,7 +2260,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
 	 * 
-	 * @param windowName the name of the window.
+	 * @param windowName the name of the window. Should not be null.
 	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
 	 * @return the newly created window.
 	 */
@@ -2284,7 +2284,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var nmd = application.createWindow("nonModalDialogName", JSWindow.DIALOG);
 	 * controller.showRecords(15, nmd); // 15 is a single-number pk in this case
 	 * 
-	 * @param windowName the name of the window.
+	 * @param windowName the name of the window. Should not be null.
 	 * @param type the type of the window. Can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW.
 	 * @param parentWindow the parent JSWindow object. If it is not specified, the current window will be used as parent. This parameter is only used by dialogs.
 	 * @return the newly created window.

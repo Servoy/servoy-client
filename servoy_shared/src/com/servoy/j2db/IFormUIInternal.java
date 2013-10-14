@@ -75,6 +75,11 @@ public interface IFormUIInternal<T> extends IFormUI, IFocusCycleRoot<T>
 	public boolean isFormInWindow();
 
 	/**
+	 * Returns the form controller of the root form in the window (main or JSWindow) where this form is shown.
+	 */
+	public FormController getRootContainerController();
+
+	/**
 	 * Returns the name of the window/dialog in which this form is showing. In case of main application window, it will return {@link IApplication#APP_WINDOW_NAME} to differentiate from the case where
 	 * no container is found. (null)
 	 * @return the name of the window/dialog in which this form is showing. If there is no such dialog/window returns null. In case of main application window, it will return {@link IApplication#APP_WINDOW_NAME} to differentiate from the case where

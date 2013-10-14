@@ -1541,6 +1541,13 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		return name;
 	}
 
+	@Override
+	public FormController getRootContainerController()
+	{
+		MainPage mp = getMainPage();
+		return mp != null ? mp.getController() : null;
+	}
+
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#isFormInWindow()
 	 */
@@ -2194,4 +2201,5 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		}
 		return null;
 	}
+
 }
