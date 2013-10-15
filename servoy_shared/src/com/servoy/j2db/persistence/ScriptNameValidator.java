@@ -203,7 +203,7 @@ public class ScriptNameValidator implements IValidateName
 			for (ScriptVariable sgv : Utils.iterate(solutionRoot.getScriptVariables(false)))
 			{
 				if (nameToCheck.equals(sgv.getName()) && sgv.getID() != skip_element_id &&
-					(!(searchContext.getObject() instanceof String) || searchContext.getObject().equals(sgv.getScopeName()))) // search context string is scopeName
+					(searchContext.getObject() instanceof String && searchContext.getObject().equals(sgv.getScopeName()))) // search context string is scopeName
 				{
 					return sgv;
 				}
@@ -211,7 +211,7 @@ public class ScriptNameValidator implements IValidateName
 			for (ScriptMethod sm : Utils.iterate(solutionRoot.getScriptMethods(false)))
 			{
 				if (nameToCheck.equals(sm.getName()) && sm.getID() != skip_element_id &&
-					(!(searchContext.getObject() instanceof String) || searchContext.getObject().equals(sm.getScopeName()))) // search context string is scopeName
+					(searchContext.getObject() instanceof String && searchContext.getObject().equals(sm.getScopeName()))) // search context string is scopeName
 				{
 					return sm;
 				}
