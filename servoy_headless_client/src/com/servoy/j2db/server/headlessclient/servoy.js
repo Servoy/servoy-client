@@ -1256,6 +1256,13 @@ if (typeof(Servoy.DD) == "undefined")
 				};
 
 				dd.endDrag = function(e) {
+					if (bUseProxy && bResizeProxyFrame && dd && dd.getDragEl())
+					{
+						// for some reason, yui doesn't set size to some default value so old values remain
+						// these values are taken from MainPage.html, modify in both places
+						YAHOO.util.Dom.setStyle( dd.getDragEl(), "width", "20px" );
+						YAHOO.util.Dom.setStyle( dd.getDragEl(), "height", "10px" );
+					}
 					Servoy.DD.clearResize();
 					Servoy.DD.clearHover();
 					Servoy.DD.dragStopped();
