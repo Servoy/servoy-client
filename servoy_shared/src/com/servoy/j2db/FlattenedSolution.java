@@ -3038,4 +3038,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		}
 		return form;
 	}
+
+	public String getName()
+	{
+		Solution solution = getSolution();
+		return solution != null ? solution.getName() : null;
+	}
 }

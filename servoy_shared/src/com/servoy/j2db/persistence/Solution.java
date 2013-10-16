@@ -764,13 +764,18 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public Media createNewMedia(IValidateName validator, String name) throws RepositoryException
 	{
+		return createNewMedia(validator, name, 0);
+	}
+
+	public Media createNewMedia(IValidateName validator, String name, int skip_element_id_for_name_check) throws RepositoryException
+	{
 		if (name == null)
 		{
 			throw new RepositoryException("Cannot create media without a name"); //$NON-NLS-1$
 		}
 
 		// Check if name is in use.
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.MEDIA), false);
+		validator.checkName(name, skip_element_id_for_name_check, new ValidatorSearchContext(IRepository.MEDIA), false);
 
 		Media m = (Media)getChangeHandler().createNewObject(this, IRepository.MEDIA);
 		// Set all the required properties.

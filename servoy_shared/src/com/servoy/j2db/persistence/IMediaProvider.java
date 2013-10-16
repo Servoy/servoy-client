@@ -32,4 +32,6 @@ public interface IMediaProvider
 	public Media getMedia(int media_id);
 
 	public Media getMedia(String name);
+
+	public String getName();
 }
