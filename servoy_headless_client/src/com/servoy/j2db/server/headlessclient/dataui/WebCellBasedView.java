@@ -2752,7 +2752,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 								{
 									boolean descending = sc.getSortOrder() == SortColumn.DESCENDING;
 									sortableCellViewHeader.setResizeImage(descending ? R_ARROW_UP : R_ARROW_DOWN);
-									sortMap.put(comp.getMarkupId(), Boolean.valueOf(!descending));
+									sortMap.put(sortableCellViewHeader.getId(), Boolean.valueOf(!descending));
 								}
 							}
 						}
