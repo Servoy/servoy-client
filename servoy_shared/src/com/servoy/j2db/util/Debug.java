@@ -133,7 +133,7 @@ public class Debug
 	private static Boolean HASMDC = null;
 
 	@SuppressWarnings("nls")
-	private static Object insertClientInfo(Object message)
+	private static boolean insertClientInfo(boolean insert)
 	{
 		if (HASMDC == null)
 		{
@@ -147,9 +147,9 @@ public class Debug
 				HASMDC = Boolean.FALSE;
 			}
 		}
-		if (!HASMDC.booleanValue()) return message;
+		if (!HASMDC.booleanValue()) return false;
 
-		return insetClientInfoWithMDC(message);
+		return insetClientInfoWithMDC(insert);
 	}
 
 	/**
@@ -157,20 +157,24 @@ public class Debug
 	 * @return
 	 */
 	@SuppressWarnings("nls")
-	private static Object insetClientInfoWithMDC(Object message)
+	private static boolean insetClientInfoWithMDC(boolean insert)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
-		if (serviceProvider != null && serviceProvider.getSolution() != null && serviceProvider.getClientID() != null)
+		if (insert && serviceProvider != null && serviceProvider.getSolution() != null && serviceProvider.getClientID() != null)
 		{
-			MDC.put("clientid", serviceProvider.getClientID());
-			MDC.put("solution", serviceProvider.getSolution().getName());
+			if (MDC.get("clientid") == null)
+			{
+				MDC.put("clientid", serviceProvider.getClientID());
+				MDC.put("solution", serviceProvider.getSolution().getName());
+				return true;
+			}
 		}
 		else
 		{
 			MDC.remove("clientid");
 			MDC.remove("solution");
 		}
-		return message;
+		return false;
 	}
 
 	public static void trace(String message, Throwable throwable)
@@ -185,7 +189,9 @@ public class Debug
 		}
 		else
 		{
-			log.trace(insertClientInfo(message), throwable);
+			boolean wasInserted = insertClientInfo(true);
+			log.trace(message, throwable);
+			if (wasInserted) insertClientInfo(false);
 		}
 	}
 
@@ -203,11 +209,16 @@ public class Debug
 		{
 			if (s instanceof Throwable)
 			{
-				log.trace(insertClientInfo("Throwable"), (Throwable)s);
+				boolean wasInserted = insertClientInfo(true);
+				log.trace("Throwable", (Throwable)s);
+				if (wasInserted) insertClientInfo(false);
 			}
 			else
 			{
-				log.trace(insertClientInfo(s));
+				boolean wasInserted = insertClientInfo(true);
+				log.trace(s);
+				if (wasInserted) insertClientInfo(false);
+
 			}
 		}
 
@@ -246,14 +257,23 @@ public class Debug
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.error(insertClientInfo(message), s);
+
+		boolean wasInserted = insertClientInfo(true);
+		log.error(message, s);
+		if (wasInserted) insertClientInfo(false);
 		if (Context.getCurrentContext() != null)
 		{
 			try
 			{
 				EcmaError jsError = ScriptRuntime.constructError(message, message);
 				String scriptStackTrace = jsError.getScriptStackTrace();
-				if (!scriptStackTrace.equals("")) log.error(insertClientInfo(message + ", script stacktrace:\n" + scriptStackTrace));
+				if (!scriptStackTrace.equals(""))
+				{
+					wasInserted = insertClientInfo(true);
+					log.error(message + ", script stacktrace:\n" + scriptStackTrace);
+					if (wasInserted) insertClientInfo(false);
+
+				}
 			}
 			catch (Exception e)
 			{
@@ -272,7 +292,10 @@ public class Debug
 		}
 		else
 		{
-			log.error(insertClientInfo(s));
+			boolean wasInserted = insertClientInfo(true);
+			log.error(s);
+			if (wasInserted) insertClientInfo(false);
+
 		}
 	}
 
@@ -281,11 +304,16 @@ public class Debug
 		if (log == null) return;
 		if (throwable != null)
 		{
-			log.warn(insertClientInfo(message), throwable);
+			boolean wasInserted = insertClientInfo(true);
+			log.warn(message, throwable);
+			if (wasInserted) insertClientInfo(false);
 		}
 		else
 		{
-			log.info(insertClientInfo(message));
+			boolean wasInserted = insertClientInfo(true);
+			log.info(message);
+			if (wasInserted) insertClientInfo(false);
+
 		}
 	}
 
@@ -294,11 +322,15 @@ public class Debug
 		if (log == null) return;
 		if (s instanceof Throwable)
 		{
-			log.warn(insertClientInfo("Throwable"), (Throwable)s);
+			boolean wasInserted = insertClientInfo(true);
+			log.warn("Throwable", (Throwable)s);
+			if (wasInserted) insertClientInfo(false);
 		}
 		else
 		{
-			log.info(insertClientInfo(s));
+			boolean wasInserted = insertClientInfo(true);
+			log.info(s);
+			if (wasInserted) insertClientInfo(false);
 		}
 	}
 
@@ -311,21 +343,27 @@ public class Debug
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.warn(insertClientInfo(s));
+		boolean wasInserted = insertClientInfo(true);
+		log.warn(s);
+		if (wasInserted) insertClientInfo(false);
 	}
 
 	public static void fatal(Object s)
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.fatal(insertClientInfo(s));
+		boolean wasInserted = insertClientInfo(true);
+		log.fatal(s);
+		if (wasInserted) insertClientInfo(false);
 	}
 
 	public static void debug(Object s)
 	{
 		initIfFirstTime();
 		if (log == null) return;
-		log.debug(insertClientInfo(s));
+		boolean wasInserted = insertClientInfo(true);
+		log.debug(s);
+		if (wasInserted) insertClientInfo(false);
 	}
 
 	private static void initIfFirstTime()
