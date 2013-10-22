@@ -204,6 +204,17 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		super();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.wicket.Application#onDestroy()
+	 */
+	@Override
+	protected void onDestroy()
+	{
+		SessionClient.onDestroy();
+	}
+
 	public WebClientsApplication fakeInit()
 	{
 		setWicketFilter(new WicketFilter()
@@ -263,6 +274,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		internalInit();
 		return this;
 	}
+
 
 	@Override
 	public RequestCycleSettings getRequestCycleSettings()

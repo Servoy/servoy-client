@@ -59,6 +59,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Session;
+import org.apache.wicket.protocol.http.WicketFilter;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ApplicationException;
@@ -359,9 +360,10 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	public void shutDown(boolean force)
 	{
 		shuttingDown = true;
-		IServiceProvider prev = testThreadLocals();
+		IServiceProvider prev = null;
 		try
 		{
+			prev = testThreadLocals();
 			super.shutDown(force);
 
 			if (scheduledExecutorService != null)
@@ -370,6 +372,10 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 				scheduledExecutorService = null;
 			}
 
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -384,6 +390,37 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		return shuttingDown || super.isShutDown();
 	}
 
+	static void onDestroy()
+	{
+		try
+		{
+			WicketFilter wicketFilter = wicket_app.getWicketFilter();
+			if (wicket_app != null && wicketFilter != null)
+			{
+				wicket_app = null;
+				wicketFilter.destroy();
+				if (Application.exists() && Application.get() == wicket_app)
+				{
+					Application.unset();
+				}
+
+				if (Session.exists() && Session.get() == wicket_session)
+				{
+					Session.unset();
+				}
+			}
+			else
+			{
+				wicket_app = null;
+				wicket_session = null;
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * This method sets the service provider to this if needed. Will return the previous provider that should be set back later.
 	 * 
@@ -391,21 +428,27 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	 */
 	protected IServiceProvider testThreadLocals()
 	{
-		if (!Application.exists())
+		if (wicket_app != null)
 		{
-			Application.set(wicket_app);
-		}
-		if (!Session.exists())
-		{
-			synchronized (wicket_app)
+			if (!Application.exists())
 			{
-				if (wicket_session == null)
+				Application.set(wicket_app);
+			}
+			if (ApplicationServerSingleton.get() != null)
+			{
+				if (!Session.exists())
 				{
-					wicket_app.fakeInit();
-					wicket_session = wicket_app.newSession(new EmptyRequest(), null);
+					synchronized (wicket_app)
+					{
+						if (wicket_session == null)
+						{
+							wicket_app.fakeInit();
+							wicket_session = wicket_app.newSession(new EmptyRequest(), null);
+						}
+					}
+					Session.set(wicket_session);
 				}
 			}
-			Session.set(wicket_session);
 		}
 
 		IServiceProvider provider = J2DBGlobals.getServiceProvider();
@@ -677,7 +720,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	{
 		if (J2DBGlobals.getServiceProvider() != prev)
 		{
-			if (Application.get() == wicket_app)
+			if (Application.exists() && Application.get() == wicket_app)
 			{
 				Application.unset();
 			}

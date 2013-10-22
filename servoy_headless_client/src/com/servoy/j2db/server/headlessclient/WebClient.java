@@ -424,7 +424,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	{
 		if (WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR.equals(name))
 		{
-			WebClientSession.get().setTemplateDirectoryName((val == null ? null : val.toString()));
+			WebClientSession webClientSession = WebClientSession.get();
+			if (webClientSession != null) webClientSession.setTemplateDirectoryName((val == null ? null : val.toString()));
 		}
 		else
 		{
@@ -442,7 +443,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	{
 		if (WEBCONSTANTS.WEBCLIENT_TEMPLATES_DIR.equals(name))
 		{
-			return WebClientSession.get().getTemplateDirectoryName();
+			WebClientSession webClientSession = WebClientSession.get();
+			return webClientSession == null ? "" : webClientSession.getTemplateDirectoryName();
 		}
 		else
 		{
