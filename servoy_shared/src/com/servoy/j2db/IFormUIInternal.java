@@ -17,6 +17,7 @@
 package com.servoy.j2db;
 
 import java.awt.print.PrinterJob;
+import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.Scriptable;
@@ -113,5 +114,7 @@ public interface IFormUIInternal<T> extends IFormUI, IFocusCycleRoot<T>
 	public void prepareForSave(boolean looseFocus);
 
 	public void touch();
+
+	public void changeFocusIfInvalid(List<Runnable> invokeLaterRunnables);
 
 }

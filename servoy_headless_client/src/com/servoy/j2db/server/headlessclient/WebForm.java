@@ -2194,4 +2194,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		}
 		return null;
 	}
+
+	@Override
+	public void changeFocusIfInvalid(List<Runnable> invokeLaterRunnables)
+	{
+		// not used
+	}
 }

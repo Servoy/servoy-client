@@ -2617,4 +2617,28 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			selectedPanel = designPanel;
 		}
 	}
+
+	@Override
+	public void changeFocusIfInvalid(List<Runnable> invokeLaterRunnables)
+	{
+		final Window window = SwingUtilities.getWindowAncestor(this);
+		if (window != null)
+		{
+			Runnable r = new Runnable()
+			{
+				public void run()
+				{
+					Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+					if (!(focusOwner != null && focusOwner.isShowing() && focusOwner.isFocusable() && focusOwner.isEnabled()))
+					{
+						if (window.isShowing() && window.isFocusable() && window.isEnabled())
+						{
+							window.requestFocus();
+						}
+					}
+				}
+			};
+			invokeLaterRunnables.add(r);
+		}
+	}
 }
