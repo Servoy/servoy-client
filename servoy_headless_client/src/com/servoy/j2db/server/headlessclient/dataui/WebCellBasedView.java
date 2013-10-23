@@ -3972,11 +3972,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					sbm.setBgcolor(bgColor.toString());
 					if (sbm.isTransparent())
 					{
-						// apply the bg color even if transparent
+						// apply the bg color even if transparent by clearing the transparent flag in the property changes map
 						if (comp instanceof IProviderStylePropertyChanges &&
 							((IProviderStylePropertyChanges)comp).getStylePropertyChanges() instanceof IStylePropertyChangesRecorder)
 						{
-							((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)comp).getStylePropertyChanges())).setBgcolor(bgColor.toString());
+							((IStylePropertyChangesRecorder)(((IProviderStylePropertyChanges)comp).getStylePropertyChanges())).setTransparent(false);
 						}
 					}
 				}
