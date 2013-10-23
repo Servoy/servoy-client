@@ -139,4 +139,9 @@ public class ServoyBeanState implements IRecord
 		return record.startEditing();
 	}
 
+	@Override
+	public Exception getException()
+	{
+		return record.getException();
+	}
 }

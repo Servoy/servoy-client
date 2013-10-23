@@ -266,4 +266,14 @@ public class PageNumberState implements IRecordInternal
 	{
 		return startEditing();
 	}
+
+	@Override
+	public Exception getException()
+	{
+		if (getDelegate() != null)
+		{
+			return getDelegate().getException();
+		}
+		return null;
+	}
 }

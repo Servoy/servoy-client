@@ -17,7 +17,6 @@
 package com.servoy.j2db.dataprocessing;
 
 
-
 /**
  * The Record interface for business objects (table rows)
  * 
@@ -110,4 +109,11 @@ public interface IRecord extends IRecordDeprecated
 	 * @param l the listener
 	 */
 	public void removeModificationListener(IModificationListener l);
+
+	/**
+	 * Returns last occurred exception on this record (or null).
+	 * 
+	 * @return The occurred exception.
+	 */
+	public Exception getException();
 }

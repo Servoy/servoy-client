@@ -2501,6 +2501,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return editRecordList.stopEditing(true, recordsToSave);
 	}
 
+	@Override
+	public IRecord[] getFailedRecords()
+	{
+		return editRecordList.getFailedRecords();
+	}
+
 	/** register runnables that contain fire calls, should be done after foundsets are created.
 	 * @param runnable
 	 */

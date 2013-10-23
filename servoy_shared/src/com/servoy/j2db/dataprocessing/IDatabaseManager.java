@@ -148,4 +148,11 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * @since 6.1
 	 */
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException;
+
+	/**
+	 * Gets the list of records that couldn't be saved.
+	 * 
+	 * @return The records for which save failed.
+	 */
+	public IRecord[] getFailedRecords();
 }
