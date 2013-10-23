@@ -1461,6 +1461,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 
+		// a cell based view should just never version itself if in ajax mode
+		// (all things like next page or rerenders are done on the actual page not a version you can go back to (url doesn't change)
+		if (useAJAX) setVersioned(false);
+
 		setScrollMode(Boolean.TRUE.equals(application.getClientProperty(IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE)));
 		isKeepLoadedRowsInScrollMode = Boolean.TRUE.equals(application.getClientProperty(IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS));
 
