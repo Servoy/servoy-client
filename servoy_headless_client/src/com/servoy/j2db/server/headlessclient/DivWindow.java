@@ -32,6 +32,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyLastVersionAjaxBehavior;
+import com.servoy.j2db.util.Utils;
 
 /**
  * A div window that can be modal or non-modal. Based on wicket ModalWindow.
@@ -331,8 +332,8 @@ public class DivWindow extends ModalWindow
 	protected boolean resize(AjaxRequestTarget target)
 	{
 		Request request = RequestCycle.get().getRequest();
-		bounds.width = Integer.parseInt(request.getParameter("divW")); //$NON-NLS-1$
-		bounds.height = Integer.parseInt(request.getParameter("divH")); //$NON-NLS-1$
+		bounds.width = Utils.getAsInteger(request.getParameter("divW")); //$NON-NLS-1$
+		bounds.height = Utils.getAsInteger(request.getParameter("divH")); //$NON-NLS-1$
 		return !("true".equals(request.getParameter("is")));
 	}
 
@@ -342,8 +343,8 @@ public class DivWindow extends ModalWindow
 	protected boolean move(AjaxRequestTarget target)
 	{
 		Request request = RequestCycle.get().getRequest();
-		bounds.x = Integer.parseInt(request.getParameter("xLoc"));
-		bounds.y = Integer.parseInt(request.getParameter("yLoc"));
+		bounds.x = Utils.getAsInteger(request.getParameter("xLoc"));
+		bounds.y = Utils.getAsInteger(request.getParameter("yLoc"));
 		return !("true".equals(request.getParameter("is")));
 	}
 
