@@ -373,9 +373,10 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			}
 
 		}
-		catch (Exception e)
+		catch (RuntimeException e)
 		{
-			e.printStackTrace();
+			Debug.error("shutdown error:", e);
+			throw e;
 		}
 		finally
 		{
@@ -394,15 +395,20 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	{
 		try
 		{
-			WicketFilter wicketFilter = wicket_app.getWicketFilter();
-			if (wicket_app != null && wicketFilter != null)
+			if (wicket_app != null)
 			{
+				WebClientsApplication tmp = wicket_app;
 				wicket_app = null;
-				wicketFilter.destroy();
-				if (Application.exists() && Application.get() == wicket_app)
+				WicketFilter wicketFilter = tmp.getWicketFilter();
+				if (wicketFilter != null)
+				{
+					wicketFilter.destroy();
+				}
+				if (Application.exists() && Application.get() == tmp)
 				{
 					Application.unset();
 				}
+
 
 				if (Session.exists() && Session.get() == wicket_session)
 				{
@@ -417,7 +423,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			Debug.error("on destroy", e);
 		}
 	}
 
