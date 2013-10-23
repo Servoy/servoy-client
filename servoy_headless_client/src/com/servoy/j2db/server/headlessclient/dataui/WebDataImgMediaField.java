@@ -46,11 +46,11 @@ import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.ILinkListener;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.resource.ByteArrayResource;
@@ -659,25 +659,21 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 				public String getObject()
 				{
 					testAndGenerateResource();
-					return "top: 0px;left: 0px;position: absolute"; //$NON-NLS-1$
+					return "top: 0px;left: 0px;position: absolute;visibility: hidden;"; //$NON-NLS-1$
 				}
 			}));
-			add(new AbstractServoyDefaultAjaxBehavior()
-			{
-				@Override
-				protected void respond(AjaxRequestTarget target)
-				{
-					target.appendJavascript("Servoy.Utils.fixMediaLocation('" + getMarkupId() + "'," + horizontalAlignment + ")");
-				}
 
-				@Override
-				public void renderHead(IHeaderResponse response)
-				{
-					super.renderHead(response);
-					response.renderOnDomReadyJavascript(getCallbackScript().toString());
-				}
 
-			});
+			add(new AttributeModifier("onload", true, new AbstractReadOnlyModel<String>() //$NON-NLS-1$
+				{
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public String getObject()
+					{
+						return "Servoy.Utils.fixMediaLocation('" + getMarkupId() + "'," + horizontalAlignment + ");";
+					}
+				}));
 		}
 
 		/**
