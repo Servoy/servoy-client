@@ -2446,6 +2446,7 @@ public class FormController implements IForm, ListSelectionListener, TableModelL
 		// of a component on the form but
 		// onshow/onload that should be allowed
 		//if (isFormExecutingFunction()) return false;
+		getFormUI().touch();
 		Rectangle scrollPosition = null;
 		if (view != null) scrollPosition = view.getVisibleRect();
 		getFormUI().setDesignMode(null);
