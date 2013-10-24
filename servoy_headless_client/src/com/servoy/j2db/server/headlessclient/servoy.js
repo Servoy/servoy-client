@@ -2299,6 +2299,7 @@ if (typeof(Servoy.Utils) == "undefined")
 				if ((element.parentNode.childNodes > 1) && (imageHeight + 34 < height)) element.style.left ='51px';
 			}
 		}
+		element.style.visibility = 'inherit';
 	  },
 	  
 	  getXY: function(oElement)
