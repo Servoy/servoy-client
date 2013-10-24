@@ -298,8 +298,10 @@ public interface ISMValueList extends IBaseSMValueList, ISMHasUUID
 	 * 
 	 * In find mode the record with be the FindRecord which is just like a normal JSRecord (DataRecord) it has the same properties (column/dataproviders) but doesnt have its methods (like isEditing())
 	 * 
+	 * The last argument is rawDisplayValue which contains the same text as displayValue but without converting it to lowercase.
+	 * 
 	 * @sample
-	 * var listProvider = solutionModel.newGlobalMethod('globals', 'function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode) {' +
+	 * var listProvider = solutionModel.newGlobalMethod('globals', 'function getDataSetForValueList(displayValue, realValue, record, valueListName, findMode, rawDisplayValue) {' +
 	 * 		'	' +
 	 * 		'var args = null;' +
 	 * 		'/** @type QBSelect<db:/example_data/employees> *&#47;' +

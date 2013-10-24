@@ -20,6 +20,7 @@ import java.sql.Types;
 
 import org.mozilla.javascript.Function;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ValueList;
@@ -53,11 +54,11 @@ public class GlobalMethodValueList extends CustomValueList
 
 		ScriptMethod globalScriptMethod = application.getFlattenedSolution().getScriptMethod(vl.getCustomValues());
 		Pair<String, String> scope = ScopesUtils.getVariableScope(globalScriptMethod != null ? globalScriptMethod.getPrefixedName() : null);
-		if (vl.getValueListType() != ValueList.GLOBAL_METHOD_VALUES || scope == null || scope.getLeft() == null)
+		if (vl.getValueListType() != IValueListConstants.GLOBAL_METHOD_VALUES || scope == null || scope.getLeft() == null)
 		{
 			throw new RuntimeException("GlobalMethodValueList couldnt be made for: " + ScopesUtils.getScopeString(scope)); //$NON-NLS-1$
 		}
-		if (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+		if (vl.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 		{
 			allowEmptySelection = true;
 		}
@@ -83,14 +84,15 @@ public class GlobalMethodValueList extends CustomValueList
 	{
 		return hasRealValue;
 	}
-	
+
 	public void fill()
 	{
 		fill(record, null, null);
 	}
 
-	public void fill(IRecordInternal state, String display, Object real)
+	public void fill(IRecordInternal state, String filter, Object real)
 	{
+		String display = filter.toLowerCase();
 		if (filling)
 		{
 			return;
@@ -132,15 +134,15 @@ public class GlobalMethodValueList extends CustomValueList
 						Object[] args = null;
 						if (display != null && !"".equals(display)) //$NON-NLS-1$
 						{
-							args = new Object[] { display, null, state, valueList.getName(), Boolean.valueOf(state instanceof FindState) };
+							args = new Object[] { display, null, state, valueList.getName(), Boolean.valueOf(state instanceof FindState), filter };
 						}
 						else if (real != null && !"".equals(real)) //$NON-NLS-1$
 						{
-							args = new Object[] { null, real, state, valueList.getName(), Boolean.valueOf(state instanceof FindState) };
+							args = new Object[] { null, real, state, valueList.getName(), Boolean.valueOf(state instanceof FindState), null };
 						}
 						else
 						{
-							args = new Object[] { null, null, state, valueList.getName(), Boolean.valueOf(state instanceof FindState) };
+							args = new Object[] { null, null, state, valueList.getName(), Boolean.valueOf(state instanceof FindState), null };
 						}
 
 						final Object retValue = application.getScriptEngine().executeFunction(function, globalScope, globalScope, args, false, true);
@@ -150,7 +152,7 @@ public class GlobalMethodValueList extends CustomValueList
 							public void run()
 							{
 								//add empty row
-								if (valueList.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS)
+								if (valueList.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 								{
 									addElement(""); //$NON-NLS-1$
 									realValues.add(null);

@@ -354,7 +354,7 @@ public class LookupListModel extends AbstractListModel
 		if (lookup instanceof GlobalMethodValueList)
 		{
 			GlobalMethodValueList clist = (GlobalMethodValueList)lookup;
-			clist.fill(realState, txt, null);
+			clist.fill(realState, filter == null ? "" : filter, null);
 			for (int i = 0; i < clist.getSize(); i++)
 			{
 				Object display = clist.getElementAt(i);
