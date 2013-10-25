@@ -113,7 +113,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		Debug.trace("MaxFormsLoaded set to:" + MAX_FORMS_LOADED); //$NON-NLS-1$
 	}
 
-	private final IApplication application;
+	protected final IApplication application;
 
 	protected final AllowNullMap<String, IMainContainer> containers; //windowname -> IMainContainer
 	protected IMainContainer currentContainer;

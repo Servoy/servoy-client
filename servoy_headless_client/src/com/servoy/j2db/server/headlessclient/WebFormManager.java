@@ -269,7 +269,22 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 							FormController previousMainShowingForm = (parent != null ? parent.getController() : null);
 							if (previousMainShowingForm != null)
 							{
+								FormController previousNavigator = parent.getNavigator();
 								parent.setFormController(null);
+								// navigator is not re-applied so apply it manually
+								int navigatorID = previousMainShowingForm.getForm().getNavigatorID();
+								if (navigatorID == Form.NAVIGATOR_IGNORE || (previousNavigator != null && previousNavigator.getForm().getID() == navigatorID))
+								{
+									parent.setNavigator(previousNavigator);
+								}
+								else if (navigatorID > 0)
+								{
+									Form newNavigator = application.getFlattenedSolution().getForm(navigatorID);
+									if (newNavigator != null)
+									{
+										parent.setNavigator(leaseFormPanel(newNavigator.getName()));
+									}
+								}
 								showFormInMainPanel(previousMainShowingForm.getName(), parent, null, true, null);
 //								parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set
 							}
