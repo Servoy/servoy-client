@@ -370,14 +370,20 @@ public class BaseComponent extends AbstractBase implements IFormElement, ISuppor
 		return baseComponentClone;
 	}
 
+	// TODO these might be better off in AbstractBase as for example Forms can use them as well
 	public static boolean isCommandProperty(String propertyName)
 	{
 		return propertyName != null && propertyName.endsWith("CmdMethodID"); //$NON-NLS-1$
 	}
 
+	public static boolean isEventOrCommandProperty(String propertyName)
+	{
+		return propertyName != null && propertyName.endsWith("MethodID"); //$NON-NLS-1$
+	}
+
 	public static boolean isEventProperty(String propertyName)
 	{
-		return propertyName != null && propertyName.endsWith("MethodID") && !isCommandProperty(propertyName); //$NON-NLS-1$
+		return isEventOrCommandProperty(propertyName) && !isCommandProperty(propertyName);
 	}
 
 	public int getExtendsID()
