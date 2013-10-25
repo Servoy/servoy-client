@@ -1434,6 +1434,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	private HashMap<Object, Object> changedProperties;
+	private boolean wasLoginSolution;
 
 	@Override
 	public boolean putClientProperty(Object name, Object value)
@@ -1441,6 +1442,10 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		if (name != null && changedProperties != null && !changedProperties.containsKey(name))
 		{
 			changedProperties.put(name, getClientProperty(name));
+			if (getSolution().getSolutionType() == SolutionMetaData.LOGIN_SOLUTION)
+			{
+				wasLoginSolution = true;
+			}
 		}
 
 		return super.putClientProperty(name, value);
@@ -1454,25 +1459,32 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		}
 		else
 		{
-			if (changedProperties.containsKey(LookAndFeelInfo.class.getName()))
+			if (!wasLoginSolution)
 			{
-				String selectedlnfSetting = getSettings().getProperty("selectedlnf"); //$NON-NLS-1$
-				if (selectedlnfSetting != null) changedProperties.put(LookAndFeelInfo.class.getName(), selectedlnfSetting);
-			}
-			if (changedProperties.containsKey(Font.class.getName()))
-			{
-				String font = getSettings().getProperty("font"); //$NON-NLS-1$
-				if (font != null) changedProperties.put(Font.class.getName(), PersistHelper.createFont(font));
-			}
+				if (changedProperties.containsKey(LookAndFeelInfo.class.getName()))
+				{
+					String selectedlnfSetting = getSettings().getProperty("selectedlnf"); //$NON-NLS-1$
+					if (selectedlnfSetting != null) changedProperties.put(LookAndFeelInfo.class.getName(), selectedlnfSetting);
+				}
+				if (changedProperties.containsKey(Font.class.getName()))
+				{
+					String font = getSettings().getProperty("font"); //$NON-NLS-1$
+					if (font != null) changedProperties.put(Font.class.getName(), PersistHelper.createFont(font));
+				}
 
-			Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
-			Map.Entry<Object, Object> changedEntry;
-			while (changedPropertiesIte.hasNext())
-			{
-				changedEntry = changedPropertiesIte.next();
-				super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+				Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
+				Map.Entry<Object, Object> changedEntry;
+				while (changedPropertiesIte.hasNext())
+				{
+					changedEntry = changedPropertiesIte.next();
+					super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+				}
+				changedProperties.clear();
 			}
-			changedProperties.clear();
+			else
+			{
+				wasLoginSolution = false;
+			}
 		}
 	}
 }

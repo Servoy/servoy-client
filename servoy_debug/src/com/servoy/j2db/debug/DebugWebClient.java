@@ -462,6 +462,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	}
 
 	private HashMap<Object, Object> changedProperties;
+	private boolean wasLoginSolution;
 
 	@Override
 	public boolean putClientProperty(Object name, Object val)
@@ -469,6 +470,10 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		if (name != null && changedProperties != null && !changedProperties.containsKey(name))
 		{
 			changedProperties.put(name, getClientProperty(name));
+			if (getSolution().getSolutionType() == SolutionMetaData.LOGIN_SOLUTION)
+			{
+				wasLoginSolution = true;
+			}
 		}
 
 		return super.putClientProperty(name, val);
@@ -482,14 +487,21 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		}
 		else
 		{
-			Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
-			Map.Entry<Object, Object> changedEntry;
-			while (changedPropertiesIte.hasNext())
+			if (!wasLoginSolution)
 			{
-				changedEntry = changedPropertiesIte.next();
-				super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+				Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
+				Map.Entry<Object, Object> changedEntry;
+				while (changedPropertiesIte.hasNext())
+				{
+					changedEntry = changedPropertiesIte.next();
+					super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
+				}
+				changedProperties.clear();
 			}
-			changedProperties.clear();
+			else
+			{
+				wasLoginSolution = false;
+			}
 		}
 	}
 
