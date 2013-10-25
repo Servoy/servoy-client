@@ -78,7 +78,10 @@ public class MethodTemplate implements IMethodTemplate
 		// valuelist global method
 
 		COMMON_TEMPLATES.put(
-			"valueListGlobalMethod", new MethodTemplate("Called when the valuelist needs data, it has 3 modes\nreal and display params both null: return the whole list\nonly display is specified, called by a typeahead, return a filtered list\nonly real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list\n", new MethodArgument("getDataSetForValueList", ArgumentType.JSDataSet, //$NON-NLS-1$
+			"valueListGlobalMethod",
+			new MethodTemplate(
+				"Called when the valuelist needs data, it has 3 modes\nreal and display params both null: return the whole list\nonly display is specified, called by a typeahead, return a filtered list\nonly real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list\n",
+				new MethodArgument("getDataSetForValueList", ArgumentType.JSDataSet, //$NON-NLS-1$
 					"A dataset with 1 or 2 columns display[,real]"),
 				new MethodArgument[] { new MethodArgument("displayValue", ArgumentType.String, "The value of a lookupfield that a user types"), new MethodArgument(
 					"realValue", ArgumentType.Object, "The real value for a lookupfield where a display value should be get for"), new MethodArgument("record",
@@ -86,7 +89,8 @@ public class MethodTemplate implements IMethodTemplate
 					"valueListName",
 					ArgumentType.String,
 					"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument(
-					"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode") },
+					"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode"), new MethodArgument("rawDisplayValue",
+					ArgumentType.Boolean, "The raw displayValue without being converted to lower case") },
 				"var args = null;\n"
 					+ "/** @type QBSelect<db:/example_data/employees> */ \n"
 					+ "var query = databaseManager.createSelect('db:/example_data/employees');\n"
