@@ -63,11 +63,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -2786,6 +2788,20 @@ public final class Utils
 		}
 		return null;
 	}
+
+	public static <T, E> Set<T> mapGetKeysByValue(Map<T, E> map, E value)
+	{
+		Set<T> keys = new HashSet<T>();
+		for (Entry<T, E> entry : map.entrySet())
+		{
+			if (value.equals(entry.getValue()))
+			{
+				keys.add(entry.getKey());
+			}
+		}
+		return keys;
+	}
+
 
 	/**
 	 * Returns a js/json string representation of the given {@link Scriptable}
