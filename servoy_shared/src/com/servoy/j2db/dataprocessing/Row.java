@@ -345,6 +345,7 @@ public class Row
 			if (isCalculation)
 			{
 				mustRecalculate(dataProviderID, false);
+				threadCalculationComplete(dataProviderID);
 			}
 
 			handleCalculationDependencies(sheet.getTable().getColumn(dataProviderID), dataProviderID);
