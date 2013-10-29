@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.IFoundSet;
@@ -98,7 +99,7 @@ public class RuntimeSplitPane extends AbstractRuntimeTabPaneAlike implements ISc
 	public IForm getLeftForm()
 	{
 		FormScope left = js_getLeftForm();
-		return left == null ? null : left.getFormController();
+		return left == null ? null : (FormController)left.getFormController();
 	}
 
 	public FormScope js_getRightForm()
@@ -109,7 +110,7 @@ public class RuntimeSplitPane extends AbstractRuntimeTabPaneAlike implements ISc
 	public IForm getRightForm()
 	{
 		FormScope right = js_getRightForm();
-		return right == null ? null : right.getFormController();
+		return right == null ? null : (FormController)right.getFormController();
 	}
 
 	public boolean setRightForm(String formName)

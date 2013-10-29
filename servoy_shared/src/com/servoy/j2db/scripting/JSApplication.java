@@ -2230,7 +2230,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		else if (form instanceof FormScope)
 		{
-			fp = ((FormScope)form).getFormController();
+			fp = (FormController)((FormScope)form).getFormController();
 		}
 		else if (form instanceof FormController.JSForm)
 		{

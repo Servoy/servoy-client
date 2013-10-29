@@ -26,8 +26,8 @@ import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
-import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -48,10 +48,10 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormScope extends ScriptVariableScope implements Wrapper
 {
-	private volatile FormController _fp;
+	private volatile IFormController _fp;
 	private volatile LazyCompilationScope[] extendScopes;
 
-	public FormScope(FormController fp, ISupportScriptProviders[] extendsHierarchy)
+	public FormScope(IFormController fp, ISupportScriptProviders[] extendsHierarchy)
 	{
 		super(fp.getApplication().getScriptEngine().getSolutionScope(), fp.getApplication().getScriptEngine(), extendsHierarchy[0]);
 		_fp = fp;
@@ -134,7 +134,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 		return name;
 	}
 
-	public FormController getFormController()
+	public IFormController getFormController()
 	{
 		return _fp;
 	}

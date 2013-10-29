@@ -113,7 +113,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 			{
 				if (o instanceof FormScope)
 				{
-					FormController fp = ((FormScope)o).getFormController();
+					FormController fp = (FormController)((FormScope)o).getFormController();
 					if (!fp.isShowingData()) continue;
 				}
 				al.add(form);
@@ -181,7 +181,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 
 		if (o instanceof FormScope)
 		{
-			FormController fp = ((FormScope)o).getFormController();
+			FormController fp = (FormController)((FormScope)o).getFormController();
 			fp.setView(fp.getView());
 			fp.executeOnLoadMethod();
 

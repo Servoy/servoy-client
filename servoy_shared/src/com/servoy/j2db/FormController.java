@@ -136,7 +136,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok, jcompagner
  */
-public class FormController implements IForm, ListSelectionListener, TableModelListener, IFoundSetListener, IPrepareForSave, IFoundSetEventListener
+public class FormController implements IFormController, IForm, ListSelectionListener, TableModelListener, IFoundSetListener, IPrepareForSave,
+	IFoundSetEventListener
 {
 	/**
 	 * @author Ovidiu
