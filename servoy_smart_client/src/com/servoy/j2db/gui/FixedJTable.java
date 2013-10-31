@@ -148,6 +148,7 @@ public class FixedJTable extends JTable
 		}
 
 		super.processMouseEvent(me);
+		if (e.getID() == MouseEvent.MOUSE_PRESSED) repaint();
 	}
 
 	/**
