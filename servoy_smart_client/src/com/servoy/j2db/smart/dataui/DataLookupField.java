@@ -536,7 +536,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	protected void showPopup()
 	{
-		if (!isEditable() || !hasFocus() || !isDisplayable() || dlm.getSize() == 0 || (dlm.getSize() == 1 && "".equals(dlm.getElementAt(0)))) //$NON-NLS-1$
+		if (!isEnabled() || !isEditable() || !hasFocus() || !isDisplayable() || dlm.getSize() == 0 || (dlm.getSize() == 1 && "".equals(dlm.getElementAt(0)))) //$NON-NLS-1$
 		{
 			if (popup != null && popup.isVisible())
 			{
