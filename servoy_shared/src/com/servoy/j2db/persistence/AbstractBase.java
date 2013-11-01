@@ -1095,8 +1095,8 @@ public abstract class AbstractBase implements IPersist
 	{
 		if (methodKey != null)
 		{
-			List<Object> params = (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "parameters" }); //$NON-NLS-1$ //$NON-NLS-2$
-			List<Object> args = (List<Object>)getCustomProperty(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
+			List<Object> params = (List<Object>)getCustomPropertyLocal(new String[] { "methods", methodKey, "parameters" }); //$NON-NLS-1$ //$NON-NLS-2$
+			List<Object> args = (List<Object>)getCustomPropertyLocal(new String[] { "methods", methodKey, "arguments" }); //$NON-NLS-1$ //$NON-NLS-2$
 			return new Pair<List<Object>, List<Object>>(params, args);
 		}
 		return null;
