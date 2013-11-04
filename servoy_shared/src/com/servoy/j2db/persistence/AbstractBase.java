@@ -1091,7 +1091,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	public Pair<List<Object>, List<Object>> getInstanceMethodParameters(String methodKey)
+	public Pair<List<Object>, List<Object>> getInstanceMethodParametersLocal(String methodKey)
 	{
 		if (methodKey != null)
 		{
