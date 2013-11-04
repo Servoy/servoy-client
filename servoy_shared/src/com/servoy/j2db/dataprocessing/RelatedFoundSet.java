@@ -390,6 +390,13 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	@Override
+	protected int getRecordIndex(Object[] pk)
+	{
+		checkQueryForUpdates(); // make foundset is loaded, the query may insert records before record parameter.
+		return super.getRecordIndex(pk);
+	}
+
+	@Override
 	public void loadAllRecords() throws ServoyException
 	{
 		// Also clear omit in browse all/refresh from db

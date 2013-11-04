@@ -1493,12 +1493,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return false;
 	}
 
-	protected int getRecordIndex(Object[] pk, int start)
+	protected int getRecordIndex(Object[] pk)
 	{
 		IDataSet pks = pksAndRecords.getPks();
 		if (pk != null && pk.length != 0 && pks != null && pks.getColumnCount() == pk.length)
 		{
-			for (int r = start; r < pks.getRowCount(); r++)
+			for (int r = 0; r < pks.getRowCount(); r++)
 			{
 				Object[] pkrow = pks.getRow(r);
 				boolean match = pkrow.length == pk.length;
@@ -1522,7 +1522,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	protected boolean selectRecord(Object[] pk, boolean toggleInMultiselect)
 	{
-		int index = getRecordIndex(pk, 0);
+		int index = getRecordIndex(pk);
 		if (index != -1)
 		{
 			if (toggleInMultiselect && isMultiSelect())
@@ -1577,7 +1577,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int[] selectedIndexes = new int[pks.length];
 			for (int i = 0; i < pks.length; i++)
 			{
-				selectedIndexes[i] = getRecordIndex(pks[i], 0);
+				selectedIndexes[i] = getRecordIndex(pks[i]);
 				if (selectedIndexes[i] == -1) return false;
 			}
 
@@ -3639,7 +3639,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public int getRecordIndex(IRecord record)
 	{
-		return pksAndRecords.getCachedRecords().indexOf(record);
+		return record == null ? -1 : getRecordIndex(record.getPK());
 	}
 
 	@Deprecated
@@ -3805,7 +3805,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (record.getParentFoundSet() != this) throw new ApplicationException(ServoyException.INVALID_INPUT, new RuntimeException(
 			"Record not from this foundset")); //$NON-NLS-1$
 		int recordIndex = getRecordIndex(record);
-		if (recordIndex == -1) recordIndex = getRecordIndex(record.getPK(), 0);
 		if (recordIndex == -1) throw new ApplicationException(ServoyException.INVALID_INPUT, new RuntimeException("Record pk not found in this foundset")); //$NON-NLS-1$
 		deleteRecord(recordIndex);
 	}
@@ -6210,7 +6209,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// if this foundset is now in find mode there is now record anymore.
 		if (!isInFindMode())
 		{
-			int index = getRecordIndex(pk, 0);
+			int index = getRecordIndex(pk);
 			if (index != -1)
 			{
 				return getRecord(index);
