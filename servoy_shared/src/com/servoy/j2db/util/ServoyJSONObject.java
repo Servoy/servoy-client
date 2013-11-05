@@ -145,7 +145,8 @@ public class ServoyJSONObject extends JSONObject
 				}
 			}
 			escape = !escape && (c == '\\');
-			sb.append(c);
+			// strip out carriage returns.
+			if (c != '\r') sb.append(c);
 		}
 
 		return sb.toString();
