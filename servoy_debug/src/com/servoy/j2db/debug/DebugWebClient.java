@@ -470,7 +470,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		if (name != null && changedProperties != null && !changedProperties.containsKey(name))
 		{
 			changedProperties.put(name, getClientProperty(name));
-			if (getSolution().getSolutionType() == SolutionMetaData.LOGIN_SOLUTION)
+			if (getSolution() != null && getSolution().getSolutionType() == SolutionMetaData.LOGIN_SOLUTION)
 			{
 				wasLoginSolution = true;
 			}
