@@ -130,6 +130,17 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, arg);
 	}
 
+	/**
+	 * @templatedescription Handle changed data
+	 * @templatename onDataChange
+	 * @templatetype Boolean
+	 * @templateparam ${dataproviderType} oldValue old value
+	 * @templateparam ${dataproviderType} newValue new value
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 * @templatecode
+	 * return true
+	 */
 	public int getOnDataChangeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID).intValue();
@@ -333,6 +344,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
 
+	/**
+	 * @templatedescription Perform the element default action
+	 * @templatename onAction
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 */
 	public int getOnActionMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();

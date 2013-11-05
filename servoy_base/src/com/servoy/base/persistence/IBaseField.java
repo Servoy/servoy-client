@@ -39,11 +39,6 @@ public interface IBaseField extends IBaseFieldCommon
 
 	/**
 	 * @sameas com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
-	 * 
-	 * @templatedescription Perform the element default action
-	 * @templatename onAction
-	 * @templateparam JSEvent event the event that triggered the action
-	 * @templateaddtodo
 	 */
 	int getOnActionMethodID();
 
@@ -52,15 +47,6 @@ public interface IBaseField extends IBaseFieldCommon
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
 	 * 
-	 * @templatedescription Handle changed data
-	 * @templatename onDataChange
-	 * @templatetype Boolean
-	 * @templateparam ${dataproviderType} oldValue old value
-	 * @templateparam ${dataproviderType} newValue new value
-	 * @templateparam JSEvent event the event that triggered the action
-	 * @templateaddtodo
-	 * @templatecode
-	 * return true
 	 */
 	int getOnDataChangeMethodID();
 
