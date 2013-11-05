@@ -167,7 +167,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		IHeaderResponse response = container.getHeaderResponse();
 		YUILoader.renderHTMLEdit(response);
 
-		String script = "Servoy.HTMLEdit.attach('" + getMarkupId() + "','" + textArea.getMarkupId() + "');";
+		String script = "Servoy.HTMLEdit.attach('" + getMarkupId() + "','" + textArea.getMarkupId() + "'," + isEditable() + ");";
 		response.renderOnDomReadyJavascript(script);
 	}
 

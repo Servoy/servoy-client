@@ -2550,6 +2550,7 @@ public class TemplateGenerator
 					html.append(getWicketIDParameter(form, field, "editor_", ""));
 					html.append(" rows=\"20\" cols=\"75\"></textarea></div>");
 					styleObj.setProperty("padding", "0px");
+					styleObj.setProperty("overflow", "hidden");
 					if (styleObj.getProperty("border-width") == null && styleObj.getProperty("border-style") == null)
 					{
 						// set a default border, taken from yui

@@ -90,6 +90,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataComboBox;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlArea;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataListBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataLookupField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
@@ -418,6 +419,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 							Component[] cs = ((WebBaseSelectBox)component).getFocusChildren();
 							if (cs != null && cs.length == 1) targetComponent = cs[0];
 						}
+						if (component instanceof WebDataHtmlArea) hasFocus = true;
 
 						// always install a focus handler when in a table view to detect change of selectedIndex and test for record validation
 						if (((IFieldComponent)component).getEventExecutor().hasEnterCmds() ||
@@ -448,7 +450,8 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 							{
 								String callback = eventCallback.getCallbackUrl().toString();
 								if (component instanceof WebDataRadioChoice || component instanceof WebDataCheckBoxChoice ||
-									component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof WebDataListBox)
+									component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof WebDataListBox ||
+									component instanceof WebDataHtmlArea)
 								{
 									// is updated via ServoyChoiceComponentUpdatingBehavior or ServoyFormComponentUpdatingBehavior, this is just for events
 									callback += "&nopostdata=true";
@@ -464,6 +467,10 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 								{
 									StringBuilder js = new StringBuilder();
 									js.append("eventCallback(this,'focus','").append(callback).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
+									if (targetComponent instanceof WebDataHtmlArea)
+									{
+										js.insert(0, "if(event && this == event.target) { Servoy.HTMLEdit.focusHandler(this.id);return; }");
+									}
 									targetComponent.add(new EventCallbackModifier("onfocus", true, new Model<String>(js.toString()))); //$NON-NLS-1$
 									targetComponent.add(new EventCallbackModifier("onmousedown", true, new Model<String>("focusMousedownCallback(event)"))); //$NON-NLS-1$ //$NON-NLS-2$
 								}

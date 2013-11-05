@@ -3119,8 +3119,9 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 	Servoy.HTMLEdit = 
 	{
 		htmlEditor : null ,
+		state : 'off' ,
 		
-		attach: function (wrapperId,editorId)
+		attach: function (wrapperId,editorId,editable)
 		{
 			var Dom = YAHOO.util.Dom,
 		    Event = YAHOO.util.Event;
@@ -3129,7 +3130,8 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 		        animate: false,
 		        dompath: true //we have to use true here
 		    };
-		    
+		    Servoy.HTMLEdit.state = 'off';
+
 		    var myEditor = new YAHOO.widget.Editor(editorId, myConfig);
 		    myEditor.on('toolbarLoaded', function() {
 		        var codeConfig = {
@@ -3160,45 +3162,110 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 			    }, this, true);
 		        
 		        this.toolbar.on('editcodeClick', function() {
-		        	// code from: http://developer.yahoo.com/yui/examples/editor/switch_editor_clean.html
-				    this.saveHTML();
-            
-            		var element = document.getElementById(wrapperId);
-            		var width = element.offsetWidth;
-            		var height = element.offsetHeight;
-            		
-		        	var fc = this.get('element').previousSibling,
-	               		 el = this.get('element');
-	
-		            Dom.setStyle(fc, 'position', 'absolute');
-		            Dom.setStyle(fc, 'top', '-9999px');
-		            Dom.setStyle(fc, 'left', '-9999px');
-		            myEditor.get('element_cont').removeClass('yui-editor-container');
-		            Dom.setStyle(el, 'visibility', 'inherit');
-		            Dom.setStyle(el, 'top', '');
-            		Dom.setStyle(el, 'left', '');
-		            Dom.setStyle(el, 'width', (width-10)+'px');
-		            Dom.setStyle(el, 'height', (height-10)+'px');
-			        Dom.setStyle(el, 'border-width', '0px');	
-			        return false;
+		            var ta = this.get('element'),
+		            iframe = this.get('iframe').get('element');
+
+			        if (Servoy.HTMLEdit.state == 'on') {
+			        	Servoy.HTMLEdit.state = 'off';
+			            this.toolbar.set('disabled', false);
+			            this.setEditorHTML(ta.value);
+			            if (!this.browser.ie) {
+			                this._setDesignMode('on');
+			            }
+			            Dom.removeClass(iframe, 'editor-hidden');
+			            Dom.addClass(ta, 'editor-hidden');
+			            this.show();
+			            this._focusWindow();
+			        } else {
+			        	Servoy.HTMLEdit.state = 'on';
+			            this.cleanHTML();
+			            Dom.addClass(iframe, 'editor-hidden');
+			            Dom.removeClass(ta, 'editor-hidden');
+			            this.toolbar.set('disabled', true);
+			            this.toolbar.getButtonByValue('editcode').set('disabled', false);
+			            this.toolbar.selectButton('editcode');
+			            this.dompath.innerHTML = 'Editing HTML Code';
+			            this.hide();
+			        }
+			        return false; 
+		        }, this, true);
+
+		        this.on('editorWindowFocus', function(ev) {
+	    			var htmlDataField = $('#'+wrapperId);
+	    			if(htmlDataField.length > 0) {
+	    				htmlDataField.get(0).onfocus();
+	    			};
+		            return false;
 		        }, this, true);
 		        
-		         this.on('editorWindowBlur', function(ev) {
+		        this.on('editorWindowBlur', function(ev) {
 				    this.saveHTML();
+	    			var htmlDataField = $('#'+wrapperId);
+	    			if(htmlDataField.length > 0) {
+	    				htmlDataField.get(0).onblur();
+	    			};
 				    var element = this.get('element');
 				    element.onsubmit();
 		            return false;
 		        }, this, true);
+		         
+		        this.on('cleanHTML', function(ev) {
+		             this.get('element').value = ev.html;
+		         }, this, true);
+		         
+		        this.on('afterRender', function() {
+		 		     var elem = this.get('element');
+		 		     if (editable && !elem.readOnly && !elem.disabled){
+			             var wrapper = this.get('editor_wrapper');
+			             wrapper.appendChild(this.get('element'));
+			             this.setStyle('width', '100%');
+			             this.setStyle('height', '100%');
+			             this.setStyle('visibility', '');
+			             this.setStyle('top', '');
+			             this.setStyle('left', '');
+			             this.setStyle('position', '');
+			             this.addClass('editor-hidden');
+		        	 }
+		         }, this, true)
 		        
 		    }, myEditor, true);
 		    var elem = myEditor.get('element');
-		    if (elem.readOnly || elem.disabled)
+		    if (!editable || elem.readOnly || elem.disabled)
 		    {
-		    	setTimeout(function() {myEditor.set('disabled',true);}, 1000);
+		    	setTimeout(function() {
+		    			myEditor.set('disabled',true);
+		    			var disabledIframe = $('#'+myEditor.get('iframe').get('id'));
+		    			if(disabledIframe.length > 0) {
+		    				disabledIframe.css('display', '');
+		    			}
+		    			if(!editable || elem.readOnly) {
+		    				var editorPane = $('div.yui-editor-masked');
+		    				if(editorPane.length > 0) {
+		    					editorPane.css('background-color', '#fff');
+		    				}
+		    				
+		    			}
+		    		}, 1000);
 		    }
 		    myEditor.render();
 		    
 		    Servoy.HTMLEdit.htmlEditor = myEditor;
+		},
+		
+		focusHandler: function(elementId) {
+			
+			var ifr=$('#' + elementId).contents().find('iframe').get(0);
+			if(!ifr) {
+				window.setTimeout(function() {Servoy.HTMLEdit.focusHandler(elementId)}, 1000 );
+			} else {
+				ifr.contentWindow.focus();
+				var sel = ifr.contentDocument.getSelection();
+				var range = sel.getRangeAt(0);
+				range.setStart(ifr.contentDocument.body, 0);
+				range.setEnd(ifr.contentDocument.body, 0);
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}			
 		}
 	};
 }
