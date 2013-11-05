@@ -40,7 +40,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -162,61 +161,12 @@ import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.AutoTransferFocusListener;
+import com.servoy.j2db.util.gui.KeyReleaseActionJButton;
 import com.servoy.j2db.util.gui.PartsScrollPane;
 
 
 public class SwingForm extends PartsScrollPane implements IFormUIInternal<Component>, ISupportFocusTransfer
 {
-
-	/**
-	 * Button for option pane that will trigger click when ENTER is released not pressed, so as to avoid a key released event being triggered on whatever
-	 * component is focused after the option dialog closes.
-	 */
-	private class NoDoClickJButton extends JButton
-	{
-
-		private static final long serialVersionUID = 1L;
-
-		public NoDoClickJButton()
-		{
-			super();
-			addKeyListener(new KeyAdapter()
-			{
-				@Override
-				public void keyPressed(KeyEvent e)
-				{
-					if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getModifiers() == 0)
-					{
-						NoDoClickJButton.this.getModel().setPressed(true);
-						NoDoClickJButton.this.getModel().setArmed(true);
-					}
-				}
-
-				@Override
-				public void keyReleased(KeyEvent e)
-				{
-					if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getModifiers() == 0)
-					{
-						NoDoClickJButton.this.getModel().setPressed(false);
-						NoDoClickJButton.this.getModel().setArmed(false);
-					}
-				}
-			});
-		}
-
-		@Override
-		public void doClick()
-		{
-			// ignore this
-		}
-
-		@Override
-		public void doClick(int pressTime)
-		{
-			// ignore this
-		}
-	}
-
 	private static final long serialVersionUID = 1L;
 
 	private static final String ACTION_GO_OUT_TO_NEXT = "goOutToNext"; //$NON-NLS-1$
@@ -1567,7 +1517,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	private JButton getNoDoClickJButton(String text, int mnemonic)
 	{
-		NoDoClickJButton b = new NoDoClickJButton();
+		KeyReleaseActionJButton b = new KeyReleaseActionJButton();
 		b.setText(text);
 		b.setMnemonic(mnemonic);
 		b.setName("OptionPane.button"); //$NON-NLS-1$
