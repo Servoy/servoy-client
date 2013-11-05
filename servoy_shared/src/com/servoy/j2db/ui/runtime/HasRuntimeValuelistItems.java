@@ -29,7 +29,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 public interface HasRuntimeValuelistItems extends HasRuntimeValuelist
 {
 	/**
-	 * Gets the selected values (real values from valuelist) as array.
+	 * Gets the selected values (real values from valuelist) as array. The form element should have a dataProviderID assigned in order for this to work.
 	 * 
 	 * @sample var values = %%prefix%%%%elementName%%.getSelectedElements();
 	 * 
