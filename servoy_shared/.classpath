@@ -28,9 +28,9 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/apache-mime4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpclient.jar" sourcepath="libsrc/httpclient-src.jar"/> <!-- sorce jar needs to be updated -->
-	<classpathentry exported="true" kind="lib" path="lib/httpcore.jar" sourcepath="libsrc/httpcore-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpmime.jar" sourcepath="libsrc/httpmime-4.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpclient.jar" sourcepath="libsrc/httpcomponents-client-4.2.5-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpcore.jar" sourcepath="libsrc/httpcomponents-client-4.2.5-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpmime.jar" sourcepath="libsrc/httpcomponents-client-4.2.5-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcifs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-cache.jar"/>
