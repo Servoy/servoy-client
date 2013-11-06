@@ -26,6 +26,7 @@ import org.apache.wicket.util.crypt.ICrypt;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * The behavior used by components that want to eval a specific scriptname on the current form.
@@ -37,6 +38,8 @@ import com.servoy.j2db.util.Debug;
  */
 public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAjaxBehavior
 {
+	static final String BROWSER_PARAM = "browser:";
+
 	/**
 	 * 
 	 */
@@ -66,6 +69,21 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 				scriptName = urlCrypt.decryptUrlSafe(scriptName);
 			}
 		}
+		else
+		{
+			boolean keyMatch = false;
+			String key = RequestCycle.get().getRequest().getParameter("key");
+			if (key != null)
+			{
+				ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+				keyMatch = urlCrypt.decryptUrlSafe(key).replace(BROWSER_PARAM, "").equals(scriptName);
+			}
+			if (!keyMatch)
+			{
+				Debug.warn("Key does not match when evaluating inline script");
+				return;
+			}
+		}
 		WebForm wf = component.findParent(WebForm.class);
 		if (wf != null)
 		{
@@ -83,5 +101,86 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 			WebEventExecutor.generateResponse(target, page);
 		}
 		target.appendJavascript("clearDoubleClickId('" + component.getMarkupId() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	String getEscapedString(String s)
+	{
+		String escapedScriptName = Utils.stringReplace(Utils.stringReplace(s, "\'", "\\\'"), "\"", "&quot;");
+		int browserVariableIndex = escapedScriptName.indexOf(BROWSER_PARAM);
+		if (browserVariableIndex != -1)
+		{
+			int start = 0;
+			StringBuilder sb = new StringBuilder(escapedScriptName.length());
+			while (browserVariableIndex != -1)
+			{
+				sb.append(escapedScriptName.substring(start, browserVariableIndex));
+				sb.append("' + ");
+
+				// is there a next variable
+				int index = searchEndVariable(escapedScriptName, browserVariableIndex + 8);
+				if (index == -1)
+				{
+					Debug.error("illegal script name encountered with browser arguments: " + escapedScriptName);
+					break;
+				}
+				else
+				{
+					sb.append(escapedScriptName.substring(browserVariableIndex + 8, index));
+					sb.append(" + '");
+					int tmp = escapedScriptName.indexOf(BROWSER_PARAM, index);
+					if (tmp != -1)
+					{
+						start = index;
+						browserVariableIndex = tmp;
+					}
+					else
+					{
+						sb.append(escapedScriptName.substring(index));
+						escapedScriptName = sb.toString();
+						break;
+					}
+				}
+			}
+		}
+
+		return escapedScriptName;
+	}
+
+	/**
+	 * @param escapedScriptName
+	 * @param i
+	 * @return
+	 */
+	private int searchEndVariable(String script, int start)
+	{
+		int counter = start;
+		int brace = 0;
+		while (counter < script.length())
+		{
+			switch (script.charAt(counter))
+			{
+				case '\\' :
+					if (brace == 0) return counter;
+					break;
+				case '&' :
+					if (brace == 0) return counter;
+					break;
+				case '\'' :
+					if (brace == 0) return counter;
+					break;
+				case ',' :
+					if (brace == 0) return counter;
+					break;
+				case '(' :
+					brace++;
+					break;
+				case ')' :
+					if (brace == 0) return counter;
+					brace--;
+					break;
+			}
+			counter++;
+		}
+		return 0;
 	}
 }
