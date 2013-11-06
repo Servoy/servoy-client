@@ -155,4 +155,35 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * @return The records for which save failed.
 	 */
 	public IRecord[] getFailedRecords();
+
+	/**
+	 * Request lock(s) for a foundset, can be a normal or related foundset.
+	 * The record_index can be -1 to lock all rows, 0 to lock the current row, or a specific row of > 0 
+	 * Optionally name the lock(s) so that it can be referenced in releaseAllLocks()
+	 * 
+	 * @param fs Foundset used for locking.
+	 * @param index Record index to lock.
+	 * @param lockName Lock name.
+	 * 
+	 * @return true if the lock could be acquired.
+	 */
+	public boolean acquireLock(IFoundSet fs, int index, String lockName);
+
+	/**
+	 * Returns true if the current client has any or the specified lock(s) acquired.
+	 * 
+	 * @param lockName The lock name to check. If null, it means any lock.
+	 * 
+	 * @return true if the current client has locks or the lock.
+	 */
+	boolean hasLocks(String lockName);
+
+	/**
+	 * Release all current locks the client has (optionally limited to named locks). Returns true if the locks are released.
+	 * 
+	 * @param lockName The lock name to release or null for all locks.
+	 * 
+	 * @return true if all locks or the specified lock are released. 
+	 */
+	boolean releaseAllLocks(String lockName);
 }

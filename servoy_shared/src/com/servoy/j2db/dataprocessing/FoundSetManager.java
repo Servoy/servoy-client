@@ -1645,7 +1645,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
  * _____________________________________________________________ locking methods
  */
 	//index == -1 is (current) selected record,< -1 is all records
-	public boolean acquireLock(Object fs, int index, String lockName)
+	public boolean acquireLock(IFoundSet fs, int index, String lockName)
 	{
 		if (fs instanceof IFoundSetInternal)
 		{
