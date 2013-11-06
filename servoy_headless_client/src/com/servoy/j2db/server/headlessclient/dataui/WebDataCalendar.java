@@ -243,7 +243,7 @@ public class WebDataCalendar extends WebDataCompositeTextField
 				sb.append("'), '");
 				sb.append(simpleFormatAsSeenByCalendarWidget);
 				sb.append("', document.getElementById('");
-				sb.append(field.getMarkupId());
+				sb.append(WebDataCalendar.this.getMarkupId());
 				if (((DateField)field).getTextFormat().indexOf("h") == -1 && ((DateField)field).getTextFormat().indexOf("H") == -1) sb.append("'),false,'" +
 					field.getMarkupId() + "',true);");
 				else sb.append("'),true,null,true);");
