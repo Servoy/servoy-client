@@ -315,7 +315,7 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 	@Override
 	protected boolean hasHtmlOrImage()
 	{
-		return hasHTML || super.hasHtmlOrImage();
+		return hasHTML || super.hasHtmlOrImage() || getDefaultModelObject() instanceof byte[];
 	}
 
 	@Override
