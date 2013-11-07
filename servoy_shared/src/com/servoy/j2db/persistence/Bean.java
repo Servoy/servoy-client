@@ -93,8 +93,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public String getInnerHTML()
 	{
-		String innerHTML = getTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML);
-		return innerHTML.replaceAll("\\\\n", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML);
 	}
 
 	/**
@@ -105,8 +104,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	@ServoyClientSupport(mc = true, wc = false, sc = false)
 	public void setInnerHTML(String innerHTML)
 	{
-		String innerHtml = innerHTML.replaceAll("\n", "\\\\n"); //$NON-NLS-1$//$NON-NLS-2$
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML, innerHtml);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_BEANXML, innerHTML);
 	}
 
 	/**
