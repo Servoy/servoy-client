@@ -87,7 +87,6 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 				inlineScriptExecutor = new InlineScriptExecutorBehavior(this);
 				add(inlineScriptExecutor);
 			}
-			String escapedScriptName = inlineScriptExecutor.getEscapedString(scriptName);
 
 			AppendingStringBuffer asb = new AppendingStringBuffer(80);
 			if (testDoubleClick)
@@ -100,20 +99,17 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 			asb.append("document.getElementById('").append(getMarkupId()).append("').focus();");
 			asb.append("window.setTimeout(function() { wicketAjaxGet('");
 			asb.append(inlineScriptExecutor.getCallbackUrl());
+
 			ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-			if (scriptName.indexOf(InlineScriptExecutorBehavior.BROWSER_PARAM) != -1)
+			asb.append("&snenc=");
+			String escapedScriptName = Utils.stringReplace(Utils.stringReplace(scriptName, "\\\'", "\'"), "&quot;", "\"");
+			asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
+
+			for (String browserArgument : inlineScriptExecutor.getBrowserArguments(scriptName))
 			{
-				asb.append("&key=");
-				asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(scriptName)));
-				asb.append("&sn=");
-				asb.append(escapedScriptName);
+				asb.append("&").append(browserArgument).append("=' + ").append(browserArgument).append(" + '");
 			}
-			else
-			{
-				asb.append("&snenc=");
-				escapedScriptName = Utils.stringReplace(Utils.stringReplace(escapedScriptName, "\\\'", "\'"), "&quot;", "\"");
-				asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
-			}
+
 			asb.append("');}, 0);");
 			if (testDoubleClick)
 			{

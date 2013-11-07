@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.util.ArrayList;
+
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -59,31 +61,30 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 	protected void respond(AjaxRequestTarget target)
 	{
 		Page page = component.getPage();
-		String scriptName = RequestCycle.get().getRequest().getParameter("sn");
-		if (scriptName == null)
+		String scriptName = RequestCycle.get().getRequest().getParameter("snenc");
+
+		ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+		scriptName = urlCrypt.decryptUrlSafe(scriptName);
+
+		String argValue;
+		for (String browserArgument : getBrowserArguments(scriptName))
 		{
-			scriptName = RequestCycle.get().getRequest().getParameter("snenc");
-			if (scriptName != null)
+			argValue = RequestCycle.get().getRequest().getParameter(browserArgument);
+			if (argValue == null) argValue = "";
+			boolean isString = true;
+			try
 			{
-				ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-				scriptName = urlCrypt.decryptUrlSafe(scriptName);
+				Double.parseDouble(argValue);
+				isString = false;
 			}
+			catch (NumberFormatException ex)
+			{
+			}
+			if (isString && ("true".equals(argValue) || "false".equals(argValue))) isString = false;
+
+			scriptName = scriptName.replace(BROWSER_PARAM + browserArgument, isString ? "'" + argValue + "'" : argValue);
 		}
-		else
-		{
-			boolean keyMatch = false;
-			String key = RequestCycle.get().getRequest().getParameter("key");
-			if (key != null)
-			{
-				ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-				keyMatch = urlCrypt.decryptUrlSafe(key).replace(BROWSER_PARAM, "").equals(scriptName);
-			}
-			if (!keyMatch)
-			{
-				Debug.warn("Key does not match when evaluating inline script");
-				return;
-			}
-		}
+
 		WebForm wf = component.findParent(WebForm.class);
 		if (wf != null)
 		{
@@ -100,22 +101,19 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 			}
 			WebEventExecutor.generateResponse(target, page);
 		}
-		target.appendJavascript("clearDoubleClickId('" + component.getMarkupId() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
+		target.appendJavascript("clearDoubleClickId('" + component.getMarkupId() + "')"); //$NON-NLS-1$ //$NON-NLS-2$		
 	}
 
-	String getEscapedString(String s)
+	ArrayList<String> getBrowserArguments(String s)
 	{
+		ArrayList<String> browserArguments = new ArrayList<String>();
+
 		String escapedScriptName = Utils.stringReplace(Utils.stringReplace(s, "\'", "\\\'"), "\"", "&quot;");
 		int browserVariableIndex = escapedScriptName.indexOf(BROWSER_PARAM);
 		if (browserVariableIndex != -1)
 		{
-			int start = 0;
-			StringBuilder sb = new StringBuilder(escapedScriptName.length());
 			while (browserVariableIndex != -1)
 			{
-				sb.append(escapedScriptName.substring(start, browserVariableIndex));
-				sb.append("' + ");
-
 				// is there a next variable
 				int index = searchEndVariable(escapedScriptName, browserVariableIndex + 8);
 				if (index == -1)
@@ -125,25 +123,13 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 				}
 				else
 				{
-					sb.append(escapedScriptName.substring(browserVariableIndex + 8, index));
-					sb.append(" + '");
-					int tmp = escapedScriptName.indexOf(BROWSER_PARAM, index);
-					if (tmp != -1)
-					{
-						start = index;
-						browserVariableIndex = tmp;
-					}
-					else
-					{
-						sb.append(escapedScriptName.substring(index));
-						escapedScriptName = sb.toString();
-						break;
-					}
+					browserArguments.add(escapedScriptName.substring(browserVariableIndex + 8, index));
+					browserVariableIndex = escapedScriptName.indexOf(BROWSER_PARAM, index);
 				}
 			}
 		}
 
-		return escapedScriptName;
+		return browserArguments;
 	}
 
 	/**
