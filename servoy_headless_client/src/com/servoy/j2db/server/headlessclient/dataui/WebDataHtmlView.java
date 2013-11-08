@@ -22,9 +22,11 @@ import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.SwingConstants;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.protocol.http.WicketURLEncoder;
+import org.apache.wicket.util.crypt.ICrypt;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
 import com.servoy.j2db.IApplication;
@@ -33,7 +35,6 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -46,7 +47,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 {
 	private static final long serialVersionUID = 1L;
 
-	private AbstractDefaultAjaxBehavior inlineScriptExecutor;
+	private InlineScriptExecutorBehavior inlineScriptExecutor;
 
 	public WebDataHtmlView(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
@@ -86,57 +87,30 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 				inlineScriptExecutor = new InlineScriptExecutorBehavior(this);
 				add(inlineScriptExecutor);
 			}
-			CharSequence url = inlineScriptExecutor.getCallbackUrl();
-			AppendingStringBuffer asb = new AppendingStringBuffer(url.length() + 30);
+
+			AppendingStringBuffer asb = new AppendingStringBuffer(80);
 			if (testDoubleClick)
 			{
 				asb.append("if (testDoubleClickId('");
 				asb.append(getMarkupId());
 				asb.append("')) { ");
 			}
-			asb.append("wicketAjaxGet('");
-			asb.append(url);
-			asb.append("&scriptname=");
-			String escapedScriptName = Utils.stringReplace(Utils.stringReplace(scriptName, "\'", "\\\'"), "\"", "&quot;");
-			int browserVariableIndex = escapedScriptName.indexOf("browser:");
-			if (browserVariableIndex != -1)
+
+			asb.append("document.getElementById('").append(getMarkupId()).append("').focus();");
+			asb.append("window.setTimeout(function() { wicketAjaxGet('");
+			asb.append(inlineScriptExecutor.getCallbackUrl());
+
+			ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+			asb.append("&snenc=");
+			String escapedScriptName = Utils.stringReplace(Utils.stringReplace(scriptName, "\\\'", "\'"), "&quot;", "\"");
+			asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
+
+			for (String browserArgument : inlineScriptExecutor.getBrowserArguments(scriptName))
 			{
-				int start = 0;
-				StringBuilder sb = new StringBuilder(escapedScriptName.length());
-				while (browserVariableIndex != -1)
-				{
-					sb.append(escapedScriptName.substring(start, browserVariableIndex));
-					sb.append("' + ");
-
-					// is there a next variable
-					int index = searchEndVariable(escapedScriptName, browserVariableIndex + 8);
-					if (index == -1)
-					{
-						Debug.error("illegal script name encountered with browser arguments: " + escapedScriptName);
-						break;
-					}
-					else
-					{
-						sb.append(escapedScriptName.substring(browserVariableIndex + 8, index));
-						sb.append(" + '");
-						int tmp = escapedScriptName.indexOf("browser:", index);
-						if (tmp != -1)
-						{
-							start = index;
-							browserVariableIndex = tmp;
-						}
-						else
-						{
-							sb.append(escapedScriptName.substring(index));
-							escapedScriptName = sb.toString();
-							break;
-						}
-
-					}
-				}
+				asb.append("&").append(browserArgument).append("=' + ").append(browserArgument).append(" + '");
 			}
-			asb.append(escapedScriptName);
-			asb.append("');");
+
+			asb.append("');}, 0);");
 			if (testDoubleClick)
 			{
 				asb.append("} ");
@@ -148,44 +122,6 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		{
 			return StripHTMLTagsConverter.getTriggerJavaScript(this, scriptName);
 		}
-	}
-
-	/**
-	 * @param escapedScriptName
-	 * @param i
-	 * @return
-	 */
-	private int searchEndVariable(String script, int start)
-	{
-		int counter = start;
-		int brace = 0;
-		while (counter < script.length())
-		{
-			switch (script.charAt(counter))
-			{
-				case '\\' :
-					if (brace == 0) return counter;
-					break;
-				case '\'' :
-					if (brace == 0) return counter;
-					break;
-				case '&' :
-					if (brace == 0) return counter;
-					break;
-				case ',' :
-					if (brace == 0) return counter;
-					break;
-				case '(' :
-					brace++;
-					break;
-				case ')' :
-					if (brace == 0) return counter;
-					brace--;
-					break;
-			}
-			counter++;
-		}
-		return 0;
 	}
 
 	/**
