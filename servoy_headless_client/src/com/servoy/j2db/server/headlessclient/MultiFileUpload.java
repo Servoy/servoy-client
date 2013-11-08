@@ -47,7 +47,9 @@ public class MultiFileUpload extends MultiFileUploadField
 	public MultiFileUpload(String id, IModel<Collection<FileUpload>> model, IApplication application)
 	{
 		super(id, model);
-		add(new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload"))));
+		Button fileButton = new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload")));
+		fileButton.setOutputMarkupId(false);
+		add(fileButton);
 	}
 
 	@Override

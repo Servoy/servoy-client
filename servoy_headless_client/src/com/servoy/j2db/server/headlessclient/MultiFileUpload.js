@@ -35,6 +35,18 @@ function MultipleFileUploadInterceptor(multiSelector)
                     }
                 }
             });
+           
+            var button = document.getElementById("filebutton");
+			button.addEventListener("click", function() {
+       	 		var elements_to_hide = element.parentNode.children;
+       	 		for(var i =0; i<elements_to_hide.length; i++) {
+       	 			elements_to_hide[i].hidden = true;
+       	 		}
+       	 		var temp_upload_message = document.createElement('span');
+				temp_upload_message.id = "temp_message";
+      	  		temp_upload_message.textContent = "Files uploading...";
+       	 		element.parentNode.appendChild(temp_upload_message);
+			});
 		}
 		oldAddElement.call(this, element);
 	}.bind(multiSelector);

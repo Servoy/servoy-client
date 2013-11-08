@@ -164,6 +164,15 @@ public class MediaUploadPage extends WebPage
 					}
 				}
 				callback.onSubmit();
+				if (fuf != null)
+				{
+					remove(fuf);
+				}
+				else if (mfuf != null)
+				{
+					remove(mfuf);
+				}
+				add(new Label("panel", "Uploaded."));
 			}
 
 			@Override

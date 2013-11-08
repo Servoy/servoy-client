@@ -18,5 +18,13 @@ function addSFUInputChangeListener() {
 			}
 		}
 	});
-
+	var button = document.getElementById("filebutton");
+	button.addEventListener("click", function() {
+		upload.hidden=true;
+		button.hidden=true;
+		var temp_upload_message = document.createElement('span');
+		temp_upload_message.id = "temp_message";
+      	  temp_upload_message.textContent = "uploading...";
+       	 upload.parentNode.insertBefore(temp_upload_message, button);
+	});
 }

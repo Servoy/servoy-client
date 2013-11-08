@@ -115,7 +115,9 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 		};
 		add(fuf);
 		add(new Label("filelabel", application.getI18NMessage("servoy.menuitem.file")));
-		add(new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload"))));
+		Button fileButton = new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload")));
+		fileButton.setOutputMarkupId(false);
+		add(fileButton);
 	}
 
 	/**
