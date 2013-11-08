@@ -18,9 +18,11 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.util.ArrayList;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.protocol.http.WicketURLEncoder;
+import org.apache.wicket.util.crypt.ICrypt;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 
 import com.servoy.j2db.IApplication;
@@ -42,7 +44,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 {
 	private static final long serialVersionUID = 1L;
 
-	private AbstractDefaultAjaxBehavior inlineScriptExecutor;
+	private InlineScriptExecutorBehavior inlineScriptExecutor;
 
 	public WebDataHtmlView(IApplication application, String id)
 	{
@@ -90,19 +92,30 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 				inlineScriptExecutor = new InlineScriptExecutorBehavior(this);
 				add(inlineScriptExecutor);
 			}
-			CharSequence url = inlineScriptExecutor.getCallbackUrl();
-			AppendingStringBuffer asb = new AppendingStringBuffer(url.length() + 30);
+
+			AppendingStringBuffer asb = new AppendingStringBuffer(80);
 			if (testDoubleClick)
 			{
 				asb.append("if (testDoubleClickId('");
 				asb.append(getMarkupId());
 				asb.append("')) { ");
 			}
-			asb.append("wicketAjaxGet('");
-			asb.append(url);
-			asb.append("&scriptname=");
-			asb.append(Utils.stringReplace(Utils.stringReplace(scriptName, "\'", "\\\'"), "\"", "&quot;"));
-			asb.append("');");
+
+			asb.append("document.getElementById('").append(getMarkupId()).append("').focus();");
+			asb.append("window.setTimeout(function() { wicketAjaxGet('");
+			asb.append(inlineScriptExecutor.getCallbackUrl());
+
+			ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+			asb.append("&snenc=");
+			String escapedScriptName = Utils.stringReplace(Utils.stringReplace(scriptName, "\\\'", "\'"), "&quot;", "\"");
+			asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
+
+			for (String browserArgument : inlineScriptExecutor.getBrowserArguments(scriptName))
+			{
+				asb.append("&").append(browserArgument).append("=' + ").append(browserArgument).append(" + '");
+			}
+
+			asb.append("');}, 0);");
 			if (testDoubleClick)
 			{
 				asb.append("} ");
