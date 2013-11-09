@@ -112,6 +112,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlArea;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
+import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.ui.IComponent;
@@ -775,13 +776,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 				if (client.getEventDispatcher() != null)
 				{
-					client.getEventDispatcher().addEvent(new Runnable()
+					client.getEventDispatcher().addEvent(new WicketEvent(client, new Runnable()
 					{
 						public void run()
 						{
 							client.getRuntimeWindowManager().closeFormInWindow(divDialog.getPageMapName(), divDialog.getCloseAll());
 						}
-					});
+					}));
 				}
 				else
 				{

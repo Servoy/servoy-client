@@ -34,7 +34,7 @@ import com.servoy.j2db.util.Debug;
  * 
  * @since 6.1
  */
-public class WicketEventDispatcher implements Runnable, IEventDispatcher
+public class WicketEventDispatcher implements Runnable, IEventDispatcher<WicketEvent>
 {
 	private final ConcurrentMap<Object, Event> suspendedEvents = new ConcurrentHashMap<Object, Event>();
 
@@ -107,9 +107,8 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 	/**
 	 * @param event
 	 */
-	public void addEvent(Runnable runnable)
+	public void addEvent(WicketEvent event)
 	{
-		WicketEvent event = new WicketEvent(client, runnable);
 		if (scriptThread == Thread.currentThread())
 		{
 			event.execute();
@@ -138,7 +137,7 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 		List<Runnable> requestEvents = event.getEvents();
 		if (requestEvents.size() > 0)
 		{
-			addEvent(new EventsRunnable(requestEvents));
+			addEvent(new WicketEvent(client, new EventsRunnable(requestEvents)));
 		}
 	}
 
@@ -238,7 +237,7 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher
 		synchronized (events)
 		{
 			// add a nop event so that the dispatcher is triggered.
-			events.add(new Event());
+			events.add(new Event(null));
 			events.notifyAll();
 		}
 	}

@@ -68,6 +68,7 @@ import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
+import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
@@ -545,7 +546,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		{
 			if (getEventDispatcher() != null)
 			{
-				getEventDispatcher().addEvent(new EventsRunnable(runnables));
+				getEventDispatcher().addEvent(new WicketEvent(this, new EventsRunnable(runnables)));
 			}
 			else
 			{
@@ -1126,13 +1127,13 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 
-	private IEventDispatcher executor;
+	private IEventDispatcher<WicketEvent> executor;
 
 	/**
 	 * 
 	 */
 	@SuppressWarnings("nls")
-	public final synchronized IEventDispatcher getEventDispatcher()
+	public final synchronized IEventDispatcher<WicketEvent> getEventDispatcher()
 	{
 		if (executor == null && Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.webclient.startscriptthread", "false")))
 		{
@@ -1147,7 +1148,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	/**
 	 * Method to create the {@link IEventDispatcher} runnable
 	 */
-	protected IEventDispatcher createDispatcher()
+	protected IEventDispatcher<WicketEvent> createDispatcher()
 	{
 		return new WicketEventDispatcher(this);
 	}

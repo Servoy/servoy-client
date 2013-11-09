@@ -43,20 +43,17 @@ import com.servoy.j2db.util.Debug;
  * 
  * @since 6.1
  */
-final class WicketEvent extends Event
+public final class WicketEvent extends Event
 {
 	private final RequestCycle requestCycle;
 	private final Session session;
 	private final Application application;
 
-	private volatile boolean executed;
 	private volatile boolean wasSuspended;
-	private volatile Exception exception;
 
 	private final List<IClusterable> dirtyObjectsList;
 	private final List<Page> touchedPages;
 	private volatile Thread httpThread;
-	private final Runnable runable;
 	private final IServiceProvider serviceProvider;
 	private volatile List<Runnable> events;
 	private final WebClient client;
@@ -71,10 +68,10 @@ final class WicketEvent extends Event
 	 * @param throwException
 	 * @param scriptEngine TODO
 	 */
-	public WicketEvent(WebClient client, Runnable runable)
+	public WicketEvent(WebClient client, Runnable runnable)
 	{
+		super(runnable);
 		this.client = client;
-		this.runable = runable;
 		requestCycle = RequestCycle.get();
 		session = Session.get();
 		serviceProvider = J2DBGlobals.getServiceProvider();
@@ -126,12 +123,7 @@ final class WicketEvent extends Event
 
 			session.moveUsedPage(httpThread, Thread.currentThread());
 
-			runable.run();
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-			exception = e;
+			super.execute();
 		}
 		finally
 		{
@@ -142,7 +134,6 @@ final class WicketEvent extends Event
 			{
 				setEvents(client.getRequestEvents());
 			}
-			executed = true;
 			cleanup();
 		}
 	}
@@ -184,23 +175,6 @@ final class WicketEvent extends Event
 		toReleasePages.clear();
 		session.moveUsedPage(Thread.currentThread(), httpThread);
 
-	}
-
-	/**
-	 * @return the exception
-	 */
-	public Exception getException()
-	{
-		return exception;
-	}
-
-	/**
-	 * @return the executed
-	 */
-	@Override
-	public boolean isExecuted()
-	{
-		return executed;
 	}
 
 	/**

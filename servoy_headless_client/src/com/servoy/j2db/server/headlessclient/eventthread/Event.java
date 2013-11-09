@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.headlessclient.eventthread;
 
+import com.servoy.j2db.util.Debug;
 
 
 /**
@@ -27,16 +28,50 @@ package com.servoy.j2db.server.headlessclient.eventthread;
  * @since 6.1
  *
  */
-class Event
+public class Event
 {
 	private volatile boolean runInBackground;
 	private volatile boolean suspended;
+
+	private final Runnable runnable;
+	private volatile boolean executed;
+	private volatile Exception exception;
+
+
+	public Event(Runnable runnable)
+	{
+		this.runnable = runnable;
+	}
 
 	/**
 	 * Called by the script thread to execute itself. 
 	 */
 	public void execute()
 	{
+		try
+		{
+			if (runnable != null)
+			{
+				runnable.run();
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+			exception = e;
+		}
+		finally
+		{
+			executed = true;
+		}
+	}
+
+	/**
+	 * @return the exception
+	 */
+	public Exception getException()
+	{
+		return exception;
 	}
 
 	/**
@@ -56,11 +91,11 @@ class Event
 	}
 
 	/**
-	 * @return true when this event is executed. (Default just true)
+	 * @return the executed
 	 */
 	public boolean isExecuted()
 	{
-		return true;
+		return executed;
 	}
 
 	/**

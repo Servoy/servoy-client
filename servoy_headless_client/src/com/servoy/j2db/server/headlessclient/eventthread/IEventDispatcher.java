@@ -27,7 +27,7 @@ import com.servoy.j2db.server.headlessclient.WebClient;
  * 
  * @since 6.1
  */
-public interface IEventDispatcher extends Runnable
+public interface IEventDispatcher<E extends Event> extends Runnable
 {
 	/**
 	 * @param object The Object that is the suspend 'lock'
@@ -42,9 +42,9 @@ public interface IEventDispatcher extends Runnable
 	public IEventProgressMonitor getEventProgressMonitor();
 
 	/**
-	 * @param runnable
+	 * @param event
 	 */
-	void addEvent(Runnable runnable);
+	void addEvent(E event);
 
 	/**
 	 * destroys this event dispatcher thread.

@@ -74,6 +74,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDi
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioButton.MyRadioButton;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
+import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.ui.BaseEventExecutor;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -388,16 +389,16 @@ public class WebEventExecutor extends BaseEventExecutor
 
 		final Page page = form.getPage(); // JS might change the page this form belongs to... so remember it now
 
-		IEventDispatcher eventDispatcher = WebClientSession.get().getWebClient().getEventDispatcher();
+		IEventDispatcher<WicketEvent> eventDispatcher = WebClientSession.get().getWebClient().getEventDispatcher();
 		if (eventDispatcher != null)
 		{
-			eventDispatcher.addEvent(new Runnable()
+			eventDispatcher.addEvent(new WicketEvent(WebClientSession.get().getWebClient(), new Runnable()
 			{
 				public void run()
 				{
 					handleEvent(type, target, comp, webModifiers, mouseLocation, page);
 				}
-			});
+			}));
 		}
 		else
 		{

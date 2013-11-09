@@ -48,6 +48,7 @@ import com.servoy.j2db.server.headlessclient.dataui.StripHTMLTagsConverter;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
+import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
@@ -561,16 +562,16 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 				}
 				else
 				{
-					IEventDispatcher eventDispatcher = ((WebClient)application).getEventDispatcher();
+					IEventDispatcher<WicketEvent> eventDispatcher = ((WebClient)application).getEventDispatcher();
 					if (eventDispatcher != null)
 					{
-						eventDispatcher.addEvent(new Runnable()
+						eventDispatcher.addEvent(new WicketEvent((WebClient)application, new Runnable()
 						{
 							public void run()
 							{
 								callback.respond(target, event, markupId);
 							}
-						});
+						}));
 						WebEventExecutor.generateResponse(target, getPage());
 					}
 					else
