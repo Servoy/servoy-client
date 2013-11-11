@@ -2910,4 +2910,20 @@ public final class Utils
 		processed.put(scriptable, defaultValue.toString());
 		return defaultValue.toString();
 	}
+
+	/**
+	 * Windows doesn't allow creating of files like 'con.xyz'. Append Underscore for dbi with table name 'con'
+	 */
+	private static String[] illegalFileNames = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+
+	public static String fixIllegalFileNameProblem(String name)
+	{
+		for (String illegalName : illegalFileNames)
+		{
+			if (illegalName.equalsIgnoreCase(name)) name = '_' + name;
+			return name;
+		}
+		return name;
+	}
+
 }
