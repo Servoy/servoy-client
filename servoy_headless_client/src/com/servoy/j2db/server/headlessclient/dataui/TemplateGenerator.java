@@ -2846,7 +2846,8 @@ public class TemplateGenerator
 		html.append("<div ");
 		html.append(getWicketIDParameter(form, field));
 		html.append(getDataProviderIDParameter(field));
-		html.append(getCSSClassParameter(field.getDisplayType() == Field.SPINNER ? "spinner" : "field"));
+		html.append(getCSSClassParameter(field.getDisplayType() == Field.SPINNER ? "spinner" : (field.getDisplayType() == Field.CALENDAR ? "field calendar"
+			: "field")));
 		html.append("style = 'overflow:hidden' ");
 		html.append("><table ");
 		TextualStyle inline = new TextualStyle();
