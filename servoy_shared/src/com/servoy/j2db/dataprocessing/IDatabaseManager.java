@@ -158,7 +158,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * Request lock(s) for a foundset, can be a normal or related foundset.
-	 * The record_index can be -1 to lock all rows, 0 to lock the current row, or a specific row of > 0 
+	 * The record_index can be -2 to lock all rows, -1 to lock the current row, or a specific row of >= 0 
 	 * Optionally name the lock(s) so that it can be referenced in releaseAllLocks()
 	 * 
 	 * @param fs Foundset used for locking.
