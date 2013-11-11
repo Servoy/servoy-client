@@ -41,6 +41,8 @@ public interface IEventDispatcher<E extends Event> extends Runnable
 
 	public IEventProgressMonitor getEventProgressMonitor();
 
+	boolean isEventDispatchThread();
+
 	/**
 	 * @param event
 	 */
@@ -50,4 +52,5 @@ public interface IEventDispatcher<E extends Event> extends Runnable
 	 * destroys this event dispatcher thread.
 	 */
 	public void destroy();
+
 }

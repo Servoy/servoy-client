@@ -104,6 +104,12 @@ public class WicketEventDispatcher implements Runnable, IEventDispatcher<WicketE
 		}
 	}
 
+	@Override
+	public boolean isEventDispatchThread()
+	{
+		return scriptThread == Thread.currentThread();
+	}
+
 	/**
 	 * @param event
 	 */
