@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
+import com.servoy.j2db.ui.runtime.HasRuntimeImageURL;
 
 
 /**
@@ -30,7 +31,7 @@ import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
  * @author gboros
  */
 @SuppressWarnings("nls")
-public class RenderableWrapper implements IScriptRenderMethodsWithFormat
+public class RenderableWrapper implements IScriptRenderMethodsWithOptionalProps
 {
 	public static final String PROPERTY_BGCOLOR = "bgcolor";
 	public static final String PROPERTY_BORDER = "border";
@@ -41,6 +42,7 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 	public static final String PROPERTY_TRANSPARENT = "transparant";
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_FORMAT = "format";
+	public static final String PROPERTY_IMAGE_URL = "imageURL";
 
 	private final IScriptRenderMethods renderable;
 	private final HashMap<String, Object> properties = new HashMap<String, Object>();
@@ -283,6 +285,13 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 					((HasRuntimeFormat)renderable).setFormat((String)properties.get(PROPERTY_FORMAT));
 				}
 			}
+			else if (PROPERTY_IMAGE_URL.equals(property))
+			{
+				if (renderable instanceof HasRuntimeImageURL)
+				{
+					((HasRuntimeImageURL)renderable).setImageURL((String)properties.get(PROPERTY_IMAGE_URL));
+				}
+			}
 		}
 		properties.clear();
 	}
@@ -301,5 +310,29 @@ public class RenderableWrapper implements IScriptRenderMethodsWithFormat
 	public String toString()
 	{
 		return renderable.toString();
+	}
+
+	@Override
+	public String getImageURL()
+	{
+		if (renderable instanceof HasRuntimeImageURL)
+		{
+			return ((HasRuntimeImageURL)renderable).getImageURL();
+		}
+		return null;
+	}
+
+	@Override
+	public void setImageURL(String text_url)
+	{
+
+		if (renderable instanceof HasRuntimeImageURL)
+		{
+			if (!properties.containsKey(PROPERTY_IMAGE_URL))
+			{
+				properties.put(PROPERTY_IMAGE_URL, ((HasRuntimeImageURL)renderable).getImageURL());
+			}
+			((HasRuntimeImageURL)renderable).setImageURL(text_url);
+		}
 	}
 }

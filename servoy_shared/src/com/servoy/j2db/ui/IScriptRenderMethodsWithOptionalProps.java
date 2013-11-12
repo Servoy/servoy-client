@@ -20,16 +20,17 @@ package com.servoy.j2db.ui;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
+import com.servoy.j2db.ui.runtime.HasRuntimeImageURL;
 
 /**
- * Format property is optional so scripting Renderable will always have such a property but for some components (or the form itself) it will not do anything
+ * Format and imageUrl  properties are optional so scripting Renderable will always have such properties but for some components (or the form itself doesn't have format and imageUrl) it will not do anything
  * 
  * @author jcompagner
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable", publicName = "Renderable")
 @ServoyClientSupport(mc = false, wc = true, sc = true)
-public interface IScriptRenderMethodsWithFormat extends IScriptRenderMethods, HasRuntimeFormat
+public interface IScriptRenderMethodsWithOptionalProps extends IScriptRenderMethods, HasRuntimeFormat, HasRuntimeImageURL
 {
 	/**
 	 * @see IScriptRenderMethods

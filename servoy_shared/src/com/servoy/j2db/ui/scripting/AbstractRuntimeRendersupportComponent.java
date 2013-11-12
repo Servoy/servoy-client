@@ -119,6 +119,16 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 		getChangesRecorder().setChanged();
 	}
 
+	public void clearRenderableWrapperProperty(String property)
+	{
+		RenderEventExecutor renderEventExecutor = getRenderEventExecutor();
+		IScriptRenderMethods renderable = getRenderable();
+		if (renderEventExecutor != null && !renderEventExecutor.isOnRenderExecuting() && renderable instanceof RenderableWrapper)
+		{
+			((RenderableWrapper)renderable).clearProperty(property);
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

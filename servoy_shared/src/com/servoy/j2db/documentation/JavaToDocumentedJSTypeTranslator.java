@@ -83,7 +83,7 @@ import com.servoy.j2db.solutionmodel.ISMPart;
 import com.servoy.j2db.solutionmodel.ISMVariable;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethods;
-import com.servoy.j2db.ui.IScriptRenderMethodsWithFormat;
+import com.servoy.j2db.ui.IScriptRenderMethodsWithOptionalProps;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -209,7 +209,7 @@ public class JavaToDocumentedJSTypeTranslator
 		javaClassToDocumentedJavaClass.put(IQueryBuilderLogicalCondition.class, QBLogicalCondition.class);
 		javaClassToDocumentedJavaClass.put(IQueryBuilderWhereCondition.class, QBWhereCondition.class);
 
-		javaClassToDocumentedJavaClass.put(IScriptRenderMethods.class, IScriptRenderMethodsWithFormat.class);
+		javaClassToDocumentedJavaClass.put(IScriptRenderMethods.class, IScriptRenderMethodsWithOptionalProps.class);
 
 		// this might look strange, it's here to avoid PrinterJob types to be changed to Object, because they are not Scriptable or ServoyDocumented
 		// but we still want them to appear in JS with their original name
