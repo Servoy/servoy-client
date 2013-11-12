@@ -152,7 +152,32 @@ public class ScriptEngine implements IScriptSupport
 
 		try
 		{
-			toplevelScope = new ImporterTopLevel(cx);
+			toplevelScope = new ImporterTopLevel(cx)
+			{
+				@Override
+				public synchronized Object get(int index, Scriptable start)
+				{
+					return super.get(index, start);
+				}
+
+				@Override
+				public synchronized Object get(String name, Scriptable start)
+				{
+					return super.get(name, start);
+				}
+
+				@Override
+				public synchronized void put(int index, Scriptable start, Object value)
+				{
+					super.put(index, start, value);
+				}
+
+				@Override
+				public synchronized void put(String name, Scriptable start, Object value)
+				{
+					super.put(name, start, value);
+				}
+			};
 
 			ScriptObjectRegistry.getJavaMembers(UUID.class, toplevelScope);
 			ScriptObjectRegistry.getJavaMembers(JSMethodWithArguments.class, toplevelScope);
