@@ -55,6 +55,7 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.version.undo.Change;
 
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
@@ -69,6 +70,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.IAnchorConstants;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.headlessclient.MainPage;
@@ -87,6 +89,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimeTabPanel;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -882,8 +885,20 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 		WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, formName);
 		if (formController != null) flp.setReadOnly(formController.isReadOnly());
-		byte[] iconData = null;
-		//TODO handle icon
+		FlattenedSolution fl = application.getFlattenedSolution();
+		int mediaId = -1;
+		Media media = fl.getMedia(iconURL.replaceAll("media:///", ""));
+		if (media != null)
+		{
+			mediaId = media.getID();
+		}
+		else
+		{
+			Debug.warn("Form '" + formController.getName() + "' with tabpanel  '" + this.name + "' has tabicon  for tab '" + tabname +
+				"'in with icon media url : " + iconURL + " not found");
+		}
+
+		byte[] iconData = (mediaId == -1 ? null : ComponentFactory.loadIcon(fl, new Integer(mediaId)));
 
 		int count = allTabs.size();
 		int tabIndex = idx;
