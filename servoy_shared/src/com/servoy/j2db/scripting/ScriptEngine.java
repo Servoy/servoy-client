@@ -806,7 +806,7 @@ public class ScriptEngine implements IScriptSupport
 
 		@SuppressWarnings("nls")
 		@Override
-		public void put(String name, Scriptable start, Object value)
+		public synchronized void put(String name, Scriptable start, Object value)
 		{
 			// must test for null, because put is already called by the super class.
 			if (readonlyProperties != null)
@@ -821,6 +821,24 @@ public class ScriptEngine implements IScriptSupport
 				}
 			}
 			super.put(name, start, value);
+		}
+
+		@Override
+		public synchronized void put(int index, Scriptable start, Object value)
+		{
+			super.put(index, start, value);
+		}
+
+		@Override
+		public synchronized Object get(int index, Scriptable start)
+		{
+			return super.get(index, start);
+		}
+
+		@Override
+		public synchronized Object get(String name, Scriptable start)
+		{
+			return super.get(name, start);
 		}
 	}
 
