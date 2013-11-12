@@ -2636,6 +2636,12 @@ if (typeof(Servoy.Resize) == "undefined")
 				ajaxCall = "wicketAjaxGet('" + ajaxCall + "')";
 				Servoy.Resize.resizeTimer = setTimeout(ajaxCall,300);
 			}
+			else
+			{
+				// shouldn't happen, seems callback was not set yet, wait a bit
+				Wicket.Log.info("onResize called when callback is null");
+				Servoy.Resize.resizeTimer = setTimeout(Servoy.Resize.onWindowResize,300);
+			}
 		}
 	}
 }
