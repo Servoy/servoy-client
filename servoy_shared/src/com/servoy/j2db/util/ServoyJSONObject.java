@@ -172,6 +172,7 @@ public class ServoyJSONObject extends JSONObject
 			{
 				if (instring && c == 'n')
 				{
+					sb.append('\\');
 					c = '\n';
 				}
 				else
