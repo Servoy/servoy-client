@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.plugins.IClientPlugin;
+import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.preference.ApplicationPreferences;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.util.Debug;
