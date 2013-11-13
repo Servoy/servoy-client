@@ -42,6 +42,7 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 {
 	private static final ResourceReference JS = new JavascriptResourceReference(SingleFileUpload.class, "SingleFileUpload.js");
 	private final FileUploadField fuf;
+	private final IApplication application;
 
 	/**
 	 * @param id
@@ -49,6 +50,7 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 	public SingleFileUpload(String id, IApplication application)
 	{
 		super(id);
+		this.application = application;
 		fuf = new FileUploadField("fileupload")
 		{
 			protected ServoyFileUpload overriddenFileUpload;
@@ -132,6 +134,7 @@ public class SingleFileUpload extends Panel implements IHeaderContributor
 	public void renderHead(IHeaderResponse response)
 	{
 		response.renderJavascriptReference(JS);
-		response.renderOnLoadJavascript("addSFUInputChangeListener()");
+		String translatedMessage = "'" + application.getI18NMessage("servoy.filechooser.upload.fileUploading") + "'"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		response.renderOnLoadJavascript("addSFUInputChangeListener(" + translatedMessage + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

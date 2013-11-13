@@ -1,7 +1,7 @@
 /**
  * called by SigleFileUpload
  */
-function addSFUInputChangeListener() {
+function addSFUInputChangeListener(translatedMessage) {
 	
 	var upload = document.getElementById("upload");
 	upload.addEventListener("change", function () {
@@ -20,11 +20,13 @@ function addSFUInputChangeListener() {
 	});
 	var button = document.getElementById("filebutton");
 	button.addEventListener("click", function() {
-		upload.hidden=true;
-		button.hidden=true;
+		var elements_to_hide = button.parentNode.children;
+       	for(var i =0; i<elements_to_hide.length; i++) {
+       		elements_to_hide[i].hidden = true;
+       	 }
 		var temp_upload_message = document.createElement('span');
 		temp_upload_message.id = "temp_message";
-      	  temp_upload_message.textContent = "uploading...";
-       	 upload.parentNode.insertBefore(temp_upload_message, button);
+      	temp_upload_message.textContent = translatedMessage;
+       	button.parentNode.appendChild(temp_upload_message);
 	});
 }

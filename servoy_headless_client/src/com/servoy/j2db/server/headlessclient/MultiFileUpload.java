@@ -43,10 +43,12 @@ public class MultiFileUpload extends MultiFileUploadField
 {
 
 	private static final ResourceReference JS = new JavascriptResourceReference(MultiFileUpload.class, "MultiFileUpload.js");
+	private final IApplication application;
 
 	public MultiFileUpload(String id, IModel<Collection<FileUpload>> model, IApplication application)
 	{
 		super(id, model);
+		this.application = application;
 		Button fileButton = new Button("filebutton", new Model<String>(application.getI18NMessage("servoy.filechooser.button.upload")));
 		fileButton.setOutputMarkupId(false);
 		add(fileButton);
@@ -74,7 +76,9 @@ public class MultiFileUpload extends MultiFileUploadField
 				{
 					String constructorCall = javascript.substring(0, splitIdx);
 					String functionCall = javascript.substring(splitIdx);
-					response.renderOnDomReadyJavascript("var o = " + constructorCall + "; MultipleFileUploadInterceptor(o)" + functionCall);
+					String translatedMessages = "[ '" + application.getI18NMessage("servoy.filechooser.upload.addModeFiles") + "' , '" + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						application.getI18NMessage("servoy.filechooser.upload.filesUploading") + "' ]"; //$NON-NLS-1$ //$NON-NLS-2$
+					response.renderOnDomReadyJavascript("var o = " + constructorCall + "; MultipleFileUploadInterceptor(o, " + translatedMessages + ")" + functionCall); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				}
 				else response.renderOnDomReadyJavascript(javascript);
 			}

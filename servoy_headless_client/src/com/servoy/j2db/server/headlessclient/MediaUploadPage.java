@@ -69,7 +69,7 @@ public class MediaUploadPage extends WebPage
 	 * @param dataProviderID
 	 */
 	@SuppressWarnings("nls")
-	public MediaUploadPage(IPageMap pageMap, final RecordItemModel model, final WebDataImgMediaField field, IApplication application)
+	public MediaUploadPage(IPageMap pageMap, final RecordItemModel model, final WebDataImgMediaField field, final IApplication application)
 	{
 		super(pageMap);
 		mfuf = null;
@@ -119,7 +119,7 @@ public class MediaUploadPage extends WebPage
 	}
 
 	@SuppressWarnings({ "nls", "unchecked" })
-	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect, IApplication application)
+	public MediaUploadPage(IPageMap pageMap, final IMediaUploadCallback callback, boolean multiSelect, final IApplication application)
 	{
 		super(pageMap);
 
@@ -172,7 +172,7 @@ public class MediaUploadPage extends WebPage
 				{
 					remove(mfuf);
 				}
-				add(new Label("panel", "Uploaded."));
+				add(new Label("panel", new Model<String>(application.getI18NMessage("servoy.filechooser.upload.finished"))));
 			}
 
 			@Override

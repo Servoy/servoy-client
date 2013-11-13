@@ -3,7 +3,7 @@
  *      [for multiple file upload]
  *         Andrei Costescu
  */
-function MultipleFileUploadInterceptor(multiSelector)
+function MultipleFileUploadInterceptor(multiSelector, translatedMessages)
 {
 	var oldAddElement = multiSelector.addElement;
 	multiSelector.addElement = function(element)
@@ -18,7 +18,7 @@ function MultipleFileUploadInterceptor(multiSelector)
 			element.addEventListener("change", function () {
 				var temp_message_element = document.createElement('div');
 				temp_message_element.id = "temp_message";
-                temp_message_element.textContent = "Add more files";
+                temp_message_element.textContent = translatedMessages[0];
                 if (element.files && element.files.length > 0) {
                     if (typeof element.files[0].lastModifiedDate === 'undefined') {
                         // the browser doesn\'t support the lastModifiedDate property so last modified date will not be available');
@@ -44,7 +44,7 @@ function MultipleFileUploadInterceptor(multiSelector)
        	 		}
        	 		var temp_upload_message = document.createElement('span');
 				temp_upload_message.id = "temp_message";
-      	  		temp_upload_message.textContent = "Files uploading...";
+      	  		temp_upload_message.textContent = translatedMessages[1];
        	 		element.parentNode.appendChild(temp_upload_message);
 			});
 		}
