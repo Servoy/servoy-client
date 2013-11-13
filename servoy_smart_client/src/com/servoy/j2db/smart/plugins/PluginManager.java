@@ -20,13 +20,17 @@ package com.servoy.j2db.smart.plugins;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
@@ -183,9 +187,79 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	{
 		if (clientPluginInfo == null)
 		{
-			clientPluginInfo = getExtensions((ExtendableURLClassLoader)getClassLoader(), IClientPlugin.class, pluginUrls);
+			List<Extension> clientPlugins = getExtensionsForClass(IClientPlugin.class);
+			clientPluginInfo = clientPlugins.toArray(new Extension[0]);
 		}
 		return clientPluginInfo;
+	}
+
+	private List<Extension> getExtensionsForClass(Class searchClass)
+	{
+		Map<URL, Pair<String, Long>> notProcessedMap = new HashMap<URL, Pair<String, Long>>();
+		List<Extension> extensions = new ArrayList<Extension>();
+		Iterator<Map.Entry<URL, Pair<String, Long>>> it = pluginUrls.entrySet().iterator();
+		while (it.hasNext())
+		{
+			Map.Entry<URL, Pair<String, Long>> entry = it.next();
+			boolean foundAttribute = false;
+			try
+			{
+				URL url = entry.getKey();
+				JarFile file = new JarFile(new File(new URI(url.toExternalForm())));
+				Manifest mf = file.getManifest();
+				if (mf != null)
+				{
+					List<String> pluginClasses = JarManager.getClassNamesForKey(mf, SERVOY_PLUGIN_ATTRIBUTE);
+					if (pluginClasses != null && pluginClasses.size() > 0)
+					{
+						foundAttribute = true;
+						for (String className : pluginClasses)
+						{
+							Class cls = null;
+							try
+							{
+								cls = getClassLoader().loadClass(className);
+							}
+							catch (Throwable th)
+							{
+								Debug.trace(th.toString());
+							}
+							if (cls != null)
+							{
+								if (searchClass.isAssignableFrom(cls))
+								{
+									Extension ext = new Extension();
+									ext.jarFileName = entry.getValue().getLeft();
+									ext.jarFileModTime = entry.getValue().getRight().longValue();
+									ext.jarUrl = url;
+									ext.instanceClass = cls;
+									ext.searchType = searchClass;
+									extensions.add(ext);
+								}
+							}
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+				foundAttribute = false;
+			}
+			if (!foundAttribute)
+			{
+				notProcessedMap.put(entry.getKey(), entry.getValue());
+			}
+		}
+		if (notProcessedMap.size() > 0)
+		{
+			Extension[] additionalExtensions = getExtensions((ExtendableURLClassLoader)getClassLoader(), searchClass, notProcessedMap);
+			if (additionalExtensions != null)
+			{
+				extensions.addAll(Arrays.asList(additionalExtensions));
+			}
+		}
+		return extensions;
 	}
 
 	protected void checkIfInitialized()
@@ -221,8 +295,13 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	{
 		try
 		{
-			Class<IServerPlugin>[] classes = getAssignableClasses((ExtendableURLClassLoader)getClassLoader(), IServerPlugin.class, pluginUrls);
-			return classes;
+			List<Extension> serverPlugins = getExtensionsForClass(IServerPlugin.class);
+			List<Class<IServerPlugin>> classes = new ArrayList<Class<IServerPlugin>>();
+			for (Extension element : serverPlugins)
+			{
+				classes.add((Class<IServerPlugin>)element.instanceClass);
+			}
+			return classes.toArray(new Class[0]);
 		}
 		catch (Throwable th)
 		{

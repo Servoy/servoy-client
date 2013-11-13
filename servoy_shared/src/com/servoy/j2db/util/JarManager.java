@@ -45,6 +45,9 @@ import java.util.zip.ZipInputStream;
  */
 public abstract class JarManager
 {
+	public static final String JAVA_BEAN_ATTRIBUTE = "Java-Bean";
+	public static final String SERVOY_PLUGIN_ATTRIBUTE = "Servoy-Plugin";
+
 	public static void addCommonPackageToDefinitions(Extension[] exts, Map<String, Object> _loadedBeanDefs)
 	{
 		String lastJarFileName = null;
@@ -351,7 +354,7 @@ public abstract class JarManager
 								Manifest mf = file.getManifest();
 								if (mf != null)
 								{
-									List<String> beanClassNames = getBeanClassNames(mf);
+									List<String> beanClassNames = getClassNamesForKey(mf, JAVA_BEAN_ATTRIBUTE);
 									if (beanClassNames.size() > 0)
 									{
 										addCommonPackageToDefinitions(fileName, beanClassNames, packageJarMapping);
@@ -482,20 +485,20 @@ public abstract class JarManager
 
 	}
 
-	public static List<String> getBeanClassNames(Manifest mf)
+	public static List<String> getClassNamesForKey(Manifest mf, String attributeName)
 	{
 		HashMap<String, Boolean> beans = new HashMap<String, Boolean>();
 		Map<String, Attributes> entries = mf.getEntries();
 		Iterator<String> it = entries.keySet().iterator();
 		if (!it.hasNext())
 		{
-			checkIfBeanAttribute(mf.getMainAttributes(), null, beans);
+			checkIfHasAttribute(mf.getMainAttributes(), attributeName, null, beans);
 		}
 		while (it.hasNext())
 		{
 			String key = it.next();
 			Attributes attr = entries.get(key);
-			checkIfBeanAttribute(attr, key, beans);
+			checkIfHasAttribute(attr, attributeName, key, beans);
 		}
 
 		ArrayList<String> beanNames = new ArrayList<String>();
@@ -511,13 +514,13 @@ public abstract class JarManager
 		return beanNames;
 	}
 
-	private static void checkIfBeanAttribute(Attributes attr, String key, Map<String, Boolean> beans)
+	private static void checkIfHasAttribute(Attributes attr, String attributeName, String key, Map<String, Boolean> beans)
 	{
 		if (attr == null) return;
 
 		String name = key;
 		if (name == null) name = (String)attr.get(new Attributes.Name("Name")); //$NON-NLS-1$
-		String isBean = (String)attr.get(new Attributes.Name("Java-Bean")); //$NON-NLS-1$
+		String isBean = (String)attr.get(new Attributes.Name(attributeName));
 		if (name != null && isBean != null && isBean.equalsIgnoreCase("True")) //$NON-NLS-1$
 		{
 			String beanName;
