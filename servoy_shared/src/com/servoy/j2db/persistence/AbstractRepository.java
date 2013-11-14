@@ -690,5 +690,26 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		getRootObjectCache().add(rootObjectMetaData, true);
 	}
 
+	// use this with caution, will not load all rootobjects
+	public void cacheRootObject(IRootObject rootObject) throws RepositoryException
+	{
+		try
+		{
+			synchronized (ROOT_OBJECT_SYNC)
+			{
+				if (rootObjectCache == null)
+				{
+					rootObjectCache = new RootObjectCache(this, new ArrayList());
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			throw new RepositoryException(e);
+		}
+		addRootObjectMetaData(rootObject.getRootObjectMetaData());
+		getRootObjectCache().cacheRootObject(rootObject);
+	}
+
 	public abstract void updateRootObject(IRootObject rootObject) throws RepositoryException;
 }
