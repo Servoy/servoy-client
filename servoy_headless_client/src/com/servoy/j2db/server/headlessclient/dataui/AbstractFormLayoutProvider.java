@@ -31,6 +31,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.util.ComponentFactoryHelper;
@@ -238,7 +239,9 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		html.append(partID);//Part.getDisplayName(part.getPartType()));		
 		html.append("' id='"); //$NON-NLS-1$ 
 		html.append(partID);
-		html.append("' class='formpart'>\n"); //$NON-NLS-1$ 
+		String userDefinedClass = "";
+		if (WebClientSession.get().isPushClassToElement()) userDefinedClass = (part.getStyleClass() == null ? "" : part.getStyleClass());
+		html.append("' class='formpart " + userDefinedClass + "'>\n"); //$NON-NLS-1$ 
 
 		TextualStyle partStyle = css.addStyle('#' + partID);
 		fillPartStyle(partStyle, part);

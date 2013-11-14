@@ -493,7 +493,7 @@ public class TemplateGenerator
 		{
 			html.append('\n');
 			boolean sortable = true;
-
+			Boolean userCssClassAdded = false;
 			boolean shouldFillAllHorizSpace = false;
 			if (obj instanceof ISupportScrollbars)
 			{
@@ -542,6 +542,7 @@ public class TemplateGenerator
 			if (obj instanceof Form)
 			{
 				html.append("<span servoy:id='info'></span>\n<table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");
+				html.append(getCssClassForElement(obj, userCssClassAdded, ""));
 			}
 			else
 			//is portal
@@ -556,7 +557,7 @@ public class TemplateGenerator
 				html.append("<div style='overflow: auto' ");
 				html.append(getWicketIDParameter(form, p));
 //				html.append(getJavaScriptIDParameter(p));
-				html.append(getCSSClassParameter("portal"));//$NON-NLS-1$ 
+				html.append(getCssClassForElement(obj, userCssClassAdded, "portal"));
 				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
 
@@ -766,11 +767,11 @@ public class TemplateGenerator
 							}
 							if (sortable && !usesImageMedia)
 							{
-								html.append("class='sortable'");
+								html.append(getCssClassForElement((AbstractBase)element, false, "sortable"));
 							}
 							else
 							{
-								html.append("class='nosort'");
+								html.append(getCssClassForElement((AbstractBase)element, false, "nosort"));
 							}
 							html.append("width='");
 							html.append(w);
@@ -1912,6 +1913,36 @@ public class TemplateGenerator
 		}
 	}
 
+	/**
+	 * If it was previously added at a wrapper level don't add it again .
+	 * @param comp
+	 */
+	private static String getCssClassForElementHelper(AbstractBase comp, Boolean alreadyAdded)
+	{
+		if (!(comp instanceof BaseComponent)) return "";
+		if (WebClientSession.get().isPushClassToElement() && !alreadyAdded)
+		{
+			alreadyAdded = true;
+			String className = ((BaseComponent)comp).getStyleClass();
+			if (className != null)
+			{
+				return className;
+			}
+		}
+		return "";
+	}
+
+	public static String getCssClassForElement(AbstractBase comp, Boolean alreadyAdded, String extraClass)
+	{
+
+		String prepend = "class='";
+		String postpend = "' ";
+		String middle = getCssClassForElementHelper(comp, alreadyAdded) + ' ' + extraClass;
+		if (middle.equals(" ")) return "";
+		return prepend + middle + postpend;
+
+	}
+
 	private static void createBeanHTML(Bean bean, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
 		IServiceProvider sp)
 	{
@@ -1984,7 +2015,7 @@ public class TemplateGenerator
 		BorderAndPadding borderAndPadding = applyBaseComponentProperties(tabPanel, form, styleObj, null, null, sp);
 		applyLocationAndSize(tabPanel, styleObj, borderAndPadding, startY, endY, form.getSize().width, enableAnchoring, tabPanel.getAnchors(), sp);
 		boolean isSplitPane = tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabPanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL;
-
+		Boolean userCssClassAdded = false;
 		// do not apply foreground to the whole tab panel
 		styleObj.remove("color");
 //		html.append("<table cellpadding=0 cellspacing=0 ");
@@ -1992,7 +2023,7 @@ public class TemplateGenerator
 		html.append(getWicketIDParameter(form, tabPanel));
 		String tabPanelCssClass = "tabpanel";
 		if (!tabPanel.getTransparent()) tabPanelCssClass = "opaquecontainer " + tabPanelCssClass;
-		html.append(getCSSClassParameter(tabPanelCssClass));
+		html.append(getCssClassForElement(tabPanel, userCssClassAdded, tabPanelCssClass));
 		if (isSplitPane) html.append(" style='overflow: hidden;' ");
 		html.append(">\n");
 
@@ -2139,6 +2170,7 @@ public class TemplateGenerator
 
 		BorderAndPadding ins = applyBaseComponentProperties(shape, form, styleObj, null, null, sp);
 		html.append("<span ");
+		html.append(getCssClassForElement(shape, false, "field"));
 		html.append(getWicketIDParameter(form, shape));
 		html.append(getJavaScriptIDParameter(form, shape));
 		//html.append(getCSSClassParameter((BaseComponent)shape,"field",ComponentFactory.getWebID(shape)));
@@ -2210,6 +2242,7 @@ public class TemplateGenerator
 //			styleName = "input.";
 			border = DEFAULT_BUTTON_BORDER_SIZE;
 		}
+
 		TextualStyle styleObj = css.addStyle(styleName + ComponentFactory.getWebID(form, label));
 		BorderAndPadding ins = applyBaseComponentProperties(label, form, styleObj, (Insets)DEFAULT_LABEL_PADDING.clone(), border, sp);
 		// fix the background img, see ComponentFactory.createGraphicalComponent
@@ -2274,7 +2307,7 @@ public class TemplateGenerator
 		if (labelVAlign == -1) labelVAlign = ISupportTextSetup.CENTER;
 
 		boolean isButton = ComponentFactory.isButton(label);
-
+		Boolean userCssClassAdded = false;
 		TextualStyle wrapperStyle = null;
 		Properties minSizeStyle = styleObj;
 		if (isButton && enableAnchoring)
@@ -2287,6 +2320,7 @@ public class TemplateGenerator
 			wrapperStyle = css.addStyle(styleName + wrapperId);
 			minSizeStyle = wrapperStyle;
 			html.append("<div ");
+			html.append(getCssClassForElement(label, userCssClassAdded, ""));
 			html.append(getWicketIDParameter(form, label, "", WRAPPER_SUFFIX));
 			html.append(getJavaScriptIDParameter(form, label, "", WRAPPER_SUFFIX));
 			html.append(">");
@@ -2299,7 +2333,7 @@ public class TemplateGenerator
 			html.append(" style=\"white-space: nowrap;\" ");
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
-			html.append(getCSSClassParameter("button"));
+			html.append(getCssClassForElement(label, userCssClassAdded, "button"));
 			html.append(">");
 			html.append("</button>");
 			// buttons are border-box by default!!
@@ -2325,7 +2359,7 @@ public class TemplateGenerator
 			}
 			html.append(getWicketIDParameter(form, label));
 			html.append(getDataProviderIDParameter(label));
-			html.append(getCSSClassParameter("label"));
+			html.append(getCssClassForElement(label, userCssClassAdded, "label"));
 			html.append('>');
 			boolean hasHtml = hasHTMLText(label.getText());
 			if (hasHtml && (label.getOnActionMethodID() != 0))
@@ -2446,7 +2480,7 @@ public class TemplateGenerator
 		boolean addWrapperDiv = enableAnchoring && WebAnchoringHelper.needsWrapperDivForAnchoring(field);
 
 		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, field));
-
+		Boolean userCssClassAdded = false;
 		Properties minSizeStyle = styleObj;
 		if (addWrapperDiv)
 		{
@@ -2463,8 +2497,9 @@ public class TemplateGenerator
 			html.append(getJavaScriptIDParameter(form, field, "", WRAPPER_SUFFIX));
 			if (field.getDisplayType() == Field.COMBOBOX)
 			{
-				html.append(getCSSClassParameter(COMBOBOX_CLASS));
+				html.append(getCssClassForElement(field, userCssClassAdded, COMBOBOX_CLASS));
 			}
+			html.append(getCssClassForElement(field, userCssClassAdded, ""));
 			html.append(">");
 		}
 
@@ -2494,7 +2529,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(form, field));
 				//html.append(getJavaScriptIDParameter(field));
 				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter("field"));
+				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append("type='password' ");
 				if (field.getSelectOnEnter())
 				{
@@ -2507,9 +2542,10 @@ public class TemplateGenerator
 			{
 				applyScrolling(styleObj, field);
 				html.append("<div ");
+				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append(getWicketIDParameter(form, field));
 				//html.append(getJavaScriptIDParameter(field));
-				html.append(getCSSClassParameter("field"));
+				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append(">RTF field not supported in webclient</div>");
 			}
 				break;
@@ -2520,7 +2556,7 @@ public class TemplateGenerator
 					html.append("<div ");
 					html.append(getWicketIDParameter(form, field));
 					//html.append(getJavaScriptIDParameter(field));
-					html.append(getCSSClassParameter("field"));
+					html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 					html.append(">non editable HTML field</div>");
 
 					boolean hasFontFamily = styleObj.containsKey("font-family");
@@ -2541,7 +2577,7 @@ public class TemplateGenerator
 					String editorId = "editor_" + ComponentFactory.getWebID(form, field);
 					html.append("<div ");
 					html.append(getWicketIDParameter(form, field));
-					html.append(getCSSClassParameter("yui-skin-sam"));
+					html.append(getCssClassForElement(field, userCssClassAdded, "yui-skin-sam"));
 					html.append("><textarea id='");
 					html.append(editorId);
 					html.append("' name='");
@@ -2569,7 +2605,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(form, field));
 				//html.append(getJavaScriptIDParameter(field));
 				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter("field"));
+				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append("></textarea>");
 			}
 				break;
@@ -2616,13 +2652,13 @@ public class TemplateGenerator
 					html.append(getWicketIDParameter(form, field));
 					//html.append(getJavaScriptIDParameter(field));
 					html.append(getDataProviderIDParameter(field));
-					html.append(getCSSClassParameter(cssClass));
+					html.append(getCssClassForElement(field, userCssClassAdded, cssClass));
 					html.append(">Multi checkboxes</div>");
 				}
 				else
 				{
 					html.append("<div ");
-					html.append(getCSSClassParameter(cssClass));
+					html.append(getCssClassForElement(field, userCssClassAdded, cssClass));
 					html.append(getWicketIDParameter(form, field));
 					html.append(" tabIndex=\"-1\" ");
 					html.append(">"); // 
@@ -2659,7 +2695,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(form, field));
 //					html.append(getJavaScriptIDParameter(field));
 				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter("field"));
+				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append(">Combobox</select>");
 			}
 				break;
@@ -2674,13 +2710,13 @@ public class TemplateGenerator
 				}
 				html.append(getWicketIDParameter(form, field));
 				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter("listbox"));
+				html.append(getCssClassForElement(field, userCssClassAdded, "listbox"));
 				html.append(">Listbox</select>");
 			}
 				break;
 			case Field.CALENDAR :
 			case Field.SPINNER :
-				createCompositeFieldHTML(html, form, field, styleObj);
+				createCompositeFieldHTML(html, form, field, styleObj, userCssClassAdded);
 				break;
 			case Field.IMAGE_MEDIA :
 			{
@@ -2688,7 +2724,7 @@ public class TemplateGenerator
 				html.append("<div ");
 				html.append(getWicketIDParameter(form, field));
 				//				html.append(getJavaScriptIDParameter(field));
-				html.append(getCSSClassParameter("field"));
+				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append('>');
 
 				TextualStyle inline2 = new TextualStyle();
@@ -2760,7 +2796,7 @@ public class TemplateGenerator
 				html.append(getWicketIDParameter(form, field));
 //					html.append(getJavaScriptIDParameter(field));
 				html.append(getDataProviderIDParameter(field));
-				html.append(getCSSClassParameter(field.getValuelistID() > 0 ? "field typeahead" : "field"));
+				html.append(getCssClassForElement(field, userCssClassAdded, field.getValuelistID() > 0 ? "field typeahead" : "field"));
 				html.append("type='text' ");
 				if (field.getSelectOnEnter())
 				{
@@ -2841,13 +2877,13 @@ public class TemplateGenerator
 	 * @param html 
 	 * 
 	 */
-	private static void createCompositeFieldHTML(StringBuffer html, Form form, Field field, TextualStyle styleObj)
+	private static void createCompositeFieldHTML(StringBuffer html, Form form, Field field, TextualStyle styleObj, Boolean userCssClassAdded)
 	{
 		html.append("<div ");
 		html.append(getWicketIDParameter(form, field));
 		html.append(getDataProviderIDParameter(field));
-		html.append(getCSSClassParameter(field.getDisplayType() == Field.SPINNER ? "spinner" : (field.getDisplayType() == Field.CALENDAR ? "field calendar"
-			: "field")));
+		html.append(getCssClassForElement(field, userCssClassAdded, field.getDisplayType() == Field.SPINNER ? "spinner"
+			: (field.getDisplayType() == Field.CALENDAR ? "field calendar" : "field")));
 		html.append("style = 'overflow:hidden' ");
 		html.append("><table ");
 		TextualStyle inline = new TextualStyle();
