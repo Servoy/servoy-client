@@ -20,8 +20,8 @@ package com.servoy.j2db.plugins;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URI;
 import java.net.URL;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,8 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.ServiceLoader;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
@@ -186,62 +185,50 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	private List<Extension> getExtensionsForClass(Class searchClass)
 	{
-		Map<URL, Pair<String, Long>> notProcessedMap = new HashMap<URL, Pair<String, Long>>();
+		Map<URL, Pair<String, Long>> notProcessedMap = new HashMap<URL, Pair<String, Long>>(pluginUrls);
 		List<Extension> extensions = new ArrayList<Extension>();
-		Iterator<Map.Entry<URL, Pair<String, Long>>> it = pluginUrls.entrySet().iterator();
+
+		ServiceLoader<IPlugin> pluginsLoader = ServiceLoader.load(IPlugin.class, getClassLoader());
+		Iterator<IPlugin> it = pluginsLoader.iterator();
 		while (it.hasNext())
 		{
-			Map.Entry<URL, Pair<String, Long>> entry = it.next();
-			boolean foundAttribute = false;
-			try
+			IPlugin plugin = it.next();
+			CodeSource codeSource = plugin.getClass().getProtectionDomain().getCodeSource();
+			if (codeSource != null)
 			{
-				URL url = entry.getKey();
-				JarFile file = new JarFile(new File(new URI(url.toExternalForm())));
-				Manifest mf = file.getManifest();
-				if (mf != null)
+				URL pluginURL = codeSource.getLocation();
+				if (pluginURL != null)
 				{
-					List<String> pluginClasses = JarManager.getClassNamesForKey(mf, SERVOY_PLUGIN_ATTRIBUTE);
-					if (pluginClasses != null && pluginClasses.size() > 0)
+					if (pluginUrls.containsKey(pluginURL))
 					{
-						foundAttribute = true;
-						for (String className : pluginClasses)
+						notProcessedMap.remove(pluginURL);
+						if (searchClass.isAssignableFrom(plugin.getClass()))
 						{
-							Class cls = null;
-							try
-							{
-								cls = getClassLoader().loadClass(className);
-							}
-							catch (Throwable th)
-							{
-								Debug.trace(th.toString());
-							}
-							if (cls != null)
-							{
-								if (searchClass.isAssignableFrom(cls))
-								{
-									Extension ext = new Extension();
-									ext.jarFileName = entry.getValue().getLeft();
-									ext.jarFileModTime = entry.getValue().getRight().longValue();
-									ext.jarUrl = url;
-									ext.instanceClass = cls;
-									ext.searchType = searchClass;
-									extensions.add(ext);
-								}
-							}
+							Extension ext = new Extension();
+							ext.jarFileName = pluginUrls.get(pluginURL).getLeft();
+							ext.jarFileModTime = pluginUrls.get(pluginURL).getRight().longValue();
+							ext.jarUrl = pluginURL;
+							ext.instanceClass = plugin.getClass();
+							ext.searchType = searchClass;
+							extensions.add(ext);
 						}
 					}
+					else
+					{
+						Debug.warn("Cannot find the jar URL among plugins: " + pluginURL);
+					}
+				}
+				else
+				{
+					Debug.warn("Cannot find the jar URL for loaded plugin: " + plugin.getClass());
 				}
 			}
-			catch (Exception ex)
+			else
 			{
-				Debug.error(ex);
-				foundAttribute = false;
-			}
-			if (!foundAttribute)
-			{
-				notProcessedMap.put(entry.getKey(), entry.getValue());
+				Debug.warn("Cannot find the jar for loaded plugin: " + plugin.getClass());
 			}
 		}
+
 		if (notProcessedMap.size() > 0)
 		{
 			Extension[] additionalExtensions = getExtensions((ExtendableURLClassLoader)getClassLoader(), searchClass, notProcessedMap);
