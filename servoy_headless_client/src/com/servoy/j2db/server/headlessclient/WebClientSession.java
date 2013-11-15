@@ -95,7 +95,7 @@ public class WebClientSession extends WebSession
 		super(request);
 		setTemplateDirectoryName("default"); //$NON-NLS-1$
 		blockInput = Boolean.valueOf(Settings.getInstance().getProperty("servoy.webclient.blockinputonrequest", "false")).booleanValue(); //$NON-NLS-1$ //$NON-NLS-2$
-		pushClassToElement = Boolean.valueOf(Settings.getInstance().getProperty("servoy.webclient.pushClassToServoyHTMLElement", "false")).booleanValue();
+		pushClassToElement = Boolean.valueOf(Settings.getInstance().getProperty("servoy.webclient.pushClassToHTMLElement", "false")).booleanValue();
 	}
 
 	@SuppressWarnings("nls")
