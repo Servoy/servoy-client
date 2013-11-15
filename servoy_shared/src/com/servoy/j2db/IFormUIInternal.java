@@ -25,10 +25,9 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.ui.IDataRenderer;
-import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.util.IFocusCycleRoot;
 
-public interface IFormUIInternal<T> extends IFormUI, IFocusCycleRoot<T>
+public interface IFormUIInternal<T> extends IBasicFormUI, IFocusCycleRoot<T>
 {
 	public IView initView(IApplication app, FormController fp, int viewType);
 

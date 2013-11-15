@@ -17,16 +17,21 @@
 
 package com.servoy.j2db;
 
+import java.util.List;
+
+import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author lvostinar
  *
  */
-public interface IFormController
+public interface IFormController extends IForm
 {
 	IApplication getApplication();
 
@@ -41,4 +46,48 @@ public interface IFormController
 	ITable getTable();
 
 	FormScope getFormScope();
+
+	/**
+	 * @param creationalPrototype
+	 */
+	JSForm initForJSUsage(CreationalPrototype creationalPrototype);
+
+	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables);
+
+	/**
+	 * 
+	 */
+	void destroy();
+
+	/**
+	 * @return
+	 */
+	JSForm initForJSUsage();
+
+	/**
+	 * @return
+	 */
+	boolean isFormVisible();
+
+	/**
+	 * 
+	 */
+	void init();
+
+	/**
+	 * @return
+	 */
+	boolean isFormExecutingFunction();
+
+	public void executeOnLoadMethod();
+
+	/**
+	 * @return
+	 */
+	boolean wantEmptyFoundSet();
+
+	/**
+	 * @param b
+	 */
+	boolean loadAllRecordsImpl(boolean b) throws ServoyException;
 }

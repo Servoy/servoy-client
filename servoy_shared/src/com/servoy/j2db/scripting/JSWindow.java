@@ -19,8 +19,8 @@ package com.servoy.j2db.scripting;
 
 import java.awt.Rectangle;
 
+import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormController.JSForm;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;

@@ -51,12 +51,15 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.api.IJSApplication;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.ClientVersion;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormController;
+import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.component.ComponentFactory;
@@ -2168,9 +2171,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		{
 			f = ((FormScope)form).getFormController().getName();
 		}
-		else if (form instanceof FormController.JSForm)
+		else if (form instanceof BasicFormController.JSForm)
 		{
-			f = ((FormController.JSForm)form).getFormPanel().getName();
+			f = ((BasicFormController.JSForm)form).getFormPanel().getName();
 		}
 		else if (form instanceof String)
 		{
@@ -2201,13 +2204,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	@Deprecated
 	public boolean js_isFormInWindow(Object form)
 	{
-		FormController fp = getFormController(form);
+		IFormController fp = getFormController(form);
 
 		// can't test if the form is visible, in onhide the form controller is already made not visible.
 		// but it is still in a visible dialog.
 		if (fp != null /* && fp.isFormVisible() */)
 		{
-			return fp.getFormUI().isFormInWindow();
+			return ((IFormUIInternal< ? >)fp.getFormUI()).isFormInWindow();
 		}
 		return false;
 	}
@@ -2221,20 +2224,20 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		return js_isFormInWindow(form);
 	}
 
-	private FormController getFormController(Object form)
+	private IFormController getFormController(Object form)
 	{
-		FormController fp = null;
+		IFormController fp = null;
 		if (form instanceof FormController)
 		{
 			fp = (FormController)form;
 		}
 		else if (form instanceof FormScope)
 		{
-			fp = (FormController)((FormScope)form).getFormController();
+			fp = ((FormScope)form).getFormController();
 		}
-		else if (form instanceof FormController.JSForm)
+		else if (form instanceof BasicFormController.JSForm && ((BasicFormController.JSForm)form).getFormPanel() instanceof FormController)
 		{
-			fp = ((FormController.JSForm)form).getFormPanel();
+			fp = ((BasicFormController.JSForm)form).getFormPanel();
 		}
 		else if (form instanceof String)
 		{

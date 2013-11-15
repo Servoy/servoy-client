@@ -17,7 +17,7 @@
 package com.servoy.j2db.documentation.scripting.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.FormController.JSForm;
+import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.FormScope;

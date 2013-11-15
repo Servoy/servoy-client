@@ -27,8 +27,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.servoy.j2db.FormController;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.EditRecordList;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
@@ -41,7 +42,7 @@ import com.servoy.j2db.util.Debug;
  */
 public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel implements ListDataListener
 {
-	private final List<FormController> formControllers;
+	private final List<IFormController> formControllers;
 	private final ISwingFoundSet foundset;
 	private boolean isPrinting = false;
 
@@ -53,11 +54,11 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 	public AlwaysRowSelectedSelectionModel(ISwingFoundSet foundset)
 	{
 		this.foundset = foundset;
-		formControllers = Collections.synchronizedList(new ArrayList<FormController>(3));
+		formControllers = Collections.synchronizedList(new ArrayList<IFormController>(3));
 		setSelectionMode(SINGLE_SELECTION);
 	}
 
-	public void addFormController(FormController formController)
+	public void addFormController(IFormController formController)
 	{
 		if (formController != null && !formControllers.contains(formController))
 		{
@@ -65,7 +66,7 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 		}
 	}
 
-	public void removeFormController(FormController formController)
+	public void removeFormController(IFormController formController)
 	{
 		if (formController != null)
 		{
@@ -85,13 +86,12 @@ public class AlwaysRowSelectedSelectionModel extends DefaultListSelectionModel i
 
 	private boolean testStopUIEditing()
 	{
-		for (Object fco : formControllers.toArray())
+		for (IFormController fco : formControllers.toArray(new IFormController[formControllers.size()]))
 		{
-			FormController fc = (FormController)fco;
-			if (fc.isFormVisible())
+			if (fco.isFormVisible())
 			{
-				EditRecordList editRecordList = fc.getApplication().getFoundSetManager().getEditRecordList();
-				IRecord[] editedRecords = editRecordList.getEditedRecords(fc.getFoundSet());
+				EditRecordList editRecordList = fco.getApplication().getFoundSetManager().getEditRecordList();
+				IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)fco.getFoundSet());
 				if (editedRecords.length > 0)
 				{
 					int stopEditing = editRecordList.stopEditing(false, Arrays.asList(editedRecords));

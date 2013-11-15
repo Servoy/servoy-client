@@ -44,7 +44,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSHistory;
-import com.servoy.j2db.FormController.JSForm;
+import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
 import com.servoy.j2db.dataprocessing.EditRecordList;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -81,7 +81,7 @@ import com.servoy.j2db.util.gui.AppletController;
  * 
  * @author jblok, jcompagner
  */
-public abstract class FormManager implements PropertyChangeListener, IFormManager
+public abstract class FormManager implements PropertyChangeListener, IFormManager, IBasicFormManager
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 	public static final String NO_TITLE_TEXT = "-none-"; //$NON-NLS-1$

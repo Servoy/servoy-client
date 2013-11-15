@@ -30,6 +30,9 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager;
+import com.servoy.j2db.IFormController;
+import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -128,7 +131,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		if ("allnames".equals(name)) //$NON-NLS-1$
 		{
 			ArrayList<String> al = new ArrayList<String>();
-			FormManager fm = (FormManager)application.getFormManager();
+			IBasicFormManager fm = (IBasicFormManager)application.getFormManager();
 			if (fm == null) throw new IllegalStateException(
 				"Trying to access forms after client was shut down? This JS code was probably running decoupled from client shut down but at the same time."); // should never happen during normal operation; see case 251716 
 			Iterator<String> it = fm.getPossibleFormNames();
@@ -149,7 +152,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		Object o = super.get(name, start);
 		if ((o == null || o == Scriptable.NOT_FOUND))
 		{
-			FormManager fm = (FormManager)application.getFormManager();
+			IFormManager fm = application.getFormManager();
 			if (fm == null) throw new IllegalStateException(
 				"Trying to access forms after client was shut down? This JS code was probably running decoupled from client shut down but at the same time."); // should never happen during normal operation; see case 251716 
 			if (!fm.isPossibleForm(name))
@@ -165,7 +168,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 					Debug.log("Form " + name + " is not created because it is CreationalPrototype.get(formname) is called outside of the event thread"); //$NON-NLS-1$ //$NON-NLS-2$
 					return "<Form " + name + " not loaded yet>"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				FormController fp = fm.leaseFormPanel(name);
+				IFormController fp = fm.leaseFormPanel(name);
 				if (fp != null)
 				{
 					fp.initForJSUsage(this);//This registers the object in this scopes, this must called before anything else! (to prevent repeative calls/lookups here)
@@ -181,7 +184,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 
 		if (o instanceof FormScope)
 		{
-			FormController fp = (FormController)((FormScope)o).getFormController();
+			IFormController fp = ((FormScope)o).getFormController();
 			fp.setView(fp.getView());
 			fp.executeOnLoadMethod();
 

@@ -13,9 +13,8 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
-
 
 
 /**
@@ -40,4 +39,16 @@ public interface IFormManager extends IFormManagerInternal
 	 * @return the form
 	 */
 	public IForm getForm(String name);
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public boolean isPossibleForm(String name);
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public IFormController leaseFormPanel(String name);
 }

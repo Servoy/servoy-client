@@ -18,7 +18,7 @@ package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.FormController;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -29,9 +29,9 @@ public class SelectedRecordScope implements Scriptable
 {
 	private final Scriptable prototype;
 
-	private final FormController fc;
+	private final BasicFormController fc;
 
-	public SelectedRecordScope(FormController fc, Scriptable prototype)
+	public SelectedRecordScope(BasicFormController fc, Scriptable prototype)
 	{
 		this.fc = fc;
 		this.prototype = prototype;

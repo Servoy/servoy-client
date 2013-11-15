@@ -498,7 +498,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 		}
 		if (form instanceof FormController.JSForm)
 		{
-			f = ((FormController.JSForm)form).getFormPanel();
+			f = (FormController)((FormController.JSForm)form).getFormPanel();
 			readOnly = f.isReadOnly();
 		}
 

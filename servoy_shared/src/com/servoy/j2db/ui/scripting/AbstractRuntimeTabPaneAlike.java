@@ -20,7 +20,7 @@ package com.servoy.j2db.ui.scripting;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import com.servoy.j2db.FormController;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.IFoundSet;
@@ -168,9 +168,9 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		{
 			formController = (IForm)form;
 		}
-		if (form instanceof FormController.JSForm)
+		if (form instanceof BasicFormController.JSForm)
 		{
-			formController = ((FormController.JSForm)form).getFormPanel();
+			formController = ((BasicFormController.JSForm)form).getFormPanel();
 		}
 
 		if (formController != null) formName = formController.getName();
