@@ -1919,7 +1919,7 @@ public class TemplateGenerator
 	private static String getCssClassForElementHelper(AbstractBase comp, boolean[] alreadyAdded)
 	{
 		if (!(comp instanceof BaseComponent)) return "";
-		if (WebClientSession.get().isPushClassToElement() && alreadyAdded != null && !alreadyAdded[0])
+		if ("true".equals(Settings.getInstance().getProperty("servoy.webclient.pushClassToHTMLElement", "false")) && alreadyAdded != null && !alreadyAdded[0])
 		{
 			if (alreadyAdded != null) alreadyAdded[0] = true;
 			String className = ((BaseComponent)comp).getStyleClass();

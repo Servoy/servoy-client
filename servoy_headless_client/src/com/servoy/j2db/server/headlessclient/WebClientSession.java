@@ -77,7 +77,6 @@ public class WebClientSession extends WebSession
 
 	private final boolean blockInput;
 
-	private final boolean pushClassToElement;
 
 	private transient ICrypt crypt;
 
@@ -95,7 +94,6 @@ public class WebClientSession extends WebSession
 		super(request);
 		setTemplateDirectoryName("default"); //$NON-NLS-1$
 		blockInput = Boolean.valueOf(Settings.getInstance().getProperty("servoy.webclient.blockinputonrequest", "false")).booleanValue(); //$NON-NLS-1$ //$NON-NLS-2$
-		pushClassToElement = Boolean.valueOf(Settings.getInstance().getProperty("servoy.webclient.pushClassToHTMLElement", "false")).booleanValue();
 	}
 
 	@SuppressWarnings("nls")
@@ -381,11 +379,6 @@ public class WebClientSession extends WebSession
 	public boolean blockRequest()
 	{
 		return blockInput;
-	}
-
-	public boolean isPushClassToElement()
-	{
-		return pushClassToElement;
 	}
 
 	private final HashMap<Page, List<Page>> lockedPages = new HashMap<Page, List<Page>>();
