@@ -37,7 +37,7 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
-import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -102,7 +102,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	}
 
 	@Override
-	protected IFormManager createFormManager()
+	protected IFormManagerInternal createFormManager()
 	{
 		return new DebugHeadlessClient.DebugWebFormManager(this, getMainPage());
 	}

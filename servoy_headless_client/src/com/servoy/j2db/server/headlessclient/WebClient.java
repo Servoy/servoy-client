@@ -54,7 +54,7 @@ import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
@@ -962,10 +962,9 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	protected IFormManager createFormManager()
+	protected IFormManagerInternal createFormManager()
 	{
-		WebFormManager fm = new WebFormManager(this, getMainPage());
-		return fm;
+		return new WebFormManager(this, getMainPage());
 	}
 
 	@Override

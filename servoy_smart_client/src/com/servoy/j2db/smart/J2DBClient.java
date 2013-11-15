@@ -136,9 +136,9 @@ import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
-import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMessagesCallback;
@@ -1173,7 +1173,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	}
 
 	@Override
-	protected IFormManager createFormManager()
+	protected IBasicFormManager createFormManager()
 	{
 		return new SwingFormManager(this, mainPanel);
 	}
@@ -1913,6 +1913,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return super.selectSolutionToLoad();
 	}
 
+	@Override
+	public IFormManagerInternal getFormManager()
+	{
+		return (IFormManagerInternal)super.getFormManager();
+	}
 
 	@Override
 	protected void loadSolution(final SolutionMetaData solutionMeta) throws RepositoryException

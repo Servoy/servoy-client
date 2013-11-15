@@ -63,4 +63,11 @@ public interface IBasicFormManager extends IFormManager
 	 */
 	Iterator<String> getPossibleFormNames();
 
+	/**
+	 * Get clear of the login form
+	 */
+	void clearLoginForm();
+
+	public IFormController getCurrentMainShowingFormController();
+
 }

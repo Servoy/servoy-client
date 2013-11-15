@@ -68,7 +68,7 @@ import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IBrowserLauncher;
 import com.servoy.j2db.IDebugJ2DBClient;
 import com.servoy.j2db.IDesignerCallback;
-import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
@@ -905,7 +905,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	@Override
-	protected IFormManager createFormManager()
+	protected IFormManagerInternal createFormManager()
 	{
 		return new DebugSwingFormMananger(this, mainPanel);
 	}

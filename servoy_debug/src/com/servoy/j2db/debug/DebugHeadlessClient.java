@@ -36,7 +36,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
-import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -166,7 +166,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	}
 
 	@Override
-	protected IFormManager createFormManager()
+	protected IFormManagerInternal createFormManager()
 	{
 		DebugWebFormManager fm = new DebugWebFormManager(this, new DummyMainContainer(this));
 		return fm;

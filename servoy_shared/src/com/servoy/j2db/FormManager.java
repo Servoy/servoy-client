@@ -81,7 +81,7 @@ import com.servoy.j2db.util.gui.AppletController;
  * 
  * @author jblok, jcompagner
  */
-public abstract class FormManager implements PropertyChangeListener, IFormManager, IBasicFormManager
+public abstract class FormManager implements PropertyChangeListener, IFormManagerInternal
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 	public static final String NO_TITLE_TEXT = "-none-"; //$NON-NLS-1$

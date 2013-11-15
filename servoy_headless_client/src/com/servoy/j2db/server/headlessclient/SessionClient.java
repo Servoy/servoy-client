@@ -70,7 +70,7 @@ import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.IFormManager;
+import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
@@ -590,10 +590,9 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	}
 
 	@Override
-	protected IFormManager createFormManager()
+	protected IFormManagerInternal createFormManager()
 	{
-		WebFormManager fm = new WebFormManager(this, new DummyMainContainer(this));
-		return fm;
+		return new WebFormManager(this, new DummyMainContainer(this));
 	}
 
 	@Override

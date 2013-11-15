@@ -117,7 +117,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	 * Managers
 	 */
 	//form manager handling the forms
-	protected volatile IFormManager formManager;
+	protected volatile IBasicFormManager formManager;
 
 	//mode manager handling the application mode
 	protected transient volatile IModeManager modeManager;
@@ -902,12 +902,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected abstract IModeManager createModeManager();
 
-	public IFormManager getFormManager()
+	public IBasicFormManager getFormManager()
 	{
 		return formManager;
 	}
 
-	protected abstract IFormManager createFormManager();
+	protected abstract IBasicFormManager createFormManager();
 
 	public IFoundSetManagerInternal getFoundSetManager()
 	{

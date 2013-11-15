@@ -147,7 +147,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * 
 	 * @return IFormManager
 	 */
-	public IFormManager getFormManager();
+	public IBasicFormManager getFormManager();
 
 	/**
 	 * Get the cmd manager (used to execute undoable cmd).

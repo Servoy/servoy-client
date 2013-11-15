@@ -16,22 +16,16 @@
  */
 package com.servoy.j2db;
 
-import java.beans.PropertyChangeListener;
 
 /**
  * @author jblok
  */
-public interface IFormManagerInternal extends IManager, PropertyChangeListener
+public interface IFormManagerInternal extends IBasicFormManager
 {
 	/**
 	 * All user created dialogs (from JS) names will be prefixed with this string.
 	 */
 	public static final String USER_WINDOW_PREFIX = "FormWindow";
-
-	/**
-	 * Get clear of the login form
-	 */
-	public void clearLoginForm();
 
 	/**
 	 * Notify about solution loading
@@ -43,8 +37,6 @@ public interface IFormManagerInternal extends IManager, PropertyChangeListener
 	 * @return IForm the form
 	 */
 //	public IForm getFormController(String name,Object parent);
-
-	public IFormController getCurrentMainShowingFormController();
 
 	public void synchViewMenu(int viewType);
 

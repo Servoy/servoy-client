@@ -905,10 +905,10 @@ public class FormController extends BasicFormController
 		// always synch the view menu with this call
 		if (application.getFormManager() instanceof IFormManagerInternal)
 		{
-			IFormManagerInternal sfm = application.getFormManager();
+			IBasicFormManager sfm = application.getFormManager();
 			if (sfm.getCurrentMainShowingFormController() == this)
 			{
-				sfm.synchViewMenu(viewType);
+				((IFormManagerInternal)sfm).synchViewMenu(viewType);
 			}
 		}
 

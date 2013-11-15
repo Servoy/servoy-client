@@ -16,13 +16,15 @@
  */
 package com.servoy.j2db;
 
+import java.beans.PropertyChangeListener;
+
 
 /**
  * Interface to handle forms.
  * 
  * @author jblok
  */
-public interface IFormManager extends IFormManagerInternal
+public interface IFormManager extends IManager, PropertyChangeListener
 {
 	/**
 	 * Get the current active showing form.
