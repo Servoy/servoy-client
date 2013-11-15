@@ -493,7 +493,7 @@ public class TemplateGenerator
 		{
 			html.append('\n');
 			boolean sortable = true;
-			Boolean userCssClassAdded = false;
+			boolean userCssClassAdded[] = new boolean[] { false };
 			boolean shouldFillAllHorizSpace = false;
 			if (obj instanceof ISupportScrollbars)
 			{
@@ -767,11 +767,11 @@ public class TemplateGenerator
 							}
 							if (sortable && !usesImageMedia)
 							{
-								html.append(getCssClassForElement((AbstractBase)element, false, "sortable"));
+								html.append(getCssClassForElement((AbstractBase)element, new boolean[] { false }, "sortable"));
 							}
 							else
 							{
-								html.append(getCssClassForElement((AbstractBase)element, false, "nosort"));
+								html.append(getCssClassForElement((AbstractBase)element, new boolean[] { false }, "nosort"));
 							}
 							html.append("width='");
 							html.append(w);
@@ -1917,12 +1917,12 @@ public class TemplateGenerator
 	 * If it was previously added at a wrapper level don't add it again .
 	 * @param comp
 	 */
-	private static String getCssClassForElementHelper(AbstractBase comp, Boolean alreadyAdded)
+	private static String getCssClassForElementHelper(AbstractBase comp, boolean[] alreadyAdded)
 	{
 		if (!(comp instanceof BaseComponent)) return "";
-		if (WebClientSession.get().isPushClassToElement() && !alreadyAdded)
+		if (WebClientSession.get().isPushClassToElement() && !alreadyAdded[0])
 		{
-			alreadyAdded = true;
+			alreadyAdded[0] = false;
 			String className = ((BaseComponent)comp).getStyleClass();
 			if (className != null)
 			{
@@ -1932,10 +1932,10 @@ public class TemplateGenerator
 		return "";
 	}
 
-	public static String getCssClassForElement(AbstractBase comp, Boolean alreadyAdded, String extraClass)
+	public static String getCssClassForElement(AbstractBase comp, boolean[] alreadyAdded, String extraClass)
 	{
 
-		String prepend = "class='";
+		String prepend = " class='";
 		String postpend = "' ";
 		String middle = getCssClassForElementHelper(comp, alreadyAdded) + ' ' + extraClass;
 		if (middle.equals(" ")) return "";
@@ -2015,7 +2015,7 @@ public class TemplateGenerator
 		BorderAndPadding borderAndPadding = applyBaseComponentProperties(tabPanel, form, styleObj, null, null, sp);
 		applyLocationAndSize(tabPanel, styleObj, borderAndPadding, startY, endY, form.getSize().width, enableAnchoring, tabPanel.getAnchors(), sp);
 		boolean isSplitPane = tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabPanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL;
-		Boolean userCssClassAdded = false;
+		boolean userCssClassAdded[] = new boolean[] { false };
 		// do not apply foreground to the whole tab panel
 		styleObj.remove("color");
 //		html.append("<table cellpadding=0 cellspacing=0 ");
@@ -2170,7 +2170,7 @@ public class TemplateGenerator
 
 		BorderAndPadding ins = applyBaseComponentProperties(shape, form, styleObj, null, null, sp);
 		html.append("<span ");
-		html.append(getCssClassForElement(shape, false, "field"));
+		html.append(getCssClassForElement(shape, new boolean[] { false }, "field"));
 		html.append(getWicketIDParameter(form, shape));
 		html.append(getJavaScriptIDParameter(form, shape));
 		//html.append(getCSSClassParameter((BaseComponent)shape,"field",ComponentFactory.getWebID(shape)));
@@ -2307,7 +2307,7 @@ public class TemplateGenerator
 		if (labelVAlign == -1) labelVAlign = ISupportTextSetup.CENTER;
 
 		boolean isButton = ComponentFactory.isButton(label);
-		Boolean userCssClassAdded = false;
+		boolean userCssClassAdded[] = new boolean[] { false };
 		TextualStyle wrapperStyle = null;
 		Properties minSizeStyle = styleObj;
 		if (isButton && enableAnchoring)
@@ -2480,7 +2480,7 @@ public class TemplateGenerator
 		boolean addWrapperDiv = enableAnchoring && WebAnchoringHelper.needsWrapperDivForAnchoring(field);
 
 		TextualStyle styleObj = css.addStyle('#' + ComponentFactory.getWebID(form, field));
-		Boolean userCssClassAdded = false;
+		boolean userCssClassAdded[] = new boolean[] { false };
 		Properties minSizeStyle = styleObj;
 		if (addWrapperDiv)
 		{
@@ -2877,7 +2877,7 @@ public class TemplateGenerator
 	 * @param html 
 	 * 
 	 */
-	private static void createCompositeFieldHTML(StringBuffer html, Form form, Field field, TextualStyle styleObj, Boolean userCssClassAdded)
+	private static void createCompositeFieldHTML(StringBuffer html, Form form, Field field, TextualStyle styleObj, boolean[] userCssClassAdded)
 	{
 		html.append("<div ");
 		html.append(getWicketIDParameter(form, field));
