@@ -493,7 +493,6 @@ public class TemplateGenerator
 		{
 			html.append('\n');
 			boolean sortable = true;
-			boolean userCssClassAdded[] = new boolean[] { false };
 			boolean shouldFillAllHorizSpace = false;
 			if (obj instanceof ISupportScrollbars)
 			{
@@ -542,7 +541,7 @@ public class TemplateGenerator
 			if (obj instanceof Form)
 			{
 				html.append("<span servoy:id='info'></span>\n<table border=0 cellpadding=0 cellspacing=0 width='100%'>\n");
-				html.append(getCssClassForElement(obj, userCssClassAdded, ""));
+				html.append(getCssClassForElement(obj, ""));
 			}
 			else
 			//is portal
@@ -557,7 +556,7 @@ public class TemplateGenerator
 				html.append("<div style='overflow: auto' ");
 				html.append(getWicketIDParameter(form, p));
 //				html.append(getJavaScriptIDParameter(p));
-				html.append(getCssClassForElement(obj, userCssClassAdded, "portal"));
+				html.append(getCssClassForElement(obj, "portal"));
 				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
 
@@ -767,11 +766,11 @@ public class TemplateGenerator
 							}
 							if (sortable && !usesImageMedia)
 							{
-								html.append(getCssClassForElement((AbstractBase)element, new boolean[] { false }, "sortable"));
+								html.append(getCssClassForElement((AbstractBase)element, "sortable"));
 							}
 							else
 							{
-								html.append(getCssClassForElement((AbstractBase)element, new boolean[] { false }, "nosort"));
+								html.append(getCssClassForElement((AbstractBase)element, "nosort"));
 							}
 							html.append("width='");
 							html.append(w);
@@ -1920,27 +1919,25 @@ public class TemplateGenerator
 	private static String getCssClassForElementHelper(AbstractBase comp, boolean[] alreadyAdded)
 	{
 		if (!(comp instanceof BaseComponent)) return "";
-		if (WebClientSession.get().isPushClassToElement() && !alreadyAdded[0])
+		if (WebClientSession.get().isPushClassToElement() && alreadyAdded != null && !alreadyAdded[0])
 		{
-			alreadyAdded[0] = false;
+			if (alreadyAdded != null) alreadyAdded[0] = true;
 			String className = ((BaseComponent)comp).getStyleClass();
-			if (className != null)
-			{
-				return className;
-			}
+			return (className != null ? className : "");
 		}
 		return "";
 	}
 
 	public static String getCssClassForElement(AbstractBase comp, boolean[] alreadyAdded, String extraClass)
 	{
+		String css = getCssClassForElementHelper(comp, alreadyAdded) + ' ' + extraClass;
+		if (css.equals(" ")) return "";
+		return " class='" + css + "' ";
+	}
 
-		String prepend = " class='";
-		String postpend = "' ";
-		String middle = getCssClassForElementHelper(comp, alreadyAdded) + ' ' + extraClass;
-		if (middle.equals(" ")) return "";
-		return prepend + middle + postpend;
-
+	public static String getCssClassForElement(AbstractBase comp, String extraClass)
+	{
+		return getCssClassForElement(comp, null, extraClass);
 	}
 
 	private static void createBeanHTML(Bean bean, Form form, StringBuffer html, TextualCSS css, int startY, int endY, boolean enableAnchoring,
@@ -2015,7 +2012,6 @@ public class TemplateGenerator
 		BorderAndPadding borderAndPadding = applyBaseComponentProperties(tabPanel, form, styleObj, null, null, sp);
 		applyLocationAndSize(tabPanel, styleObj, borderAndPadding, startY, endY, form.getSize().width, enableAnchoring, tabPanel.getAnchors(), sp);
 		boolean isSplitPane = tabPanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabPanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL;
-		boolean userCssClassAdded[] = new boolean[] { false };
 		// do not apply foreground to the whole tab panel
 		styleObj.remove("color");
 //		html.append("<table cellpadding=0 cellspacing=0 ");
@@ -2023,7 +2019,7 @@ public class TemplateGenerator
 		html.append(getWicketIDParameter(form, tabPanel));
 		String tabPanelCssClass = "tabpanel";
 		if (!tabPanel.getTransparent()) tabPanelCssClass = "opaquecontainer " + tabPanelCssClass;
-		html.append(getCssClassForElement(tabPanel, userCssClassAdded, tabPanelCssClass));
+		html.append(getCssClassForElement(tabPanel, tabPanelCssClass));
 		if (isSplitPane) html.append(" style='overflow: hidden;' ");
 		html.append(">\n");
 
@@ -2170,7 +2166,7 @@ public class TemplateGenerator
 
 		BorderAndPadding ins = applyBaseComponentProperties(shape, form, styleObj, null, null, sp);
 		html.append("<span ");
-		html.append(getCssClassForElement(shape, new boolean[] { false }, "field"));
+		html.append(getCssClassForElement(shape, "field"));
 		html.append(getWicketIDParameter(form, shape));
 		html.append(getJavaScriptIDParameter(form, shape));
 		//html.append(getCSSClassParameter((BaseComponent)shape,"field",ComponentFactory.getWebID(shape)));
@@ -2545,7 +2541,6 @@ public class TemplateGenerator
 				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append(getWicketIDParameter(form, field));
 				//html.append(getJavaScriptIDParameter(field));
-				html.append(getCssClassForElement(field, userCssClassAdded, "field"));
 				html.append(">RTF field not supported in webclient</div>");
 			}
 				break;
