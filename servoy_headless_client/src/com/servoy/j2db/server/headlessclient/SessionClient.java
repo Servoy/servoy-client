@@ -69,6 +69,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IForm;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IModeManager;
@@ -954,7 +955,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		IServiceProvider prev = testThreadLocals();
 		try
 		{
-			FormController fp = ((FormManager)getFormManager()).showFormInMainPanel(formName);
+			IFormController fp = ((FormManager)getFormManager()).showFormInMainPanel(formName);
 			if (fp != null && fp.getName().equals(formName))
 			{
 				return true;

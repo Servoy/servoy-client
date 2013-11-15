@@ -42,6 +42,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.Model;
 
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
@@ -883,9 +884,9 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 			f = (FormController)form;
 			readOnly = f.isReadOnly();
 		}
-		if (form instanceof FormController.JSForm)
+		if (form instanceof BasicFormController.JSForm)
 		{
-			f = ((FormController.JSForm)form).getFormPanel();
+			f = (FormController)((BasicFormController.JSForm)form).getFormPanel();
 			readOnly = f.isReadOnly();
 		}
 
