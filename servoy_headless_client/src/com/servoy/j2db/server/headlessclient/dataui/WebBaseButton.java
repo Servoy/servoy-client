@@ -1237,6 +1237,8 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText.append(" -ms-transform: " + rotationCss + ";" + " -moz-transform: " + rotationCss + ";" + " -webkit-transform: " + rotationCss + ";" + " -o-transform: " + rotationCss + ";" + " transform: " + rotationCss + ";"); //$NON-NLS-1$
 		}
 
+		if (cssid != null && cssClass == null) instrumentedBodyText.append(" visibility: hidden;"); //$NON-NLS-1$
+
 		instrumentedBodyText.append("'"); //$NON-NLS-1$
 
 		if (cssClass != null)
@@ -1251,8 +1253,6 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			instrumentedBodyText.append(" id='"); //$NON-NLS-1$
 			instrumentedBodyText.append(cssid);
 			instrumentedBodyText.append("'"); //$NON-NLS-1$
-
-			if (cssClass == null) instrumentedBodyText.append(" visibility: hidden;"); //$NON-NLS-1$
 		}
 
 		instrumentedBodyText.append(">"); //$NON-NLS-1$
