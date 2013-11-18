@@ -887,15 +887,15 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		if (formController != null) flp.setReadOnly(formController.isReadOnly());
 		FlattenedSolution fl = application.getFlattenedSolution();
 		int mediaId = -1;
-		Media media = fl.getMedia(iconURL.replaceAll("media:///", ""));
-		if (media != null)
+		if (iconURL != null && !"".equals(iconURL))
 		{
-			mediaId = media.getID();
-		}
-		else
-		{
-			Debug.warn("Form '" + formController.getName() + "' with tabpanel  '" + this.name + "' has tabicon  for tab '" + tabname +
-				"'in with icon media url : " + iconURL + " not found");
+			Media media = fl.getMedia(iconURL.replaceAll("media:///", ""));
+			if (media != null) mediaId = media.getID();
+			if (mediaId == -1)
+			{
+				Debug.warn("Form '" + formController.getName() + "' with tabpanel  '" + this.name + "' has tabicon  for tab '" + tabname +
+					"'in with icon media url : " + iconURL + " not found");
+			}
 		}
 
 		byte[] iconData = (mediaId == -1 ? null : ComponentFactory.loadIcon(fl, new Integer(mediaId)));
