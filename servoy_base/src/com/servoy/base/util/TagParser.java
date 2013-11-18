@@ -110,6 +110,12 @@ public class TagParser
 		return changed ? retval.toString() : s;
 	}
 
+	public static boolean staticStringUsesDataproviderAsTag(String staticString, String dataProvider)
+	{
+		if (staticString == null) return false;
+		return staticString.contains(TAGCHAR + dataProvider + TAGCHAR);
+	}
+
 	public static String[] split(String s, char tag)
 	{
 		ArrayList<String> result = new ArrayList<String>();
