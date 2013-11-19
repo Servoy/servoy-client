@@ -854,11 +854,10 @@ public class ComponentFactory
 				Thread.currentThread().setContextClassLoader(bcl);
 			}
 		}
-		if (beanXML != null && beanXML.length() != 0)
+		if (beanXML != null && beanXML.startsWith("<?xml"))
 		{
 			try
 			{
-				Debug.log(Thread.currentThread().getContextClassLoader());
 				if (Thread.currentThread().getContextClassLoader() == null ||
 					Thread.currentThread().getContextClassLoader() == ClassLoader.getSystemClassLoader())
 				{

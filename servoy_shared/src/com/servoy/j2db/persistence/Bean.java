@@ -43,6 +43,20 @@ public class Bean extends BaseComponent implements ISupportTabSeq
 	 * _____________________________________________________________ Methods from this class
 	 */
 
+	@Override
+	public void clearProperty(String propertyName)
+	{
+		// innerinnerHTML is mapped to beanXML
+		super.clearProperty("innerHTML".equals(propertyName) ? StaticContentSpecLoader.PROPERTY_BEANXML.getPropertyName() : propertyName); //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean hasProperty(String propertyName)
+	{
+		// innerinnerHTML is mapped to beanXML
+		return super.hasProperty("innerHTML".equals(propertyName) ? StaticContentSpecLoader.PROPERTY_BEANXML.getPropertyName() : propertyName); //$NON-NLS-1$
+	}
+
 	/**
 	 * Set the actionMethodID
 	 * 
