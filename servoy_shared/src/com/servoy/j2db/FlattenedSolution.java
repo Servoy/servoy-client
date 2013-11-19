@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.ContentSpec.Element;
+import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
@@ -1264,7 +1265,13 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		if (scope.getLeft() != null /* global scope */)
 		{
 			//search all objects,will return globals
-			return AbstractBase.selectByName(getScriptVariables(scope.getLeft(), false), scope.getRight());
+			ScriptVariable global = AbstractBase.selectByName(getScriptVariables(scope.getLeft(), false), scope.getRight());
+			if (global != null)
+			{
+				return global;
+			}
+			// try @enum global variables
+			return getEnumDataProvider(id);
 		}
 
 		int indx = id.lastIndexOf('.'); // in case of multi-level relations we have more that 1 dot
@@ -1314,6 +1321,26 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				return new ColumnWrapper((IColumn)c, relations);
 			}
 			return c;
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return
+	 * @throws RepositoryException 
+	 */
+	protected IDataProvider getEnumDataProvider(String id) throws RepositoryException
+	{
+		// Note: this method is overridden in developer to add the correct type to EnumDataProviders
+		String[] enumParts = id.split("\\."); //$NON-NLS-1$
+		if (enumParts.length > 3)
+		{
+			IDataProvider globalDataProvider = getGlobalDataProvider(enumParts[0] + '.' + enumParts[1] + '.' + enumParts[2]);
+			if (globalDataProvider instanceof ScriptVariable && ((ScriptVariable)globalDataProvider).isEnum())
+			{
+				return new EnumDataProvider(id, 0); // untyped
+			}
 		}
 
 		return null;

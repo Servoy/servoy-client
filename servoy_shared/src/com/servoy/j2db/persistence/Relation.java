@@ -676,29 +676,23 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			RelationItem ri = (RelationItem)allobjects.get(pos);
 			String pdp = ri.getPrimaryDataProviderID();
-			IDataProvider pc = null;
 
 			if (ScopesUtils.isVariableScope(pdp))
 			{
-				pc = dataProviderHandler.getGlobalDataProvider(pdp);
+				IDataProvider pc = dataProviderHandler.getGlobalDataProvider(pdp);
 				if (pc != null)
 				{
 					p[pos] = pc;
 				}
-				else if (pdp.split("\\.").length > 3) { //$NON-NLS-1$
-					pc = new EnumDataProvider(pdp, 0);
-					p[pos] = pc;
-				}
-				else
+				else if (exception == null)
 				{
-					if (exception == null) exception = new RepositoryException(Messages.getString(
+					exception = new RepositoryException(Messages.getString(
 						"servoy.relation.error.dataproviderDoesntExist", new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() })); //$NON-NLS-1$
 				}
 			}
 			else if (pdp != null && pdp.startsWith(LiteralDataprovider.LITERAL_PREFIX))
 			{
-				pc = new LiteralDataprovider(pdp);
-				p[pos] = pc;
+				p[pos] = new LiteralDataprovider(pdp);
 			}
 			else
 			{
@@ -709,21 +703,21 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 				if (pt != null)
 				{
-					pc = dataProviderHandler.getDataProviderForTable(pt, pdp);
+					IDataProvider pc = dataProviderHandler.getDataProviderForTable(pt, pdp);
 					if (pc != null)
 					{
 						p[pos] = pc;
 					}
-					else
+					else if (exception == null)
 					{
-						if (exception == null) exception = new RepositoryException(
+						exception = new RepositoryException(
 							Messages.getString(
 								"servoy.relation.error.dataproviderDoesntExist", new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() })); //$NON-NLS-1$
 					}
 				}
-				else
+				else if (exception == null)
 				{
-					if (exception == null) exception = new RepositoryException(Messages.getString(
+					exception = new RepositoryException(Messages.getString(
 						"servoy.relation.error.tableDoesntExist", new Object[] { getPrimaryTableName(), getForeignTableName(), getName() })); //$NON-NLS-1$
 				}
 			}
