@@ -2107,7 +2107,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 /*
  * _____________________________________________________________ dataNotification
  */
-	public void notifyDataChange(final String ds, final IDataSet pks, final int action, Object[] insertColumnData)
+	public void notifyDataChange(final String ds, IDataSet pks, final int action, Object[] insertColumnData)
 	{
 		RowManager rm = rowManagers.get(ds);
 		if (rm != null)
@@ -2130,10 +2130,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 			boolean didHaveRowAndIsUpdated = false;
-			for (int i = 0; i < pks.getRowCount(); i++)
+
+			IDataSet newPks = pks;
+			try
 			{
-				boolean b = rm.changeByOther(RowManager.createPKHashKey(pks.getRow(i)), action, insertColumnData,
-					insertedRows == null ? null : insertedRows.get(i));
+				// Convert the pk dataset to the column type of the pk columns
+				newPks = BufferedDataSetInternal.convertPksToRightType(pks, (Table)getTable(ds));
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
+			final IDataSet fnewPks = newPks;
+
+			for (int i = 0; i < fnewPks.getRowCount(); i++)
+			{
+				boolean b = rm.changeByOther(RowManager.createPKHashKey(fnewPks.getRow(i)), action, insertColumnData, insertedRows == null ? null
+					: insertedRows.get(i));
 				didHaveRowAndIsUpdated = (didHaveRowAndIsUpdated || b);
 			}
 			final boolean didHaveDataCached = didHaveRowAndIsUpdated;
@@ -2153,7 +2166,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 									sm.getScopeName(),
 									sm.getName(),
 									Utils.arrayMerge(
-										new Object[] { ds, new Integer(action), new JSDataSet(application, pks), Boolean.valueOf(didHaveDataCached) },
+										new Object[] { ds, new Integer(action), new JSDataSet(application, fnewPks), Boolean.valueOf(didHaveDataCached) },
 										Utils.parseJSExpressions(solution.getInstanceMethodArguments("onDataBroadcastMethodID"))), false, false); //$NON-NLS-1$
 							}
 							catch (Exception e1)

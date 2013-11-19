@@ -19,7 +19,10 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
 
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Factory to create data sets using internal api.
@@ -39,4 +42,44 @@ public class BufferedDataSetInternal
 	{
 		return set == null ? null : set.getColumnTypeInfo();
 	}
+
+	/**
+	 * @param pks
+	 * @param table
+	 * @return
+	 */
+	public static IDataSet convertPksToRightType(IDataSet pks, Table table)
+	{
+		if (pks == null || pks.getRowCount() == 0 || table == null)
+		{
+			return pks;
+		}
+
+		BufferedDataSet newPkSet = new BufferedDataSet();
+		List<Column> rowIdentColumns = table.getRowIdentColumns();
+		for (int r = 0; r < pks.getRowCount(); r++)
+		{
+			Object[] row = pks.getRow(r);
+			if (row != null && row.length == rowIdentColumns.size())
+			{
+				Object[] newRow = new Object[row.length];
+				for (int c = 0; c < row.length; c++)
+				{
+					newRow[c] = rowIdentColumns.get(c).getAsRightType(row[c]);
+				}
+				newPkSet.addRow(newRow);
+			}
+			else
+			{
+				// invalid, leave untouched
+				Debug.error("Could not convert pk datatset for table " + table.getDataSource() + ", pk row size mismatch: " +
+					(row == null ? "null" : String.valueOf(row.length)) + "/" + rowIdentColumns.size());
+				return pks;
+			}
+		}
+
+		return newPkSet;
+	}
+
+
 }
