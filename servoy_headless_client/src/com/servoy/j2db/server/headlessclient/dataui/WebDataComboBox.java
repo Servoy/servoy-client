@@ -227,7 +227,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			{
 				super.setSelectedItem(anObject);
 				Object realSelectedItem = getRealSelectedItem();
-				valueInList = (super.realValueIndexOf(realSelectedItem) != -1);
+				valueInList = (getValueList().getAllowEmptySelection() && realSelectedItem == null) || (super.realValueIndexOf(realSelectedItem) != -1);
 			}
 		};
 
