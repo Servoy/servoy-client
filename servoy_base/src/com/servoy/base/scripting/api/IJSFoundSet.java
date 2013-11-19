@@ -273,8 +273,8 @@ public interface IJSFoundSet
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean, Boolean)
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
-	 * @see com.servoy.j2db.FormController$JSForm#js_find()
-	 * @see com.servoy.j2db.FormController$JSForm#js_search(Boolean, Boolean)
+	 * @see com.servoy.j2db.BasicFormController$JSForm#js_find()
+	 * @see com.servoy.j2db.BasicFormController$JSForm#js_search(Boolean, Boolean)
 	 */
 	public boolean find();
 

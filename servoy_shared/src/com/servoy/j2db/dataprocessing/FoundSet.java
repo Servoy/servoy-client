@@ -808,8 +808,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean, Boolean)
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
-	 * @see com.servoy.j2db.FormController$JSForm#js_find()
-	 * @see com.servoy.j2db.FormController$JSForm#js_search(Boolean, Boolean)
+	 * @see com.servoy.j2db.BasicFormController$JSForm#js_find()
+	 * @see com.servoy.j2db.BasicFormController$JSForm#js_search(Boolean, Boolean)
 	 */
 	@JSFunction
 	public boolean find()
@@ -1126,7 +1126,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(IDataSet)
+	 * @clonedesc com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(IDataSet)
 	 * 
 	 * @sample
 	 * // loads a primary key dataset, will remove related sort!
@@ -1194,7 +1194,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+	 * @clonedesc com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 	 * @sample
 	 * //loads records in to the foundset based on a query (also known as 'Form by query')
 	 * %%prefix%%foundset.loadRecords(sqlstring,parameters);
@@ -1210,7 +1210,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
+	 * @clonedesc com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 	 * @sample
 	 * //loads records in to the foundset based on a query (also known as 'Form by query')
 	 * %%prefix%%foundset.loadRecords(sqlstring);
@@ -1225,7 +1225,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(Number)
+	 * @clonedesc com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(Number)
 	 * @sample
 	 * //Loads a single record by primary key, will remove related sort!
 	 * %%prefix%%foundset.loadRecords(123);
@@ -1254,7 +1254,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.FormController$JSForm#js_loadRecords(UUID)
+	 * @clonedesc com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(UUID)
 	 * @sample
 	 * //Loads a single record by primary key, will remove related sort!
 	 * %%prefix%%foundset.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));

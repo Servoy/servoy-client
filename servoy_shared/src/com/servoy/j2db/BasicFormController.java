@@ -2263,8 +2263,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(FoundSet)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(FoundSet)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 * 
 		 * @param foundset the foundset to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
@@ -2280,8 +2280,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(FoundSet)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(FoundSet)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 * 
 		 * @param foundset the foundset to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
@@ -2308,8 +2308,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(JSDataSet)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(JSDataSet)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param pkdataset the pkdataset to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
@@ -2325,8 +2325,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(JSDataSet)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(JSDataSet)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param pkdataset the pkdataset to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
@@ -2342,8 +2342,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 */
@@ -2358,8 +2358,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
@@ -2375,8 +2375,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
@@ -2403,8 +2403,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Number)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(Number)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
@@ -2420,8 +2420,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(Number)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(Number)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object
@@ -2460,8 +2460,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
@@ -2477,8 +2477,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 * @param argumentsArray the array of arguments for the query
@@ -2495,8 +2495,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object
@@ -2512,8 +2512,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
 		 *  
 		 * @param query the query to load before showing the form.
 		 * @param argumentsArray the array of arguments for the query
@@ -2541,8 +2541,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(UUID)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object) 
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(UUID)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object) 
 		 * 
 		 * @param UUIDpk the UUIDpk to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
@@ -2558,8 +2558,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadRecords(UUID)
-		 * @see com.servoy.j2db.FormController$JSForm#js_show(Object) 
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(UUID)
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object) 
 		 * 
 		 * @param UUIDpk the UUIDpk to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
@@ -3737,7 +3737,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @sample var success = %%prefix%%controller.omitRecord();
 		 * @return true if successful
 		 * 
-		 * @see com.servoy.j2db.FormController$JSForm#js_loadOmittedRecords()
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadOmittedRecords()
 		 */
 		public boolean js_omitRecord() throws ServoyException
 		{
