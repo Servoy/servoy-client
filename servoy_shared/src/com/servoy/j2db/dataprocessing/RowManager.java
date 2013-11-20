@@ -115,6 +115,18 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			for (Object val : pk)
 			{
+				if (val instanceof DbIdentValue)
+				{
+					Object identValue = ((DbIdentValue)val).getPkValue();
+					if (identValue == null)
+					{
+						val = "_svdbi" + val.hashCode(); // DbIdentValue.hashCode() must be stable, i.e. not change when value is set //$NON-NLS-1$
+					}
+					else
+					{
+						val = identValue;
+					}
+				}
 				String str;
 				if (val instanceof byte[])
 				{

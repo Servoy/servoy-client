@@ -484,18 +484,6 @@ public class Row
 				{
 					pks[i] = columndata[pkpos[i]];
 				}
-				if (pks[i] instanceof DbIdentValue)
-				{
-					Object identValue = ((DbIdentValue)pks[i]).getPkValue();
-					if (identValue == null)
-					{
-						pks[i] = "_svdbi" + pks[i].hashCode(); // DbIdentValue.hashCode() must be stable, i.e. not change when value is set //$NON-NLS-1$
-					}
-					else
-					{
-						pks[i] = identValue;
-					}
-				}
 			}
 			pkHashKey = RowManager.createPKHashKey(pks);
 		}
