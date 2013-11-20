@@ -2601,7 +2601,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						Object compareResult = scriptEngine.executeFunction(func, recordComparatorScope, recordComparatorScope,
 							new Object[] { getRecord(o1), getRecord(o2) }, false, true);
-						return Utils.getAsInteger(compareResult, true);
+						double cmp = Utils.getAsDouble(compareResult, true);
+						return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
 					}
 					catch (Exception ex)
 					{
@@ -4894,7 +4895,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pks2.sort(recordPKComparator);
 		synchronized (pksAndRecords)
 		{
-			pksAndRecords.setPks(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk());
+			pksAndRecords.setPksAndQuery(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk(), pksAndRecords.getQuerySelectForReading(), true);
 		}
 
 		int newSize = getSize();
