@@ -49,7 +49,7 @@ public class StartupArguments extends HashMap<String, Object>
 	/**
 	 * @param arguments the map of arguments where the key is the argName and the value is the argValue
 	 */
-	public StartupArguments(Map<String, Object> arguments)
+	public StartupArguments(Map<String, ? > arguments)
 	{
 		super();
 		putAll(arguments);
