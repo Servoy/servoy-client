@@ -325,4 +325,18 @@ public interface IJSFoundSet
 	 * @return int index. 
 	 */
 	int js_getRecordIndex(IJSRecord record);
+
+	/**
+	 * Get all dataproviders of the foundset.
+	 * 
+	 * @sample
+	 * var dataprovidersNames = %%prefix%%alldataproviders;
+	 * application.output("This foundset has " + dataprovidersNames.length + " data providers.")
+	 * for (var i=0; i<dataprovidersNames.length; i++)
+	 * 	application.output(dataprovidersNames[i]);
+	 * 
+	 * @special
+	 */
+	String[] alldataproviders();
+
 }
