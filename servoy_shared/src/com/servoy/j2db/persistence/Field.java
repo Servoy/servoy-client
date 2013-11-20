@@ -131,6 +131,8 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	}
 
 	/**
+	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
+	 * 
 	 * @templatedescription Handle changed data
 	 * @templatename onDataChange
 	 * @templatetype Boolean
@@ -345,6 +347,8 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	}
 
 	/**
+	 * @sameas com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
+	 * 
 	 * @templatedescription Perform the element default action
 	 * @templatename onAction
 	 * @templateparam JSEvent event the event that triggered the action

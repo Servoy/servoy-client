@@ -37,9 +37,6 @@ public interface IBaseField extends IBaseFieldCommon
 
 	void setValuelistID(int arg);
 
-	/**
-	 * @sameas com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
-	 */
 	int getOnActionMethodID();
 
 	void setOnActionMethodID(int arg);
