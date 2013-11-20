@@ -721,8 +721,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Flag that tells if authentication is needed in order to access the solution.
-	 * 
-	 * To enforce a default Servoy user name and password login dialog; if set a login dialog is required, if unchecked no login dialog is required.
+	 * If unchecked, the Smart Client will always require authentication, regardless of this setting.
+	 * If checked, authentication is required, and either a provided loginSolution or otherwise the default Servoy login mechanism will be used.
+	 * If default Servoy login mechanism is used, the "servoy.webclient.basic.authentication" setting on the Admin Page can be used to enable the use of the standard browser basic authentication.
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public boolean getMustAuthenticate()
