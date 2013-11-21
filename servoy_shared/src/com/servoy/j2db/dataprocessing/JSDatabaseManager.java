@@ -2992,7 +2992,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_getNullColumnValidatorEnabled()
 	{
-		return ((FoundSetManager)application.getFoundSetManager()).getNullColumnValidatorEnabled();
+		return ((FoundSetManager)application.getFoundSetManager()).isNullColumnValidatorEnabled();
 	}
 
 	public void js_setNullColumnValidatorEnabled(boolean enable)

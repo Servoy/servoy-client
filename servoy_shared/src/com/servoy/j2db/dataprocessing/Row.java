@@ -290,7 +290,7 @@ public class Row
 			convertedValue = sheet.convertObjectToValue(dataProviderID, convertedValue, parent.getFoundsetManager().getColumnConverterManager(),
 				parent.getFoundsetManager().getColumnValidatorManager());
 		}
-		else if (parent.getFoundsetManager().getNullColumnValidatorEnabled())
+		else if (parent.getFoundsetManager().isNullColumnValidatorEnabled())
 		{
 			//check for not null constraint
 			Column c = null;

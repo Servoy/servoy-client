@@ -2374,7 +2374,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private boolean nullColumnValidatorEnabled = true;
 
-	public boolean getNullColumnValidatorEnabled()
+	public boolean isNullColumnValidatorEnabled()
 	{
 		return nullColumnValidatorEnabled;
 	}
