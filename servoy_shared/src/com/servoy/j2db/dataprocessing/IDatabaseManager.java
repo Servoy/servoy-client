@@ -189,22 +189,25 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 
 	/**
 	 * True if null column validator is enabled; false otherwise.
+	 * <br>
+	 * <pre>
+	 * // test if it's enabled
+	 * if (plugin.getClientPluginAccess().getDatabaseManager().isNullColumnValidatorEnabled()) application.output('null validation enabled')
+	 * </pre>
 	 * @return true if null column validator is enabled; false otherwise
 	 * 
 	 * @see #setNullColumnValidatorEnabled(boolean) 
 	 */
-	public boolean getNullColumnValidatorEnabled();
+	public boolean isNullColumnValidatorEnabled();
 
 	/**
 	 * Enable/disable the default null validator for non null columns, makes it possible todo the checks later on when saving, when for example autosave is disabled.
 	 * <br>
 	 * <pre>
-	 * //disable
-	 * databaseManager.nullColumnValidatorEnabled = false;
-	 * 
-	 * //test if enabled
-	 * if(databaseManager.nullColumnValidatorEnabled) application.output('null validation enabled')
+	 * // disable it
+	 * plugin.getClientPluginAccess().getDatabaseManager().setNullColumnValidatorEnabled(false);
 	 * </pre>
+	 * @param enable true to enable null column validator (default), false to disable it.
 	 */
 	public void setNullColumnValidatorEnabled(boolean enable);
 
