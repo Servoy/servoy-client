@@ -186,4 +186,26 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * @return true if all locks or the specified lock are released. 
 	 */
 	boolean releaseAllLocks(String lockName);
+
+	/**
+	 * True if null column validator is enabled; false otherwise.
+	 * @return true if null column validator is enabled; false otherwise
+	 * 
+	 * @see #setNullColumnValidatorEnabled(boolean) 
+	 */
+	public boolean getNullColumnValidatorEnabled();
+
+	/**
+	 * Enable/disable the default null validator for non null columns, makes it possible todo the checks later on when saving, when for example autosave is disabled.
+	 * <br>
+	 * <pre>
+	 * //disable
+	 * databaseManager.nullColumnValidatorEnabled = false;
+	 * 
+	 * //test if enabled
+	 * if(databaseManager.nullColumnValidatorEnabled) application.output('null validation enabled')
+	 * </pre>
+	 */
+	public void setNullColumnValidatorEnabled(boolean enable);
+
 }
