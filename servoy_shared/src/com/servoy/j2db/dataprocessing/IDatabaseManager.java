@@ -192,7 +192,7 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 * <br>
 	 * <pre>
 	 * // test if it's enabled
-	 * if (plugin.getClientPluginAccess().getDatabaseManager().isNullColumnValidatorEnabled()) application.output('null validation enabled')
+	 * if (plugin.getClientPluginAccess().getDatabaseManager().isNullColumnValidatorEnabled()) System.out.println("null validation enabled");
 	 * </pre>
 	 * @return true if null column validator is enabled; false otherwise
 	 * 
