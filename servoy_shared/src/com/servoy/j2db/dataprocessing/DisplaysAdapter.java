@@ -38,8 +38,10 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
@@ -329,9 +331,22 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 	public void commitEdit(IDisplayData display)
 	{
 		if (dataProviderID == null) return;
+		Object obj = display.getValueObject();
+
+		if (obj instanceof String && display instanceof IScriptableProvider)
+		{
+			IScriptable scriptable = ((IScriptableProvider)display).getScriptObject();
+			if (scriptable instanceof HasRuntimeClientProperty)
+			{
+				HasRuntimeClientProperty scriptableWithClientProperty = (HasRuntimeClientProperty)scriptable;
+				if (!Boolean.TRUE.equals(scriptableWithClientProperty.getClientProperty(IApplication.ALLOW_JAVASCRIPT_LINKS_INPUT)))
+				{
+					obj = ((String)obj).replaceAll("(?i)javascript:", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+		}
 
 		Object prevValue = null;
-		Object obj = display.getValueObject();
 		boolean valueWasConverted = false;
 		if (!findMode)
 		{

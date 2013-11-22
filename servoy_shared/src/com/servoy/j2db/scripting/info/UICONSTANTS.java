@@ -205,6 +205,19 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS, true)
 	 */
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
+	/**
+	 * Property than can be set using element.putClientProperty()
+	 * 
+	 * If set to true, the element will accept javascript links in the input
+	 * If set to false, all 'javascript:' texts will be removed from the input
+	 * 
+	 * The value can be true/false
+	 * DEFAULT: false 
+	 * 
+	 * @sample
+	 * element.putClientProperty(APP_UI_PROPERTY.ALLOW_JAVASCRIPT_LINKS_INPUT, true)
+	 */
+	public static final String ALLOW_JAVASCRIPT_LINKS_INPUT = IApplication.ALLOW_JAVASCRIPT_LINKS_INPUT;
 
 
 	public String getPrefix()

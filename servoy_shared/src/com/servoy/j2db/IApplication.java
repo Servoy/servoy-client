@@ -100,7 +100,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * When Boolean.TRUE, scrollable table views in web client will keep not visible but loaded rows in the view 
 	 */
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = "webClientTableViewScrollableKeepLoadedRows"; //$NON-NLS-1$	
-
+	/**
+	 * When Boolean.TRUE, component will accept javascript links in the input
+	 */
+	public static final String ALLOW_JAVASCRIPT_LINKS_INPUT = "allowJavascriptLinksInput"; //$NON-NLS-1$
 
 	/**
 	 * Non-null name for the first (main) window.
