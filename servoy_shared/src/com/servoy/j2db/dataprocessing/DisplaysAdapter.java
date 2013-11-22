@@ -339,7 +339,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 			if (scriptable instanceof HasRuntimeClientProperty)
 			{
 				HasRuntimeClientProperty scriptableWithClientProperty = (HasRuntimeClientProperty)scriptable;
-				if (!Boolean.TRUE.equals(scriptableWithClientProperty.getClientProperty(IApplication.ALLOW_JAVASCRIPT_LINKS_INPUT)))
+				if (!Boolean.TRUE.equals(scriptableWithClientProperty.getClientProperty(IApplication.ALLOW_JAVASCRIPT_LINK_INPUT)))
 				{
 					obj = ((String)obj).replaceAll("(?i)javascript:", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				}

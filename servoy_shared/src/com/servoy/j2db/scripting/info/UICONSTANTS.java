@@ -215,9 +215,9 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false 
 	 * 
 	 * @sample
-	 * element.putClientProperty(APP_UI_PROPERTY.ALLOW_JAVASCRIPT_LINKS_INPUT, true)
+	 * element.putClientProperty(APP_UI_PROPERTY.ALLOW_JAVASCRIPT_LINK_INPUT, true)
 	 */
-	public static final String ALLOW_JAVASCRIPT_LINKS_INPUT = IApplication.ALLOW_JAVASCRIPT_LINKS_INPUT;
+	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = IApplication.ALLOW_JAVASCRIPT_LINK_INPUT;
 
 
 	public String getPrefix()
