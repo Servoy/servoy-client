@@ -28,10 +28,10 @@ public interface IApplicationServerStarter
 	static final String EXTENSION_ID = "servoy_shared.serverstarter"; //$NON-NLS-1$
 
 	IApplicationServerSingleton startApplicationServer(IRepositoryFactory repositoryFactory, IDebugClientHandler debugClientHandler,
-		IWebClientSessionFactory webClientSessionFactory, IUserManagerFactory userManagerFactory) throws Exception;
+		ClassLoader baseClassLoader, IWebClientSessionFactory webClientSessionFactory, IUserManagerFactory userManagerFactory) throws Exception;
 
-	void startStandalone(IRepositoryFactory repositoryFactory, IDebugClientHandler debugClientHandler, IWebClientSessionFactory webClientSessionFactory,
-		IUserManagerFactory userManagerFactory, boolean developerStartup, boolean startWebserver, boolean startTeamServer, boolean loadSettings)
-		throws Exception;
+	void startStandalone(IRepositoryFactory repositoryFactory, IDebugClientHandler debugClientHandler, ClassLoader baseClassLoader,
+		IWebClientSessionFactory webClientSessionFactory, IUserManagerFactory userManagerFactory, boolean developerStartup, boolean startWebserver,
+		boolean startTeamServer, boolean loadSettings) throws Exception;
 
 }
