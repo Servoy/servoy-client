@@ -106,34 +106,37 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 		{
 			throw new RepositoryException("Could not load login solution");
 		}
-		int[] sol_ids = new int[loginSolutionDefinitions.length];
-		for (int i = 0; i < sol_ids.length; i++)
-		{
-			sol_ids[i] = loginSolutionDefinitions[i].getRootObjectId();
-		}
-		long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
-		Map<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
-
 		Solution[] solutions = new Solution[loginSolutionDefinitions.length];
-		for (int i = 0; i < loginSolutionDefinitions.length; i++)
+		if (loginSolutionDefinitions.length > 0)
 		{
-			Solution s = loadCachedSolution(loginSolutionDefinitions[i], asus[i], sps);
-			if (s == null)
+			int[] sol_ids = new int[loginSolutionDefinitions.length];
+			for (int i = 0; i < sol_ids.length; i++)
 			{
-				//do full load
-				s = getApplicationServer().getLoginSolution(mainSolutionDef, loginSolutionDefinitions[i]);
+				sol_ids[i] = loginSolutionDefinitions[i].getRootObjectId();
 			}
-			if (s != null)
-			{
-				if (s.getRepository() == null)
-				{
-					s.setRepository(getRepository()); // transient
-				}
-				loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
-				s.setServerProxies(sps);
-			}
+			long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
+			Map<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
 
-			solutions[i] = s;
+			for (int i = 0; i < loginSolutionDefinitions.length; i++)
+			{
+				Solution s = loadCachedSolution(loginSolutionDefinitions[i], asus[i], sps);
+				if (s == null)
+				{
+					//do full load
+					s = getApplicationServer().getLoginSolution(mainSolutionDef, loginSolutionDefinitions[i]);
+				}
+				if (s != null)
+				{
+					if (s.getRepository() == null)
+					{
+						s.setRepository(getRepository()); // transient
+					}
+					loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
+					s.setServerProxies(sps);
+				}
+
+				solutions[i] = s;
+			}
 		}
 
 		return solutions;
