@@ -108,7 +108,7 @@ public class ScriptObjectRegistry
 			}
 			catch (Throwable t)
 			{
-				Debug.error("Error loading (plugin/bean) class: " + clz.getName() + " , please check your plugins/beans"); //$NON-NLS-1$ //$NON-NLS-2$
+				Debug.error("Error loading (plugin/bean) class: " + clz.getName() + " , please check your plugins/beans", t); //$NON-NLS-1$ //$NON-NLS-2$
 				return null;
 			}
 			so = scriptObjectRegistry.get(clz);
