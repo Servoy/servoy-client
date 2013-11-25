@@ -67,6 +67,7 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
+import com.servoy.j2db.server.headlessclient.ServoyBrowserInfoPage.ServoyWebClientInfo;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
@@ -1042,7 +1043,12 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	{
 		int width = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenWidth();
 		int height = ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getScreenHeight();
-		if (getMainPage().getOrientation() == 90 || getMainPage().getOrientation() == -90)
+		int orientation = getMainPage().getOrientation();
+		if (orientation == -1)
+		{
+			orientation = ((ServoyWebClientInfo)WebClientSession.get().getClientInfo()).getOrientation();
+		}
+		if (orientation == 90 || orientation == -90)
 		{
 			return new Dimension(height, width);
 		}

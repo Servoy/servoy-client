@@ -2443,7 +2443,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		return ((WebClientInfo)WebClientSession.get().getClientInfo()).getProperties().getBrowserHeight();
 	}
 
-	private int orientation = 0;
+	private int orientation = -1;
 
 	public int getOrientation()
 	{

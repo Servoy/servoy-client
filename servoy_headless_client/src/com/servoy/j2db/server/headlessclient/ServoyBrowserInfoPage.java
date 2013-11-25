@@ -111,6 +111,7 @@ public class ServoyBrowserInfoPage extends WebPage
 			add(new TextField("browserWidth"));
 			add(new TextField("browserHeight"));
 			add(new TextField("hostname"));
+			add(new TextField("orientation"));
 		}
 
 		/**
@@ -123,7 +124,9 @@ public class ServoyBrowserInfoPage extends WebPage
 
 			WebRequestCycle requestCycle = (WebRequestCycle)getRequestCycle();
 			WebSession session = (WebSession)getSession();
-			WebClientInfo clientInfo = new WebClientInfo(requestCycle);
+			ServoyWebClientInfo clientInfo = new ServoyWebClientInfo(requestCycle);
+
+			clientInfo.setOrientation(propertiesBean.getInt(propertiesBean.getOrientation()));
 
 			ClientProperties properties = clientInfo.getProperties();
 			propertiesBean.merge(properties);
@@ -132,6 +135,32 @@ public class ServoyBrowserInfoPage extends WebPage
 		}
 
 	}
+	public static class ServoyWebClientInfo extends WebClientInfo
+	{
+		private int orientation = 0;
+
+		public ServoyWebClientInfo(WebRequestCycle requestCycle)
+		{
+			super(requestCycle);
+		}
+
+		/**
+		 * @param orientation the orientation to set
+		 */
+		public void setOrientation(int orientation)
+		{
+			this.orientation = orientation;
+		}
+
+		/**
+		 * @return the orientation
+		 */
+		public int getOrientation()
+		{
+			return orientation;
+		}
+	}
+
 	/**
 	 * Holds properties of the client.
 	 */
@@ -155,6 +184,7 @@ public class ServoyBrowserInfoPage extends WebPage
 		private String browserWidth;
 		private String browserHeight;
 		private String hostname;
+		private String orientation;
 
 		/**
 		 * Gets browserHeight.
@@ -496,6 +526,22 @@ public class ServoyBrowserInfoPage extends WebPage
 		public String getHostname()
 		{
 			return hostname;
+		}
+
+		/**
+		 * @param orientation the orientation to set
+		 */
+		public void setOrientation(String orientation)
+		{
+			this.orientation = orientation;
+		}
+
+		/**
+		 * @return the orientation
+		 */
+		public String getOrientation()
+		{
+			return orientation;
 		}
 
 		private int getInt(String value)

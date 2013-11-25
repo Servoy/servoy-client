@@ -25,6 +25,7 @@
           document.postback.browserWidth.value =  window.innerWidth || document.body.offsetWidth;
           document.postback.browserHeight.value =  window.innerHeight || document.body.offsetHeight;
           document.postback.hostname.value = window.location.href;
+          document.postback.orientation.value = window.orientation;
  		  document.postback.submit();
 		}
 		</script>
@@ -56,6 +57,7 @@
 			<input type="text" wicket:id="browserWidth" />
 			<input type="text" wicket:id="browserHeight" />
 			<input type="text" wicket:id="hostname" />
+			<input type="text" wicket:id="orientation" />
 			
 		</form>
 	</body>
