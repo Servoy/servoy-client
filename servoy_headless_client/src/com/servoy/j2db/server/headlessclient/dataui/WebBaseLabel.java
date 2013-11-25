@@ -85,8 +85,8 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * 
  * @author jcompagner,jblok
  */
-public class WebBaseLabel extends Label implements ILabel, IResourceListener, IProviderStylePropertyChanges, IDoubleClickListener, IRightClickListener,
-	ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider
+public class WebBaseLabel extends Label implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 

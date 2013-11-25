@@ -79,8 +79,8 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner, jblok
  */
-public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent,
+public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
+	ISupportSecuritySettings, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent,
 	ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;

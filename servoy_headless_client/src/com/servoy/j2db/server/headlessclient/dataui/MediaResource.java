@@ -118,6 +118,8 @@ public final class MediaResource extends DynamicWebResource
 		this.keepAspect = (mediaOptions & 8) == 8;
 		this.contentType = ImageLoader.getContentType(bs);
 
+		this.setCacheable(true);
+
 	}
 
 	@Override

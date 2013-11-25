@@ -25,6 +25,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -94,8 +96,9 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * 
  */
-public abstract class WebBaseButton extends Button implements IButton, IResourceListener, IProviderStylePropertyChanges, ILinkListener, IAjaxIndicatorAware,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider, IAnchoredComponent
+public abstract class WebBaseButton extends Button implements IButton, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
+	ILinkListener, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider,
+	IAnchoredComponent
 {
 	private int mediaOptions;
 //	private int rotation;
@@ -968,13 +971,17 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 
 		if (imageDisplay instanceof Component)
 		{
+			MediaResource mr;
 			Component imageDisplayComponent = (Component)imageDisplay;
-			if (imageDisplay.getIcon() != null)
+			if ((mr = imageDisplay.getIcon()) != null)
 			{
-				CharSequence url = imageDisplayComponent.urlFor(IResourceListener.INTERFACE);
+				CharSequence url = imageDisplayComponent.urlFor(ILatestVersionResourceListener.INTERFACE);
 				if (appendRandomParam)
 				{
-					url = url + "&r=" + Math.random(); //$NON-NLS-1$
+					byte[] imageRawData = mr.getRawData();
+					Checksum checksum = new CRC32();
+					checksum.update(imageRawData, 0, imageRawData.length);
+					url = url + "&r=" + checksum.getValue(); //$NON-NLS-1$
 				}
 				else isRandomParamRemoved = Boolean.TRUE;
 				imgURL = Strings.replaceAll(imageDisplayComponent.getResponse().encodeURL(url), "&", "&amp;").toString(); //$NON-NLS-1$ //$NON-NLS-2$
