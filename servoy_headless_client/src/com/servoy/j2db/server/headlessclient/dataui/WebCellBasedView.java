@@ -5264,7 +5264,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				{
 					Boolean alignWithTop = cellScroll < currentScrollTop;
 					//selection was within the loaded viewSize
-					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
+					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex - table.getStartIndex()).getMarkupId() + "',1," +
+						alignWithTop + ");");
 					needToRenderRows = false;
 				}
 			}
@@ -5324,7 +5325,17 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				//sb.append("$('#" + table.get(selectedIndex).getMarkupId() + "')[0].scrollIntoView(true);");
 
-				sb.append("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "');");
+				String selectedItemMarkupId;
+				if (needToRenderRows)
+				{
+					selectedItemMarkupId = newRows.toArray(new ListItem[newRows.size()])[selectedIndex - table.getStartIndex()].getMarkupId();
+				}
+				else
+				{
+					selectedItemMarkupId = table.get(selectedIndex - table.getStartIndex()).getMarkupId();
+				}
+
+				sb.append("Servoy.TableView.scrollIntoView('" + selectedItemMarkupId + "');");
 				target.appendJavascript(sb.toString());
 			}
 
@@ -5336,7 +5347,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		*/
 		int getCellHeight()
 		{
-			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(table.getStartIndex());
+			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(0);
 			int maxHeight = -1;
 
 			if (WebCellBasedView.this.isListViewMode())
