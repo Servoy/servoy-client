@@ -25,11 +25,13 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -977,7 +979,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 		//  cannot be deleted if a global var has a ref
 		ScopesScope scopesScope = application.getScriptEngine().getScopesScope();
-		if (hasReferenceInScriptable(scopesScope, fp))
+		if (hasReferenceInScriptable(scopesScope, fp, new HashSet<Scriptable>()))
 		{
 			return false;
 		}
@@ -1003,8 +1005,13 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		return ss == null || fp.initForJSUsage() != ss.get("currentcontroller", ss); //$NON-NLS-1$
 	}
 
-	private boolean hasReferenceInScriptable(Scriptable scriptVar, FormController fc)
+	private boolean hasReferenceInScriptable(Scriptable scriptVar, FormController fc, Set<Scriptable> seen)
 	{
+		if (!seen.add(scriptVar))
+		{
+			// endless recursion
+			return false;
+		}
 		if (scriptVar instanceof FormScope)
 		{
 			return ((FormScope)scriptVar).getFormController().equals(fc);
@@ -1032,7 +1039,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 						{
 							return true;
 						}
-						if (propertyValue instanceof Scriptable && hasReferenceInScriptable((Scriptable)propertyValue, fc))
+						if (propertyValue instanceof Scriptable && hasReferenceInScriptable((Scriptable)propertyValue, fc, seen))
 						{
 							return true;
 						}
