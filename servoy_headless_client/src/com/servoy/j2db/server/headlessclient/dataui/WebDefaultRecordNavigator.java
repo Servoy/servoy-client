@@ -31,11 +31,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
 import org.apache.wicket.model.Model;
 
+import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.smart.Slider;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -50,7 +50,7 @@ public class WebDefaultRecordNavigator extends Panel implements IProviderStylePr
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final int DEFAULT_WIDTH = Slider.DEFAULT_WIDTH;
+	public static final int DEFAULT_WIDTH = ISupportNavigator.DEFAULT_NAVIGATOR_WIDTH;
 	public static final int DEFAULT_HEIGHT_WEB = 160;
 
 	private final FoundSetIndexModel foundSetIndexModel;

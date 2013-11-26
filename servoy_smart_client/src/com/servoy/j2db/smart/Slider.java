@@ -35,6 +35,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ComponentUI;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.smart.dataui.StyledEnablePanel;
 import com.servoy.j2db.util.ISkinnable;
 import com.servoy.j2db.util.ISupplyFocusChildren;
@@ -42,8 +43,6 @@ import com.servoy.j2db.util.gui.NumberField;
 
 public class Slider extends StyledEnablePanel implements ChangeListener, ActionListener, ISupplyFocusChildren<Component>
 {
-	public static final int DEFAULT_WIDTH = 70;
-
 	/**
 	 * The real slider
 	 */
@@ -65,7 +64,7 @@ public class Slider extends StyledEnablePanel implements ChangeListener, ActionL
 		slider = new SkinSlider(SwingConstants.VERTICAL);//, 0, 0, 0);
 		slider.setName("slider_slider"); //$NON-NLS-1$
 		slider.setOpaque(false);
-		Dimension d = new Dimension(DEFAULT_WIDTH, 80);
+		Dimension d = new Dimension(ISupportNavigator.DEFAULT_NAVIGATOR_WIDTH, 80);
 		slider.setPreferredSize(d);
 		slider.setMaximumSize(d);
 		slider.setMinimumSize(d);
@@ -84,7 +83,7 @@ public class Slider extends StyledEnablePanel implements ChangeListener, ActionL
 		field = new NumberField(new Integer(0));
 		field.setName("slider_numeric"); //$NON-NLS-1$
 		field.setAllowNegativeValues(false);
-		Dimension d1 = new Dimension(DEFAULT_WIDTH, 20);
+		Dimension d1 = new Dimension(ISupportNavigator.DEFAULT_NAVIGATOR_WIDTH, 20);
 		field.setPreferredSize(d1);
 		field.setMinimumSize(d1);
 		field.setMaximumSize(d1);
