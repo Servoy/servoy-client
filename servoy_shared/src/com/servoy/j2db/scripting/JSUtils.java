@@ -862,7 +862,10 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Returns the PBKDF2 hash for specified text. This method is preferred above the old MD5 hash for enhanced security.
-	 * It uses a default of 2000 iterations.
+	 * It uses a default of 2000 iterations. The string that is returned can only be used in the utils.validatePBKDF2Hash(password,thisReturnValue) 
+	 * to check if this hash is a result of that password.
+	 * This will always be false: utils.stringPBKDF2Hash("test") == utils.stringPBKDF2Hash("test"). Because for the same string in multiply calls it will not generate the same hash.
+	 * So you can only check it like this: utils.validatePBKDF2Hash("test",utils.stringPBKDF2Hash("test"))
 	 *
 	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2 
 	 * @sample var hashed_password = utils.stringPBKDF2Hash(user_password)
