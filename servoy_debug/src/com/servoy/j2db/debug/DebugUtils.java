@@ -236,16 +236,22 @@ public class DebugUtils
 				public void run()
 				{
 					// do some AWT stuff here
-					run.run();
-					awtFinished.set(true);
-					display.asyncExec(new Runnable()
+					try
 					{
-						public void run()
+						run.run();
+					}
+					finally
+					{
+						awtFinished.set(true);
+						display.asyncExec(new Runnable()
 						{
-							// deliberately empty, this is only to wake up a
-							// potentially waiting SWT-thread below
-						}
-					});
+							public void run()
+							{
+								// deliberately empty, this is only to wake up a
+								// potentially waiting SWT-thread below
+							}
+						});
+					}
 				}
 			});
 			while (!awtFinished.get())
