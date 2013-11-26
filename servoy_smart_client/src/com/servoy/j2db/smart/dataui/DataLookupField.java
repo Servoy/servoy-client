@@ -74,7 +74,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.FixedMaskFormatter;
+import com.servoy.j2db.util.text.FixedMaskFormatter;
 
 /**
  * The Typeahead/DataLookup field that pops up a list and filters that list as you type.

@@ -93,7 +93,7 @@ import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.FixedMaskFormatter;
+import com.servoy.j2db.util.text.FixedMaskFormatter;
 
 /**
  * Represents a text (single line) field in the webbrowser. 

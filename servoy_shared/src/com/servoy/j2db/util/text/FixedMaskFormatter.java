@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.util.gui;
+package com.servoy.j2db.util.text;
 
 
 import java.io.IOException;
@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 import javax.swing.JFormattedTextField;
+
 
 /**
  * <code>MaskFormatter</code> is used to format and edit strings. The behavior

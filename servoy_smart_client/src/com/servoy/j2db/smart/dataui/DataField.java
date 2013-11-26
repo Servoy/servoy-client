@@ -112,7 +112,8 @@ import com.servoy.j2db.util.docvalidator.LowerCaseDocumentValidator;
 import com.servoy.j2db.util.docvalidator.NumberDocumentValidator;
 import com.servoy.j2db.util.docvalidator.UpperCaseDocumentValidator;
 import com.servoy.j2db.util.docvalidator.ValidatingDocument;
-import com.servoy.j2db.util.gui.FixedMaskFormatter;
+import com.servoy.j2db.util.text.FixedMaskFormatter;
+import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
  * Runtime swing field
@@ -620,7 +621,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			}
 
 			/**
-			 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#valueToString(java.lang.Object)
+			 * @see com.servoy.j2db.util.text.ServoyMaskFormatter#valueToString(java.lang.Object)
 			 */
 			@Override
 			public String valueToString(Object value) throws ParseException
@@ -629,7 +630,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			}
 
 			/**
-				 * @see com.servoy.j2db.smart.dataui.ServoyMaskFormatter#stringToValue(java.lang.String)
+				 * @see com.servoy.j2db.util.text.ServoyMaskFormatter#stringToValue(java.lang.String)
 				 */
 			@Override
 			public Object stringToValue(String value) throws ParseException

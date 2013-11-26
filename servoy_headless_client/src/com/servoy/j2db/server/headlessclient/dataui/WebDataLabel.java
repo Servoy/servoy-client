@@ -31,7 +31,6 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
-import com.servoy.j2db.smart.dataui.ServoyMaskFormatter;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
@@ -40,6 +39,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
 * Represents a label in the browser that displays data (has a dataprovider)

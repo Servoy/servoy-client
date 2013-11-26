@@ -33,6 +33,7 @@ import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
  * Runtime swing button
