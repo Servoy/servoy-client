@@ -613,27 +613,29 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 					if (requestTarget instanceof BehaviorRequestTarget)
 					{
 						Component target = ((BehaviorRequestTarget)requestTarget).getTarget();
-						boolean invalidPage = false;
-						try
+						if (!(target instanceof Page))
 						{
-							if (!(target instanceof Page))
+							boolean invalidPage = false;
+							Page page2 = null;
+							try
 							{
-								Page page2 = target.findParent(Page.class); // test if it has a page.
-								if (page2 == null)
-								{
-									invalidPage = true;
-								}
+								page2 = target.findParent(Page.class); // test if it has a page.
 							}
-						}
-						catch (Exception e)
-						{
-							Debug.trace(e);
-							invalidPage = true;
-						}
-						if (invalidPage)
-						{
-							Debug.log("Couldn't resolve the page of the component, component already gone from page? returning empty"); //$NON-NLS-1$
-							return EmptyRequestTarget.getInstance();
+							catch (Exception e)
+							{
+								Debug.trace(e);
+								invalidPage = true;
+							}
+							if (page2 == null || !page2.getId().equals(page.getId()))
+							{
+								invalidPage = true;
+							}
+
+							if (invalidPage)
+							{
+								Debug.log("Couldn't resolve the page of the component, component already gone from page? returning empty"); //$NON-NLS-1$
+								return EmptyRequestTarget.getInstance();
+							}
 						}
 					}
 					return requestTarget;
