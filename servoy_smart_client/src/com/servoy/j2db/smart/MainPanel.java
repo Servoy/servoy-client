@@ -73,6 +73,7 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 
 		setFocusCycleRoot(true);
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.datarenderPolicy);
+		setFocusTraversalPolicyProvider(true);	// this seems mandatory on jdk1.6, but not on jdk1.7
 	}
 
 	/**

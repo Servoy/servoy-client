@@ -588,6 +588,12 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			wrappedWindow = frame = createFormFrame(windowName);
 			frame.setResizable(resizable);
 			frame.setMainContainer(container);
+
+			// need to call 'pack' as the 'container' may have been used before & removed from a frame, causing
+			// it to be unbinded from its peer, but we need it binded for calculations before showing it; see
+			// MainPanel.show, all 'tableFormPanel' components would be inivisible, because 'tableFormPanel' is unbinded from its peer,
+			// causing the frame focus to not work;
+			frame.pack();
 			createdNewWindow = true;
 		}
 		else if (frame.isVisible())
