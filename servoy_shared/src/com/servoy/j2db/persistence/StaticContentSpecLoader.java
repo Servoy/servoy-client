@@ -330,7 +330,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(34, IRepository.FIELDS, PROPERTY_FORMINDEX.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(35, IRepository.FIELDS, PROPERTY_MARGIN.getPropertyName(), IRepository.INSETS);
 			cs.new Element(36, IRepository.FORMS, PROPERTY_SERVERNAME.getPropertyName(), IRepository.SERVERS).flagAsDeprecated();
-			cs.new Element(37, IRepository.FORMS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(37, IRepository.FORMS, PROPERTY_NAME.getPropertyName(), IRepository.STRING).flagAsRequired();
 			cs.new Element(38, IRepository.FORMS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
 			cs.new Element(39, IRepository.FORMS, PROPERTY_SHOWINMENU.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(40, IRepository.FORMS, PROPERTY_STYLENAME.getPropertyName(), IRepository.STYLES);
@@ -430,16 +430,16 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(134, IRepository.TABS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(135, IRepository.TABS, PROPERTY_IMAGEMEDIAID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(136, IRepository.TABS, PROPERTY_TOOLTIPTEXT.getPropertyName(), IRepository.STRING);
-			cs.new Element(137, IRepository.METHODS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(137, IRepository.METHODS, PROPERTY_NAME.getPropertyName(), IRepository.STRING).flagAsRequired();
 			cs.new Element(138, IRepository.METHODS, PROPERTY_METHODCODE.getPropertyName(), IRepository.STRING).flagAsDeprecated();
 			cs.new Element(139, IRepository.METHODS, PROPERTY_SHOWINMENU.getPropertyName(), IRepository.BOOLEAN);
-			cs.new Element(140, IRepository.SCRIPTCALCULATIONS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(140, IRepository.SCRIPTCALCULATIONS, PROPERTY_NAME.getPropertyName(), IRepository.STRING).flagAsRequired();
 			cs.new Element(141, IRepository.SCRIPTCALCULATIONS, PROPERTY_METHODCODE.getPropertyName(), IRepository.STRING).flagAsDeprecated();
-			cs.new Element(142, IRepository.RELATIONS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
-			cs.new Element(143, IRepository.RELATIONS, PROPERTY_PRIMARYSERVERNAME.getPropertyName(), IRepository.SERVERS).flagAsDeprecated(); //$NON-NLS-2$
-			cs.new Element(144, IRepository.RELATIONS, PROPERTY_FOREIGNSERVERNAME.getPropertyName(), IRepository.SERVERS).flagAsDeprecated(); //$NON-NLS-2$
-			cs.new Element(145, IRepository.RELATIONS, PROPERTY_PRIMARYTABLENAME.getPropertyName(), IRepository.TABLES).flagAsDeprecated(); //$NON-NLS-2$
-			cs.new Element(146, IRepository.RELATIONS, PROPERTY_FOREIGNTABLENAME.getPropertyName(), IRepository.TABLES).flagAsDeprecated(); //$NON-NLS-2$
+			cs.new Element(142, IRepository.RELATIONS, PROPERTY_NAME.getPropertyName(), IRepository.STRING).flagAsRequired();
+			cs.new Element(143, IRepository.RELATIONS, PROPERTY_PRIMARYSERVERNAME.getPropertyName(), IRepository.SERVERS).flagAsDeprecated();
+			cs.new Element(144, IRepository.RELATIONS, PROPERTY_FOREIGNSERVERNAME.getPropertyName(), IRepository.SERVERS).flagAsDeprecated();
+			cs.new Element(145, IRepository.RELATIONS, PROPERTY_PRIMARYTABLENAME.getPropertyName(), IRepository.TABLES).flagAsDeprecated();
+			cs.new Element(146, IRepository.RELATIONS, PROPERTY_FOREIGNTABLENAME.getPropertyName(), IRepository.TABLES).flagAsDeprecated();
 			cs.new Element(147, IRepository.RELATIONS, PROPERTY_DELETERELATEDRECORDS.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(148, IRepository.RELATIONS, PROPERTY_ALLOWCREATIONRELATEDRECORDS.getPropertyName(), IRepository.BOOLEAN);
 			cs.new Element(149, IRepository.RELATIONS, PROPERTY_EXISTSINDB.getPropertyName(), IRepository.BOOLEAN);
@@ -451,7 +451,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(153, IRepository.STATEMENTS, PROPERTY_SQLTYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(154, IRepository.STATEMENTS, PROPERTY_SQLTEXT.getPropertyName(), IRepository.STRING);
 
-			cs.new Element(155, IRepository.VALUELISTS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(155, IRepository.VALUELISTS, PROPERTY_NAME.getPropertyName(), IRepository.STRING).flagAsRequired();
 			cs.new Element(156, IRepository.VALUELISTS, PROPERTY_VALUELISTTYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(157, IRepository.VALUELISTS, PROPERTY_RELATIONNAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(158, IRepository.VALUELISTS, PROPERTY_CUSTOMVALUES.getPropertyName(), IRepository.STRING);
@@ -464,9 +464,9 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(165, IRepository.VALUELISTS, PROPERTY_RETURNDATAPROVIDERS.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(166, IRepository.VALUELISTS, PROPERTY_SEPARATOR.getPropertyName(), IRepository.STRING);
 			cs.new Element(167, IRepository.VALUELISTS, PROPERTY_SORTOPTIONS.getPropertyName(), IRepository.STRING);
-			cs.new Element(168, IRepository.SCRIPTVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(168, IRepository.SCRIPTVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING).flagAsRequired();
 			cs.new Element(169, IRepository.SCRIPTVARIABLES, PROPERTY_VARIABLETYPE.getPropertyName(), IRepository.INTEGER, Integer.valueOf(IColumnTypes.TEXT));
-			cs.new Element(170, IRepository.AGGREGATEVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(170, IRepository.AGGREGATEVARIABLES, PROPERTY_NAME.getPropertyName(), IRepository.STRING).flagAsRequired();
 			cs.new Element(171, IRepository.AGGREGATEVARIABLES, PROPERTY_TYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(172, IRepository.AGGREGATEVARIABLES, PROPERTY_DATAPROVIDERIDTOAGGREGATE.getPropertyName(), IRepository.STRING);
 			cs.new Element(173, IRepository.FIELDS, PROPERTY_DISPLAYSTAGS.getPropertyName(), IRepository.BOOLEAN);
@@ -690,8 +690,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(312, IRepository.METHODS, PROPERTY_DECLARATION.getPropertyName(), IRepository.STRING);
 			cs.new Element(313, IRepository.FORMS, PROPERTY_NAMEDFOUNDSET.getPropertyName(), IRepository.STRING);
 			cs.new Element(314, IRepository.FORMS, PROPERTY_DATASOURCE.getPropertyName(), IRepository.DATASOURCES);
-			cs.new Element(315, IRepository.RELATIONS, PROPERTY_PRIMARYDATASOURCE.getPropertyName(), IRepository.DATASOURCES); //$NON-NLS-2$
-			cs.new Element(316, IRepository.RELATIONS, PROPERTY_FOREIGNDATASOURCE.getPropertyName(), IRepository.DATASOURCES); //$NON-NLS-2$
+			cs.new Element(315, IRepository.RELATIONS, PROPERTY_PRIMARYDATASOURCE.getPropertyName(), IRepository.DATASOURCES);
+			cs.new Element(316, IRepository.RELATIONS, PROPERTY_FOREIGNDATASOURCE.getPropertyName(), IRepository.DATASOURCES);
 			cs.new Element(317, IRepository.VALUELISTS, PROPERTY_DATASOURCE.getPropertyName(), IRepository.DATASOURCES);
 			cs.new Element(318, IRepository.SOLUTIONS, PROPERTY_I18NDATASOURCE.getPropertyName(), IRepository.DATASOURCES);
 			cs.new Element(319, IRepository.TABLENODES, PROPERTY_DATASOURCE.getPropertyName(), IRepository.DATASOURCES);

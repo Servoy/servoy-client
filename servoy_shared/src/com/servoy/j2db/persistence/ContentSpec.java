@@ -79,6 +79,11 @@ public class ContentSpec
 		private boolean isMetaData;
 
 		/**
+		 * Indicates whether or not this property is required.
+		 */
+		private boolean isRequired;
+
+		/**
 		 * Indicate if content item is deprecated; 0 - not deprecated; -1 deprecated with no replacement specified; >0 content id replacement
 		 */
 		private int deprecatedMoveContentID = 0;
@@ -150,6 +155,16 @@ public class ContentSpec
 		public void flagAsMetaData()
 		{
 			isMetaData = true;
+		}
+
+		public boolean isRequired()
+		{
+			return isRequired;
+		}
+
+		public void flagAsRequired()
+		{
+			isRequired = true;
 		}
 
 		public String getDefaultTextualClassValue()
