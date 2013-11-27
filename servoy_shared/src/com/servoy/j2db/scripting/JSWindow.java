@@ -19,6 +19,9 @@ package com.servoy.j2db.scripting;
 
 import java.awt.Rectangle;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -274,6 +277,25 @@ public class JSWindow implements IConstantsObject
 		return impl.isUndecorated();
 	}
 
+	@JSSetter
+	public void setOpacity(float opacity)
+	{
+		impl.setOpacity(opacity);
+	}
+
+	/**
+	 * Gets/Sets the opacity property. By default will have value 1 (completely opaque), and can be assigned to values between 0 and 1.
+	 * If set then window will also be undecorated.
+	 *  
+	 * @sampleas js_getName()
+	 *  
+	 * @return the opacity of this window
+	 */
+	@JSGetter
+	public float getOpacity()
+	{
+		return impl.getOpacity();
+	}
 
 	public void js_setTitle(final String title)
 	{
@@ -321,6 +343,7 @@ public class JSWindow implements IConstantsObject
 	 * var height = "Height: " + someWindow.getHeight() + "\n"
 	 * var width = "Width: " + someWindow.getWidth() + "\n"
 	 * var undecorated = "Undecorated: " + someWindow.isUndecorated() + "\n"
+	 * var opacity = "Opacity: " + someWindow.opacity + "\n"
 	 * var locationX = "Location-X-coordinate: " + someWindow.getX() + "\n"
 	 * var locationY = "Location-Y-coordinate: " + someWindow.getY() + "\n"
 	 * var info = name + parent + type + height + width + locationX + locationY + undecorated + "\n"

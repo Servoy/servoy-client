@@ -43,6 +43,7 @@ import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.plugins.ISmartRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UIUtils;
@@ -479,6 +480,37 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				sfd.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
 				if (Utils.isAppleMacOS()) sfd.getRootPane().putClientProperty("Window.shadow", Boolean.FALSE); //$NON-NLS-1$
 			}
+
+
+			if (getOpacity() != 1)
+			{
+				boolean errored = false;
+				try
+				{
+					Method mSetWindowOpacity = Window.class.getMethod("setOpacity", float.class);
+					mSetWindowOpacity.invoke(sfd, getOpacity());
+				}
+				catch (Exception ex)
+				{
+					errored = true;
+					Debug.trace("Error while trying to set opacity on window", ex);
+				}
+
+				try
+				{
+					if (errored)
+					{
+						Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
+						Method mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
+						mSetWindowOpacity.invoke(null, sfd, getOpacity());
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.trace("Error while trying to set opacity on window", ex);
+				}
+			}
+
 			if (windowModal)
 			{
 				testAndSetJava6Modality(sfd);

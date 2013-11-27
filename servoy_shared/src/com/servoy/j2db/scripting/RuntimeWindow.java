@@ -61,7 +61,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	private final JSWindow jsWindow;
 
 	private boolean undecorated = false;
-
+	private float opacity = 1;
 
 	protected RuntimeWindow(IApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
@@ -129,7 +129,17 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	public boolean isUndecorated()
 	{
-		return undecorated;
+		return undecorated || opacity != 1;
+	}
+
+	public void setOpacity(float opacity)
+	{
+		this.opacity = opacity;
+	}
+
+	public float getOpacity()
+	{
+		return opacity;
 	}
 
 	public void setTitle(String title)
