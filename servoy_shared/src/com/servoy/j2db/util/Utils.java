@@ -91,10 +91,14 @@ import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 import de.rtner.security.auth.spi.PBKDF2Engine;
@@ -2823,6 +2827,27 @@ public final class Utils
 	{
 		if (array == null) return "null"; //$NON-NLS-1$
 		return getArrayString(array).toString();
+	}
+
+	public static Object removeJavascripLinkFromDisplay(IDisplayData display, Object value)
+	{
+		Object obj = value == null ? display.getValueObject() : value;
+
+		if (obj instanceof String && display instanceof IScriptableProvider)
+		{
+			IScriptable scriptable = ((IScriptableProvider)display).getScriptObject();
+			if (scriptable instanceof HasRuntimeClientProperty)
+			{
+				HasRuntimeClientProperty scriptableWithClientProperty = (HasRuntimeClientProperty)scriptable;
+				if (!Boolean.TRUE.equals(scriptableWithClientProperty.getClientProperty(IApplication.ALLOW_JAVASCRIPT_LINK_INPUT)))
+				{
+					obj = ((String)obj).replaceAll("(?i)javascript:", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					display.setValueObject(obj);
+				}
+			}
+		}
+
+		return obj;
 	}
 
 	/**

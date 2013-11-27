@@ -254,6 +254,11 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 			obj = ((IResolveObject)component).resolveRealValue(obj);
 		}
 
+		if (component instanceof IDisplayData)
+		{
+			obj = Utils.removeJavascripLinkFromDisplay((IDisplayData)component, obj);
+		}
+
 		WebForm webForm = component.findParent(WebForm.class);
 		IRecordInternal record = (IRecordInternal)RecordItemModel.this.getObject();
 
