@@ -323,7 +323,8 @@ public class DivWindow extends ModalWindow
 	}
 
 	/**
-	 * @param opacity the opacity to set
+	 * Sets the window's opacity. Only has effect if called before the window is shown.
+	 * @param opacity the opacity to set.
 	 */
 	public void setOpacity(float opacity)
 	{
