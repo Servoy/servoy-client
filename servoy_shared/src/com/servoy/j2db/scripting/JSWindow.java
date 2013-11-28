@@ -266,7 +266,7 @@ public class JSWindow implements IConstantsObject
 
 	/**
 	 * Gets/Sets the undecorated property.
-	 * If set then this window will not have any decoration and can't be moved/resized or closed.
+	 * If set then this window will not have any decoration and can't be moved/resized or closed. This should be set before dialog/window is shown, otherwise has no effect.
 	 *  
 	 * @sampleas js_getName()
 	 *  
@@ -285,7 +285,7 @@ public class JSWindow implements IConstantsObject
 
 	/**
 	 * Gets/Sets the opacity property. By default will have value 1 (completely opaque), and can be assigned to values between 0 and 1.
-	 * If set then window will also be undecorated.
+	 * If set then window will also be undecorated. This should be set before dialog/window is shown, otherwise has no effect.
 	 *  
 	 * @sampleas js_getName()
 	 *  

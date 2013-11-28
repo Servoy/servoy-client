@@ -18,7 +18,6 @@ package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.string.AppendingStringBuffer;
 
 /**
  * Web-client DIV window customised to Servoy needs.
@@ -28,7 +27,6 @@ public class ServoyDivDialog extends DivWindow
 {
 
 	private boolean closeAll = false; // for legacy modal dialog behavior (when multiple forms were shown in same dialog and close would either close one at a time or all)
-	private float opacity = 1;
 
 	public ServoyDivDialog(String id)
 	{
@@ -50,14 +48,6 @@ public class ServoyDivDialog extends DivWindow
 		return closeAll;
 	}
 
-	/**
-	 * @param opacity the opacity to set
-	 */
-	public void setOpacity(float opacity)
-	{
-		this.opacity = opacity;
-	}
-
 	@Deprecated
 	@Override
 	public void show(AjaxRequestTarget target)
@@ -68,17 +58,4 @@ public class ServoyDivDialog extends DivWindow
 		}
 		super.show(target);
 	}
-
-	@Override
-	protected AppendingStringBuffer postProcessSettings(AppendingStringBuffer settings)
-	{
-		settings = super.postProcessSettings(settings);
-
-		settings.append("settings.opacity=");
-		settings.append(opacity);
-		settings.append(";\n");
-
-		return settings;
-	}
-
 }

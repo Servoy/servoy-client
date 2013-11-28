@@ -176,6 +176,7 @@ public class DivWindow extends ModalWindow
 	private MoveCallback moveCallback = null;
 	private int boundEventsDelay = 300;
 	private final Rectangle bounds = new Rectangle(-1, -1, -1, -1); // initially unknown bounds; -1 in order for setBounds(getBounds()) to not have any undesired effect when bounds are not known
+	private float opacity = 1;
 
 	// if you would have an app shown in an iframe of another app, then you can't know browser side which browser window to use for running actions just by checking that DivWindow is defined or not in parent iframe
 	// because all of them definde DivWindow code & if the response comes from a dialog iframe, then you should target parent browser window, otherwise you should target current browser window.
@@ -321,6 +322,15 @@ public class DivWindow extends ModalWindow
 		this.initialLocation = initialLocation;
 	}
 
+	/**
+	 * @param opacity the opacity to set
+	 */
+	public void setOpacity(float opacity)
+	{
+		this.opacity = opacity;
+	}
+
+
 	public Point getInitialLocation()
 	{
 		return initialLocation;
@@ -404,6 +414,10 @@ public class DivWindow extends ModalWindow
 
 		settings.append("settings.modal=");
 		settings.append(isModal());
+		settings.append(";\n");
+
+		settings.append("settings.opacity=");
+		settings.append(opacity);
 		settings.append(";\n");
 
 		String closeText = WebClientSession.get().getWebClient().getI18NMessage("servoy.webclient.dialogCloseText");
