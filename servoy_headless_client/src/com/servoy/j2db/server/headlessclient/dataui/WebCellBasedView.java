@@ -5241,38 +5241,42 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			{
 				selectedIndex = WebCellBasedView.this.getSelectedIndexes()[0];
 			}
-			boolean needToRenderRows = true;
-			if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false;
 
-			if (needToRenderRows)
-			{// this block handles the case where there is not need to render new rows , only to scroll into viewPort
-				int cellHeight = getCellHeight();
-				int cellScroll = cellHeight * (selectedIndex.intValue() + 1);
-				if (cellScroll > currentScrollTop && (cellScroll < currentScrollTop + bodyHeightHint))
-				{
-					needToRenderRows = false;
-				}
-				else if (isKeepLoadedRowsInScrollMode && (cellScroll < viewSize * cellHeight))
-				{
-					Boolean alignWithTop = cellScroll < currentScrollTop;
-					//selection was in the loaded rows but not visible in the viewport, scroll without loading records
-					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
-					needToRenderRows = false;
-				}
-				else if (!isKeepLoadedRowsInScrollMode &&
-					(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
-				{
-					Boolean alignWithTop = cellScroll < currentScrollTop;
-					//selection was within the loaded viewSize
-					target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex - table.getStartIndex()).getMarkupId() + "',1," +
-						alignWithTop + ");");
-					needToRenderRows = false;
-				}
-			}
-			if (!needToRenderRows)
+			if (table.size() == 0 ||
+				(((ListItem<IRecordInternal>)table.get(0)).getIndex() == 0 && ((ListItem<IRecordInternal>)table.get(table.size() - 1)).getIndex() == table.size() - 1)) // check if have all the row components loaded
 			{
-				target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
-				return;
+				boolean needToRenderRows = true;
+				if (selectedIndex == null || selectedIndex > tableSize) needToRenderRows = false;
+
+				if (needToRenderRows)
+				{// this block handles the case where there is not need to render new rows , only to scroll into viewPort
+					int cellHeight = getCellHeight();
+					int cellScroll = cellHeight * (selectedIndex.intValue() + 1);
+					if (cellScroll > currentScrollTop && (cellScroll < currentScrollTop + bodyHeightHint))
+					{
+						needToRenderRows = false;
+					}
+					else if (isKeepLoadedRowsInScrollMode && (cellScroll < viewSize * cellHeight))
+					{
+						Boolean alignWithTop = cellScroll < currentScrollTop;
+						//selection was in the loaded rows but not visible in the viewport, scroll without loading records
+						target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
+						needToRenderRows = false;
+					}
+					else if (!isKeepLoadedRowsInScrollMode &&
+						(cellScroll > currentScrollTop - bodyHeightHint && (cellScroll < currentScrollTop + 2 * bodyHeightHint)))
+					{
+						Boolean alignWithTop = cellScroll < currentScrollTop;
+						//selection was within the loaded viewSize
+						target.appendJavascript("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "',1," + alignWithTop + ");");
+						needToRenderRows = false;
+					}
+				}
+				if (!needToRenderRows)
+				{
+					target.appendJavascript("Servoy.TableView.isAppendingRows = false;");
+					return;
+				}
 			}
 
 			if (isKeepLoadedRowsInScrollMode)
@@ -5325,17 +5329,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				//sb.append("$('#" + table.get(selectedIndex).getMarkupId() + "')[0].scrollIntoView(true);");
 
-				String selectedItemMarkupId;
-				if (needToRenderRows)
-				{
-					selectedItemMarkupId = newRows.toArray(new ListItem[newRows.size()])[selectedIndex - table.getStartIndex()].getMarkupId();
-				}
-				else
-				{
-					selectedItemMarkupId = table.get(selectedIndex - table.getStartIndex()).getMarkupId();
-				}
-
-				sb.append("Servoy.TableView.scrollIntoView('" + selectedItemMarkupId + "');");
+				sb.append("Servoy.TableView.scrollIntoView('" + table.get(selectedIndex).getMarkupId() + "');");
 				target.appendJavascript(sb.toString());
 			}
 
@@ -5347,13 +5341,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		*/
 		int getCellHeight()
 		{
-			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(0);
-			int maxHeight = -1;
-
 			if (WebCellBasedView.this.isListViewMode())
 			{
 				return WebCellBasedView.this.formBodySize.height;
 			}
+
+			ListItem<IRecordInternal> startListItem = (ListItem<IRecordInternal>)table.get(table.getStartIndex());
+			int maxHeight = -1;
 
 			Iterable< ? extends Component> it = Utils.iterate(startListItem.iterator());
 			for (Component c : it)
@@ -5368,14 +5362,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						if (scriptableComponent instanceof IRuntimeComponent)
 						{
 							IRuntimeComponent runtimeComp = (IRuntimeComponent)scriptableComponent;
-							maxHeight = runtimeComp.getHeight() > maxHeight ? runtimeComp.getHeight() : maxHeight;
+							maxHeight = runtimeComp.getHeight();
+							break;
 						}
 					}
 				}
 				else if (c instanceof IScriptableProvider && ((IScriptableProvider)c).getScriptObject() instanceof IRuntimeComponent)
 				{
 					IRuntimeComponent runtimeComp = (IRuntimeComponent)((IScriptableProvider)c).getScriptObject();
-					maxHeight = runtimeComp.getHeight() > maxHeight ? runtimeComp.getHeight() : maxHeight;
+					maxHeight = runtimeComp.getHeight();
+					break;
 				}
 			}
 			return maxHeight;
