@@ -47,7 +47,7 @@
 			styles[CSS_PROPERTIES[i]] = $input.css(CSS_PROPERTIES[i]);
 		}
 		zIndex = parseInt($input.css('z-index'), 10);
-		if (isNaN(zIndex) || !zIndex) zIndex = 1;
+		if (isNaN(zIndex) || !zIndex) zIndex = 0;
 
 		// create the placeholder
 		$placeholder = $('<span>').addClass('placeholder').html(text);
