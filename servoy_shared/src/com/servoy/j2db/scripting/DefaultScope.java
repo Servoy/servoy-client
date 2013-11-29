@@ -203,13 +203,13 @@ public abstract class DefaultScope implements Scriptable
 		array[counter++] = "allnames"; //$NON-NLS-1$
 		array[counter++] = "length"; //$NON-NLS-1$
 
-		for (Iterator<String> iter = allVars.keySet().iterator(); iter.hasNext();)
+		for (String string : allVars.keySet())
 		{
-			array[counter++] = iter.next();
+			array[counter++] = string;
 		}
-		for (Iterator<Integer> iter = allIndex.keySet().iterator(); iter.hasNext();)
+		for (Integer integer : allIndex.keySet())
 		{
-			array[counter++] = iter.next();
+			array[counter++] = integer;
 		}
 		return array;
 	}
@@ -272,6 +272,22 @@ public abstract class DefaultScope implements Scriptable
 
 	public void destroy()
 	{
+		for (Object var : allIndex.values())
+		{
+			if (var instanceof DefaultScope)
+			{
+				((DefaultScope)var).destroy();
+			}
+		}
+
+		for (Object var : allVars.values())
+		{
+			if (var instanceof DefaultScope)
+			{
+				((DefaultScope)var).destroy();
+			}
+		}
+
 		this.allIndex.clear();
 		this.allVars.clear();
 		this.parent = null;

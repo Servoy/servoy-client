@@ -22,6 +22,7 @@ import java.util.ListIterator;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
+import org.apache.log4j.spi.ThrowableInformation;
 
 public class SlidingWindowAppender extends AppenderSkeleton
 {
@@ -29,35 +30,30 @@ public class SlidingWindowAppender extends AppenderSkeleton
 
 	private boolean locationInfo = false;
 
-	protected LinkedList eventWindow;
+	protected LinkedList<LoggingEvent> eventWindow;
 
 	protected Object eventWindowLock = new Object();
 
 	public SlidingWindowAppender()
 	{
-		eventWindow = new LinkedList();
+		eventWindow = new LinkedList<LoggingEvent>();
 	}
 
 	@Override
 	public void append(LoggingEvent event)
 	{
-		if (!checkEntryConditions())
+		if (checkEntryConditions())
 		{
-			return;
-		}
-		event.getThreadName();
-		event.getNDC();
-		event.getMDCCopy();
-		if (locationInfo)
-		{
-			event.getLocationInformation();
-		}
-		synchronized (eventWindowLock)
-		{
-			eventWindow.add(event);
-			if (eventWindow.size() > windowSize)
+			synchronized (eventWindowLock)
 			{
-				eventWindow.removeFirst();
+				// create new event just with string representation so throwable is no longer referenced and can be GCed.
+				eventWindow.add(new LoggingEvent(event.getFQNOfLoggerClass(), event.getLogger(), event.getTimeStamp(), event.getLevel(), event.getMessage(),
+					event.getThreadName(), event.getThrowableInformation() == null ? null : new ThrowableInformation(event.getThrowableStrRep()),
+					event.getNDC(), event.getLocationInformation(), event.getProperties()));
+				if (eventWindow.size() > windowSize)
+				{
+					eventWindow.removeFirst();
+				}
 			}
 		}
 	}
@@ -89,10 +85,10 @@ public class SlidingWindowAppender extends AppenderSkeleton
 			StringBuffer buffer = new StringBuffer();
 			String header = layout.getHeader();
 			if (header != null) buffer.append(header);
-			ListIterator iterator = eventWindow.listIterator(ascending ? 0 : eventWindow.size());
+			ListIterator<LoggingEvent> iterator = eventWindow.listIterator(ascending ? 0 : eventWindow.size());
 			while (ascending ? iterator.hasNext() : iterator.hasPrevious())
 			{
-				LoggingEvent event = (LoggingEvent)(ascending ? iterator.next() : iterator.previous());
+				LoggingEvent event = ascending ? iterator.next() : iterator.previous();
 				int accept = Filter.NEUTRAL;
 				Filter currentFilter = filter;
 				while (currentFilter != null && accept == Filter.NEUTRAL)
@@ -115,7 +111,7 @@ public class SlidingWindowAppender extends AppenderSkeleton
 	{
 		synchronized (eventWindowLock)
 		{
-			eventWindow = new LinkedList();
+			eventWindow = new LinkedList<LoggingEvent>();
 		}
 	}
 

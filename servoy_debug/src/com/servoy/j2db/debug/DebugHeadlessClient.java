@@ -206,7 +206,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	{
 		synchronized (activeSolutionRefreshLock)
 		{
-			return isShutDown() ? true : super.closeSolution(force, args);
+			return super.closeSolution(force, args);
 		}
 	}
 
