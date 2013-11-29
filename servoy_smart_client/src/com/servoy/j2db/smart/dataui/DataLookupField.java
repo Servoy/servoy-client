@@ -18,6 +18,7 @@ package com.servoy.j2db.smart.dataui;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -67,6 +68,7 @@ import com.servoy.j2db.dataprocessing.LookupListChangeListener;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.ui.ISupportsDoubleBackground;
 import com.servoy.j2db.ui.IWindowVisibleChangeListener;
 import com.servoy.j2db.ui.IWindowVisibleChangeNotifier;
 import com.servoy.j2db.ui.scripting.RuntimeDataLookupField;
@@ -81,7 +83,7 @@ import com.servoy.j2db.util.text.FixedMaskFormatter;
  * 
  * @author jcompagner
  */
-public class DataLookupField extends DataField implements IDisplayRelatedData, IDisplayDependencyData
+public class DataLookupField extends DataField implements IDisplayRelatedData, IDisplayDependencyData, ISupportsDoubleBackground
 {
 	private static final long serialVersionUID = 1L;
 
@@ -102,7 +104,8 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 
 	private boolean keyBindingChangedValBeforeFocusEvent = false;
 	private boolean consumeEnterReleased;
-
+	private boolean useListColor = false;
+	private Color listColor = null;
 
 	private static Timer timer;
 
@@ -498,7 +501,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 					jlist.setModel(dlm);
 					jlist.setSelectedValue(txt, true);
 					jlist.setFont(getFont());
-					if (isOpaque()) jlist.setBackground(getBackground()); //use bgcolor only for opaque popup
+					if (isOpaque()) jlist.setBackground(getListColor()); //use bgcolor only for opaque popup
 					jlist.setForeground(getForeground());
 				}
 				showPopup();
@@ -623,7 +626,7 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 				jlist.addMouseListener(new ListMouseListener());
 
 				jlist.setFont(getFont());
-				if (isOpaque()) jlist.setBackground(getBackground()); //use bgcolor only for opaque popup
+				if (isOpaque()) jlist.setBackground(getListColor()); //use bgcolor only for opaque popup
 				jlist.setForeground(getForeground());
 
 				jlist.setFocusable(false);
@@ -1026,5 +1029,28 @@ public class DataLookupField extends DataField implements IDisplayRelatedData, I
 		}
 	}
 
+	@Override
+	public void setBackground(Color color1, Color color2)
+	{
+		if (!Utils.equalObjects(color1, color2))
+		{
+			useListColor = true;
+			this.listColor = color2;
+		}
+		else
+		{
+			// if the same, still use background
+			useListColor = false;
+		}
+		setBackground(color1);
+	}
 
+	private Color getListColor()
+	{
+		if (useListColor)
+		{
+			return listColor;
+		}
+		return getBackground();
+	}
 }

@@ -105,6 +105,7 @@ import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
+import com.servoy.j2db.ui.ISupportsDoubleBackground;
 import com.servoy.j2db.ui.RenderEventExecutor;
 import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
@@ -463,7 +464,14 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				bgColor = unselectedBackground; // unselected background is the default background color of the editor.
 			}
 			lastEditorBgColor = bgColor;
-			editor.setBackground(bgColor);
+			if (editor instanceof ISupportsDoubleBackground)
+			{
+				((ISupportsDoubleBackground)editor).setBackground(bgColor, unselectedBackground);
+			}
+			else
+			{
+				editor.setBackground(bgColor);
+			}
 
 
 			Color fgColor = getFgColor(jtable, isSelected, row);

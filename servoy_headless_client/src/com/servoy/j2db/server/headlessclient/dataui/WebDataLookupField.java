@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
 import java.util.Collections;
@@ -299,10 +300,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 					}
 				}
 
-				if (getBackground() != null && getBackground().getAlpha() == 255)
+				if (getListColor() != null && getListColor().getAlpha() == 255)
 				{
 					// background shouldn't be transparent
-					bgColor = getWebColor(getBackground().getRGB());
+					bgColor = getWebColor(getListColor().getRGB());
 				}
 				if (getForeground() != null)
 				{
@@ -679,4 +680,22 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		detachModel();
 	}
 
+	@Override
+	public void setBackground(Color cbg)
+	{
+		listColor = cbg;
+		super.setBackground(cbg);
+	}
+
+	private Color listColor = null;
+
+	private Color getListColor()
+	{
+		return listColor;
+	}
+
+	public void setListColor(Color listColor)
+	{
+		this.listColor = listColor;
+	}
 }

@@ -170,6 +170,7 @@ import com.servoy.j2db.ui.PropertyCopy;
 import com.servoy.j2db.ui.RenderableWrapper;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -3986,7 +3987,12 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				if (bgColor != null)
 				{
 					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
+					String oldColor = sbm.getBgcolor();
 					sbm.setBgcolor(bgColor.toString());
+					if (sbm instanceof AbstractRuntimeBaseComponent && ((AbstractRuntimeBaseComponent)sbm).getComponent() instanceof WebDataLookupField)
+					{
+						((WebDataLookupField)((AbstractRuntimeBaseComponent)sbm).getComponent()).setListColor(PersistHelper.createColor(oldColor));
+					}
 					if (sbm.isTransparent())
 					{
 						// apply the bg color even if transparent by clearing the transparent flag in the property changes map
