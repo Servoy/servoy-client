@@ -560,7 +560,14 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 				if (form == null)
 				{
-					selectAndOpenSolution();// fake first load 
+					if (isSolutionLoaded())
+					{
+						closeSolution(true, null);
+					}
+					else
+					{
+						selectAndOpenSolution();// fake first load
+					}
 				}
 				else
 				{
