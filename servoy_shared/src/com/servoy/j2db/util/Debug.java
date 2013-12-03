@@ -16,12 +16,11 @@
  */
 package com.servoy.j2db.util;
 
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ScriptRuntime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.servoy.base.util.ILogger;
@@ -43,7 +42,7 @@ public class Debug
 		}
 	};
 
-	private volatile static Log log = null;
+	private volatile static Logger log = null;
 
 	private volatile static boolean trace = false;
 
@@ -54,7 +53,7 @@ public class Debug
 		try
 		{
 			// touch the LogFactory class in the init. (to avoid the webstart bug)
-			Class< ? > cls = LogFactory.class;
+			Class< ? > cls = LoggerFactory.class;
 			if (cls != null) cls.getName();
 		}
 		catch (Throwable t)
@@ -102,7 +101,7 @@ public class Debug
 			boolean TRACE = t;
 			if (TRACE) System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "trace");
 
-			log = LogFactory.getLog(Debug.class);
+			log = LoggerFactory.getLogger(Debug.class);
 			trace = log.isTraceEnabled();
 		}
 		catch (Throwable t)
@@ -216,7 +215,7 @@ public class Debug
 			else
 			{
 				boolean wasInserted = insertClientInfo(true);
-				log.trace(s);
+				log.trace((String)s);
 				if (wasInserted) insertClientInfo(false);
 
 			}
@@ -293,7 +292,7 @@ public class Debug
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.error(s);
+			log.error((String)s);
 			if (wasInserted) insertClientInfo(false);
 
 		}
@@ -329,7 +328,7 @@ public class Debug
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.info(s);
+			log.info((String)s);
 			if (wasInserted) insertClientInfo(false);
 		}
 	}
@@ -344,7 +343,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.warn(s);
+		log.warn((String)s);
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -353,7 +352,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.fatal(s);
+		log.error((String)s);
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -362,7 +361,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.debug(s);
+		log.debug((String)s);
 		if (wasInserted) insertClientInfo(false);
 	}
 
