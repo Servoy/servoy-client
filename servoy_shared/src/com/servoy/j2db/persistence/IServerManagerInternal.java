@@ -20,12 +20,15 @@ package com.servoy.j2db.persistence;
 import java.io.File;
 import java.sql.Driver;
 
+import com.servoy.j2db.util.visitor.IVisitable;
+
 
 /**
  * IServerManager interface extended with internal methods.
  */
 public interface IServerManagerInternal extends IServerManager
 {
+	void init() throws Exception;
 
 	IServer deleteServer(ServerConfig oldServerConfig);
 
@@ -86,4 +89,12 @@ public interface IServerManagerInternal extends IServerManager
 	void setGlobalSequenceProvider(ISequenceProvider sm);
 
 	public boolean isServerDataModelCloneCycling(IServerInternal server);
+
+	void updateColumnInfo(IVisitable sqlSelect, String server_name) throws RepositoryException;
+
+	ClassLoader getClassLoader();
+
+	void setServerEnableListener(IServerEnableListener iServerEnableListener);
+
+	void close();
 }
