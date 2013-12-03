@@ -246,11 +246,11 @@ public class VersionStringUtils
 
 		if (i1 == null && i2 != null)
 		{
-			return INTERMEDIATE.equalsIgnoreCase(compareBlock1) ? 1 : -1;
+			return i2.intValue() > 0 ? -1 : (INTERMEDIATE.equalsIgnoreCase(compareBlock1) ? 1 : -1);
 		}
 		else if (i1 != null && i2 == null)
 		{
-			return INTERMEDIATE.equals(compareBlock2) ? -1 : 1;
+			return i1.intValue() > 0 ? 1 : (INTERMEDIATE.equalsIgnoreCase(compareBlock2) ? -1 : 1);
 		}
 		else if (i1 == null) // && i2 == null)
 		{
