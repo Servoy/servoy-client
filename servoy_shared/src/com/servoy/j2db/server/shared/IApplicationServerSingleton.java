@@ -61,8 +61,6 @@ public interface IApplicationServerSingleton
 
 	String getClientId();
 
-	void setClientId(String clientID);
-
 	IDebugClientHandler getDebugClientHandler();
 
 	IPluginManagerInternal getPluginManager();
