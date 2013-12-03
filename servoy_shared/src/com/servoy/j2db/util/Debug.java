@@ -215,7 +215,7 @@ public class Debug
 			else
 			{
 				boolean wasInserted = insertClientInfo(true);
-				log.trace((String)s);
+				log.trace(String.valueOf(s));
 				if (wasInserted) insertClientInfo(false);
 
 			}
@@ -292,7 +292,7 @@ public class Debug
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.error((String)s);
+			log.error(String.valueOf(s));
 			if (wasInserted) insertClientInfo(false);
 
 		}
@@ -328,7 +328,7 @@ public class Debug
 		else
 		{
 			boolean wasInserted = insertClientInfo(true);
-			log.info((String)s);
+			log.info(String.valueOf(s));
 			if (wasInserted) insertClientInfo(false);
 		}
 	}
@@ -343,7 +343,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.warn((String)s);
+		log.warn(String.valueOf(s));
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -352,7 +352,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.error((String)s);
+		log.error(String.valueOf(s));
 		if (wasInserted) insertClientInfo(false);
 	}
 
@@ -361,7 +361,7 @@ public class Debug
 		initIfFirstTime();
 		if (log == null) return;
 		boolean wasInserted = insertClientInfo(true);
-		log.debug((String)s);
+		log.debug(String.valueOf(s));
 		if (wasInserted) insertClientInfo(false);
 	}
 
