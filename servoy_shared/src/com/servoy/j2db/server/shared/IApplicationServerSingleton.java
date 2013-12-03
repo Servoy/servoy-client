@@ -147,4 +147,10 @@ public interface IApplicationServerSingleton
 	public boolean hadIncompatibleExtensionsWhenStarted();
 
 	IMessageDispatcher getMessageDispatcher();
+
+	boolean isClientRepositoryAccessAllowed(String serverName);
+
+	boolean isClientRepositoryAccessAllowed();
+
+	void checkClientRepositoryAccess(String serverName) throws RepositoryException;
 }
