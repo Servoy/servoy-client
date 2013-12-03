@@ -32,7 +32,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -74,7 +73,7 @@ public class Settings extends SortedProperties
 	public static final String LOG_CLIENT_STATS = "servoy.log.clientstats";
 
 	private boolean loadedFromServer = false;
-	private File file;
+	protected File file;
 
 	static
 	{
@@ -85,7 +84,7 @@ public class Settings extends SortedProperties
 
 	private final static Settings me = new Settings();
 
-	private Settings()
+	protected Settings()
 	{
 	}
 
@@ -263,7 +262,7 @@ public class Settings extends SortedProperties
 		}
 	}
 
-	private void applySystemProperties()
+	protected void applySystemProperties()
 	{
 		// Setting all system property entries of the settings.
 		Iterator iterator = keySet().iterator();
@@ -634,56 +633,6 @@ public class Settings extends SortedProperties
 		return 1;
 	}
 
-	/**
-	 * Get all properties with prefixed key 
-	 * @param settings
-	 * @param string
-	 * @return
-	 */
-	public static Map<String, String> getPrefixedProperties(Properties properties, String prefix)
-	{
-		Map<String, String> map = null;
-		if (properties != null)
-		{
-			for (java.util.Map.Entry<Object, Object> entry : properties.entrySet())
-			{
-				if (entry.getKey() instanceof String && entry.getValue() instanceof String && ((String)entry.getKey()).startsWith(prefix))
-				{
-					if (map == null)
-					{
-						map = new HashMap<String, String>();
-					}
-					map.put(((String)entry.getKey()).substring(prefix.length()), (String)entry.getValue());
-				}
-			}
-		}
-
-		return map;
-	}
-
-	/**
-	 * Remove all properties with prefixed key 
-	 * @param settings
-	 * @param string
-	 * @return
-	 */
-	public static void removePrefixedProperties(Properties properties, String prefix)
-	{
-		if (properties != null)
-		{
-			for (Object key : properties.keySet().toArray())
-			{
-				if (key instanceof String && ((String)key).startsWith(prefix))
-				{
-					properties.remove(key);
-				}
-			}
-		}
-	}
-
-	/**
-	 * 
-	 */
 	public File getFile()
 	{
 		return file;
