@@ -59,6 +59,7 @@ import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.ExistsCondition;
+import com.servoy.j2db.query.IPlaceholderKey;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
@@ -908,6 +909,29 @@ public class SQLGenerator
 		Placeholder placeHolder = new Placeholder(new TablePlaceholderKey(queryTable, SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
 		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.clone()));
 		return new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
+	}
+
+	static boolean isDynamicPKSetCondition(ISQLCondition condition)
+	{
+		if (condition instanceof SetCondition)
+		{
+			Object values = ((SetCondition)condition).getValues();
+			if (!(values instanceof Placeholder))
+			{
+				return false;
+			}
+			IPlaceholderKey key = ((Placeholder)values).getKey();
+			if (!(key instanceof TablePlaceholderKey))
+			{
+				return false;
+			}
+			if (!SQLGenerator.PLACEHOLDER_FOUNDSET_PKS.equals(((TablePlaceholderKey)key).getName()))
+			{
+				return false;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**

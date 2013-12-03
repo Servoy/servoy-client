@@ -919,12 +919,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean js_hasConditions()
 	{
 		QuerySelect query = pksAndRecords.getQuerySelectForReading();
-		if (query == null)
+		if (query != null)
 		{
-			return false;
+			AndCondition searchCondition = query.getCondition(SQLGenerator.CONDITION_SEARCH);
+			if (searchCondition != null)
+			{
+				for (ISQLCondition condition : searchCondition.getConditions())
+				{
+					if (!SQLGenerator.isDynamicPKSetCondition(condition))
+					{
+						return true;
+					}
+				}
+			}
 		}
-		AndCondition searchCondition = query.getCondition(SQLGenerator.CONDITION_SEARCH);
-		return searchCondition != null && searchCondition.getConditions().size() > 0;
+		return false;
 	}
 
 	/**
