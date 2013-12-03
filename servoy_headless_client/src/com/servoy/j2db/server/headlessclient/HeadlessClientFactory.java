@@ -16,7 +16,13 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 import javax.servlet.ServletRequest;
+
+import com.servoy.j2db.ISessionClient;
 
 /**
  * Factory for headless clients
@@ -42,7 +48,15 @@ public class HeadlessClientFactory
 	public static ISessionBean createSessionBean(ServletRequest req, String solutionname, String username, String password, Object[] solutionOpenMethodArgs)
 		throws Exception
 	{
-		return HeadlessClientFactoryInternal.createSessionBean(req, solutionname, username, password, solutionOpenMethodArgs);
+		final ISessionClient sb = HeadlessClientFactoryInternal.createSessionBean(req, solutionname, username, password, solutionOpenMethodArgs);
+		return (ISessionBean)Proxy.newProxyInstance(HeadlessClientFactory.class.getClassLoader(), new Class[] { ISessionBean.class }, new InvocationHandler()
+		{
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+			{
+				return method.invoke(sb, args);
+			}
+		});
 	}
 
 	public static IHeadlessClient createHeadlessClient(String solutionname) throws Exception
@@ -62,6 +76,15 @@ public class HeadlessClientFactory
 
 	public static IHeadlessClient createHeadlessClient(String solutionname, String username, String password, Object[] solutionOpenMethodArgs) throws Exception
 	{
-		return HeadlessClientFactoryInternal.createHeadlessClient(solutionname, username, password, solutionOpenMethodArgs);
+		final ISessionClient sb = HeadlessClientFactoryInternal.createHeadlessClient(solutionname, username, password, solutionOpenMethodArgs);
+		return (IHeadlessClient)Proxy.newProxyInstance(HeadlessClientFactory.class.getClassLoader(), new Class[] { IHeadlessClient.class },
+			new InvocationHandler()
+			{
+				@Override
+				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+				{
+					return method.invoke(sb, args);
+				}
+			});
 	}
 }

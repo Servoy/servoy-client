@@ -71,6 +71,7 @@ import com.servoy.j2db.server.headlessclient.ServoyBrowserInfoPage.ServoyWebClie
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
+import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Ad;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;

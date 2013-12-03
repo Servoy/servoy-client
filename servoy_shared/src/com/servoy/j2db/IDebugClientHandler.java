@@ -30,9 +30,9 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.server.headlessclient.WebCredentials;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
 import com.servoy.j2db.server.shared.IUserManager;
+import com.servoy.j2db.server.shared.WebCredentials;
 
 /**
  * Handler for debug clients 

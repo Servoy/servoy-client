@@ -108,6 +108,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebItemFactory;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.smart.dataui.DataRendererFactory;
 import com.servoy.j2db.smart.dataui.SwingItemFactory;
 import com.servoy.j2db.ui.ItemFactory;

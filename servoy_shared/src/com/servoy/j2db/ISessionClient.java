@@ -18,7 +18,7 @@ package com.servoy.j2db;
 
 import com.servoy.j2db.persistence.InfoChannel;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.server.headlessclient.ISessionBean;
+import com.servoy.j2db.server.shared.ISessionBean;
 
 /**
  * Session client interface

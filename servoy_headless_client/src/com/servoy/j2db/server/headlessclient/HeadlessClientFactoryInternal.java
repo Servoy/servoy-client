@@ -39,9 +39,14 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
 
+/**
+ * Factory for headless clients
+ * @author rgansevles
+ */
+@SuppressWarnings("nls")
 public class HeadlessClientFactoryInternal
 {
-	public static IHeadlessClient createHeadlessClient(String solutionname, String username, String password, Object[] solutionOpenMethodArgs) throws Exception
+	public static ISessionClient createHeadlessClient(String solutionname, String username, String password, Object[] solutionOpenMethodArgs) throws Exception
 	{
 		return createSessionBean(null, solutionname, username, password, solutionOpenMethodArgs);
 	}

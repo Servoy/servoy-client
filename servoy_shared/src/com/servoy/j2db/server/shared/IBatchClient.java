@@ -16,7 +16,7 @@
 */
 package com.servoy.j2db.server.shared;
 
-import com.servoy.j2db.server.headlessclient.IHeadlessClient;
+import com.servoy.j2db.server.shared.IHeadlessClient;
 
 
 public interface IBatchClient extends IHeadlessClient
