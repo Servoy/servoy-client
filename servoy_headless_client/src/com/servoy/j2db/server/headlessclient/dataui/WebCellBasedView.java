@@ -766,8 +766,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				setParentBGcolor(comp, compColor);
 			}
 
-			WebCellBasedView.this.applyStyleOnComponent(comp, compColor, fgColor, compFont, listItemBorder);
-
 			if (scriptable.isReadOnly() && validationEnabled && comp instanceof IScriptableProvider &&
 				((IScriptableProvider)comp).getScriptObject() instanceof HasRuntimeReadOnly) // if in find mode, the field should not be readonly
 			{
@@ -4566,42 +4564,47 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						{
 
 							Iterable< ? extends Component> it = Utils.iterate(selectedListItem.iterator());
+							Component cellContents;
 							for (Component c : it)
 							{
 								if (c instanceof CellContainer)
 								{
 									CellContainer cell = (CellContainer)c;
-									Component cellContents = cell.iterator().next();
-									if (cellContents instanceof IScriptableProvider)
+									cellContents = cell.iterator().next();
+								}
+								else
+								{
+									cellContents = c;
+								}
+
+								if (cellContents instanceof IScriptableProvider)
+								{
+
+									IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
+									if (scriptableComponent instanceof IRuntimeComponent)
 									{
+										IRuntimeComponent runtimeComponent = (IRuntimeComponent)scriptableComponent;
+										//bgcolor
+										bgRuntimeColorjsArray.add(runtimeComponent.getBgcolor());
+										//fgcolor
+										fgRuntimeColorjsArray.add(runtimeComponent.getFgcolor());
 
-										IScriptable scriptableComponent = ((IScriptableProvider)cellContents).getScriptObject();
-										if (scriptableComponent instanceof IRuntimeComponent)
-										{
-											IRuntimeComponent runtimeComponent = (IRuntimeComponent)scriptableComponent;
-											//bgcolor
-											bgRuntimeColorjsArray.add(runtimeComponent.getBgcolor());
-											//fgcolor
-											fgRuntimeColorjsArray.add(runtimeComponent.getFgcolor());
+										// font style
+										String fontStyle = runtimeComponent.getFont();
+										StringBuilder fstyle = new StringBuilder(""), fweight = new StringBuilder(""), fsize = new StringBuilder(""), ffamily = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+										splitFontStyle(fontStyle, fstyle, fweight, fsize, ffamily);
+										fstyleJsAray.add(fstyle.toString());
+										fweightJsAray.add(fweight.toString());
+										fsizeJsAray.add(fsize.toString());
+										ffamilyJsAray.add(ffamily.toString());
 
-											// font style
-											String fontStyle = runtimeComponent.getFont();
-											StringBuilder fstyle = new StringBuilder(""), fweight = new StringBuilder(""), fsize = new StringBuilder(""), ffamily = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-											splitFontStyle(fontStyle, fstyle, fweight, fsize, ffamily);
-											fstyleJsAray.add(fstyle.toString());
-											fweightJsAray.add(fweight.toString());
-											fsizeJsAray.add(fsize.toString());
-											ffamilyJsAray.add(ffamily.toString());
-
-											// border style
-											String borderStyle = runtimeComponent.getBorder();
-											StringBuilder bstyle = new StringBuilder(""), bwidth = new StringBuilder(""), bcolor = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-											splitBorderStyle(borderStyle, bstyle, bwidth, bcolor);
-											bstyleJsAray.add(bstyle.toString());
-											bwidthJsAray.add(bwidth.toString());
-											bcolorJsAray.add(bcolor.toString());
-										}
-
+										// border style
+										String borderStyle = runtimeComponent.getBorder();
+										StringBuilder bstyle = new StringBuilder(""), bwidth = new StringBuilder(""), bcolor = new StringBuilder(""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+										splitBorderStyle(borderStyle, bstyle, bwidth, bcolor);
+										bstyleJsAray.add(bstyle.toString());
+										bwidthJsAray.add(bwidth.toString());
+										bcolorJsAray.add(bcolor.toString());
 									}
 								}
 							}
