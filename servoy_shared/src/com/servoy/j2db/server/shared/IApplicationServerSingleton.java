@@ -39,7 +39,6 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.plugins.IServerAccess;
 import com.servoy.j2db.util.IMessageDispatcher;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
 import com.servoy.j2db.util.xmlxport.IXMLImportEngine;
@@ -119,9 +118,7 @@ public interface IApplicationServerSingleton
 	IXMLExporter createXMLExporter(AbstractRepository repository, IUserManager ssm, IXMLExportUserChannel userChannel, Properties properties,
 		IDataServer sqlEngine, String clientID, IXMLExportI18NHelper i18nHelper);
 
-	Settings loadSettings();
-
-	String initLicenseManagerAsDeveloper(Settings settings);
+	String initLicenseManagerAsDeveloper();
 
 	IXMLImportEngine createXMLImportEngine(File file, AbstractRepository repository, IDataServer dataServer, String cid, IXMLImportUserChannel userChannel)
 		throws RepositoryException;
