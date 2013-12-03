@@ -59,6 +59,11 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	private final int scheduledExecutorSize;
 	private final int executorSize;
 
+	public ServoyScheduledExecutor()
+	{
+		this(3, 30, 3);
+	}
+
 	/**
 	 * @param executorSize The core size normal executor
 	 * @param executorMaximumPoolSize The maximum pool size that the normal executor can grow to.
