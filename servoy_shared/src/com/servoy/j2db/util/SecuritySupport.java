@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.util.Enumeration;
+import java.util.Properties;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.DESedeKeySpec;
@@ -72,7 +73,7 @@ public class SecuritySupport
 //		}
 //	}
 
-	public static SSLContext getSSLContext(Settings settings) throws Exception
+	public static SSLContext getSSLContext(Properties settings) throws Exception
 	{
 
 		// set up key manager to do server authentication
@@ -138,7 +139,7 @@ public class SecuritySupport
 	}
 
 	@SuppressWarnings("nls")
-	private static void initKeyStoreAndPassphrase(Settings settings) throws Exception
+	private static void initKeyStoreAndPassphrase(Properties settings) throws Exception
 	{
 		if (keyStore == null)
 		{
