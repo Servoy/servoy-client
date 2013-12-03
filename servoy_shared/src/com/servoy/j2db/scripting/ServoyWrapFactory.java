@@ -21,9 +21,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mozilla.javascript.CharSequenceBuffer;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaMembers;
@@ -119,57 +116,57 @@ public final class ServoyWrapFactory extends WrapFactory
 				return newObject;
 			}
 
-			if (obj instanceof JSONObject)
-			{
-				JSONObject json = (JSONObject)obj;
-				Scriptable newObject = cx.newObject(scope);
-				Iterator<String> iterator = json.keys();
-				while (iterator.hasNext())
-				{
-					String key = iterator.next();
-					Object value = null;
-					try
-					{
-						value = json.get(key);
-					}
-					catch (JSONException e)
-					{
-						Debug.error(e);
-					}
-					if (value != null)
-					{
-						value = wrap(cx, newObject, value, value.getClass());
-					}
-
-					newObject.put(key, newObject, value);
-				}
-				return newObject;
-			}
-
-			if (obj instanceof JSONArray)
-			{
-				JSONArray array = (JSONArray)obj;
-				Scriptable newObject = cx.newObject(scope, "Array");
-
-				for (int i = 0; i < array.length(); i++)
-				{
-					Object value = null;
-					try
-					{
-						value = array.get(i);
-					}
-					catch (JSONException e)
-					{
-						Debug.error(e);
-					}
-					if (value != null)
-					{
-						value = wrap(cx, newObject, value, value.getClass());
-					}
-					newObject.put(i, newObject, value);
-				}
-				return newObject;
-			}
+//			if (obj instanceof JSONObject)
+//			{
+//				JSONObject json = (JSONObject)obj;
+//				Scriptable newObject = cx.newObject(scope);
+//				Iterator<String> iterator = json.keys();
+//				while (iterator.hasNext())
+//				{
+//					String key = iterator.next();
+//					Object value = null;
+//					try
+//					{
+//						value = json.get(key);
+//					}
+//					catch (JSONException e)
+//					{
+//						Debug.error(e);
+//					}
+//					if (value != null)
+//					{
+//						value = wrap(cx, newObject, value, value.getClass());
+//					}
+//
+//					newObject.put(key, newObject, value);
+//				}
+//				return newObject;
+//			}
+//
+//			if (obj instanceof JSONArray)
+//			{
+//				JSONArray array = (JSONArray)obj;
+//				Scriptable newObject = cx.newObject(scope, "Array");
+//
+//				for (int i = 0; i < array.length(); i++)
+//				{
+//					Object value = null;
+//					try
+//					{
+//						value = array.get(i);
+//					}
+//					catch (JSONException e)
+//					{
+//						Debug.error(e);
+//					}
+//					if (value != null)
+//					{
+//						value = wrap(cx, newObject, value, value.getClass());
+//					}
+//					newObject.put(i, newObject, value);
+//				}
+//				return newObject;
+//			}
 		}
 
 		if (obj instanceof IDataSet)
