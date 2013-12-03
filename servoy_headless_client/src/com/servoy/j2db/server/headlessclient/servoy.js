@@ -449,6 +449,7 @@ function rearrageTabsInTabPanel(tabPanelId)
 
 var onFocusModifiers = 0;
 var radioCheckInputMouseDown;
+var isDelayedBlurEvent = false;
 
 function eventCallback(el, strEvent, callbackUrl, event)
 {
@@ -468,7 +469,7 @@ function eventCallback(el, strEvent, callbackUrl, event)
 		modifiers = onFocusModifiers;
 		onFocusModifiers = 0;			
 
-		var delayedCall = el.onclick;
+		var delayedCall = el.onclick || isDelayedBlurEvent;
 
 		if(modifiers > 0)
 		{
@@ -508,13 +509,14 @@ function eventCallback(el, strEvent, callbackUrl, event)
 		modifiers = Servoy.Utils.getModifiers(event);
 		// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
 		// of the input via "onchange", else the blur may replace the input
-		var delayedCall = (strEvent == "blur" && el.className && (el.className.indexOf('typeahead') != -1));
+		isDelayedBlurEvent = (strEvent == "blur" && el.className && (el.className.indexOf('typeahead') != -1));
 		
-		if(delayedCall)
+		if(isDelayedBlurEvent)
 		{
 			var thisEl = el;
 			setTimeout(function()
 				{
+				 	isDelayedBlurEvent = false;
 					var wcall=wicketAjaxGet
 					(					
 						callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
@@ -555,7 +557,7 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 		modifiers = onFocusModifiers;
 		onFocusModifiers = 0;
 
-		var delayedCall = el.onclick;
+		var delayedCall = el.onclick || isDelayedBlurEvent;
 
 		// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
 		if (Wicket.$(el.id).displayValue && Wicket.$(el.id).value == Wicket.$(el.id).displayValue)
@@ -632,16 +634,17 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 		modifiers = Servoy.Utils.getModifiers(event);
 		// typeahed blur need to be called a bit later to leave time to the typeahead behavior to set the value
 		// of the input via "onchange", else the blur may replace the input
-		var delayedCall = (strEvent == "blur" && el.className && (el.className.indexOf('typeahead') != -1));
+		isDelayedBlurEvent = (strEvent == "blur" && el.className && (el.className.indexOf('typeahead') != -1));
 		
 		// if it has display/editvalues then test if the current value is the displayValue. if so only a get instead of a post. 
 		if (Wicket.$(el.id).displayValue && Wicket.$(el.id).value == Wicket.$(el.id).displayValue)
 		{
-			if(delayedCall)
+			if(isDelayedBlurEvent)
 			{
 				var thisEl = el;
 				setTimeout(function()
 				{
+					isDelayedBlurEvent = false;
 					var wcall=wicketAjaxGet
 					(
 						callbackUrl+'&nopostdata=true&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,
@@ -666,12 +669,13 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 		}
 		
 		var currentValue = Wicket.$(el.id).value;
-		if(delayedCall)
+		if(isDelayedBlurEvent)
 		{
 			var thisEl = el;
 			
 			setTimeout(function()
 			{
+				isDelayedBlurEvent = false;
 				var wcall=wicketAjaxPost
 				(
 					callbackUrl+'&event='+strEvent+'&id='+thisEl.id+'&modifiers='+modifiers,

@@ -239,18 +239,29 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public void setTransparent(boolean transparent)
 	{
-		setChanged();
 		if (transparent)
 		{
-			changedProperties.put("background-color", IStyleSheet.COLOR_TRANSPARENT); //$NON-NLS-1$ 
+			if (!IStyleSheet.COLOR_TRANSPARENT.equals(changedProperties.getProperty("background-color")))
+			{
+				changedProperties.put("background-color", IStyleSheet.COLOR_TRANSPARENT); //$NON-NLS-1$
+				setChanged();
+			}
 		}
 		else if (bgcolor != null)
 		{
-			changedProperties.put("background-color", bgcolor); //$NON-NLS-1$
+			if (!Utils.equalObjects(changedProperties.get("background-color"), bgcolor))
+			{
+				changedProperties.put("background-color", bgcolor); //$NON-NLS-1$
+				setChanged();
+			}
 		}
 		else
 		{
-			changedProperties.remove("background-color"); //$NON-NLS-1$
+			if (changedProperties.containsKey("background-color"))
+			{
+				changedProperties.remove("background-color");
+				setChanged();
+			}
 		}
 	}
 

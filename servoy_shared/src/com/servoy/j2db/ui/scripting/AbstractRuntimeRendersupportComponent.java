@@ -146,7 +146,7 @@ public abstract class AbstractRuntimeRendersupportComponent<C extends IComponent
 
 	protected void fireOnRender()
 	{
-		if (renderEventExecutor != null && !renderEventExecutor.isOnRenderExecuting())
+		if (renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && !renderEventExecutor.isOnRenderExecuting())
 		{
 			renderEventExecutor.setRenderStateChanged();
 			renderEventExecutor.fireOnRender(getComponent() instanceof Component ? ((Component)getComponent()).hasFocus() : false);
