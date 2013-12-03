@@ -16,27 +16,24 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.util.Settings;
+import java.util.Properties;
 
 /**
  * @author jcompagner
- * 
  */
 public interface IRepositoryFactory
 {
+	/**
+	 * @param settings
+	 * @param serverManager
+	 * @return
+	 */
+	IRemoteRepository getRemoteRepository(IServerManagerInternal serverManager, Properties settings);
 
 	/**
 	 * @param settings
 	 * @param serverManager
 	 * @return
 	 */
-	IRemoteRepository getRemoteRepository(IServerManagerInternal serverManager, Settings settings);
-
-	/**
-	 * @param settings
-	 * @param serverManager
-	 * @return
-	 */
-	IDeveloperRepository getDeveloperRepository(IServerManagerInternal serverManager, Settings settings);
-
+	IDeveloperRepository getDeveloperRepository(IServerManagerInternal serverManager, Properties settings);
 }
