@@ -2829,9 +2829,9 @@ public final class Utils
 		return getArrayString(array).toString();
 	}
 
-	public static Object removeJavascripLinkFromDisplay(IDisplayData display, Object value)
+	public static Object removeJavascripLinkFromDisplay(IDisplayData display, Object[] value)
 	{
-		Object obj = value == null ? display.getValueObject() : value;
+		Object obj = value == null ? display.getValueObject() : value[0];
 
 		if (obj instanceof String && display instanceof IScriptableProvider)
 		{

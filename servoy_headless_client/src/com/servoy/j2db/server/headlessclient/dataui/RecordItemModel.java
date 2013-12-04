@@ -256,7 +256,7 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 
 		if (component instanceof IDisplayData)
 		{
-			obj = Utils.removeJavascripLinkFromDisplay((IDisplayData)component, obj);
+			obj = Utils.removeJavascripLinkFromDisplay((IDisplayData)component, new Object[] { obj });
 		}
 
 		WebForm webForm = component.findParent(WebForm.class);
