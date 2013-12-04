@@ -676,8 +676,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						Object modificationValue = c.getModificationValue(fsm.getApplication());
 						if (modificationValue != null)
 						{
-							newdata[i] = modificationValue;//update state
-							row.handleCalculationDependencies(c, dataProviderID);
+							row.setRawValue(dataProviderID, modificationValue);
 						}
 						if (newdata[i] instanceof BlobMarkerValue)
 						{

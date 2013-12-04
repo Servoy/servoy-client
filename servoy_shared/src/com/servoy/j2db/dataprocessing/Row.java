@@ -381,6 +381,17 @@ public class Row
 		return convertedValue;//is same so return
 	}
 
+	void setRawValue(String dataProviderID, Object value)
+	{
+		SQLSheet sheet = parent.getSQLSheet();
+		int columnIndex = sheet.getColumnIndex(dataProviderID);
+		if (columnIndex >= 0 && columnIndex < columndata.length)
+		{
+			columndata[columnIndex] = value;
+		}
+		handleCalculationDependencies(sheet.getTable().getColumn(dataProviderID), dataProviderID);
+	}
+
 	protected void handleCalculationDependencies(Column column, String dataProviderID)
 	{
 		if (column != null && (column.getFlags() & Column.IDENT_COLUMNS) != 0)
