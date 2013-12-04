@@ -82,7 +82,7 @@ public class Settings extends SortedProperties
 
 	protected Settings()
 	{
-		if (me != null) throw new IllegalStateException("Cannot create 2 instances of settings");
+//		if (me != null) throw new IllegalStateException("Cannot create 2 instances of settings");
 		me = this;
 	}
 
