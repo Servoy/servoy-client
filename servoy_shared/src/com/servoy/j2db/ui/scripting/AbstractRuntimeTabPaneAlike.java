@@ -58,7 +58,6 @@ public abstract class AbstractRuntimeTabPaneAlike extends AbstractRuntimeFormCon
 		{
 			getComponent().setReadOnly(b);
 		}
-		getChangesRecorder().setChanged();
 	}
 
 	public boolean isReadOnly()
