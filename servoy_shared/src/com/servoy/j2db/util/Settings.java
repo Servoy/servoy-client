@@ -78,10 +78,12 @@ public class Settings extends SortedProperties
 		FILE_NAME = pFile;
 	}
 
-	private final static Settings me = new Settings();
+	private static volatile Settings me;
 
 	protected Settings()
 	{
+		if (me != null) throw new IllegalStateException("Cannot create 2 instances of settings");
+		me = this;
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener, String sProperty)
@@ -421,6 +423,7 @@ public class Settings extends SortedProperties
 	 */
 	public static Settings getInstance()
 	{
+		if (me == null) new Settings();
 		return me;
 	}
 
