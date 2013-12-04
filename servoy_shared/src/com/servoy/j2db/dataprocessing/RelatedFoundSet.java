@@ -31,6 +31,7 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
@@ -57,6 +58,9 @@ import com.servoy.j2db.util.visitor.PackVisitor;
  */
 public abstract class RelatedFoundSet extends FoundSet
 {
+
+	public static final String JS_RELATED_FOUNDSET = "JSRelatedFoundSet"; //$NON-NLS-1$
+
 	private static NativeJavaMethod maxRecord;
 	static
 	{
@@ -452,6 +456,7 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	@Override
+	@ServoyClientSupport(mc = false, wc = false, sc = false)
 	public void js_clear()
 	{
 		// don't do anything, can't clear related data
@@ -962,6 +967,20 @@ public abstract class RelatedFoundSet extends FoundSet
 		{
 			Debug.trace("checkQueryForUpdates: skipping because there were edited records"); //$NON-NLS-1$
 		}
+	}
+
+	@Override
+	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value) throws ServoyException
+	{
+		return super.js_addFoundSetFilterParam(dataprovider, operator, value);
+	}
+
+	@Override
+	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value, String name) throws ServoyException
+	{
+		return super.js_addFoundSetFilterParam(dataprovider, operator, value, name);
 	}
 
 	@Override
