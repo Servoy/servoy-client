@@ -381,6 +381,11 @@ public class Row
 		return convertedValue;//is same so return
 	}
 
+	/*
+	 * Don't call this method if you want to update a value in this row that is completely tracked. Because this method does not create the oldValues backup
+	 * array. It just modifies directly the actual values. If isChanged() call is false before the call to this method then after this the isChanged() call is
+	 * still false..
+	 */
 	void setRawValue(String dataProviderID, Object value)
 	{
 		SQLSheet sheet = parent.getSQLSheet();
