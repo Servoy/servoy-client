@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.scripting;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Scriptable;
@@ -27,7 +29,7 @@ import org.mozilla.javascript.Scriptable;
  */
 final class ServoyImporterTopLevel extends ImporterTopLevel
 {
-	private final Object lock = new Object();
+	private final ReentrantLock lock = new ReentrantLock();
 
 	/**
 	 * @param cx
@@ -40,36 +42,90 @@ final class ServoyImporterTopLevel extends ImporterTopLevel
 	@Override
 	public Object get(int index, Scriptable start)
 	{
-		synchronized (lock)
+		// lock can be null because rhino already calls this method when in the constructor.
+		if (lock == null)
 		{
 			return super.get(index, start);
+		}
+		else
+		{
+			lock.lock();
+			try
+			{
+				return super.get(index, start);
+			}
+			finally
+			{
+				lock.unlock();
+			}
 		}
 	}
 
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		synchronized (lock)
+		// lock can be null because rhino already calls this method when in the constructor.
+		if (lock == null)
 		{
 			return super.get(name, start);
+		}
+		else
+		{
+			lock.lock();
+			try
+			{
+				return super.get(name, start);
+			}
+			finally
+			{
+				lock.unlock();
+			}
 		}
 	}
 
 	@Override
 	public void put(int index, Scriptable start, Object value)
 	{
-		synchronized (lock)
+		// lock can be null because rhino already calls this method when in the constructor.
+		if (lock == null)
 		{
 			super.put(index, start, value);
+		}
+		else
+		{
+			lock.lock();
+			try
+			{
+				super.put(index, start, value);
+			}
+			finally
+			{
+				lock.unlock();
+			}
+
 		}
 	}
 
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		synchronized (lock)
+		// lock can be null because rhino already calls this method when in the constructor.
+		if (lock == null)
 		{
 			super.put(name, start, value);
+		}
+		else
+		{
+			lock.lock();
+			try
+			{
+				super.put(name, start, value);
+			}
+			finally
+			{
+				lock.unlock();
+			}
+
 		}
 	}
 }
