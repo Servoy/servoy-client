@@ -160,7 +160,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 
 	private boolean closingPopoup = false;
 
-	public ResourceReference serveResourceReference = new ResourceReference("resources"); //$NON-NLS-1$
+	public final ResourceReference serveResourceReference = new ResourceReference("resources"); //$NON-NLS-1$
 
 	private FormController currentForm;
 
@@ -490,7 +490,7 @@ public class MainPage extends WebPage implements IMainContainer, IEventCallback,
 				{
 					super.renderHead(response);
 					Map<String, String[]> parameters = getRequestCycle().getRequest().getParameterMap();
-					if (parameters != null && !parameters.isEmpty()) //$NON-NLS-1$
+					if (parameters != null && !parameters.isEmpty())
 					{
 						for (String key : parameters.keySet())
 						{

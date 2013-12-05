@@ -46,6 +46,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dnd.DNDSessionInfo;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -65,7 +66,7 @@ public class WebClientSession extends WebSession
 
 	private final WebCredentials credentials = new WebCredentials();
 
-	private Object[] serveInfo;
+	private final Object[] serveInfo = new Object[3];
 
 	private transient final DNDSessionInfo dndSessionInfo = new DNDSessionInfo();
 
@@ -265,7 +266,12 @@ public class WebClientSession extends WebSession
 
 	public void serveResource(String fname, byte[] bs, String mimetype)
 	{
-		serveInfo = new Object[] { fname, bs, mimetype };
+		synchronized (serveInfo)
+		{
+			serveInfo[0] = fname;
+			serveInfo[1] = bs;
+			serveInfo[2] = mimetype;
+		}
 	}
 
 	/**
@@ -274,13 +280,22 @@ public class WebClientSession extends WebSession
 	public DynamicWebResource.ResourceState getResourceState()
 	{
 		DynamicWebResource.ResourceState resourceState = null;
-		if (serveInfo[0] != null && serveInfo[1] != null)
+		final Object fname;
+		final byte[] bs;
+		final String mimeType;
+		synchronized (serveInfo)
 		{
-			((WebResponse)RequestCycle.get().getResponse()).setHeader("Content-disposition", "attachment; filename=\"" + serveInfo[0] + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			fname = serveInfo[0];
+			bs = (byte[])serveInfo[1];
+			mimeType = (String)serveInfo[2];
+		}
+		if (fname != null && bs != null)
+		{
+			((WebResponse)RequestCycle.get().getResponse()).setHeader("Content-disposition", "attachment; filename=\"" + fname + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			resourceState = new DynamicWebResource.ResourceState()
 			{
-				private final byte[] data = (byte[])serveInfo[1];
-				private final String mime = (String)serveInfo[2];
+				private final byte[] data = bs;
+				private final String mime = mimeType;
 
 				@Override
 				public int getLength()
@@ -303,6 +318,7 @@ public class WebClientSession extends WebSession
 		}
 		else
 		{
+			Debug.error("resource can't be served, already flushed: " + fname);
 			resourceState = new ResourceState()
 			{
 				@Override
@@ -330,7 +346,7 @@ public class WebClientSession extends WebSession
 
 			public void run()
 			{
-				toClear[0] = null;//clear
+//				toClear[0] = null; don't clear the name for logging.
 				toClear[1] = null;//clear
 				toClear[2] = null;//clear
 				toClear = null;//clear
