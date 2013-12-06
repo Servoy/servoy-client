@@ -59,8 +59,6 @@ import com.servoy.j2db.util.visitor.PackVisitor;
 public abstract class RelatedFoundSet extends FoundSet
 {
 
-	public static final String JS_RELATED_FOUNDSET = "JSRelatedFoundSet"; //$NON-NLS-1$
-
 	private static NativeJavaMethod maxRecord;
 	static
 	{
