@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.shared;
 
+import java.util.Properties;
+
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.persistence.IRepositoryFactory;
 
@@ -32,6 +34,6 @@ public interface IApplicationServerStarter
 
 	void startStandalone(IRepositoryFactory repositoryFactory, IDebugClientHandler debugClientHandler, ClassLoader baseClassLoader,
 		IWebClientSessionFactory webClientSessionFactory, IUserManagerFactory userManagerFactory, boolean developerStartup, boolean startWebserver,
-		boolean startTeamServer, boolean loadSettings) throws Exception;
+		boolean startTeamServer, Properties properties) throws Exception;
 
 }
