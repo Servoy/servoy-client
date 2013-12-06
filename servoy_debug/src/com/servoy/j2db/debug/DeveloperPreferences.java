@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.debug;
 
+import java.util.Properties;
+
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -33,9 +35,9 @@ public class DeveloperPreferences
 	public static final String SERIALIZING_PROXY_SETTING = "developer.useSerializingProxy"; //$NON-NLS-1$
 	public static final boolean SERIALIZING_PROXY_DEFAULT = true; // note that the pref is hidden now
 
-	private final Settings settings;
+	private final Properties settings;
 
-	public DeveloperPreferences(Settings settings)
+	public DeveloperPreferences(Properties settings)
 	{
 		this.settings = settings;
 	}
