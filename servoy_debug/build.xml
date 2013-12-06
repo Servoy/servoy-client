@@ -80,6 +80,10 @@
 	</target>
 
 	<target name="@dot.nestedJars">
+		<mkdir dir="${buildDirectory}/nestedJars/org.eclipse.equinox.registry_3.5.301.v20130717-1549"/>
+		<unzip src="../eclipse_target/compile_target/install/plugins/org.eclipse.equinox.registry_3.5.301.v20130717-1549.jar" dest="${buildDirectory}/nestedJars/org.eclipse.equinox.registry_3.5.301.v20130717-1549" overwrite="false">
+			<patternset includes="runtime_registry_compatibility.jar"/>
+		</unzip>
 	</target>
 	<target name="@dot" depends="init,@dot.nestedJars" unless="@dot" description="Create jar: servoy_debug @dot.">
 		<delete dir="${build.result.folder}/@dot"/>
@@ -178,21 +182,39 @@
 			<pathelement path="${build.result.folder}/../servoy_smart_client/@dot"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client_7.4.0.2021/@dot"/>
 			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.swt_3.102.1.v20130827-2021.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx.x86_64_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc64_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.hpux.ia64_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc64_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390x_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_3.102.1.v20130827-2048.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_64_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.aix.ppc64_3.102.1.v20130827-2048.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.sparc_3.102.1.v20130827-2048.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.solaris.x86_3.102.1.v20130827-2048.jar"/>
-			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.x86_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.s390x_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx.x86_64_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc64_3.102.1.v20130827-2048.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_64_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.win32.win32.x86_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.linux.ppc_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.gtk.hpux.ia64_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/deltapack/plugins/org.eclipse.swt.cocoa.macosx_3.102.1.v20130827-2048.jar"/>
+			<pathelement path="../com.servoy.eclipse.xulrunner/bin/"/>
+			<pathelement path="${build.result.folder}/../com.servoy.eclipse.xulrunner_10.0.0/bin/"/>
+			<pathelement path="${build.result.folder}/../com.servoy.eclipse.xulrunner/@dot"/>
+			<pathelement path="${build.result.folder}/../com.servoy.eclipse.xulrunner_10.0.0/@dot"/>
+			<pathelement path="${build.result.folder}/../com.servoy.eclipse.xulrunner"/>
+			<pathelement path="${build.result.folder}/../com.servoy.eclipse.xulrunner_10.0.0/."/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.core.runtime_3.9.0.v20130326-1255.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.equinox.common_3.6.200.v20130402-1505.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.core.jobs_3.5.300.v20130429-1813.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.core.runtime.compatibility.registry_3.5.200.v20130514-1256/runtime_registry_compatibility.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.core.runtime.compatibility.registry_3.5.200.v20130514-1256"/>
+			<pathelement path="${buildDirectory}/nestedJars/org.eclipse.equinox.registry_3.5.301.v20130717-1549/runtime_registry_compatibility.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.equinox.registry_3.5.301.v20130717-1549.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.equinox.preferences_3.5.100.v20130422-1538.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.core.contenttype_3.4.200.v20130326-1255.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.equinox.app_1.3.100.v20130327-1442.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi.services_3.3.100.v20130513-1956.jar"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/javax.servlet_3.0.0.v201112011016.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -240,16 +262,18 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_debug_7.4.0.2021${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_debug_7.4.0.2021" log="${compilation.prereq.log}">
-			<include name="E:/Workspaces/HEAD/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
-			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.4.0.2021/compilation.problem"/>
-			<include name="E:/Workspaces/HEAD/servoy_headless_client/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_headless_client_7.4.0.2021/compilation.problem"/>
-			<include name="E:/Workspaces/HEAD/servoy_shared/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_shared_7.4.0.2021/compilation.problem"/>
-			<include name="E:/Workspaces/HEAD/servoy_base/compilation.problem"/>
+			<include name="/crypt/workspace/servoy_base/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_base_7.4.0.2021/compilation.problem"/>
-			<include name="E:/Workspaces/HEAD/servoy_smart_client/compilation.problem"/>
+			<include name="/crypt/workspace/servoy_smart_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_smart_client_7.4.0.2021/compilation.problem"/>
+			<include name="/crypt/workspace/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.4.0.2021/compilation.problem"/>
+			<include name="/crypt/workspace/servoy_headless_client/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_headless_client_7.4.0.2021/compilation.problem"/>
+			<include name="/crypt/workspace/servoy_shared/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_shared_7.4.0.2021/compilation.problem"/>
+			<include name="/crypt/workspace/com.servoy.eclipse.xulrunner/compilation.problem"/>
+			<include name="${pluginTemp}/com.servoy.eclipse.xulrunner_10.0.0/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
@@ -345,7 +369,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="E:/Workspaces/HEAD/servoy_debug" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="/crypt/workspace/servoy_debug" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
