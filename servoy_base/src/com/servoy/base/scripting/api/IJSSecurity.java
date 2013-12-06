@@ -26,7 +26,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public interface IJSSecurity
 {
+	@ServoyClientSupport(mc = true, wc = false, sc = false)
+	Object authenticate(Object[] credentials);
 
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	Object authenticate(String authenticator_solution, String method, Object[] credentials);
 
 	void logout();

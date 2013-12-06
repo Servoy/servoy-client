@@ -1295,6 +1295,24 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
+	 * Authenticate the given credentials against the mobile service solution. 
+	 * It will set the credentials and then do a sync call to the server.
+	 * 
+	 * @sample
+	 * // method will return null in mobile client, the same flow as for default login page will happen after calling this method
+	 * security.authenticate(['myusername', 'mypassword']);
+	 *
+	 * @param credentials array whose elements are passed as arguments to the authenticator method, in case of servoy built-in authentication this should be [username, password]
+	 * 
+	 * @return authentication result from authenticator solution or boolean in case of servoy built-in authentication
+	 */
+	@JSFunction
+	public Object authenticate(Object[] credentials)
+	{
+		return authenticate(null, null, credentials);
+	}
+
+	/**
 	 * Authenticate to the Servoy Server using one of the installed authenticators or the Servoy default authenticator.
 	 * 
 	 * Note: this method should be called from a login solution, once logged in, the authenticate method has no effect.
