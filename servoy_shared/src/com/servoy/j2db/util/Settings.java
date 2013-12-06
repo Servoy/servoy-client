@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -46,7 +47,7 @@ import com.servoy.j2db.LAFManager;
 
 @ThreadSafe
 @SuppressWarnings("nls")
-public class Settings extends SortedProperties
+public final class Settings extends SortedProperties
 {
 	public static final long serialVersionUID = 8213681985670137977L;
 
@@ -59,17 +60,23 @@ public class Settings extends SortedProperties
 
 	public static final String ENHANCED_SECURITY_SETTING = "servoy.application_server.enhancedSecurity";
 	public static final boolean ENHANCED_SECURITY_DEFAULT = true;
-
-	public static final String SMARTCLIENT_ENABLE_JAVAFX = "servoy.client.javafx"; //$NON-NLS-1$
-
+	public static final String TRUSTED_REMOTE_PLUGINS = "servoy.application_server.trustedRemotePlugins";
 	public static final String START_AS_TEAMPROVIDER_SETTING = "servoy.application_server.startRepositoryAsTeamProvider";
 	public static final boolean START_AS_TEAMPROVIDER_DEFAULT = false;
-
+	public static final String SMARTCLIENT_ENABLE_JAVAFX = "servoy.client.javafx"; //$NON-NLS-1$
+	@Deprecated
+	// do not persist global maintenance mode; when running clustered this could result in entering cluster-wide maintenance mode
+	// unwillingly when some app. servers were already started and working for a while and you start another app. server
+	public static final String START_GLOBAL_MAINTENANCE_MODE_SETTING = "servoy.application_server.global_maintenance_mode";
+	public static final String SERVER_MAINTENANCE_MODE_SETTING = "servoy.application_server.maintenance_mode";
 	public static final String ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING = "servoy.application_server.allowClientRepositoryAccess"; //$NON-NLS-1$
 	public static final boolean ALLOW_CLIENT_REPOSITORY_ACCESS_DEFAULT = false;
+	public static final String LOG_CLIENT_STATS = "servoy.log.clientstats";
+	public static final String WAIT_FOR_NATIVE_STARTUP = "waitForNativeStartup";
+	public static final String RMI_CONNECTION_TIMEOUT = "rmi.connection.timeout";
 
 	private boolean loadedFromServer = false;
-	protected File file;
+	private File file;
 
 	static
 	{
@@ -78,12 +85,10 @@ public class Settings extends SortedProperties
 		FILE_NAME = pFile;
 	}
 
-	private static volatile Settings me;
+	private final static Settings me = new Settings();
 
-	protected Settings()
+	private Settings()
 	{
-//		if (me != null) throw new IllegalStateException("Cannot create 2 instances of settings");
-		me = this;
 	}
 
 	public void addPropertyChangeListener(PropertyChangeListener listener, String sProperty)
@@ -260,7 +265,7 @@ public class Settings extends SortedProperties
 		}
 	}
 
-	protected void applySystemProperties()
+	private void applySystemProperties()
 	{
 		// Setting all system property entries of the settings.
 		Iterator iterator = keySet().iterator();
@@ -423,7 +428,6 @@ public class Settings extends SortedProperties
 	 */
 	public static Settings getInstance()
 	{
-		if (me == null) new Settings();
 		return me;
 	}
 
@@ -632,6 +636,46 @@ public class Settings extends SortedProperties
 		return 1;
 	}
 
+	/**
+	 * Get all properties with prefixed key 
+	 * @param settings
+	 * @param string
+	 * @return
+	 */
+	public Map<String, String> getPrefixedProperties(String prefix)
+	{
+		Map<String, String> map = null;
+		for (Map.Entry<Object, Object> entry : entrySet())
+		{
+			if (entry.getKey() instanceof String && entry.getValue() instanceof String && ((String)entry.getKey()).startsWith(prefix))
+			{
+				if (map == null)
+				{
+					map = new HashMap<String, String>();
+				}
+				map.put(((String)entry.getKey()).substring(prefix.length()), (String)entry.getValue());
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Remove all properties with prefixed key 
+	 * @param settings
+	 * @param string
+	 * @return
+	 */
+	public void removePrefixedProperties(String prefix)
+	{
+		for (Object key : keySet().toArray())
+		{
+			if (key instanceof String && ((String)key).startsWith(prefix))
+			{
+				remove(key);
+			}
+		}
+	}
+
 	public File getFile()
 	{
 		return file;
@@ -668,5 +712,10 @@ public class Settings extends SortedProperties
 		{
 			this.setProperty(prefix + (name.length() > 255 ? name.substring(0, 255) : name), (value.length() > 255 ? value.substring(0, 255) : value));
 		}
+	}
+
+	public Properties getAsProperties()
+	{
+		return this;
 	}
 }

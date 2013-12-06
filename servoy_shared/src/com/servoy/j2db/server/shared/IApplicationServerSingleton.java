@@ -53,7 +53,7 @@ import com.servoy.j2db.util.xmlxport.VersionInfo;
  * @author rgansevles
  *
  */
-public interface IApplicationServerSingleton
+public interface IApplicationServerSingleton extends IServiceRegistry
 {
 	IRepository getLocalRepository();
 
@@ -115,8 +115,6 @@ public interface IApplicationServerSingleton
 
 	IXMLExporter createXMLExporter(AbstractRepository repository, IUserManager ssm, IXMLExportUserChannel userChannel, Properties properties,
 		IDataServer sqlEngine, String clientID, IXMLExportI18NHelper i18nHelper);
-
-	String initLicenseManagerAsDeveloper();
 
 	IXMLImportEngine createXMLImportEngine(File file, AbstractRepository repository, IDataServer dataServer, String cid, IXMLImportUserChannel userChannel)
 		throws RepositoryException;

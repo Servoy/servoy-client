@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,23 +15,18 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db;
+package com.servoy.j2db.server.shared;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 /**
- * @author jcompagner
- *
+ * An service registry which is implemented by OSGi or simple local map in non OSGI env
+ * @author jblok
  */
-public interface ILAFManagerInternal extends ILAFManager
+public interface IServiceRegistry
 {
-	public File getLAFDir();
+	public <S> S getService(Class<S> reference);
 
-	public Map<String, Object> getLoadedLAFDefs();
+	public <S> void registerService(Class<S> clazz, S service);
 
-	public List getLAFInfos();
-
-	public Map getLoadedThemes();
+	public <S> void ungetService(Class<S> clazz);
 }

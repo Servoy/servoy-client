@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.io.File;
 import java.sql.Driver;
 
+import com.servoy.j2db.server.shared.IServiceRegistry;
 import com.servoy.j2db.util.visitor.IVisitable;
 
 
@@ -28,7 +29,7 @@ import com.servoy.j2db.util.visitor.IVisitable;
  */
 public interface IServerManagerInternal extends IServerManager
 {
-	void init() throws Exception;
+	void init(IServiceRegistry registry) throws Exception;
 
 	IServer deleteServer(ServerConfig oldServerConfig);
 

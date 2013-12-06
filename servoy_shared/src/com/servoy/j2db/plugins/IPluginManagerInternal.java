@@ -17,14 +17,21 @@
 package com.servoy.j2db.plugins;
 
 import java.io.File;
+import java.util.List;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IColumnConverter;
 import com.servoy.j2db.dataprocessing.IColumnValidatorManager;
 import com.servoy.j2db.dataprocessing.IConverterManager;
 import com.servoy.j2db.dataprocessing.IUIConverter;
+import com.servoy.j2db.util.JarManager.Extension;
 
 public interface IPluginManagerInternal extends IPluginManager
 {
+	public File getPluginDir();
+
+	public void initServerPlugins(IServerAccess serverAccess);
+
 	public IConverterManager<IColumnConverter> getColumnConverterManager();
 
 	public IConverterManager<IUIConverter> getUIConverterManager();
@@ -33,5 +40,9 @@ public interface IPluginManagerInternal extends IPluginManager
 
 	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
 
-	public File getPluginDir();
+	public Extension[] loadClientPluginDefs();
+
+	public List<IServerPlugin> getServerPlugins();
+
+	public void loadClientPlugins(IApplication app);
 }
