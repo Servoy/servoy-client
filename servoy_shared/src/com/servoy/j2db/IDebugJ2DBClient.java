@@ -34,8 +34,6 @@ public interface IDebugJ2DBClient extends ISmartClientApplication, IDebugClient
 
 	boolean isDoneLoading();
 
-	void shutDown(boolean b);
-
 	void setBrowserLauncher(IBrowserLauncher browserLauncher);
 
 	IBrowserLauncher getBrowserLauncher();

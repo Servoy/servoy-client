@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,30 +17,27 @@
 
 package com.servoy.j2db;
 
-import java.rmi.RemoteException;
-import java.util.Collection;
-
-import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.IDebugClient;
 
 /**
- * Marker interface for all the debug clients
+ * Identifies a debug client type (currently one debug client can be contributed to developer per debug client type).
+ * It's "debugClientTypeID" should match the typeId specified in the "servoy_debug.debugClientProvider".
  * 
- * @author jcompagner
- *
+ * @author acostescu
  */
-public interface IDebugClient extends IApplication
+public abstract class DebugClientType<T extends IDebugClient>
 {
 
-	void shutDown(boolean b);
+	protected final String debugClientTypeID;
 
-	void setCurrent(Solution current);
+	public DebugClientType(String debugClientTypeID)
+	{
+		this.debugClientTypeID = debugClientTypeID;
+	}
 
-	void refreshForI18NChange(boolean recreateForms);
-
-	void refreshPersists(Collection<IPersist> changes);
-
-	public void loadSecuritySettings(FlattenedSolution root) throws ServoyException, RemoteException;
+	public String getDebugClientTypeID()
+	{
+		return debugClientTypeID;
+	}
 
 }

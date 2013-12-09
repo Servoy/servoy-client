@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.debug;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,20 +35,25 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.WebSession;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.ClientState;
+import com.servoy.j2db.DebugClientType;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
-import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
-import com.servoy.j2db.dataprocessing.IUserClient;
+import com.servoy.j2db.debug.extensions.IDebugClientPovider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -67,7 +71,6 @@ import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
-import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDeveloperURLStreamHandler;
@@ -75,6 +78,11 @@ import com.servoy.j2db.util.Utils;
 
 public class DebugClientHandler implements IDebugClientHandler, IDesignerCallback
 {
+
+	public static final String SUPPORTED_DEBUG_CLIENT_TYPE_ID = "debugClientTypeID"; //$NON-NLS-1$
+	public static final String DEBUG_CLIENT_PROVIDER_EXTENSION_POINT_ID = "servoy_debug.debugClientProvider"; //$NON-NLS-1$
+
+
 	//This is needed for mobile client launch with switch to service option .
 	// switching to service in developer causes a required refresh in a separate thread triggered by activeSolutionChanged
 	// , meanwhile after setActiveSolution is called the mobileClientDelegate opens the browser which causes a get to the service solution which is not fully loaded and debuggable
@@ -87,7 +95,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	private volatile Solution currentSolution;
 
 	private IDesignerCallback designerCallback;
-	private DebugJ2DBClient jsunitJ2DBClient;
+	private final Map<DebugClientType< ? >, IDebugClient> customDebugClients = new HashMap<DebugClientType< ? >, IDebugClient>(); // for example JSUnit smart debug client
 
 	/**
 	 * @param designerCallback the designerCallback to set
@@ -110,25 +118,32 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			SolutionScope solutionScope = debugHeadlessClient.getScriptEngine().getSolutionScope();
 			designerCallback.addScriptObjects(debugHeadlessClient, solutionScope);
 		}
+		for (IDebugClient c : customDebugClients.values())
+		{
+			if (c.getSolution() != null)
+			{
+				SolutionScope solutionScope = c.getScriptEngine().getSolutionScope();
+				designerCallback.addScriptObjects(c, solutionScope);
+			}
+		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IDesignerCallback#addScriptObjects(org.mozilla.javascript.Scriptable)
-	 */
-	public void addScriptObjects(ClientState client, Scriptable scope)
+	public void addScriptObjects(IDebugClient client, Scriptable scope)
 	{
 		if (designerCallback != null) designerCallback.addScriptObjects(client, scope);
 
 	}
 
-	public List<ClientState> getActiveDebugClients()
+	public List<IDebugClient> getActiveDebugClients()
 	{
-		ArrayList<ClientState> lst = new ArrayList<ClientState>();
+		ArrayList<IDebugClient> lst = new ArrayList<IDebugClient>();
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) lst.add(debugJ2DBClient);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) lst.add(debugWebClient);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) lst.add(debugHeadlessClient);
+		for (IDebugClient c : customDebugClients.values())
+		{
+			if (c.getSolution() != null) lst.add(c);
+		}
 		return lst;
 	}
 
@@ -136,10 +151,13 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public void refreshDebugClientsI18N(boolean recreateForms)
 	{
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshForI18NChange(recreateForms);
-		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null) jsunitJ2DBClient.refreshForI18NChange(recreateForms);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshForI18NChange(recreateForms);
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshForI18NChange();
-		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshForI18NChange();
+		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshForI18NChange(recreateForms);
+		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshForI18NChange(recreateForms);
+		for (IDebugClient c : customDebugClients.values())
+		{
+			if (c.getSolution() != null) c.refreshForI18NChange(recreateForms);
+		}
 	}
 
 	/**
@@ -148,10 +166,13 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public void refreshDebugClients(Collection<IPersist> changes)
 	{
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshPersists(changes);
-		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null) jsunitJ2DBClient.refreshPersists(changes);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshPersists(changes);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshPersists(changes);
 		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshPersists(changes);
+		for (IDebugClient c : customDebugClients.values())
+		{
+			if (c.getSolution() != null) c.refreshPersists(changes);
+		}
 	}
 
 	public void refreshDebugClients(Table table)
@@ -160,11 +181,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			String dataSource = debugJ2DBClient.getFoundSetManager().getDataSource(table);
 			((FoundSetManager)debugJ2DBClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null)
-		{
-			String dataSource = jsunitJ2DBClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)jsunitJ2DBClient.getFoundSetManager()).flushSQLSheet(dataSource);
 		}
 		if (debugWebClient != null && debugWebClient.getSolution() != null)
 		{
@@ -180,6 +196,15 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			String dataSource = debugAuthenticator.getFoundSetManager().getDataSource(table);
 			((FoundSetManager)debugAuthenticator.getFoundSetManager()).flushSQLSheet(dataSource);
+		}
+
+		for (IDebugClient c : customDebugClients.values())
+		{
+			if (c.getSolution() != null)
+			{
+				String dataSource = c.getFoundSetManager().getDataSource(table);
+				((FoundSetManager)c.getFoundSetManager()).flushSQLSheet(dataSource);
+			}
 		}
 	}
 
@@ -197,9 +222,12 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			return getDebugHeadlessClient();
 		}
-		else if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null && RemoteDebugScriptEngine.isConnected(0))
+		else
 		{
-			return jsunitJ2DBClient;
+			for (IDebugClient c : customDebugClients.values())
+			{
+				if (c.getSolution() != null && RemoteDebugScriptEngine.isConnected(0)) return c;
+			}
 		}
 		return null;
 	}
@@ -298,17 +326,17 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugJ2DBClient.setCurrent(solution);
 		}
-		if (jsunitJ2DBClient != null)
-		{
-			jsunitJ2DBClient.setCurrent(solution);
-		}
 		if (debugWebClient != null)
 		{
-			debugWebClient.setCurrent((solution == null) ? null : solution.getSolutionMetaData());
+			debugWebClient.setCurrent(solution);
 		}
 		if (debugHeadlessClient != null)
 		{
-			debugHeadlessClient.setCurrent((solution == null) ? null : solution.getSolutionMetaData());
+			debugHeadlessClient.setCurrent(solution);
+		}
+		for (IDebugClient c : customDebugClients.values())
+		{
+			if (c.getSolution() != null) c.setCurrent(solution);
 		}
 	}
 
@@ -319,17 +347,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			try
 			{
 				debugJ2DBClient.loadSecuritySettings(debugJ2DBClient.getFlattenedSolution());
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-		if (jsunitJ2DBClient != null && jsunitJ2DBClient.getSolution() != null && jsunitJ2DBClient.getFlattenedSolution() != null)
-		{
-			try
-			{
-				jsunitJ2DBClient.loadSecuritySettings(jsunitJ2DBClient.getFlattenedSolution());
 			}
 			catch (Exception e)
 			{
@@ -356,6 +373,20 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			catch (Exception e)
 			{
 				Debug.error(e);
+			}
+		}
+		for (IDebugClient c : customDebugClients.values())
+		{
+			if (c.getSolution() != null && c.getFlattenedSolution() != null)
+			{
+				try
+				{
+					c.loadSecuritySettings(c.getFlattenedSolution());
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
 			}
 		}
 	}
@@ -388,15 +419,72 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return debugJ2DBClient;
 	}
 
-
-	public DebugJ2DBClient getJSUnitJ2DBClient(IUserManager userManager)
+	protected DebugJ2DBClient createDebugSmartClient()
 	{
-		if (jsunitJ2DBClient == null)
+		return createDebugClient(new IDebugClientPovider<DebugJ2DBClient>()
 		{
-			jsunitJ2DBClient = createJSUnitClient(userManager);
-			jsunitJ2DBClient.setUnitTestMode(true);
+
+			@Override
+			public DebugJ2DBClient createDebugClient(DebugClientHandler debugClientHandler)
+			{
+				return new DebugJ2DBClient(true, debugClientHandler);
+			}
+
+			@Override
+			public boolean isSwingClient()
+			{
+				return true;
+			}
+		});
+	}
+
+	public <T extends IDebugClient> T getDebugClient(DebugClientType<T> type)
+	{
+		T client = (T)customDebugClients.get(type);
+		if (client == null)
+		{
+			client = createDebugClient(type);
+			if (client != null) customDebugClients.put(type, client);
 		}
-		return jsunitJ2DBClient;
+		return client;
+	}
+
+	protected <T extends IDebugClient> T createDebugClient(DebugClientType<T> type)
+	{
+		// find the correct debug client using the providers extension point
+		IDebugClientPovider<T> provider;
+
+		IExtensionRegistry reg = Platform.getExtensionRegistry();
+		IExtensionPoint ep = reg.getExtensionPoint(DEBUG_CLIENT_PROVIDER_EXTENSION_POINT_ID);
+		IExtension[] extensions = ep.getExtensions();
+
+		if (extensions != null && extensions.length > 0)
+		{
+			for (IExtension extension : extensions)
+			{
+				IConfigurationElement[] ces = extension.getConfigurationElements();
+				if (ces != null)
+				{
+					for (IConfigurationElement ce : ces)
+					{
+						if (type.getDebugClientTypeID().equals(ce.getAttribute(SUPPORTED_DEBUG_CLIENT_TYPE_ID)))
+						{
+							try
+							{
+								provider = (IDebugClientPovider<T>)ce.createExecutableExtension("class"); //$NON-NLS-1$
+								T debugClient = createDebugClient(provider);
+								if (debugClient != null) return debugClient;
+							}
+							catch (CoreException e)
+							{
+								Debug.error(e);
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -417,82 +505,13 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return debugAuthenticator;
 	}
 
-	/**
-	 * @param sol
-	 */
-	public DebugJ2DBClient createDebugSmartClient()
+	private <T extends IDebugClient> T createDebugClient(final IDebugClientPovider<T> debugClientprovider)
 	{
 		if (!ApplicationServerSingleton.waitForInstanceStarted())
 		{
 			return null;
 		}
-		final DebugJ2DBClient[] client = new DebugJ2DBClient[1];
-		try
-		{
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					try
-					{
-						synchronized (ApplicationServerSingleton.get())
-						{
-							if (client[0] == null)
-							{
-								try
-								{
-									if (Utils.isAppleMacOS())
-									{
-										// added a small sleep time to fix blank screens on macs for the smart debug client.
-										// this occurred when starting the smart client triggers another action (like switching
-										// perspective) that keeps the SWT thread busy while creating the JFrame for the client
-										Thread.sleep(3000);
-									}
-									// wait for servoy model to be initialised
-									// Note: this is needed on the mac! Without it the
-									// debug smart client sometimes does not paint in serclipse (The swt main
-									// thread must not be busy when the debug smart client is created).
-									modelInitialised.await(30, TimeUnit.SECONDS);
-								}
-								catch (InterruptedException e)
-								{
-									Debug.log(e);
-								}
-
-								client[0] = new DebugJ2DBClient(true, DebugClientHandler.this);
-								client[0].setCurrent(currentSolution);
-							}
-						}
-					}
-					catch (Exception e)
-					{
-						Debug.error("Cannot create DebugJ2DBClient", e);
-					}
-				}
-			};
-			if (SwingUtilities.isEventDispatchThread())
-			{
-				run.run();
-			}
-			else
-			{
-				SwingUtilities.invokeAndWait(run);
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-		}
-		return client[0];
-	}
-
-	private DebugJ2DBClient createJSUnitClient(final IUserManager userManager)
-	{
-		if (!ApplicationServerSingleton.waitForInstanceStarted())
-		{
-			return null;
-		}
-		final DebugJ2DBClient[] client = new DebugJ2DBClient[1];
+		final IDebugClient[] client = new IDebugClient[1];
 		try
 		{
 			final Runnable run = new Runnable()
@@ -507,7 +526,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 							{
 								try
 								{
-									if (Utils.isAppleMacOS())
+									if (debugClientprovider.isSwingClient() && Utils.isAppleMacOS())
 									{
 										// added a small sleep time to fix blank screens on macs for the smart debug client.
 										// this occurred when starting the smart client triggers another action (like switching
@@ -526,117 +545,18 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 								}
 
 								// Do not call J2DBGlobals.setSingletonServiceProvider here now, it will be set temporary when the unit tests are run
-								client[0] = new DebugJ2DBClient(false, DebugClientHandler.this)
-								{
-									private final List<Runnable> events = new ArrayList<Runnable>();
-
-									@Override
-									public void updateUI(int time)
-									{
-										runEvents();
-										super.updateUI(time);
-									}
-
-									@Override
-									protected boolean registerClient(IUserClient uc) throws Exception
-									{
-										boolean register = super.registerClient(uc);
-										// access the server directly to mark the client as local
-										ApplicationServerSingleton.get().setServerProcess(getClientID());
-										return register;
-									}
-
-
-									@Override
-									protected IUserManager createUserManager()
-									{
-										try
-										{
-											userManager.createGroup(ApplicationServerSingleton.get().getClientId(), IRepository.ADMIN_GROUP);
-										}
-										catch (Exception e)
-										{
-											Debug.error(e);
-										}
-										return userManager;
-									}
-
-									/**
-									 * 
-									 */
-									private void runEvents()
-									{
-										if (events.size() == 0) return;
-										Runnable[] runnables = events.toArray(new Runnable[events.size()]);
-										events.clear();
-										for (Runnable runnable : runnables)
-										{
-											runnable.run();
-										}
-										runEvents();
-									}
-
-									@Override
-									public void invokeAndWait(Runnable r)
-									{
-										super.invokeAndWait(r);
-									}
-
-									@Override
-									public void invokeLater(Runnable r, boolean immediate)
-									{
-										invokeLater(r);
-									}
-
-									@Override
-									public void invokeLater(Runnable r)
-									{
-										events.add(r);
-										final IServiceProvider client = this;
-										super.invokeLater(new Runnable()
-										{
-											public void run()
-											{
-												IServiceProvider prevServiceProvider = J2DBGlobals.setSingletonServiceProvider(client);
-												try
-												{
-													runEvents();
-												}
-												finally
-												{
-													J2DBGlobals.setSingletonServiceProvider(prevServiceProvider);
-												}
-											}
-										});
-									}
-
-									// do not show info/error dialogs in test client
-									@Override
-									public void reportError(Component parentComponent, String message, Object detail)
-									{
-										errorToDebugger(message, detail);
-										logError(message, detail);
-									}
-
-									@Override
-									public void reportInfo(Component parentComponent, String message, String title)
-									{
-										infoToDebugger(message);
-										Debug.trace(message);
-									}
-
-								};
+								client[0] = debugClientprovider.createDebugClient(DebugClientHandler.this);
 								client[0].setCurrent(currentSolution);
 							}
 						}
 					}
 					catch (Exception e)
 					{
-						Debug.error("Cannot create DebugJ2DBClient - test client", e);
+						Debug.error("Cannot create a DebugClient.", e);
 					}
 				}
 			};
-			if (SwingUtilities.isEventDispatchThread())
+			if (!debugClientprovider.isSwingClient() || SwingUtilities.isEventDispatchThread())
 			{
 				run.run();
 			}
@@ -657,7 +577,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			Debug.error(ex);
 		}
-		return client[0];
+		return (T)client[0];
 
 	}
 
@@ -758,7 +678,10 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugWebClient != null) ComponentFactory.flushValueList(debugWebClient, valueList);
 		if (debugHeadlessClient != null) ComponentFactory.flushValueList(debugHeadlessClient, valueList);
 		if (debugAuthenticator != null) ComponentFactory.flushValueList(debugAuthenticator, valueList);
-		if (jsunitJ2DBClient != null) ComponentFactory.flushValueList(jsunitJ2DBClient, valueList);
+		for (IDebugClient c : customDebugClients.values())
+		{
+			ComponentFactory.flushValueList(c, valueList);
+		}
 	}
 
 	public void reloadAllStyles()
@@ -769,7 +692,10 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugWebClient != null) ComponentFactory.flushCachedItems(debugWebClient);
 		if (debugHeadlessClient != null) ComponentFactory.flushCachedItems(debugHeadlessClient);
 		if (debugAuthenticator != null) ComponentFactory.flushCachedItems(debugAuthenticator);
-		if (jsunitJ2DBClient != null) ComponentFactory.flushCachedItems(jsunitJ2DBClient);
+		for (IDebugClient c : customDebugClients.values())
+		{
+			ComponentFactory.flushCachedItems(c);
+		}
 	}
 
 	CountDownLatch modelInitialised = new CountDownLatch(1);

@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2012 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,33 +14,21 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
+package com.servoy.j2db.debug.extensions;
 
-package com.servoy.j2db;
-
-import java.rmi.RemoteException;
-import java.util.Collection;
-
-import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.IDebugClient;
+import com.servoy.j2db.debug.DebugClientHandler;
 
 /**
- * Marker interface for all the debug clients
+ * Extension point for providing a type of debug client to Servoy Developer (which is a String identifier). 
  * 
- * @author jcompagner
- *
+ * @author acostescu
  */
-public interface IDebugClient extends IApplication
+public interface IDebugClientPovider<T extends IDebugClient>
 {
 
-	void shutDown(boolean b);
+	T createDebugClient(DebugClientHandler debugClientHandler);
 
-	void setCurrent(Solution current);
-
-	void refreshForI18NChange(boolean recreateForms);
-
-	void refreshPersists(Collection<IPersist> changes);
-
-	public void loadSecuritySettings(FlattenedSolution root) throws ServoyException, RemoteException;
+	boolean isSwingClient();
 
 }

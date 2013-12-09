@@ -31,7 +31,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.shared.IDebugHeadlessClient;
-import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.server.shared.WebCredentials;
 
 /**
@@ -50,7 +49,7 @@ public interface IDebugClientHandler
 	IWebClientApplication createDebugWebClient(WebSession webClientSession, HttpServletRequest req, WebCredentials credentials, String method, Object[] objects)
 		throws Exception;
 
-	List<ClientState> getActiveDebugClients();
+	List<IDebugClient> getActiveDebugClients();
 
 	IDebugJ2DBClient getDebugSmartClient();
 
@@ -58,7 +57,7 @@ public interface IDebugClientHandler
 
 	IDebugWebClient getDebugWebClient();
 
-	IDebugJ2DBClient getJSUnitJ2DBClient(IUserManager userManager);
+	<T extends IDebugClient> T getDebugClient(DebugClientType<T> type);
 
 	void flagModelInitialised();
 

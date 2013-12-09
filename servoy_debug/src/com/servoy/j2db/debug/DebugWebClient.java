@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.headlessclient.WebClient;
@@ -150,9 +151,9 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		}
 	}
 
-	public void setCurrent(SolutionMetaData sol)
+	public void setCurrent(Solution sol)
 	{
-		solution = sol;
+		solution = (sol == null) ? null : sol.getSolutionMetaData();
 	}
 
 	private Form form;

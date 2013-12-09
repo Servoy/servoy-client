@@ -210,8 +210,9 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 		}
 	}
 
-	public void setCurrent(SolutionMetaData solutionMeta)
+	public void setCurrent(Solution s)
 	{
+		SolutionMetaData solutionMeta = (s == null) ? null : s.getSolutionMetaData();
 
 		synchronized (activeSolutionRefreshLock)
 		{
@@ -256,7 +257,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 		if (scopesAndFormsToReload[1].size() > 0) ((WebFormManager)getFormManager()).reload((scopesAndFormsToReload[1]).toArray(new FormController[0]));
 	}
 
-	public void refreshForI18NChange()
+	public void refreshForI18NChange(boolean recreateForms)
 	{
 		List<FormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
 		ArrayList<IPersist> formsToReload = new ArrayList<IPersist>();

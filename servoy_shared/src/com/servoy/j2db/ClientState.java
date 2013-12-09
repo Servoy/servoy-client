@@ -1611,29 +1611,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		Solution s = getSolution();
 		if (s != null)// && (e instanceof ApplicationException || e instanceof DataException || e instanceof JavaScriptException))
 		{
-			Exception scriptException = e;
-			//verify whether e is not caused by a ServoyException (at runtime, exceptions thrown are wrapped in WrappedException, 
-			// so we need to look for a ServoyException into the chain)
-			// first check for a javascript exception with its value
-			if (scriptException instanceof JavaScriptException && ((JavaScriptException)scriptException).getValue() instanceof Exception)
-			{
-				scriptException = (Exception)((JavaScriptException)scriptException).getValue();
-			}
-			// then check if it is RhinoException and skip that one by default.
-			else if (scriptException instanceof RhinoException && scriptException.getCause() instanceof Exception)
-			{
-				scriptException = (Exception)scriptException.getCause();
-			}
-			// Now search for a ServoyException in the chain.
-			Throwable cause = scriptException;
-			while (cause != null && !(cause instanceof ServoyException))
-			{
-				cause = cause.getCause();
-				if (cause instanceof ServoyException)
-				{
-					scriptException = (ServoyException)cause;
-				}
-			}
+			Exception scriptException = getScriptException(e);
 
 			if (!testClientRegistered(scriptException))
 			{
@@ -1678,6 +1656,34 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			reportError(msg, e);
 		}
+	}
+
+	public static Exception getScriptException(final Exception e)
+	{
+		Exception scriptException = e;
+		//verify whether e is not caused by a ServoyException (at runtime, exceptions thrown are wrapped in WrappedException, 
+		// so we need to look for a ServoyException into the chain)
+		// first check for a javascript exception with its value
+		if (scriptException instanceof JavaScriptException && ((JavaScriptException)scriptException).getValue() instanceof Exception)
+		{
+			scriptException = (Exception)((JavaScriptException)scriptException).getValue();
+		}
+		// then check if it is RhinoException and skip that one by default.
+		else if (scriptException instanceof RhinoException && scriptException.getCause() instanceof Exception)
+		{
+			scriptException = (Exception)scriptException.getCause();
+		}
+		// Now search for a ServoyException in the chain.
+		Throwable cause = scriptException;
+		while (cause != null && !(cause instanceof ServoyException))
+		{
+			cause = cause.getCause();
+			if (cause instanceof ServoyException)
+			{
+				scriptException = (ServoyException)cause;
+			}
+		}
+		return scriptException;
 	}
 
 	/**
