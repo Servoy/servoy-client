@@ -180,9 +180,25 @@ public class JSONSerializerWrapper implements IQueryBuilderFactoryProvider
 				serializer.setFixupDuplicates(false);
 
 				// registerDefaultSerializers
-				serializer.registerSerializer(new RawJSONArraySerializer());
-				serializer.registerSerializer(new RawJSONObjectSerializer());
-				serializer.registerSerializer(new BeanSerializer());
+				serializer.registerSerializer(new BeanSerializer()); // least-specific serializers first, they will be selected last if no other serializer matches
+				serializer.registerSerializer(new RawJSONArraySerializer()
+				{
+					@Override
+					public boolean canSerialize(Class clazz, Class jsonClazz)
+					{
+						// make sure JSONArray subclasses are also serialized as just the json
+						return JSONArray.class.isAssignableFrom(clazz) && (jsonClazz == null || jsonClazz == JSONArray.class);
+					}
+				});
+				serializer.registerSerializer(new RawJSONObjectSerializer()
+				{
+					@Override
+					public boolean canSerialize(Class clazz, Class jsonClazz)
+					{
+						// make sure JSONObject subclasses are also serialized as just the json
+						return JSONObject.class.isAssignableFrom(clazz) && (jsonClazz == null || jsonClazz == JSONObject.class);
+					}
+				});
 				serializer.registerSerializer(new ArraySerializer());
 				serializer.registerSerializer(new DictionarySerializer());
 				serializer.registerSerializer(new MapSerializer());
