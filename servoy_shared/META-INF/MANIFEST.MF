@@ -41,7 +41,8 @@ Bundle-ClassPath: .,
  lib/prompt.jar,
  lib/wicket-calendar.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
- servoy_base;visibility:=reexport
+ servoy_base;visibility:=reexport,
+ org.eclipse.osgi
 Export-Package: antlr,
  antlr.ASdebug,
  antlr.actions.java,
