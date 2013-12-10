@@ -272,7 +272,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		html.append("</div>\n"); //$NON-NLS-1$
 	}
 
-	private void fillPartStyle(TextualStyle partStyle, Part part)
+	public void fillPartStyle(TextualStyle partStyle, Part part)
 	{
 		Pair<IStyleSheet, IStyleRule> pairStyle = ComponentFactory.getStyleForBasicComponent(sp, part, f);
 		if (pairStyle != null)

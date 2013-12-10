@@ -1351,7 +1351,7 @@ public class TemplateGenerator
 			return retval.toString();
 		}
 
-		private void appendValue(StringBuffer retval, String pSelector, String name, String value)
+		protected void appendValue(StringBuffer retval, String pSelector, String name, String value)
 		{
 			if (pSelector != null) retval.append('\t');
 			retval.append(name);
