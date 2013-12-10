@@ -778,14 +778,13 @@ public class WebEventExecutor extends BaseEventExecutor
 				String rowSelectionScript, columnResizeScript;
 				for (WebCellBasedView wcbv : tableViewsToRender)
 				{
+					if (wcbv.isScrollMode()) wcbv.scrollViewPort(target);
 					wcbv.updateRowSelection(target);
 					rowSelectionScript = wcbv.getRowSelectionScript(false);
 					wcbv.clearSelectionByCellActionFlag();
 					if (rowSelectionScript != null) target.appendJavascript(rowSelectionScript);
 					columnResizeScript = wcbv.getColumnResizeScript();
 					if (columnResizeScript != null) target.appendJavascript(columnResizeScript);
-
-					if (wcbv.isScrollMode()) wcbv.scrollViewPort(target);
 				}
 
 				// double check if the page contributor is changed, because the above IStylePropertyChanges ischanged could have altered it.
