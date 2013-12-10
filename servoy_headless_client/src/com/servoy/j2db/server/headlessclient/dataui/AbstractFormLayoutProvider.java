@@ -29,6 +29,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
@@ -284,8 +285,8 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 		if (part.getPartType() == Part.BODY)
 		{
-			partStyle.setProperty("overflow-x", TemplateGenerator.getCSSScrolling(f.getScrollbars(), true)); //$NON-NLS-1$
-			partStyle.setProperty("overflow-y", TemplateGenerator.getCSSScrolling(f.getScrollbars(), false)); //$NON-NLS-1$
+			partStyle.setProperty("overflow-x", getCSSScrolling(f.getScrollbars(), true)); //$NON-NLS-1$
+			partStyle.setProperty("overflow-y", getCSSScrolling(f.getScrollbars(), false)); //$NON-NLS-1$
 		}
 		else
 		{
@@ -355,6 +356,25 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			}
 		}
 	}
+
+	public static String getCSSScrolling(int scrollBars, boolean horizontal)
+	{
+		if (horizontal)
+		{
+			String overflowX = "auto"; //$NON-NLS-1$
+			if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) overflowX = "hidden"; //$NON-NLS-1$ 
+			else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) overflowX = "scroll"; //$NON-NLS-1$
+			return overflowX;
+		}
+		else
+		{
+			String overflowY = "auto"; //$NON-NLS-1$
+			if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) overflowY = "hidden"; //$NON-NLS-1$
+			else if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) overflowY = "scroll"; //$NON-NLS-1$
+			return overflowY;
+		}
+	}
+
 
 	protected abstract void fillFormLayoutCSS(TextualStyle formStyle);
 
