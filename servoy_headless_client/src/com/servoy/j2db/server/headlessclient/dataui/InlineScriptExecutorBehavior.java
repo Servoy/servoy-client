@@ -64,7 +64,7 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 		String scriptName = RequestCycle.get().getRequest().getParameter("snenc");
 
 		ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-		scriptName = urlCrypt.decryptUrlSafe(scriptName);
+		scriptName = urlCrypt.decryptUrlSafe(scriptName).replace("\\\"", "\"");
 
 		String argValue;
 		for (String browserArgument : getBrowserArguments(scriptName))
@@ -81,8 +81,16 @@ public final class InlineScriptExecutorBehavior extends AbstractServoyDefaultAja
 			{
 			}
 			if (isString && ("true".equals(argValue) || "false".equals(argValue))) isString = false;
+			String browserParamWithArgument = BROWSER_PARAM + browserArgument;
 
-			scriptName = scriptName.replace(BROWSER_PARAM + browserArgument, isString ? "'" + argValue + "'" : argValue);
+			// make sure we ignore user quoting if isString 
+			if (isString)
+			{
+				scriptName = scriptName.replace("\"" + browserParamWithArgument + "\"", browserParamWithArgument);
+				scriptName = scriptName.replace("'" + browserParamWithArgument + "'", browserParamWithArgument);
+			}
+
+			scriptName = scriptName.replace(browserParamWithArgument, isString ? "'" + argValue + "'" : argValue);
 		}
 
 		WebForm wf = component.findParent(WebForm.class);
