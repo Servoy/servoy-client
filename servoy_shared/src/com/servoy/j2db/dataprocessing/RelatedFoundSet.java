@@ -981,6 +981,18 @@ public abstract class RelatedFoundSet extends FoundSet
 		return super.js_addFoundSetFilterParam(dataprovider, operator, value, name);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_removeFoundSetFilterParam(java.lang.String)
+	 */
+	@Override
+	@ServoyClientSupport(mc = false, wc = false, sc = false)
+	public boolean js_removeFoundSetFilterParam(String name)
+	{
+		return super.js_removeFoundSetFilterParam(name);
+	}
+
 	@Override
 	public String toString()
 	{
