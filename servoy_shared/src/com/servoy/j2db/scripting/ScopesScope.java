@@ -166,17 +166,6 @@ public class ScopesScope extends DefaultScope
 		return null;
 	}
 
-	protected void removeModificationListeners()
-	{
-		for (Object gs : allVars.values())
-		{
-			if (gs instanceof GlobalScope)
-			{
-				((GlobalScope)gs).getModificationSubject().removeModificationListener(delegateModificationSubject);
-			}
-		}
-	}
-
 	@Override
 	public Object[] getIds()
 	{
@@ -188,7 +177,14 @@ public class ScopesScope extends DefaultScope
 	public void destroy()
 	{
 		application = null;
-		removeModificationListeners();
+		for (Object gs : allVars.values())
+		{
+			if (gs instanceof GlobalScope)
+			{
+				((GlobalScope)gs).getModificationSubject().removeModificationListener(delegateModificationSubject);
+				((GlobalScope)gs).destroy();
+			}
+		}
 		super.destroy();
 	}
 
