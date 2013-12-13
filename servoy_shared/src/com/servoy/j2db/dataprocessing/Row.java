@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -603,20 +604,45 @@ public class Row
 
 	void rollbackFromOldValues()
 	{
-		boolean fire = false;
+		Map<String, Object> changedColumns = new HashMap<String, Object>();
+		String[] columnNames = getRowManager().getSQLSheet().getColumnNames();
 		synchronized (this)
 		{
 			if (oldValues != null)
 			{
+				for (int i = 0; i < oldValues.length; i++)
+				{
+					if (!Utils.equalObjects(oldValues[i], columndata[i]))
+					{
+						if (columnNames != null && i < columnNames.length)
+						{
+							changedColumns.put(columnNames[i], oldValues[i]);
+						}
+					}
+				}
 				columndata = oldValues;
 				oldValues = null;
-				fire = true;
 			}
 		}
-		if (fire)
+		if (changedColumns.size() > 0)
 		{
-			parent.fireDependingCalcs(getPKHashKey(), null, null);
-			parent.fireNotifyChange(null, this, null, RowEvent.UPDATE);
+			for (String dataProviderID : changedColumns.keySet())
+			{
+				parent.fireDependingCalcs(getPKHashKey(), dataProviderID, null);
+			}
+			parent.fireNotifyChange(null, this, changedColumns.keySet().toArray(), RowEvent.UPDATE);
+			FireCollector collector = FireCollector.getFireCollector();
+			try
+			{
+				for (String dataProviderID : changedColumns.keySet())
+				{
+					fireNotifyChange(dataProviderID, changedColumns.get(dataProviderID), collector);
+				}
+			}
+			finally
+			{
+				collector.done();
+			}
 		}
 	}
 
