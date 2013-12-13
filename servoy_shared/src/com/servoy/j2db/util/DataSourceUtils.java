@@ -46,9 +46,6 @@ import com.servoy.j2db.util.keyword.Ident;
 public class DataSourceUtils extends DataSourceUtilsBase
 {
 	public static final String INMEM_DATASOURCE_SCHEME_COLON = "mem:"; //$NON-NLS-1$
-	public static final String DB_DATASOURCE_SCHEME = DataSourceUtilsBase.DB_DATASOURCE_SCHEME;
-	public static final String DB_DATASOURCE_SCHEME_COLON_SLASH = DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH;
-	public static final int DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH = DataSourceUtilsBase.DB_DATASOURCE_SCHEME_COLON_SLASH_LENGTH;
 
 	private DataSourceUtils()
 	{
@@ -262,5 +259,10 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		}
 
 		return t;
+	}
+
+	public static boolean isDatasourceUri(String str)
+	{
+		return str != null && (str.startsWith(DB_DATASOURCE_SCHEME_COLON_SLASH) || str.startsWith(INMEM_DATASOURCE_SCHEME_COLON));
 	}
 }

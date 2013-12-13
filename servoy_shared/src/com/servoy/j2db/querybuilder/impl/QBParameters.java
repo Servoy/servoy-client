@@ -28,6 +28,7 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
+import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -35,9 +36,9 @@ import com.servoy.j2db.util.Debug;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBParameters extends QBScope
+public class QBParameters extends DefaultJavaScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = QBFactory.getJsFunctions(QBParameters.class);
+	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBParameters.class);
 
 	private final QBSelect query;
 	private final Map<String, QBParameter> parameters = new HashMap<String, QBParameter>();

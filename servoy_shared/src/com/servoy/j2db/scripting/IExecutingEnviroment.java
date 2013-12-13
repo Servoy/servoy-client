@@ -40,6 +40,7 @@ public interface IExecutingEnviroment
 	public final static String TOPLEVEL_SECURITY = "security"; //$NON-NLS-1$
 	public final static String TOPLEVEL_SOLUTION_MODIFIER = "solutionModel"; //$NON-NLS-1$
 	public final static String TOPLEVEL_DATABASE_MANAGER = "databaseManager"; //$NON-NLS-1$
+	public final static String TOPLEVEL_DATASOURCES = "datasources"; //$NON-NLS-1$
 	public final static String TOPLEVEL_I18N = "i18n"; //$NON-NLS-1$
 	public final static String TOPLEVEL_SERVOY_EXCEPTION = "ServoyException"; //$NON-NLS-1$
 	public final static String TOPLEVEL_FORMS = "forms"; //$NON-NLS-1$

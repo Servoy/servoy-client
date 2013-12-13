@@ -29,12 +29,13 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.WrappedException;
 
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
  */
-public abstract class DefaultScope implements Scriptable
+public abstract class DefaultScope implements Scriptable, IDestroyable
 {
 	private volatile Scriptable parent;
 	private volatile Scriptable prototype;
@@ -274,17 +275,17 @@ public abstract class DefaultScope implements Scriptable
 	{
 		for (Object var : allIndex.values())
 		{
-			if (var instanceof DefaultScope)
+			if (var instanceof IDestroyable)
 			{
-				((DefaultScope)var).destroy();
+				((IDestroyable)var).destroy();
 			}
 		}
 
 		for (Object var : allVars.values())
 		{
-			if (var instanceof DefaultScope)
+			if (var instanceof IDestroyable)
 			{
-				((DefaultScope)var).destroy();
+				((IDestroyable)var).destroy();
 			}
 		}
 

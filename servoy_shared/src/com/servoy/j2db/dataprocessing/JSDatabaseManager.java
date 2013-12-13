@@ -2578,7 +2578,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param dataSource The datasource to get a JSFoundset for.
 	 * 
 	 * @return A new JSFoundset for that datasource.
+	 * 
+	 * @deprecated Use datasources.db.server_name.table_name.getFoundSet() or datasources.mem['ds'].getFoundSet()
 	 */
+	@Deprecated
 	@JSFunction
 	public IJSFoundSet getFoundSet(String dataSource) throws ServoyException
 	{

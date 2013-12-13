@@ -985,6 +985,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return table;
 	}
 
+	public Collection<String> getInMemDataSourceNames()
+	{
+		return Collections.unmodifiableCollection(inMemDataSources.keySet());
+	}
+
 	public String getDataSource(ITable table)
 	{
 		if (table == null)

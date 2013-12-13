@@ -51,6 +51,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.dataprocessing.datasource.JSDataSources;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
@@ -152,6 +153,7 @@ public class ScriptEngine implements IScriptSupport
 	private final JSUtils jsUtils;
 	private final JSSecurity jssec;
 	private final JSDatabaseManager jsdbm;
+	private final JSDataSources jsds;
 	private final JSI18N i18n;
 	private final HistoryProvider historyProvider;
 	private final JSSolutionModel solutionModifier;
@@ -166,6 +168,7 @@ public class ScriptEngine implements IScriptSupport
 		jsUtils = new JSUtils(application);
 		jssec = new JSSecurity(application);
 		jsdbm = new JSDatabaseManager(application);
+		jsds = new JSDataSources(application);
 		i18n = new JSI18N(application);
 		historyProvider = new HistoryProvider(application);
 		solutionModifier = createSolutionModifier();
@@ -243,6 +246,9 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_DATABASE_MANAGER, toplevelScope, new NativeJavaObject(toplevelScope, jsdbm,
 				new InstanceJavaMembers(toplevelScope, JSDatabaseManager.class)));
 			registerScriptObjectClass(JSDatabaseManager.class);
+			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_DATASOURCES, toplevelScope, new NativeJavaObject(toplevelScope, jsds, new InstanceJavaMembers(
+				toplevelScope, JSDataSources.class)));
+			registerScriptObjectClass(JSDataSources.class);
 
 			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_I18N, toplevelScope, new NativeJavaObject(toplevelScope, i18n, new InstanceJavaMembers(
 				toplevelScope, JSI18N.class)));
@@ -385,6 +391,7 @@ public class ScriptEngine implements IScriptSupport
 		jsApplication.destroy();
 		scopesScope.destroy();
 		jsdbm.destroy();
+		jsds.destroy();
 		jssec.destroy();
 		jsUtils.destroy();
 		i18n.destroy();

@@ -36,6 +36,7 @@ import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
+import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
@@ -47,9 +48,9 @@ import com.servoy.j2db.util.UUID;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBJoins extends QBScope implements IQueryBuilderJoins
+public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = QBFactory.getJsFunctions(QBJoins.class);
+	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBJoins.class);
 
 	private final QBSelect root;
 	private final QBTableClause parent;

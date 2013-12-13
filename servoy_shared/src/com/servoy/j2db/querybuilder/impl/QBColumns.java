@@ -23,6 +23,7 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.DefaultJavaScope;
 
 /**
  * @author rgansevles
@@ -31,9 +32,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBColumns extends QBScope
+public class QBColumns extends DefaultJavaScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = QBFactory.getJsFunctions(QBColumns.class);
+	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBColumns.class);
 
 	QBColumns(Scriptable scriptParent)
 	{

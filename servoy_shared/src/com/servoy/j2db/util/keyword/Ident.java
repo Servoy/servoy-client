@@ -102,6 +102,7 @@ public class Ident
 	public final static String[] servoy_keywords = new String[] {
 		//Standard j2db DOM things
 	"databaseManager", //  
+	"datasources", //  
 	"application", //  
 	"currentform", //  
 	"currentcontroller", //  

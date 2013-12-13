@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -149,4 +150,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public boolean removeTableFilterParam(String serverName, String filterName);
 
 	public boolean hasTableFilter(String serverName, String tableName);
+
+	public Collection<String> getInMemDataSourceNames();
 }
