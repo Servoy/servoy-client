@@ -1091,7 +1091,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		{
 			if (destroyed)
 			{
-				Debug.error("Calling initForJSUsage on a destroyed form: " + this, new RuntimeException());
+				Debug.error("Calling initForJSUsage on a destroyed form: " + this, new RuntimeException("Calling initForJSUsage on a destroyed form: " + this));
 				return null;
 			}
 			Context.enter();

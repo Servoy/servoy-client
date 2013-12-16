@@ -440,11 +440,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 	 */
 	public void valueChanged(ModificationEvent e)
 	{
-		if (destroyed && e.getRecord() != null)
+		if (destroyed)
 		{
-			Debug.error("Destroyed DataAdapterList " + formController + " was still attached to the record, removing it, currentRecord: " + currentRecord,
-				new RuntimeException());
-			e.getRecord().removeModificationListener(this);
+			Debug.error("Destroyed DataAdapterList " + formController + " was still attached to the record: " + e.getRecord() +
+				", removing it if possible, currentRecord: " + currentRecord, new RuntimeException());
+			if (e.getRecord() != null) e.getRecord().removeModificationListener(this);
+			else if (currentRecord != null) currentRecord.removeModificationListener(this);
 			return;
 		}
 		FormScope formScope = getFormScope();
@@ -576,7 +577,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 				new RuntimeException());
 			return null;
 		}
-		return formController.getFormScope();
+		FormScope formScope = formController.getFormScope();
+		if (formScope == null && formController.isDestroyed())
+		{
+			Debug.error("calling getFormScope in none destroyed DataAdapterList (destroying it now) for a destroyed formcontroller: " + formController +
+				", currentRecord: " + currentRecord, new RuntimeException());
+			destroy();
+			return null;
+		}
+		return formScope;
 	}
 
 	public FormController getFormController()
