@@ -568,6 +568,7 @@ public class Row
 	void rollbackFromDB() throws Exception
 	{
 		parent.rollbackFromDB(this, true, ROLLBACK_MODE.OVERWRITE_CHANGES);
+		lastException = null;
 	}
 
 	void rollbackFromDB(ROLLBACK_MODE mode) throws Exception
