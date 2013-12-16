@@ -624,6 +624,8 @@ public class Row
 				oldValues = null;
 			}
 		}
+		// maybe is new record, just clear exception
+		lastException = null;
 		if (changedColumns.size() > 0)
 		{
 			for (String dataProviderID : changedColumns.keySet())
