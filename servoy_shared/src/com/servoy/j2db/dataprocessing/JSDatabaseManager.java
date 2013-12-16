@@ -1851,6 +1851,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						try
 						{
 							r.rollbackFromDB();
+							r.setLastException(null);
 							return true;
 						}
 						catch (Exception e)

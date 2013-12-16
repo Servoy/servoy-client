@@ -977,6 +977,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		try
 		{
 			getRawData().rollbackFromDB();
+			getRawData().setLastException(null);
 		}
 		catch (Exception e)
 		{
