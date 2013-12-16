@@ -284,6 +284,27 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
+	 * Gets/Sets the transparency property.
+	 * NOTE: For smart clients, the window must be undecorated or the
+	 * servoy.smartclient.allowLAFWindowDecoration property set to true
+	 *  
+	 * @sampleas js_getName()
+	 *  
+	 * @return transparency state of the window
+	 */
+	@JSGetter
+	public boolean getTransparent()
+	{
+		return impl.getTransparent();
+	}
+
+	@JSSetter
+	public void setTransparent(boolean isTransparent)
+	{
+		impl.setTransparent(isTransparent);
+	}
+
+	/**
 	 * Gets/Sets the opacity property. By default will have value 1 (completely opaque), and can be assigned to values between 0 and 1.
 	 * If set then window will also be undecorated. This should be set before the dialog/window is shown, otherwise it has no effect.
 	 *  
@@ -344,6 +365,7 @@ public class JSWindow implements IConstantsObject
 	 * var width = "Width: " + someWindow.getWidth() + "\n"
 	 * var undecorated = "Undecorated: " + someWindow.isUndecorated() + "\n"
 	 * var opacity = "Opacity: " + someWindow.opacity + "\n"
+	 * var transparent = "Transparent: " + someWindow.transparent + "\n"
 	 * var locationX = "Location-X-coordinate: " + someWindow.getX() + "\n"
 	 * var locationY = "Location-Y-coordinate: " + someWindow.getY() + "\n"
 	 * var info = name + parent + type + height + width + locationX + locationY + undecorated + "\n"

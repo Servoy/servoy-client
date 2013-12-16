@@ -61,6 +61,7 @@ public class RecordView extends EnablePanel implements ChangeListener, ListDataL
 		application = app;
 		isAdjusting = false;
 		setLayout(new BorderLayout());
+		setOpaque(false);
 		getSliderComponent();
 	}
 

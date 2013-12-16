@@ -1590,7 +1590,6 @@ public class TemplateGenerator
 				if (a_style_name.equals("body"))
 				{
 					styleObj.setProperty("margin", "0px 0px 0px 0px");
-					styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 					bodyMarginAdded = true;
 				}
 				Enumeration< ? > names = a_style.getAttributeNames();
@@ -1667,7 +1666,6 @@ public class TemplateGenerator
 		{
 			styleObj = css.addStyle("body");
 			styleObj.setProperty("margin", "0px 0px 0px 0px");
-			styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 		}
 
 		int h1 = 0;
@@ -1681,9 +1679,6 @@ public class TemplateGenerator
 		styleObj.setProperty("left", "0px");
 		styleObj.setProperty("right", "0px");
 		styleObj.setProperty("position", "absolute");
-
-		styleObj = css.addStyle("div.webform");//$NON-NLS-1$ 
-		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 
 		styleObj = css.addStyle("div.opaquecontainer");//$NON-NLS-1$ 
 		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
@@ -1826,6 +1821,14 @@ public class TemplateGenerator
 		styleObj = css.addStyle("textarea");
 		styleObj.setProperty("resize", "none");
 
+
+		// dialog
+		styleObj = css.addStyle("div.wicket-modal div.w_content_2");
+		styleObj.setProperty("background-color", "transparent !important");
+		styleObj.setProperty("padding-top", "0 !important");
+
+		styleObj = css.addStyle("div.wicket-modal div.w_content");
+		styleObj.setProperty("background-color", "transparent !important");
 
 		// modal dialog
 		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close");

@@ -19,6 +19,7 @@ package com.servoy.j2db.util.gui;
 
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.MouseEvent;
@@ -424,7 +425,11 @@ public class PartsScrollPane extends EnablePanel implements javax.swing.plaf.UIR
 			{
 				scroll.getViewport().setOpaque(isOpaque);
 				JComponent a = (JComponent)scroll.getViewport().getView();
-				if (a != null) a.setOpaque(isOpaque);
+				if (a != null)
+				{
+					a.setOpaque(isOpaque);
+					if (!isOpaque) a.setBackground(new Color(0, 0, 0, 254));
+				}
 			}
 			if (scroll.getColumnHeader() != null)
 			{

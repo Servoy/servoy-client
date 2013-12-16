@@ -1742,14 +1742,14 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	}
 
 	public void showPopupDiv(MainPage dialogContainer, String titleString, Rectangle r2, boolean resizeable, boolean closeAll, boolean modal,
-		boolean undecorated, boolean storeBounds, float opacity)
+		boolean undecorated, boolean storeBounds, float opacity, boolean transparent)
 	{
 		// all iframe div window main pages will be shown by a browser window main page and will have it as callingContainer;
 		// this is in order to avoid situations where some main pages need to reference each other in browser JS, but some div windows in the chain between them
 		// have already been closed; so this way references to all iframe div windows will not be lost as long as the browser window that contains the iframes remains open
 		// see also triggerBrowserRequestIfNeeded() that uses these references
 		if ((isShowingInDialog() || isClosingAsDivPopup()) && callingContainer != null) callingContainer.showPopupDiv(dialogContainer, titleString, r2,
-			resizeable, closeAll, modal, undecorated, storeBounds, opacity);
+			resizeable, closeAll, modal, undecorated, storeBounds, opacity, transparent);
 		else
 		{
 			if (useAJAX)
@@ -1767,6 +1767,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				divDialog.setUseInitialHeight(true);
 				divDialog.setModal(modal);
 				divDialog.setOpacity(opacity);
+				divDialog.setTransparent(transparent);
 				if (undecorated) divDialog.setCssClassName("w_undecorated");
 				Rectangle bounds = r2;
 				if (FormManager.FULL_SCREEN.equals(r2))

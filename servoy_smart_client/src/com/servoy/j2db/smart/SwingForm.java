@@ -197,8 +197,9 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		undoManager.setLimit(50);
 
 		// everything transparent, because of semitransparency support
-		//setOpaque(false);
-		setOpaque(!formController.getForm().getTransparent());
+		boolean isTransparent = formController.getForm().getTransparent();
+		setOpaque(!isTransparent);
+		if (isTransparent) setBackground(new Color(0, 0, 0, 254));
 
 		ActionMap am = this.getActionMap();
 		am.put(ACTION_GO_OUT_TO_NEXT, new GoOutOfSwingFormAction(false));

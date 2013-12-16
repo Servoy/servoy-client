@@ -62,6 +62,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	private boolean undecorated = false;
 	private float opacity = 1;
+	private boolean isTransparent = false;
 
 	protected RuntimeWindow(IApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
@@ -140,6 +141,16 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	public float getOpacity()
 	{
 		return opacity;
+	}
+
+	public void setTransparent(boolean isTransparent)
+	{
+		this.isTransparent = isTransparent;
+	}
+
+	public boolean getTransparent()
+	{
+		return isTransparent;
 	}
 
 	public void setTitle(String title)

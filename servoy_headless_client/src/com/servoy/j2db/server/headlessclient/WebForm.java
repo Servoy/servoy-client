@@ -115,6 +115,7 @@ import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
+import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebAccordionPanel;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseButton;
@@ -217,27 +218,19 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			@Override
 			public String getObject()
 			{
+				String style = formController.getForm().getTransparent() ? "" : "background-color: " +
+					PersistHelper.createColorString(TemplateGenerator.DEFAULT_FORM_BG_COLOR) + ";";
+
 				IWebFormContainer container = findParent(IWebFormContainer.class);
 				if (container != null && !(container instanceof WebAccordionPanel) && container.getBorder() instanceof TitledBorder)
 				{
 					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
-					return "top: " + offset + "px;";
+					return style + "top: " + offset + "px;";
 				}
-				return ""; //$NON-NLS-1$
+
+				return style;
 			}
-		})
-		{
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				IWebFormContainer container = component.findParent(IWebFormContainer.class);
-				if (container != null && container.getBorder() instanceof TitledBorder)
-				{
-					return super.isEnabled(component);
-				}
-				return false;
-			}
-		});
+		}));
 
 		container = new WebMarkupContainer("servoywebform") //$NON-NLS-1$
 		{

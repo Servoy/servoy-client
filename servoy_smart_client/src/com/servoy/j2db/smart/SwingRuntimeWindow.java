@@ -17,6 +17,7 @@
 package com.servoy.j2db.smart;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -30,6 +31,7 @@ import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 
@@ -509,6 +511,22 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				{
 					Debug.trace("Error while trying to set opacity on window", ex);
 				}
+			}
+
+			if ((JDialog.isDefaultLookAndFeelDecorated() || sfd.isUndecorated()) && getTransparent())
+			{
+				sfd.setBackground(new Color(0, 0, 0, 0));
+
+				for (Component c : ((Container)container).getComponents())
+				{
+					if ("Main_panel__table_form_panel".equals(c.getName()))
+					{
+						c.setBackground(new Color(0, 0, 0, 254));
+					}
+				}
+
+				Container cont = sfd.getContentPane();
+				((JPanel)cont).setBackground(new Color(0, 0, 0, 254));
 			}
 
 			if (windowModal)
