@@ -485,8 +485,6 @@ public class ScriptEngine implements IScriptSupport
 							return null; // is not used for calculations 
 						}
 					});
-					tableScope.setPrototype(null);
-
 					tableScopes.put(table, tableScope);
 				}
 				finally
