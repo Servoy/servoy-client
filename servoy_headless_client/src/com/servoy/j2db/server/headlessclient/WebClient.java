@@ -619,7 +619,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	 * @see com.servoy.j2db.server.headlessclient.SessionClient#invokeLater(java.lang.Runnable)
 	 */
 	@Override
-	public void invokeLater(Runnable r)
+	protected void doInvokeLater(Runnable r)
 	{
 		// When shutting down call runnable immediately, otherwise it may never happen.
 		// When printing (SwingUtilities.isEventDispatchThread()) runnable also needs to be called directly.
@@ -651,7 +651,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	public void invokeLater(Runnable r, boolean immediate)
+	protected void doInvokeLater(Runnable r, boolean immediate)
 	{
 		if (!immediate) invokeLater(r);
 		else getScheduledExecutor().execute(r);

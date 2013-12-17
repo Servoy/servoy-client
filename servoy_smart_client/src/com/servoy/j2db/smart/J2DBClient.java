@@ -4084,7 +4084,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return SwingUtilities.isEventDispatchThread();
 	}
 
-	public void invokeLater(Runnable r)
+	@Override
+	protected void doInvokeLater(Runnable r)
 	{
 		SwingUtilities.invokeLater(r);
 	}

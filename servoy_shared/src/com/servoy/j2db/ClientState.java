@@ -1705,10 +1705,38 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public abstract void releaseGUI();
 
-	public void invokeLater(Runnable r, @SuppressWarnings("unused")
+	public final void invokeLater(Runnable r)
+	{
+		try
+		{
+			doInvokeLater(r);
+		}
+		catch (Exception t)
+		{
+			// The caller never expects invokeLater to fail, even when the run() method is just called in the current thread
+			Debug.error(t);
+		}
+	}
+
+	protected abstract void doInvokeLater(Runnable r);
+
+	public final void invokeLater(Runnable r, boolean immediate)
+	{
+		try
+		{
+			doInvokeLater(r, immediate);
+		}
+		catch (Exception t)
+		{
+			// The caller never expects invokeLater to fail, even when the run() method is just called in the current thread
+			Debug.error(t);
+		}
+	}
+
+	protected void doInvokeLater(Runnable r, @SuppressWarnings("unused")
 	boolean immediate)
 	{
-		invokeLater(r);
+		doInvokeLater(r);
 	}
 
 	/**

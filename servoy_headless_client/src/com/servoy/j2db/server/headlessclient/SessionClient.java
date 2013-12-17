@@ -1281,7 +1281,8 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	// invoke later can't add it to a runnable or something. It is not the same thing as invokelater on 
 	// swing utilities where it still happens on the event thread but a bit later which can't be done in a web client. 
-	public void invokeLater(Runnable r)
+	@Override
+	protected void doInvokeLater(Runnable r)
 	{
 		invokeAndWait(r);
 	}
