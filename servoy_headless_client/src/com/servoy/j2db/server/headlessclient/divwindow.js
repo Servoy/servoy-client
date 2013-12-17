@@ -126,7 +126,10 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		
 		this.classElement.style.opacity = this.settings.opacity;
 		if(this.settings.transparent)
+		{
 			this.content.style.backgroundColor = 'transparent';
+			$(this.classElement).find(".w_content_3").css("border", "none");
+		}
 		else
 			this.content.style.backgroundColor = '#FFFFFF';
 		
