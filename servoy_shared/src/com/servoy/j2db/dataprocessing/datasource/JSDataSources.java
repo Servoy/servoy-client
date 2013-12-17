@@ -19,6 +19,8 @@ package com.servoy.j2db.dataprocessing.datasource;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.IReturnedTypesProvider;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.IDestroyable;
 
@@ -33,6 +35,17 @@ import com.servoy.j2db.util.IDestroyable;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Data Sources", scriptingName = "datasources")
 public class JSDataSources implements IDestroyable
 {
+	static
+	{
+		ScriptObjectRegistry.registerReturnedTypesProviderForClass(JSDataSources.class, new IReturnedTypesProvider()
+		{
+			public Class< ? >[] getAllReturnedTypes()
+			{
+				return new Class< ? >[] { JSDataSource.class };
+			}
+		});
+	}
+
 	private volatile IApplication application;
 
 	public JSDataSources(IApplication application)
