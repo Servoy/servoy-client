@@ -272,6 +272,11 @@ public class WebClientSession extends WebSession
 		serveInfo = new Object[] { fname, bs, mimetype, contentDisposition == null ? "attachment" : contentDisposition }; //$NON-NLS-1$
 	}
 
+	public boolean isServedResourceAttachment()
+	{
+		return serveInfo != null && serveInfo.length >= 4 && "attachment".equals(serveInfo[3]);
+	}
+
 	/**
 	 * @see wicket.IResourceListener#onResourceRequested()
 	 */
