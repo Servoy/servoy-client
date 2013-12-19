@@ -698,7 +698,7 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 				null,
 				function() { onAjaxError(); }.bind(el),
 				function() {onAjaxCall();
-				return Wicket.$(el.id) != null && currentValue == Wicket.$(el.id).value; 
+				return Wicket.$(el.id) != null; 
 			 }.bind(el)
 			);
 			return !wcall;
