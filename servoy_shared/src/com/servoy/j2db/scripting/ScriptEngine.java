@@ -107,7 +107,6 @@ public class ScriptEngine implements IScriptSupport
 
 	private final static ContextFactory.Listener contextListener = new ContextFactory.Listener()
 	{
-		@SuppressWarnings("nls")
 		public void contextCreated(Context cx)
 		{
 			IServiceProvider sp = J2DBGlobals.getServiceProvider();
@@ -183,6 +182,10 @@ public class ScriptEngine implements IScriptSupport
 			ScriptObjectRegistry.getJavaMembers(JSMethodWithArguments.class, toplevelScope);
 			ScriptObjectRegistry.getJavaMembers(DbIdentValue.class, toplevelScope);
 
+			// Note: for tracking used values in calculations, we use RecordingScriptable to wrap scriptables.
+			// We do not wrap toplevelscope because rhino expects the top level scope to extend TopLevel class.
+			// This means that everything stored in the toplevelScope directly will not be tracked when used by calculations.
+
 			toplevelScope.put(Record.JS_RECORD, toplevelScope, new InstanceOfScope(Record.JS_RECORD, Record.class));
 			toplevelScope.put(FoundSet.JS_FOUNDSET, toplevelScope, new InstanceOfScope(FoundSet.JS_FOUNDSET, FoundSet.class));
 			toplevelScope.put("JSFoundset", toplevelScope, new InstanceOfScope("JSFoundset", FoundSet.class));
@@ -219,49 +222,48 @@ public class ScriptEngine implements IScriptSupport
 
 			SolutionScope tmpSolutionScope = new SolutionScope(toplevelScope);
 
-
 			InstanceJavaMembers ijm = new InstanceJavaMembers(toplevelScope, historyProvider.getClass());
-			Scriptable history = new NativeJavaObject(toplevelScope, historyProvider, ijm);
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_HISTORY, toplevelScope, history);
+			Scriptable history = new NativeJavaObject(tmpSolutionScope, historyProvider, ijm);
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_HISTORY, tmpSolutionScope, history);
 
-			pluginScope = new PluginScope(toplevelScope, application);
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, toplevelScope, pluginScope);
+			pluginScope = new PluginScope(tmpSolutionScope, application);
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, tmpSolutionScope, pluginScope);
 
-			//add application variable to toplevel scope
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_APPLICATION, toplevelScope, new NativeJavaObject(toplevelScope, jsApplication,
-				new InstanceJavaMembers(toplevelScope, JSApplication.class)));
+			// add application variable to solution scope
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_APPLICATION, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsApplication,
+				new InstanceJavaMembers(tmpSolutionScope, JSApplication.class)));
 			registerScriptObjectReturnTypes(jsApplication);
 
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_UTILS, toplevelScope, new NativeJavaObject(toplevelScope, jsUtils, new InstanceJavaMembers(
-				toplevelScope, JSUtils.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_UTILS, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsUtils,
+				new InstanceJavaMembers(tmpSolutionScope, JSUtils.class)));
 
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_SECURITY, toplevelScope, new NativeJavaObject(toplevelScope, jssec, new InstanceJavaMembers(
-				toplevelScope, JSSecurity.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SECURITY, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jssec,
+				new InstanceJavaMembers(tmpSolutionScope, JSSecurity.class)));
 			registerScriptObjectReturnTypes(jssec);
-			toplevelScope.put(JSSecurity.class.getSimpleName(), toplevelScope, new NativeJavaClass(toplevelScope, JSSecurity.class));
+			tmpSolutionScope.put(JSSecurity.class.getSimpleName(), tmpSolutionScope, new NativeJavaClass(tmpSolutionScope, JSSecurity.class));
 
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_SOLUTION_MODIFIER, toplevelScope, new NativeJavaObject(toplevelScope, solutionModifier,
-				new InstanceJavaMembers(toplevelScope, JSSolutionModel.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SOLUTION_MODIFIER, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, solutionModifier,
+				new InstanceJavaMembers(tmpSolutionScope, JSSolutionModel.class)));
 			registerScriptObjectClass(JSSolutionModel.class);
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_DATABASE_MANAGER, toplevelScope, new NativeJavaObject(toplevelScope, jsdbm,
-				new InstanceJavaMembers(toplevelScope, JSDatabaseManager.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_DATABASE_MANAGER, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsdbm,
+				new InstanceJavaMembers(tmpSolutionScope, JSDatabaseManager.class)));
 			registerScriptObjectClass(JSDatabaseManager.class);
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_DATASOURCES, toplevelScope, new NativeJavaObject(toplevelScope, jsds, new InstanceJavaMembers(
-				toplevelScope, JSDataSources.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_DATASOURCES, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, jsds,
+				new InstanceJavaMembers(tmpSolutionScope, JSDataSources.class)));
 			registerScriptObjectClass(JSDataSources.class);
 
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_I18N, toplevelScope, new NativeJavaObject(toplevelScope, i18n, new InstanceJavaMembers(
-				toplevelScope, JSI18N.class)));
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_I18N, tmpSolutionScope, new NativeJavaObject(tmpSolutionScope, i18n, new InstanceJavaMembers(
+				tmpSolutionScope, JSI18N.class)));
 
-			ScriptObjectRegistry.getJavaMembers(RepositoryException.class, toplevelScope);
-			ScriptObjectRegistry.getJavaMembers(ApplicationException.class, toplevelScope);
-			ScriptObjectRegistry.getJavaMembers(ServoyException.class, toplevelScope);
-			ScriptObjectRegistry.getJavaMembers(DataException.class, toplevelScope);
-			toplevelScope.put(IExecutingEnviroment.TOPLEVEL_SERVOY_EXCEPTION, toplevelScope, new NativeJavaClass(toplevelScope, ServoyException.class));
+			ScriptObjectRegistry.getJavaMembers(RepositoryException.class, tmpSolutionScope);
+			ScriptObjectRegistry.getJavaMembers(ApplicationException.class, tmpSolutionScope);
+			ScriptObjectRegistry.getJavaMembers(ServoyException.class, tmpSolutionScope);
+			ScriptObjectRegistry.getJavaMembers(DataException.class, tmpSolutionScope);
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SERVOY_EXCEPTION, tmpSolutionScope, new NativeJavaClass(tmpSolutionScope, ServoyException.class));
 			registerScriptObjectClass(ServoyException.class);
 
-			ScriptObjectRegistry.getJavaMembers(DataRendererOnRenderWrapper.class, toplevelScope);
-			ScriptObjectRegistry.getJavaMembers(RenderableWrapper.class, toplevelScope);
+			ScriptObjectRegistry.getJavaMembers(DataRendererOnRenderWrapper.class, tmpSolutionScope);
+			ScriptObjectRegistry.getJavaMembers(RenderableWrapper.class, tmpSolutionScope);
 
 			creator = new CreationalPrototype(tmpSolutionScope, application);
 			creator.setPrototype(null);
@@ -400,16 +402,6 @@ public class ScriptEngine implements IScriptSupport
 		creator.destroy();
 		solutionModifier.destroy();
 
-	}
-
-	public Object getSOMObject(String name)
-	{
-		Object obj = toplevelScope.get(name, toplevelScope);
-		if (obj instanceof Wrapper)
-		{
-			obj = ((Wrapper)obj).unwrap();
-		}
-		return obj;
 	}
 
 	public Object getSystemConstant(String name)
@@ -761,7 +753,7 @@ public class ScriptEngine implements IScriptSupport
 
 	public void setLastKeyModifiers(int m)
 	{
-		((JSApplication)getSOMObject("application")).setLastKeyModifiers(m); //$NON-NLS-1$
+		getJSApplication().setLastKeyModifiers(m);
 	}
 
 	/**

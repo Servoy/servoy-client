@@ -90,10 +90,9 @@ public interface IExecutingEnviroment
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
 	 * 
-	 * @param name one of IExecutingEnviroment.TOPLEVEL_KEYWORDS
 	 * @exclude
 	 */
-	public Object getSOMObject(String name);
+	public JSApplication getJSApplication();
 
 	/**
 	 * @return the solutionModifier

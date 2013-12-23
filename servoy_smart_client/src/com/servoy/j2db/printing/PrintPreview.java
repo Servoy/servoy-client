@@ -63,7 +63,6 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.cmd.ICmd;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.scripting.JSApplication;
 import com.servoy.j2db.smart.J2DBClient;
 import com.servoy.j2db.smart.cmd.CmdPageSetup;
 import com.servoy.j2db.ui.IComponent;
@@ -108,7 +107,7 @@ public class PrintPreview extends JPanel implements ActionListener, ItemListener
 	public PrintPreview(ISmartClientApplication app, FormController formPanel, IFoundSetInternal fs, PrinterJob printerJob) throws Exception
 	{
 		application = app;
-		((JSApplication)application.getScriptEngine().getSOMObject("application")).setDidLastPrintPreviewPrint(false); //$NON-NLS-1$
+		application.getScriptEngine().getJSApplication().setDidLastPrintPreviewPrint(false);
 
 		preferredPrinterName = formPanel.getPreferredPrinterName();
 		this.printerJob = printerJob;

@@ -224,7 +224,8 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 	public Scriptable getParentScope()
 	{
 		Scriptable parentScope = scriptable.getParentScope();
-		return parentScope == null ? null : new RecordingScriptable(null, parentScope);
+		// do not wrap toplevel scope. Note that scriptengine puts anything that needs to be tracked in solution scope.
+		return parentScope == null ? null : parentScope.getParentScope() == null ? parentScope : new RecordingScriptable(null, parentScope);
 	}
 
 	public Scriptable getPrototype()

@@ -36,7 +36,6 @@ import javax.swing.RepaintManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.scripting.JSApplication;
 import com.servoy.j2db.smart.dataui.DataRenderer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
@@ -86,7 +85,7 @@ public class PageDefinition implements Printable
 			application.getRuntimeProperties().put("printGraphics", g); //$NON-NLS-1$
 
 			//set util flag for use in printing
-			((JSApplication)application.getScriptEngine().getSOMObject("application")).setDidLastPrintPreviewPrint(true); //$NON-NLS-1$
+			application.getScriptEngine().getJSApplication().setDidLastPrintPreviewPrint(true);
 
 			//start actual printing
 			retval = printPage(g, pf);
