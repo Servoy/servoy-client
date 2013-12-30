@@ -230,7 +230,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="/crypt/workspace/servoy_base" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="E:/Workspaces/HEAD/servoy_base" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
