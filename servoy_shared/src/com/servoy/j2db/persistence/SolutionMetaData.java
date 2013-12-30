@@ -55,7 +55,7 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;
-		protectionPassword = ApplicationServerSingleton.get().calculateProtectionPassword(this, null);
+		if (ApplicationServerSingleton.get() != null) protectionPassword = ApplicationServerSingleton.get().calculateProtectionPassword(this, null);
 	}
 
 	public boolean getMustAuthenticate()
