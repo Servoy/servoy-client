@@ -1551,6 +1551,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	public void setMainPage(MainPage mainPage)
 	{
+		if (this.mainPage != null && mainPage != this.mainPage)
+		{
+			this.mainPage.remove((IComponent)this);
+		}
 		this.mainPage = mainPage;
 	}
 

@@ -73,7 +73,7 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 
 		setFocusCycleRoot(true);
 		setFocusTraversalPolicy(ServoyFocusTraversalPolicy.datarenderPolicy);
-		setFocusTraversalPolicyProvider(true);	// this seems mandatory on jdk1.6, but not on jdk1.7
+		setFocusTraversalPolicyProvider(true); // this seems mandatory on jdk1.6, but not on jdk1.7
 	}
 
 	/**
@@ -258,6 +258,14 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 	public void setComponentEnabled(boolean enabled)
 	{
 		setEnabled(enabled);
+	}
+
+	@Override
+	public void setOpaque(boolean isOpaque)
+	{
+		super.setOpaque(isOpaque);
+		if (tableFormPanel != null) tableFormPanel.setOpaque(isOpaque);
+//		tableFormPanel.setBackground(new Color(0, 0, 0, 254)); // TODO delete this line if it also works without it on Ubuntu
 	}
 
 	public void setComponentVisible(boolean b)

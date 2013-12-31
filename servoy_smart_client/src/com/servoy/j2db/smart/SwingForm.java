@@ -47,6 +47,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.print.PrinterJob;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,6 +58,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -199,7 +201,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		// everything transparent, because of semitransparency support
 		boolean isTransparent = formController.getForm().getTransparent();
 		setOpaque(!isTransparent);
-		if (isTransparent) setBackground(new Color(0, 0, 0, 254));
+//		if (isTransparent) setBackground(new Color(0, 0, 0, 254)); // TODO remove this if it also works without it on Ubuntu
 
 		ActionMap am = this.getActionMap();
 		am.put(ACTION_GO_OUT_TO_NEXT, new GoOutOfSwingFormAction(false));
@@ -639,6 +641,15 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			if (viewport != null) viewport.setBackground(bgColor);
 			if (view instanceof ListView) ((ListView)view).setBackground(bgColor);
 		}
+	}
+
+	@Override
+	public void setOpaque(boolean isOpaque)
+	{
+		super.setOpaque(isOpaque);
+		JViewport viewport = getViewport();
+		if (viewport != null) viewport.setOpaque(isOpaque);
+		if (view instanceof ListView) ((ListView)view).setOpaque(isOpaque);
 	}
 
 	public IView initView(IApplication application, FormController fp, int viewType)
@@ -1296,20 +1307,55 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	public String getContainerName()
 	{
-		String name = null;
 		Container parent = getParent();
 		while (parent != null)
 		{
 			if (parent instanceof MainPanel)
 			{
-				MainPanel mainPanel = ((MainPanel)parent);
-				name = mainPanel.getContainerName();
-				if (name == null) name = IApplication.APP_WINDOW_NAME; // main container name is null for main app. window
-				break;
+				return getPanelName((MainPanel)parent);
+			}
+			if (parent instanceof Window)
+			{
+				// in case of window plugin showing a popup form, we should return here the window that generated the popup form, just as in WC or for tabpanels
+				return findContainerNameInOwners((Window)parent);
 			}
 			parent = parent.getParent();
 		}
+		return null;
+	}
+
+	protected String getPanelName(MainPanel panel)
+	{
+		String name = panel.getContainerName();
+		if (name == null) name = IApplication.APP_WINDOW_NAME; // main container name is null for main app. window
 		return name;
+	}
+
+	protected String findContainerNameInOwners(Window win)
+	{
+		Window owner = win.getOwner();
+		if (owner == null)
+		{
+			Container tmp = win.getParent();
+			if (tmp instanceof Window) owner = (Window)tmp;
+		}
+		if (owner != null && owner != win)
+		{
+			// search for main panels in children
+			ConcurrentLinkedQueue<Component> childrenToVisit = new ConcurrentLinkedQueue<Component>();
+			childrenToVisit.add(owner);
+			Component child;
+			while ((child = childrenToVisit.poll()) != null)
+			{
+				if (child instanceof MainPanel)
+				{
+					return getPanelName((MainPanel)child);
+				}
+				if (child instanceof Container) childrenToVisit.addAll(Arrays.asList(((Container)child).getComponents()));
+			}
+			findContainerNameInOwners(owner);
+		}
+		return null;
 	}
 
 	/**

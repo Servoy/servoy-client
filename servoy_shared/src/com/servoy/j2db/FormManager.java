@@ -656,10 +656,13 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 					((ICmdManagerInternal)application.getCmdManager()).setCurrentUndoManager(fp.getUndoManager());
 				}
 				boolean isNewUser = checkAndUpdateFormUser(fp, container);
+				IFormUIInternal formUI = fp.getFormUI();
 				if (isNewUser)
 				{
 					container.add(fp.getFormUI(), formName);
 				}
+				if (formUI != null && !formUI.isVisible()) formUI.setComponentVisible(true);
+
 				// this code must be below the checkAndUpdateUser because setFormController can already set the formui
 				currentContainer.setFormController(fp);
 				SolutionScope ss = application.getScriptEngine().getSolutionScope();

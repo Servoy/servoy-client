@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -92,6 +93,30 @@ public class PageJSActionBuffer
 		public boolean apply(IHeaderResponse response)
 		{
 			response.renderOnLoadJavascript(js);
+			return true;
+		}
+
+	}
+
+	public static class RenderComponentAction implements PageAction
+	{
+		private final Component component;
+
+		public RenderComponentAction(Component component)
+		{
+			this.component = component;
+		}
+
+		@Override
+		public boolean apply(AjaxRequestTarget target, String childFrameBatchId)
+		{
+			target.addComponent(component);
+			return true;
+		}
+
+		@Override
+		public boolean apply(IHeaderResponse response)
+		{
 			return true;
 		}
 

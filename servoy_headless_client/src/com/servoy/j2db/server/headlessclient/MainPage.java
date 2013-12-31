@@ -96,6 +96,7 @@ import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.DivDialogAction;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.JSChangeAction;
 import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.PageAction;
+import com.servoy.j2db.server.headlessclient.PageJSActionBuffer.RenderComponentAction;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyDefaultAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractServoyLastVersionAjaxBehavior;
 import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
@@ -660,6 +661,28 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				TabIndexHelper.setUpTabIndexAttributeModifier(item, ISupportWebTabSeq.SKIP);
 			}
 
+			@Override
+			protected ListItem<IFormUIInternal< ? >> newItem(final int index)
+			{
+				return new ListItem<IFormUIInternal< ? >>(index, getListItemModel(getModel(), index))
+				{
+					@Override
+					public void remove(Component component)
+					{
+						super.remove(component);
+						// for example when a form is shown in a popup form (window plugin) it must know that it's main page changed
+						if (component instanceof WebForm)
+						{
+							WebForm formUI = ((WebForm)component);
+							if (MainPage.this == formUI.getMainPage())
+							{
+								formUI.setMainPage(null);
+							}
+						}
+					}
+				};
+			}
+
 			/**
 			 * @see org.apache.wicket.markup.html.list.ListView#onBeforeRender()
 			 */
@@ -1116,11 +1139,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		// a new main form is added clear everything
 		webForms.clear();
-		if (navigator != null)
-		{
-			webForms.add(navigator.getFormUI());
-		}
-
 		WebMarkupContainer container = (WebMarkupContainer)c;
 		if (!"webform".equals(container.getId())) //$NON-NLS-1$
 		{
@@ -1146,9 +1164,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		}
 		listview.removeAll();
 
+		((WebForm)container).setMainPage(this);
 		main = (WebForm)container;
-		main.setMainPage(this);
 		webForms.add(main);
+		if (navigator != null)
+		{
+			webForms.add(navigator.getFormUI());
+		}
 
 		/*
 		 * if (navigator != null) { calculateFormAndNavigatorSizes(); }
@@ -1168,9 +1190,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		return callingContainer;
 	}
 
-
 	public void remove(IComponent c)
 	{
+		if (main == c)
+		{
+			main = null;
+			setFormController(null);
+		}
 		webForms.remove(c);
 		listview.removeAll();
 	}
@@ -1336,7 +1362,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			titleString += " - " + appName; //$NON-NLS-1$
 		}
 		this.title.setDefaultModelObject(titleString);
-		if (getRequestCycle().getRequestTarget() instanceof AjaxRequestTarget) ((AjaxRequestTarget)getRequestCycle().getRequestTarget()).addComponent(title);
+		addJSAction(new RenderComponentAction(title));
 	}
 
 	public String nextInputNameId()
@@ -1347,8 +1373,9 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	public void setShowURLCMD(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
 		WebClientSession session = (WebClientSession)getSession();
-		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, onRootFrame,
-			(url.equals(urlFor(serveResourceReference).toString()) && session != null && session.isServedResourceAttachment()) && (target == null || target.equals("_self")));
+		showUrlInfo = new ShowUrlInfo(url, target, target_options, timeout, onRootFrame, (url.equals(urlFor(serveResourceReference).toString()) &&
+			session != null && session.isServedResourceAttachment()) &&
+			(target == null || target.equals("_self")));
 	}
 
 	/**

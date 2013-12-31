@@ -141,6 +141,28 @@ Wicket.Object.extendClass(Wicket.DivWindow, Wicket.Window, {
 		}.bind(this);
 	},
 	
+	load: function() {
+		this._super.load.call(this);
+		
+		if(this.settings.transparent)
+		{
+			// make iframe invisible
+			this.content.style.visibility = 'hidden'; // to avoid flash of white when using transparent windows (most noticeable in IE, but in all other browsers as well)
+			var oldLoad = (typeof this.content.onload == 'undefined') ? null : this.content.onload;
+			
+			this.content.onload = function() {
+				if (oldLoad != null) {
+					oldLoad();
+					this.content.onload = oldLoad;
+				}
+
+				// make the frame visible again
+				this.content.style.visibility = 'visible'; // was set to 'none' to avoid flash of white when using transparent windows (most visible in IE, but visible in all other browsers as well)
+			}.bind(this);
+		}
+	
+	},
+	
 	// override
 	createMask: function() {
 		if (this.settings.modal) {

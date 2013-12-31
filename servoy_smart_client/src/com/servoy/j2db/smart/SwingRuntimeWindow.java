@@ -46,6 +46,7 @@ import com.servoy.j2db.plugins.ISmartRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.JavaVersion;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UIUtils;
@@ -483,51 +484,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				if (Utils.isAppleMacOS()) sfd.getRootPane().putClientProperty("Window.shadow", Boolean.FALSE); //$NON-NLS-1$
 			}
 
-
-			if (getOpacity() != 1)
-			{
-				boolean errored = false;
-				try
-				{
-					Method mSetWindowOpacity = Window.class.getMethod("setOpacity", float.class);
-					mSetWindowOpacity.invoke(sfd, getOpacity());
-				}
-				catch (Exception ex)
-				{
-					errored = true;
-					Debug.trace("Error while trying to set opacity on window", ex);
-				}
-
-				try
-				{
-					if (errored)
-					{
-						Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
-						Method mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
-						mSetWindowOpacity.invoke(null, sfd, getOpacity());
-					}
-				}
-				catch (Exception ex)
-				{
-					Debug.trace("Error while trying to set opacity on window", ex);
-				}
-			}
-
-			if ((JDialog.isDefaultLookAndFeelDecorated() || sfd.isUndecorated()) && getTransparent())
-			{
-				sfd.setBackground(new Color(0, 0, 0, 0));
-
-				for (Component c : ((Container)container).getComponents())
-				{
-					if ("Main_panel__table_form_panel".equals(c.getName()))
-					{
-						c.setBackground(new Color(0, 0, 0, 254));
-					}
-				}
-
-				Container cont = sfd.getContentPane();
-				((JPanel)cont).setBackground(new Color(0, 0, 0, 254));
-			}
+			applyOpacityAndTransparency(sfd, container, (JPanel)sfd.getContentPane(), sfd.isUndecorated());
 
 			if (windowModal)
 			{
@@ -551,6 +508,153 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		}
 
 		finalizeShowWindow(fp, formName, container, true, legacyV3Behavior, bringToFrontNeeded);
+	}
+
+	private void applyOpacityAndTransparency(Window w, IMainContainer container, JPanel contentPane, boolean undecoratedW)
+	{
+		// opacity
+		float opacityValue = getOpacity();
+		if (opacityValue != getOpacity(w))
+		{
+			setOpacity(w, opacityValue);
+		}
+
+		// transparency
+		try
+		{
+			boolean transparentValue = getTransparent();
+			if (transparentValue == contentPane.isOpaque())
+			{
+				setTransparency(w, container, contentPane, undecoratedW, transparentValue);
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error("Unable to set transparency on JSWindow " + getName() + ".", e);
+		}
+	}
+
+	private void setTransparency(Window w, IMainContainer container, JPanel contentPane, boolean undecoratedW, boolean transparent)
+	{
+		if (JDialog.isDefaultLookAndFeelDecorated() || undecoratedW)
+		{
+			// also set it on intermediate panes
+			container.setOpaque(!transparent);
+			contentPane.setOpaque(!transparent);
+
+			// set on window if possible
+			if (JavaVersion.CURRENT_JAVA_VERSION.major >= 7)
+			{
+				// set it the Java 7 way with bg color that has alpha 0
+				if (transparent)
+				{
+					try
+					{
+						Color oldC = w.getBackground();
+						Color newC = (oldC != null) ? new Color(oldC.getRed(), oldC.getGreen(), oldC.getBlue(), 0) : new Color(255, 255, 255, 0);
+						w.setBackground(newC);
+					}
+					catch (Exception ex)
+					{
+						Debug.trace("Error while trying to set transparency on window using v7 API; the capability might be missing.", ex);
+					}
+				}
+				else
+				{
+					w.setBackground(null);
+				}
+			}
+			else if (JavaVersion.CURRENT_JAVA_VERSION.major == 6 && JavaVersion.CURRENT_JAVA_VERSION.update >= 10) // see http://docs.oracle.com/javase/tutorial/uiswing/misc/trans_shaped_windows.html
+			{
+				try
+				{
+					// for java 1.6 u10 or later try this, as the above will only work in java 7
+					// AWTUtilities.setWindowOpaque(boolean)
+					Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
+					Method mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
+					mSetWindowOpaque.invoke(null, w, Boolean.valueOf(!transparent));
+				}
+				catch (Exception ex)
+				{
+					Debug.trace("Error while trying to set transparency on window using v6 API; the capability might be missing.", ex);
+				}
+			}
+			else
+			{
+				Debug.warn("Cannot set transparency on window; it is supported only with Java 6 update 10 or higher.");
+			}
+		}
+		else
+		{
+			Debug.warn("Transparency will no be applied to some decorated dialogs. It can lead to strange visual effects.");
+		}
+	}
+
+	private void setOpacity(Window w, float opacityValue)
+	{
+		// set on window if possible
+		if (JavaVersion.CURRENT_JAVA_VERSION.major >= 7)
+		{
+			try
+			{
+				Method mSetWindowOpacity = Window.class.getMethod("setOpacity", float.class);
+				mSetWindowOpacity.invoke(w, Float.valueOf(opacityValue));
+			}
+			catch (Exception ex)
+			{
+				Debug.trace("Error while trying to set opacity on window using v7 API; the capability might be missing.", ex);
+			}
+		}
+		else if (JavaVersion.CURRENT_JAVA_VERSION.major == 6 && JavaVersion.CURRENT_JAVA_VERSION.update >= 10) // see http://docs.oracle.com/javase/tutorial/uiswing/misc/trans_shaped_windows.html
+		{
+			try
+			{
+				Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
+				Method mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
+				mSetWindowOpacity.invoke(null, w, Float.valueOf(opacityValue));
+			}
+			catch (Exception ex)
+			{
+				Debug.trace("Error while trying to set opacity on window using v6 API; the capability might be missing.", ex);
+			}
+		}
+		else
+		{
+			Debug.warn("Cannot set opacity on window; it is supported only with Java 6 update 10 or higher.");
+		}
+	}
+
+	private float getOpacity(Window w)
+	{
+		float opacity = 1;
+
+		if (JavaVersion.CURRENT_JAVA_VERSION.major >= 7)
+		{
+			try
+			{
+				Method mGetWindowOpacity = Window.class.getMethod("getOpacity");
+				opacity = ((Float)mGetWindowOpacity.invoke(w)).floatValue();
+			}
+			catch (Exception ex)
+			{
+				// something went wrong; maybe capability is missing from graphics device; return default "opaque"
+			}
+		}
+		else if (JavaVersion.CURRENT_JAVA_VERSION.major == 6 && JavaVersion.CURRENT_JAVA_VERSION.update >= 10) // see http://docs.oracle.com/javase/tutorial/uiswing/misc/trans_shaped_windows.html
+		{
+			try
+			{
+				Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
+				Method mgetWindowOpacity = awtUtilitiesClass.getMethod("getWindowOpacity", Window.class);
+				opacity = ((Float)mgetWindowOpacity.invoke(null, w)).floatValue();
+			}
+			catch (Exception ex)
+			{
+				// something went wrong; maybe capability is missing from graphics device; return default "opaque"
+			}
+		} // else it's not supported by JVM; always opaque
+
+		return opacity;
 	}
 
 	private static Object setModalityTypeMethod = null;
@@ -793,7 +897,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			});
 
 			if (createdNewWindow &&
-				(Utils.getPlatform() == Utils.PLATFORM_LINUX || (Utils.getPlatform() == Utils.PLATFORM_MAC && System.getProperty("java.version").startsWith("1.7.")))) //$NON-NLS-1$//$NON-NLS-2$
+				(Utils.getPlatform() == Utils.PLATFORM_LINUX || (Utils.getPlatform() == Utils.PLATFORM_MAC && JavaVersion.CURRENT_JAVA_VERSION.major >= 7)))
 			{
 				createdNewWindow = false;
 				application.invokeLater(new Runnable()

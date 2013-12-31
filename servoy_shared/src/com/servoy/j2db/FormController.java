@@ -1585,7 +1585,7 @@ public class FormController extends BasicFormController
 			}
 		}
 		// and make sure it is visible when we return it. (FixedCardLayout will set it to none visible when remove)
-		getFormUI().setComponentVisible(visibleExternal);
+		getFormUI().setComponentVisible(true);
 		return (visibleExternal ? getFormUI() : null);
 	}
 
