@@ -67,12 +67,21 @@ public class FoundSetEvent extends EventObject
 
 	private final int type;
 	private final int changeType;
+	private final int firstRow;
+	private final int lastRow;
 
-	public FoundSetEvent(IFoundSet source, int type, int changeType)
+	public FoundSetEvent(IFoundSet source, int type, int changeType, int firstRow, int lastRow)
 	{
 		super(source);
 		this.type = type;
 		this.changeType = changeType;
+		this.firstRow = firstRow;
+		this.lastRow = lastRow;
+	}
+
+	public FoundSetEvent(IFoundSet source, int type, int changeType)
+	{
+		this(source, changeType, changeType, -1, -1);
 	}
 
 	public IFoundSet getSourceFoundset()
@@ -100,6 +109,26 @@ public class FoundSetEvent extends EventObject
 	public int getChangeType()
 	{
 		return changeType;
+	}
+
+	/**
+	 * Returns the first row of the change when it was a contents change update (INSERT,DELETE,UPDATE) 
+	 * @return the firstRow
+	 * @since 7.4
+	 */
+	public int getFirstRow()
+	{
+		return firstRow;
+	}
+
+	/**
+	 * Returns the last row of the change when it was a contents change update (INSERT,DELETE,UPDATE)
+	 * @return the lastRow
+	 * @since 7.4
+	 */
+	public int getLastRow()
+	{
+		return lastRow;
 	}
 
 	@Override

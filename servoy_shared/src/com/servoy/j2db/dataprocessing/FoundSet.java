@@ -4977,7 +4977,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	int firstRow, @SuppressWarnings("unused")
 	int lastRow, int changeType)
 	{
-		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType));
+		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
 	private void fireFoundSetEvent(FoundSetEvent e)
