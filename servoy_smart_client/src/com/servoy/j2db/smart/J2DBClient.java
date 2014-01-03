@@ -3091,7 +3091,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						}
 						Object[] name_password = loginDialog.showDialog(name);
 
-						SwingHelper.dispatchEvents(250); // hide dialog
+						dispatchEventsToHideDialog(); // hide dialog
 
 						if (name_password == null || name_password.length < 2 || name_password[0] == null || name_password[1] == null)
 						{
@@ -3132,6 +3132,11 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			}
 		};
 		invokeLater(r);
+	}
+
+	protected void dispatchEventsToHideDialog()
+	{
+		SwingHelper.dispatchEvents(250);
 	}
 
 	@Override
