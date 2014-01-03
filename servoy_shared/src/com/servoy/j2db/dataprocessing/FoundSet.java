@@ -4973,26 +4973,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.SELECTION_MODE_CHANGE, FoundSetEvent.CHANGE_UPDATE));
 	}
 
-	protected void fireFoundSetEvent(@SuppressWarnings("unused")
-	int firstRow, @SuppressWarnings("unused")
-	int lastRow, int changeType)
+	protected void fireFoundSetEvent(int firstRow, int lastRow, int changeType)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	private void fireFoundSetEvent(FoundSetEvent e)
+	private void fireFoundSetEvent(final FoundSetEvent e)
 	{
 		if (foundSetEventListeners.size() > 0)
 		{
-			IFoundSetEventListener[] array;
-			synchronized (foundSetEventListeners)
+			Runnable run = new Runnable()
 			{
-				array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
-			}
+				@Override
+				public void run()
+				{
+					if (foundSetEventListeners.size() > 0)
+					{
+						final IFoundSetEventListener[] array;
+						synchronized (foundSetEventListeners)
+						{
+							array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
+						}
 
-			for (IFoundSetEventListener element : array)
+						for (IFoundSetEventListener element : array)
+						{
+							element.foundSetChanged(e);
+						}
+					}
+				}
+			};
+			if (fsm.getApplication().isEventDispatchThread())
 			{
-				element.foundSetChanged(e);
+				run.run();
+			}
+			else
+			{
+				fsm.getApplication().invokeAndWait(run);
 			}
 		}
 	}
