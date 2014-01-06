@@ -20,6 +20,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.Event;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -535,13 +536,14 @@ public class WebEventExecutor extends BaseEventExecutor
 	public static boolean setSelectedIndex(Component component, AjaxRequestTarget target, int modifiers, boolean bHandleMultiselect)
 	{
 		WebForm parentForm = component.findParent(WebForm.class);
+		WebCellBasedView tableView = null;
 		if (parentForm != null)
 		{
 			int parentFormViewType = parentForm.getController().getForm().getView();
 			if (parentFormViewType == FormController.TABLE_VIEW || parentFormViewType == FormController.LOCKED_TABLE_VIEW ||
 				parentFormViewType == IForm.LIST_VIEW || parentFormViewType == FormController.LOCKED_LIST_VIEW)
 			{
-				WebCellBasedView tableView = component.findParent(WebCellBasedView.class);
+				tableView = component.findParent(WebCellBasedView.class);
 				if (tableView == null)
 				{
 					// the component is not part of the table view (it is on other form part), so ignore selection change
@@ -600,6 +602,12 @@ public class WebEventExecutor extends BaseEventExecutor
 
 					if (!isRightClick)
 					{
+						if (!toggle && !extend && tableView != null && tableView.getDragNDropController() != null &&
+							Arrays.binarySearch(((FoundSet)fs).getSelectedIndexes(), index) > -1)
+						{
+							return true;
+						}
+
 						if (toggle || extend)
 						{
 							if (bHandleMultiselect)
