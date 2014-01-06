@@ -407,10 +407,10 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 		{
 			WebTabFormLookup previous = currentForm;
 
-			int stopped = application.getFoundSetManager().getEditRecordList().stopEditing(false);
-			boolean cantStop = stopped != ISaveConstants.STOPPED && stopped != ISaveConstants.AUTO_SAVE_BLOCKED;
 			if (previous != null)
 			{
+				int stopped = application.getFoundSetManager().getEditRecordList().stopEditing(false);
+				boolean cantStop = stopped != ISaveConstants.STOPPED && stopped != ISaveConstants.AUTO_SAVE_BLOCKED;
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				boolean ok = previous.notifyVisible(false, invokeLaterRunnables);
 				Utils.invokeLater(application, invokeLaterRunnables);
