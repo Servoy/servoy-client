@@ -1087,11 +1087,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		try
 		{
 			message = msg.getProperty(realKey);
-			if (message != null)
-			{
-				message = Utils.stringReplace(message, "'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			else if (jar != null)
+			if (message == null && jar != null)
 			{
 				try
 				{
@@ -1109,6 +1105,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 				}
 				else
 				{
+					message = Utils.stringReplace(message, "'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
 					return getFormattedText(message, loc, args);
 				}
 			}
