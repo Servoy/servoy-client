@@ -1611,9 +1611,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		Solution s = getSolution();
 		if (s != null)// && (e instanceof ApplicationException || e instanceof DataException || e instanceof JavaScriptException))
 		{
-			Exception scriptException = getScriptException(e);
+			Object thrown = getScriptException(e);
 
-			if (!testClientRegistered(scriptException))
+			if (!testClientRegistered(thrown))
 			{
 				return;
 			}
@@ -1634,7 +1634,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				{
 					isHandlingError = true;
 					Object retval = getScriptEngine().getScopesScope().executeGlobalFunction(sm.getScopeName(), sm.getName(),
-						Utils.arrayMerge((new Object[] { scriptException }), Utils.parseJSExpressions(s.getInstanceMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
+						Utils.arrayMerge((new Object[] { thrown }), Utils.parseJSExpressions(s.getInstanceMethodArguments("onErrorMethodID"))), //$NON-NLS-1$
 						false, false);
 					if (Utils.getAsBoolean(retval))
 					{
@@ -1658,15 +1658,23 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
-	public static Exception getScriptException(final Exception e)
+	public static Object getScriptException(final Exception e)
 	{
 		Exception scriptException = e;
 		//verify whether e is not caused by a ServoyException (at runtime, exceptions thrown are wrapped in WrappedException, 
 		// so we need to look for a ServoyException into the chain)
 		// first check for a javascript exception with its value
-		if (scriptException instanceof JavaScriptException && ((JavaScriptException)scriptException).getValue() instanceof Exception)
+		if (scriptException instanceof JavaScriptException)
 		{
-			scriptException = (Exception)((JavaScriptException)scriptException).getValue();
+			if (((JavaScriptException)scriptException).getValue() instanceof Exception)
+			{
+				scriptException = (Exception)((JavaScriptException)scriptException).getValue();
+			}
+			else if (((JavaScriptException)scriptException).getValue() != null)
+			{
+				// just return the object thrown in scripting
+				return ((JavaScriptException)scriptException).getValue();
+			}
 		}
 		// then check if it is RhinoException and skip that one by default.
 		else if (scriptException instanceof RhinoException && scriptException.getCause() instanceof Exception)
