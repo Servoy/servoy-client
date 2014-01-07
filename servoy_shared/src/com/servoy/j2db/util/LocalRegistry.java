@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.util;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,5 +47,17 @@ public class LocalRegistry implements IServiceRegistry
 	public <S> void ungetService(Class<S> clazz)
 	{
 		map.remove(clazz);
+	}
+
+	@Override
+	public <S> S getService(Class<S> clazz, String filter)
+	{
+		return null;
+	}
+
+	@Override
+	public <S> void registerService(Class<S> clazz, S service, Dictionary properties)
+	{
+		//nop
 	}
 }

@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.shared;
 
+import java.util.Dictionary;
+
 
 /**
  * An service registry which is implemented by OSGi or simple local map in non OSGI env
@@ -26,7 +28,11 @@ public interface IServiceRegistry
 {
 	public <S> S getService(Class<S> reference);
 
+	public <S> S getService(Class<S> clazz, String filter);
+
 	public <S> void registerService(Class<S> clazz, S service);
+
+	public <S> void registerService(Class<S> clazz, S service, Dictionary properties);
 
 	public <S> void ungetService(Class<S> clazz);
 }
