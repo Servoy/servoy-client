@@ -231,10 +231,16 @@ public class ScriptVariableScope extends LazyCompilationScope
 		}
 		finally
 		{
-			cx.setGeneratingDebug(debug);
-			cx.setOptimizationLevel(level);
-			cx.setDebugger(debugger, debuggerContextData);
-			Context.exit();
+			try
+			{
+				cx.setGeneratingDebug(debug);
+				cx.setOptimizationLevel(level);
+				cx.setDebugger(debugger, debuggerContextData);
+			}
+			finally
+			{
+				Context.exit();
+			}
 		}
 		return retValue;
 	}
