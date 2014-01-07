@@ -715,7 +715,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 							//correct title
 							String titleText = title;
 							if (titleText == null) titleText = f.getTitleText();
-							if (titleText == null || titleText.equals("")) titleText = fc.getName(); //$NON-NLS-1$
 							if (NO_TITLE_TEXT.equals(titleText)) titleText = ""; //$NON-NLS-1$
 							cachedContainer.setTitle(titleText);
 							cachedContainer.requestFocus();
