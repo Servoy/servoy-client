@@ -226,6 +226,16 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		{
 			getComponent().setOpaque(!b);
 			getChangesRecorder().setTransparent(b);
+			if (!b)
+			{
+				// was transparent before
+				String background = getBgcolor();
+				if (background != null)
+				{
+					// reapply background color
+					getChangesRecorder().setBgcolor(background);
+				}
+			}
 			if (getComponent() instanceof JComponent)
 			{
 				((JComponent)getComponent()).repaint();
