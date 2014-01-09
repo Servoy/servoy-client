@@ -88,81 +88,81 @@
 			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar"/>
 			<pathelement path="../eclipse_target/ship_plugins/plugins/org.eclipse.equinox.transforms.hook_1.0.300.201106061129.jar"/>
 			<pathelement path="../org.eclipse.dltk.javascript.rhino/bin/"/>
-			
+			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_7.4.0.2022/bin/"/>
 			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino/@dot"/>
-			
+			<pathelement path="${build.result.folder}/../org.eclipse.dltk.javascript.rhino_7.4.0.2022/@dot"/>
 			<pathelement path="../servoy_base/bin/"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_base_7.4.0.2022/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_base/@dot"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_base_7.4.0.2022/@dot"/>
 			<pathelement path="lib/annotations-1.0.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/annotations-1.0.jar"/>
 			<pathelement path="lib/BrowserLauncher2.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/BrowserLauncher2.jar"/>
 			<pathelement path="lib/commons-codec.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/commons-codec.jar"/>
 			<pathelement path="lib/commons-collections.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/commons-collections.jar"/>
 			<pathelement path="lib/commons-dbcp.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/commons-dbcp.jar"/>
 			<pathelement path="lib/commons-io.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/commons-io.jar"/>
 			<pathelement path="lib/commons-logging.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/commons-logging.jar"/>
 			<pathelement path="lib/dom4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/dom4j.jar"/>
 			<pathelement path="lib/jabsorb.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/jabsorb.jar"/>
 			<pathelement path="lib/joda-time.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/joda-time.jar"/>
 			<pathelement path="lib/log4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/log4j.jar"/>
 			<pathelement path="lib/servlet-api.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/servlet-api.jar"/>
 			<pathelement path="lib/slf4j-api.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/slf4j-api.jar"/>
 			<pathelement path="lib/slf4j-log4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/slf4j-log4j.jar"/>
 			<pathelement path="lib/wicket-extentions.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/wicket-extentions.jar"/>
 			<pathelement path="lib/wicket.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/wicket.jar"/>
 			<pathelement path="lib/commons-pool.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/commons-pool.jar"/>
 			<pathelement path="lib/activation.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/activation.jar"/>
 			<pathelement path="lib/mail.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/mail.jar"/>
 			<pathelement path="lib/httpclient.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/httpclient.jar"/>
 			<pathelement path="lib/httpcore.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/httpcore.jar"/>
 			<pathelement path="lib/jcifs.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/jcifs.jar"/>
 			<pathelement path="lib/apache-mime4j.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/apache-mime4j.jar"/>
 			<pathelement path="lib/httpmime.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/httpmime.jar"/>
 			<pathelement path="lib/antlr.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/antlr.jar"/>
 			<pathelement path="lib/l2fprod-common-outlookbar.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/l2fprod-common-outlookbar.jar"/>
 			<pathelement path="lib/wiquery.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/wiquery.jar"/>
 			<pathelement path="lib/fs-parser.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/fs-parser.jar"/>
 			<pathelement path="lib/fs-commons.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/fs-commons.jar"/>
 			<pathelement path="lib/PBKDF2.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/PBKDF2.jar"/>
 			<pathelement path="lib/minis.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/minis.jar"/>
 			<pathelement path="lib/xstream.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/xstream.jar"/>
 			<pathelement path="lib/prompt.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/prompt.jar"/>
 			<pathelement path="lib/wicket-calendar.jar"/>
-			
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/wicket-calendar.jar"/>
 			<pathelement path="lib/tim-api.jar"/>
 		</path>
 		<!-- compile the source code -->
