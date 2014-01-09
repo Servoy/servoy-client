@@ -118,12 +118,12 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet() //only for use JS engine
 	{
 		this.application = null;
-		this.set = new BufferedDataSetWithIndex(new BufferedDataSet());
+		this.set = new DataSetWithIndex(new BufferedDataSet());
 	}
 
 	public JSDataSet(IServiceProvider application)
 	{
-		this(application, new BufferedDataSetWithIndex(new BufferedDataSet()));
+		this(application, new DataSetWithIndex(new BufferedDataSet()));
 	}
 
 	public JSDataSet(IServiceProvider application, int rows, String[] cols)
@@ -136,7 +136,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			{
 				emptyRows.add(new Object[cols.length]);
 			}
-			this.set = new BufferedDataSetWithIndex(new BufferedDataSet(cols, emptyRows));
+			this.set = new DataSetWithIndex(new BufferedDataSet(cols, emptyRows));
 		}
 		if (application != null)
 		{
@@ -158,7 +158,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		}
 		else
 		{
-			this.set = new BufferedDataSetWithIndex(set);
+			this.set = new DataSetWithIndex(set);
 		}
 		if (application != null)
 		{
@@ -705,7 +705,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			foundSet.loadAllRecords();
 
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet
-			set = new BufferedDataSetWithIndex(new FoundsetDataSet(foundSet, dataSource, pkNames));
+			set = new DataSetWithIndex(new FoundsetDataSet(foundSet, dataSource, pkNames));
 		}
 		return dataSource;
 	}

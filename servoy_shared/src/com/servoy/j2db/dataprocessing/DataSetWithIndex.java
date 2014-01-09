@@ -24,25 +24,25 @@ import com.servoy.j2db.query.ColumnType;
 /**
  * @author lvostinar
  * 
- * A buffered dataset that also holds row index information.
+ * A dataset that also holds row index information.
  * 
  */
-public class BufferedDataSetWithIndex implements IDataSetWithIndex
+public class DataSetWithIndex implements IDataSetWithIndex
 {
 	private int rowIndex = -1;
 	private final IDataSet dataset;
 
-	public BufferedDataSetWithIndex()
+	public DataSetWithIndex()
 	{
 		this(new BufferedDataSet());
 	}
 
-	public BufferedDataSetWithIndex(IDataSet dataset)
+	public DataSetWithIndex(IDataSet dataset)
 	{
 		this(dataset, -1);
 	}
 
-	public BufferedDataSetWithIndex(IDataSet dataset, int rowIndex)
+	public DataSetWithIndex(IDataSet dataset, int rowIndex)
 	{
 		this.dataset = dataset;
 		this.rowIndex = rowIndex;
@@ -158,7 +158,7 @@ public class BufferedDataSetWithIndex implements IDataSetWithIndex
 	@Override
 	public IDataSet clone()
 	{
-		return new BufferedDataSetWithIndex(dataset.clone(), rowIndex);
+		return new DataSetWithIndex(dataset.clone(), rowIndex);
 	}
 
 	ColumnType[] getColumnTypeInfo()

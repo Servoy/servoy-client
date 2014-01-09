@@ -44,9 +44,9 @@ public class BufferedDataSetInternal
 		{
 			return ((BufferedDataSet)set).getColumnTypeInfo();
 		}
-		if (set instanceof BufferedDataSetWithIndex)
+		if (set instanceof DataSetWithIndex)
 		{
-			return ((BufferedDataSetWithIndex)set).getColumnTypeInfo();
+			return ((DataSetWithIndex)set).getColumnTypeInfo();
 		}
 		return null;
 	}
