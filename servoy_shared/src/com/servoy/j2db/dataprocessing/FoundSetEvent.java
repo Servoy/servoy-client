@@ -81,7 +81,7 @@ public class FoundSetEvent extends EventObject
 
 	public FoundSetEvent(IFoundSet source, int type, int changeType)
 	{
-		this(source, changeType, changeType, -1, -1);
+		this(source, type, changeType, -1, -1);
 	}
 
 	public IFoundSet getSourceFoundset()

@@ -126,6 +126,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	private int lastAdjusting = -1;
 
+	private boolean adjustingModel = false;
+
 	// Have to check it here because formEditor.getDataAdapterList().getState() can already have the new one 
 	protected IRecordInternal[] lastState = null;
 
@@ -139,7 +141,102 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		this.pageFormat = PersistHelper.createPageFormat(form.getDefaultPageFormat());
 	}
 
-	protected abstract boolean setModel(FoundSet newModel) throws ServoyException;
+	protected boolean setModel(FoundSet newModel) throws ServoyException
+	{
+		if (newModel == formModel || adjustingModel)
+		{
+			return true;//same or adjusting do nothing
+		}
+
+		ITable formTable = application.getFoundSetManager().getTable(form.getDataSource());
+		if (newModel != null && ((formTable == null && newModel.getTable() != null) || (formTable != null && !formTable.equals(newModel.getTable()))))
+		{
+			throw new IllegalArgumentException(application.getI18NMessage(
+				"servoy.formPanel.error.wrongFoundsetTable", new Object[] { newModel.getTable() == null //$NON-NLS-1$
+					? "NONE" : newModel.getTable().getName(), form.getTableName() })); //$NON-NLS-1$
+		}
+
+		try
+		{
+			IView view = getViewComponent();
+			if (view != null && view.isEditing())
+			{
+				// TODO if save fails don't set the newModel??
+				int stopped = application.getFoundSetManager().getEditRecordList().stopEditing(false);
+				if (stopped != ISaveConstants.STOPPED && stopped != ISaveConstants.AUTO_SAVE_BLOCKED)
+				{
+					return false;
+				}
+			}
+			adjustingModel = true;
+
+			if (formModel != null)
+			{
+				try
+				{
+					((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
+					((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
+					((ISwingFoundSet)formModel).removeTableModelListener(this);
+					formModel.flushAllCachedItems();//to make sure all data is gc'ed
+				}
+				catch (Exception ex)
+				{
+					Debug.error(ex);
+				}
+			}
+
+			setFormModelInternal(newModel == null ? ((FoundSetManager)application.getFoundSetManager()).getEmptyFoundSet(this) : newModel);
+
+			if (formScope != null)
+			{
+				formScope.putWithoutFireChange("foundset", formModel); //$NON-NLS-1$
+				if (formScope.getPrototype() == null)
+				{
+					formScope.setPrototype(new SelectedRecordScope(this, formTable == null ? null : application.getScriptEngine().getTableScope(formTable)));
+				}
+			}
+			if (isFormVisible)
+			{
+				((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
+				((ISwingFoundSet)formModel).getSelectionModel().addFormController(this);
+				((ISwingFoundSet)formModel).addTableModelListener(this);
+				if (view != null) //it may not yet exist
+				{
+					view.setModel(formModel);
+				}
+
+				//this was former a call to aggregateChange, but now does now unwanted parent traverse...
+				int[] idx = null;
+				if (getView() == RECORD_VIEW || getView() == LOCKED_RECORD_VIEW)
+				{
+					int selIdx = formModel.getSelectedIndex();
+					if (selIdx != -1) idx = new int[] { selIdx };
+				}
+				else
+				{
+					idx = formModel.getSelectedIndexes();
+				}
+				if (idx == null || idx.length == 0)
+				{
+					refreshAllPartRenderers(new IRecordInternal[] { formModel.getPrototypeState() });
+				}
+				else
+				{
+					IRecordInternal[] row = new IRecordInternal[idx.length];
+
+					for (int i = 0; i < idx.length; i++)
+						row[i] = formModel.getRecord(idx[i]);
+					refreshAllPartRenderers(row);
+				}
+			}
+		}
+		finally
+		{
+			adjustingModel = false;
+		}
+		return true;
+
+	}
 
 	protected abstract void focusFirstField();
 
