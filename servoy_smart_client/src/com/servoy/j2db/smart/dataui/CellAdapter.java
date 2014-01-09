@@ -41,9 +41,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.EventObject;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractButton;
@@ -133,7 +133,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 	private static final Object NONE = new Object();
 
 	/** row to dataprovider map that holds a temp value to test lazy loading */
-	private final Map<String, String> rowAndDataprovider = new HashMap<String, String>();
+	private final Set<String> rowAndDataprovider = new HashSet<String>();
 
 	//holds list of all displays
 	private List<CellAdapter> displays;
@@ -776,9 +776,9 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 						IApplication app = dal.getApplication();
 						((IDisplayData)renderer).setValueObject(null);
 						String key = row + "_" + relationName + "_" + null; //$NON-NLS-1$ //$NON-NLS-2$
-						if (!rowAndDataprovider.containsKey(key))
+						if (!rowAndDataprovider.contains(key))
 						{
-							rowAndDataprovider.put(key, key);
+							rowAndDataprovider.add(key);
 							Runnable r = new ASynchonizedCellLoad(app, jtable, foundset, row, jtable.convertColumnIndexToModel(column), relationName,
 								drd.getDefaultSort(), null);
 							app.getScheduledExecutor().execute(r);
@@ -809,9 +809,9 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 								IApplication app = dal.getApplication();
 								((IDisplayData)renderer).setValueObject(null);
 								String key = row + "_" + relationName + "_" + restName; //$NON-NLS-1$ //$NON-NLS-2$
-								if (!rowAndDataprovider.containsKey(key))
+								if (!rowAndDataprovider.contains(key))
 								{
-									rowAndDataprovider.put(key, key);
+									rowAndDataprovider.add(key);
 
 									List<SortColumn> defaultPKSortColumns = null;
 									try
@@ -1155,9 +1155,9 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			convertAndSetValue(((IDisplayData)renderer), state.getRawData().getValue(possibleCalcDataprovider));
 
 			final String key = row + "_" + possibleCalcDataprovider; //$NON-NLS-1$
-			if (!rowAndDataprovider.containsKey(key))
+			if (!rowAndDataprovider.contains(key))
 			{
-				rowAndDataprovider.put(key, key);
+				rowAndDataprovider.add(key);
 				app.getScheduledExecutor().execute(new Runnable()
 				{
 

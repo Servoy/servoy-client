@@ -2326,9 +2326,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Get the main application window. This is the window that is created first for this client. 
-	 * In a smart client this is always just the first started window where the solution is loaded in.
-	 * In a webclient when users (so not the developer through a createWindow() call) create there own tabs after
 	 *
+	 * In a smart client this is always just the first started window where the solution is loaded in.
 	 * In a webclient the user may open the same solution in a new tab in the same browser. In that case the main solution
 	 * window will always be the first opened tab, even if that one was already closed.
 	 * application.getActiveWindow() will aways return the currently active/focused window or dialog.
