@@ -1099,13 +1099,14 @@ public class FormController extends BasicFormController
 	@Override
 	public boolean isEnabled()
 	{
-		return containerImpl.isEnabled();
+		return ((FormManager)application.getFormManager()).isFormEnabled(getName());
 	}
 
 	@Override
 	public void setComponentEnabled(boolean b)
 	{
 		containerImpl.setComponentEnabled(b);
+		((FormManager)application.getFormManager()).setFormEnabled(getName(), b);
 	}
 
 	@Override

@@ -1220,11 +1220,15 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			{
 				public Object component(Component component)
 				{
-					if (component instanceof IComponent)
+					if (component instanceof WebForm)
+					{
+						((WebForm)component).getController().setComponentEnabled(b);
+					}
+					else if (component instanceof IComponent && !(component instanceof MarkupContainer))
 					{
 						((IComponent)component).setComponentEnabled(b);
 					}
-					else
+					else if (!(component instanceof MarkupContainer))
 					{
 						component.setEnabled(b);
 					}

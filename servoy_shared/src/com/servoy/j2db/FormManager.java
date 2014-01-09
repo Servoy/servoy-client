@@ -212,6 +212,27 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		}
 	}
 
+	public boolean isFormEnabled(String formName)
+	{
+		return !enabledCheck.contains(formName);
+	}
+
+	protected List<String> enabledCheck = new ArrayList<String>();
+
+	public void setFormEnabled(String formName, boolean enabled)
+	{
+		if (!enabled && enabledCheck.contains(formName)) return;
+
+		if (!enabled)
+		{
+			enabledCheck.add(formName);
+		}
+		else
+		{
+			enabledCheck.remove(formName);
+		}
+	}
+
 	public void addForm(Form form, boolean selected)
 	{
 		Form f = possibleForms.put(form.getName(), form);

@@ -141,6 +141,7 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
+import com.servoy.j2db.ui.runtime.HasRuntimeEnabled;
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
@@ -179,7 +180,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	private String tooltip;
 	private final WebMarkupContainer container;
 	private boolean readonly;
-	private final List<Component> markedComponents;
+	private boolean enabled;
+	private final List<Component> markedReadOnlyComponents;
+	private final List<Component> markedEnabledComponents;
 	private List<Component> tabSeqComponentList = new ArrayList<Component>();
 	private WebDefaultRecordNavigator defaultNavigator = null;
 
@@ -194,7 +197,8 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	public WebForm(final FormController controller)
 	{
 		super("webform"); //$NON-NLS-1$
-		markedComponents = new ArrayList<Component>();
+		markedReadOnlyComponents = new ArrayList<Component>();
+		markedEnabledComponents = new ArrayList<Component>();
 		TabIndexHelper.setUpTabIndexAttributeModifier(this, ISupportWebTabSeq.SKIP);
 		this.variation = "form::" + controller.getForm().getSolution().getName() + ":" + controller.getName() + "::form"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		this.formController = controller;
@@ -352,6 +356,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		TabIndexHelper.setUpTabIndexAttributeModifier(container, ISupportWebTabSeq.SKIP);
 		add(container);
 		readonly = false;
+		enabled = true;
 		setOutputMarkupId(true);
 	}
 
@@ -850,15 +855,38 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	private static class WicketCompVisitorMarker2 implements IVisitor<Component>
 	{
 		private final boolean enabledFlag;
+		private final List<Component> markedList;
 
-		public WicketCompVisitorMarker2(boolean enabledFlag)
+		public WicketCompVisitorMarker2(List<Component> markedList, boolean enabledFlag)
 		{
+			this.markedList = markedList;
 			this.enabledFlag = enabledFlag;
 		}
 
 		public Object component(Component component)
 		{
-			((WebForm)component).setEnabled(enabledFlag);
+			if (component instanceof WebForm)
+			{
+				((WebForm)component).getController().setComponentEnabled(enabledFlag);
+
+				return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+			else if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeEnabled)
+			{
+				HasRuntimeEnabled scriptable = (HasRuntimeEnabled)((IScriptableProvider)component).getScriptObject();
+				if (scriptable.isEnabled() && !enabledFlag)
+				{
+					scriptable.setEnabled(enabledFlag);
+					if (!markedList.contains(component))
+					{
+						markedList.add(component);
+					}
+				}
+				else if (enabledFlag && markedList.contains(component))
+				{
+					scriptable.setEnabled(enabledFlag);
+				}
+			}
 			return CONTINUE_TRAVERSAL;
 		}
 	}
@@ -883,21 +911,21 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 		if (readonly != b)
 		{
 			readonly = b;
-			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(markedComponents, readonly));
+			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(markedReadOnlyComponents, readonly));
 			if (!readonly)
 			{
-				markedComponents.clear();
+				markedReadOnlyComponents.clear();
 			}
 		}
 		else
 		{
-			visitChildren(WebForm.class, new WicketCompVisitorMarker(markedComponents, b));
+			visitChildren(WebForm.class, new WicketCompVisitorMarker(markedReadOnlyComponents, b));
 		}
 	}
 
 	public List<Component> getReadOnlyComponents()
 	{
-		return markedComponents;
+		return markedReadOnlyComponents;
 	}
 
 	/**
@@ -950,11 +978,27 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	private Boolean enableChanged = Boolean.FALSE;
 
-	public void setComponentEnabled(final boolean enabled)
+	public void setComponentEnabled(final boolean b)
 	{
 		enableChanged = Boolean.TRUE;
-		setEnabled(enabled);
-		visitChildren(WebForm.class, new WicketCompVisitorMarker2(enabled));
+
+		if (enabled != b)
+		{
+			enabled = b;
+			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker2(markedEnabledComponents, enabled));
+			if (enabled)
+			{
+				markedEnabledComponents.clear();
+			}
+		}
+		else
+		{
+			visitChildren(WebForm.class, new WicketCompVisitorMarker2(markedEnabledComponents, b));
+		}
+
+
+//		setEnabled(enabled);
+//		visitChildren(WebForm.class, new WicketCompVisitorMarker2(markedEnabledComponents, b));
 		//if form is in a tabpanel, mark parent tabpanel as changed
 		MarkupContainer parent = getParent();
 		if (parent instanceof WebTabPanel && ((WebTabPanel)parent).getOrient() != TabPanel.HIDE &&
