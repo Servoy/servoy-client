@@ -32,6 +32,11 @@ public class BufferedDataSetWithIndex implements IDataSetWithIndex
 	private int rowIndex = -1;
 	private final IDataSet dataset;
 
+	public BufferedDataSetWithIndex()
+	{
+		this(new BufferedDataSet());
+	}
+
 	public BufferedDataSetWithIndex(IDataSet dataset)
 	{
 		this(dataset, -1);
