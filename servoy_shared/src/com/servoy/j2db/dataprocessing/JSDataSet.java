@@ -110,21 +110,20 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	private static JSDataSet prototype = new JSDataSet();
 
-	private IDataSet set;
+	private IDataSetWithIndex set;
 	private ServoyException exception;
-	private int rowIndex = -1;//1 based !!
 
 	private final IServiceProvider application;
 
 	public JSDataSet() //only for use JS engine
 	{
 		this.application = null;
-		this.set = new BufferedDataSet();
+		this.set = new BufferedDataSetWithIndex(new BufferedDataSet());
 	}
 
 	public JSDataSet(IServiceProvider application)
 	{
-		this(application, new BufferedDataSet());
+		this(application, new BufferedDataSetWithIndex(new BufferedDataSet()));
 	}
 
 	public JSDataSet(IServiceProvider application, int rows, String[] cols)
@@ -137,7 +136,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			{
 				emptyRows.add(new Object[cols.length]);
 			}
-			this.set = new BufferedDataSet(cols, emptyRows);
+			this.set = new BufferedDataSetWithIndex(new BufferedDataSet(cols, emptyRows));
 		}
 		if (application != null)
 		{
@@ -153,7 +152,14 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet(IServiceProvider application, IDataSet set)
 	{
 		this.application = application;
-		this.set = set;
+		if (set instanceof IDataSetWithIndex)
+		{
+			this.set = (IDataSetWithIndex)set;
+		}
+		else
+		{
+			this.set = new BufferedDataSetWithIndex(set);
+		}
 		if (application != null)
 		{
 			setParentScope(application.getScriptEngine().getSolutionScope());
@@ -238,7 +244,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	{
 		if (set != null)
 		{
-			return rowIndex;
+			return set.getRowIndex();
 		}
 		return -1;
 	}
@@ -249,7 +255,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		{
 			if (r > 0 && r <= set.getRowCount())
 			{
-				rowIndex = r;
+				set.setRowIndex(r);
 			}
 		}
 	}
@@ -699,7 +705,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			foundSet.loadAllRecords();
 
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet
-			set = new FoundsetDataSet(foundSet, dataSource, pkNames);
+			set = new BufferedDataSetWithIndex(new FoundsetDataSet(foundSet, dataSource, pkNames));
 		}
 		return dataSource;
 	}
@@ -1382,11 +1388,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			Integer iindex = columnameMap.get(name);
 			if (iindex != null)
 			{
-				if (set == null || rowIndex <= 0 || rowIndex > set.getRowCount())
+				if (set == null || set.getRowIndex() <= 0 || set.getRowIndex() > set.getRowCount())
 				{
 					return null;
 				}
-				Object[] array = set.getRow(rowIndex - 1);
+				Object[] array = set.getRow(set.getRowIndex() - 1);
 				int index = iindex.intValue();
 				if (index > 0 && index <= array.length)
 				{
@@ -1448,9 +1454,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	{
 		if (set != null)
 		{
-			if (rowIndex > 0 && rowIndex <= set.getRowCount())
+			if (set.getRowIndex() > 0 && set.getRowIndex() <= set.getRowCount())
 			{
-				Object[] array = set.getRow(rowIndex - 1);
+				Object[] array = set.getRow(set.getRowIndex() - 1);
 				if (index > 0 && index <= array.length)
 				{
 					return array[index - 1];
@@ -1552,13 +1558,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 				if (iindex != null)
 				{
 					int index = iindex.intValue();
-					if (set != null && rowIndex > 0 && rowIndex <= set.getRowCount())
+					if (set != null && set.getRowIndex() > 0 && set.getRowIndex() <= set.getRowCount())
 					{
-						Object[] array = set.getRow(rowIndex - 1);
+						Object[] array = set.getRow(set.getRowIndex() - 1);
 						if (index > 0 && index <= array.length)
 						{
 							array[index - 1] = value;
-							set.setRow(rowIndex - 1, array);
+							set.setRow(set.getRowIndex() - 1, array);
 							return;
 						}
 					}
@@ -1623,7 +1629,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		{
 			return "JSDataSet:exception:" + exception; //$NON-NLS-1$
 		}
-		return "JSDataSet:size:" + (set != null ? set.getRowCount() : 0) + ",selectedRow:" + rowIndex; //$NON-NLS-1$ //$NON-NLS-2$
+		return "JSDataSet:size:" + (set != null ? set.getRowCount() : 0) + ",selectedRow:" + (set != null ? set.getRowIndex() : -1); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public IDataSet getDataSet()
