@@ -176,7 +176,8 @@ public class TabSequenceHelper<T>
 			{
 				// If we are in table mode and we found the body part, remember it.
 				// Later we will insert it in the tab sequence.
-				if (((f.getView() == FormController.TABLE_VIEW) || (f.getView() == FormController.LOCKED_TABLE_VIEW)) && (p.getPartType() == Part.BODY))
+				if (((f.getView() == FormController.TABLE_VIEW) || (f.getView() == FormController.LOCKED_TABLE_VIEW) || (f.getView() == FormController.LIST_VIEW) || (f.getView() == FormController.LOCKED_LIST_VIEW)) &&
+					(p.getPartType() == Part.BODY))
 				{
 					tableViewToInsert = (T)dataRenderer;
 				}
