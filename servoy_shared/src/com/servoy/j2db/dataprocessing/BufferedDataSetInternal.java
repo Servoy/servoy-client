@@ -38,9 +38,17 @@ public class BufferedDataSetInternal
 		return new BufferedDataSet(columnNames, columnTypes, rows, hadMore);
 	}
 
-	public static ColumnType[] getColumnTypeInfo(BufferedDataSet set)
+	public static ColumnType[] getColumnTypeInfo(IDataSet set)
 	{
-		return set == null ? null : set.getColumnTypeInfo();
+		if (set instanceof BufferedDataSet)
+		{
+			return ((BufferedDataSet)set).getColumnTypeInfo();
+		}
+		if (set instanceof BufferedDataSetWithIndex)
+		{
+			return ((BufferedDataSetWithIndex)set).getColumnTypeInfo();
+		}
+		return null;
 	}
 
 	/**

@@ -19,6 +19,8 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.Comparator;
 
+import com.servoy.j2db.query.ColumnType;
+
 /**
  * @author lvostinar
  * 
@@ -152,5 +154,10 @@ public class BufferedDataSetWithIndex implements IDataSetWithIndex
 	public IDataSet clone()
 	{
 		return new BufferedDataSetWithIndex(dataset.clone(), rowIndex);
+	}
+
+	ColumnType[] getColumnTypeInfo()
+	{
+		return BufferedDataSetInternal.getColumnTypeInfo(dataset);
 	}
 }
