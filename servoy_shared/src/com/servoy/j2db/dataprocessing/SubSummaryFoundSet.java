@@ -352,6 +352,13 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		// ignore
 	}
 
+	@Override
+	public int setSelectedIndex(String pkHash, int hintStart)
+	{
+		// ignore
+		return -1;
+	}
+
 	public boolean isRecordEditable(int rowIndex)
 	{
 		return false;

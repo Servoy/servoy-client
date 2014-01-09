@@ -5028,6 +5028,45 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public abstract int[] getSelectedIndexes();
 
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#setSelectedIndex(java.lang.String)
+	 */
+	@Override
+	public int setSelectedIndex(String pkHash, int hintStart)
+	{
+		SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().getCachedRecords();
+		PKDataSet pks = getPksAndRecords().getPks();
+		int start = (hintStart < 0 || hintStart > pks.getRowCount()) ? 0 : hintStart;
+
+		for (int i = start; --i >= 0;)
+		{
+			String recordPkHash = null;
+			IRecordInternal record = cachedRecords.get(i);
+			if (record != null) recordPkHash = record.getPKHashKey();
+			else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
+			if (pkHash.equals(recordPkHash))
+			{
+				setSelectedIndex(i);
+				return i;
+			}
+		}
+		for (int i = start; i < pks.getRowCount(); i++)
+		{
+			String recordPkHash = null;
+			IRecordInternal record = cachedRecords.get(i);
+			if (record != null) recordPkHash = record.getPKHashKey();
+			else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
+			if (pkHash.equals(recordPkHash))
+			{
+				setSelectedIndex(i);
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
 	 */

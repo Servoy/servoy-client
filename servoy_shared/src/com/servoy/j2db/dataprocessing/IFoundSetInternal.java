@@ -84,4 +84,9 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 	public void deleteRecord(Record record) throws ServoyException;
 
 	public IRecordInternal getRecord(Object[] pk);
+
+	/**
+	 * @param pkHash
+	 */
+	public int setSelectedIndex(String pkHash, int hintStart);
 }
