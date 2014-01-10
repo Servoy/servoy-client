@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.util.IDelegate;
 
 /**
  * @author lvostinar
@@ -28,7 +29,7 @@ import com.servoy.j2db.query.ColumnType;
  * A dataset that also holds row index information.
  * 
  */
-public class DataSetWithIndex implements IDataSetWithIndex
+public class DataSetWithIndex implements IDataSetWithIndex, IDelegate<IDataSet>
 {
 	private int rowIndex = -1;
 	private final IDataSet dataset;
@@ -49,6 +50,11 @@ public class DataSetWithIndex implements IDataSetWithIndex
 		this.rowIndex = rowIndex;
 	}
 
+	@Override
+	public IDataSet getDelegate()
+	{
+		return dataset;
+	}
 
 	public int getRowIndex()
 	{

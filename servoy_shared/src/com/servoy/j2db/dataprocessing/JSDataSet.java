@@ -1306,15 +1306,17 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					{
 						Object[] param1 = o1;
 						Object[] param2 = o2;
-						if (set instanceof FoundsetDataSet) // o1 and o2 are pks, get the raw data to pass to rowComparator
+						if (set instanceof FoundsetDataSet || (set instanceof IDelegate && ((IDelegate)set).getDelegate() instanceof FoundsetDataSet)) // o1 and o2 are pks, get the raw data to pass to rowComparator
 						{
-							IFoundSetInternal foundset = ((FoundsetDataSet)set).getFoundSet();
+							FoundsetDataSet foundsetDataSet = (set instanceof FoundsetDataSet) ? (FoundsetDataSet)set
+								: (FoundsetDataSet)((IDelegate)set).getDelegate();
+							IFoundSetInternal foundset = foundsetDataSet.getFoundSet();
 							if (foundset instanceof FoundSet)
 							{
 								param1 = ((FoundSet)foundset).getRecord(o1).getRawData().getRawColumnData();
 								param2 = ((FoundSet)foundset).getRecord(o2).getRawData().getRawColumnData();
 
-								if (((FoundsetDataSet)set).pkNames == null)
+								if (foundsetDataSet.pkNames == null)
 								{
 									// hide servoy internal pk column when pknames is null
 									Object[] res = new Object[param1.length - 1];
