@@ -1095,18 +1095,20 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		private WebMarkupContainer listContainer;
 		protected WebCellBasedViewListView parentView;
+		private final String id;
 
 		public WebCellBasedViewListItem(WebCellBasedViewListView parentView, int index, IModel<IRecordInternal> model)
 		{
 			super(index, model);
 			this.parentView = parentView;
 			setOutputMarkupId(true);
+			id = WebCellBasedView.this.getMarkupId() + '_' + super.getMarkupId();
 		}
 
 		@Override
 		public String getMarkupId()
 		{
-			return WebCellBasedView.this.getMarkupId() + '_' + super.getMarkupId();
+			return id;
 		}
 
 		@Override
@@ -1171,9 +1173,13 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String listItemBorder,
 			boolean isSelected, boolean ignoreStyles)
 		{
-			Iterator< ? extends Component> it = getListContainer().iterator();
+			MarkupContainer listContainer = getListContainer();
+			List<Component> componentsToUpdate = new ArrayList<Component>();
+			Iterator< ? extends Component> it = listContainer.iterator();
+			boolean updateAll = true;
 			while (it.hasNext())
 			{
+				boolean updateCell = false;
 				Component component = it.next();
 				if (component.isVisibleInHierarchy())
 				{
@@ -1186,7 +1192,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().isChanged();
 					if (((updateComponentRenderState(innerComponent, isSelected)) || (!ignoreStyles)) && target != null)
 					{
-						target.addComponent(innerComponent.getParent() instanceof CellContainer ? innerComponent.getParent() : innerComponent);
+						updateCell = true;
+						componentsToUpdate.add(innerComponent.getParent() instanceof CellContainer ? innerComponent.getParent() : innerComponent);
 						WebEventExecutor.generateDragAttach(innerComponent, target.getHeaderResponse());
 						if (!innerComponent.isVisible())
 						{
@@ -1197,6 +1204,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					{
 						((IProviderStylePropertyChanges)innerComponent).getStylePropertyChanges().setRendered();
 					}
+				}
+				updateAll = updateAll && updateCell;
+			}
+			if (updateAll && listContainer.size() > 0)
+			{
+				target.addComponent(listContainer);
+			}
+			else
+			{
+				for (Component component : componentsToUpdate)
+				{
+					target.addComponent(component);
 				}
 			}
 		}
