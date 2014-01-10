@@ -683,11 +683,6 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			// already created a datasource for this data set.
 			return ((FoundsetDataSet)set).getDataSource();
 		}
-		if (set instanceof IDelegate && ((IDelegate)set).getDelegate() instanceof FoundsetDataSet)
-		{
-			// already created a datasource for this data set.
-			return ((FoundsetDataSet)((IDelegate)set).getDelegate()).getDataSource();
-		}
 		if (types instanceof Wrapper)
 		{
 			types = ((Wrapper)types).unwrap();
@@ -710,7 +705,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			foundSet.loadAllRecords();
 
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet
-			set = new DataSetWithIndex(new FoundsetDataSet(foundSet, dataSource, pkNames));
+			set = new FoundsetDataSet(foundSet, dataSource, pkNames);
 		}
 		return dataSource;
 	}
@@ -1311,17 +1306,15 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					{
 						Object[] param1 = o1;
 						Object[] param2 = o2;
-						if (set instanceof FoundsetDataSet || (set instanceof IDelegate && ((IDelegate)set).getDelegate() instanceof FoundsetDataSet)) // o1 and o2 are pks, get the raw data to pass to rowComparator
+						if (set instanceof FoundsetDataSet) // o1 and o2 are pks, get the raw data to pass to rowComparator
 						{
-							FoundsetDataSet foundsetDataSet = (set instanceof FoundsetDataSet) ? (FoundsetDataSet)set
-								: (FoundsetDataSet)((IDelegate)set).getDelegate();
-							IFoundSetInternal foundset = foundsetDataSet.getFoundSet();
+							IFoundSetInternal foundset = ((FoundsetDataSet)set).getFoundSet();
 							if (foundset instanceof FoundSet)
 							{
 								param1 = ((FoundSet)foundset).getRecord(o1).getRawData().getRawColumnData();
 								param2 = ((FoundSet)foundset).getRecord(o2).getRawData().getRawColumnData();
 
-								if (foundsetDataSet.pkNames == null)
+								if (((FoundsetDataSet)set).pkNames == null)
 								{
 									// hide servoy internal pk column when pknames is null
 									Object[] res = new Object[param1.length - 1];
@@ -1700,7 +1693,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * @author rgansevles
 	 * 
 	 */
-	static class FoundsetDataSet implements IDataSet, IFoundSetEventListener
+	static class FoundsetDataSet implements IDataSetWithIndex, IFoundSetEventListener
 	{
 		private final IFoundSetInternal foundSet;
 		private final String dataSource;
@@ -1917,6 +1910,21 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		public void sort(Comparator<Object[]> rowComparator)
 		{
 			foundSet.sort(rowComparator);
+		}
+
+		@Override
+		public int getRowIndex()
+		{
+			return foundSet.getSelectedIndex() + 1;
+		}
+
+		@Override
+		public void setRowIndex(int rowIndex)
+		{
+			if (rowIndex >= 1)
+			{
+				foundSet.setSelectedIndex(rowIndex - 1);
+			}
 		}
 	}
 

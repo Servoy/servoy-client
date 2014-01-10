@@ -23,7 +23,7 @@ package com.servoy.j2db.dataprocessing;
  * 
  * Interface that adds row index information to thew dataset.
  */
-public interface IDataSetWithIndex extends ISerializableDataSet
+public interface IDataSetWithIndex extends IDataSet
 {
 	int getRowIndex();
 
