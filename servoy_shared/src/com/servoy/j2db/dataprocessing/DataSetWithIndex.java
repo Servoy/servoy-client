@@ -21,7 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.servoy.j2db.query.ColumnType;
-import com.servoy.j2db.util.Debug;
 
 /**
  * @author lvostinar
@@ -168,7 +167,7 @@ public class DataSetWithIndex implements IDataSetWithIndex
 		}
 		else
 		{
-			Debug.warn("Setter setRows called for non serializable dataset:" + dataset);
+			throw new RuntimeException("Setter setRows called for non serializable dataset:" + dataset);
 		}
 	}
 
@@ -184,9 +183,8 @@ public class DataSetWithIndex implements IDataSetWithIndex
 		}
 		else
 		{
-			Debug.warn("Getter getRows called for non serializable dataset:" + dataset);
+			throw new RuntimeException("Getter getRows called for non serializable dataset:" + dataset);
 		}
-		return null;
 	}
 
 	/*
@@ -200,7 +198,7 @@ public class DataSetWithIndex implements IDataSetWithIndex
 		}
 		else
 		{
-			Debug.warn("Setter setColumnNames called for non serializable dataset:" + dataset);
+			throw new RuntimeException("Setter setColumnNames called for non serializable dataset:" + dataset);
 		}
 	}
 
@@ -215,7 +213,7 @@ public class DataSetWithIndex implements IDataSetWithIndex
 		}
 		else
 		{
-			Debug.warn("Setter setColumnTypes called for non serializable dataset:" + dataset);
+			throw new RuntimeException("Setter setColumnTypes called for non serializable dataset:" + dataset);
 		}
 	}
 
