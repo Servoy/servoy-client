@@ -683,6 +683,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			// already created a datasource for this data set.
 			return ((FoundsetDataSet)set).getDataSource();
 		}
+		if (set instanceof IDelegate && ((IDelegate)set).getDelegate() instanceof FoundsetDataSet)
+		{
+			// already created a datasource for this data set.
+			return ((FoundsetDataSet)((IDelegate)set).getDelegate()).getDataSource();
+		}
 		if (types instanceof Wrapper)
 		{
 			types = ((Wrapper)types).unwrap();
