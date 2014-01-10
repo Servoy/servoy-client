@@ -35,7 +35,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jblok
  */
-public class BufferedDataSet implements IDataSet
+public class BufferedDataSet implements ISerializableDataSet
 {
 	public static final long serialVersionUID = -6878367385657220897L;
 	private List<Object[]> rows; //which contains RowData with column data

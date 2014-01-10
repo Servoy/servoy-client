@@ -17,15 +17,22 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import java.util.List;
 
 /**
  * @author lvostinar
- * 
- * Interface that adds row index information to thew dataset.
+ *
  */
-public interface IDataSetWithIndex extends ISerializableDataSet
+public interface ISerializableDataSet extends IDataSet
 {
-	int getRowIndex();
+	/*
+	 * Setters and getters for json deserialisation
+	 */
+	void setRows(List<Object[]> rows);
 
-	void setRowIndex(int rowIndex);
+	void setColumnNames(String[] columnNames);
+
+	void setColumnTypes(int[] columnTypes);
+
+	List<Object[]> getRows();
 }

@@ -18,8 +18,10 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.util.Comparator;
+import java.util.List;
 
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author lvostinar
@@ -154,6 +156,69 @@ public class DataSetWithIndex implements IDataSetWithIndex
 	{
 		dataset.setColumnName(columnIndex, columnName);
 	}
+
+	/*
+	 * Setter for json deserialisation
+	 */
+	public void setRows(List<Object[]> rows)
+	{
+		if (dataset instanceof ISerializableDataSet)
+		{
+			((ISerializableDataSet)dataset).setRows(rows);
+		}
+		else
+		{
+			Debug.warn("Setter setRows called for non serializable dataset:" + dataset);
+		}
+	}
+
+	/*
+	 * Setter for json deserialisation
+	 */
+	@Override
+	public List<Object[]> getRows()
+	{
+		if (dataset instanceof ISerializableDataSet)
+		{
+			return ((ISerializableDataSet)dataset).getRows();
+		}
+		else
+		{
+			Debug.warn("Getter getRows called for non serializable dataset:" + dataset);
+		}
+		return null;
+	}
+
+	/*
+	 * Setter for json deserialisation
+	 */
+	public void setColumnNames(String[] columnNames)
+	{
+		if (dataset instanceof ISerializableDataSet)
+		{
+			((ISerializableDataSet)dataset).setColumnNames(columnNames);
+		}
+		else
+		{
+			Debug.warn("Setter setColumnNames called for non serializable dataset:" + dataset);
+		}
+	}
+
+	/*
+	 * Setter for json deserialisation
+	 */
+	public void setColumnTypes(int[] columnTypes)
+	{
+		if (dataset instanceof ISerializableDataSet)
+		{
+			((ISerializableDataSet)dataset).setColumnTypes(columnTypes);
+		}
+		else
+		{
+			Debug.warn("Setter setColumnTypes called for non serializable dataset:" + dataset);
+		}
+	}
+
 
 	@Override
 	public IDataSet clone()
