@@ -271,10 +271,10 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 				StringBuffer listStyle = new StringBuffer();
 				listStyle.append("style=\"");
 
-				String fFamily = "'Lucida Grande','Lucida Sans Unicode',Tahoma,Verdana";
+				String fFamily = "Tahoma, Arial, Helvetica, sans-serif";
 				String bgColor = "#ffffff";
 				String fgColor = "#000000";
-				String fSize = "12px";
+				String fSize = TemplateGenerator.DEFAULT_FONT_SIZE + "px";
 				String padding = "2px";
 				String margin = "0px";
 				if (getFont() != null)
