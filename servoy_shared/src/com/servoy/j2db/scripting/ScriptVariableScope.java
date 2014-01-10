@@ -353,32 +353,30 @@ public class ScriptVariableScope extends LazyCompilationScope
 			}
 		}
 
-		if (value instanceof IDelegate< ? >)
+		if (type == IColumnTypes.TEXT)
 		{
-			if (type == IColumnTypes.TEXT)
+			Object txt = value;
+			while (txt instanceof IDelegate< ? >)
 			{
-				value = ((IDelegate< ? >)value).getDelegate();
-				if (value instanceof IDataSet)
-				{
-					IDataSet set = (IDataSet)value;
-					StringBuilder sb = new StringBuilder();
-					sb.append('\n');
-					for (int i = 0; i < set.getRowCount(); i++)
-					{
-						sb.append(set.getRow(i)[0]);
-						sb.append('\n');
-					}
-					value = sb.toString();
-				}
+				txt = ((IDelegate< ? >)txt).getDelegate();
 			}
-		}
-		else if (value instanceof FoundSet)
-		{
-			if (type == IColumnTypes.TEXT)
+			if (txt instanceof IDataSet)
+			{
+				IDataSet set = (IDataSet)txt;
+				StringBuilder sb = new StringBuilder();
+				sb.append('\n');
+				for (int i = 0; i < set.getRowCount(); i++)
+				{
+					sb.append(set.getRow(i)[0]);
+					sb.append('\n');
+				}
+				value = sb.toString();
+			}
+			else if (txt instanceof FoundSet)
 			{
 				StringBuilder sb = new StringBuilder();
 				sb.append('\n');
-				FoundSet fs = (FoundSet)value;
+				FoundSet fs = (FoundSet)txt;
 				for (int i = 0; i < fs.getSize(); i++)
 				{
 					IRecordInternal record = fs.getRecord(i);
