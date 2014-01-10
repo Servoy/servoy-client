@@ -36,8 +36,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.swing.UIManager;
-
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
@@ -464,18 +462,9 @@ public class PersistHelper
 				// maybe is family name
 				guess = createFontByFamily(name, style, size);
 			}
-			if (guess == null)
-			{
-				//fallback to LAFDefault font normally used on label, and we derive to right size and type
-				guess = UIManager.getDefaults().getFont("Label.font"); //$NON-NLS-1$
-			}
 			if (guess != null)
 			{
 				retval = guess.deriveFont(style, size);//also make compatible with designer
-			}
-			else
-			{
-				retval = null;
 			}
 		}
 		if (retval != null)
