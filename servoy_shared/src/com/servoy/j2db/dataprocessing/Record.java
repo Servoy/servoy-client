@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -410,6 +411,13 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			catch (Exception e)
 			{
 				Debug.error(e);
+			}
+		}
+		else if (parent != null) // make sure pk is updated
+		{
+			if (Arrays.asList(parent.getSQLSheet().getPKColumnDataProvidersAsArray()).indexOf(me.getName()) != -1)
+			{
+				((FoundSet)parent).updatePk(this);
 			}
 		}
 	}
