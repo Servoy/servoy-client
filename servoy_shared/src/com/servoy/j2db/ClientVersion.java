@@ -64,4 +64,9 @@ public abstract class ClientVersion
 	{
 		return minorVersion;
 	}
+
+	public static String getVersionPostFix()
+	{
+		return versionPostfix;
+	}
 }
