@@ -220,14 +220,14 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_headless_client_7.4.0.2022${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_headless_client_7.4.0.2022" log="${compilation.prereq.log}">
-			<include name="E:/Workspaces/HEAD/servoy_shared/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_shared_7.4.0.2022/compilation.problem"/>
-			<include name="E:/Workspaces/HEAD/servoy_base/compilation.problem"/>
+			<include name="/crypt/workspace/servoy_base/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_base_7.4.0.2022/compilation.problem"/>
-			<include name="E:/Workspaces/HEAD/servoy_smart_client/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_smart_client_7.4.0.2022/compilation.problem"/>
-			<include name="E:/Workspaces/HEAD/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="/crypt/workspace/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.4.0.2022/compilation.problem"/>
+			<include name="/crypt/workspace/servoy_smart_client/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_smart_client_7.4.0.2022/compilation.problem"/>
+			<include name="/crypt/workspace/servoy_shared/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_shared_7.4.0.2022/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
@@ -323,7 +323,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="E:/Workspaces/HEAD/servoy_headless_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="/crypt/workspace/servoy_headless_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
