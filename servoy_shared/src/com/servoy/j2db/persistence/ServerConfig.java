@@ -399,8 +399,10 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put(EMPTY_TEMPLATE_NAME, new ServerConfig("new_server", "", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 			"", null, "", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ 
 
-		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
-			"com.hxtt.sql.dbf.DBFDriver", null, null, true, false, null)); //$NON-NLS-1$ 
+		// Prepared statement pool should be disabled, see http://www.hxtt.com/support_view_issue.jsp?product=dbf&id=1340742013
+		map.put("FoxPro DBF", new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			"com.hxtt.sql.dbf.DBFDriver", null, null, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT, 0 /* disable PS pool */, VALIDATION_TYPE_DEFAULT, null, null, true, //$NON-NLS-1$
+			false, -1, null));
 
 		map.put("Filemaker", new ServerConfig("new_filemaker", "sa", "", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 			"jdbc:hsqldb:mem:.;fmphost=http://localhost:<webcompanionport>;fmpversion=5.5", null, "org.hsqldb.jdbcDriver", null, null, true, false, null)); //$NON-NLS-1$ //$NON-NLS-2$ 
