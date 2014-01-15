@@ -18,6 +18,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 
 import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
@@ -125,7 +126,17 @@ public abstract class ServoyAjaxEventBehavior extends AjaxEventBehavior implemen
 	@Override
 	protected CharSequence getPreconditionScript()
 	{
-		if (blockRequest()) return "onABC();" + super.getPreconditionScript(); //$NON-NLS-1$
+		if (blockRequest())
+		{
+			if (getComponent() instanceof Page)
+			{
+				return "onABC();return true;";
+			}
+			else
+			{
+				return "if (Wicket.$('" + getComponent().getMarkupId() + "') != null) {onABC();return true;} else return false;";
+			}
+		}
 		return "onAjaxCall();" + super.getPreconditionScript(); //$NON-NLS-1$
 	}
 
