@@ -27,6 +27,7 @@ import java.util.TreeMap;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IFormUIInternal;
+import com.servoy.j2db.IProvideTabSequence;
 import com.servoy.j2db.component.IDataRendererYPositionComparator;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.persistence.Form;
@@ -174,10 +175,9 @@ public class TabSequenceHelper<T>
 			IDataRenderer dataRenderer = fc.getDataRenderers()[p.getPartType()];
 			if (dataRenderer != null)
 			{
-				// If we are in table mode and we found the body part, remember it.
+				// If view provides the tab sequence remember it
 				// Later we will insert it in the tab sequence.
-				if (((f.getView() == FormController.TABLE_VIEW) || (f.getView() == FormController.LOCKED_TABLE_VIEW) || (f.getView() == FormController.LIST_VIEW) || (f.getView() == FormController.LOCKED_LIST_VIEW)) &&
-					(p.getPartType() == Part.BODY))
+				if ((fc.getViewComponent() instanceof IProvideTabSequence) && (p.getPartType() == Part.BODY))
 				{
 					tableViewToInsert = (T)dataRenderer;
 				}
