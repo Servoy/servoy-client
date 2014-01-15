@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.dltk.rhino.dbgp.ContextualScope;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
@@ -46,7 +47,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner, jblok
  */
-public class FormScope extends ScriptVariableScope implements Wrapper
+public class FormScope extends ScriptVariableScope implements Wrapper, ContextualScope
 {
 	private volatile IFormController _fp;
 	private volatile LazyCompilationScope[] extendScopes;
@@ -173,28 +174,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			Table table = (Table)_fp.getTable();
 			if (table != null)
 			{
-				try
-				{
-					Iterator<Column> columns = table.getColumnsSortedByName();
-					while (columns.hasNext())
-					{
-						al.add(columns.next().getDataProviderID());
-					}
-					Iterator<AggregateVariable> aggs = _fp.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
-					while (aggs.hasNext())
-					{
-						al.add(aggs.next().getDataProviderID());
-					}
-					Iterator<ScriptCalculation> calcs = _fp.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
-					while (calcs.hasNext())
-					{
-						al.add(calcs.next().getDataProviderID());
-					}
-				}
-				catch (RepositoryException ex)
-				{
-					Debug.error(ex);
-				}
+				al = getDataproviderIdList(table);
 			}
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
@@ -213,44 +193,13 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 
 		if ("allrelations".equals(name)) //$NON-NLS-1$
 		{
-			List<String> al = new ArrayList<String>();
-			Form f = _fp.getForm();
-			try
-			{
-				Iterator<Relation> it = _fp.getApplication().getFlattenedSolution().getRelations(
-					_fp.getApplication().getFoundSetManager().getTable(f.getDataSource()), true, true);
-				while (it.hasNext())
-				{
-					Relation r = it.next();
-					if (!r.isGlobal())
-					{
-						al.add(r.getName());
-					}
-				}
-			}
-			catch (RepositoryException ex)
-			{
-				Debug.error(ex);
-			}
+			List<String> al = getFormRelationsIdList(_fp.getForm());
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
 
 		if ("allvariables".equals(name)) //$NON-NLS-1$
 		{
-			List<String> al = new ArrayList<String>();
-
-			try
-			{
-				Iterator<ScriptVariable> itScriptVariable = _fp.getForm().getScriptVariables(false);
-				while (itScriptVariable.hasNext())
-				{
-					al.add(itScriptVariable.next().getName());
-				}
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
+			List<String> al = getAllVariablesIdList(_fp.getForm());
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
 
@@ -263,6 +212,82 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			if (name.equals("foundset")) return _fp.getFormModel();
 		}
 		return object;
+	}
+
+	List<String> getDataproviderIdList(Table table)
+	{
+		List<String> al = new ArrayList<String>();
+		Iterator<Column> columns = table.getColumnsSortedByName();
+		try
+		{
+			while (columns.hasNext())
+			{
+				al.add(columns.next().getDataProviderID());
+			}
+			Iterator<AggregateVariable> aggs;
+
+			aggs = _fp.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
+
+
+			while (aggs.hasNext())
+			{
+				al.add(aggs.next().getDataProviderID());
+			}
+			Iterator<ScriptCalculation> calcs = _fp.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
+			while (calcs.hasNext())
+			{
+				al.add(calcs.next().getDataProviderID());
+			}
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+		return al;
+	}
+
+
+	List<String> getFormRelationsIdList(Form form)
+	{
+		List<String> al = new ArrayList<String>();
+		try
+		{
+			Iterator<Relation> it = _fp.getApplication().getFlattenedSolution().getRelations(
+				_fp.getApplication().getFoundSetManager().getTable(form.getDataSource()), true, true);
+
+			while (it.hasNext())
+			{
+				Relation r = it.next();
+				if (!r.isGlobal())
+				{
+					al.add(r.getName());
+				}
+			}
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+		return al;
+
+	}
+
+	List<String> getAllVariablesIdList(Form form)
+	{
+		List<String> al = new ArrayList<String>();
+		try
+		{
+			Iterator<ScriptVariable> itScriptVariable = form.getScriptVariables(false);
+			while (itScriptVariable.hasNext())
+			{
+				al.add(itScriptVariable.next().getName());
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return al;
 	}
 
 	/*
@@ -409,6 +434,53 @@ public class FormScope extends ScriptVariableScope implements Wrapper
 			throw new RuntimeException("Setting of foundset object is not possible on form: " + _fp.getName()); //$NON-NLS-1$
 		}
 		super.put(name, arg1, value);
+	}
+
+	/**
+	 * Returns only relevant servoy scriptables from form scope 
+	 */
+	@Override
+	public Scriptable getContextScriptable()
+	{
+		Scriptable ret = new DefaultScope(this)
+		{
+			@Override
+			public String getClassName()
+			{
+				return "LocalFormContext"; //$NON-NLS-1$
+			}
+
+			@Override
+			public Object[] getIds()
+			{
+				Object[] array = new Object[allVars.size() + allIndex.size() + 2];
+				int counter = 0;
+
+				for (String string : allVars.keySet())
+				{
+					array[counter++] = string;
+				}
+				for (Integer integer : allIndex.keySet())
+				{
+					array[counter++] = integer;
+				}
+				return array;
+			}
+		};
+
+		if (this.get("controller", this) != null) ret.put("controller", ret, this.get("controller", this));
+		if (this.get("foundset", this) != null) ret.put("foundset", ret, this.get("foundset", this));
+
+		//put dataproviders, relations, and form variables
+		List<String> localIDs = getDataproviderIdList((Table)_fp.getTable());
+		localIDs.addAll(getFormRelationsIdList(_fp.getForm()));
+		//localIDs.addAll(getAllVariablesIdList(_fp.getForm()));
+		for (String string : localIDs)
+		{
+			if (this.get(string, this) != null) ret.put(string, ret, this.get(string, this));
+		}
+		return ret;
+
 	}
 
 	/**
