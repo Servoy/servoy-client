@@ -81,7 +81,7 @@ public class PrototypeState extends Record
 	}
 
 	@Override
-	public Object getValue(String dataProviderID)
+	public Object getValue(String dataProviderID, boolean converted)
 	{
 		if (dataProviderID == null || parent == null) return null;
 
@@ -104,7 +104,7 @@ public class PrototypeState extends Record
 				IRecordInternal state = foundSet.getRecord(foundSet.getSelectedIndex());
 				if (state != null)
 				{
-					return state.getValue(restName);
+					return state.getValue(restName, converted);
 				}
 			}
 			return null;

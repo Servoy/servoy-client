@@ -162,7 +162,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * @param dataProviderID the data requested for
 	 * @param useCache, false if you want for sure the value recalculated if is calculation
 	 */
-	public Object getValue(String dataProviderID)
+	public final Object getValue(String dataProviderID)
 	{
 		return getValue(dataProviderID, true);
 	}

@@ -446,7 +446,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		private final Map<String, Object> dataproviderValueCache = new HashMap<String, Object>();//especially to cache aggregate results!
 
 		@Override
-		public Object getValue(String dataProviderID)
+		public Object getValue(String dataProviderID, boolean converted)
 		{
 			((SubSummaryFoundSet)parent).setDelegate(delegate);
 
@@ -461,9 +461,9 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 				}
 				else
 				{
-					retval = super.getValue(dataProviderID); // I think this could be directly replaced same as below - delegate.getRecord(0).getValue(dataProviderID); - except for hardcoded dataprovider strings as seen in Record.getValue() and then we can get rid of all the method overrides that want to avoid ArrayIndexOutOfBounds exceptions
+					retval = super.getValue(dataProviderID, converted); // I think this could be directly replaced same as below - delegate.getRecord(0).getValue(dataProviderID); - except for hardcoded dataprovider strings as seen in Record.getValue() and then we can get rid of all the method overrides that want to avoid ArrayIndexOutOfBounds exceptions
 				}
-				if (retval == null) retval = delegate.getRecord(0).getValue(dataProviderID);
+				if (retval == null) retval = delegate.getRecord(0).getValue(dataProviderID, converted);
 				dataproviderValueCache.put(dataProviderID, retval);
 			}
 			return retval;
