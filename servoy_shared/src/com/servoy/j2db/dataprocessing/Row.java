@@ -145,14 +145,23 @@ public class Row
 	/*
 	 * Get value unconverted
 	 */
-	private Object getRawValue(String id)
+	public Object getRawValue(String id)
 	{
+		Object obj;
 		int columnIndex = parent.getSQLSheet().getColumnIndex(id);
 		if (columnIndex != -1)
 		{
-			return getValue(columnIndex, false);
+			obj = getRawValue(columnIndex, false);
 		}
-		return unstoredCalcCache.get(id);
+		else
+		{
+			obj = unstoredCalcCache.get(id);
+		}
+		if (obj == UNINITIALIZED)
+		{
+			obj = null;
+		}
+		return obj;
 	}
 
 	public boolean existInDB()
@@ -165,14 +174,25 @@ public class Row
 		return parent.getSQLSheet().containsCalculation(id);
 	}
 
+	/**
+	 * Get row value, converted using column converter
+	 * @param columnIndex
+	 * @return
+	 */
 	Object getValue(int columnIndex)
 	{
 		// call this with false, else things like using a dbident in javascript or creating related records are going wrong.
-		Object value = getValue(columnIndex, false);
+		Object value = getRawValue(columnIndex, false);
 		return parent.getSQLSheet().convertValueToObject(value, columnIndex, parent.getFoundsetManager().getColumnConverterManager());
 	}
 
-	Object getValue(int columnIndex, boolean unwrapDbIdent)
+	/**
+	 * Get row value, do not use column converter.
+	 * @param columnIndex
+	 * @param unwrapDbIdent
+	 * @return
+	 */
+	Object getRawValue(int columnIndex, boolean unwrapDbIdent)
 	{
 		if (columnIndex < 0 || columnIndex >= columndata.length) return null;
 

@@ -164,6 +164,11 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 */
 	public Object getValue(String dataProviderID)
 	{
+		return getValue(dataProviderID, true);
+	}
+
+	public Object getValue(String dataProviderID, boolean converted)
+	{
 		if (dataProviderID == null || parent == null) return null;
 
 		if ("currentRecordIndex".equals(dataProviderID)) //$NON-NLS-1$
@@ -190,7 +195,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			mustRecalc = containsCalc && row.mustRecalculate(dataProviderID, true);
 			if ((containsCalc || row.containsDataprovider(dataProviderID)) && !mustRecalc)
 			{
-				return row.getValue(dataProviderID);//also stored calcs are always calculated ones(required due to use of plugin methods in calc);
+				return converted ? row.getValue(dataProviderID) : row.getRawValue(dataProviderID);//also stored calcs are always calculated ones(required due to use of plugin methods in calc);
 			}
 			if (containsCalc) //check if calculation 
 			{
@@ -206,7 +211,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 				// re get it so that we do have the right type if the calc didn't return the type it specifies.
 				// and that a converter is also applied.
-				value = row.getValue(dataProviderID);
+				value = converted ? row.getValue(dataProviderID) : row.getRawValue(dataProviderID);
 				manageCalcDependency(dataProviderID, usedDataProviderTracker);
 
 				return value;
@@ -751,20 +756,18 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	public String getAsTabSeparated()
 	{
-		String leadingTabs = ""; //$NON-NLS-1$
 		StringBuilder retval = new StringBuilder();
 		SQLSheet.SQLDescription desc = parent.getSQLSheet().getSQLDescription(SQLSheet.SELECT);
 		Iterator<String> it = desc.getDataProviderIDsDilivery().iterator();
 		while (it.hasNext())
 		{
 			String pd = it.next();
-			Object obj = row.getValue(pd);
+			Object obj = getValue(pd);
 			if (obj != null)
 			{
 				retval.append(obj.toString());
 			}
 			if (it.hasNext()) retval.append('\t');
-			leadingTabs += '\t';
 		}
 		return retval.toString();
 	}

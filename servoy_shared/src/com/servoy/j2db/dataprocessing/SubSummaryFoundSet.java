@@ -457,7 +457,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 				if (columnIndex != -1)
 				{
 					//subsumfoundset has different sqlsheet with different column indexes
-					retval = getRawData().getValue(columnIndex, true); // does not use a converter
+					retval = getRawData().getRawValue(columnIndex, true); // does not use a converter
 				}
 				else
 				{

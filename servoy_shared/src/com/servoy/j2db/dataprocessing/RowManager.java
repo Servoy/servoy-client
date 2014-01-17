@@ -766,7 +766,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					{
 						int columnIndex = getSQLSheet().getColumnIndex(dataProviderID);
 						// HACK: DIRTY way, should use some kind of identifier preferably
-						if (c.getDatabaseDefaultValue() != null && row.getValue(columnIndex, false) == null && c.getRowIdentType() == Column.NORMAL_COLUMN)
+						if (c.getDatabaseDefaultValue() != null && row.getRawValue(columnIndex, false) == null && c.getRowIdentType() == Column.NORMAL_COLUMN)
 						{
 							// The database has a default value, and the value is null, and this is an insert...
 							// Remove the column from the query entirely and make sure the default value is requeried from the db.
@@ -775,7 +775,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 						else
 						{
-							Object robj = c.getAsRightType(row.getValue(columnIndex, false));
+							Object robj = c.getAsRightType(row.getRawValue(columnIndex, false));
 
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
 							argsArray.add(robj);
