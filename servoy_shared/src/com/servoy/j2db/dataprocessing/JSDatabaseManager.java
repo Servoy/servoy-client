@@ -2565,12 +2565,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns a foundset object for a specified datasource or server and tablename. 
+	 * Returns a foundset object for a specified datasource or server and tablename.
+	 * Alternative method: datasources.db.server_name.table_name.getFoundSet() or datasources.mem['ds'].getFoundSet()
 	 *
 	 * @sample
 	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
 	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
 	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
+	 * // same as datasources.example_data.orders.getFoundSet() or datasources.mem['myds'].getFoundSet()
 	 * var ridx = fs.newRecord()
 	 * var record = fs.getRecord(ridx)
 	 * record.emp_name = 'John'
@@ -2579,10 +2581,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param dataSource The datasource to get a JSFoundset for.
 	 * 
 	 * @return A new JSFoundset for that datasource.
-	 * 
-	 * @deprecated Use datasources.db.server_name.table_name.getFoundSet() or datasources.mem['ds'].getFoundSet()
 	 */
-	@Deprecated
 	@JSFunction
 	public IJSFoundSet getFoundSet(String dataSource) throws ServoyException
 	{
