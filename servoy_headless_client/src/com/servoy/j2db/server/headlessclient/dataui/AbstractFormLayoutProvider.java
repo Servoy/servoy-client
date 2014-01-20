@@ -316,6 +316,14 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		}
 	}
 
+	/**
+	 * @param defaultNavigatorShift the defaultNavigatorShift to set
+	 */
+	public void setDefaultNavigatorShift(int defaultNavigatorShift)
+	{
+		this.defaultNavigatorShift = defaultNavigatorShift;
+	}
+
 	private void renderNavigator(StringBuffer html, Part bodyPart)
 	{
 		if (defaultNavigatorShift != 0)
