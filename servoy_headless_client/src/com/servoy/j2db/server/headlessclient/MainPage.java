@@ -621,16 +621,25 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		listview = new ListView<IFormUIInternal< ? >>("forms", loopModel) //$NON-NLS-1$
 		{
 			private static final long serialVersionUID = 1L;
+			private boolean tempRemove = false;
 
 			@Override
 			protected void populateItem(ListItem<IFormUIInternal< ? >> item)
 			{
 				final WebForm form = (WebForm)item.getModelObject();
-				if (form.getParent() != null)
+				tempRemove = true;
+				try
 				{
-					form.remove();
+					if (form.getParent() != null)
+					{
+						form.remove(); // TODO isn't this already done by item.add(form) below in wicket's impl?
+					}
+					item.add(form);
 				}
-				item.add(form);
+				finally
+				{
+					tempRemove = false;
+				}
 
 				IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(client, client.getSolution(),
 					form.getController().getForm(), form.getController().getName());
@@ -672,7 +681,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					{
 						super.remove(component);
 						// for example when a form is shown in a popup form (window plugin) it must know that it's main page changed
-						if (component instanceof WebForm)
+						if (!tempRemove && component instanceof WebForm)
 						{
 							WebForm formUI = ((WebForm)component);
 							if (MainPage.this == formUI.getMainPage())
