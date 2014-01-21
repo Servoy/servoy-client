@@ -686,7 +686,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					{
 						RelatedHashedArguments relargs = toFetch.get(f);
 						states[f] = relargs.state;
-						whereArgsList[f] = relargs.array;
+						whereArgsList[f] = relargs.whereArgs;
 					}
 					if (relation.getInitialSort() != null)
 					{
@@ -747,6 +747,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return new RelatedHashedArguments(state, whereArgs, RowManager.createPKHashKey(whereArgs));
 	}
 
+	/**
+	 * Get relation where-args, not using column converters
+	 * @param state
+	 * @param relation
+	 * @param testForCalcs
+	 * @return
+	 * @throws RepositoryException
+	 */
 	public Object[] getRelationWhereArgs(IRecordInternal state, Relation relation, boolean testForCalcs) throws RepositoryException
 	{
 		boolean isNull = true;
@@ -773,7 +781,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					// else this can just cascade through..
 					return null;
 				}
-				value = state.getValue(dataProviderID);
+				value = state.getValue(dataProviderID, false); // unconverted (todb value)
 			}
 			if (value != Scriptable.NOT_FOUND)
 			{
@@ -2328,25 +2336,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	private static class RelatedHashedArguments
 	{
-		IRecordInternal state;
-		Object[] array;
-		String hash;
+		final IRecordInternal state;
+		final Object[] whereArgs;
+		final String hash;
 
-		/**
-		 * @param array
-		 * @param string
-		 */
-		public RelatedHashedArguments(IRecordInternal state, Object[] array, String hash)
+		public RelatedHashedArguments(IRecordInternal state, Object[] whereArgs, String hash)
 		{
 			this.state = state;
-			this.array = array;
+			this.whereArgs = whereArgs;
 			this.hash = hash;
 		}
 
 		@Override
 		public String toString()
 		{
-			return "RelatedHashedArguments " + hash + " " + Arrays.toString(array);
+			return "RelatedHashedArguments " + hash + " " + Arrays.toString(whereArgs);
 		}
 	}
 

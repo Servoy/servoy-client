@@ -129,6 +129,11 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	 */
 	public Object getValue(String dataProviderID)
 	{
+		return getValue(dataProviderID, true);
+	}
+
+	public Object getValue(String dataProviderID, boolean converted)
+	{
 		if (storeDataProvider(dataProviderID))
 		{
 			return columndata.get(dataProviderID);
@@ -152,7 +157,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 				IRecordInternal state = foundSet.getRecord(0);
 				if (state != null)
 				{
-					return state.getValue(restName);
+					return state.getValue(restName, converted);
 				}
 			}
 			return null;

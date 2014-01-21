@@ -42,5 +42,7 @@ public interface IRecordInternal extends IRecord, IRowChangeListener
 
 	public IFoundSetInternal getParentFoundSet();
 
+	public Object getValue(String dataProviderID, boolean converted);
+
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing);
 }

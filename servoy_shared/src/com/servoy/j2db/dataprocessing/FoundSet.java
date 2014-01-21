@@ -3226,7 +3226,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (retval == null)
 			{
 				// make empty row so that it wont be an infinite loop of record lookups!!
-				Row data = rowManager.createNotYetExistInDBRowObject(sheet.getNewRecordData(fsm.getApplication(), this), false);
+				Row data = rowManager.createNotYetExistInDBRowObject(sheet.getNewRowData(fsm.getApplication(), this), false);
 				data.flagExistInDB();
 				retval = new Record(this, data);
 				cachedRecords.set(row, retval);
@@ -4455,7 +4455,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IRecordInternal newRecord = null;
 		if (rowData == null)
 		{
-			Object[] data = sheet.getNewRecordData(fsm.getApplication(), this);
+			Object[] data = sheet.getNewRowData(fsm.getApplication(), this);
 			newRecord = new Record(this, rowManager.createNotYetExistInDBRowObject(data, true));
 			sheet.processCopyValues(newRecord);
 		}

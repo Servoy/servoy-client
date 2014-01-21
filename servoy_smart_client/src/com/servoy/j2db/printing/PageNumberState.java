@@ -52,8 +52,12 @@ public class PageNumberState implements IRecordInternal
 
 	public Object getValue(String dataProviderID)
 	{
-		if (dataProviderID == null) return null;
+		return getValue(dataProviderID, true);
+	}
 
+	public Object getValue(String dataProviderID, boolean converted)
+	{
+		if (dataProviderID == null) return null;
 
 		if ("pageNumber".equals(dataProviderID)) //$NON-NLS-1$
 		{

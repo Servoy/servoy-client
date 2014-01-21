@@ -419,7 +419,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 
 	/**
-	 * Get the arguments hash this related foundSet was created with.
+	 * Get the arguments hash this related foundSet was created with. Hash is based on values converted using column converters.
 	 * @return
 	 */
 	public String getWhereArgsHash()
@@ -435,13 +435,38 @@ public abstract class RelatedFoundSet extends FoundSet
 			return null; // how can this happen (other then in find mode) ??
 		}
 
+		Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
+		if (relation == null)
+		{
+			throw new IllegalStateException("Relation not found for related foundset: " + relationName); //$NON-NLS-1$
+		}
+
 		Object[][] foreignData = (Object[][])ph.getValue();
+		Column[] columns;
+		try
+		{
+			columns = relation.getForeignColumns();
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+			throw new IllegalStateException("Relation columns not found for related foundset: " + relationName); //$NON-NLS-1$
+		}
+
+		if (columns.length != foreignData.length)
+		{
+			// safety check, should not happen
+			throw new IllegalStateException("Relation where-args inconsistent with columns for relation" + relationName); //$NON-NLS-1$
+		}
 
 		Object[] whereArgs = new Object[foreignData.length];
 		for (int i = 0; i < foreignData.length; i++)
 		{
-			whereArgs[i] = foreignData[i][0];
+			// Use converted value for hash
+			int colindex = getSQLSheet().getColumnIndex(columns[i].getDataProviderID());
+			whereArgs[i] = getSQLSheet().convertValueToObject(foreignData[i][0], colindex, fsm.getColumnConverterManager());
 		}
+
 		return RowManager.createPKHashKey(whereArgs);
 	}
 
@@ -690,8 +715,8 @@ public abstract class RelatedFoundSet extends FoundSet
 			for (int i = 0; i < req.size(); i++)
 			{
 				String foreignKeyName = req.get(i);
-				// createWhereArgs is a matrix as wide as the relation keys and 1 deep
-				boolean remove = !checkForeignKeyValue(r.getValue(foreignKeyName), createWhereArgs[i][0], operators[i]);
+				// createWhereArgs is a matrix as wide as the relation keys and 1 deep, compare unconverted values
+				boolean remove = !checkForeignKeyValue(r.getRawValue(foreignKeyName), createWhereArgs[i][0], operators[i]);
 
 				if (remove)
 				{
@@ -867,7 +892,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				int[] operators = relation.getOperators();
 				for (int i = 0; i < cols.length; i++)
 				{
-					Object obj = row.getValue(cols[i].getDataProviderID());
+					Object obj = row.getRawValue(cols[i].getDataProviderID()); // compare unconverted values
 					if (!checkForeignKeyValue(obj, foreignData[i][0], operators[i]))
 					{
 						doCheck = false;

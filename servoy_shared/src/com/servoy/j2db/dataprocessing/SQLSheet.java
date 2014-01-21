@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
@@ -39,7 +40,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryDelete;
@@ -222,7 +222,13 @@ public class SQLSheet
 		return array;
 	}
 
-	Object[] getNewRecordData(IServiceProvider app, FoundSet fs)
+	/**
+	 * Returns raw (not using column converters) row data for a new record
+	 * @param app
+	 * @param fs
+	 * @return
+	 */
+	Object[] getNewRowData(IServiceProvider app, FoundSet fs)
 	{
 		Object[][] creationArgs = null;
 
@@ -282,7 +288,7 @@ public class SQLSheet
 						{
 							for (int j = 0; j < fcols.length; j++)
 							{
-								if (c.equals(fcols[j]) && ((relation.getOperators()[j] & ISQLCondition.OPERATOR_MASK) == ISQLCondition.EQUALS_OPERATOR))
+								if (c.equals(fcols[j]) && ((relation.getOperators()[j] & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR))
 								{
 									// creationArgs is a matrix as wide as the relation keys and 1 deep
 									array[i] = creationArgs[j][0];
