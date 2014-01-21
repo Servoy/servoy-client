@@ -163,6 +163,8 @@
 			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/prompt.jar"/>
 			<pathelement path="../servoy_shared/lib/wicket-calendar.jar"/>
 			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/wicket-calendar.jar"/>
+			<pathelement path="../servoy_shared/lib/jsp-api.jar"/>
+			<pathelement path="${build.result.folder}/../servoy_shared_7.4.0.2022/lib/jsp-api.jar"/>
 			<pathelement path="../eclipse_target/compile_target/install/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar"/>
 			<pathelement path="../eclipse_target/ship_plugins/plugins/org.eclipse.equinox.transforms.hook_1.0.300.201106061129.jar"/>
 			<pathelement path="../servoy_base/bin/"/>
@@ -173,6 +175,7 @@
 			<pathelement path="${build.result.folder}/../servoy_smart_client_7.4.0.2022/bin/"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client/@dot"/>
 			<pathelement path="${build.result.folder}/../servoy_smart_client_7.4.0.2022/@dot"/>
+			<pathelement path="../eclipse_target/compile_target/install/plugins/javax.servlet_3.0.0.v201112011016.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${build.result.folder}/@dot" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -220,14 +223,14 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_headless_client_7.4.0.2022${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_headless_client_7.4.0.2022" log="${compilation.prereq.log}">
-			<include name="/crypt/workspace/servoy_base/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_base_7.4.0.2022/compilation.problem"/>
-			<include name="/crypt/workspace/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="C:/Users/Jan Blok/dev/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
 			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.4.0.2022/compilation.problem"/>
-			<include name="/crypt/workspace/servoy_smart_client/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_smart_client_7.4.0.2022/compilation.problem"/>
-			<include name="/crypt/workspace/servoy_shared/compilation.problem"/>
+			<include name="C:/Users/Jan Blok/dev/servoy_base/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_base_7.4.0.2022/compilation.problem"/>
+			<include name="C:/Users/Jan Blok/dev/servoy_shared/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_shared_7.4.0.2022/compilation.problem"/>
+			<include name="C:/Users/Jan Blok/dev/servoy_smart_client/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_smart_client_7.4.0.2022/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
@@ -323,7 +326,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="/crypt/workspace/servoy_headless_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="C:/Users/Jan Blok/dev/servoy_headless_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
