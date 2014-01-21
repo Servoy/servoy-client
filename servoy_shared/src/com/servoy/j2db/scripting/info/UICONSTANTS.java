@@ -229,8 +229,8 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * // adding a new TinyMCE plugin (same for skin or theme)
 	 * // this code assumes plugin.min.js was copied in web server at specified path
-	 * // NOTE: we use external plugin, not plugin, in order for file to be accessible from web server 
-	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{external_plugins: { "link": "/servoy-webclient/tinymce/plugins/link/plugin.min.js"}}')
+	 * // NOTE: we use external plugin, not plugin, in order for file to be accessible from web server; for this example, pluging.min.js file must be copied under ServoyInstall/application_server/server/webapps/ROOT/tinymce/plugins/link
+	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{external_plugins: { "link": "../../../tinymce/plugins/link/plugin.min.js"}}')
 	 * 
 	 * // change the editor configuration (add menubar, status bar and change toolbar)
 	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{menubar: "tools table format view insert edit", statusbar : true, toolbar: "undo redo | styleselect | bold italic"}')
