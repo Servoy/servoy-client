@@ -169,7 +169,7 @@ public class ScriptVariableScope extends LazyCompilationScope
 			{
 				cx.setOptimizationLevel(9);
 			}
-			cx.setDebugger(null, null);
+			//cx.setDebugger(null, null);
 			Object o = cx.evaluateString(this, str, sourceName, lineNumber == -1 ? 0 : lineNumber, null);
 			if (o instanceof Wrapper && !(o instanceof NativeArray))
 			{
