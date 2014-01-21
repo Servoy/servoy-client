@@ -57,6 +57,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -79,7 +80,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public abstract class WebBaseSelectBox extends MarkupContainer implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, INullableAware,
-	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList, ISupportSimulateBoundsProvider
+	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList, ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	protected static final long serialVersionUID = 1L;
 	protected static final String NO_COLOR = "NO_COLOR";
@@ -533,6 +534,11 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;

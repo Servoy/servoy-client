@@ -58,6 +58,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -84,7 +85,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataComboBox extends DropDownChoice implements IFieldComponent, IDisplayData, IDisplayRelatedData, IProviderStylePropertyChanges,
-	ISupportWebBounds, IRightClickListener, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider
+	ISupportWebBounds, IRightClickListener, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1197,6 +1198,11 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;

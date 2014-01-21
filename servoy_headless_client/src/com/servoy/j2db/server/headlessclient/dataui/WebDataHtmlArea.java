@@ -49,6 +49,7 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexAttributeModifier;
 import com.servoy.j2db.server.headlessclient.tinymce.TinyMCELoader;
@@ -71,7 +72,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection,
-	IOwnTabSequenceHandler, ISupportSpecialClientProperty
+	IOwnTabSequenceHandler, ISupportSpecialClientProperty, ISupportWebOnRender
 {
 	public static final String htmlTextStartTags = "<html><body>";
 	public static final String htmlTextEndTags = "</body></html>";
@@ -529,6 +530,11 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;

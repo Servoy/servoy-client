@@ -63,11 +63,13 @@ import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.CloseableAjaxRequestTarget;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAccessStackPageMap;
 import com.servoy.j2db.server.headlessclient.WebForm;
+import com.servoy.j2db.server.headlessclient.WebOnRenderHelper;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField.AugmentedTextField;
@@ -438,17 +440,26 @@ public class WebEventExecutor extends BaseEventExecutor
 			}
 		}
 
-		if (type == EventType.focusGained || type == EventType.action)
+		if (type == EventType.focusGained || type == EventType.action || type == EventType.focusLost)
 		{
-			((MainPage)page).setFocusedComponent(comp);
-			if (renderEventExecutor != null) renderEventExecutor.setRenderStateChanged();
+			if (type == EventType.focusGained || type == EventType.action)
+			{
+				((MainPage)page).setFocusedComponent(comp);
+			}
+			else
+			{
+				((MainPage)page).setFocusedComponent(null);
+			}
+			if (renderEventExecutor != null)
+			{
+				renderEventExecutor.setRenderStateChanged();
+				// if component's onRender did not change any properties, don't add it to the target
+				if (comp instanceof ISupportWebOnRender && WebOnRenderHelper.doRender((ISupportWebOnRender)comp))
+				{
+					target.addComponent(comp);
+				}
+			}
 		}
-		else if (type == EventType.focusLost)
-		{
-			((MainPage)page).setFocusedComponent(null);
-			if (renderEventExecutor != null) renderEventExecutor.setRenderStateChanged();
-		}
-
 
 		if (type == EventType.focusLost ||
 			setSelectedIndex(comp, target, convertModifiers(webModifiers), type == EventType.focusGained || type == EventType.action))

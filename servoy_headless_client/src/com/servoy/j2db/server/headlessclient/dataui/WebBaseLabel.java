@@ -59,6 +59,7 @@ import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IComponent;
@@ -86,7 +87,7 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -772,7 +773,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		if (accessible)
 		{
 			super.setEnabled(b);
-			scriptable.getChangesRecorder().setChanged();
+			//scriptable.getChangesRecorder().setChanged();
 		}
 	}
 
@@ -1031,7 +1032,11 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) wcbw.addLabelCssClass(getId());
 		}
+		fireOnRender();
+	}
 
+	public void fireOnRender()
+	{
 		if (scriptable instanceof ISupportOnRenderCallback)
 		{
 			boolean isFocused = false;

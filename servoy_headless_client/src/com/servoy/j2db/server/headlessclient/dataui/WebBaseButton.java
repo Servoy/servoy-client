@@ -70,6 +70,7 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IAnchoredComponent;
@@ -98,7 +99,7 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class WebBaseButton extends Button implements IButton, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
 	ILinkListener, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider,
-	IAnchoredComponent
+	IAnchoredComponent, ISupportWebOnRender
 {
 	private int mediaOptions;
 //	private int rotation;
@@ -300,7 +301,11 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) wcbw.addLabelCssClass(getId());
 		}
+		fireOnRender();
+	}
 
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;

@@ -53,6 +53,7 @@ import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IAnchoredComponent;
@@ -81,7 +82,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
 	ISupportSecuritySettings, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent,
-	ISupportSimulateBoundsProvider
+	ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -951,7 +952,11 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) wcbw.addLabelCssClass(getId());
 		}
+		fireOnRender();
+	}
 
+	public void fireOnRender()
+	{
 		if (scriptable instanceof ISupportOnRenderCallback)
 		{
 			boolean isFocused = false;

@@ -68,6 +68,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.ui.IComponent;
@@ -102,7 +103,7 @@ import com.servoy.j2db.util.text.FixedMaskFormatter;
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
 	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider,
-	IDestroyable
+	IDestroyable, ISupportWebOnRender
 {
 	/**
 	 * @author jcompagner
@@ -1415,6 +1416,11 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (!isIgnoreOnRender && scriptable != null)
 		{
 			boolean isFocused = false;
