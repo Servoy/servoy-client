@@ -5008,7 +5008,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				fsm.getApplication().invokeAndWait(run);
+				fsm.getApplication().invokeLater(run);
 			}
 		}
 	}
