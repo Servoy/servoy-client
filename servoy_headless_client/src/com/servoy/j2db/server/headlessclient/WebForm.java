@@ -190,6 +190,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	private IView view;
 
 	private boolean isFormWidthHeightChanged;
+	protected IStylePropertyChanges jsChangeRecorder;
 
 	/**
 	 * @param id
@@ -794,6 +795,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				Debug.log("error destroying the webform", e); //$NON-NLS-1$
 			}
 		}
+		jsChangeRecorder = null;
 	}
 
 	/**
@@ -2094,8 +2096,10 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	 */
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
-		return new IStylePropertyChanges()
+		if (jsChangeRecorder == null) jsChangeRecorder = new IStylePropertyChanges()
 		{
+
+			private boolean changed = false;
 
 			public void setValueChanged()
 			{
@@ -2104,6 +2108,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			public void setRendered()
 			{
 				uiRecreated = false;
+				changed = false;
 			}
 
 			public void setChanges(Properties changes)
@@ -2112,6 +2117,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 			public void setChanged()
 			{
+				changed = true; // plugins can call this (see WebClientUtils)
 			}
 
 			public boolean isValueChanged()
@@ -2121,7 +2127,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 			public boolean isChanged()
 			{
-				if (enableChanged != null && enableChanged.booleanValue())
+				if (changed || (enableChanged != null && enableChanged.booleanValue()))
 				{
 					return true;
 				}
@@ -2161,6 +2167,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				return null;
 			}
 		};
+		return jsChangeRecorder;
 	}
 
 	public void prepareForSave(boolean looseFocus)
