@@ -389,7 +389,10 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		if ((behavior = behaviors.remove(name)) != null)
 		{
 			getStylePropertyChanges().setChanged();
-			remove(behavior);
+			if (RequestCycle.get() != null)
+			{
+				remove(behavior);
+			}
 		}
 	}
 
