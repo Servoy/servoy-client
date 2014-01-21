@@ -1956,7 +1956,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 	protected void onRender(MarkupStream markupStream)
 	{
 		super.onRender(markupStream);
-		uiRecreated = false;
+		getStylePropertyChanges().setRendered();
 		enableChanged = Boolean.FALSE;
 	}
 
