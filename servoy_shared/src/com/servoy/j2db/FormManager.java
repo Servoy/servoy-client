@@ -35,8 +35,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.Action;
-
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;
@@ -72,7 +70,6 @@ import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
@@ -86,7 +83,6 @@ import com.servoy.j2db.util.gui.AppletController;
 public abstract class FormManager implements PropertyChangeListener, IFormManagerInternal
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
-	public static final String NO_TITLE_TEXT = "-none-"; //$NON-NLS-1$
 
 	public static final Rectangle FULL_SCREEN = new Rectangle(IApplication.FULL_SCREEN, IApplication.FULL_SCREEN, IApplication.FULL_SCREEN,
 		IApplication.FULL_SCREEN);
@@ -330,11 +326,11 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{
-				currentContainer.setFormController(null);
+				currentContainer.setController(null);
 			}
 			if (mainContainer.getController() != null && loginForm.getName().equals(mainContainer.getController().getForm().getName()))
 			{
-				mainContainer.setFormController(null);
+				mainContainer.setController(null);
 			}
 			loginForm = null;//clear and continue
 		}
@@ -372,7 +368,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		if (first != null && currentContainer != null && currentContainer.getController() != null &&
 			currentContainer.getController().getName().equals(first.getName()))
 		{
-			currentContainer.setFormController(null);
+			currentContainer.setController(null);
 		}
 
 		IMainContainer modalContainer = getModalDialogContainer(); // onOpen event might have opened a modal popup with another form
@@ -589,6 +585,19 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 
 	protected boolean design = false;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IBasicFormManager#showFormInMainPanel(java.lang.String, com.servoy.j2db.IBasicMainContainer, java.lang.Object, boolean,
+	 * java.lang.String)
+	 */
+	@Override
+	public IFormController showFormInContainer(String formName, IBasicMainContainer container, String title, boolean closeAll, String dialogName)
+	{
+		return showFormInMainPanel(formName, (IMainContainer)container, title, closeAll, dialogName);
+	}
+
+
 	//show a form in the main panel
 	public FormController showFormInMainPanel(final String formName, final IMainContainer container, final String title, final boolean closeAll,
 		final String dialogName)
@@ -685,7 +694,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 				if (formUI != null && !formUI.isVisible()) formUI.setComponentVisible(true);
 
 				// this code must be below the checkAndUpdateUser because setFormController can already set the formui
-				currentContainer.setFormController(fp);
+				currentContainer.setController(fp);
 				SolutionScope ss = application.getScriptEngine().getSolutionScope();
 				Context.enter();
 				try
@@ -771,7 +780,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			}
 			else
 			{
-				currentContainer.setFormController(null);
+				currentContainer.setController(null);
 			}
 			J2DBGlobals.firePropertyChange(this, "form", tmpForm, currentMainShowingForm); //$NON-NLS-1$
 
@@ -1159,9 +1168,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		return getHistory(null);
 	}
 
-	public History getHistory(IMainContainer container)
+	public History getHistory(IBasicMainContainer container)
 	{
-		IMainContainer c = container;
+		IBasicMainContainer c = container;
 		if (c == null)
 		{
 			if (currentContainer != null)
@@ -1378,198 +1387,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		public void destroy()
 		{
 			application = null;
-		}
-	}
-
-	public static class History
-	{
-		private static final int DEFAULT_HISTORY_SIZE = 10;
-		private SafeArrayList<String> list;
-		private int index = -1;
-		private int length = 0;
-		private final IApplication application;
-		private final IMainContainer container;
-		private boolean buttonsEnabled = true;
-		private int size = DEFAULT_HISTORY_SIZE;
-
-		public History(IApplication application, IMainContainer container)
-		{
-			this.application = application;
-			this.container = container;
-			list = new SafeArrayList<String>(DEFAULT_HISTORY_SIZE + 1);
-		}
-
-		/**
-		 * @param string
-		 */
-		public boolean removeForm(String formName)
-		{
-			int i = list.indexOf(formName);
-			if (i != -1 && !removeIndex(i))
-			{
-				return false;
-			}
-			return ((FormManager)application.getFormManager()).destroyFormInstance(formName);
-		}
-
-		/**
-		 * @param i
-		 */
-		public boolean removeIndex(int i)
-		{
-			// removing the last form, nothing else to show
-			if (length == 1 && i == 0)
-			{
-				clear(); // sets the buttons and index
-				return true;
-			}
-
-			// if the currently shown item is removed, show the one before it
-			if (i == index && !go(i == 0 ? 1 : -1))
-			{
-				// could not hide, do nothing
-				return false;
-			}
-
-			list.remove(i);
-			length--;
-
-			if (i < index)
-			{
-				index--;
-			}
-			if (buttonsEnabled)
-			{
-				enableButtons(index != 0, index != length - 1);
-			}
-			return true;
-		}
-
-		/**
-		 * @param i
-		 */
-		public boolean go(int i)
-		{
-			int idx = index + i;
-			if (idx >= length || idx < 0)
-			{
-				return false;
-			}
-			String f = list.get(idx);
-			if (f == null)
-			{
-				return false;
-			}
-
-			int saveIndex = index;
-			index = idx; // must set index now to prevent add() from adding same form twice
-			FormController fc = ((FormManager)application.getFormManager()).showFormInMainPanel(f, container, null, true,
-				application.getRuntimeWindowManager().getCurrentWindowName());
-			if (fc == null || !fc.getName().equals(f))
-			{
-				index = saveIndex;
-				return false;
-			}
-			if (buttonsEnabled)
-			{
-				enableButtons(index != 0, index != length - 1);
-			}
-			return true;
-		}
-
-		/**
-		 * Enable or disable the backward and forward button, only if not in a dialog
-		 */
-		private void enableButtons(boolean enableBackward, boolean enableForWard)
-		{
-			// buttons are currently only used in the main window, not in dialogs
-			if (container == ((FormManager)application.getFormManager()).getMainContainer(null))
-			{
-				Action back = application.getCmdManager().getRegisteredAction("cmdhistoryback"); //$NON-NLS-1$
-				if (back != null) back.setEnabled(enableBackward);
-				Action forward = application.getCmdManager().getRegisteredAction("cmdhistoryforward"); //$NON-NLS-1$
-				if (forward != null) forward.setEnabled(enableForWard);
-			}
-		}
-
-		/**
-		 * @param i
-		 */
-		public String getFormName(int i)
-		{
-			return list.get(i);
-		}
-
-		/**
-		 * 
-		 */
-		public boolean getButtonsEnabled()
-		{
-			return buttonsEnabled;
-		}
-
-		/**
-		 * @param b
-		 */
-		public void setButtonsEnabled(boolean b)
-		{
-			if (!b)
-			{
-				enableButtons(false, false);
-			}
-			buttonsEnabled = b;
-		}
-
-		public int getIndex()
-		{
-			return index;
-		}
-
-		/**
-		 * 
-		 */
-		public void clear()
-		{
-			clear(size);
-		}
-
-		public void clear(int newSize)
-		{
-			if (length > 0)
-			{
-				list = new SafeArrayList<String>(20);
-				index = -1;
-				length = 0;
-
-				enableButtons(false, false);
-			}
-			size = newSize;
-		}
-
-		public void add(String obj)
-		{
-			if (obj.equals(list.get(index))) return;
-
-			if (length > 0 && buttonsEnabled)
-			{
-				enableButtons(true, false);
-			}
-
-			index++;
-			list.set(index, obj);
-			length = index + 1;
-
-			if (length == size)
-			{
-				list.remove(0);
-				length--;
-				index--;
-			}
-		}
-
-		public int getLength()
-		{
-			return length;
 		}
 	}
 

@@ -23,8 +23,8 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.BasicFormController.JSForm;
-import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
@@ -629,7 +629,7 @@ public class JSWindow implements IConstantsObject
 	@JSReadonlyProperty
 	public JSForm getController()
 	{
-		FormController controller = impl.getCurrentController();
+		IFormController controller = impl.getController();
 		if (controller != null)
 		{
 			return controller.initForJSUsage();

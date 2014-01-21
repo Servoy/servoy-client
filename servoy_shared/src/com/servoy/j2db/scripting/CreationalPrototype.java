@@ -32,7 +32,6 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -131,7 +130,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		if ("allnames".equals(name)) //$NON-NLS-1$
 		{
 			ArrayList<String> al = new ArrayList<String>();
-			IBasicFormManager fm = (IBasicFormManager)application.getFormManager();
+			IBasicFormManager fm = application.getFormManager();
 			if (fm == null) throw new IllegalStateException(
 				"Trying to access forms after client was shut down? This JS code was probably running decoupled from client shut down but at the same time."); // should never happen during normal operation; see case 251716 
 			Iterator<String> it = fm.getPossibleFormNames();
@@ -152,7 +151,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		Object o = super.get(name, start);
 		if ((o == null || o == Scriptable.NOT_FOUND))
 		{
-			IFormManager fm = application.getFormManager();
+			IBasicFormManager fm = application.getFormManager();
 			if (fm == null) throw new IllegalStateException(
 				"Trying to access forms after client was shut down? This JS code was probably running decoupled from client shut down but at the same time."); // should never happen during normal operation; see case 251716 
 			if (!fm.isPossibleForm(name))

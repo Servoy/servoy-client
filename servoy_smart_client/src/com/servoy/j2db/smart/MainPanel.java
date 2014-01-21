@@ -34,8 +34,9 @@ import javax.swing.SwingConstants;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager.History;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISupportNavigator;
@@ -283,9 +284,9 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 		return null;
 	}
 
-	public void setFormController(FormController f)
+	public void setController(IFormController f)
 	{
-		this.currentForm = f;
+		this.currentForm = (FormController)f;
 		if (f != null)
 		{
 			add(f.getFormUI(), f.getName());

@@ -82,7 +82,8 @@ import org.apache.wicket.version.undo.Change;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.FormManager.History;
+import com.servoy.j2db.IBasicFormManager.History;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.Messages;
@@ -1195,7 +1196,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		if (main == c)
 		{
 			main = null;
-			setFormController(null);
+			setController(null);
 		}
 		webForms.remove(c);
 		listview.removeAll();
@@ -1562,13 +1563,13 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		return null;
 	}
 
-	public void setFormController(FormController f)
+	public void setController(IFormController f)
 	{
 		if (currentForm != f)
 		{
 			mainFormSwitched = true;
 			versionNeedsPushing = true;
-			this.currentForm = f;
+			this.currentForm = (FormController)f;
 		}
 		if (currentForm == null)
 		{

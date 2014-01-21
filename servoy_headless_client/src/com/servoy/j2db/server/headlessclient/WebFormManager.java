@@ -270,7 +270,7 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 							if (previousMainShowingForm != null)
 							{
 								FormController previousNavigator = parent.getNavigator();
-								parent.setFormController(null);
+								parent.setController(null);
 								// navigator is not re-applied so apply it manually
 								int navigatorID = previousMainShowingForm.getForm().getNavigatorID();
 								if (navigatorID == Form.NAVIGATOR_IGNORE || (previousNavigator != null && previousNavigator.getForm().getID() == navigatorID))

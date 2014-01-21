@@ -27,8 +27,9 @@ import javax.swing.border.Border;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
-import com.servoy.j2db.FormManager.History;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager.History;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.ui.IComponent;
@@ -214,9 +215,9 @@ public class DummyMainContainer implements IMainContainer
 	/**
 	 * @see com.servoy.j2db.IMainContainer#setCurrentForm(com.servoy.j2db.persistence.Form)
 	 */
-	public void setFormController(FormController f)
+	public void setController(IFormController f)
 	{
-		this.f = f;
+		this.f = (FormController)f;
 	}
 
 	/**

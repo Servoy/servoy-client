@@ -134,7 +134,7 @@ public class FoundSetEvent extends EventObject
 	@Override
 	public String toString()
 	{
-		return "FoundSetEvent[" + getType() + "," + getChangeType() + "] from source " + source; //$NON-NLS-1$
+		return "FoundSetEvent[" + getType() + "," + getChangeType() + ",firstRow:" + firstRow + ",lastRow:" + lastRow + "] from source " + source; //$NON-NLS-1$
 	}
 
 }

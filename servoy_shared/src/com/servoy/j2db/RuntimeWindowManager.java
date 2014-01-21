@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.servoy.j2db.FormManager.History;
+import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.plugins.IPlugin;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
@@ -132,10 +132,10 @@ public abstract class RuntimeWindowManager
 	 */
 	protected abstract List<String> getOrderedContainers();
 
-	protected boolean doCloseFormInWindow(IMainContainer container)
+	protected boolean doCloseFormInWindow(IBasicMainContainer container)
 	{
 		boolean ok = true;
-		FormController fp = container.getController();
+		IFormController fp = container.getController();
 		if (fp != null)
 		{
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
@@ -152,8 +152,8 @@ public abstract class RuntimeWindowManager
 
 	public boolean closeFormInWindow(String windowName, boolean closeAll)
 	{
-		FormManager fm = ((FormManager)application.getFormManager());
-		IMainContainer container = null;
+		IBasicFormManager fm = application.getFormManager();
+		IBasicMainContainer container = null;
 
 		if ((windowName == null || windowName.replace(" ", "").length() == 0) && closeAll == true) //$NON-NLS-1$ //$NON-NLS-2$
 		{
@@ -165,14 +165,14 @@ public abstract class RuntimeWindowManager
 			{
 				if (key != null)
 				{
-					IMainContainer mContainer = fm.getMainContainer(key);
+					IBasicMainContainer mContainer = fm.getMainContainer(key);
 					if (fm.getMainContainer(null) != mContainer)
 					{
 						ret = doCloseFormInWindow(mContainer);
 						if (ret)
 						{
 							// If dialog is closed then we must clear the complete history
-							History hist = ((FormManager)application.getFormManager()).getHistory(mContainer);
+							History hist = fm.getHistory(mContainer);
 							hist.clear();
 						}
 					}
@@ -226,13 +226,13 @@ public abstract class RuntimeWindowManager
 		return true;
 	}
 
-	protected boolean restoreWindowBounds(IMainContainer container)
+	protected boolean restoreWindowBounds(IBasicMainContainer container)
 	{
 		// dummy; subclasses can override if needed
 		return false;
 	}
 
-	protected void storeWindowBounds(IMainContainer container)
+	protected void storeWindowBounds(IBasicMainContainer container)
 	{
 		// dummy; subclasses can override if needed
 	}

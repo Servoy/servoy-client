@@ -17,6 +17,7 @@
 package com.servoy.j2db;
 
 
+
 /**
  * @author jblok
  */
@@ -39,6 +40,5 @@ public interface IFormManagerInternal extends IBasicFormManager
 //	public IForm getFormController(String name,Object parent);
 
 	public void synchViewMenu(int viewType);
-
 
 }

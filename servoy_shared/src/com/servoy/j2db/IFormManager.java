@@ -41,16 +41,4 @@ public interface IFormManager extends IManager, PropertyChangeListener
 	 * @return the form
 	 */
 	public IForm getForm(String name);
-
-	/**
-	 * @param name
-	 * @return
-	 */
-	public boolean isPossibleForm(String name);
-
-	/**
-	 * @param name
-	 * @return
-	 */
-	public IFormController leaseFormPanel(String name);
 }

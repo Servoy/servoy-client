@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.RuntimeWindowManager;
@@ -122,14 +123,14 @@ public class SwingRuntimeWindowManager extends RuntimeWindowManager
 	}
 
 	@Override
-	public boolean doCloseFormInWindow(IMainContainer container)
+	public boolean doCloseFormInWindow(IBasicMainContainer container)
 	{
-		((SwingFormManager)application.getFormManager()).removePreview(container);
+		((SwingFormManager)application.getFormManager()).removePreview((IMainContainer)container);
 		return super.doCloseFormInWindow(container);
 	}
 
 	@Override
-	protected void storeWindowBounds(IMainContainer container)
+	protected void storeWindowBounds(IBasicMainContainer container)
 	{
 		SwingRuntimeWindow w = (SwingRuntimeWindow)getWindow(container.getContainerName());
 		if (w != null)
@@ -139,7 +140,7 @@ public class SwingRuntimeWindowManager extends RuntimeWindowManager
 	}
 
 	@Override
-	protected boolean restoreWindowBounds(IMainContainer container)
+	protected boolean restoreWindowBounds(IBasicMainContainer container)
 	{
 		SwingRuntimeWindow w = (SwingRuntimeWindow)getWindow(container.getContainerName());
 		return w != null ? w.restoreWindowBounds() : false;

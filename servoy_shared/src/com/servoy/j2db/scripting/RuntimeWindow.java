@@ -19,9 +19,12 @@ package com.servoy.j2db.scripting;
 import java.awt.Rectangle;
 
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.plugins.IRuntimeWindow;
@@ -242,9 +245,9 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	public void showObject(Object form) throws ServoyException
 	{
 		String f = null;
-		if (form instanceof FormController)
+		if (form instanceof BasicFormController)
 		{
-			f = ((FormController)form).getName();
+			f = ((BasicFormController)form).getName();
 		}
 		else if (form instanceof FormScope)
 		{
@@ -265,7 +268,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 		if (f != null)
 		{
 			Form frm = application.getFlattenedSolution().getForm(f);
-			FormManager fm = (FormManager)application.getFormManager();
+			IBasicFormManager fm = application.getFormManager();
 			if (frm == null && fm.isPossibleForm(f)) frm = fm.getPossibleForm(f);
 			if (!application.getFlattenedSolution().formCanBeInstantiated(frm))
 			{
@@ -297,7 +300,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	protected abstract void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior);
 
-	public FormController getCurrentController()
+	public IFormController getController()
 	{
 		IMainContainer container = ((FormManager)application.getFormManager()).getOrCreateMainContainer(windowName);
 		if (container != null)
