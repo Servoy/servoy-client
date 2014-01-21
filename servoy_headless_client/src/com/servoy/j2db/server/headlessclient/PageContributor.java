@@ -45,6 +45,7 @@ import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.server.headlessclient.dataui.StripHTMLTagsConverter;
+import com.servoy.j2db.server.headlessclient.dataui.WebDataHtmlArea;
 import com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
@@ -209,7 +210,14 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 			Component focus = ((MainPage)page).getAndResetToFocusComponent();
 			if (focus != null)
 			{
-				response.renderOnLoadJavascript("setTimeout(\"requestFocus('" + focus.getMarkupId() + "');\",0);"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (focus instanceof WebDataHtmlArea)
+				{
+					response.renderOnLoadJavascript("tinyMCE.activeEditor.focus()");
+				}
+				else
+				{
+					response.renderOnLoadJavascript("setTimeout(\"requestFocus('" + focus.getMarkupId() + "');\",0);"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 		}
 

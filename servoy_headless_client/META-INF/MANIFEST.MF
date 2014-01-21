@@ -12,4 +12,5 @@ Export-Package: com.servoy.j2db.server.headlessclient,
  com.servoy.j2db.server.headlessclient.eventthread,
  com.servoy.j2db.server.headlessclient.jquery,
  com.servoy.j2db.server.headlessclient.mask,
+ com.servoy.j2db.server.headlessclient.tinymce,
  com.servoy.j2db.server.headlessclient.yui

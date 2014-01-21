@@ -2575,7 +2575,6 @@ public class TemplateGenerator
 					String editorId = "editor_" + ComponentFactory.getWebID(form, field);
 					html.append("<div ");
 					html.append(getWicketIDParameter(form, field));
-					html.append(getCssClassForElement(field, userCssClassAdded, "yui-skin-sam"));
 					html.append("><textarea id='");
 					html.append(editorId);
 					html.append("' name='");
@@ -2585,11 +2584,6 @@ public class TemplateGenerator
 					html.append(" rows=\"20\" cols=\"75\"></textarea></div>");
 					styleObj.setProperty("padding", "0px");
 					styleObj.setProperty("overflow", "hidden");
-					if (styleObj.getProperty("border-width") == null && styleObj.getProperty("border-style") == null)
-					{
-						// set a default border, taken from yui
-						styleObj.setProperty("border", "1px solid #808080");
-					}
 				}
 				break;
 			case Field.TEXT_AREA :
