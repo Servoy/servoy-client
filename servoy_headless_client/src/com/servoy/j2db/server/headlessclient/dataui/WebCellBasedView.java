@@ -145,10 +145,12 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
+import com.servoy.j2db.server.headlessclient.WebOnRenderHelper;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
@@ -1136,7 +1138,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 		}
 
-		public void updateComponentsRenderState(AjaxRequestTarget target, int[] newSelectedIndexes, int rowIdx)
+		private void updateComponentsRenderState(OnRenderAjaxRequestTargetWrapper target, int[] newSelectedIndexes, int rowIdx)
 		{
 			boolean isSelected = Arrays.binarySearch(newSelectedIndexes, rowIdx) >= 0;
 			String sColor = null, sFgColor = null, sStyleFont = null, sStyleBorder = null;
@@ -1159,19 +1161,19 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 		}
 
-		private void updateComponentsRenderState(AjaxRequestTarget target, boolean isSelected)
+		private void updateComponentsRenderState(OnRenderAjaxRequestTargetWrapper target, boolean isSelected)
 		{
 			updateComponentsRenderState(target, null, null, null, null, isSelected, true);
 		}
 
-		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String listItemBorder,
-			boolean isSelected)
+		private void updateComponentsRenderState(OnRenderAjaxRequestTargetWrapper target, String bgColor, String fgColor, String compFont,
+			String listItemBorder, boolean isSelected)
 		{
 			updateComponentsRenderState(target, bgColor, fgColor, compFont, listItemBorder, isSelected, false);
 		}
 
-		private void updateComponentsRenderState(AjaxRequestTarget target, String bgColor, String fgColor, String compFont, String listItemBorder,
-			boolean isSelected, boolean ignoreStyles)
+		private void updateComponentsRenderState(OnRenderAjaxRequestTargetWrapper target, String bgColor, String fgColor, String compFont,
+			String listItemBorder, boolean isSelected, boolean ignoreStyles)
 		{
 			MarkupContainer listContainer = getListContainer();
 			List<Component> componentsToUpdate = new ArrayList<Component>();
@@ -4705,23 +4707,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 			if (hasOnRender())
 			{
+				OnRenderAjaxRequestTargetWrapper targetWrapper = target != null ? new OnRenderAjaxRequestTargetWrapper(target) : null;
 				for (int rowIdx : indexToUpdate)
 				{
 					if (rowIdx >= firstRow && rowIdx <= lastRow)
 					{
 						ListItem<IRecordInternal> selectedListItem = (ListItem<IRecordInternal>)table.get(Integer.toString(rowIdx));
-						if (target != null) table.setUpItem(selectedListItem, false);
+						if (targetWrapper != null) table.setUpItem(selectedListItem, false);
 						if (selectedListItem instanceof WebCellBasedViewListItem)
 						{
-							((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(target, newSelectedIndexes, rowIdx);
-							if (target != null && isListViewMode() && (getRowSelectedStyle() != null || getRowBGColorScript() != null))
+							((WebCellBasedViewListItem)selectedListItem).updateComponentsRenderState(targetWrapper, newSelectedIndexes, rowIdx);
+							if (targetWrapper != null && isListViewMode() && (getRowSelectedStyle() != null || getRowBGColorScript() != null))
 							{
 								// listview might need to paint row item backgrounds for odd/even/selected, not only component backgrounds
-								target.addComponent(((WebCellBasedViewListItem)selectedListItem).getListContainer());
+								targetWrapper.addComponent(((WebCellBasedViewListItem)selectedListItem).getListContainer());
 							}
 						}
 					}
 				}
+				if (targetWrapper != null) targetWrapper.updateAjaxRequestTarget();
 			}
 			selectedIndexes = newSelectedIndexes;
 		}
@@ -5645,6 +5649,76 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		WebCellBasedView.this.currentScrollTop = 0;
 		WebCellBasedView.this.topPhHeight = 0;
 		WebCellBasedView.this.currentScrollLeft = 0;
+	}
+
+	/**
+	 * Wrapper that helps removing renderable components from the ajax request,
+	 * if the components are not changed during the onRender calls
+	 * 
+	 * @author gboros
+	 */
+	private class OnRenderAjaxRequestTargetWrapper
+	{
+		private AjaxRequestTarget ajaxRequestTarget;
+		private final ArrayList<WebCellBasedViewListItem> listComponents = new ArrayList<WebCellBasedViewListItem>();
+		private final ArrayList<Component> components = new ArrayList<Component>();
+
+		private OnRenderAjaxRequestTargetWrapper(AjaxRequestTarget ajaxRequestTarget)
+		{
+			this.ajaxRequestTarget = ajaxRequestTarget;
+		}
+
+		void addComponent(Component component)
+		{
+			if (component instanceof WebCellBasedViewListItem) listComponents.add((WebCellBasedViewListItem)component);
+			else components.add(component);
+		}
+
+		IHeaderResponse getHeaderResponse()
+		{
+			return ajaxRequestTarget.getHeaderResponse();
+		}
+
+
+		void updateAjaxRequestTarget()
+		{
+			// if we have list items and none of its component's onRender
+			// causes any change, then we can avoid adding the list to the target
+			Component innerComponent;
+			boolean changedListItem;
+			for (WebCellBasedViewListItem listItem : listComponents)
+			{
+				changedListItem = false;
+				Iterator< ? extends Component> it = listItem.iterator();
+				while (it.hasNext())
+				{
+					innerComponent = CellContainer.getContentsForCell(it.next());
+					if (innerComponent instanceof ISupportWebOnRender)
+					{
+						changedListItem = changedListItem || WebOnRenderHelper.doRender((ISupportWebOnRender)innerComponent);
+						components.remove(innerComponent); // just for safety, remove that also from components, if present
+					}
+				}
+				if (changedListItem)
+				{
+					ajaxRequestTarget.addComponent(listItem);
+				}
+			}
+
+			for (Component c : components)
+			{
+				// if component's onRender don't change anything, don't add it to the target
+				if (c instanceof ISupportWebOnRender && !WebOnRenderHelper.doRender((ISupportWebOnRender)c))
+				{
+					continue;
+				}
+				ajaxRequestTarget.addComponent(c);
+			}
+
+			ajaxRequestTarget = null;
+			listComponents.clear();
+			components.clear();
+		}
 	}
 }
 

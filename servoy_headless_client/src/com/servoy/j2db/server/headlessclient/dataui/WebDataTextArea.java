@@ -55,6 +55,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -77,7 +78,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataTextArea extends TextArea implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener,
-	ISupportInputSelection, ISupportSimulateBoundsProvider
+	ISupportInputSelection, ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -885,6 +886,11 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;

@@ -58,6 +58,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -83,7 +84,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
 	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent,
-	ISupportSimulateBoundsProvider
+	ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -999,6 +1000,11 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;

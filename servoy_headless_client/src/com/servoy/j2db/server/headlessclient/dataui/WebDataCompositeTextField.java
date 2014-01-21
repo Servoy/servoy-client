@@ -43,6 +43,7 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -69,7 +70,7 @@ import com.servoy.j2db.util.PersistHelper;
  */
 public abstract class WebDataCompositeTextField extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds,
 	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent, IDesignModeListener,
-	ISupportSimulateBoundsProvider
+	ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -618,6 +619,11 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;

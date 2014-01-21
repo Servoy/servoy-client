@@ -57,6 +57,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -82,7 +83,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane,
-	ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider
+	ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportWebOnRender
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -958,6 +959,11 @@ public class WebDataRadioChoice extends RadioChoice implements IDisplayData, IFi
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
+		fireOnRender();
+	}
+
+	public void fireOnRender()
+	{
 		if (scriptable != null)
 		{
 			boolean isFocused = false;
