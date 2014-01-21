@@ -219,6 +219,23 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = IApplication.ALLOW_JAVASCRIPT_LINK_INPUT;
 
+	/**
+	 * Property than can be set on editable html area using element.putClientProperty()
+	 * 
+	 * The value must be a valid json string according to TinyMCE editor configuration (http://www.tinymce.com/wiki.php/configuration). 
+	 * It will be used to override/set configuration properties in order to customize the editor. 
+	 * 
+	 * 
+	 * @sample
+	 * // adding a new TinyMCE plugin (same for skin or theme)
+	 * // this code assumes plugin.min.js was copied in web server at specified path
+	 * // NOTE: we use external plugin, not plugin, in order for file to be accessible from web server 
+	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{external_plugins: { "link": "/servoy-webclient/tinymce/plugins/link/plugin.min.js"}}')
+	 * 
+	 * // change the editor configuration (add menubar, status bar and change toolbar)
+	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{menubar: "tools table format view insert edit", statusbar : true, toolbar: "undo redo | styleselect | bold italic"}')
+	 */
+	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
 
 	public String getPrefix()
 	{

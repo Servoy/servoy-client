@@ -112,20 +112,4 @@ public class YUILoader implements Serializable
 		}
 	}
 
-	public static void renderHTMLEdit(IHeaderResponse response)
-	{
-		response.renderJavascriptReference(JS_YAHOO_DOM_EVENT);
-		response.renderJavascriptReference(JS_ANIMATION);
-		response.renderJavascriptReference(JS_ELEMENT);
-		response.renderJavascriptReference(JS_CONTAINER);
-		response.renderJavascriptReference(JS_MENU);
-		response.renderJavascriptReference(JS_BUTTON);
-		response.renderJavascriptReference(JS_EDITOR);
-
-		response.renderCSSReference(YUILoader.CSS_FONTS);
-		response.renderCSSReference(YUILoader.CSS_MENU);
-		response.renderCSSReference(YUILoader.CSS_BUTTON);
-		response.renderCSSReference(YUILoader.CSS_CONTAINER);
-		response.renderCSSReference(YUILoader.CSS_EDITOR);
-	}
 }

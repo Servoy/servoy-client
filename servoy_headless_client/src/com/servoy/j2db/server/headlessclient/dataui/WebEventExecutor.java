@@ -811,7 +811,14 @@ public class WebEventExecutor extends BaseEventExecutor
 				Component comp = mainPage.getAndResetToFocusComponent();
 				if (comp != null)
 				{
-					target.focusComponent(comp);
+					if (comp instanceof WebDataHtmlArea)
+					{
+						target.appendJavascript("tinyMCE.activeEditor.focus()");
+					}
+					else
+					{
+						target.focusComponent(comp);
+					}
 				}
 				else if (mainPage.getAndResetMustFocusNull())
 				{

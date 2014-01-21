@@ -106,6 +106,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = "allowJavascriptLinkInput"; //$NON-NLS-1$
 
 	/**
+	 * 
+	 */
+	public static final String HTML_EDITOR_CONFIGURATION = "config"; //$NON-NLS-1$
+
+	/**
 	 * Non-null name for the first (main) window.
 	 */
 	public static final String APP_WINDOW_NAME = "Application_frame";

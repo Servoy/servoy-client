@@ -3134,154 +3134,36 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 {
 	Servoy.HTMLEdit = 
 	{
-		htmlEditor : null ,
-		state : 'off' ,
-		
-		attach: function (wrapperId,editorId,editable)
-		{
-			var Dom = YAHOO.util.Dom,
-		    Event = YAHOO.util.Event;
-		    var myConfig = {
-		    	width: '100%',
-		        animate: false,
-		        dompath: true //we have to use true here
-		    };
-		    Servoy.HTMLEdit.state = 'off';
-
-		    var myEditor = new YAHOO.widget.Editor(editorId, myConfig);
-		    myEditor.on('toolbarLoaded', function() {
-		        var codeConfig = {
-		            type: 'push', label: 'Edit HTML Code', value: 'editcode'
-		        };
-		        this.toolbar.addButtonToGroup(codeConfig, 'insertitem');
-		        
-		        Dom.setStyle(this.toolbar._titlebar, 'display', 'none'); //hide title
-		        Dom.setStyle(this.dompath, 'display', 'none'); //now we hide
-		       	this.on('editorContentLoaded', function(){
-		       		var toolbarHeight = document.getElementById(editorId+'_toolbar').offsetHeight;
-		       		if (Servoy.Utils.isChrome || Servoy.Utils.isSafari)
-		       		{
-		       			// height is not correct :(, we have to calculate how many rows we have
-		       			var rows = 3;
-		       			var toolbarWidth = document.getElementById(editorId+'_toolbar').offsetWidth;
-		       			if (toolbarWidth >1000)
-		       			{
-		       				rows = 1;
-		       			}
-		       			else if (toolbarWidth >550)
-		       			{
-		       				rows = 2;	
-		       			}
-		       			toolbarHeight = rows * 51; // 51 is row height
-		       		}
-		       		document.getElementById(editorId+'_editor').style.height = (document.getElementById(wrapperId).clientHeight - toolbarHeight) +"px";
-			    }, this, true);
-		        
-		        this.toolbar.on('editcodeClick', function() {
-		            var ta = this.get('element'),
-		            iframe = this.get('iframe').get('element');
-
-			        if (Servoy.HTMLEdit.state == 'on') {
-			        	Servoy.HTMLEdit.state = 'off';
-			            this.toolbar.set('disabled', false);
-			            this.setEditorHTML(ta.value);
-			            if (!this.browser.ie) {
-			                this._setDesignMode('on');
-			            }
-			            Dom.removeClass(iframe, 'editor-hidden');
-			            Dom.addClass(ta, 'editor-hidden');
-			            this.show();
-			            this._focusWindow();
-			        } else {
-			        	Servoy.HTMLEdit.state = 'on';
-			            this.cleanHTML();
-			            Dom.addClass(iframe, 'editor-hidden');
-			            Dom.removeClass(ta, 'editor-hidden');
-			            this.toolbar.set('disabled', true);
-			            this.toolbar.getButtonByValue('editcode').set('disabled', false);
-			            this.toolbar.selectButton('editcode');
-			            this.dompath.innerHTML = 'Editing HTML Code';
-			            this.hide();
-			        }
-			        return false; 
-		        }, this, true);
-
-		        this.on('editorWindowFocus', function(ev) {
-	    			var htmlDataField = $('#'+wrapperId);
-	    			if(htmlDataField.length > 0) {
-	    				htmlDataField.get(0).onfocus();
-	    			};
-		            return false;
-		        }, this, true);
-		        
-		        this.on('editorWindowBlur', function(ev) {
-				    this.saveHTML();
-	    			var htmlDataField = $('#'+wrapperId);
-	    			if(htmlDataField.length > 0) {
-	    				htmlDataField.get(0).onblur();
-	    			};
-				    var element = this.get('element');
-				    element.onsubmit();
-		            return false;
-		        }, this, true);
-		         
-		        this.on('cleanHTML', function(ev) {
-		             this.get('element').value = ev.html;
-		         }, this, true);
-		         
-		        this.on('afterRender', function() {
-		 		     var elem = this.get('element');
-		 		     if (editable && !elem.readOnly && !elem.disabled){
-			             var wrapper = this.get('editor_wrapper');
-			             wrapper.appendChild(this.get('element'));
-			             this.setStyle('width', '100%');
-			             this.setStyle('height', '100%');
-			             this.setStyle('visibility', '');
-			             this.setStyle('top', '');
-			             this.setStyle('left', '');
-			             this.setStyle('position', '');
-			             this.addClass('editor-hidden');
-		        	 }
-		         }, this, true)
-		        
-		    }, myEditor, true);
-		    var elem = myEditor.get('element');
-		    if (!editable || elem.readOnly || elem.disabled)
-		    {
-		    	setTimeout(function() {
-		    			myEditor.set('disabled',true);
-		    			var disabledIframe = $('#'+myEditor.get('iframe').get('id'));
-		    			if(disabledIframe.length > 0) {
-		    				disabledIframe.css('display', '');
-		    			}
-		    			if(!editable || elem.readOnly) {
-		    				var editorPane = $('div.yui-editor-masked');
-		    				if(editorPane.length > 0) {
-		    					editorPane.css('background-color', '#fff');
-		    				}
-		    				
-		    			}
-		    		}, 1000);
-		    }
-		    myEditor.render();
-		    
-		    Servoy.HTMLEdit.htmlEditor = myEditor;
+		ServoyTinyMCESettings : {
+			menubar : false,
+			statusbar : false,
+			plugins: 'tabindex resizetocontainer',
+			tabindex: 'element',
+			toolbar: 'fontselect fontsizeselect | bold italic underline | superscript subscript | undo redo |alignleft aligncenter alignright alignjustify | styleselect | outdent indent bullist numlist'
 		},
 		
-		focusHandler: function(elementId) {
-			
-			var ifr=$('#' + elementId).contents().find('iframe').get(0);
-			if(!ifr) {
-				window.setTimeout(function() {Servoy.HTMLEdit.focusHandler(elementId)}, 1000 );
-			} else {
-				ifr.contentWindow.focus();
-				var sel = ifr.contentDocument.getSelection();
-				var range = sel.getRangeAt(0);
-				range.setStart(ifr.contentDocument.body, 0);
-				range.setEnd(ifr.contentDocument.body, 0);
-				sel.removeAllRanges();
-				sel.addRange(range);
-			}			
+		attach: function (wrapperId,editorId,editable,configuration)
+		{
+			Servoy.HTMLEdit.ServoyTinyMCESettings.selector = '#'+editorId;
+			Servoy.HTMLEdit.ServoyTinyMCESettings.readonly = editable ? false : true;
+			Servoy.HTMLEdit.ServoyTinyMCESettings.setup = function(editor) {
+				editor.on('blur', function(e) {
+					var textarea = document.getElementById(editorId);
+					textarea.value = editor.getContent();
+					textarea.onsubmit();
+				});
+			};
+			if (configuration)
+			{
+				for (var key in configuration)
+				{
+					if (configuration.hasOwnProperty(key))
+					{
+						Servoy.HTMLEdit.ServoyTinyMCESettings[key] = configuration[key];
+					}
+				}
+			}
+			tinymce.init(Servoy.HTMLEdit.ServoyTinyMCESettings);
 		}
 	};
 }

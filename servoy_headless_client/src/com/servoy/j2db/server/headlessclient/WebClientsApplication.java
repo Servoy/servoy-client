@@ -96,6 +96,7 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDataLookupField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
+import com.servoy.j2db.server.headlessclient.tinymce.TinyMCELoader;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IWebClientSessionFactory;
@@ -304,6 +305,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		getMarkupSettings().setMarkupCache(new ServoyMarkupCache(this));
 		// getMarkupSettings().setStripWicketTags(true);
 		getResourceSettings().setResourceStreamLocator(new ServoyResourceStreamLocator(this));
+		getResourceSettings().setPackageResourceGuard(new ServoyPackageResourceGuard());
 		// getResourceSettings().setResourceFinder(createResourceFinder());
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
 		getApplicationSettings().setPageExpiredErrorPage(ServoyExpiredPage.class);
@@ -361,6 +363,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		getSharedResources().putClassAlias(org.wicketstuff.calendar.markup.html.form.DatePicker.class, "datepicker"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(YUILoader.class, "yui"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(JQueryLoader.class, "jquery"); //$NON-NLS-1$
+		getSharedResources().putClassAlias(TinyMCELoader.class, "tinymce"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(org.apache.wicket.markup.html.WicketEventReference.class, "wicketevent"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(org.apache.wicket.ajax.WicketAjaxReference.class, "wicketajax"); //$NON-NLS-1$
 		getSharedResources().putClassAlias(MainPage.class, "servoyjs"); //$NON-NLS-1$
@@ -467,10 +470,6 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 								{
 									StringBuilder js = new StringBuilder();
 									js.append("eventCallback(this,'focus','").append(callback).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
-									if (targetComponent instanceof WebDataHtmlArea)
-									{
-										js.insert(0, "if(event && this == event.target) { Servoy.HTMLEdit.focusHandler(this.id);return; }");
-									}
 									targetComponent.add(new EventCallbackModifier("onfocus", true, new Model<String>(js.toString()))); //$NON-NLS-1$
 									targetComponent.add(new EventCallbackModifier("onmousedown", true, new Model<String>("focusMousedownCallback(event)"))); //$NON-NLS-1$ //$NON-NLS-2$
 								}

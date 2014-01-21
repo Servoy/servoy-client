@@ -50,13 +50,15 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.yui.YUILoader;
+import com.servoy.j2db.server.headlessclient.TabIndexAttributeModifier;
+import com.servoy.j2db.server.headlessclient.tinymce.TinyMCELoader;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportInputSelection;
+import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.ScopesUtils;
@@ -68,7 +70,8 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @SuppressWarnings("nls")
-public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection
+public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection,
+	IOwnTabSequenceHandler, ISupportSpecialClientProperty
 {
 	public static final String htmlTextStartTags = "<html><body>";
 	public static final String htmlTextEndTags = "</body></html>";
@@ -78,6 +81,8 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	private boolean needEntireState;
 	private Insets margin;
 	private String inputId;
+	private final TabIndexAttributeModifier tabIndexAttributeModifier;
+	private String configuration;
 
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 	private final IApplication application;
@@ -110,7 +115,6 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 				}
 				return convert;
 			}
-
 
 			@Override
 			public String getInputName()
@@ -155,6 +159,8 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		});
 		add(textArea);
 		textArea.setOutputMarkupId(true);
+		tabIndexAttributeModifier = new TabIndexAttributeModifier(-1);
+		textArea.add(tabIndexAttributeModifier);
 	}
 
 	/**
@@ -165,10 +171,25 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	{
 		super.renderHead(container);
 		IHeaderResponse response = container.getHeaderResponse();
-		YUILoader.renderHTMLEdit(response);
+		TinyMCELoader.renderHTMLEdit(response);
 
-		String script = "Servoy.HTMLEdit.attach('" + getMarkupId() + "','" + textArea.getMarkupId() + "'," + isEditable() + ");";
-		response.renderOnDomReadyJavascript(script);
+		String script = "Servoy.HTMLEdit.attach('" + getMarkupId() + "','" + textArea.getMarkupId() + "'," + (isEnabled() && !isReadOnly()) + "," +
+			(configuration != null ? configuration : null) + ");";
+		response.renderJavascript(script, getMarkupId());
+	}
+
+	@Override
+	public void handleOwnTabIndex(int newTabIndex)
+	{
+		tabIndexAttributeModifier.setTabIndex(newTabIndex);
+	}
+
+	public void setClientProperty(Object key, Object value)
+	{
+		if (IApplication.HTML_EDITOR_CONFIGURATION.equals(key))
+		{
+			configuration = (String)value;
+		}
 	}
 
 	private boolean accessible = true;
@@ -771,7 +792,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		Page page = findPage();
 		if (page instanceof MainPage)
 		{
-			((MainPage)page).getPageContributor().addDynamicJavaScript("Servoy.HTMLEdit.htmlEditor.execCommand('inserthtml', '" + s + "');");
+			((MainPage)page).getPageContributor().addDynamicJavaScript("tinymce.activeEditor.selection.setContent('" + s + "')");
 		}
 	}
 
