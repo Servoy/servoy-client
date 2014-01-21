@@ -200,17 +200,11 @@ public class ListView extends JEditList implements IView, ISupportRowStyling
 	{
 		if (isEditing())
 		{
-			if (looseFocus)
+			// just do the same as for recordview, this seems to be desired behavior
+			DataRenderer dr = ((DataRenderer)getEditorComponent());
+			if (dr != null)
 			{
-				return getCellEditor().stopCellEditing();
-			}
-			else
-			{
-				DataRenderer dr = ((DataRenderer)getEditorComponent());
-				if (dr != null)
-				{
-					return dr.stopUIEditing(looseFocus);
-				}
+				return dr.stopUIEditing(looseFocus);
 			}
 		}
 		return true;
