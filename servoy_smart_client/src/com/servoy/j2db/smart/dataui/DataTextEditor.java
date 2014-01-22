@@ -964,7 +964,7 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 	{
 		try
 		{
-			application.invokeAndWait(new Runnable()
+			Runnable runnable = new Runnable()
 			{
 				public void run()
 				{
@@ -983,7 +983,17 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 						}
 					}
 				}
-			});
+			};
+			if (application.isEventDispatchThread())
+			{
+				// if on event thread make sure next call to getValueObject() gets this value
+				runnable.run();
+			}
+			else
+			{
+				// do not block when called from another thread, may cause deadlock when ui thread is busy
+				application.invokeLater(runnable);
+			}
 		}
 		catch (Exception e)
 		{
