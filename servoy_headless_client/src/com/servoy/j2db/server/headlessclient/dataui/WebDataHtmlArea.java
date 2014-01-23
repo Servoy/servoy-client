@@ -39,6 +39,7 @@ import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.util.convert.ConversionException;
 
 import com.servoy.base.util.ITagResolver;
@@ -52,7 +53,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexAttributeModifier;
-import com.servoy.j2db.server.headlessclient.tinymce.TinyMCELoader;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -162,6 +162,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		textArea.setOutputMarkupId(true);
 		tabIndexAttributeModifier = new TabIndexAttributeModifier(-1);
 		textArea.add(tabIndexAttributeModifier);
+		textArea.add(new StyleAppendingModifier(new Model<String>("visibility:hidden")));
 	}
 
 	/**
@@ -172,11 +173,10 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	{
 		super.renderHead(container);
 		IHeaderResponse response = container.getHeaderResponse();
-		TinyMCELoader.renderHTMLEdit(response);
-
+		String defaultConfiguration = (String)application.getClientProperty(IApplication.HTML_EDITOR_CONFIGURATION);
 		String script = "Servoy.HTMLEdit.attach('" + getMarkupId() + "','" + textArea.getMarkupId() + "'," + (isEnabled() && !isReadOnly()) + "," +
-			(configuration != null ? configuration : null) + ");";
-		response.renderJavascript(script, getMarkupId());
+			(configuration != null ? configuration : null) + "," + (defaultConfiguration != null ? defaultConfiguration : null) + ");";
+		response.renderOnLoadJavascript(script);
 	}
 
 	@Override

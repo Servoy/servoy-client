@@ -3072,7 +3072,7 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 			toolbar: 'fontselect fontsizeselect | bold italic underline | superscript subscript | undo redo |alignleft aligncenter alignright alignjustify | styleselect | outdent indent bullist numlist'
 		},
 		
-		attach: function (wrapperId,editorId,editable,configuration)
+		attach: function (wrapperId,editorId,editable,configuration,defaultConfiguration)
 		{
 			Servoy.HTMLEdit.ServoyTinyMCESettings.selector = '#'+editorId;
 			Servoy.HTMLEdit.ServoyTinyMCESettings.readonly = editable ? false : true;
@@ -3083,6 +3083,16 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 					textarea.onsubmit();
 				});
 			};
+			if (defaultConfiguration)
+			{
+				for (var key in defaultConfiguration)
+				{
+					if (defaultConfiguration.hasOwnProperty(key))
+					{
+						Servoy.HTMLEdit.ServoyTinyMCESettings[key] = defaultConfiguration[key];
+					}
+				}
+			}
 			if (configuration)
 			{
 				for (var key in configuration)
