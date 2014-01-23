@@ -264,7 +264,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		fillPartStyle(wrapperStyle, part);
 
 		html.append("<div servoy:id='View' "); //$NON-NLS-1$
-		html.append(StripHTMLTagsConverter.convertMediaReferences(wrapperStyle.toString(), solution.getName(), new ResourceReference("media"), "").toString());
+		html.append(StripHTMLTagsConverter.convertMediaReferences(wrapperStyle.toString(), solution.getName(), new ResourceReference("media"), "", false).toString());
 		html.append(">\n"); //$NON-NLS-1$ 
 	}
 

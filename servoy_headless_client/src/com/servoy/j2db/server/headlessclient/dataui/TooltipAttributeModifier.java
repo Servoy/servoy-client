@@ -197,7 +197,7 @@ public class TooltipAttributeModifier extends AttributeModifier implements IIgno
 							}
 						}
 						WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
-						tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "").toString();
+						tooltip = StripHTMLTagsConverter.convertMediaReferences(tooltip, webClient.getSolutionName(), new ResourceReference("media"), "", false).toString();
 						Object initialDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_INITIAL_DELAY);
 						if (initialDelayValue instanceof Number) initialDelay = ((Number)initialDelayValue).intValue();
 						Object dismissDelayValue = webClient.getClientProperty(IApplication.TOOLTIP_DISMISS_DELAY);

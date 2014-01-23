@@ -200,7 +200,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 							}
 
 							WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
-							text = StripHTMLTagsConverter.convertMediaReferences(text, webClient.getSolutionName(), new ResourceReference("media"), "").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+							text = StripHTMLTagsConverter.convertMediaReferences(text, webClient.getSolutionName(), new ResourceReference("media"), "", false).toString(); //$NON-NLS-1$ //$NON-NLS-2$
 
 							Label headerText = new Label("headertext", text); //$NON-NLS-1$
 							if (width > -1)

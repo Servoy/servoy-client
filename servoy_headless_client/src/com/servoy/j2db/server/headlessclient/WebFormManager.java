@@ -28,7 +28,6 @@ import org.apache.wicket.IPageMap;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageMap;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.Session;
 
 import com.servoy.j2db.FormController;
@@ -52,12 +51,10 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebFormManager extends FormManager implements IProvideGlobalResources
+public class WebFormManager extends FormManager
 {
 	private final int maxForms;
-	// resources that must be present on all pages
-	private final List<Object> addedJSResources = new ArrayList<Object>();
-	private final List<Object> addedCSSResources = new ArrayList<Object>();
+	private final ResourceReferences globalResourceReferences = new ResourceReferences();
 
 	@SuppressWarnings("nls")
 	public WebFormManager(IApplication app, IMainContainer mainp)
@@ -65,6 +62,11 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 		super(app, mainp);
 		int max = Utils.getAsInteger(Settings.getInstance().getProperty("servoy.max.webforms.loaded", "128"), false);
 		maxForms = max == 0 ? 128 : max;
+	}
+
+	public ResourceReferences getGlobalResourceReferences()
+	{
+		return globalResourceReferences;
 	}
 
 	/*
@@ -85,11 +87,6 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.FormManager#getMaxFormsLoaded()
-	 */
 	@Override
 	protected int getMaxFormsLoaded()
 	{
@@ -369,71 +366,4 @@ public class WebFormManager extends FormManager implements IProvideGlobalResourc
 		if (RequestCycle.get() != null) Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses. 
 	}
 
-	@Override
-	public void addGlobalJSResourceReference(ResourceReference resource)
-	{
-		if (resource != null && !addedJSResources.contains(resource))
-		{
-			addedJSResources.add(resource);
-		}
-	}
-
-	@Override
-	public void addGlobalJSResourceReference(String url)
-	{
-		if (url != null && !addedJSResources.contains(url))
-		{
-			addedJSResources.add(url);
-		}
-	}
-
-	@Override
-	public void addGlobalCSSResourceReference(ResourceReference resource)
-	{
-		if (resource != null && !addedCSSResources.contains(resource))
-		{
-			addedCSSResources.add(resource);
-		}
-	}
-
-	@Override
-	public void addGlobalCSSResourceReference(String url)
-	{
-		if (url != null && !addedCSSResources.contains(url))
-		{
-			addedCSSResources.add(url);
-		}
-	}
-
-	@Override
-	public void removeGlobalResourceReference(ResourceReference resource)
-	{
-		if (resource != null)
-		{
-			addedCSSResources.remove(resource);
-			addedJSResources.remove(resource);
-		}
-	}
-
-	@Override
-	public void removeGlobalResourceReference(String url)
-	{
-		if (url != null)
-		{
-			addedCSSResources.remove(url);
-			addedJSResources.remove(url);
-		}
-	}
-
-	@Override
-	public List<Object> getGlobalJSResources()
-	{
-		return new ArrayList<Object>(addedJSResources);
-	}
-
-	@Override
-	public List<Object> getGlobalCSSResources()
-	{
-		return new ArrayList<Object>(addedCSSResources);
-	}
 }

@@ -203,7 +203,7 @@ public class StripHTMLTagsConverter implements IConverter
 						me = (XmlTag)parser.nextTag();
 						if (srcUrl != null)
 						{
-							st.getJavascriptUrls().add(convertMediaReferences(srcUrl, solutionName, rr, "").toString().replace("&", "&amp;"));
+							st.getJavascriptUrls().add(convertMediaReferences(srcUrl, solutionName, rr, "", true).toString());
 						}
 						else
 						{
@@ -229,7 +229,7 @@ public class StripHTMLTagsConverter implements IConverter
 						String style = parser.getInputFromPositionMarker(me.getPos()).toString().trim();
 						if (!"".equals(style) && !styles.contains(style))
 						{
-							styles.add(convertMediaReferences(style, solutionName, rr, ""));
+							styles.add(convertMediaReferences(style, solutionName, rr, "", false));
 						}
 						parser.setPositionMarker();
 					}
@@ -245,7 +245,7 @@ public class StripHTMLTagsConverter implements IConverter
 					{
 						String end = "\n";
 						if (me.isOpen()) end = "</link>\n";
-						st.getLinkTags().add(convertMediaReferences(me.toXmlString(null) + end, solutionName, rr, ""));
+						st.getLinkTags().add(convertMediaReferences(me.toXmlString(null) + end, solutionName, rr, "", false));
 					}
 					me = (XmlTag)parser.nextTag();
 					continue;
@@ -360,7 +360,7 @@ public class StripHTMLTagsConverter implements IConverter
 			}
 			bodyTxt.append(parser.getInputFromPositionMarker(-1));
 
-			st.setBodyTxt(convertMediaReferences(convertBlobLoaderReferences(bodyTxt, component), solutionName, rr, "")); //$NON-NLS-1$
+			st.setBodyTxt(convertMediaReferences(convertBlobLoaderReferences(bodyTxt, component), solutionName, rr, "", false)); //$NON-NLS-1$
 		}
 		catch (ParseException ex)
 		{
@@ -470,9 +470,11 @@ public class StripHTMLTagsConverter implements IConverter
 		return text;
 	}
 
-	public static CharSequence convertMediaReferences(CharSequence text, String solutionName, ResourceReference media, String prefix)
+	public static CharSequence convertMediaReferences(CharSequence text, String solutionName, ResourceReference media, String prefix,
+		boolean quoteSpecialHTMLChars) // TODO quoteSpecialHTMLChars - shouldn't this always be true? (currently in most places it is false)
 	{
-		if (RequestCycle.get() != null) return Strings.replaceAll(text, "media:///", prefix + RequestCycle.get().urlFor(media) + "?s=" + solutionName + "&id="); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		if (RequestCycle.get() != null) return Strings.replaceAll(text,
+			"media:///", prefix + RequestCycle.get().urlFor(media) + "?s=" + solutionName + (quoteSpecialHTMLChars ? "&amp;" : "&") + "id="); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		return text;
 	}
 
