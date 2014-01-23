@@ -3280,7 +3280,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_find()
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#find()
 		 * @sample
 		 * if (%%prefix%%controller.find()) //find will fail if autosave is disabled and there are unsaved records
 		 * {
@@ -3297,7 +3297,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search()
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean)
 		 * @sample
 		 * var recordCount = %%prefix%%controller.search();
 		 * //var recordCount = %%prefix%%controller.search(false,false); //to extend foundset
