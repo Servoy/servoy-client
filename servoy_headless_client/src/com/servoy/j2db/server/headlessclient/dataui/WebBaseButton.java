@@ -174,7 +174,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 	 */
 	public String getAjaxIndicatorMarkupId()
 	{
-		return WebClientSession.get().blockRequest() ? null : "indicator"; //$NON-NLS-1$ 
+		return WebClientSession.get().hideLoadingIndicator() ? null : "indicator"; //$NON-NLS-1$ 
 	}
 
 
