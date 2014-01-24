@@ -453,7 +453,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 			@Override
 			public Object[] getIds()
 			{
-				Object[] array = new Object[allVars.size() + allIndex.size() + 2];
+				Object[] array = new Object[allVars.size() + allIndex.size()];
 				int counter = 0;
 
 				for (String string : allVars.keySet())
@@ -474,7 +474,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		//put dataproviders, relations, and form variables
 		List<String> localIDs = getDataproviderIdList((Table)_fp.getTable());
 		localIDs.addAll(getFormRelationsIdList(_fp.getForm()));
-		//localIDs.addAll(getAllVariablesIdList(_fp.getForm()));
+		localIDs.addAll(getAllVariablesIdList(_fp.getForm()));
 		for (String string : localIDs)
 		{
 			if (this.get(string, this) != null) ret.put(string, ret, this.get(string, this));
