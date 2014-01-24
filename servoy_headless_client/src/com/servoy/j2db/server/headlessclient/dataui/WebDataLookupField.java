@@ -670,11 +670,11 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	@Override
 	public void destroy()
 	{
-		super.destroy();
 		if (dlm != null && changeListener != null)
 		{
 			dlm.getValueList().removeListDataListener(changeListener);
 		}
+		super.destroy();
 		parentState = null;
 		relatedRecord = null;
 		detachModel();
