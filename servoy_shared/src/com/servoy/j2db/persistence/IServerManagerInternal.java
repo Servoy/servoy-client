@@ -33,7 +33,7 @@ public interface IServerManagerInternal extends IServerManager
 
 	/**
 	 * Sets the table loading method .
-	 * The default known table loader is getting picked it tableLoader parameter is null, that is, getting table metadata from database connection.
+	 * The default known table loader is getting picked if tableLoader parameter is null, that is, getting table metadata from database connection.
 	 * 
 	 * */
 	void setTableLoader(ITableLoader tableLoader);
