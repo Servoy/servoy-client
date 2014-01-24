@@ -38,7 +38,9 @@ public class TabSeqComparator implements Comparator<ISupportTabSeq>
 		if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT && o1 instanceof IPersist && o2 instanceof IPersist)
 		{
 			//delegate to Yx
-			return PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+			int yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+			// if they are at the same position, and are different persist, just use UUID to decide the sequence
+			return yxCompare == 0 ? ((IPersist)o1).getUUID().compareTo(((IPersist)o2).getUUID()) : yxCompare;
 		}
 		else if (seq1 == ISupportTabSeq.DEFAULT)
 		{
