@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 import com.servoy.j2db.IApplication;
@@ -192,40 +193,47 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		Iterator<IPlugin> it = pluginsLoader.iterator();
 		while (it.hasNext())
 		{
-			IPlugin plugin = it.next();
-			CodeSource codeSource = plugin.getClass().getProtectionDomain().getCodeSource();
-			if (codeSource != null)
+			try
 			{
-				URL pluginURL = codeSource.getLocation();
-				if (pluginURL != null)
+				IPlugin plugin = it.next();
+				CodeSource codeSource = plugin.getClass().getProtectionDomain().getCodeSource();
+				if (codeSource != null)
 				{
-					if (pluginUrls.containsKey(pluginURL))
+					URL pluginURL = codeSource.getLocation();
+					if (pluginURL != null)
 					{
-						notProcessedMap.remove(pluginURL);
-						if (searchClass.isAssignableFrom(plugin.getClass()))
+						if (pluginUrls.containsKey(pluginURL))
 						{
-							Extension ext = new Extension();
-							ext.jarFileName = pluginUrls.get(pluginURL).getLeft();
-							ext.jarFileModTime = pluginUrls.get(pluginURL).getRight().longValue();
-							ext.jarUrl = pluginURL;
-							ext.instanceClass = plugin.getClass();
-							ext.searchType = searchClass;
-							extensions.add(ext);
+							notProcessedMap.remove(pluginURL);
+							if (searchClass.isAssignableFrom(plugin.getClass()))
+							{
+								Extension ext = new Extension();
+								ext.jarFileName = pluginUrls.get(pluginURL).getLeft();
+								ext.jarFileModTime = pluginUrls.get(pluginURL).getRight().longValue();
+								ext.jarUrl = pluginURL;
+								ext.instanceClass = plugin.getClass();
+								ext.searchType = searchClass;
+								extensions.add(ext);
+							}
+						}
+						else
+						{
+							Debug.warn("Cannot find the jar URL among plugins: " + pluginURL);
 						}
 					}
 					else
 					{
-						Debug.warn("Cannot find the jar URL among plugins: " + pluginURL);
+						Debug.warn("Cannot find the jar URL for loaded plugin: " + plugin.getClass());
 					}
 				}
 				else
 				{
-					Debug.warn("Cannot find the jar URL for loaded plugin: " + plugin.getClass());
+					Debug.warn("Cannot find the jar for loaded plugin: " + plugin.getClass());
 				}
 			}
-			else
+			catch (ServiceConfigurationError e) // can be thrown by iterator.next() in case of malformed manifests or other reasons that make instantiating a service fail
 			{
-				Debug.warn("Cannot find the jar for loaded plugin: " + plugin.getClass());
+				Debug.error("Cannot use a plugin contributed as a service:", e);
 			}
 		}
 

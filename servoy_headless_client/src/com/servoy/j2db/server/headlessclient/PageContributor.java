@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -501,7 +502,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			return grr.getGlobalCSSResources();
 		}
-		return new ArrayList<Object>();
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -512,7 +513,7 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			return grr.getGlobalJSResources();
 		}
-		return new ArrayList<Object>();
+		return Collections.emptyList();
 	}
 
 	public IBehavior getBehavior(String name)

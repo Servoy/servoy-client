@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.headlessclient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -108,27 +109,40 @@ public class ResourceReferences implements IProvideGlobalResources
 	@Override
 	public List<Object> getGlobalJSResources()
 	{
-		ArrayList<Object> tmp = new ArrayList<Object>();
+		ArrayList<Object> tmp = null;
 		for (Pair<Byte, Object> el : resources)
 		{
-			if (JS.byteValue() == el.getLeft().byteValue()) tmp.add(el.getRight());
+			if (JS.byteValue() == el.getLeft().byteValue())
+			{
+				if (tmp == null) tmp = new ArrayList<Object>();
+				tmp.add(el.getRight());
+			}
 		}
 
-		return tmp;
+		return tmp != null ? tmp : Collections.emptyList();
 	}
 
 	@Override
 	public List<Object> getGlobalCSSResources()
 	{
-		ArrayList<Object> tmp = new ArrayList<Object>();
+		ArrayList<Object> tmp = null;
 		for (Pair<Byte, Object> el : resources)
 		{
-			if (CSS.byteValue() == el.getLeft().byteValue()) tmp.add(el.getRight());
+			if (CSS.byteValue() == el.getLeft().byteValue())
+			{
+				if (tmp == null) tmp = new ArrayList<Object>();
+				tmp.add(el.getRight());
+			}
 		}
 
-		return new ArrayList<Object>(resources);
+		return tmp != null ? tmp : Collections.emptyList();
 	}
 
+	/**
+	 * Returns all resource references that must be rendered. Left is the type ({@link #JS}/{@link #CSS}), right is the resource (String or ResourceReference).
+	 * 
+	 * Do not modify the returned list! For performance reasons it's not write-locked.
+	 */
 	public List<Pair<Byte, Object>> getAllResources()
 	{
 		return resources;
