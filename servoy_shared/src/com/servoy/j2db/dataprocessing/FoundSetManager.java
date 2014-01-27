@@ -1132,7 +1132,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					return array;
 				}
 
-				if (value == null || !value.toString().trim().toLowerCase().startsWith(SQLGenerator.STRING_SELECT))
+				if (value == null || !SQLGenerator.isSelectQuery(value.toString()))
 				{
 					return SQLGenerator.convertFromObject(application, columnConverter, columnConverterInfo, column.getDataProviderID(),
 						column.getDataProviderType(), value, false);
