@@ -297,7 +297,7 @@ public interface IJSFoundSet
 	 * 
 	 * @return the recordCount
 	 * 
-	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_find()
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
 	public int search() throws Exception;
 
