@@ -99,7 +99,6 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class SQLGenerator
 {
-	public static final String STRING_SELECT = "select "; //$NON-NLS-1$
 	public static final String STRING_EMPTY = ""; //$NON-NLS-1$
 
 	public static final String PLACEHOLDER_PRIMARY_KEY = "PK"; //$NON-NLS-1$
@@ -1255,7 +1254,7 @@ public class SQLGenerator
 			}
 			else
 			{
-				if (value != null && value.toString().trim().toLowerCase().startsWith(STRING_SELECT))
+				if (value != null && SQLGenerator.isSelectQuery(value.toString()))
 				{
 					// add as subquery
 					inValues = new QueryCustomSelect(value.toString(), null);
@@ -1320,6 +1319,16 @@ public class SQLGenerator
 		}
 
 		return filterWhere;
+	}
+
+	public static boolean isSelectQuery(String value)
+	{
+		if (value != null)
+		{
+			String lc = value.toLowerCase();
+			return lc.startsWith("select") || lc.startsWith("with"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return false;
 	}
 
 	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)

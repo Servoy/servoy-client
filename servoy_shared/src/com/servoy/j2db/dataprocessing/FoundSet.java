@@ -1735,8 +1735,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int order_by_index;
 
 		//check requirements
+		if (!SQLGenerator.isSelectQuery(query)) throw new IllegalArgumentException(fsm.getApplication().getI18NMessage(
+			"servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$ 
 		String sql_lowercase = Utils.toEnglishLocaleLowerCase(query);
-		if (!sql_lowercase.startsWith("select")) throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.startWithSelect", new Object[] { sql_lowercase })); //$NON-NLS-1$ //$NON-NLS-2$
 
 		order_by_index = sql_lowercase.lastIndexOf("order by"); //$NON-NLS-1$
 		boolean analyse_query_parts = (order_by_index != -1);
