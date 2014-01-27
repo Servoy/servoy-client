@@ -2873,6 +2873,19 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 
 		 * see foundset.loadRecords(QBSelect).
 		 * 
+		 * When possible, the foundset will be loaded with the given query.
+		 * This is not always possible because the foundset needs to manipulate the query when adding conditions and joins.
+		 * In that case the query will be wrapped: select pk from tab where pk = (queryString)
+		 * The result is the same, except for te ordering in the queryString which will be ignored.
+		 * 
+		 * The query will be wrapped when one of the following is true:
+		 * <ul>
+		 * <li>you have no order-by clause</li>
+		 * <li>you have no from keyword</li>
+		 * <li>your query is not fully qualified on the main table</li>
+		 * <li>you have a group-by, having, join or union keyword</li>
+		 * </ul>
+		 * 
 		 * @sample
 		 * %%prefix%%controller.loadRecords(sqlstring);
 		 * 
