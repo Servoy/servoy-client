@@ -101,6 +101,7 @@ import com.servoy.j2db.server.headlessclient.yui.YUILoader;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IWebClientSessionFactory;
 import com.servoy.j2db.ui.IFieldComponent;
+import com.servoy.j2db.ui.ISupportEventExecutor;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
@@ -475,8 +476,16 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 								}
 								if (hasBlur)
 								{
+									boolean blockRequest = false;
+									// if component has ondatachange, check for blockrequest
+									if (component instanceof ISupportEventExecutor && ((ISupportEventExecutor)component).getEventExecutor().hasChangeCmd())
+									{
+										WebClientSession webClientSession = WebClientSession.get();
+										blockRequest = webClientSession != null && webClientSession.blockRequest();
+									}
+
 									StringBuilder js = new StringBuilder();
-									js.append("postEventCallback(this,'blur','").append(callback).append("',event)"); //$NON-NLS-1$ //$NON-NLS-2$
+									js.append("postEventCallback(this,'blur','").append(callback).append("',event," + blockRequest + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 									targetComponent.add(new EventCallbackModifier("onblur", true, new Model<String>(js.toString()))); //$NON-NLS-1$
 								}
 							}

@@ -517,7 +517,7 @@ function eventCallback(el, strEvent, callbackUrl, event)
 	}	
 }
 
-function postEventCallback(el, strEvent, callbackUrl, event)
+function postEventCallback(el, strEvent, callbackUrl, event, blockRequest)
 {
 	if(strEvent == "blur")
 	{
@@ -626,10 +626,9 @@ function postEventCallback(el, strEvent, callbackUrl, event)
 		(
 			callbackUrl+'&event='+strEvent+'&id='+el.id+'&modifiers='+modifiers,
 			wicketSerialize(Wicket.$(el.id)),
-			null,
-			function() { onAjaxError(); }.bind(el),
-			function() {onAjaxCall();
-			return Wicket.$(el.id) != null; 
+			function() { if(blockRequest) hideBlocker(); }.bind(el),
+			function() { onAjaxError(); if(blockRequest) hideBlocker(); }.bind(el),
+			function() {onAjaxCall(); if(Wicket.$(el.id) != null){ if(blockRequest) { onABCDelayed();} return true;} else return false; 
 		 }.bind(el)
 		);
 		return !wcall;
@@ -1769,6 +1768,8 @@ function onAjaxError()
 	hideBlocker();
 }
 
+var blockerTimeout = null;
+
 function onABC() {
 	wicketShow('blocker');
 	$('body').addClass('blocker');
@@ -1777,8 +1778,18 @@ function onABC() {
 	onAjaxCall();
 }
 
+function onABCDelayed() {
+	if(blockerTimeout) clearTimeout(blockerTimeout);
+	blockerTimeout = setTimeout(function() { onABC();}, 500)
+}
+
 function hideBlocker()
 {
+	if(blockerTimeout)
+	{
+		clearTimeout(blockerTimeout);
+		blockerTimeout = null;
+	}
 	$('body').removeClass('blocker'); 
 	return wicketHide('blocker');
 }
