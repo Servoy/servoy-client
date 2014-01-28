@@ -98,8 +98,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public boolean removeDataSource(String uri) throws RepositoryException;
 
-	public boolean commitTransaction(boolean saveFirst, boolean revertSavedRecords);
-
 	public void rollbackTransaction(boolean rollbackEdited, boolean queryForNewData, boolean revertSavedRecords);
 
 	public IGlobalValueEntry getScopesScopeProvider();
