@@ -117,7 +117,10 @@ public class FixedJTable extends JTable
 	@Override
 	protected void processMouseEvent(MouseEvent e)
 	{
-		if (e.getID() == MouseEvent.MOUSE_PRESSED && getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION && isEnabled())
+		if (e.getID() == MouseEvent.MOUSE_PRESSED &&
+				((getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) ||
+				((getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION) && !UIUtils.isCommandKeyDown(e) && !e.isShiftDown())) &&
+				isEnabled())
 		{
 			Point p = e.getPoint();
 			int row = rowAtPoint(p);
@@ -148,7 +151,6 @@ public class FixedJTable extends JTable
 		}
 
 		super.processMouseEvent(me);
-		if (e.getID() == MouseEvent.MOUSE_PRESSED) repaint();
 	}
 
 	/**
@@ -315,6 +317,16 @@ public class FixedJTable extends JTable
 			{
 				return false;
 			}
+			else
+			{
+				ListSelectionModel sm = getSelectionModel();
+				if (sm instanceof AlwaysRowSelectedSelectionModel)
+				{
+					AlwaysRowSelectedSelectionModel fsm = (AlwaysRowSelectedSelectionModel)sm;
+					boolean selectedRow = fsm.setSelectedRow(row);
+					if (!selectedRow) return false;
+				}
+			}
 		}
 
 		return super.editCellAt(row, column, e);
@@ -431,9 +443,9 @@ public class FixedJTable extends JTable
 	@Override
 	public void valueChanged(ListSelectionEvent e)
 	{
-		if (e.getValueIsAdjusting()) return;
 		if (getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION)
 		{
+			if (e.getValueIsAdjusting()) return;
 			int rowCount = getRowCount() - 1;
 			int columnCount = getColumnCount() - 1;
 
