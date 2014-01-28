@@ -24,6 +24,7 @@ import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
@@ -50,7 +51,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class DBValueList extends CustomValueList implements ITableChangeListener
 {
-	public static final int MAX_VALUELIST_ROWS = 500;
+	protected final int maxValuelistRows;
 	public static final String NAME_COLUMN = "valuelist_name"; //$NON-NLS-1$
 
 	protected List<SortColumn> defaultSort = null;
@@ -64,6 +65,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	public DBValueList(IServiceProvider app, ValueList vl)
 	{
 		super(app, vl);
+		int maxRowsSetting = (app instanceof IApplication) ? Utils.getAsInteger(((IApplication)app).getClientProperty(IApplication.VALUELIST_MAX_ROWS)) : 0;
+		maxValuelistRows = maxRowsSetting > 0 ? maxRowsSetting : 500;
 
 		if (vl.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 		{
@@ -287,10 +290,11 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 							foundSetManager.getTrackingInfo(), application.getClientID());
 					}
 					IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, creationSQLParts,
-						tableFilterParams, !creationSQLParts.isUnique(), 0, MAX_VALUELIST_ROWS, IDataServer.VALUELIST_QUERY, trackingInfo);
-					if (set.getRowCount() >= MAX_VALUELIST_ROWS)
+						tableFilterParams, !creationSQLParts.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
+					if (set.getRowCount() >= maxValuelistRows)
 					{
-						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+						application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+							null);
 					}
 
 					String[] displayFormat = getDisplayFormat();
@@ -304,7 +308,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				}
 				else
 				{
-					IRecordInternal[] array = fs.getRecords(0, MAX_VALUELIST_ROWS);
+					IRecordInternal[] array = fs.getRecords(0, maxValuelistRows);
 					String[] displayFormat = getDisplayFormat();
 					for (IRecordInternal r : array)
 					{
@@ -320,9 +324,10 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 							}
 						}
 					}
-					if (fs.getSize() >= MAX_VALUELIST_ROWS)
+					if (fs.getSize() >= maxValuelistRows)
 					{
-						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+						application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+							null);
 					}
 
 				}

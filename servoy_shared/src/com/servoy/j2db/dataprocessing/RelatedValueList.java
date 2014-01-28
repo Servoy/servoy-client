@@ -250,7 +250,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				try
 				{
 					List<IRecordInternal> allRecords = new ArrayList<IRecordInternal>();
-					getRelatedRecords(allRecords, related, relatedFoundSet, relations, 1);
+					getRelatedRecords(allRecords, related, relatedFoundSet, relations, 1, maxValuelistRows);
 
 					startBundlingEvents();
 					//add empty row
@@ -268,9 +268,10 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 					IRecordInternal[] records = allRecords.toArray(new IRecordInternal[allRecords.size()]);
 					if (defaultSort != null) Arrays.sort(records, new RecordComparator(defaultSort));
 
-					if (records.length >= MAX_VALUELIST_ROWS)
+					if (records.length >= maxValuelistRows)
 					{
-						application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+						application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+							null);
 					}
 
 					String[] displayFormat = getDisplayFormat((Table)relatedFoundSet.getTable());
@@ -304,14 +305,14 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 	}
 
 	private static void getRelatedRecords(List<IRecordInternal> relatedRecords, List<IFoundSetInternal> visitedFoundsets, IFoundSetInternal foundSet,
-		Relation[] relations, int depth)
+		Relation[] relations, int depth, int maxValuelistRows)
 	{
 		if (foundSet != null)
 		{
 			visitedFoundsets.add(foundSet);
-			IRecordInternal[] records = foundSet.getRecords(0, MAX_VALUELIST_ROWS);
+			IRecordInternal[] records = foundSet.getRecords(0, maxValuelistRows);
 
-			for (int i = 0; relatedRecords.size() < MAX_VALUELIST_ROWS && i < records.length; i++)
+			for (int i = 0; relatedRecords.size() < maxValuelistRows && i < records.length; i++)
 			{
 				if (depth == relations.length)
 				{
@@ -324,7 +325,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				{
 					// go one level deeper
 					getRelatedRecords(relatedRecords, visitedFoundsets, ((Record)records[i]).getRelatedFoundSet(relations[depth].getName()), relations,
-						depth + 1);
+						depth + 1, maxValuelistRows);
 				}
 			}
 		}
@@ -364,8 +365,8 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
 		IDataSet dataSet = application.getDataServer().performQuery(application.getClientID(), serverName, foundSetManager.getTransactionID(serverName),
-			select, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, DBValueList.MAX_VALUELIST_ROWS,
-			IDataServer.VALUELIST_QUERY, trackingInfo);
+			select, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY,
+			trackingInfo);
 		try
 		{
 			startBundlingEvents();
@@ -375,9 +376,9 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				addElement(""); //$NON-NLS-1$
 				realValues.add(null);
 			}
-			if (dataSet.getRowCount() >= MAX_VALUELIST_ROWS)
+			if (dataSet.getRowCount() >= maxValuelistRows)
 			{
-				application.reportJSError("Valuelist " + getName() + " fully loaded with 500 rows, more rows are discarded!!", null);
+				application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
 			}
 			String[] displayFormat = getDisplayFormat((Table)application.getFoundSetManager().getTable(pair.getRight().getDataSource()));
 			for (int i = 0; i < dataSet.getRowCount(); i++)

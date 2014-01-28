@@ -236,6 +236,16 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{menubar: "tools table format view insert edit", statusbar : true, toolbar: "undo redo | styleselect | bold italic"}')
 	 */
 	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
+	/**
+	 * Property than can be set using application.putClientProperty()
+	 * 
+	 * The value can be a positive integer representing the maximum number of rows that will be retrieved by query in database or related valuelist.
+	 * DEFAULT: 500 
+	 * 
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.VALUELIST_MAX_ROWS, 1000)
+	 */
+	public static final String VALUELIST_MAX_ROWS = IApplication.VALUELIST_MAX_ROWS;
 
 	public String getPrefix()
 	{

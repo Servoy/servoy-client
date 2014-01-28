@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
@@ -31,15 +32,15 @@ public class ValueListFactory
 	{
 		if (vl == null) return new CustomValueList(app, null, "", false, valueType, format); //$NON-NLS-1$ 
 
-		if (vl.getValueListType() == ValueList.GLOBAL_METHOD_VALUES)
+		if (vl.getValueListType() == IValueListConstants.GLOBAL_METHOD_VALUES)
 		{
 			return new GlobalMethodValueList(app, vl);
 		}
-		if (vl.getValueListType() == ValueList.CUSTOM_VALUES)
+		if (vl.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 		{
-			return new CustomValueList(app, vl, vl.getCustomValues(), (vl.getAddEmptyValue() == ValueList.EMPTY_VALUE_ALWAYS), valueType, format);
+			return new CustomValueList(app, vl, vl.getCustomValues(), (vl.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS), valueType, format);
 		}
-		if (vl.getDatabaseValuesType() == ValueList.RELATED_VALUES)
+		if (vl.getDatabaseValuesType() == IValueListConstants.RELATED_VALUES)
 		{
 			return new RelatedValueList(app, vl);
 		}
