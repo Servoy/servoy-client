@@ -108,9 +108,25 @@ public class CachingSunJceCrypt extends AbstractCrypt
 	{
 		if (mode == Cipher.DECRYPT_MODE)
 		{
-			return decryptCiph.doFinal(input);
+			try
+			{
+				return decryptCiph.doFinal(input);
+			}
+			catch (GeneralSecurityException e)
+			{
+				decryptCiph.doFinal();
+				throw e;
+			}
 		}
-		return encryptCiph.doFinal(input);
+		try
+		{
+			return encryptCiph.doFinal(input);
+		}
+		catch (GeneralSecurityException e)
+		{
+			encryptCiph.doFinal();
+			throw e;
+		}
 	}
 
 	/**
