@@ -67,6 +67,7 @@ import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -807,6 +808,17 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 					if (index != -1)
 					{
 						return valuelist.getElementAt(index);
+					}
+					else
+					{
+						// maybe is missing because of 500 limit of valuelist, look it up
+						LookupValueList lvl = new LookupValueList(vl, application, ComponentFactory.getFallbackValueList(application, null, Types.OTHER, null,
+							vl), null);
+						index = lvl.realValueIndexOf(realValue, false);
+						if (index != -1)
+						{
+							return lvl.getElementAt(index);
+						}
 					}
 				}
 			}

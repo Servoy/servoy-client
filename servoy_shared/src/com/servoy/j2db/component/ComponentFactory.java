@@ -1549,7 +1549,7 @@ public class ComponentFactory
 	 * @param valuelist
 	 * @return
 	 */
-	private static IValueList getFallbackValueList(IServiceProvider application, String dataProviderID, int type, ParsedFormat format, ValueList valuelist)
+	public static IValueList getFallbackValueList(IServiceProvider application, String dataProviderID, int type, ParsedFormat format, ValueList valuelist)
 	{
 		IValueList valueList = null;
 		if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())

@@ -66,7 +66,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	{
 		super(app, vl);
 		int maxRowsSetting = (app instanceof IApplication) ? Utils.getAsInteger(((IApplication)app).getClientProperty(IApplication.VALUELIST_MAX_ROWS)) : 0;
-		maxValuelistRows = maxRowsSetting > 0 ? maxRowsSetting : 500;
+		maxValuelistRows = (maxRowsSetting > 0 && maxRowsSetting <= 1000) ? maxRowsSetting : 500;
 
 		if (vl.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 		{
