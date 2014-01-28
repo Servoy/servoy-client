@@ -100,7 +100,8 @@ public class LookupValueList implements IValueList
 
 		int maxRowsSetting = (application instanceof IApplication)
 			? Utils.getAsInteger(((IApplication)application).getClientProperty(IApplication.VALUELIST_MAX_ROWS)) : 0;
-		maxValuelistRows = maxRowsSetting > 0 ? maxRowsSetting : ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
+		maxValuelistRows = (maxRowsSetting > 0 && maxRowsSetting <= 1000) ? maxRowsSetting
+			: ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
 
 		table = (Table)application.getFoundSetManager().getTable(dataSource);
 
@@ -405,6 +406,11 @@ public class LookupValueList implements IValueList
 
 	public int realValueIndexOf(Object obj)
 	{
+		return realValueIndexOf(obj, true);
+	}
+
+	public int realValueIndexOf(Object obj, boolean addIfNotPresent)
+	{
 		if (obj == null) return -1;
 		int index = alReal.indexOf(obj);
 		if (index == -1)
@@ -437,9 +443,12 @@ public class LookupValueList implements IValueList
 						Debug.error(e);
 					}
 				}
-				index = alReal.size();
-				alReal.add(obj);
-				alDisplay.add(CustomValueList.convertToString(obj, application));
+				if (addIfNotPresent)
+				{
+					index = alReal.size();
+					alReal.add(obj);
+					alDisplay.add(CustomValueList.convertToString(obj, application));
+				}
 			}
 			else if (showValues != returnValues)
 			{

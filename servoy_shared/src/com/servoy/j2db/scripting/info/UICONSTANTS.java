@@ -239,7 +239,9 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	/**
 	 * Property than can be set using application.putClientProperty()
 	 * 
-	 * The value can be a positive integer representing the maximum number of rows that will be retrieved by query in database or related valuelist.
+	 * The value can be a positive integer representing the maximum number of rows that will be retrieved by query in database or related valuelist. 
+	 * Can have a maximum value of 1000.
+	 * 
 	 * DEFAULT: 500 
 	 * 
 	 * @sample
