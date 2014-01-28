@@ -29,6 +29,7 @@ import javax.swing.event.ListDataListener;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
@@ -73,6 +74,7 @@ public class LookupValueList implements IValueList
 	private IFoundSetInternal relatedFoundset;
 	private final IValueList secondLookup;
 	private final String displayFormat;
+	protected final int maxValuelistRows;
 
 	public LookupValueList(ValueList list, IServiceProvider application, IValueList fallback, String displayFormat) throws Exception
 	{
@@ -95,6 +97,10 @@ public class LookupValueList implements IValueList
 				dataSource = relations[relations.length - 1].getForeignDataSource();
 			}
 		}
+
+		int maxRowsSetting = (application instanceof IApplication)
+			? Utils.getAsInteger(((IApplication)application).getClientProperty(IApplication.VALUELIST_MAX_ROWS)) : 0;
+		maxValuelistRows = maxRowsSetting > 0 ? maxRowsSetting : ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
 
 		table = (Table)application.getFoundSetManager().getTable(dataSource);
 
@@ -206,9 +212,9 @@ public class LookupValueList implements IValueList
 						// don't trigger an extra load.
 						if (relation.hadMoreRows()) count--;
 						// max the number of rows.
-						if (count > ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4)
+						if (count > maxValuelistRows)
 						{
-							count = ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
+							count = maxValuelistRows;
 						}
 						IRecordInternal[] records = relation.getRecords(0, count);
 						Object[][] data = new Object[records.length][];
@@ -378,7 +384,7 @@ public class LookupValueList implements IValueList
 				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
 		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
-			!select.isUnique(), 0, ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4, IDataServer.VALUELIST_QUERY, trackingInfo);
+			!select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 		String[] displayFormats = getDisplayFormat();
 		for (int i = 0; i < set.getRowCount(); i++)
 		{

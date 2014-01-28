@@ -106,9 +106,14 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = "allowJavascriptLinkInput"; //$NON-NLS-1$
 
 	/**
-	 * 
+	 * The WebClient JSON configuration for the HTML Editor.
 	 */
 	public static final String HTML_EDITOR_CONFIGURATION = "config"; //$NON-NLS-1$
+
+	/**
+	 * Value that indicates maximum number of rows that will be queried in database or related valuelist. Default value is 500.
+	 */
+	public static final String VALUELIST_MAX_ROWS = "maxValuelistRows";//$NON-NLS-1$
 
 	/**
 	 * Non-null name for the first (main) window.
