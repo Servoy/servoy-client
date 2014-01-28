@@ -37,9 +37,17 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	public void startTransaction();
 
 	/**
-	 * Commit a transaction
+	 * Commit a transaction, will save all edited records before commit
 	 */
 	public boolean commitTransaction();
+
+	/**
+	 * Commit a transaction
+	 * 
+	 * @param saveFirst boolean to configure if commit should be preceded by a save of all records
+	 * @param revertSavedRecords boolean used as rollback option, if true and transaction fails will revert saved records to their previous (database) values
+	 */
+	public boolean commitTransaction(boolean saveFirst, boolean revertSavedRecords);
 
 	/**
 	 * rollback a transaction
