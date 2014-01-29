@@ -31,15 +31,6 @@ public interface IServerManagerInternal extends IServerManager
 {
 	void init(IServiceRegistry serviceRegistry) throws Exception;
 
-	/**
-	 * Sets the table loading method .
-	 * The default known table loader is getting picked if tableLoader parameter is null, that is, getting table metadata from database connection.
-	 * 
-	 * */
-	void setTableLoader(ITableLoader tableLoader);
-
-	ITableLoader getTableLoader();
-
 	IServer deleteServer(ServerConfig oldServerConfig);
 
 	IServer createServer(ServerConfig newServerConfig);
