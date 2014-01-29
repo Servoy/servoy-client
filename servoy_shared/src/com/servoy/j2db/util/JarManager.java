@@ -369,7 +369,8 @@ public abstract class JarManager
 						File jarFile = new File(dir, fileName);
 						if (isSubDir)
 						{
-							subDirRetval.add(new Extension(jarFile.toURI().toURL(), fileName, jarFile.lastModified()));
+							Extension ext = new Extension(jarFile.toURI().toURL(), fileName, jarFile.lastModified());
+							if (subDirRetval.contains(ext)) subDirRetval.add(ext);
 						}
 						else
 						{
@@ -393,10 +394,13 @@ public abstract class JarManager
 										{
 											for (String reference : classPathReferences.keySet())
 											{
-												Extension ref = new Extension(classPathReferences.get(reference).toURI().toURL(), reference,
-													classPathReferences.get(reference).lastModified());
-												addCommonPackageToDefinitions(ref, beanClassNames, packageJarMapping);
-												subDirRetval.add(ref);
+												File f = classPathReferences.get(reference);
+												if (f != null)
+												{
+													Extension ref = new Extension(f.toURI().toURL(), reference, f.lastModified());
+													addCommonPackageToDefinitions(ref, beanClassNames, packageJarMapping);
+													subDirRetval.add(ref);
+												}
 											}
 										}
 									}
@@ -465,7 +469,7 @@ public abstract class JarManager
 		return lst;
 	}
 
-	public static Map<String, File> getManifestClassPath(File jarFile, File contextDir)
+	private static Map<String, File> getManifestClassPath(File jarFile, File contextDir)
 	{
 		Map<String, File> references = new HashMap<String, File>();
 		try
