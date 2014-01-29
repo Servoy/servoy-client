@@ -367,6 +367,14 @@ public class SQLGenerator
 								sqlSelect.addGroupBy(selectVal);
 							}
 						}
+
+						// if the aggregate has not been selected yet, add it and skip it in the result 
+						QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1,
+							aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength()), aggregate.getName(), null, true);
+						if (!columns.contains(skippedAggregate))
+						{
+							sqlSelect.addColumn(skippedAggregate);
+						}
 					}
 					else
 					{

@@ -26,7 +26,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  * 
  */
-public final class QueryAggregate implements IQuerySelectValue, IQueryElement
+public final class QueryAggregate implements IQuerySelectValue, IQueryElement, IQuerySelectValueSupportsSkip
 {
 	// aggregate types
 	public static final int COUNT = 0;
@@ -35,6 +35,8 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement
 	public static final int AVG = 3;
 	public static final int SUM = 4;
 	public static final int[] ALL_DEFINED_AGGREGATES = new int[] { COUNT, MAX, MIN, AVG, SUM };
+
+	private final static int SKIP_FLAG = 1 << 16; // used in serialization, should not overlap with aggregate types
 
 	public static final String[] AGGREGATE_TYPE_HIBERNATE = new String[] { "count", //$NON-NLS-1$
 	"max", //$NON-NLS-1$
@@ -49,18 +51,25 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement
 	private IQuerySelectValue aggregee;
 	private final String name;
 	private final String alias;
+	private final boolean skipInResult;
 
-	public QueryAggregate(int type, IQuerySelectValue aggregee, String name, String alias)
+	public QueryAggregate(int type, IQuerySelectValue aggregee, String name, String alias, boolean skipInResult)
 	{
 		this.type = type;
 		this.aggregee = aggregee;
 		this.name = name;
 		this.alias = alias;
+		this.skipInResult = skipInResult;
+	}
+
+	public QueryAggregate(int type, IQuerySelectValue aggregee, String name, String alias)
+	{
+		this(type, aggregee, name, alias, false);
 	}
 
 	public QueryAggregate(int type, IQuerySelectValue aggregee, String name)
 	{
-		this(type, aggregee, name, null);
+		this(type, aggregee, name, null, false);
 	}
 
 	@Override
@@ -103,6 +112,17 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement
 		return AGGREGATE_TYPE_HIBERNATE[type];
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.query.IQuerySelectValueSupportsSkip#skip()
+	 */
+	@Override
+	public boolean skip()
+	{
+		return skipInResult;
+	}
+
 	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
@@ -117,12 +137,13 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement
 	@Override
 	public int hashCode()
 	{
-		final int PRIME = 31;
+		final int prime = 31;
 		int result = 1;
-		result = PRIME * result + ((this.aggregee == null) ? 0 : this.aggregee.hashCode());
-		result = PRIME * result + ((this.name == null) ? 0 : this.name.hashCode());
-		result = PRIME * result + ((this.alias == null) ? 0 : this.alias.hashCode());
-		result = PRIME * result + this.type;
+		result = prime * result + ((aggregee == null) ? 0 : aggregee.hashCode());
+		result = prime * result + ((alias == null) ? 0 : alias.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (skipInResult ? 1231 : 1237);
+		result = prime * result + type;
 		return result;
 	}
 
@@ -132,23 +153,24 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		final QueryAggregate other = (QueryAggregate)obj;
-		if (this.aggregee == null)
+		QueryAggregate other = (QueryAggregate)obj;
+		if (aggregee == null)
 		{
 			if (other.aggregee != null) return false;
 		}
-		else if (!this.aggregee.equals(other.aggregee)) return false;
-		if (this.name == null)
-		{
-			if (other.name != null) return false;
-		}
-		else if (!this.name.equals(other.name)) return false;
-		if (this.alias == null)
+		else if (!aggregee.equals(other.aggregee)) return false;
+		if (alias == null)
 		{
 			if (other.alias != null) return false;
 		}
-		else if (!this.alias.equals(other.alias)) return false;
-		if (this.type != other.type) return false;
+		else if (!alias.equals(other.alias)) return false;
+		if (name == null)
+		{
+			if (other.name != null) return false;
+		}
+		else if (!name.equals(other.name)) return false;
+		if (skipInResult != other.skipInResult) return false;
+		if (type != other.type) return false;
 		return true;
 	}
 
@@ -165,16 +187,20 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { new Integer(type), aggregee, name, alias });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
+			new Object[] { new Integer(type + (skipInResult ? SKIP_FLAG : 0)), aggregee, name, alias });
 	}
 
 	public QueryAggregate(ReplacedObject s)
 	{
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
-		type = ((Integer)members[i++]).intValue();
+		int typeAndSkip = ((Integer)members[i++]).intValue();
+		type = typeAndSkip & ~SKIP_FLAG;
+		skipInResult = (typeAndSkip & SKIP_FLAG) != 0;
 		aggregee = (IQuerySelectValue)members[i++];
 		name = (String)members[i++];
 		alias = (i < members.length) ? (String)members[i++] : null;
 	}
+
 }
