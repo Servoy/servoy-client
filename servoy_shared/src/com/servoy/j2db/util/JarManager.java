@@ -43,6 +43,7 @@ import java.util.zip.ZipInputStream;
 /**
  * @author jblok
  */
+@SuppressWarnings("nls")
 public abstract class JarManager
 {
 	public static final String JAVA_BEAN_ATTRIBUTE = "Java-Bean";
@@ -70,7 +71,6 @@ public abstract class JarManager
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected static void addCommonPackageToDefinitions(Extension ext, List<String> workingClassNames, Map<String, List<Extension>> packageJarMapping)
 	{
 		boolean matched = true;
@@ -435,13 +435,13 @@ public abstract class JarManager
 	public static List<String> getManifestClassPath(URL jarUrl)
 	{
 		ArrayList<String> lst = new ArrayList<String>();
-		InputStream is = null;
+		JarInputStream jis = null;
 		try
 		{
-			is = (InputStream)jarUrl.getContent(new Class[] { InputStream.class });
+			InputStream is = (InputStream)jarUrl.getContent(new Class[] { InputStream.class });
 			if (is != null)
 			{
-				JarInputStream jis = new JarInputStream(is, false);
+				jis = new JarInputStream(is, false);
 				Manifest mf = jis.getManifest();
 				String classpath = mf.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
 				if (classpath != null)
@@ -460,13 +460,7 @@ public abstract class JarManager
 		}
 		finally
 		{
-			try
-			{
-				is.close();
-			}
-			catch (Exception e2)
-			{
-			}
+			Utils.closeInputStream(jis);
 		}
 		return lst;
 	}
@@ -533,11 +527,9 @@ public abstract class JarManager
 		}
 
 		ArrayList<String> beanNames = new ArrayList<String>();
-		int i = 0;
 		Iterator<String> it2 = beans.keySet().iterator();
 		while (it2.hasNext())
 		{
-			i++;
 			String key = it2.next();
 			beanNames.add(key);
 		}
