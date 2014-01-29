@@ -28,9 +28,9 @@ import com.servoy.j2db.util.JarManager.Extension;
 
 public interface IPluginManagerInternal extends IPluginManager
 {
-	public File getPluginDir();
-
 	public void initServerPlugins(IServerAccess serverAccess);
+
+	public List<IServerPlugin> getServerPlugins();
 
 	public IConverterManager<IColumnConverter> getColumnConverterManager();
 
@@ -38,11 +38,13 @@ public interface IPluginManagerInternal extends IPluginManager
 
 	public IColumnValidatorManager getColumnValidatorManager();
 
-	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
-
 	public Extension[] loadClientPluginDefs();
 
-	public List<IServerPlugin> getServerPlugins();
-
 	public void loadClientPlugins(IApplication app);
+
+	public File getPluginDir();
+
+	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
+
+//	public void addSmartClientExtensions(ClassLoader cl, Extension[] jars);
 }

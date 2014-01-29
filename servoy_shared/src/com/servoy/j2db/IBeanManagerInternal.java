@@ -18,7 +18,10 @@
 package com.servoy.j2db;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
+
+import com.servoy.j2db.util.JarManager.Extension;
 
 /**
  * @author jcompagner
@@ -28,6 +31,5 @@ public interface IBeanManagerInternal extends IBeanManager
 {
 	public File getBeanDir();
 
-
-	public Map<String, Object> getLoadedBeanDefs();
+	public Map<String, List<Extension>> getLoadedBeanDefs();
 }

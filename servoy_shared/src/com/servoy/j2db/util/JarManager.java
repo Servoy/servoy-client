@@ -48,30 +48,30 @@ public abstract class JarManager
 	public static final String JAVA_BEAN_ATTRIBUTE = "Java-Bean";
 	public static final String SERVOY_PLUGIN_ATTRIBUTE = "Servoy-Plugin";
 
-	public static void addCommonPackageToDefinitions(Extension[] exts, Map<String, Object> _loadedBeanDefs)
+	public static void addCommonPackageToDefinitions(Extension[] extensions, Map<String, List<Extension>> packageJarMapping)
 	{
-		String lastJarFileName = null;
+		Extension lastJarFileName = null;
 		List<String> workingClassNames = new ArrayList<String>();
 
 		//group by jarFileName
-		for (int i = 0; i < exts.length; i++)
+		for (Extension ext : extensions)
 		{
-			if (lastJarFileName != null && !exts[i].jarFileName.equals(lastJarFileName))
+			if (lastJarFileName != null && !ext.jarFileName.equals(lastJarFileName))
 			{
-				addCommonPackageToDefinitions(lastJarFileName, workingClassNames, _loadedBeanDefs);
+				addCommonPackageToDefinitions(lastJarFileName, workingClassNames, packageJarMapping);
 				workingClassNames = new ArrayList<String>();
 			}
-			workingClassNames.add(exts[i].instanceClass.getName());
-			lastJarFileName = exts[i].jarFileName;
+			workingClassNames.add(ext.instanceClass.getName());
+			lastJarFileName = ext;
 		}
 		if (workingClassNames.size() != 0)
 		{
-			addCommonPackageToDefinitions(lastJarFileName, workingClassNames, _loadedBeanDefs);
+			addCommonPackageToDefinitions(lastJarFileName, workingClassNames, packageJarMapping);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	protected static void addCommonPackageToDefinitions(String fileName, List<String> workingClassNames, Map<String, Object> _loadedBeanDefs)
+	protected static void addCommonPackageToDefinitions(Extension ext, List<String> workingClassNames, Map<String, List<Extension>> packageJarMapping)
 	{
 		boolean matched = true;
 		int wantedLength = 3;
@@ -90,13 +90,11 @@ public abstract class JarManager
 				{
 					if (count != 0) nameToCheck.append("."); //$NON-NLS-1$
 					nameToCheck.append(tokenizer.nextToken());
-//					Debug.trace("nameToCheck "+nameToCheck.toString());
 					count++;
 				}
 				if (commonPart == null)
 				{
 					commonPart = nameToCheck.toString();
-//					Debug.trace("commonPart "+commonPart);
 				}
 				else if (!nameToCheck.toString().equals(commonPart))
 				{
@@ -109,25 +107,16 @@ public abstract class JarManager
 			}
 			else
 			{
-				Debug.trace("Final commonPart " + commonPart); //$NON-NLS-1$
-				Object prev = _loadedBeanDefs.get(commonPart);
+				List<Extension> prev = packageJarMapping.get(commonPart);
 				if (prev != null)
 				{
-					if (prev instanceof String)
-					{
-						ArrayList<String> al = new ArrayList<String>();
-						al.add((String)prev);
-						al.add(fileName);
-						_loadedBeanDefs.put(commonPart, al);
-					}
-					else
-					{
-						((List<String>)prev).add(fileName);
-					}
+					prev.add(ext);
 				}
 				else
 				{
-					_loadedBeanDefs.put(commonPart, fileName);
+					List<Extension> exts = new ArrayList<Extension>(1);
+					exts.add(ext);
+					packageJarMapping.put(commonPart, exts);
 				}
 				break;
 			}
@@ -137,7 +126,7 @@ public abstract class JarManager
 
 	//searchURLs can be subset of all urls in classloader to speedup loading
 	@SuppressWarnings("unchecked")
-	public <C> Class<C>[] getAssignableClasses(ExtendableURLClassLoader loader, Class<C> type, Map<URL, Pair<String, Long>> searchURLs)
+	public <C> Class<C>[] getAssignableClasses(ExtendableURLClassLoader loader, Class<C> type, List<Extension> searchURLs)
 	{
 		List<Class< ? >> classes = new ArrayList<Class< ? >>();
 		Extension[] exts = getExtensions(loader, type, searchURLs);
@@ -148,41 +137,75 @@ public abstract class JarManager
 		return classes.toArray(new Class[classes.size()]);
 	}
 
+	/**
+	 * An extension represents one jar, optionally contains class type info
+	 */
 	public static class Extension
 	{
+		public final URL jarUrl;
+		public final String jarFileName;
+		public final long jarFileModTime;
+
+		//optional when null, it may indicate a support jar
 		public Class< ? > searchType;
 		public Class< ? > instanceClass;
-//		public Object instance;
-//		public String name;
-		public URL jarUrl;
-		public String jarFileName;
-		public long jarFileModTime;
+		public boolean hasClasses = true;
 
-//		public boolean enabled = true;
+		public Extension(URL url, String fileName, long lastModified)
+		{
+			jarUrl = url;
+			jarFileName = fileName;
+			jarFileModTime = lastModified;
+		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#toString()
-		 */
 		@Override
 		public String toString()
 		{
 			return "Extension[" + jarFileName + '=' + jarUrl + ']'; //$NON-NLS-1$
 		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (int)(jarFileModTime ^ (jarFileModTime >>> 32));
+			result = prime * result + ((jarUrl == null) ? 0 : jarUrl.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (getClass() != obj.getClass()) return false;
+			Extension other = (Extension)obj;
+			if (jarFileModTime != other.jarFileModTime) return false;
+			if (jarUrl == null)
+			{
+				if (other.jarUrl != null) return false;
+			}
+			else if (!jarUrl.equals(other.jarUrl)) return false;
+			return true;
+		}
+
+		public boolean hasClasses()
+		{
+			return hasClasses;
+		}
 	}
 
 	//searchURLs: url->pair(jarname,jarmodtime)
 	//loader must know all the urls already
-	public Extension[] getExtensions(ExtendableURLClassLoader loader, Class< ? > searchType, Map<URL, Pair<String, Long>> searchURLs)
+	public Extension[] getExtensions(ExtendableURLClassLoader loader, Class< ? > searchType, List<Extension> searchURLs)
 	{
 		List<Extension> extensions = new ArrayList<Extension>();
-		Iterator<Map.Entry<URL, Pair<String, Long>>> it = searchURLs.entrySet().iterator();
+		Iterator<Extension> it = searchURLs.iterator();
 		while (it.hasNext())
 		{
-			Map.Entry<URL, Pair<String, Long>> entry = it.next();
-
-			URL url = entry.getKey();
+			Extension entry = it.next();
+			URL url = entry.jarUrl;
 			InputStream is = null;
 			boolean tryWithFiles = false;
 			try
@@ -191,7 +214,7 @@ public abstract class JarManager
 				if (is != null)
 				{
 					final ZipInputStream zip = new ZipInputStream(is);
-					readZipEntries(loader, searchType, extensions, entry, url, new Enumeration<ZipEntry>()
+					readZipEntries(loader, searchType, extensions, entry, new Enumeration<ZipEntry>()
 					{
 						private ZipEntry nextEntry = zip.getNextEntry();
 
@@ -262,7 +285,7 @@ public abstract class JarManager
 					}
 
 					Enumeration< ? extends ZipEntry> enumeration = zipFile.entries();
-					readZipEntries(loader, searchType, extensions, entry, url, enumeration);
+					readZipEntries(loader, searchType, extensions, entry, enumeration);
 				}
 			}
 		}
@@ -277,50 +300,54 @@ public abstract class JarManager
 	 * @param url
 	 * @param enumeration
 	 */
-	private void readZipEntries(ExtendableURLClassLoader loader, Class< ? > searchType, List<Extension> extensions, Map.Entry<URL, Pair<String, Long>> entry,
-		URL url, Enumeration< ? extends ZipEntry> enumeration)
+	private void readZipEntries(ExtendableURLClassLoader loader, Class< ? > searchType, List<Extension> extensions, Extension entry,
+		Enumeration< ? extends ZipEntry> enumeration)
 	{
+		boolean seenClass = false;
+		Class< ? > cls = null;
 		while (enumeration.hasMoreElements())
 		{
-			Class< ? > cls = null;
-			String entryName = ((ZipEntry)enumeration.nextElement()).getName();
-			String className = Utils.changeFileNameToClassName(entryName);
-			if (className != null)
+			ZipEntry ze = enumeration.nextElement();
+			if (!ze.isDirectory())
 			{
-				try
+				String entryName = ze.getName();
+				if (!seenClass && entryName.endsWith(".class")) seenClass = true;
+
+				String className = Utils.changeFileNameToClassName(entryName);
+				if (className != null)
 				{
-					cls = loader.loadClass(className);
-				}
-				catch (Throwable th)
-				{
-					Debug.trace(th.toString());
-				}
-				if (cls != null)
-				{
-					if (searchType.isAssignableFrom(cls) && !Modifier.isAbstract(cls.getModifiers()))
+					try
 					{
-						Extension ext = new Extension();
-						ext.jarFileName = entry.getValue().getLeft();
-						ext.jarFileModTime = entry.getValue().getRight().longValue();
-						ext.jarUrl = url;
-						ext.instanceClass = cls;
-						ext.searchType = searchType;
-						extensions.add(ext);
+						cls = loader.loadClass(className);
+					}
+					catch (Throwable th)
+					{
+						Debug.trace(th.toString());
+					}
+					if (cls != null)
+					{
+						if (searchType.isAssignableFrom(cls) && !Modifier.isAbstract(cls.getModifiers()))
+						{
+							entry.instanceClass = cls;
+							entry.searchType = searchType;
+							extensions.add(entry);
+						}
 					}
 				}
 			}
 		}
+		entry.hasClasses = seenClass;
 	}
 
-	public static Map<URL, Pair<String, Long>> loadLibs(File dir)
+	public static List<Extension> loadLibs(File dir)
 	{
-		Map<URL, Pair<String, Long>> retval = new HashMap<URL, Pair<String, Long>>();
+		List<Extension> retval = new ArrayList<Extension>();
 		readDir(dir, retval, null, null, false);
 		return retval;
 	}
 
-	public static List<String> readDir(File dir, Map<URL, Pair<String, Long>> baseRetval, Map<URL, Pair<String, Long>> subDirRetval,
-		Map<String, Object> packageJarMapping, boolean isSubDir)
+	public static List<String> readDir(File dir, List<Extension> baseRetval, List<Extension> subDirRetval, Map<String, List<Extension>> packageJarMapping,
+		boolean isSubDir)
 	{
 		List<String> foundBeanClassNames = new ArrayList<String>();
 		if (dir != null && dir.isDirectory())
@@ -342,11 +369,12 @@ public abstract class JarManager
 						File jarFile = new File(dir, fileName);
 						if (isSubDir)
 						{
-							subDirRetval.put(jarFile.toURI().toURL(), new Pair<String, Long>(fileName, new Long(jarFile.lastModified())));
+							subDirRetval.add(new Extension(jarFile.toURI().toURL(), fileName, jarFile.lastModified()));
 						}
 						else
 						{
-							baseRetval.put(jarFile.toURI().toURL(), new Pair<String, Long>(fileName, new Long(jarFile.lastModified())));
+							Extension ext = new Extension(jarFile.toURI().toURL(), fileName, jarFile.lastModified());
+							baseRetval.add(ext);
 
 							if (packageJarMapping != null)
 							{
@@ -357,7 +385,7 @@ public abstract class JarManager
 									List<String> beanClassNames = getClassNamesForKey(mf, JAVA_BEAN_ATTRIBUTE);
 									if (beanClassNames.size() > 0)
 									{
-										addCommonPackageToDefinitions(fileName, beanClassNames, packageJarMapping);
+										addCommonPackageToDefinitions(ext, beanClassNames, packageJarMapping);
 										foundBeanClassNames.addAll(beanClassNames);
 
 										Map<String, File> classPathReferences = getManifestClassPath(jarFile, dir);
@@ -365,15 +393,18 @@ public abstract class JarManager
 										{
 											for (String reference : classPathReferences.keySet())
 											{
-												addCommonPackageToDefinitions(reference, beanClassNames, packageJarMapping);
-												subDirRetval.put(classPathReferences.get(reference).toURI().toURL(), new Pair(reference, new Long(
-													classPathReferences.get(reference).lastModified())));
+												Extension ref = new Extension(classPathReferences.get(reference).toURI().toURL(), reference,
+													classPathReferences.get(reference).lastModified());
+												addCommonPackageToDefinitions(ref, beanClassNames, packageJarMapping);
+												subDirRetval.add(ref);
 											}
 										}
 									}
 									else
 									{
-										packageJarMapping.put("#" + packageJarMapping.size(), fileName);//is likly jar for applet //$NON-NLS-1$
+										List<Extension> exts = new ArrayList<Extension>(1);
+										exts.add(ext);
+										packageJarMapping.put("#" + packageJarMapping.size(), exts);//is likly jar for applet //$NON-NLS-1$
 									}
 								}
 							}
@@ -543,4 +574,42 @@ public abstract class JarManager
 		}
 	}
 
+	public static URL[] getUrls(List<Extension> exts)
+	{
+		List<URL> allUrls = new ArrayList<URL>(exts.size());
+		for (Extension ext : exts)
+		{
+			allUrls.add(ext.jarUrl);
+		}
+		return allUrls.toArray(new URL[allUrls.size()]);
+	}
+
+	public static List<Extension> getExtensions(Map<String, List<Extension>> definitions, String filename)
+	{
+		String jarFileName = filename;
+		int index = jarFileName.lastIndexOf('/');
+		if (index != -1)
+		{
+			jarFileName = jarFileName.substring(index + 1);
+		}
+
+		Iterator<List<Extension>> it = definitions.values().iterator();
+		while (it.hasNext())
+		{
+			List<Extension> exts = it.next();
+			for (Extension ext : exts)
+			{
+				String name = ext.jarFileName;
+				index = name.lastIndexOf('/');
+				if (index == -1) index = 0;
+				else index++;
+				name = name.substring(index);
+				if (jarFileName.equals(name))
+				{
+					return exts;
+				}
+			}
+		}
+		return null;
+	}
 }

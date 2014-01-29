@@ -21,6 +21,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.UIManager.LookAndFeelInfo;
+
+import com.servoy.j2db.util.JarManager.Extension;
+
 /**
  * @author jcompagner
  *
@@ -29,9 +33,9 @@ public interface ILAFManagerInternal extends ILAFManager
 {
 	public File getLAFDir();
 
-	public Map<String, Object> getLoadedLAFDefs();
+	public Map<String, List<Extension>> getLoadedLAFDefs();
 
-	public List getLAFInfos();
+	public List<LookAndFeelInfo> getLAFInfos();
 
-	public Map getLoadedThemes();
+	public Map<String, String> getLoadedThemes();
 }

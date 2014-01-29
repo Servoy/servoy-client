@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceConfigurationError;
@@ -44,7 +43,6 @@ import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
 import com.servoy.j2db.util.JarManager;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -59,10 +57,10 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	private final File pluginDir;
 	private static ExtendableURLClassLoader _pluginsClassLoader;
-	private final static Map<URL, Pair<String, Long>> supportLibUrls = new HashMap<URL, Pair<String, Long>>();
-	private final static Map<URL, Pair<String, Long>> pluginUrls = new LinkedHashMap<URL, Pair<String, Long>>();
+	private final static List<Extension> supportLibExtensions = new ArrayList<Extension>();
+	private final static List<Extension> pluginExtensions = new ArrayList<Extension>();
 
-	private static Extension[] clientPluginInfo;
+	private static List<Extension> clientPluginExtensions; //subset from pluginExtensions
 
 	// ---instance vars
 	protected final Object[] initLock = new Object[1];//when filled with an Object the init is completed
@@ -86,22 +84,28 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		super();
 		this.lafLoader = lafLoader;
 		pluginDir = new File(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins"); //$NON-NLS-1$ 
-		if (pluginUrls.size() == 0 && pluginDir.isDirectory())
+		if (pluginExtensions.size() == 0 && pluginDir.isDirectory())
 		{
-			readDir(pluginDir, pluginUrls, supportLibUrls, null, false);
+			readDir(pluginDir, pluginExtensions, supportLibExtensions, null, false);
 		}
 	}
 
-	public PluginManager(Map<URL, Pair<String, Long>> pluginUrls, Map<URL, Pair<String, Long>> supportLibUrls, ClassLoader lafLoader)
+	public PluginManager(List<Extension> pluginUrls, List<Extension> supportLibUrls, ClassLoader lafLoader)
 	{
 		super();
 		this.lafLoader = lafLoader;
 		pluginDir = null;
-		PluginManager.pluginUrls.putAll(pluginUrls);
-		PluginManager.supportLibUrls.putAll(supportLibUrls);
+		PluginManager.pluginExtensions.addAll(pluginUrls);
+		PluginManager.supportLibExtensions.addAll(supportLibUrls);
 		List<URL> allUrls = new ArrayList<URL>(supportLibUrls.size() + pluginUrls.size());
-		allUrls.addAll(supportLibUrls.keySet());
-		allUrls.addAll(pluginUrls.keySet());
+		for (Extension ext : supportLibUrls)
+		{
+			allUrls.add(ext.jarUrl);
+		}
+		for (Extension ext : pluginUrls)
+		{
+			allUrls.add(ext.jarUrl);
+		}
 		URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
 		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader(), PLUGIN_CL_SUFFIX);
 	}
@@ -111,9 +115,9 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		super();
 		this.lafLoader = lafLoader;
 		pluginDir = new File(pluginDirAsString);
-		if (pluginUrls.size() == 0 && this.pluginDir.isDirectory())
+		if (pluginExtensions.size() == 0 && this.pluginDir.isDirectory())
 		{
-			readDir(pluginDir, pluginUrls, supportLibUrls, null, false);
+			readDir(pluginDir, pluginExtensions, supportLibExtensions, null, false);
 		}
 	}
 
@@ -168,25 +172,24 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	 */
 	public static void dispose()
 	{
-		pluginUrls.clear();
-		supportLibUrls.clear();
+		pluginExtensions.clear();
+		supportLibExtensions.clear();
 		_pluginsClassLoader = null;
-		clientPluginInfo = null;
+		clientPluginExtensions = null;
 	}
 
 	public Extension[] loadClientPluginDefs()
 	{
-		if (clientPluginInfo == null)
+		if (clientPluginExtensions == null)
 		{
-			List<Extension> clientPlugins = getExtensionsForClass(IClientPlugin.class);
-			clientPluginInfo = clientPlugins.toArray(new Extension[0]);
+			clientPluginExtensions = getExtensionsForClass(IClientPlugin.class);
 		}
-		return clientPluginInfo;
+		return clientPluginExtensions.toArray(new Extension[clientPluginExtensions.size()]);
 	}
 
 	private List<Extension> getExtensionsForClass(Class searchClass)
 	{
-		Map<URL, Pair<String, Long>> notProcessedMap = new HashMap<URL, Pair<String, Long>>(pluginUrls);
+		List<Extension> notProcessedMap = new ArrayList<Extension>(pluginExtensions);
 		List<Extension> extensions = new ArrayList<Extension>();
 
 		ServiceLoader<IPlugin> pluginsLoader = ServiceLoader.load(IPlugin.class, getClassLoader());
@@ -202,21 +205,23 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 					URL pluginURL = codeSource.getLocation();
 					if (pluginURL != null)
 					{
-						if (pluginUrls.containsKey(pluginURL))
+						boolean found = false;
+						for (Extension ext : pluginExtensions)
 						{
-							notProcessedMap.remove(pluginURL);
-							if (searchClass.isAssignableFrom(plugin.getClass()))
+							if (pluginURL.equals(ext.jarUrl))
 							{
-								Extension ext = new Extension();
-								ext.jarFileName = pluginUrls.get(pluginURL).getLeft();
-								ext.jarFileModTime = pluginUrls.get(pluginURL).getRight().longValue();
-								ext.jarUrl = pluginURL;
-								ext.instanceClass = plugin.getClass();
-								ext.searchType = searchClass;
-								extensions.add(ext);
+								found = true;
+								notProcessedMap.remove(pluginURL);
+								if (searchClass.isAssignableFrom(plugin.getClass()))
+								{
+									ext.instanceClass = plugin.getClass();
+									ext.searchType = searchClass;
+									extensions.add(ext);
+								}
+								break;
 							}
 						}
-						else
+						if (!found)
 						{
 							Debug.warn("Cannot find the jar URL among plugins: " + pluginURL);
 						}
@@ -706,14 +711,20 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		{
 			try
 			{
-				if (pluginUrls.size() == 0 && pluginDir.isDirectory())
+				if (pluginExtensions.size() == 0 && pluginDir.isDirectory())
 				{
-					readDir(pluginDir, pluginUrls, supportLibUrls, null, false);
+					readDir(pluginDir, pluginExtensions, supportLibExtensions, null, false);
 				}
 
-				List<URL> allUrls = new ArrayList<URL>(supportLibUrls.size() + pluginUrls.size());
-				allUrls.addAll(supportLibUrls.keySet());
-				allUrls.addAll(pluginUrls.keySet());
+				List<URL> allUrls = new ArrayList<URL>(supportLibExtensions.size() + pluginExtensions.size());
+				for (Extension ext : supportLibExtensions)
+				{
+					allUrls.add(ext.jarUrl);
+				}
+				for (Extension ext : pluginExtensions)
+				{
+					allUrls.add(ext.jarUrl);
+				}
 				URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
 				_pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader(), PLUGIN_CL_SUFFIX);
 			}
