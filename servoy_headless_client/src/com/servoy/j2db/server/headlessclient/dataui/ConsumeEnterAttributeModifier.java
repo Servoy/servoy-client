@@ -62,7 +62,7 @@ public class ConsumeEnterAttributeModifier extends ServoyActionEventBehavior
 			@Override
 			public CharSequence decorateScript(CharSequence script)
 			{
-				return "return testEnterKey(event, function() {event.target.blur();" + script + "});"; //$NON-NLS-1$ //$NON-NLS-2$ 
+				return "return testEnterKey(event, function() {var target = (event.target || event.srcElement);target.blur();" + script + "});"; //$NON-NLS-1$ //$NON-NLS-2$ 
 			}
 		};
 	}
