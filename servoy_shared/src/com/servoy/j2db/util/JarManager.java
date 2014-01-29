@@ -370,7 +370,7 @@ public abstract class JarManager
 						if (isSubDir)
 						{
 							Extension ext = new Extension(jarFile.toURI().toURL(), fileName, jarFile.lastModified());
-							if (subDirRetval.contains(ext)) subDirRetval.add(ext);
+							if (!subDirRetval.contains(ext)) subDirRetval.add(ext);
 						}
 						else
 						{
