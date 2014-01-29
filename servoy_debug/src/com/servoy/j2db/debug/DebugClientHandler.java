@@ -336,7 +336,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		}
 		for (IDebugClient c : customDebugClients.values())
 		{
-			if (c.getSolution() != null) c.setCurrent(solution);
+			c.setCurrent(solution);
 		}
 	}
 

@@ -2808,7 +2808,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("FlattenedSolution of soluton: ");
+		sb.append("FlattenedSolution of solution: ");
 		if (mainSolution == null)
 		{
 			sb.append("<NONE>");
