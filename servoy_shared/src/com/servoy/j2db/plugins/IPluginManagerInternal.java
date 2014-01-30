@@ -38,13 +38,11 @@ public interface IPluginManagerInternal extends IPluginManager
 
 	public IColumnValidatorManager getColumnValidatorManager();
 
-	public Extension[] loadClientPluginDefs();
+	public Extension<IClientPlugin>[] loadClientPluginDefs();
 
 	public void loadClientPlugins(IApplication app);
 
 	public File getPluginDir();
 
 	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
-
-//	public void addSmartClientExtensions(ClassLoader cl, Extension[] jars);
 }

@@ -51,16 +51,17 @@ import com.servoy.j2db.util.keyword.Ident;
  * 
  * @author jcompagner, jblok
  */
+@SuppressWarnings("nls")
 public class PluginManager extends JarManager implements IPluginManagerInternal, PropertyChangeListener
 {
 	private static final String PLUGIN_CL_SUFFIX = " plugins"; //$NON-NLS-1$
 
 	private final File pluginDir;
 	private static ExtendableURLClassLoader _pluginsClassLoader;
-	private final static List<Extension> supportLibExtensions = new ArrayList<Extension>();
-	private final static List<Extension> pluginExtensions = new ArrayList<Extension>();
+	private final static List<ExtensionResource> supportLibExtensions = new ArrayList<ExtensionResource>();
+	private final static List<ExtensionResource> pluginExtensions = new ArrayList<ExtensionResource>();
 
-	private static List<Extension> clientPluginExtensions; //subset from pluginExtensions
+	private static List<Extension<IClientPlugin>> clientPluginExtensions; //subset from pluginExtensions
 
 	// ---instance vars
 	protected final Object[] initLock = new Object[1];//when filled with an Object the init is completed
@@ -90,7 +91,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		}
 	}
 
-	public PluginManager(List<Extension> pluginUrls, List<Extension> supportLibUrls, ClassLoader lafLoader)
+	public PluginManager(List<ExtensionResource> pluginUrls, List<ExtensionResource> supportLibUrls, ClassLoader lafLoader)
 	{
 		super();
 		this.lafLoader = lafLoader;
@@ -98,11 +99,11 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		PluginManager.pluginExtensions.addAll(pluginUrls);
 		PluginManager.supportLibExtensions.addAll(supportLibUrls);
 		List<URL> allUrls = new ArrayList<URL>(supportLibUrls.size() + pluginUrls.size());
-		for (Extension ext : supportLibUrls)
+		for (ExtensionResource ext : supportLibUrls)
 		{
 			allUrls.add(ext.jarUrl);
 		}
-		for (Extension ext : pluginUrls)
+		for (ExtensionResource ext : pluginUrls)
 		{
 			allUrls.add(ext.jarUrl);
 		}
@@ -178,7 +179,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		clientPluginExtensions = null;
 	}
 
-	public Extension[] loadClientPluginDefs()
+	public Extension<IClientPlugin>[] loadClientPluginDefs()
 	{
 		if (clientPluginExtensions == null)
 		{
@@ -187,10 +188,10 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		return clientPluginExtensions.toArray(new Extension[clientPluginExtensions.size()]);
 	}
 
-	private List<Extension> getExtensionsForClass(Class searchClass)
+	private <T> List<Extension<T>> getExtensionsForClass(Class<T> searchClass)
 	{
-		List<Extension> notProcessedMap = new ArrayList<Extension>(pluginExtensions);
-		List<Extension> extensions = new ArrayList<Extension>();
+		List<ExtensionResource> notProcessedMap = new ArrayList<ExtensionResource>(pluginExtensions);
+		List<Extension<T>> extensions = new ArrayList<Extension<T>>();
 
 		ServiceLoader<IPlugin> pluginsLoader = ServiceLoader.load(IPlugin.class, getClassLoader());
 		Iterator<IPlugin> it = pluginsLoader.iterator();
@@ -206,17 +207,15 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 					if (pluginURL != null)
 					{
 						boolean found = false;
-						for (Extension ext : pluginExtensions)
+						for (ExtensionResource ext : pluginExtensions)
 						{
 							if (pluginURL.equals(ext.jarUrl))
 							{
 								found = true;
-								notProcessedMap.remove(pluginURL);
+								notProcessedMap.remove(ext);
 								if (searchClass.isAssignableFrom(plugin.getClass()))
 								{
-									ext.instanceClass = plugin.getClass();
-									ext.searchType = searchClass;
-									extensions.add(ext);
+									extensions.add(new Extension(ext, plugin.getClass(), searchClass));
 								}
 								break;
 							}
@@ -244,7 +243,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 		if (notProcessedMap.size() > 0)
 		{
-			Extension[] additionalExtensions = getExtensions((ExtendableURLClassLoader)getClassLoader(), searchClass, notProcessedMap);
+			Extension<T>[] additionalExtensions = getExtensions((ExtendableURLClassLoader)getClassLoader(), searchClass, notProcessedMap);
 			if (additionalExtensions != null)
 			{
 				extensions.addAll(Arrays.asList(additionalExtensions));
@@ -286,11 +285,11 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	{
 		try
 		{
-			List<Extension> serverPlugins = getExtensionsForClass(IServerPlugin.class);
+			List<Extension<IServerPlugin>> serverPlugins = getExtensionsForClass(IServerPlugin.class);
 			List<Class<IServerPlugin>> classes = new ArrayList<Class<IServerPlugin>>();
-			for (Extension element : serverPlugins)
+			for (Extension<IServerPlugin> element : serverPlugins)
 			{
-				classes.add((Class<IServerPlugin>)element.instanceClass);
+				classes.add(element.instanceClass);
 			}
 			return classes.toArray(new Class[0]);
 		}
@@ -362,14 +361,14 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			loadedClientPlugins = new HashMap<String, IClientPlugin>();
 			if (application == null || !application.isRunningRemote()) //Servoy developer loading
 			{
-				Extension[] exts = loadClientPluginDefs();
+				Extension<IClientPlugin>[] exts = loadClientPluginDefs();
 				if (exts != null)
 				{
-					for (Extension element : exts)
+					for (Extension<IClientPlugin> element : exts)
 					{
 						try
 						{
-							loadClientPlugin((Class<IClientPlugin>)element.instanceClass);
+							loadClientPlugin(element.instanceClass);
 						}
 						catch (Throwable th)
 						{
@@ -717,11 +716,11 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 
 				List<URL> allUrls = new ArrayList<URL>(supportLibExtensions.size() + pluginExtensions.size());
-				for (Extension ext : supportLibExtensions)
+				for (ExtensionResource ext : supportLibExtensions)
 				{
 					allUrls.add(ext.jarUrl);
 				}
-				for (Extension ext : pluginExtensions)
+				for (ExtensionResource ext : pluginExtensions)
 				{
 					allUrls.add(ext.jarUrl);
 				}
@@ -739,8 +738,6 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	/**
 	 * Load plugins. Load all plugin jars into class loader.
-	 * 
-	 * @deprecated
 	 */
 	@Deprecated
 	public ClassLoader getPluginClassLoader()
@@ -748,38 +745,24 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		return getClassLoader();
 	}
 
-	/**
-	 * @return
-	 */
+	@Override
 	public PluginManager createEfficientCopy(Object prop_change_source)
 	{
 		PluginManager retval = new PluginManager(prop_change_source, lafLoader);
 		return retval;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.plugins.IPluginManager#getPlugin(java.lang.Class, java.lang.String)
-	 */
+	@Override
 	public <T extends IPlugin> T getPlugin(Class<T> pluginSubType, String name)
 	{
 		if (IClientPlugin.class.equals(pluginSubType))
 		{
 			return (T)getClientPlugin(name);
 		}
-		if (IServerPlugin.class.equals(pluginSubType))
-		{
-			return null;//nyi
-		}
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.plugins.IPluginManager#getPlugins(java.lang.Class)
-	 */
+	@Override
 	public <T extends IPlugin> List<T> getPlugins(Class<T> pluginSubType)
 	{
 		if (IClientPlugin.class.equals(pluginSubType))
@@ -791,5 +774,11 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			return (List<T>)getServerPlugins();
 		}
 		return null;
+	}
+
+	@Override
+	public void addExtension(ExtensionResource[] jars)
+	{
+		//implemented by subclasses
 	}
 }

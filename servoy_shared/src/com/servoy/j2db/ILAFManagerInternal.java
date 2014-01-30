@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import com.servoy.j2db.util.JarManager.Extension;
+import com.servoy.j2db.util.JarManager.ExtensionResource;
 
 /**
  * @author jcompagner
@@ -33,7 +33,7 @@ public interface ILAFManagerInternal extends ILAFManager
 {
 	public File getLAFDir();
 
-	public Map<String, List<Extension>> getLoadedLAFDefs();
+	public Map<String, List<ExtensionResource>> getLoadedLAFDefs();
 
 	public List<LookAndFeelInfo> getLAFInfos();
 
