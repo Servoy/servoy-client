@@ -283,6 +283,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	protected abstract IView getViewComponent();
 
+	protected ControllerUndoManager getUndoManager()
+	{
+		return null;
+	}
+
 	public abstract IBasicFormUI getFormUI();
 
 	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
@@ -620,6 +625,25 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope) }, null, true, true));
 	}
 
+	protected void executeOnRecordSelect()
+	{
+		if (form.getTitleText() != null && this == application.getFormManager().getCurrentForm())
+		{
+			// If a dialog is active over the main window, then don't update the application title.
+			if (((FormManager)application.getFormManager()).isCurrentTheMainContainer())
+			{
+				String title = form.getTitleText();
+				if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
+				application.setTitle(title);
+			}
+		}
+		if (getUndoManager() != null) getUndoManager().discardAllEdits();
+		if (isFormVisible)//this is added because many onrecordSelect actions are display dependent (in that case you only want the visible forms to be set) or data action which are likely on the same table so obsolete any way.
+		{
+			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, null, Boolean.TRUE, true, true);
+		}
+	}
+
 	private boolean executeOnRecordEditStart()
 	{
 		if (!isFormVisible())//should only work on visible form, onXXXX means user event which are only possible when visible
@@ -629,6 +653,32 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		// saveData is false because otherwise focus is lost on stopUIEditing in ListView
 		// see issue 154845
 		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, null, Boolean.TRUE, false, true));
+	}
+
+	private boolean runningExecuteOnRecordEditStop;
+
+	protected boolean executeOnRecordEditStop(IRecordInternal record) //also called on leave
+	{
+		if (!runningExecuteOnRecordEditStop && isFormVisible)//should only work on visible form, onXXXX means user event which are only possible when visible
+		{
+			try
+			{
+				runningExecuteOnRecordEditStop = true;
+				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record },
+					Boolean.TRUE, true, true));
+				if (ret && getApplication().getFoundSetManager() != null)
+				{
+					// for this record, record edit saved is called successfully shouldn't happen the second time.
+					getApplication().getFoundSetManager().getEditRecordList().markRecordTested(record);
+				}
+				return ret;
+			}
+			finally
+			{
+				runningExecuteOnRecordEditStop = false;
+			}
+		}
+		return true;
 	}
 
 	public boolean isFormExecutingFunction()

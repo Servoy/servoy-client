@@ -1398,52 +1398,6 @@ public class FormController extends BasicFormController
 	//	private static int isExecuting = 0;
 	//	private static LinkedList executeStack = new LinkedList();
 
-
-	private boolean runningExecuteOnRecordEditStop;
-
-	boolean executeOnRecordEditStop(IRecordInternal record) //also called on leave
-	{
-		if (!runningExecuteOnRecordEditStop && isFormVisible)//should only work on visible form, onXXXX means user event which are only possible when visible
-		{
-			try
-			{
-				runningExecuteOnRecordEditStop = true;
-				boolean ret = !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record },
-					Boolean.TRUE, true, true));
-				if (ret && getApplication().getFoundSetManager() != null)
-				{
-					// for this record, record edit saved is called successfully shouldn't happen the second time.
-					getApplication().getFoundSetManager().getEditRecordList().markRecordTested(record);
-				}
-				return ret;
-			}
-			finally
-			{
-				runningExecuteOnRecordEditStop = false;
-			}
-		}
-		return true;
-	}
-
-	void executeOnRecordSelect()
-	{
-		if (form.getTitleText() != null && this == application.getFormManager().getCurrentForm())
-		{
-			// If a dialog is active over the main window, then don't update the application title.
-			if (((FormManager)application.getFormManager()).isCurrentTheMainContainer())
-			{
-				String title = form.getTitleText();
-				if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
-				application.setTitle(title);
-			}
-		}
-		if (containerImpl.getUndoManager() != null) containerImpl.getUndoManager().discardAllEdits();
-		if (isFormVisible)//this is added because many onrecordSelect actions are display dependent (in that case you only want the visible forms to be set) or data action which are likely on the same table so obsolete any way.
-		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, null, Boolean.TRUE, true, true);
-		}
-	}
-
 	private void executeOnResize()
 	{
 		if (isFormVisible())
