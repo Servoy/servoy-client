@@ -3360,7 +3360,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean)
+		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#search()
 		 * @sample
 		 * var recordCount = %%prefix%%controller.search();
 		 * //var recordCount = %%prefix%%controller.search(false,false); //to extend foundset
