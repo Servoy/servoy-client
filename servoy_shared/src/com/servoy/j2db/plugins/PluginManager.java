@@ -776,8 +776,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		return null;
 	}
 
-	@Override
-	public void addExtension(ExtensionResource[] jars)
+	public void addClientExtension(ExtensionResource jar, ExtensionResource[] supportLibs)
 	{
 		//implemented by subclasses
 	}
