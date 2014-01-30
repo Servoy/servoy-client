@@ -13,10 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.plugins;
 
 
+import java.net.URL;
 import java.util.List;
 
 import com.servoy.j2db.IManager;
@@ -51,4 +52,9 @@ public interface IPluginManager extends IManager
 	 * @return ClassLoader
 	 */
 	public ClassLoader getClassLoader();
+
+	/**
+	 * Dynamically add a client plugin, only to be used from OSGi bundles
+	 */
+	public void addClientExtension(String clientPluginClassName, URL extension, URL[] supportLibs) throws PluginException;
 }

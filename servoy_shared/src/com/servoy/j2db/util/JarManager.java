@@ -148,18 +148,32 @@ public abstract class JarManager
 		public final long jarFileModTime;
 
 		public boolean hasClasses = true;
+		public boolean containsDeclatedBeanClasses = true;
 
 		public ExtensionResource(URL url, String fileName, long lastModified)
 		{
 			if (url == null) throw new IllegalArgumentException("Extension cannot accept null url");
 			jarUrl = url;
-			jarFileName = fileName;
+			if (fileName == null)
+			{
+				String name = jarUrl.getFile();
+				int index = name.lastIndexOf('/');
+				if (index != -1)
+				{
+					name = name.substring(index + 1);
+				}
+				jarFileName = name;
+			}
+			else
+			{
+				jarFileName = fileName;
+			}
 			jarFileModTime = lastModified;
 		}
 
 		public ExtensionResource(URL jarUrl, long lastModified)
 		{
-			this(jarUrl, jarUrl.getFile(), lastModified);
+			this(jarUrl, null, lastModified);
 		}
 
 		@Override
@@ -193,11 +207,6 @@ public abstract class JarManager
 			else if (!jarUrl.equals(other.jarUrl)) return false;
 			return true;
 		}
-
-		public boolean hasClasses()
-		{
-			return hasClasses;
-		}
 	}
 
 	public static class Extension<T>
@@ -205,6 +214,8 @@ public abstract class JarManager
 		public final ExtensionResource jar;
 		public final Class<T> searchType;
 		public final Class<T> instanceClass;
+
+		public ExtensionResource[] libs;
 
 		public Extension(ExtensionResource jar, Class<T> cls, Class<T> searchType)
 		{
@@ -347,14 +358,14 @@ public abstract class JarManager
 		entry.hasClasses = seenClass;
 	}
 
-	public static List<ExtensionResource> loadLibs(File dir)
+	protected List<ExtensionResource> loadLibs(File dir)
 	{
 		List<ExtensionResource> retval = new ArrayList<ExtensionResource>();
 		readDir(dir, retval, null, null, false);
 		return retval;
 	}
 
-	public static List<String> readDir(File dir, List<ExtensionResource> baseRetval, List<ExtensionResource> subDirRetval,
+	protected List<String> readDir(File dir, List<ExtensionResource> baseRetval, List<ExtensionResource> subDirRetval,
 		Map<String, List<ExtensionResource>> packageJarMapping, boolean isSubDir)
 	{
 		List<String> foundBeanClassNames = new ArrayList<String>();
@@ -394,6 +405,7 @@ public abstract class JarManager
 									List<String> beanClassNames = getClassNamesForKey(mf, JAVA_BEAN_ATTRIBUTE);
 									if (beanClassNames.size() > 0)
 									{
+										if (!ext.hasClasses) ext.containsDeclatedBeanClasses = false;
 										addCommonPackageToDefinitions(ext, beanClassNames, packageJarMapping);
 										foundBeanClassNames.addAll(beanClassNames);
 

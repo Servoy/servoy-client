@@ -24,6 +24,7 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,12 +57,12 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 {
 	private static final String PLUGIN_CL_SUFFIX = " plugins"; //$NON-NLS-1$
 
-	private final File pluginDir;
-	private static ExtendableURLClassLoader _pluginsClassLoader;
-	private final static List<ExtensionResource> supportLibExtensions = new ArrayList<ExtensionResource>();
-	private final static List<ExtensionResource> pluginExtensions = new ArrayList<ExtensionResource>();
+	private final File pluginsDir;
+	protected static ExtendableURLClassLoader _pluginsClassLoader;
+	protected final static List<ExtensionResource> supportLibExtensions = new ArrayList<ExtensionResource>();
+	protected final static List<ExtensionResource> pluginExtensions = new ArrayList<ExtensionResource>();
 
-	private static List<Extension<IClientPlugin>> clientPluginExtensions; //subset from pluginExtensions
+	protected static List<Extension<IClientPlugin>> clientPluginExtensions; //subset from pluginExtensions
 
 	// ---instance vars
 	protected final Object[] initLock = new Object[1];//when filled with an Object the init is completed
@@ -69,7 +70,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	// ---plugin instances
 	protected Map<String, IClientPlugin> loadedClientPlugins; //contains all instances of client plugins, (name -> instance)
 	protected List<IServerPlugin> loadedServerPlugins;//contains all instances of server plugins
-	private final ClassLoader lafLoader;
+	private final ClassLoader parentClassLoader;
 
 	/**
 	 * Loads plugins from the plugins directory.
@@ -83,19 +84,19 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	public PluginManager(ClassLoader lafLoader)
 	{
 		super();
-		this.lafLoader = lafLoader;
-		pluginDir = new File(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins"); //$NON-NLS-1$ 
-		if (pluginExtensions.size() == 0 && pluginDir.isDirectory())
+		this.parentClassLoader = lafLoader;
+		pluginsDir = new File(Settings.getInstance().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY) + File.separator + "plugins"); //$NON-NLS-1$ 
+		if (pluginExtensions.size() == 0 && pluginsDir.isDirectory())
 		{
-			readDir(pluginDir, pluginExtensions, supportLibExtensions, null, false);
+			readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
 		}
 	}
 
 	public PluginManager(List<ExtensionResource> pluginUrls, List<ExtensionResource> supportLibUrls, ClassLoader lafLoader)
 	{
 		super();
-		this.lafLoader = lafLoader;
-		pluginDir = null;
+		this.parentClassLoader = lafLoader;
+		pluginsDir = null;
 		PluginManager.pluginExtensions.addAll(pluginUrls);
 		PluginManager.supportLibExtensions.addAll(supportLibUrls);
 		List<URL> allUrls = new ArrayList<URL>(supportLibUrls.size() + pluginUrls.size());
@@ -114,17 +115,17 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	public PluginManager(String pluginDirAsString, ClassLoader lafLoader)
 	{
 		super();
-		this.lafLoader = lafLoader;
-		pluginDir = new File(pluginDirAsString);
-		if (pluginExtensions.size() == 0 && this.pluginDir.isDirectory())
+		this.parentClassLoader = lafLoader;
+		pluginsDir = new File(pluginDirAsString);
+		if (pluginExtensions.size() == 0 && this.pluginsDir.isDirectory())
 		{
-			readDir(pluginDir, pluginExtensions, supportLibExtensions, null, false);
+			readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
 		}
 	}
 
-	public File getPluginDir()
+	public File getPluginsDir()
 	{
-		return pluginDir;
+		return pluginsDir;
 	}
 
 	/**
@@ -409,7 +410,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			columnConverterManager = new ConverterManager<IColumnConverter>();
 			uiConverterManager = new ConverterManager<IUIConverter>();
 			columnValidatorManager = new ColumnValidatorManager();
-			checkForConvertersAndValidators(columnConverterManager, uiConverterManager, columnValidatorManager);
+			checkAllPluginsForConvertersAndValidators();
 		}
 	}
 
@@ -489,14 +490,6 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				{
 					long now = System.currentTimeMillis();
 					plugin.initialize(app);
-//					if (plugin instanceof IAgent)
-//					{
-//						IApplication base = ((ClientPluginAccessProvider)app).getApplication();
-//						if (base instanceof J2DBClient)
-//						{
-//							((J2DBClient)base).setAgent((IAgent)plugin);
-//						}
-//					}
 					Debug.trace("Plugin " + plugin.getName() + " initialised in " + (System.currentTimeMillis() - now) + " ms."); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 				}
 				catch (Throwable th)
@@ -504,77 +497,79 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 					Debug.error("Error ocured initializing plugin: " + plugin.getName(), th); //$NON-NLS-1$
 				}
 			}
-
 			flagInitialized();
 		}
 	}
 
-	private void checkForConvertersAndValidators(IConverterManager<IColumnConverter> columnConverterMgr, IConverterManager<IUIConverter> uiConverterMgr,
-		IColumnValidatorManager validatorManager)
+	private void checkAllPluginsForConvertersAndValidators()
 	{
 		synchronized (initLock)
 		{
 			// we assume that the plugins are already loaded
-			Object[] list = loadedClientPlugins.values().toArray();
-			for (Object element : list)
+			Collection<IClientPlugin> list = loadedClientPlugins.values();
+			for (IClientPlugin plugin : list)
 			{
-				IClientPlugin plugin = (IClientPlugin)element;
-				try
-				{
-					long now = System.currentTimeMillis();
-					if (plugin instanceof IColumnConverterProvider && columnConverterMgr != null)
-					{
-						IColumnConverter[] cons = ((IColumnConverterProvider)plugin).getColumnConverters();
-						if (cons != null)
-						{
-							for (IColumnConverter element2 : cons)
-							{
-								if (element2 != null)
-								{
-									columnConverterMgr.registerConvertor(element2);
-								}
-							}
-						}
-					}
-					if (plugin instanceof IUIConverterProvider && uiConverterMgr != null)
-					{
-						IUIConverter[] cons = ((IUIConverterProvider)plugin).getUIConverters();
-						if (cons != null)
-						{
-							for (IUIConverter element2 : cons)
-							{
-								if (element2 != null)
-								{
-									uiConverterMgr.registerConvertor(element2);
-								}
-							}
-						}
-					}
-					if (plugin instanceof IColumnValidatorProvider && validatorManager != null)
-					{
-						IColumnValidator[] vals = ((IColumnValidatorProvider)plugin).getColumnValidators();
-						if (vals != null)
-						{
-							for (IColumnValidator element2 : vals)
-							{
-								if (element2 != null)
-								{
-									validatorManager.registerValidator(element2);
-								}
-							}
-						}
-					}
-					Debug.trace("Plugin " + plugin.getName() + " checked for converter/validator in " + (System.currentTimeMillis() - now) + " ms."); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-				}
-				catch (Throwable th)
-				{
-					Debug.error("Error ocured checking plugin: " + plugin.getName(), th); //$NON-NLS-1$
-				}
+				checkPluginForConvertersAndValidators(plugin);
 			}
 		}
 	}
 
-	private IClientPlugin loadClientPlugin(Class<IClientPlugin> pluginClass)
+	protected void checkPluginForConvertersAndValidators(IClientPlugin plugin)
+	{
+		try
+		{
+			long now = System.currentTimeMillis();
+			if (plugin instanceof IColumnConverterProvider && columnConverterManager != null)
+			{
+				IColumnConverter[] cons = ((IColumnConverterProvider)plugin).getColumnConverters();
+				if (cons != null)
+				{
+					for (IColumnConverter element2 : cons)
+					{
+						if (element2 != null)
+						{
+							columnConverterManager.registerConvertor(element2);
+						}
+					}
+				}
+			}
+			if (plugin instanceof IUIConverterProvider && uiConverterManager != null)
+			{
+				IUIConverter[] cons = ((IUIConverterProvider)plugin).getUIConverters();
+				if (cons != null)
+				{
+					for (IUIConverter element2 : cons)
+					{
+						if (element2 != null)
+						{
+							uiConverterManager.registerConvertor(element2);
+						}
+					}
+				}
+			}
+			if (plugin instanceof IColumnValidatorProvider && columnValidatorManager != null)
+			{
+				IColumnValidator[] vals = ((IColumnValidatorProvider)plugin).getColumnValidators();
+				if (vals != null)
+				{
+					for (IColumnValidator element2 : vals)
+					{
+						if (element2 != null)
+						{
+							columnValidatorManager.registerValidator(element2);
+						}
+					}
+				}
+			}
+			Debug.trace("Plugin " + plugin.getName() + " checked for converter/validator in " + (System.currentTimeMillis() - now) + " ms."); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		}
+		catch (Throwable th)
+		{
+			Debug.error("Error ocured checking plugin: " + plugin.getName(), th); //$NON-NLS-1$
+		}
+	}
+
+	protected IClientPlugin loadClientPlugin(Class<IClientPlugin> pluginClass)
 	{
 		try
 		{
@@ -710,9 +705,9 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		{
 			try
 			{
-				if (pluginExtensions.size() == 0 && pluginDir.isDirectory())
+				if (pluginExtensions.size() == 0 && pluginsDir.isDirectory())
 				{
-					readDir(pluginDir, pluginExtensions, supportLibExtensions, null, false);
+					readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
 				}
 
 				List<URL> allUrls = new ArrayList<URL>(supportLibExtensions.size() + pluginExtensions.size());
@@ -725,7 +720,8 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 					allUrls.add(ext.jarUrl);
 				}
 				URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
-				_pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader(), PLUGIN_CL_SUFFIX);
+				_pluginsClassLoader = new ExtendableURLClassLoader(urls, parentClassLoader != null ? parentClassLoader : getClass().getClassLoader(),
+					PLUGIN_CL_SUFFIX);
 			}
 			catch (Throwable th)
 			{
@@ -748,7 +744,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	@Override
 	public PluginManager createEfficientCopy(Object prop_change_source)
 	{
-		PluginManager retval = new PluginManager(prop_change_source, lafLoader);
+		PluginManager retval = new PluginManager(prop_change_source, parentClassLoader);
 		return retval;
 	}
 
@@ -776,7 +772,8 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		return null;
 	}
 
-	public void addClientExtension(ExtensionResource jar, ExtensionResource[] supportLibs)
+	@Override
+	public void addClientExtension(String clientPluginClassName, URL extension, URL[] supportLibs) throws PluginException
 	{
 		//implemented by subclasses
 	}

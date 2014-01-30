@@ -45,7 +45,7 @@ public interface IServerManagerInternal extends IServerManager
 
 	void reloadServersTables() throws RepositoryException;
 
-	File getDriverDir();
+	File getDriversDir();
 
 	Driver loadDriver(String driverClassName, String url) throws Exception;
 

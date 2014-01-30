@@ -42,7 +42,7 @@ public interface IPluginManagerInternal extends IPluginManager
 
 	public void loadClientPlugins(IApplication app);
 
-	public File getPluginDir();
+	public File getPluginsDir();
 
 	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
 }

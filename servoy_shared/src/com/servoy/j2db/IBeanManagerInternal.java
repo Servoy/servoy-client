@@ -29,7 +29,7 @@ import com.servoy.j2db.util.JarManager.ExtensionResource;
  */
 public interface IBeanManagerInternal extends IBeanManager
 {
-	public File getBeanDir();
+	public File getBeansDir();
 
 	public Map<String, List<ExtensionResource>> getLoadedBeanDefs();
 }
