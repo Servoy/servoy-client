@@ -55,6 +55,7 @@ public interface IPluginManager extends IManager
 
 	/**
 	 * Dynamically add a client plugin, only to be used from OSGi bundles
+	 * @since 8.0
 	 */
 	public void addClientExtension(String clientPluginClassName, URL extension, URL[] supportLibs) throws PluginException;
 }

@@ -148,7 +148,7 @@ public abstract class JarManager
 		public final long jarFileModTime;
 
 		public boolean hasClasses = true;
-		public boolean containsDeclatedBeanClasses = true;
+		public boolean refersToBeans = false;
 
 		public ExtensionResource(URL url, String fileName, long lastModified)
 		{
@@ -405,7 +405,7 @@ public abstract class JarManager
 									List<String> beanClassNames = getClassNamesForKey(mf, JAVA_BEAN_ATTRIBUTE);
 									if (beanClassNames.size() > 0)
 									{
-										if (!ext.hasClasses) ext.containsDeclatedBeanClasses = false;
+										ext.refersToBeans = true;
 										addCommonPackageToDefinitions(ext, beanClassNames, packageJarMapping);
 										foundBeanClassNames.addAll(beanClassNames);
 
