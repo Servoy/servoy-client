@@ -1633,7 +1633,7 @@ function showtip(event,message,initialDelay, dismissDelay)
 	var m = document.getElementById('mktipmsg');
 
 	m.innerHTML = message;
-	m.style.zIndex = 203;
+	m.style.zIndex = 1000;
 	m.style.width = "";
 	m.style.overflow = "hidden";
 	
