@@ -2390,6 +2390,79 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return retval.toArray(new IRecordInternal[retval.size()]);
 	}
 
+	private int currentLoopIndex = -1;
+
+	@Override
+	public void forEach(IRecordCallback callback)
+	{
+		if (currentLoopIndex != -1)
+		{
+			Debug.error("Cannot iterate twice on the same foundset at same time!");
+			return;
+		}
+		currentLoopIndex = 0;
+		IRecord currentRecord = getCurrentRecord();
+		while (currentRecord != null)
+		{
+			callback.handleRecord(currentRecord);
+			currentRecord = getCurrentRecord();
+		}
+		currentLoopIndex = -1;
+	}
+
+	private IRecord getCurrentRecord()
+	{
+		IRecord currentRecord = null;
+		synchronized (pksAndRecords)
+		{
+			IRecordInternal state = pksAndRecords.getCachedRecords().get(currentLoopIndex);
+			if (state != null)
+			{
+				currentRecord = state;
+			}
+			else if (currentLoopIndex < pksAndRecords.getPks().getRowCount() && !findMode)
+			{
+				currentRecord = createRecord(currentLoopIndex, fsm.chunkSize, pksAndRecords.getPks(), pksAndRecords.getCachedRecords());
+			}
+			currentLoopIndex++;
+		}
+		return currentRecord;
+	}
+
+	public void recordModified(int index, boolean added)
+	{
+		synchronized (pksAndRecords)
+		{
+			if (currentLoopIndex >= 0 && index <= currentLoopIndex)
+			{
+				if (added)
+				{
+					currentLoopIndex++;
+				}
+				else if (index < currentLoopIndex)
+				{
+					currentLoopIndex--;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Iterates over the loaded records of a foundset taking into account inserts and deletes that may happen at the same time.
+	 *
+	 * @sample
+	 *  foundset.forEach(function(record) { 
+	 *  	//handle the record here  
+	 *  });
+	 *
+	 * @param callback The callback function to be called for each loaded record in the foundset.
+	 * 
+	 */
+	public void js_forEach(Function callback)
+	{
+		forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine()));
+	}
+
 	/**
 	 * Delete record with the given index.
 	 *
@@ -6399,5 +6472,31 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private boolean getBooleanAsbool(Boolean booleanObject, boolean defaultValue)
 	{
 		return booleanObject == null ? defaultValue : booleanObject.booleanValue();
+	}
+
+	private static class CallJavaScriptCallBack implements IRecordCallback
+	{
+		private final Function callback;
+		private final IExecutingEnviroment scriptEngine;
+
+		public CallJavaScriptCallBack(Function callback, IExecutingEnviroment scriptEngine)
+		{
+			this.callback = callback;
+			this.scriptEngine = scriptEngine;
+		}
+
+		@Override
+		public void handleRecord(IRecord record)
+		{
+			Scriptable callbackScope = callback.getParentScope();
+			try
+			{
+				scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record }, false, true);
+			}
+			catch (Exception ex)
+			{
+				Debug.error("Error executing callback:", ex);
+			}
+		}
 	}
 }
