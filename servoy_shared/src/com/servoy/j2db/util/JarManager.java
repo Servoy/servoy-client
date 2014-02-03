@@ -149,6 +149,7 @@ public abstract class JarManager
 
 		public boolean hasClasses = true;
 		public boolean refersToBeans = false;
+		public List<ExtensionResource> libs;
 
 		public ExtensionResource(URL url, String fileName, long lastModified)
 		{
@@ -179,7 +180,7 @@ public abstract class JarManager
 		@Override
 		public String toString()
 		{
-			return "Extension[" + jarFileName + '=' + jarUrl + ']'; //$NON-NLS-1$
+			return "ExtensionResource[" + jarFileName + '=' + jarUrl + ']'; //$NON-NLS-1$
 		}
 
 		@Override
@@ -215,13 +216,17 @@ public abstract class JarManager
 		public final Class<T> searchType;
 		public final Class<T> instanceClass;
 
-		public ExtensionResource[] libs;
-
 		public Extension(ExtensionResource jar, Class<T> cls, Class<T> searchType)
 		{
 			this.jar = jar;
 			instanceClass = cls;
 			this.searchType = searchType;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "Extension[" + instanceClass.getName() + "=searchtype:" + searchType.getName() + ']'; //$NON-NLS-1$
 		}
 	}
 
@@ -406,6 +411,8 @@ public abstract class JarManager
 									if (beanClassNames.size() > 0)
 									{
 										ext.refersToBeans = true;
+										if (ext.libs == null) ext.libs = new ArrayList<ExtensionResource>();
+
 										addCommonPackageToDefinitions(ext, beanClassNames, packageJarMapping);
 										foundBeanClassNames.addAll(beanClassNames);
 
@@ -418,6 +425,8 @@ public abstract class JarManager
 												if (f != null)
 												{
 													ExtensionResource ref = new ExtensionResource(f.toURI().toURL(), reference, f.lastModified());
+													if (!ext.libs.contains(ref)) ext.libs.add(ref);
+													
 													addCommonPackageToDefinitions(ref, beanClassNames, packageJarMapping);
 													if (!subDirRetval.contains(ref)) subDirRetval.add(ref);
 												}
