@@ -61,7 +61,7 @@ final class ValuelistValueConverter implements IConverter
 			Object convertedValue = value;
 			if (converter != null) convertedValue = converter.convertToObject(value, locale);
 			int index = list.indexOf(convertedValue);
-			if (index != -1)
+			if (index > -1)
 			{
 				return list.getRealElementAt(index);
 			}
