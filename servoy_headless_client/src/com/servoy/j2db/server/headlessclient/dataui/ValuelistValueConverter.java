@@ -56,7 +56,7 @@ final class ValuelistValueConverter implements IConverter
 			// selected from among the values that have trailing spaces.
 			if (component instanceof WebDataLookupField) value = ((WebDataLookupField)component).mapTrimmedToNotTrimmed(value);
 			int index = list.indexOf(value);
-			if (index != -1)
+			if (index > -1)
 			{
 				return list.getRealElementAt(index);
 			}
