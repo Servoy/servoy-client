@@ -681,7 +681,7 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 			if (list != null)
 			{
 				int index = list.indexOf(text);
-				if (index != -1)
+				if (index > -1)
 				{
 					return list.getRealElementAt(index);
 				}
