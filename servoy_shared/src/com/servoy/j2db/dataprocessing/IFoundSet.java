@@ -99,6 +99,14 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
 	public IRecord[] getRecords(int startrow, int count);
 
 	/**
+	 * Iterates over all loaded records of the foundset. The callback method will be called for each record. 
+	 * This method takes into acount inserts and deletes that may occur at same time.
+	 * 
+	 * @param callback Callback interface to be called for each record.
+	 */
+	public void forEach(IRecordCallback callback);
+
+	/**
 	 * Get the index of a record object inside a foundset
 	 * 
 	 * @param record the records object

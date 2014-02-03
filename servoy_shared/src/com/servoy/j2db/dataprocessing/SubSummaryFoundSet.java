@@ -583,4 +583,14 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	{
 		return null;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.servoy.j2db.dataprocessing.IFoundSet#forEach(com.servoy.j2db.dataprocessing.IRecordCallback)
+	 */
+	@Override
+	public void forEach(IRecordCallback callback)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }
