@@ -42,6 +42,7 @@ import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -2390,65 +2391,28 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return retval.toArray(new IRecordInternal[retval.size()]);
 	}
 
-	private int currentLoopIndex = -1;
 
 	@Override
-	public void forEach(IRecordCallback callback)
+	public Object forEach(IRecordCallback callback)
 	{
-		if (currentLoopIndex != -1)
-		{
-			Debug.error("Cannot iterate twice on the same foundset at same time!");
-			return;
-		}
-		currentLoopIndex = 0;
-		IRecord currentRecord = getCurrentRecord();
+		Iterator<IRecord> foundsetIterator = new FoundSetIterator();
+		IRecord currentRecord = foundsetIterator.next();
 		while (currentRecord != null)
 		{
-			callback.handleRecord(currentRecord);
-			currentRecord = getCurrentRecord();
-		}
-		currentLoopIndex = -1;
-	}
-
-	private IRecord getCurrentRecord()
-	{
-		IRecord currentRecord = null;
-		synchronized (pksAndRecords)
-		{
-			IRecordInternal state = pksAndRecords.getCachedRecords().get(currentLoopIndex);
-			if (state != null)
+			Object returnValue = callback.handleRecord(currentRecord);
+			if (returnValue != null && returnValue != Undefined.instance)
 			{
-				currentRecord = state;
+				return returnValue;
 			}
-			else if (currentLoopIndex < pksAndRecords.getPks().getRowCount() && !findMode)
-			{
-				currentRecord = createRecord(currentLoopIndex, fsm.chunkSize, pksAndRecords.getPks(), pksAndRecords.getCachedRecords());
-			}
-			currentLoopIndex++;
+			currentRecord = foundsetIterator.next();
 		}
-		return currentRecord;
-	}
-
-	public void recordModified(int index, boolean added)
-	{
-		synchronized (pksAndRecords)
-		{
-			if (currentLoopIndex >= 0 && index <= currentLoopIndex)
-			{
-				if (added)
-				{
-					currentLoopIndex++;
-				}
-				else if (index < currentLoopIndex)
-				{
-					currentLoopIndex--;
-				}
-			}
-		}
+		return null;
 	}
 
 	/**
-	 * Iterates over the loaded records of a foundset taking into account inserts and deletes that may happen at the same time.
+	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time. 
+	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a value the traversal will be stopped and that value is returned.
+	 * If no value is returned all records of the foundset will be traversed. In the callback function cannot do foundset modifications( like sort, omit...). If foundset is modified an exception will be thrown.
 	 *
 	 * @sample
 	 *  foundset.forEach(function(record) { 
@@ -2457,10 +2421,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param callback The callback function to be called for each loaded record in the foundset.
 	 * 
+	 * @return Object the return value of the callback
+	 * 
 	 */
-	public void js_forEach(Function callback)
+	public Object js_forEach(Function callback)
 	{
-		forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine()));
+		return forEach(new CallJavaScriptCallBack(callback, fsm.getScriptEngine()));
 	}
 
 	/**
@@ -6474,6 +6440,116 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return booleanObject == null ? defaultValue : booleanObject.booleanValue();
 	}
 
+	private class FoundSetIterator implements Iterator<IRecord>
+	{
+		private int currentIndex = -1;
+		private Object[] currentPK = null;
+		private final List<Object[]> processedPKS = new ArrayList<Object[]>();
+		private PKDataSet pks = null;
+
+		public FoundSetIterator()
+		{
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return true;
+		}
+
+		@Override
+		public IRecord next()
+		{
+			PKDataSet newPKs = getPksAndRecords().getPks();
+			if (pks != null && newPKs != pks)
+			{
+				// pks set has changed, a foundset operation (like sort) occurred, cannot iterate anymore
+				throw new RuntimeException(fsm.getApplication().getI18NMessage("servoy.foundSet.error.invalidIteration")); //$NON-NLS-1$
+			}
+			pks = newPKs;
+			int nextIndex = currentIndex + 1;
+			IRecord nextRecord = FoundSet.this.getRecord(nextIndex);
+			while (nextRecord instanceof PrototypeState)
+			{
+				nextIndex = currentIndex + 1;
+				nextRecord = FoundSet.this.getRecord(nextIndex);
+			}
+			if (currentIndex >= 0)
+			{
+				IRecord currentRecord = FoundSet.this.getRecord(currentIndex);
+				if (currentRecord == null || !Utils.equalObjects(currentRecord.getPK(), currentPK))
+				{
+					// something is changed in the foundset, recalculate
+					if (currentRecord == null)
+					{
+						int size = FoundSet.this.getRawSize();
+						if (size == 0)
+						{
+							return null;
+						}
+						currentIndex = size - 1;
+						currentRecord = FoundSet.this.getRecord(currentIndex);
+					}
+					if (!listContainsArray(processedPKS, currentRecord.getPK()))
+					{
+						// substract current index
+						while (currentRecord != null && !listContainsArray(processedPKS, currentRecord.getPK()))
+						{
+							currentIndex = currentIndex - 1;
+							currentRecord = FoundSet.this.getRecord(currentIndex);
+						}
+						nextIndex = currentIndex + 1;
+						nextRecord = FoundSet.this.getRecord(nextIndex);
+					}
+					else
+					{
+						// increment current index
+						while (currentRecord != null && listContainsArray(processedPKS, currentRecord.getPK()))
+						{
+							currentIndex = currentIndex + 1;
+							currentRecord = FoundSet.this.getRecord(currentIndex);
+						}
+						nextIndex = currentIndex;
+						nextRecord = currentRecord;
+					}
+					if (currentRecord == null)
+					{
+						return null;
+					}
+				}
+			}
+			if (nextRecord != null)
+			{
+				currentPK = nextRecord.getPK();
+			}
+			currentIndex = nextIndex;
+			processedPKS.add(currentPK);
+			return nextRecord;
+		}
+
+		@Override
+		public void remove()
+		{
+
+		}
+
+		private boolean listContainsArray(List<Object[]> list, Object[] value)
+		{
+			if (list != null)
+			{
+				for (Object[] array : list)
+				{
+					if (Utils.equalObjects(array, value))
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+	}
+
 	private static class CallJavaScriptCallBack implements IRecordCallback
 	{
 		private final Function callback;
@@ -6486,17 +6562,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		@Override
-		public void handleRecord(IRecord record)
+		public Object handleRecord(IRecord record)
 		{
 			Scriptable callbackScope = callback.getParentScope();
 			try
 			{
-				scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record }, false, true);
+				return scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record }, false, true);
 			}
 			catch (Exception ex)
 			{
 				Debug.error("Error executing callback:", ex);
 			}
+			return null;
 		}
 	}
 }

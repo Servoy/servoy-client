@@ -25,5 +25,5 @@ package com.servoy.j2db.dataprocessing;
 
 public interface IRecordCallback
 {
-	public void handleRecord(IRecord record);
+	public Object handleRecord(IRecord record);
 }
