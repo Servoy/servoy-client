@@ -362,39 +362,36 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		return "Servoy Client"; //$NON-NLS-1$
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IApplication#updateUI(int)
-	 */
-	public void updateUI(int time)
+	public void updateUI(int millisec)
 	{
+		int remainingTime = millisec;
 		FormController currentForm = (FormController)getFormManager().getCurrentForm();
 		if (currentForm != null)
 		{
 			currentForm.getFormUI().updateFormUI();
 		}
-		long endTime = System.currentTimeMillis() + time;
+		long endTime = System.currentTimeMillis() + remainingTime;
 		try
 		{
 			do
 			{
-				SwingHelper.dispatchEvents(time);
-				if (System.currentTimeMillis() > endTime)
+				SwingHelper.dispatchEvents(remainingTime);
+				remainingTime = (int)(endTime - System.currentTimeMillis());
+				if (remainingTime <= 0 || millisec <= 20) // we could do here time <= 0 but if user just wants a short UI update if needed - and not to really waste time in this call he can do updateUI(1 - 20) which will run at most X ms of events but could finish earlier, if there is nothing to be painted...
 				{
 					break;
 				}
 				try
 				{
-					Thread.sleep(100);
-					time = (int)(endTime - System.currentTimeMillis());
+					Thread.sleep(Math.min(40, remainingTime));
+					remainingTime = (int)(endTime - System.currentTimeMillis());
 				}
 				catch (InterruptedException e)
 				{
 					// ignore
 				}
 			}
-			while (time > 0);
+			while (remainingTime > 0);
 		}
 		catch (Exception ex)
 		{
@@ -921,10 +918,9 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		mainPanel.setPreferredSize(new Dimension(Settings.INITIAL_CLIENT_WIDTH, Settings.INITIAL_CLIENT_HEIGHT));
 		frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
 
-		// show the frame
 		frame.pack();
+		Debug.trace("Main frame packed"); //$NON-NLS-1$
 
-		Debug.trace("Showing"); //$NON-NLS-1$
 		// block when visible
 		Component glassPane = rootPane.getGlassPane();
 		glassPane.addMouseListener(new MouseAdapter()
@@ -1031,7 +1027,8 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 			attachAppleMenu(actions);
 		}
 
-		setFrameVisible(true);
+		setMainFrameInitialBounds();
+		mainPanel.showSolutionLoading(true);
 	}
 
 	/**
@@ -1067,7 +1064,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 	}
 
-	protected void setFrameVisible(final boolean b)
+	protected void setMainFrameInitialBounds()
 	{
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -1078,7 +1075,6 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 					Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 					frame.setLocation(screenSize.width / 2 - Settings.INITIAL_CLIENT_WIDTH / 2, screenSize.height / 2 - Settings.INITIAL_CLIENT_HEIGHT / 2);
 				}
-				frame.setVisible(b);
 			}
 		});
 	}
@@ -1960,7 +1956,17 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			selectSolutionDialog = new SelectSolutionDialog(this);
 		}
-		return selectSolutionDialog.showDialog(solutions);
+		mainPanel.showSolutionLoading(true);
+		SolutionMetaData tmp = null;
+		try
+		{
+			tmp = selectSolutionDialog.showDialog(solutions);
+		}
+		finally
+		{
+			if (tmp == null) mainPanel.showSolutionLoading(false);
+		}
+		return tmp;
 	}
 
 	@Override

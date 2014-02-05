@@ -17,7 +17,6 @@
 package com.servoy.j2db.smart;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -525,68 +524,15 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			boolean transparentValue = getTransparent();
 			if (transparentValue == contentPane.isOpaque())
 			{
-				setTransparency(w, container, contentPane, undecoratedW, transparentValue);
+				if (UIUtils.setWindowTransparency(w, contentPane, undecoratedW, transparentValue, true))
+				{
+					container.setOpaque(!transparentValue);
+				}
 			}
 		}
 		catch (Exception e)
 		{
 			Debug.error("Unable to set transparency on JSWindow " + getName() + ".", e);
-		}
-	}
-
-	private void setTransparency(Window w, IMainContainer container, JPanel contentPane, boolean undecoratedW, boolean transparent)
-	{
-		if (JDialog.isDefaultLookAndFeelDecorated() || undecoratedW)
-		{
-			// also set it on intermediate panes
-			container.setOpaque(!transparent);
-			contentPane.setOpaque(!transparent);
-
-			// set on window if possible
-			if (JavaVersion.CURRENT_JAVA_VERSION.major >= 7)
-			{
-				// set it the Java 7 way with bg color that has alpha 0
-				if (transparent)
-				{
-					try
-					{
-						Color oldC = w.getBackground();
-						Color newC = (oldC != null) ? new Color(oldC.getRed(), oldC.getGreen(), oldC.getBlue(), 0) : new Color(255, 255, 255, 0);
-						w.setBackground(newC);
-					}
-					catch (Exception ex)
-					{
-						Debug.trace("Error while trying to set transparency on window using v7 API; the capability might be missing.", ex);
-					}
-				}
-				else
-				{
-					w.setBackground(null);
-				}
-			}
-			else if (JavaVersion.CURRENT_JAVA_VERSION.major == 6 && JavaVersion.CURRENT_JAVA_VERSION.update >= 10) // see http://docs.oracle.com/javase/tutorial/uiswing/misc/trans_shaped_windows.html
-			{
-				try
-				{
-					// for java 1.6 u10 or later try this, as the above will only work in java 7
-					// AWTUtilities.setWindowOpaque(boolean)
-					Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
-					Method mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
-					mSetWindowOpaque.invoke(null, w, Boolean.valueOf(!transparent));
-				}
-				catch (Exception ex)
-				{
-					Debug.trace("Error while trying to set transparency on window using v6 API; the capability might be missing.", ex);
-				}
-			}
-			else
-			{
-				Debug.warn("Cannot set transparency on window; it is supported only with Java 6 update 10 or higher.");
-			}
-		}
-		else
-		{
-			Debug.warn("Transparency will no be applied to some decorated dialogs. It can lead to strange visual effects.");
 		}
 	}
 

@@ -18,11 +18,9 @@ package com.servoy.j2db.debug;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -478,19 +476,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	protected void attachAppleMenu(Map<String, Action> atns)
 	{
 		// dont attach anything
-	}
-
-	/**
-	 * @see com.servoy.j2db.smart.J2DBClient#setFrameVisible(boolean)
-	 */
-	@Override
-	protected void setFrameVisible(boolean b)
-	{
-		if (!Settings.getInstance().loadBounds(frame))
-		{
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			frame.setLocation(screenSize.width / 2 - Settings.INITIAL_CLIENT_WIDTH / 2, screenSize.height / 2 - Settings.INITIAL_CLIENT_HEIGHT / 2);
-		}
 	}
 
 	private Map<String, Action> actions;

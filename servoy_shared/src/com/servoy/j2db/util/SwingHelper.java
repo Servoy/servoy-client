@@ -124,6 +124,14 @@ public class SwingHelper
 		public abstract Object doWork() throws Exception;
 	}
 
+	/**
+	 * It will dispatch AWT EventQueue events (if not already in a dispatchEvents call) as long as events are found, for maximum given "ms" time.<br/>
+	 * If ms > 0 it is guaranteed to dispatch at least one event.
+	 * 
+	 * @param ms the maximum time to dispatch events for. If ms <= 0 no events will be dispatched.
+	 * @return the time events were dispatched from AWT EventQueue. Can be < "ms" when all available events have been dispatched. It will return 0 right away
+	 * if not currently running in event dispatch thread or we are already inside another dispatchEvents call.
+	 */
 	public static int dispatchEvents(int ms)//returns the actual time spend in ms
 	{
 //		dispatchEventsUntilNow();
@@ -138,8 +146,9 @@ public class SwingHelper
 //				int handled = 0;
 				java.awt.EventQueue eventQ = java.awt.Toolkit.getDefaultToolkit().getSystemEventQueue();
 				long start_time = System.currentTimeMillis();
-				long time = start_time + ms;
-				while (System.currentTimeMillis() < time)
+				long currentTime = start_time;
+				long end_time = start_time + ms;
+				while (currentTime < end_time)
 				{
 					if (eventQ.peekEvent() == null)
 					{
@@ -167,8 +176,9 @@ public class SwingHelper
 					{
 						//hmm
 					}
+					currentTime = System.currentTimeMillis();
 				}
-				return (int)(start_time - System.currentTimeMillis());
+				return (int)(start_time - currentTime);
 			}
 			finally
 			{

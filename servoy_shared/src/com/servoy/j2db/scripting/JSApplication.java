@@ -2896,7 +2896,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public void js_updateUI()
 	{
 		js_updateUI(100);
-
 	}
 
 	/**
