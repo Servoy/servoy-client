@@ -307,6 +307,39 @@ public class HtmlUtils
 		}
 	}
 
+	public static String unescape(String s, char c)
+	{
+		String result = s;
+		switch (c)
+		{
+			case '<' :
+				result = result.replaceAll("&lt;", "<"); //$NON-NLS-1$ //$NON-NLS-2$
+				break;
+			case '>' :
+				result = result.replaceAll("&gt;", ">"); //$NON-NLS-1$ //$NON-NLS-2$
+				break;
+			case '&' :
+				result = result.replaceAll("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
+				break;
+			case ' ' :
+				result = result.replaceAll("&nbsp;", " "); //$NON-NLS-1$ //$NON-NLS-2$
+				break;
+			case '\t' :
+				result = result.replaceAll("&nbsp;&nbsp;&nbsp;&nbsp;", "\t"); //$NON-NLS-1$ //$NON-NLS-2$
+				break;
+			case '"' :
+				result = result.replaceAll("&quot;", "\""); //$NON-NLS-1$//$NON-NLS-2$
+				break;
+			case '\'' :
+				result = result.replaceAll("&#039;", "\'"); //$NON-NLS-1$ //$NON-NLS-2$
+				break;
+			default :
+				break;
+
+		}
+		return result;
+	}
+
 	public static String getValidFontFamilyValue(String cssValue)
 	{
 		StringBuffer sb = new StringBuffer();
