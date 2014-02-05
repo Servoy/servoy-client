@@ -254,9 +254,4 @@ public class PksAndRecordsHolder
 			}
 		}
 	}
-
-	public void recordModified(int index, boolean added)
-	{
-		foundSet.recordModified(index, added);
-	}
 }

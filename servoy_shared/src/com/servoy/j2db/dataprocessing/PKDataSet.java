@@ -149,11 +149,6 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 				dynArray.getPKs().addRow(pk); // index does not matter
 			}
 		}
-
-		if (pksAndRecordsHolder != null)
-		{
-			pksAndRecordsHolder.recordModified(index, true);
-		}
 	}
 
 	public void addRow(Object[] pk)
@@ -287,10 +282,6 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 					}
 				}
 			}
-		}
-		if (pksAndRecordsHolder != null)
-		{
-			pksAndRecordsHolder.recordModified(index, false);
 		}
 	}
 
