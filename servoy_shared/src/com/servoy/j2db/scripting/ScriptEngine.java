@@ -295,6 +295,8 @@ public class ScriptEngine implements IScriptSupport
 	private void registerScriptObjectClass(Class< ? > cls)
 	{
 		IScriptObject scriptObjectForClass = ScriptObjectRegistry.getScriptObjectForClass(cls);
+		application.updateUI(1); // helps SC not freeze and it should not sleep at all, only process UI events if available for max 1 ms
+
 		if (scriptObjectForClass != null)
 		{
 			registerScriptObjectReturnTypes(scriptObjectForClass);
@@ -330,6 +332,7 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.setSealReadOnly(false);
 			for (Class< ? > element : allReturnedTypes)
 			{
+				application.updateUI(1); // helps SC not freeze and it should not sleep at all, only process UI events if available for max 1 ms
 				if (!(Scriptable.class.isAssignableFrom(element)))
 				{
 					ScriptObjectRegistry.getJavaMembers(element, toplevelScope);

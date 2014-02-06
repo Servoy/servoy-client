@@ -40,6 +40,8 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UIUtils;
+import com.servoy.j2db.util.UIUtils.ThrowingRunnable;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -59,36 +61,60 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 	}
 
 	@Override
-	public Solution[] loadActiveSolutions(RootObjectMetaData[] solutionDefs) throws RepositoryException, RemoteException
+	public Solution[] loadActiveSolutions(final RootObjectMetaData[] solutionDefs) throws RepositoryException, RemoteException
 	{
-		int[] sol_ids = new int[solutionDefs.length];
+		final int[] sol_ids = new int[solutionDefs.length];
 		for (int i = 0; i < sol_ids.length; i++)
 		{
 			sol_ids[i] = solutionDefs[i].getRootObjectId();
 		}
-		long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
-		Map<String, IServer> sps = getRepository().getServerProxies(solutionDefs);
-		Solution[] retval = new Solution[solutionDefs.length];
-		for (int i = 0; i < solutionDefs.length; i++)
+		final Solution[] retval = new Solution[solutionDefs.length];
+
+		ThrowingRunnable<RepositoryException, RemoteException> r = new ThrowingRunnable<RepositoryException, RemoteException>()
 		{
-			Solution s = loadCachedSolution(solutionDefs[i], asus[i], sps);
-			if (s == null)
+
+			@Override
+			public void run()
 			{
-				//do full load
-				s = loadSolution(solutionDefs[i]);
-			}
-			if (s != null)
-			{
-				if (s.getRepository() == null)
+				try
 				{
-					s.setRepository(getRepository()); // transient
+					long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
+					Map<String, IServer> sps = getRepository().getServerProxies(solutionDefs);
+					for (int i = 0; i < solutionDefs.length; i++)
+					{
+						Solution s = loadCachedSolution(solutionDefs[i], asus[i], sps);
+						if (s == null)
+						{
+							//do full load
+							s = loadSolution(solutionDefs[i]);
+						}
+						if (s != null)
+						{
+							if (s.getRepository() == null)
+							{
+								s.setRepository(getRepository()); // transient
+							}
+							loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
+							s.setServerProxies(sps);
+						}
+
+						retval[i] = s;
+					}
 				}
-				loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
-				s.setServerProxies(sps);
+				catch (RepositoryException eo)
+				{
+					e1 = eo;
+				}
+				catch (RemoteException et)
+				{
+					e2 = et;
+				}
 			}
 
-			retval[i] = s;
-		}
+		};
+
+		UIUtils.runWhileDispatchingEvents(r, getServiceProvider());
+
 		return retval;
 	}
 
@@ -99,44 +125,67 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 	}
 
 	@Override
-	public Solution[] loadLoginSolutionAndModules(SolutionMetaData mainSolutionDef) throws RepositoryException, RemoteException
+	public Solution[] loadLoginSolutionAndModules(final SolutionMetaData mainSolutionDef) throws RepositoryException, RemoteException
 	{
-		SolutionMetaData[] loginSolutionDefinitions = getApplicationServer().getLoginSolutionDefinitions(mainSolutionDef);
+		final SolutionMetaData[] loginSolutionDefinitions = getApplicationServer().getLoginSolutionDefinitions(mainSolutionDef);
 		if (loginSolutionDefinitions == null)
 		{
 			throw new RepositoryException("Could not load login solution");
 		}
-		Solution[] solutions = new Solution[loginSolutionDefinitions.length];
+		final Solution[] solutions = new Solution[loginSolutionDefinitions.length];
 		if (loginSolutionDefinitions.length > 0)
 		{
-			int[] sol_ids = new int[loginSolutionDefinitions.length];
-			for (int i = 0; i < sol_ids.length; i++)
+			ThrowingRunnable<RepositoryException, RemoteException> r = new ThrowingRunnable<RepositoryException, RemoteException>()
 			{
-				sol_ids[i] = loginSolutionDefinitions[i].getRootObjectId();
-			}
-			long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
-			Map<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
 
-			for (int i = 0; i < loginSolutionDefinitions.length; i++)
-			{
-				Solution s = loadCachedSolution(loginSolutionDefinitions[i], asus[i], sps);
-				if (s == null)
+				@Override
+				public void run()
 				{
-					//do full load
-					s = getApplicationServer().getLoginSolution(mainSolutionDef, loginSolutionDefinitions[i]);
-				}
-				if (s != null)
-				{
-					if (s.getRepository() == null)
+					try
 					{
-						s.setRepository(getRepository()); // transient
+						int[] sol_ids = new int[loginSolutionDefinitions.length];
+						for (int i = 0; i < sol_ids.length; i++)
+						{
+							sol_ids[i] = loginSolutionDefinitions[i].getRootObjectId();
+						}
+						long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
+						Map<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
+
+						for (int i = 0; i < loginSolutionDefinitions.length; i++)
+						{
+							Solution s = loadCachedSolution(loginSolutionDefinitions[i], asus[i], sps);
+							if (s == null)
+							{
+								//do full load
+								s = getApplicationServer().getLoginSolution(mainSolutionDef, loginSolutionDefinitions[i]);
+							}
+							if (s != null)
+							{
+								if (s.getRepository() == null)
+								{
+									s.setRepository(getRepository()); // transient
+								}
+								loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
+								s.setServerProxies(sps);
+							}
+
+							solutions[i] = s;
+						}
 					}
-					loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
-					s.setServerProxies(sps);
+					catch (RepositoryException eo)
+					{
+						e1 = eo;
+					}
+					catch (RemoteException et)
+					{
+						e2 = et;
+					}
 				}
 
-				solutions[i] = s;
-			}
+
+			};
+
+			UIUtils.runWhileDispatchingEvents(r, getServiceProvider());
 		}
 
 		return solutions;

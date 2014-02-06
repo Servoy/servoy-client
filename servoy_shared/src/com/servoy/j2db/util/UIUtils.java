@@ -19,19 +19,26 @@ package com.servoy.j2db.util;
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AppletStub;
+import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.InputEvent;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.concurrent.RejectedExecutionException;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.UIManager;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.gui.AppletController;
 
@@ -118,6 +125,143 @@ public class UIUtils
 			Debug.error(ex);
 		}
 		return clickInterval;
+	}
+
+	public static Rectangle getCenteredBoundsOn(Rectangle srcBounds, int width, int height)
+	{
+		return new Rectangle(srcBounds.x + (srcBounds.width - width) / 2, srcBounds.y + (srcBounds.height - height) / 2, width, height);
+	}
+
+	// TODO how can we refactor this to handle exceptions of unknown subtypes nicer, allowing a variable number of exception types?
+	public static abstract class ThrowingRunnable<E1T extends Exception, E2T extends Exception> implements Runnable
+	{
+
+		protected E1T e1;
+		protected E2T e2;
+
+		public void throwExceptionIfNeeded() throws E1T, E2T
+		{
+			if (e1 != null) throw e1;
+			if (e2 != null) throw e2;
+		}
+
+	}
+
+	public static <E1T extends Exception, E2T extends Exception> void runWhileDispatchingEvents(final ThrowingRunnable<E1T, E2T> r,
+		IServiceProvider serviceProvider) throws E1T, E2T
+	{
+		final boolean done[] = new boolean[1];
+		Runnable tmp = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					r.run();
+				}
+				finally
+				{
+					done[0] = true;
+				}
+			}
+		};
+
+		if (serviceProvider.isEventDispatchThread())
+		{
+			// dispatch events for UI responsiveness while the actual work runs in a background thread
+			try
+			{
+				serviceProvider.getScheduledExecutor().execute(tmp);
+			}
+			catch (RejectedExecutionException e)
+			{
+				tmp.run();
+			}
+
+			while (!done[0])
+			{
+				SwingHelper.dispatchEvents(20);
+				try
+				{
+					Thread.sleep(20);
+				}
+				catch (InterruptedException e)
+				{
+					Debug.warn(e);
+				}
+			}
+		}
+		else
+		{
+			tmp.run();
+		}
+		r.throwExceptionIfNeeded();
+	}
+
+	public static boolean setWindowTransparency(Window w, Container contentPane, boolean undecoratedW, boolean transparent, boolean complainInLogs)
+	{
+		boolean applied = false;
+		if (JDialog.isDefaultLookAndFeelDecorated() || undecoratedW)
+		{
+			// also set it on intermediate panes
+			if (contentPane instanceof JComponent) ((JComponent)contentPane).setOpaque(!transparent);
+			else if (transparent && contentPane.isOpaque())
+			{
+				applied = false;
+			}
+
+			// set on window if possible
+			if (JavaVersion.CURRENT_JAVA_VERSION.major >= 7)
+			{
+				// set it the Java 7 way with bg color that has alpha 0
+				if (transparent)
+				{
+					try
+					{
+						Color oldC = w.getBackground();
+						Color newC = (oldC != null) ? new Color(oldC.getRed(), oldC.getGreen(), oldC.getBlue(), 0) : new Color(255, 255, 255, 0);
+						w.setBackground(newC);
+					}
+					catch (Exception ex)
+					{
+						if (complainInLogs) Debug.trace("Error while trying to set transparency on window using v7 API; the capability might be missing.", ex);
+						applied = false;
+					}
+				}
+				else
+				{
+					w.setBackground(null);
+				}
+			}
+			else if (JavaVersion.CURRENT_JAVA_VERSION.major == 6 && JavaVersion.CURRENT_JAVA_VERSION.update >= 10) // see http://docs.oracle.com/javase/tutorial/uiswing/misc/trans_shaped_windows.html
+			{
+				try
+				{
+					// for java 1.6 u10 or later try this, as the above will only work in java 7
+					// AWTUtilities.setWindowOpaque(boolean)
+					Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
+					Method mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
+					mSetWindowOpaque.invoke(null, w, Boolean.valueOf(!transparent));
+				}
+				catch (Exception ex)
+				{
+					if (complainInLogs) Debug.trace("Error while trying to set transparency on window using v6 API; the capability might be missing.", ex);
+					applied = false;
+				}
+			}
+			else
+			{
+				if (complainInLogs) Debug.warn("Cannot set transparency on window; it is supported only with Java 6 update 10 or higher.");
+				applied = false;
+			}
+		}
+		else
+		{
+			if (complainInLogs) Debug.warn("Transparency will no be applied to some decorated dialogs. It can lead to strange visual effects.");
+			applied = false;
+		}
+		return applied;
 	}
 
 	/**
