@@ -440,7 +440,7 @@ public class SpecialSplitPane extends EnablePanel implements ISplitPane, IDispla
 
 	public void setDividerSize(int size)
 	{
-		splitPane.setDividerSize(size < 0 ? -1 : size);
+		splitPane.setDividerSize(size < 1 ? -1 : size);
 	}
 
 	public int getDividerSize()
