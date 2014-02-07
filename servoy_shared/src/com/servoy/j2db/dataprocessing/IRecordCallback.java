@@ -18,12 +18,12 @@
 package com.servoy.j2db.dataprocessing;
 
 /**
- * Interface used to handle a record.
+ * Interface used to handle a record during a foundset parse.
  * 
  * @author lvostinar
  */
 
 public interface IRecordCallback
 {
-	public Object handleRecord(IRecord record);
+	public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset);
 }
