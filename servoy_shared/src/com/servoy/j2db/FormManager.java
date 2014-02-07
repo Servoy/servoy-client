@@ -184,7 +184,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	 */
 	public void showSolutionLoading(boolean b)
 	{
-		getCurrentContainer().showSolutionLoading(b);
+		application.showSolutionLoading(b);
 	}
 
 	public boolean isFormReadOnly(String formName)

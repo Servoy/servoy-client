@@ -29,11 +29,6 @@ public interface IFormManagerInternal extends IBasicFormManager
 	public static final String USER_WINDOW_PREFIX = "FormWindow";
 
 	/**
-	 * Notify about solution loading
-	 */
-	public void showSolutionLoading(boolean loading);
-
-	/**
 	 * Get a form controller for external usage.
 	 * @return IForm the form
 	 */

@@ -21,7 +21,6 @@ import com.servoy.j2db.ui.IFormUI;
 
 public interface IMainContainer extends IBasicMainContainer, IFormUI, IContainer, ISupportNavigator
 {
-	public void showSolutionLoading(boolean b);
 
 	public void showBlankPanel();
 
