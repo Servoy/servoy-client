@@ -2395,11 +2395,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	@Override
 	public Object forEach(IRecordCallback callback)
 	{
-		Iterator<IRecord> foundsetIterator = new FoundSetIterator();
+		FoundSetIterator foundsetIterator = new FoundSetIterator();
 		while (foundsetIterator.hasNext())
 		{
 			IRecord currentRecord = foundsetIterator.next();
-			Object returnValue = callback.handleRecord(currentRecord, getRecordIndex(currentRecord), this);
+			Object returnValue = callback.handleRecord(currentRecord, foundsetIterator.currentIndex, this);
 			if (returnValue != null && returnValue != Undefined.instance)
 			{
 				return returnValue;
@@ -6441,7 +6441,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private class FoundSetIterator implements Iterator<IRecord>
 	{
-		private int currentIndex = -1;
+		public int currentIndex = -1;
 		private Object[] currentPK = null;
 		private final List<Object[]> processedPKS = new ArrayList<Object[]>();
 		private PKDataSet pks = null;
