@@ -1,0 +1,31 @@
+to server:
+
+// init of the connection:
+
+{cmd:"init",svyuuid:uuid_string_from_sessionstorage}
+
+
+// request form data (full state)
+
+{cmd:'requestdata',formname:string}
+   
+
+// sync between client model and server model:
+
+{cmd:'datapush',formname:string,beanname:string,changes:{propertyOfBean:value,property:vallue}}
+
+// execution of a event:
+
+{cmd:'event',formname:string,beanname:string,event:string,args:eventObj, changes:{propertyOfBean:value}}
+
+
+from server:
+
+// result of the init, getting an uuid back of the client.
+
+{svyuuid:uuid_string}
+
+
+// changes pushed by server of any form:
+
+{forms:{formname1:{beanname1:{property:value}},formname2:{beannameA:{property2:valueA}}}}

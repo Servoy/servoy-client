@@ -1,0 +1,10 @@
+<div  class="sigPad">
+    <ul class="sigNav">
+        <li class="clearButton"><a ng-click="clear()">Clear</a></li>
+    </ul>
+    <div class="sig sigWrapper">
+        <div class="typed"></div>
+        <canvas class="pad ui-body-c ui-corner-all ui-shadow-inset" width="{{model.size.width-4}}" height="{{model.size.height}}"></canvas>
+        <input  type="hidden" name="output" class="output" ng-model="model.signatureValue">
+    </div>
+</div>

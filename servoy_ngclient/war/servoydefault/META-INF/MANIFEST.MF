@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.4
+Created-By: 1.7.0_05-b06 (Oracle Corporation)
+
+Name: button/button.spec
+Web-Component: True
+
+Name: checkgroup/checkgroup.spec
+Web-Component: True
+
+Name: combobox/combobox.spec
+Web-Component: True
+
+Name: label/label.spec
+Web-Component: True
+
+Name: radiogroup/radiogroup.spec
+Web-Component: True
+
+Name: textfield/textfield.spec
+Web-Component: True
+
+Name: calendar/calendar.spec
+Web-Component: True
+
+Name: typeahead/typeahead.spec
+Web-Component: True
+
+Name: tabpanel/tabpanel.spec
+Web-Component: True
+
+Name: navigator/navigator.spec
+Web-Component: True
+

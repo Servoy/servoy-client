@@ -1,0 +1,67 @@
+<html ng-app="servoy" ng-controller="MainController">
+
+<!-- 
+##########################################
+Not used anymore because of index.ftl that generates the script references.
+We might come back to this normal index.html one when we introduce  lazy loading 
+and load scripts via javascript (requirejs) of the script references.
+###########################################
+ -->
+	<head>
+	  <title>{{solutionSettings.solutionTitle}}</title>
+	  <!-- base 3th party libraries -->
+      <link rel="stylesheet" href="css/bootstrap/css/bootstrap.css">
+      <link rel="stylesheet" href="css/ng-grid.css">
+	  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.2/angular.js"></script>
+	  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.2/angular.min.js"></script> -->
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	  <script src="js/angular-webstorage.js"></script>
+      <script src="js/angularui/ui-bootstrap-tpls-0.7.0.js"></script>
+      <script src="js/angularui/ng-grid-2.0.7.debug.js"></script>
+      <script src="js/numeral.js"></script>
+
+      <!-- base servoy libraries -->
+      <link rel="stylesheet" href="css/servoy.css">
+	  <script src="js/servoy.js"></script>
+	  <script src="js/servoyformat.js"></script>
+	  <script src="js/maincontroller.js"></script>
+        
+	  <!-- list of all the beans/components maybe having 1 file that includes them all -->
+	  <script src="servoydefault/datalabel/datalabel.js"></script>
+      <script src="servoydefault/databutton/databutton.js"></script>
+      <script src="servoydefault/datatextfield/datatextfield.js"></script>
+      <script src="webcomponents/namepanel/namepanel.js"></script>
+      <script src="servoydefault/datacombobox/datacombobox.js"></script>
+      <script src="servoydefault/dataradiogroup/dataradiogroup.js"></script>
+      <script src="servoydefault/datacheckgroup/datacheckgroup.js"></script>
+      <script src="servoydefault/datacalendar/datacalendar.js"></script>
+      <script src="servoydefault/datatypeahead/datatypeahead.js"></script>
+      <script src="servoydefault/tabpanel/tabpanel.js"></script>
+            
+      <!-- external js/css used by beans -->
+      <script src="webcomponents/signaturefield/js/jquery.signaturepad.min.js"></script>
+      <script src="webcomponents/signaturefield/signaturefield.js"></script>
+      <link rel="stylesheet" href="webcomponents/signaturefield/css/jquery.signaturepad.css">
+        
+        <!-- inlineeditfield commponent/bean -->
+      <script src="webcomponents/inlineeditfield/inlineeditfield.js"></script>
+      <link rel="stylesheet" href="webcomponents/inlineeditfield/css/inlineeditfield.css">  
+
+       
+        
+	  <!-- -list of all the form controller scripts, maybe one solution so have all the controllers as once in 1 file -->
+	  <script src="solutions/webclient2/forms/product.js"></script>
+	  <script src="solutions/webclient2/forms/orders.js"></script>
+	  <script src="solutions/webclient2/forms/ordersTableView.js"></script>
+	  <script src="solutions/webclient2/forms/ordersTableView.js"></script>
+	  <script src="solutions/webclient2/forms/orders_detail.js"></script>
+	  <script src="solutions/webclient2/forms/order_items.js"></script>
+	  <script src="solutions/webclient2/forms/order_items_copy.js"></script>
+	</head>
+<body>
+ <h3> use  http://localhost:8080/webclient2/solutions/{solutionName}/index.html
+  <br> <a href="http://localhost:8080/webclient2/solutions/webclient2/index.html">http://localhost:8080/webclient2/solutions/webclient2/index.html</a> 
+ <h3>
+<div ng-include="solutionSettings.mainForm"></div>
+</body>
+</html>

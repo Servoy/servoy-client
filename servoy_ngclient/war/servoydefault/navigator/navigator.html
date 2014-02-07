@@ -1,0 +1,16 @@
+<div>
+	<div style="text-align: center"> 
+		{{model.maxIndex > 0? 1:0}} 
+		<br> | 
+    </div>
+    <div>
+		 <input type="text" ng-model="editIndex"  ng-blur="setIndex(editIndex)" style="width:70px">
+    </div>
+    <div style="text-align: center">
+		 | <br>
+		 {{model.maxIndex > 0? model.maxIndex:0}}
+	</div>
+	<button ng-click ="handlers.setSelectedIndex(model.currentIndex-1)"> &lt; </button>
+    <button ng-click ="handlers.setSelectedIndex(model.currentIndex+1)"> &gt; </button>
+
+</div>
