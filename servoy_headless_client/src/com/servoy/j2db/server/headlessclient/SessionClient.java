@@ -1533,6 +1533,11 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	{
 	}
 
+	@Override
+	public void showSolutionLoading(boolean loading)
+	{
+	}
+
 	public void setStatusText(String text, String tooltip)
 	{
 	}

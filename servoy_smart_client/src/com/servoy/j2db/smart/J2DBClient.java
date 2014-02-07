@@ -852,6 +852,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	protected ExtendableURLStreamHandlerFactory extendableURLStreamHandlerFactory;
 
 	protected MainPanel mainPanel;
+	private LoadingUIEffects loadingUIEffects;
 
 	protected void createMainPanel()
 	{
@@ -1028,7 +1029,24 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 
 		setMainFrameInitialBounds();
-		mainPanel.showSolutionLoading(true);
+		showSolutionLoading(true);
+	}
+
+	protected LoadingUIEffects createLoadingUIEffects()
+	{
+		return new LoadingUIEffects(this, mainPanel);
+	}
+
+	@Override
+	public void showSolutionLoading(boolean loading)
+	{
+		getLoadingUIEffects().showSolutionLoading(loading);
+	}
+
+	protected LoadingUIEffects getLoadingUIEffects()
+	{
+		if (loadingUIEffects == null) loadingUIEffects = createLoadingUIEffects();
+		return loadingUIEffects;
 	}
 
 	/**
@@ -1919,7 +1937,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	protected void loadSolution(final SolutionMetaData solutionMeta) throws RepositoryException
 	{
 		// regular solution
-		getFormManager().showSolutionLoading(true);
+		showSolutionLoading(true);
 		invokeLater(new Runnable()
 		{
 			public void run()
@@ -1956,7 +1974,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		{
 			selectSolutionDialog = new SelectSolutionDialog(this);
 		}
-		mainPanel.showSolutionLoading(true);
+		showSolutionLoading(true);
 		SolutionMetaData tmp = null;
 		try
 		{
@@ -1964,7 +1982,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		}
 		finally
 		{
-			if (tmp == null) mainPanel.showSolutionLoading(false);
+			if (tmp == null) showSolutionLoading(false);
 		}
 		return tmp;
 	}

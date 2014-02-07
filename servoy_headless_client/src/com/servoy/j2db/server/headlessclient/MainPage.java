@@ -1075,11 +1075,6 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		//not needed in webclient
 	}
 
-	public void showSolutionLoading(boolean b)
-	{
-		//not needed in webclient
-	}
-
 	/**
 	 * @see wicket.Component#onAttach()
 	 */

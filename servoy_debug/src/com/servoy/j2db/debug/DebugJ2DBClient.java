@@ -97,6 +97,7 @@ import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.RemoteActiveSolutionHandler;
 import com.servoy.j2db.smart.FormFrame;
 import com.servoy.j2db.smart.J2DBClient;
+import com.servoy.j2db.smart.LoadingUIEffects;
 import com.servoy.j2db.smart.MainPanel;
 import com.servoy.j2db.smart.SwingForm;
 import com.servoy.j2db.smart.SwingFormManager;
@@ -415,6 +416,58 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 
 	}
 
+	/**
+	 * Make sure that showLoading doesn't show the main frame at inappropriate times, like first client initialisation that
+	 * might happen when opening the first form designer (so only allow it while in a "run" cycle).
+	 * @author acostescu
+	 */
+	protected class DebugLoadingUIEffects extends LoadingUIEffects
+	{
+
+		private boolean loading = false;
+		private boolean clientShouldBeShowing = false;
+
+		public DebugLoadingUIEffects(J2DBClient client, MainPanel mainPanel)
+		{
+			super(client, mainPanel);
+		}
+
+		@Override
+		public void showSolutionLoading(boolean b)
+		{
+			loading = b;
+			if (clientShouldBeShowing)
+			{
+				super.showSolutionLoading(loading);
+			}
+		}
+
+		public void setClientShouldBeShowing(boolean clientShouldBeShowing)
+		{
+			if (clientShouldBeShowing != this.clientShouldBeShowing)
+			{
+				this.clientShouldBeShowing = clientShouldBeShowing;
+				if (clientShouldBeShowing) super.showSolutionLoading(loading);
+				else super.showSolutionLoading(false);
+			}
+		}
+
+		@Override
+		protected URL getWebStartURL()
+		{
+			try
+			{
+				return new URL("http://localhost:" + ApplicationServerSingleton.get().getWebServerPort()); //$NON-NLS-1$
+			}
+			catch (MalformedURLException e)
+			{
+				Debug.trace("Cannot find base URL for solution loading image...", e); //$NON-NLS-1$
+				return null;
+			}
+		}
+
+	}
+
 	private Solution current;
 	private boolean shutDown = false;
 	private boolean unitTestsRunning = false;
@@ -516,6 +569,18 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		show(null);
 	}
 
+	@Override
+	protected LoadingUIEffects createLoadingUIEffects()
+	{
+		return new DebugLoadingUIEffects(this, mainPanel);
+	}
+
+	@Override
+	protected DebugLoadingUIEffects getLoadingUIEffects()
+	{
+		return (DebugLoadingUIEffects)super.getLoadingUIEffects();
+	}
+
 	/**
 	 * 
 	 */
@@ -535,6 +600,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				{
 					getMainApplicationFrame().setState(Frame.NORMAL);
 				}
+				getLoadingUIEffects().setClientShouldBeShowing(!shutDown);
 				if (unitTestsRunning)
 				{
 					getMainApplicationFrame().setState(Frame.ICONIFIED);
@@ -754,6 +820,8 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			Debug.error(ex);
 		}
+		getLoadingUIEffects().setClientShouldBeShowing(!shutDown);
+
 		//dispose owned windows
 		Window[] ownedWindows = getMainApplicationFrame().getOwnedWindows();
 		if (ownedWindows != null)

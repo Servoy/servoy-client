@@ -19,21 +19,15 @@ package com.servoy.j2db.smart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -45,20 +39,13 @@ import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.smart.dataui.ServoyFocusTraversalPolicy;
 import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IFocusCycleRoot;
-import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.UIUtils;
-import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.FixedCardLayout;
 
 public class MainPanel extends JPanel implements ISupportNavigator, IMainContainer, IFocusCycleRoot<Component>
 {
 
-	public static final String SERVOY_BRANDING = "servoy.branding"; //$NON-NLS-1$
-	public static final String SERVOY_BRANDING_LOADING_IMAGE = "servoy.branding.loadingimage"; //$NON-NLS-1$
-	public static final String SERVOY_BRANDING_LOADING_BACKGROUND = "servoy.branding.loadingbackground"; //$NON-NLS-1$
-	public static final String SERVOY_BRANDING_HIDE_FRAME_WHILE_LOADING = "servoy.branding.hideframewhileloading"; //$NON-NLS-1$
+	private static final String LOADING_LABEL = "LoadingLabel"; //$NON-NLS-1$
 
 	private static final long serialVersionUID = 1L;
 
@@ -145,167 +132,50 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 		flushCachedItems();
 	}
 
+	protected void showLoadingUI(JLabel loadingLabel, Color loadingBackground)
+	{
+		if (loadingBackground != null)
+		{
+			tableFormPanel.setBackground(loadingBackground);
+		}
+		tableFormPanel.add(loadingLabel, LOADING_LABEL);
+		loadingLabel.setName(LOADING_LABEL);
+		tableFormPanel.validate();
+
+		forms.show(tableFormPanel, LOADING_LABEL);
+	}
+
+	protected void hideLoadingUI(JLabel loadingLabel)
+	{
+		tableFormPanel.setBackground(null);
+		tableFormPanel.remove(loadingLabel); //maybe this is not needed at all
+		tableFormPanel.validate();
+	}
+
 	public void flushCachedItems()
 	{
 		navigator = null;
 		currentForm = null;
+
+		Component loadingLabel = null;
+		for (Component c : tableFormPanel.getComponents())
+		{
+			if (LOADING_LABEL.equals(c.getName()))
+			{
+				loadingLabel = c;
+				break;
+			}
+		}
 		tableFormPanel.removeAll();
 		// in order for the loading label not to be removed during solution loading 
-		if (loadingLabel != null && shouldShowFrameWhileLoading())
+		if (loadingLabel != null)
 		{
-			tableFormPanel.add(loadingLabel, "LoadingLabel"); //$NON-NLS-1$
+			tableFormPanel.add(loadingLabel, LOADING_LABEL);
 		}
 		tabSeqComponentList.clear();
 		if (history != null)
 		{
 			history.clear();
-		}
-	}
-
-	private JLabel loadingLabel = null;
-
-	private boolean isBrandingOn()
-	{
-		return application.getSettings().getProperty(SERVOY_BRANDING, "false").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	private boolean shouldShowFrameWhileLoading()
-	{
-		return application.getSettings().getProperty(SERVOY_BRANDING_HIDE_FRAME_WHILE_LOADING, "false").equals("false"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	public void showSolutionLoading(boolean b)
-	{
-		if (b && loadingLabel == null)
-		{
-			createLoadingLabel();
-		}
-
-		if (shouldShowFrameWhileLoading())
-		{
-			// show the "loading" img as part of the main frame/main panel
-			JFrame f = getMainFrame();
-			if (f != null && !f.isVisible()) f.setVisible(true);
-			if (b)
-			{
-				Color loadingBackground = getLoadingBackgroundColor();
-				if (loadingBackground != null)
-				{
-					tableFormPanel.setBackground(loadingBackground);
-				}
-				tableFormPanel.add(loadingLabel, "LoadingLabel"); //$NON-NLS-1$
-				tableFormPanel.validate();
-
-				forms.show(tableFormPanel, "LoadingLabel"); //$NON-NLS-1$
-			}
-			else if (loadingLabel != null)
-			{
-				tableFormPanel.setBackground(null);
-				tableFormPanel.remove(loadingLabel); //maybe this is not needed at all
-				tableFormPanel.validate();
-			}
-		}
-		else
-		{
-			// show the "loading" img as a splash undecorated frame
-
-			// hide main frame when showing splash / show the frame when done loading
-			JFrame f = getMainFrame();
-			if (f != null && f.isVisible() == b) f.setVisible(!b);
-
-			if (b)
-			{
-				getSplashFrame(true).setVisible(true);
-			}
-			else if (loadingLabel != null)
-			{
-				JFrame splashFrame = getSplashFrame(false);
-				if (splashFrame != null)
-				{
-					splashFrame.setVisible(false);
-					splashFrame.getContentPane().remove(loadingLabel);
-				}
-			}
-		}
-	}
-
-	private Color getLoadingBackgroundColor()
-	{
-		if (!isBrandingOn()) return null;
-		
-		String frameBackgroundString = application.getSettings().getProperty(SERVOY_BRANDING_LOADING_BACKGROUND);
-		Color loadingBackground = (frameBackgroundString != null ? PersistHelper.createColor(frameBackgroundString) : null);
-		return loadingBackground;
-	}
-
-	protected JFrame getSplashFrame(boolean createIfNeeded)
-	{
-		JFrame splashFrame = getFrame(loadingLabel);
-		if (splashFrame == null && createIfNeeded)
-		{
-			JFrame mf = getMainFrame();
-			splashFrame = new JFrame(mf.getTitle());
-			splashFrame.setIconImage(mf.getIconImage());
-			splashFrame.setUndecorated(true);
-			UIUtils.setWindowTransparency(splashFrame, splashFrame.getContentPane(), true, true, false);
-			splashFrame.getContentPane().add(loadingLabel, BorderLayout.CENTER);
-			splashFrame.pack();
-			if (mf.isShowing()) splashFrame.setLocationRelativeTo(mf); // this doesn't work when mf is not showing; it will probably never execute this
-			else splashFrame.setBounds(UIUtils.getCenteredBoundsOn(mf.getBounds(), splashFrame.getWidth(), splashFrame.getHeight()));
-		}
-		return splashFrame;
-	}
-
-	protected JFrame getMainFrame()
-	{
-		return getFrame(this);
-	}
-
-	protected JFrame getFrame(Component src)
-	{
-		Container c = src.getParent();
-		while (c != null && !(c instanceof JFrame))
-		{
-			c = c.getParent();
-		}
-		return (JFrame)c;
-	}
-
-	protected void createLoadingLabel()
-	{
-		String loadingImage = application.getSettings().getProperty(SERVOY_BRANDING_LOADING_IMAGE);
-		if (isBrandingOn() && loadingImage != null && Utils.isSwingClient(application.getApplicationType()))
-		{
-			if (loadingImage.equals("")) //$NON-NLS-1$
-			{
-				loadingLabel = new JLabel();
-			}
-			else
-			{
-				URL webstartUrl = WebStart.getWebStartURL();
-				try
-				{
-					String loadingImageFile = null;
-					String path = webstartUrl.getPath();
-					if (!path.equals("") && path.endsWith("/"))
-					{
-						loadingImageFile = path.substring(0, path.length() - 1) + loadingImage;
-					}
-					else loadingImageFile = loadingImage;
-					URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), loadingImageFile);
-					loadingLabel = new JLabel(new ImageIcon(url), SwingConstants.CENTER);
-				}
-				catch (MalformedURLException ex)
-				{
-					Debug.error("Error loading the solution loading image", ex); //$NON-NLS-1$
-				}
-			}
-
-		}
-
-		if (loadingLabel == null)
-		{
-			loadingLabel = new JLabel(application.loadImage("solutionloading.gif"), SwingConstants.CENTER); //$NON-NLS-1$
 		}
 	}
 

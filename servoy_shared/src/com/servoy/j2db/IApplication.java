@@ -156,6 +156,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public void setStatusText(String text, String tooltip);
 
 	/**
+	 * Update solution loading status/UI.
+	 */
+	public void showSolutionLoading(boolean loading);
+
+	/**
 	 * Get the form manager (used to control the forms, show etc).
 	 * 
 	 * @return IFormManager
