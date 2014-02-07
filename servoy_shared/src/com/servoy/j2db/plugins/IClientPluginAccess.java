@@ -277,12 +277,12 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @deprecated
 	 */
 	@Deprecated
-	public Remote getServerService(String rmiLookupName) throws Exception;
+	public Remote getServerService(String interfaceClassName) throws Exception;
 
 	/**
 	 * Get a remote server service, will not work in the Servoy Runtime product!
 	 */
-	public Remote getRemoteService(String rmiLookupName) throws Exception;
+	public Remote getRemoteService(String interfaceClassName) throws Exception;
 
 	/**
 	 * Register a URLStreamHandler for a protocol

@@ -1879,7 +1879,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 
 	protected IApplicationServer connectApplicationServer() throws Exception
 	{
-		String name = IApplicationServer.NAME;
+		String name = IApplicationServer.class.getName();
 
 		String host = getServerURL().getHost();
 		int port = Utils.getAsInteger(settings.getProperty("usedRMIRegistryPort")); //$NON-NLS-1$

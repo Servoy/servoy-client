@@ -36,7 +36,7 @@ public abstract class AbstractActiveSolutionHandler implements IActiveSolutionHa
 {
 	public IApplicationServer getApplicationServer()
 	{
-		return (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.NAME);
+		return (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.class.getName());
 	}
 
 	abstract public IRepository getRepository();

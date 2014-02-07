@@ -39,30 +39,30 @@ public interface IServerAccess extends IPluginAccess
 {
 	/**
 	 * Register a webservice in the application web server Note on the server 'init(servletConfig)' is never called, only 'init()'. The service comes available
-	 * as http://<host>[:port]/servoy-service/<webServiceName>
+	 * as http://<host>[:port]/servoy-service/<webServiceAlias>
 	 * 
-	 * @param webServiceName do start your webServiceName with your pluginname, like 'my_pluginName_webService'.
+	 * @param webServiceAlias do start your webServiceAlias with your pluginname, like 'my_pluginName_webService'.
 	 * @param service_servlet
 	 */
-	public void registerWebService(String webServiceName, HttpServlet service_servlet);
+	public void registerWebService(String webServiceAlias, HttpServlet service_servlet);
 
 	/**
 	 * Register a RMI remote object in the application server.
 	 * 
-	 * @param rmiLookupName do start your rmiLookupName with your pluginname, like 'my_pluginName.myRMIservice'.
+	 * @param interfaceClassName
 	 * @param obj
 	 * @deprecated
 	 */
 	@Deprecated
-	public void registerRMIService(String rmiLookupName, Remote obj) throws RemoteException;
+	public void registerRMIService(String interfaceClassName, Remote obj) throws RemoteException;
 
 	/**
 	 * Register a RMI remote object in the application server.
 	 * 
-	 * @param rmiLookupName do start your rmiLookupName with your pluginname, like 'my_pluginName.myRMIservice'.
+	 * @param interfaceClassName
 	 * @param obj
 	 */
-	public void registerRemoteService(String rmiLookupName, Remote obj) throws RemoteException;
+	public void registerRemoteService(String interfaceClassName, Remote obj) throws RemoteException;
 
 	/**
 	 * Get a remote server service, will not work in the Servoy Runtime product!

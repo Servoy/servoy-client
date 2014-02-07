@@ -28,13 +28,14 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 
 /**
  * Only entry point to access the application server from a client.
- * 
  * @author rgansevles
- *
  */
 public interface IApplicationServer extends Remote
 {
-	public static final String NAME = "servoy.IApplicationServer"; //$NON-NLS-1$
+	@Deprecated
+	public static final String SERVICE_NAME = IApplicationServer.class.getName();
+	@Deprecated
+	public static final String NAME = SERVICE_NAME;
 
 	public static final String DUMMY_LOGIN = "<dummy-login>"; //$NON-NLS-1$
 	public static final String DEBUG_POSTFIX = ".debug"; //$NON-NLS-1$

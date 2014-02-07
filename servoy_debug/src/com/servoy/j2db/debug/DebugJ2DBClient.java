@@ -980,7 +980,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected IApplicationServer connectApplicationServer() throws Exception
 	{
-		return (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.NAME + IApplicationServer.DEBUG_POSTFIX);
+		return (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.class.getName() + IApplicationServer.DEBUG_POSTFIX);
 	}
 
 	/**

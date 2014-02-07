@@ -616,7 +616,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	{
 		try
 		{
-			applicationServer = (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.NAME);
+			applicationServer = (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.class.getName());
 			return true;
 		}
 		catch (Exception ex)
