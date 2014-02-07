@@ -2396,15 +2396,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public Object forEach(IRecordCallback callback)
 	{
 		Iterator<IRecord> foundsetIterator = new FoundSetIterator();
-		IRecord currentRecord = foundsetIterator.next();
-		while (currentRecord != null)
+		while (foundsetIterator.hasNext())
 		{
-			Object returnValue = callback.handleRecord(currentRecord);
+			IRecord currentRecord = foundsetIterator.next();
+			Object returnValue = callback.handleRecord(currentRecord, getRecordIndex(currentRecord), this);
 			if (returnValue != null && returnValue != Undefined.instance)
 			{
 				return returnValue;
 			}
-			currentRecord = foundsetIterator.next();
 		}
 		return null;
 	}
@@ -2415,7 +2414,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * If no value is returned all records of the foundset will be traversed. In the callback function cannot do foundset modifications( like sort, omit...). If foundset is modified an exception will be thrown.
 	 *
 	 * @sample
-	 *  foundset.forEach(function(record) { 
+	 *  foundset.forEach(function(record,recordIndex,foundset) { 
 	 *  	//handle the record here  
 	 *  });
 	 *
@@ -6446,6 +6445,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		private Object[] currentPK = null;
 		private final List<Object[]> processedPKS = new ArrayList<Object[]>();
 		private PKDataSet pks = null;
+		private IRecord currentRecord = null;
 
 		public FoundSetIterator()
 		{
@@ -6454,11 +6454,32 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		@Override
 		public boolean hasNext()
 		{
-			return true;
+			if (currentRecord == null)
+			{
+				currentRecord = getNextRecord();
+			}
+			return currentRecord != null;
 		}
 
 		@Override
 		public IRecord next()
+		{
+			if (currentRecord == null)
+			{
+				currentRecord = getNextRecord();
+			}
+			IRecord returnRecord = currentRecord;
+			currentRecord = null;
+			return returnRecord;
+		}
+
+		@Override
+		public void remove()
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		private IRecord getNextRecord()
 		{
 			PKDataSet newPKs = getPksAndRecords().getPks();
 			if (pks != null && newPKs != pks)
@@ -6527,12 +6548,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return nextRecord;
 		}
 
-		@Override
-		public void remove()
-		{
-
-		}
-
 		private boolean listContainsArray(List<Object[]> list, Object[] value)
 		{
 			if (list != null)
@@ -6562,16 +6577,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		@Override
-		public Object handleRecord(IRecord record)
+		public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset)
 		{
 			Scriptable callbackScope = callback.getParentScope();
 			try
 			{
-				return scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record }, false, true);
+				return scriptEngine.executeFunction(callback, callbackScope, callbackScope, new Object[] { record, recordIndex + 1, foundset }, false, true);
 			}
 			catch (Exception ex)
 			{
 				Debug.error("Error executing callback:", ex);
+				if (ex instanceof RuntimeException)
+				{
+					throw (RuntimeException)ex;
+				}
 			}
 			return null;
 		}
