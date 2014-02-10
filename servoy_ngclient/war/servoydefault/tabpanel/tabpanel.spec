@@ -16,7 +16,7 @@ model:
         printable : 'boolean', 
         borderType : 'border', 
         size : 'dimension', 
-        tabOrientation : 'number', 
+        tabOrientation : 'int', 
         location : 'point', 
         foreground : 'color', 
         background : 'color' 
@@ -33,7 +33,7 @@ api:
             parameters:[ {'form/formname':'object []','optional':'false'}, {'name':'object','optional':'true'}, {'tabText':'object','optional':'true'}, {'tooltip':'object','optional':'true'}, {'iconURL':'object','optional':'true'}, {'fg':'object','optional':'true'}, {'bg':'object','optional':'true'}, {'relatedfoundset/relationname':'object','optional':'true'}, {'index':'object','optional':'true'}]
         }, 
         getAbsoluteFormLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getClientProperty:{
@@ -49,24 +49,24 @@ api:
             parameters:[]
         }, 
         getHeight:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationX:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getMaxTabIndex:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getMnemonicAt:{
             returns: 'string',
-            parameters:[ {'i':'number','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getName:{
             returns: 'string',
@@ -78,39 +78,39 @@ api:
         }, 
         getTabBGColorAt:{
             returns: 'string',
-            parameters:[ {'unnamed_0':'number','optional':'false'}]
+            parameters:[ {'unnamed_0':'int','optional':'false'}]
         }, 
         getTabFGColorAt:{
             returns: 'string',
-            parameters:[ {'i':'number','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getTabFormNameAt:{
             returns: 'string',
-            parameters:[ {'i':'number','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getTabNameAt:{
             returns: 'string',
-            parameters:[ {'i':'number','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getTabRelationNameAt:{
             returns: 'string',
-            parameters:[ {'i':'number','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getTabTextAt:{
             returns: 'string',
-            parameters:[ {'i':'number','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getWidth:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         isTabEnabled:{
             returns: 'boolean',
-            parameters:[ {'unnamed_0':'number','optional':'false'}]
+            parameters:[ {'unnamed_0':'int','optional':'false'}]
         }, 
         isTabEnabledAt:{
             returns: 'boolean',
-            parameters:[ {'i':'number','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         putClientProperty:{
             returns: 'void',
@@ -122,38 +122,38 @@ api:
         }, 
         removeTabAt:{
             returns: 'boolean',
-            parameters:[ {'index':'number','optional':'false'}]
+            parameters:[ {'index':'int','optional':'false'}]
         }, 
         setLocation:{
             returns: 'void',
-            parameters:[ {'x':'number','optional':'false'}, {'y':'number','optional':'false'}]
+            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
         setMnemonicAt:{
             returns: 'void',
-            parameters:[ {'index':'number','optional':'false'}, {'text':'string','optional':'false'}]
+            parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
         }, 
         setSize:{
             returns: 'void',
-            parameters:[ {'width':'number','optional':'false'}, {'height':'number','optional':'false'}]
+            parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
         }, 
         setTabBGColorAt:{
             returns: 'void',
-            parameters:[ {'unnamed_0':'number','optional':'false'}, {'unnamed_1':'string','optional':'false'}]
+            parameters:[ {'unnamed_0':'int','optional':'false'}, {'unnamed_1':'string','optional':'false'}]
         }, 
         setTabEnabled:{
             returns: 'void',
-            parameters:[ {'unnamed_0':'number','optional':'false'}, {'unnamed_1':'boolean','optional':'false'}]
+            parameters:[ {'unnamed_0':'int','optional':'false'}, {'unnamed_1':'boolean','optional':'false'}]
         }, 
         setTabEnabledAt:{
             returns: 'void',
-            parameters:[ {'i':'number','optional':'false'}, {'b':'boolean','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}, {'b':'boolean','optional':'false'}]
         }, 
         setTabFGColorAt:{
             returns: 'void',
-            parameters:[ {'i':'number','optional':'false'}, {'s':'string','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}, {'s':'string','optional':'false'}]
         }, 
         setTabTextAt:{
             returns: 'void',
-            parameters:[ {'index':'number','optional':'false'}, {'text':'string','optional':'false'}]
+            parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
         } 
 }

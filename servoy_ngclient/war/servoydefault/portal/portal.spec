@@ -16,7 +16,7 @@ model:
         transparent : 'boolean', 
         tabSeq : 'tabseq', 
         selectOnEnter : 'boolean', 
-        scrollbars : 'number', 
+        scrollbars : 'int', 
         location : 'point', 
         size : 'dimension', 
         useRTF : 'boolean', 
@@ -49,7 +49,7 @@ api:
             parameters:[ {'addOnTop':'boolean','optional':'true'}]
         }, 
         getAbsoluteFormLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getClientProperty:{
@@ -65,19 +65,19 @@ api:
             parameters:[]
         }, 
         getHeight:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationX:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getMaxRecordIndex:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getName:{
@@ -85,15 +85,15 @@ api:
             parameters:[]
         }, 
         getScrollX:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getScrollY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getSelectedIndex:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getSortColumns:{
@@ -101,7 +101,7 @@ api:
             parameters:[]
         }, 
         getWidth:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         newRecord:{
@@ -114,18 +114,18 @@ api:
         }, 
         setLocation:{
             returns: 'void',
-            parameters:[ {'x':'number','optional':'false'}, {'y':'number','optional':'false'}]
+            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
         setScroll:{
             returns: 'void',
-            parameters:[ {'x':'number','optional':'false'}, {'y':'number','optional':'false'}]
+            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
         setSelectedIndex:{
             returns: 'void',
-            parameters:[ {'index':'number','optional':'false'}]
+            parameters:[ {'index':'int','optional':'false'}]
         }, 
         setSize:{
             returns: 'void',
-            parameters:[ {'width':'number','optional':'false'}, {'height':'number','optional':'false'}]
+            parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
         } 
 }

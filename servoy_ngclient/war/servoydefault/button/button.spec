@@ -11,7 +11,7 @@ model:
         showFocus : 'boolean', 
         showClick : 'boolean', 
         styleClass : 'string', 
-        rolloverCursor : 'number', 
+        rolloverCursor : 'int', 
         tabSeq : 'tabseq', 
         mediaOptions : 'mediaoptions', 
         margin : 'dimension', 
@@ -41,7 +41,7 @@ handlers:
 api:
 {
         getAbsoluteFormLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getClientProperty:{
@@ -61,15 +61,15 @@ api:
             parameters:[]
         }, 
         getHeight:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationX:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getName:{
@@ -78,10 +78,10 @@ api:
         }, 
         getThumbnailJPGImage:{
             returns: 'byte []',
-            parameters:[ {'width':'number','optional':'true'}, {'height':'number','optional':'true'}]
+            parameters:[ {'width':'int','optional':'true'}, {'height':'int','optional':'true'}]
         }, 
         getWidth:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         putClientProperty:{
@@ -94,10 +94,10 @@ api:
         }, 
         setLocation:{
             returns: 'void',
-            parameters:[ {'x':'number','optional':'false'}, {'y':'number','optional':'false'}]
+            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
         setSize:{
             returns: 'void',
-            parameters:[ {'width':'number','optional':'false'}, {'height':'number','optional':'false'}]
+            parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
         } 
 }

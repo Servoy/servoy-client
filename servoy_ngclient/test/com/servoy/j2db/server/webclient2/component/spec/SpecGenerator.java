@@ -59,6 +59,7 @@ import com.servoy.j2db.ui.runtime.IRuntimePassword;
 import com.servoy.j2db.ui.runtime.IRuntimeRadio;
 import com.servoy.j2db.ui.runtime.IRuntimeTextArea;
 import com.servoy.j2db.ui.runtime.IRuntimeTextField;
+import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.Utils;
 
 import freemarker.cache.ClassTemplateLoader;
@@ -72,37 +73,37 @@ import freemarker.template.Version;
  * @author obuligan
  *
  */
+@SuppressWarnings("nls")
 public class SpecGenerator
 {
-	static final String SERVOYDOC_LOCATION = "../com.servoy.eclipse.core/src/com/servoy/eclipse/core/doc/servoydoc.xml";
-	static final String COMPONENTS_LOCATION = ".";
-	static final String SPEC_EXTENSION = "spec"; // TIP : the first time you run this tool change "spec" extension to "spec2" to be able to compare with existing manual spec
+	private static final String SERVOYDOC_LOCATION = "../com.servoy.eclipse.core/src/com/servoy/eclipse/core/doc/servoydoc.xml";
+	private static final String COMPONENTS_LOCATION = ".";
+	private static final String SPEC_EXTENSION = "spec"; // TIP : the first time you run this tool change "spec" extension to "spec2" to be able to compare with existing manual spec
 
 	// @formatter:off
-	static List<SpecTemplateModel> specTemplateList;
+	private static final List<SpecTemplateModel> specTemplateList = new ArrayList<SpecTemplateModel>();
 	static
 	{
-		specTemplateList = new ArrayList<SpecTemplateModel>();
-		specTemplateList.add(new SpecTemplateModel("svy-button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class));
-		specTemplateList.add(new SpecTemplateModel("svy-calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class));
-		specTemplateList.add(new SpecTemplateModel("svy-checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class));
-		specTemplateList.add(new SpecTemplateModel("svy-combobox", "Combobox ", IRepository.FIELDS, IRuntimeCombobox.class));
-		specTemplateList.add(new SpecTemplateModel("svy-label", "label", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class));
-		specTemplateList.add(new SpecTemplateModel("svy-radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadio.class));
-		specTemplateList.add(new SpecTemplateModel("svy-textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class));
-		specTemplateList.add(new SpecTemplateModel("svy-typeahead", "TypeAhead ", IRepository.FIELDS, IRuntimeTextField.class));
-		specTemplateList.add(new SpecTemplateModel("svy-tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class));
-		specTemplateList.add(new SpecTemplateModel("svy-password", "Password field", IRepository.FIELDS, IRuntimePassword.class));
-		specTemplateList.add(new SpecTemplateModel("svy-htmlarea", "Html Area", IRepository.FIELDS, IRuntimeHtmlArea.class));
-		specTemplateList.add(new SpecTemplateModel("svy-textarea", "Text Area", IRepository.FIELDS, IRuntimeTextArea.class));
-		specTemplateList.add(new SpecTemplateModel("svy-check", "Check", IRepository.FIELDS, IRuntimeCheck.class));
-		specTemplateList.add(new SpecTemplateModel("svy-radio", "Radio", IRepository.FIELDS, IRuntimeRadio.class));
-		specTemplateList.add(new SpecTemplateModel("svy-imagemedia", "Image Media", IRepository.FIELDS, IRuntimeImageMedia.class));
-		specTemplateList.add(new SpecTemplateModel("svy-splitpane", "Split Pane", IRepository.FIELDS, com.servoy.j2db.ui.IScriptTabPanelMethods.class));
-		specTemplateList.add(new SpecTemplateModel("svy-portal", "Portal", IRepository.FIELDS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
-		specTemplateList.add(new SpecTemplateModel("svy-accordionpanel", "AccordionPanel", IRepository.FIELDS,
+		specTemplateList.add(new SpecTemplateModel("button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class));
+		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class));
+		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class));
+		specTemplateList.add(new SpecTemplateModel("combobox", "Combobox ", IRepository.FIELDS, IRuntimeCombobox.class));
+		specTemplateList.add(new SpecTemplateModel("label", "label", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class));
+		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadio.class));
+		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class));
+		specTemplateList.add(new SpecTemplateModel("typeahead", "TypeAhead ", IRepository.FIELDS, IRuntimeTextField.class));
+		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class));
+		specTemplateList.add(new SpecTemplateModel("password", "Password field", IRepository.FIELDS, IRuntimePassword.class));
+		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area", IRepository.FIELDS, IRuntimeHtmlArea.class));
+		specTemplateList.add(new SpecTemplateModel("textarea", "Text Area", IRepository.FIELDS, IRuntimeTextArea.class));
+		specTemplateList.add(new SpecTemplateModel("check", "Check", IRepository.FIELDS, IRuntimeCheck.class));
+		specTemplateList.add(new SpecTemplateModel("radio", "Radio", IRepository.FIELDS, IRuntimeRadio.class));
+		specTemplateList.add(new SpecTemplateModel("imagemedia", "Image Media", IRepository.FIELDS, IRuntimeImageMedia.class));
+		specTemplateList.add(new SpecTemplateModel("splitpane", "Split Pane", IRepository.FIELDS, com.servoy.j2db.ui.IScriptTabPanelMethods.class));
+		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.FIELDS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
+		specTemplateList.add(new SpecTemplateModel("accordionpanel", "AccordionPanel", IRepository.FIELDS,
 			com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
-		specTemplateList.add(new SpecTemplateModel("svy-spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
+		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
 
 		//specTemplateList.add(new SpecTemplateModel("navigator","Navigator", IRepository.FIELDS));
 	}
@@ -110,7 +111,7 @@ public class SpecGenerator
 
 	// @formatter:on
 
-	private static Configuration cfg;
+	private final Configuration cfg;
 
 	public static void main(String[] args)
 	{
@@ -139,10 +140,11 @@ public class SpecGenerator
 		{
 			try
 			{
-				File file = new File(COMPONENTS_LOCATION + "/war/servoydefault/" + componentSpec.getName() + "/" + componentSpec.getName() + "." +
-					SPEC_EXTENSION);
+				String name = componentSpec.getName();
+				File file = new File(COMPONENTS_LOCATION + "/war/servoydefault/" + name + "/" + name + "." + SPEC_EXTENSION);
 				if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
 				FileWriter fw = new FileWriter(file);
+				System.out.println("generating file: " + file);
 				generate(componentSpec, fw);
 				fw.close();
 			}
@@ -167,6 +169,7 @@ public class SpecGenerator
 		{
 			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = builderFactory.newDocumentBuilder();
+			System.out.println("parsing in " + new File(SERVOYDOC_LOCATION).getAbsolutePath());
 			Document document = builder.parse(new FileInputStream(SERVOYDOC_LOCATION));
 
 			XPath xPath = XPathFactory.newInstance().newXPath();
@@ -298,20 +301,19 @@ public class SpecGenerator
 	}
 
 	//@formatter:off
-	private static Map<Integer, String> repoTypeMapping;
-	private static Map<String, String> repoTypeMappingExceptions;
-	private static List<String> internalProperties = new ArrayList<>();
-	private static Map<String, List<String>> perComponentExceptions = new HashMap<>();
+	private static final IntHashMap<String> repoTypeMapping = new IntHashMap<String>();
+	private static final Map<String, String> repoTypeMappingExceptions = new HashMap<String, String>();
+	private static final List<String> internalProperties = new ArrayList<>();
+	private static final Map<String, List<String>> perComponentExceptions = new HashMap<>();
 	static
 	{
 		// general type mappings
-		repoTypeMapping = new HashMap<Integer, String>();
 		repoTypeMapping.put(IRepository.BOOLEAN, "boolean");
 		repoTypeMapping.put(IRepository.STRING, "string");
 		repoTypeMapping.put(IRepository.BORDER, "border");
 		repoTypeMapping.put(IRepository.TABS, "tabs[]");
 		repoTypeMapping.put(IRepository.COLOR, "color");
-		repoTypeMapping.put(IRepository.INTEGER, "number");
+		repoTypeMapping.put(IRepository.INTEGER, "int");
 		repoTypeMapping.put(IRepository.FONT, "font");
 		repoTypeMapping.put(IRepository.POINT, "point");
 		repoTypeMapping.put(IRepository.DIMENSION, "dimension");
@@ -319,7 +321,6 @@ public class SpecGenerator
 		repoTypeMapping.put(IRepositoryConstants.MEDIA, "media");
 
 		//speciffic repository element mapping
-		repoTypeMappingExceptions = new HashMap<String, String>();
 		repoTypeMappingExceptions.put("dataProviderID",
 			"{ 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}");
 		repoTypeMappingExceptions.put("format", "{for:'dataProviderID' , type:'format'}");
@@ -384,14 +385,12 @@ public class SpecGenerator
 			ret = repoTypeMapping.get(element.getTypeID());
 		}
 		//no type string found get the name of the element
-		if (ret == null && element != null) ret = element.getName();
-		return ret;
+		return ret == null ? element.getName() : ret;
 	}
 
 	private static Map<String, String> docTypeMappingExceptions = new HashMap<String, String>();
 	static
 	{
-		docTypeMappingExceptions.put("int", "number");
 		docTypeMappingExceptions.put("[B", "byte");
 	}
 

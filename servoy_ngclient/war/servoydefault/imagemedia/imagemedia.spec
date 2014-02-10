@@ -16,7 +16,7 @@ model:
         transparent : 'boolean', 
         tabSeq : 'tabseq', 
         selectOnEnter : 'boolean', 
-        scrollbars : 'number', 
+        scrollbars : 'int', 
         location : 'point', 
         size : 'dimension', 
         useRTF : 'boolean', 
@@ -41,7 +41,7 @@ handlers:
 api:
 {
         getAbsoluteFormLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getClientProperty:{
@@ -61,15 +61,15 @@ api:
             parameters:[]
         }, 
         getHeight:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationX:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getLocationY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getName:{
@@ -77,15 +77,15 @@ api:
             parameters:[]
         }, 
         getScrollX:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getScrollY:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         getWidth:{
-            returns: 'number',
+            returns: 'int',
             parameters:[]
         }, 
         putClientProperty:{
@@ -94,14 +94,14 @@ api:
         }, 
         setLocation:{
             returns: 'void',
-            parameters:[ {'x':'number','optional':'false'}, {'y':'number','optional':'false'}]
+            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
         setScroll:{
             returns: 'void',
-            parameters:[ {'x':'number','optional':'false'}, {'y':'number','optional':'false'}]
+            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
         setSize:{
             returns: 'void',
-            parameters:[ {'width':'number','optional':'false'}, {'height':'number','optional':'false'}]
+            parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
         } 
 }
