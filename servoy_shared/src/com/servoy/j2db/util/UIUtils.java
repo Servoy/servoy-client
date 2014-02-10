@@ -201,7 +201,7 @@ public class UIUtils
 
 	public static boolean setWindowTransparency(Window w, Container contentPane, boolean undecoratedW, boolean transparent, boolean complainInLogs)
 	{
-		boolean applied = false;
+		boolean applied = true;
 		if (JDialog.isDefaultLookAndFeelDecorated() || undecoratedW)
 		{
 			// also set it on intermediate panes
