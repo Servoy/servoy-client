@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.ui.scripting;
 
+import java.util.ArrayList;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -35,7 +37,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  * @since 6.0
  */
-public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeRendersupportComponent<C> implements IFormatScriptComponent,
+public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRuntimeRendersupportComponent<C> implements IFormatNotifyScriptComponent,
 	IRuntimeBaseLabel
 {
 	private String i18nTT;
@@ -156,8 +158,8 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		{
 			setComponentFormat(new ComponentFormat(FormatParser.parseFormatProperty(application.getI18NMessageIfPrefixed(formatString)),
 				componentFormat == null ? IColumnTypes.TEXT : componentFormat.dpType, componentFormat == null ? IColumnTypes.TEXT : componentFormat.uiType));
+			fireFormatChangeEvent();
 			getChangesRecorder().setChanged();
-
 			clearRenderableWrapperProperty(RenderableWrapper.PROPERTY_FORMAT);
 			fireOnRender();
 		}
@@ -182,4 +184,21 @@ public abstract class AbstractRuntimeLabel<C extends ILabel> extends AbstractRun
 		return componentFormat;
 	}
 
+	private final ArrayList<IFormatChangeListener> formatChangeListeners = new ArrayList<IFormatChangeListener>();
+
+	public void addFormatChangeListener(IFormatChangeListener formatChangeListener)
+	{
+		if (!formatChangeListeners.contains(formatChangeListener)) formatChangeListeners.add(formatChangeListener);
+	}
+
+	public void removeFormatChangeListener(IFormatChangeListener formatChangeListener)
+	{
+		formatChangeListeners.remove(formatChangeListener);
+	}
+
+	protected void fireFormatChangeEvent()
+	{
+		for (IFormatChangeListener l : formatChangeListeners)
+			l.formatChanged();
+	}
 }

@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDisplayTagText;
+import com.servoy.j2db.ui.scripting.IFormatChangeListener;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
@@ -39,7 +40,7 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
  * Runtime swing label component
  * @author jblok, jcompagner
  */
-public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth
+public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth, IFormatChangeListener
 {
 	private String dataProviderID;
 	private Object value;
@@ -48,6 +49,7 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	public DataLabel(IApplication app, RuntimeDataLabel scriptable)
 	{
 		super(app, scriptable);
+		scriptable.addFormatChangeListener(this);
 	}
 
 	/*
@@ -154,8 +156,17 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 		this.resolver = resolver;
 	}
 
+	private Object rawValue;
+
+	private void resetRawValue()
+	{
+		value = null;
+		setValueObject(rawValue);
+	}
+
 	public void setValueObject(Object obj)
 	{
+		this.rawValue = obj;
 		if (needEntireState)
 		{
 			String txt = "";
@@ -279,5 +290,16 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	public boolean stopUIEditing(boolean looseFocus)
 	{
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.scripting.IFormatChangeListener#formatChanged()
+	 */
+	@Override
+	public void formatChanged()
+	{
+		resetRawValue();
 	}
 }
