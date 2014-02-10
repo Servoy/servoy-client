@@ -201,65 +201,68 @@ public class UIUtils
 
 	public static boolean setWindowTransparency(Window w, Container contentPane, boolean undecoratedW, boolean transparent, boolean complainInLogs)
 	{
-		boolean applied = true;
-		if (JDialog.isDefaultLookAndFeelDecorated() || undecoratedW)
+		boolean applied = false;
+		if ((JDialog.isDefaultLookAndFeelDecorated() || undecoratedW))
 		{
-			// also set it on intermediate panes
-			if (contentPane instanceof JComponent) ((JComponent)contentPane).setOpaque(!transparent);
-			else if (transparent && contentPane.isOpaque())
+			if (contentPane instanceof JComponent || transparent != contentPane.isOpaque())
 			{
-				applied = false;
-			}
-
-			// set on window if possible
-			if (JavaVersion.CURRENT_JAVA_VERSION.major >= 7)
-			{
-				// set it the Java 7 way with bg color that has alpha 0
-				if (transparent)
+				// set on window if possible
+				if (JavaVersion.CURRENT_JAVA_VERSION.major >= 7)
+				{
+					// set it the Java 7 way with bg color that has alpha 0
+					if (transparent)
+					{
+						try
+						{
+							Color oldC = w.getBackground();
+							Color newC = (oldC != null) ? new Color(oldC.getRed(), oldC.getGreen(), oldC.getBlue(), 0) : new Color(255, 255, 255, 0);
+							w.setBackground(newC);
+							applied = true;
+						}
+						catch (Exception ex)
+						{
+							if (complainInLogs) Debug.trace("Error while trying to set transparency on window using v7 API; the capability might be missing.",
+								ex);
+						}
+					}
+					else
+					{
+						w.setBackground(null);
+						applied = true;
+					}
+				}
+				else if (JavaVersion.CURRENT_JAVA_VERSION.major == 6 && JavaVersion.CURRENT_JAVA_VERSION.update >= 10) // see http://docs.oracle.com/javase/tutorial/uiswing/misc/trans_shaped_windows.html
 				{
 					try
 					{
-						Color oldC = w.getBackground();
-						Color newC = (oldC != null) ? new Color(oldC.getRed(), oldC.getGreen(), oldC.getBlue(), 0) : new Color(255, 255, 255, 0);
-						w.setBackground(newC);
+						// for java 1.6 u10 or later try this, as the above will only work in java 7
+						// AWTUtilities.setWindowOpaque(boolean)
+						Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
+						Method mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
+						mSetWindowOpaque.invoke(null, w, Boolean.valueOf(!transparent));
+						applied = true;
 					}
 					catch (Exception ex)
 					{
-						if (complainInLogs) Debug.trace("Error while trying to set transparency on window using v7 API; the capability might be missing.", ex);
-						applied = false;
+						if (complainInLogs) Debug.trace("Error while trying to set transparency on window using v6 API; the capability might be missing.", ex);
 					}
 				}
 				else
 				{
-					w.setBackground(null);
+					if (complainInLogs) Debug.warn("Cannot set transparency on window; it is supported only with Java 6 update 10 or higher.");
 				}
-			}
-			else if (JavaVersion.CURRENT_JAVA_VERSION.major == 6 && JavaVersion.CURRENT_JAVA_VERSION.update >= 10) // see http://docs.oracle.com/javase/tutorial/uiswing/misc/trans_shaped_windows.html
-			{
-				try
-				{
-					// for java 1.6 u10 or later try this, as the above will only work in java 7
-					// AWTUtilities.setWindowOpaque(boolean)
-					Class< ? > awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
-					Method mSetWindowOpaque = awtUtilitiesClass.getMethod("setWindowOpaque", Window.class, boolean.class);
-					mSetWindowOpaque.invoke(null, w, Boolean.valueOf(!transparent));
-				}
-				catch (Exception ex)
-				{
-					if (complainInLogs) Debug.trace("Error while trying to set transparency on window using v6 API; the capability might be missing.", ex);
-					applied = false;
-				}
+
+				// also set it on intermediate panes
+				if (applied && contentPane instanceof JComponent) ((JComponent)contentPane).setOpaque(!transparent); // normally it will be a JComponent
 			}
 			else
 			{
-				if (complainInLogs) Debug.warn("Cannot set transparency on window; it is supported only with Java 6 update 10 or higher.");
-				applied = false;
+				if (complainInLogs) Debug.warn("Transparency will no be applied. Can't change opaque value (not JComponent).");
 			}
 		}
 		else
 		{
 			if (complainInLogs) Debug.warn("Transparency will no be applied to some decorated dialogs. It can lead to strange visual effects.");
-			applied = false;
 		}
 		return applied;
 	}

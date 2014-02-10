@@ -30,7 +30,6 @@ import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
-import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 
@@ -483,7 +482,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				if (Utils.isAppleMacOS()) sfd.getRootPane().putClientProperty("Window.shadow", Boolean.FALSE); //$NON-NLS-1$
 			}
 
-			applyOpacityAndTransparency(sfd, container, (JPanel)sfd.getContentPane(), sfd.isUndecorated());
+			applyOpacityAndTransparency(sfd, container, sfd.getContentPane(), sfd.isUndecorated());
 
 			if (windowModal)
 			{
@@ -509,7 +508,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		finalizeShowWindow(fp, formName, container, true, legacyV3Behavior, bringToFrontNeeded);
 	}
 
-	private void applyOpacityAndTransparency(Window w, IMainContainer container, JPanel contentPane, boolean undecoratedW)
+	private void applyOpacityAndTransparency(Window w, IMainContainer container, Container contentPane, boolean undecoratedW)
 	{
 		// opacity
 		float opacityValue = getOpacity();
