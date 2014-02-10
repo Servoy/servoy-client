@@ -26,5 +26,14 @@ package com.servoy.j2db.dataprocessing;
 
 public interface IRecordCallback
 {
+	/**
+	 * Method that will be called for each record in the foundset.
+	 * 
+	 * @param record Record to process.
+	 * @param recordIndex The index of the record in foundset.
+	 * @param foundset The foundset that is traversed.
+	 * 
+	 * @return null to continue traversal, anything else to stop it
+	 */
 	public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset);
 }
