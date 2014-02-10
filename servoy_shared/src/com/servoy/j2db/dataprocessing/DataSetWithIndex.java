@@ -227,4 +227,10 @@ public class DataSetWithIndex implements IDataSetWithIndex, ISerializableDataSet
 	{
 		return BufferedDataSetInternal.getColumnTypeInfo(dataset);
 	}
+
+	@Override
+	public String toString()
+	{
+		return dataset.toString();
+	}
 }
