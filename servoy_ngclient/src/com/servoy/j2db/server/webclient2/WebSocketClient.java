@@ -36,7 +36,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.webclient2.eventthread.EventDispatcher;
 import com.servoy.j2db.server.webclient2.eventthread.WebSocketEvent;
@@ -524,7 +524,7 @@ public class WebSocketClient extends ClientState implements IWebSocketApplicatio
 	{
 		if (beanManager == null)
 		{
-			beanManager = ApplicationServerSingleton.get().getBeanManager();
+			beanManager = ApplicationServerRegistry.get().getBeanManager();
 		}
 		return beanManager;
 	}

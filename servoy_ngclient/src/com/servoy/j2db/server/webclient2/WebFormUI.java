@@ -27,7 +27,7 @@ import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.webclient2.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.webclient2.component.RuntimeWebComponent;
 import com.servoy.j2db.server.webclient2.component.WebComponentSpec;
@@ -117,7 +117,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 					if (eventValue instanceof String)
 					{
 						UUID uuid = UUID.fromString((String)eventValue);
-						component.add(eventName, ((AbstractPersistFactory)ApplicationServerSingleton.get().getLocalRepository()).getElementIdForUUID(uuid));
+						component.add(eventName, ((AbstractPersistFactory)ApplicationServerRegistry.get().getLocalRepository()).getElementIdForUUID(uuid));
 					}
 					else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
 					{

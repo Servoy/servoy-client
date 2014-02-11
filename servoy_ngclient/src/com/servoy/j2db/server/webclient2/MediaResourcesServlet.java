@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Utils;
 
@@ -74,7 +74,7 @@ public class MediaResourcesServlet extends HttpServlet
 			}
 			else
 			{
-				IRepository localRepository = ApplicationServerSingleton.get().getLocalRepository();
+				IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
 				try
 				{
 					mediaData = localRepository.getMediaBlob(blobID);

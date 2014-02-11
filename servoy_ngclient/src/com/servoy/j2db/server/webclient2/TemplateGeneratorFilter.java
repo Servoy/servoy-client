@@ -44,7 +44,7 @@ import com.servoy.j2db.server.main.RuntimeBeanManager;
 import com.servoy.j2db.server.main.RuntimeLAFManager;
 import com.servoy.j2db.server.main.ServerPluginManager;
 import com.servoy.j2db.server.main.ServerStarter;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.starter.IServerStarter;
 import com.servoy.j2db.server.webclient2.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.webclient2.template.FormTemplateGenerator;
@@ -67,8 +67,8 @@ public class TemplateGeneratorFilter implements Filter
 	{
 		try
 		{
-			ApplicationServerSingleton.get().shutDown();
-			ApplicationServerSingleton.clear();
+			ApplicationServerRegistry.get().shutDown();
+			ApplicationServerRegistry.clear();
 		}
 		catch (Exception e)
 		{
@@ -95,14 +95,14 @@ public class TemplateGeneratorFilter implements Filter
 					FlattenedSolution fs = null;
 					try
 					{
-						fs = new FlattenedSolution((SolutionMetaData)ApplicationServerSingleton.get().getLocalRepository().getRootObjectMetaData(solutionName,
+						fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(solutionName,
 							IRepository.SOLUTIONS), new AbstractActiveSolutionHandler()
 						{
 
 							@Override
 							public IRepository getRepository()
 							{
-								return ApplicationServerSingleton.get().getLocalRepository();
+								return ApplicationServerRegistry.get().getLocalRepository();
 							}
 
 						});
@@ -290,11 +290,11 @@ public class TemplateGeneratorFilter implements Filter
 			final Solution mainSolution = solution;
 			final Solution[] modules = mods;
 
-			ApplicationServerSingleton.setServiceRegistry(new LocalRegistry());
+			ApplicationServerRegistry.setServiceRegistry(new LocalRegistry());
 			RuntimeLAFManager lafManager = new RuntimeLAFManager(lafUrls);
 			ServerPluginManager pluginManager = new ServerPluginManager(pluginUrls, supportLibUrls, lafManager.getClassLoader());
 			RuntimeBeanManager beanManager = new RuntimeBeanManager(pluginManager.getClassLoader(), beanUrls);
-			IServerStarter ss = new ServerStarter(settings, ApplicationServerSingleton.getServiceRegistry());
+			IServerStarter ss = new ServerStarter(settings, ApplicationServerRegistry.getServiceRegistry());
 			ss.setAppServerStartup(true);
 			ss.init();
 			ss.setRepositoryFactory(new IRepositoryFactory()
