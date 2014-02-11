@@ -9,8 +9,7 @@
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 					failonerror="true">
 					<arg value="-c"/>
-					<arg value="npm"/>
-			        <arg value="outdated"/>
+					<arg value="npm outdated"/>
 		</exec>
 		<exec executable="cmd" dir="${basedir}" osfamily="windows"
 					failonerror="true">
@@ -41,11 +40,7 @@
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 			failonerror="true">
 			<arg value="-c" />
-			<arg value="npm"/>
-			<arg value="config"/>
-			<arg value="set"/>
-			<arg value="color"/>
-			<arg value="false"/>
+			<arg value="npm config set color false"/>
 		</exec>
 
 		<exec executable="cmd" dir="${basedir}" osfamily="windows"
@@ -55,8 +50,7 @@
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 			failonerror="true">
 			<arg line="-c" />
-			<arg value="npm"/>
-			<arg value="install"/>
+			<arg value="npm install"/>
 		</exec>
 	</target>
 	
@@ -69,13 +63,11 @@
 					<arg value="start"/>
 					<arg value="${karma.conf}"/>
 		</exec>
+		<property name="temp1" value="node ./node_modules/karma/bin/karma start ${karma.conf}"/>
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 							failonerror="true">
 			                <arg value="-c"/>
-							<arg value="node"/>
-							<arg value="./node_modules/karma/bin/karma"/>
-							<arg value="start"/>
-							<arg value="${karma.conf}"/>
+							<arg value="${temp1}"/>
 		</exec>
 	</target>
 
@@ -89,13 +81,11 @@
 					<arg value="start"/>
 					<arg value="${karma_run_on_file_change.conf}"/>
 		</exec>
+		<property name="temp2" value="node ./node_modules/karma/bin/karma start ${karma_run_on_file_change.conf}"/>
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 							failonerror="true">
 							<arg value="-c"/>
-							<arg value="node"/>
-							<arg value="./node_modules/karma/bin/karma"/>
-							<arg value="start"/>
-							<arg value="${karma_run_on_file_change.conf}"/>
+							<arg value="${temp2}"/>
 		</exec>
 	</target>
 
