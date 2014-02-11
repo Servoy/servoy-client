@@ -3,10 +3,11 @@ module.exports = function(config){
     basePath : '.',
 
     files : [
-       '../war/js/angular.js',
+       'lib/angular.js',
+       'lib/angular-mocks.js',
+       'lib/*',
        '../war/js/*',
        '../war/js/angularui/**',
-       'lib/angular-mocks.js',
        './test/*.js'
     ],
 
@@ -30,9 +31,9 @@ module.exports = function(config){
             'karma-jasmine'
             ],*/
     singleRun: true,
-            reporters: ['dots', 'junit'],
-            junitReporter: {
-            outputFile: 'test-results.xml'
+    reporters: ['dots', 'junit'],
+    junitReporter: {
+          outputFile: 'test-results.xml'
     }
   /*,  alternative format
     junitReporter : {

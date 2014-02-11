@@ -3,11 +3,12 @@ module.exports = function(config){
     basePath : '.',
 
     files : [
-        '../war/js/angular.js',
-        '../war/js/*',
-        '../war/js/angularui/**',
-        'lib/angular-mocks.js',
-        './test/*.js'
+       'lib/angular.js',
+       'lib/angular-mocks.js',
+       'lib/*',
+       '../war/js/*',
+       '../war/js/angularui/**',
+       './test/*.js'
     ],
 
     exclude : [
