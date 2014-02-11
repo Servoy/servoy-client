@@ -20,6 +20,8 @@ package com.servoy.j2db.ui.scripting;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -432,5 +434,56 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	public String toString()
 	{
 		return toString(getComponent() == null ? null : getValueString());
+	}
+
+	private PropertyChangeSupport changeSupport;
+
+	public void addPropertyChangeListener(PropertyChangeListener listener)
+	{
+		synchronized (getObjectLock())
+		{
+			if (listener == null)
+			{
+				return;
+			}
+			if (changeSupport == null)
+			{
+				changeSupport = new PropertyChangeSupport(this);
+			}
+			changeSupport.addPropertyChangeListener(listener);
+		}
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener)
+	{
+		synchronized (getObjectLock())
+		{
+			if (listener == null || changeSupport == null)
+			{
+				return;
+			}
+			changeSupport.removePropertyChangeListener(listener);
+		}
+	}
+
+	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue)
+	{
+		PropertyChangeSupport changeSupport;
+		synchronized (getObjectLock())
+		{
+			changeSupport = this.changeSupport;
+		}
+		if (changeSupport == null || (oldValue != null && newValue != null && oldValue.equals(newValue)))
+		{
+			return;
+		}
+		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+	}
+
+	private transient Object objectLock = new Object();
+
+	Object getObjectLock()
+	{
+		return objectLock;
 	}
 }
