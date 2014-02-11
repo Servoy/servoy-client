@@ -106,7 +106,7 @@ import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebItemFactory;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.smart.dataui.DataRendererFactory;
@@ -342,7 +342,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		{
 			registered = super.registerClient(uc); // when registered is false, client is registered but with a trial license
 			// access the server directly to mark the client as local
-			ApplicationServerSingleton.get().setServerProcess(getClientID());
+			ApplicationServerRegistry.get().setServerProcess(getClientID());
 		}
 		catch (final ApplicationException e)
 		{
@@ -442,7 +442,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			{
 				Application.set(wicket_app);
 			}
-			if (ApplicationServerSingleton.get() != null)
+			if (ApplicationServerRegistry.get() != null)
 			{
 				if (!Session.exists())
 				{
@@ -544,7 +544,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	{
 		try
 		{
-			return new URL("http://localhost:" + ApplicationServerSingleton.get().getWebServerPort()); //$NON-NLS-1$
+			return new URL("http://localhost:" + ApplicationServerRegistry.get().getWebServerPort()); //$NON-NLS-1$
 		}
 		catch (MalformedURLException e)
 		{
@@ -635,7 +635,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	@Override
 	protected void createPluginManager()
 	{
-		pluginManager = ApplicationServerSingleton.get().getPluginManager().createEfficientCopy(this);
+		pluginManager = ApplicationServerRegistry.get().getPluginManager().createEfficientCopy(this);
 		pluginManager.init();
 		((PluginManager)pluginManager).initClientPlugins(this, (IClientPluginAccess)(pluginAccess = createClientPluginAccess()));
 		((FoundSetManager)getFoundSetManager()).setColumnManangers(pluginManager.getColumnValidatorManager(), pluginManager.getColumnConverterManager(),
@@ -650,12 +650,12 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	protected ILAFManager createLAFManager()
 	{
-		return ApplicationServerSingleton.get().getLafManager();
+		return ApplicationServerRegistry.get().getLafManager();
 	}
 
 	protected IBeanManager createBeanManager()
 	{
-		return ApplicationServerSingleton.get().getBeanManager();
+		return ApplicationServerRegistry.get().getBeanManager();
 	}
 
 	/*
@@ -1138,11 +1138,11 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			{
 				properties = new Properties();
 				Messages.invalidConnection = false;
-				Messages.loadMessagesFromDatabaseInternal(null, ApplicationServerSingleton.get().getClientId(), getSettings(), getDataServer(),
+				Messages.loadMessagesFromDatabaseInternal(null, ApplicationServerRegistry.get().getClientId(), getSettings(), getDataServer(),
 					getRepository(), properties, loc, getFoundSetManager());
 				if (getSolution() != null) //must be sure that solution is loaded, app might retrieve system messages, before solution loaded!
 				{
-					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), ApplicationServerSingleton.get().getClientId(), getSettings(),
+					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), ApplicationServerRegistry.get().getClientId(), getSettings(),
 						getDataServer(), getRepository(), properties, loc, getFoundSetManager());
 					messages.put(loc, properties);
 				}
@@ -1370,7 +1370,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	{
 		if (beanManager == null)
 		{
-			beanManager = ApplicationServerSingleton.get().getBeanManager();
+			beanManager = ApplicationServerRegistry.get().getBeanManager();
 		}
 		return beanManager;
 	}

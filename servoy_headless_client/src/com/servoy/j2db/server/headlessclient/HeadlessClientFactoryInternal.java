@@ -33,7 +33,7 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -62,7 +62,7 @@ public class HeadlessClientFactoryInternal
 			{
 				try
 				{
-					IApplicationServerSingleton as = ApplicationServerSingleton.get();
+					IApplicationServerSingleton as = ApplicationServerRegistry.get();
 
 					boolean nodebug = false;
 					Object[] openArgs = solutionOpenMethodArgs;
@@ -174,7 +174,7 @@ public class HeadlessClientFactoryInternal
 		if (userName != null)
 		{
 			// let the import hook client run with credentials from the logged in user from the admin page.
-			sc.getClientInfo().setUserUid(ApplicationServerSingleton.get().getUserManager().getUserUID(sc.getClientID(), userName));
+			sc.getClientInfo().setUserUid(ApplicationServerRegistry.get().getUserManager().getUserUID(sc.getClientID(), userName));
 			sc.getClientInfo().setUserName(userName);
 		}
 		sc.setOutputChannel(channel);

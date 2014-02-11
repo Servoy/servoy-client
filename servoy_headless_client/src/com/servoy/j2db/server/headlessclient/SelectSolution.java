@@ -37,7 +37,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
@@ -68,7 +68,7 @@ public class SelectSolution extends WebPage
 		List<Solution> data = new ArrayList<Solution>();
 		try
 		{
-			IApplicationServerSingleton as = ApplicationServerSingleton.get();
+			IApplicationServerSingleton as = ApplicationServerRegistry.get();
 			if (as.isDeveloperStartup())
 			{
 				data.add(as.getDebugClientHandler().getDebugSmartClient().getCurrent());

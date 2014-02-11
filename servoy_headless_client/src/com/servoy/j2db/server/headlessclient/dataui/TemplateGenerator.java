@@ -91,7 +91,7 @@ import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -308,7 +308,7 @@ public class TemplateGenerator
 
 	public static Pair<String, String> getFormHTMLAndCSS(int solution_id, int form_id) throws RepositoryException, RemoteException
 	{
-		final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+		final IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 
 		Solution solution = (Solution)repository.getActiveRootObject(solution_id);
 		Form form = solution.getForm(form_id);
@@ -324,7 +324,7 @@ public class TemplateGenerator
 		throws RepositoryException, RemoteException
 	{
 		if (form == null) return null;
-		final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+		final IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 		boolean enableAnchoring = sp != null ? Utils.getAsBoolean(sp.getRuntimeProperties().get("enableAnchors"))
 			: Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString()));
 
@@ -1452,7 +1452,7 @@ public class TemplateGenerator
 	public static Pair<String, String>[] getStyles() throws RepositoryException, RemoteException
 	{
 		List<Pair<String, String>> retval = new ArrayList<Pair<String, String>>();
-		IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+		IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 		RootObjectMetaData[] styleMetaDatas = repository.getRootObjectMetaDatasForType(IRepository.STYLES);
 		if (styleMetaDatas != null)
 		{
@@ -1548,7 +1548,7 @@ public class TemplateGenerator
 		styleObj.setProperty("padding", createInsetsText(DEFAULT_BUTTON_PADDING));
 		styleObj.setProperty("overflow", "hidden");
 
-		Style s = (Style)ApplicationServerSingleton.get().getLocalRepository().getActiveRootObject(name, IRepository.STYLES);
+		Style s = (Style)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(name, IRepository.STYLES);
 		boolean bodyMarginAdded = false;
 		if (s != null)
 		{
@@ -1949,7 +1949,7 @@ public class TemplateGenerator
 		boolean isComponent = false;
 		try
 		{
-			Class< ? > beanClazz = ApplicationServerSingleton.get().getBeanManager().getClassLoader().loadClass(bean.getBeanClassName());
+			Class< ? > beanClazz = ApplicationServerRegistry.get().getBeanManager().getClassLoader().loadClass(bean.getBeanClassName());
 			isComponent = Component.class.isAssignableFrom(beanClazz);
 		}
 		catch (Throwable e)

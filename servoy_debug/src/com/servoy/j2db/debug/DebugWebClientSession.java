@@ -24,7 +24,7 @@ import org.apache.wicket.RestartResponseException;
 import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.server.headlessclient.DebuggerNotConnectedErrorPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Utils;
 
@@ -51,7 +51,7 @@ public class DebugWebClientSession extends WebClientSession
 		}
 		if (RemoteDebugScriptEngine.isConnected())
 		{
-			return ApplicationServerSingleton.get().getDebugClientHandler().createDebugWebClient(this, req, credentials, method, methodArgs);
+			return ApplicationServerRegistry.get().getDebugClientHandler().createDebugWebClient(this, req, credentials, method, methodArgs);
 		}
 		throw new RestartResponseException(DebuggerNotConnectedErrorPage.class);
 	}

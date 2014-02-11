@@ -30,7 +30,7 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerManager;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -222,7 +222,7 @@ public class DataSourceUtils extends DataSourceUtilsBase
 						if (sm == null)
 						{
 							// use default
-							IApplicationServerSingleton as = ApplicationServerSingleton.get();
+							IApplicationServerSingleton as = ApplicationServerRegistry.get();
 							sm = as != null ? as.getServerManager() : null;
 						}
 						server = sm != null ? sm.getServer(stn[0], true, true) : null;

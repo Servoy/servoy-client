@@ -48,7 +48,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dnd.DNDSessionInfo;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
@@ -120,7 +120,7 @@ public class WebClientSession extends WebSession
 			if (!isSignedIn())
 			{
 				SolutionMetaData smd = (SolutionMetaData)sd;
-				IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+				IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 				Solution sol = (Solution)repository.getActiveRootObject(smd.getName(), IRepository.SOLUTIONS);
 				if (sol.getLoginSolutionName() == null && sol.getLoginFormID() <= 0 && smd.getMustAuthenticate())
 				{
@@ -183,7 +183,7 @@ public class WebClientSession extends WebSession
 
 	public boolean authenticate(String u, String p)
 	{
-		if (ApplicationServerSingleton.get().checkDefaultServoyAuthorisation(u, p) != null)
+		if (ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(u, p) != null)
 		{
 			credentials.setUserName(u);
 			credentials.setPassword(p);

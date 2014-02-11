@@ -31,7 +31,7 @@ import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.headlessclient.dataui.MediaResource;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 
@@ -105,7 +105,7 @@ public final class SharedMediaResource extends DynamicWebResource
 			{
 				try
 				{
-					IRootObject solution = ApplicationServerSingleton.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
+					IRootObject solution = ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
 					if (solution != null) return Time.valueOf(solution.getLastModifiedTime());
 				}
 				catch (Exception e)
@@ -123,7 +123,7 @@ public final class SharedMediaResource extends DynamicWebResource
 					boolean closeFS = false;
 					try
 					{
-						final IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+						final IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 						FlattenedSolution fs = null;
 						try
 						{

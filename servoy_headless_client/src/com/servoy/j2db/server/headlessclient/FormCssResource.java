@@ -41,7 +41,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -132,7 +132,7 @@ public class FormCssResource extends WebResource
 
 				try
 				{
-					IApplicationServerSingleton as = ApplicationServerSingleton.get();
+					IApplicationServerSingleton as = ApplicationServerRegistry.get();
 					RootObjectMetaData sd = as.getLocalRepository().getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
 					if (sd != null)
 					{

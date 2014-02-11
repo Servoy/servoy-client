@@ -40,7 +40,7 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
@@ -206,8 +206,8 @@ public class MetaDataUtils
 
 		QuerySelect query = createTableMetadataQuery(table, qColumns);
 
-		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerSingleton.get().getDataServer().performQuery(
-			ApplicationServerSingleton.get().getClientId(), table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
+		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerRegistry.get().getDataServer().performQuery(
+			ApplicationServerRegistry.get().getClientId(), table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
 		// not too much data?
 		if (dataSet.hadMoreRows())
 		{
@@ -282,12 +282,12 @@ public class MetaDataUtils
 
 
 		// delete existing data
-		ApplicationServerSingleton.get().getDataServer().performUpdates(ApplicationServerSingleton.get().getClientId(),
+		ApplicationServerRegistry.get().getDataServer().performUpdates(ApplicationServerRegistry.get().getClientId(),
 			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null, //
 				new QueryDelete(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()))) // delete entire table
 			});
 		// insert the data
-		ApplicationServerSingleton.get().getDataServer().insertDataSet(ApplicationServerSingleton.get().getClientId(), dataSet, table.getDataSource(),
+		ApplicationServerRegistry.get().getDataServer().insertDataSet(ApplicationServerRegistry.get().getClientId(), dataSet, table.getDataSource(),
 			table.getServerName(), table.getName(), null, null, null);
 
 		return dataSet.getRowCount();

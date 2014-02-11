@@ -91,7 +91,7 @@ import com.servoy.j2db.scripting.FunctionDefinition;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptSupport;
 import com.servoy.j2db.scripting.RuntimeWindow;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.RemoteActiveSolutionHandler;
@@ -457,7 +457,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		{
 			try
 			{
-				return new URL("http://localhost:" + ApplicationServerSingleton.get().getWebServerPort()); //$NON-NLS-1$
+				return new URL("http://localhost:" + ApplicationServerRegistry.get().getWebServerPort()); //$NON-NLS-1$
 			}
 			catch (MalformedURLException e)
 			{
@@ -542,7 +542,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		try
 		{
-			return new URL("http://127.0.0.1:" + ApplicationServerSingleton.get().getWebServerPort());
+			return new URL("http://127.0.0.1:" + ApplicationServerRegistry.get().getWebServerPort());
 		}
 		catch (MalformedURLException e)
 		{
@@ -912,7 +912,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected ILAFManager createLAFManager()
 	{
-		return ApplicationServerSingleton.get().getLafManager();
+		return ApplicationServerRegistry.get().getLafManager();
 	}
 
 	@Override
@@ -961,7 +961,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected IBeanManager createBeanManager()
 	{
-		return ApplicationServerSingleton.get().getBeanManager();
+		return ApplicationServerRegistry.get().getBeanManager();
 	}
 
 	@Override

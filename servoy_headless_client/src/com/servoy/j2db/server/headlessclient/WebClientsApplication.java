@@ -98,7 +98,7 @@ import com.servoy.j2db.server.headlessclient.jquery.JQueryLoader;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.server.headlessclient.tinymce.TinyMCELoader;
 import com.servoy.j2db.server.headlessclient.yui.YUILoader;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IWebClientSessionFactory;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ISupportEventExecutor;
@@ -296,7 +296,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 	@Override
 	protected void init()
 	{
-		if (ApplicationServerSingleton.get() == null) return; // TODO this is a workaround to allow mobile test client that only starts Tomcat not to give exceptions (please remove if mobile test client initialises a full app. server in the future)
+		if (ApplicationServerRegistry.get() == null) return; // TODO this is a workaround to allow mobile test client that only starts Tomcat not to give exceptions (please remove if mobile test client initialises a full app. server in the future)
 
 		getResourceSettings().setResourceWatcher(new ServoyModificationWatcher(Duration.seconds(5)));
 //		getResourceSettings().setResourcePollFrequency(Duration.seconds(5));
@@ -565,7 +565,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 		Session session = sessionStore.lookup(request);
 		if (session == null)
 		{
-			IWebClientSessionFactory webClientSessionFactory = ApplicationServerSingleton.get().getWebClientSessionFactory();
+			IWebClientSessionFactory webClientSessionFactory = ApplicationServerRegistry.get().getWebClientSessionFactory();
 			if (webClientSessionFactory == null)
 			{
 				throw new IllegalStateException("Server was not started for web client usage");

@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -55,7 +55,7 @@ public class SolutionMetaData extends RootObjectMetaData
 	{
 		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;
-		if (ApplicationServerSingleton.get() != null) protectionPassword = ApplicationServerSingleton.get().calculateProtectionPassword(this, null);
+		if (ApplicationServerRegistry.get() != null) protectionPassword = ApplicationServerRegistry.get().calculateProtectionPassword(this, null);
 	}
 
 	public boolean getMustAuthenticate()
@@ -82,7 +82,7 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	public boolean isProtected()
 	{
-		return ApplicationServerSingleton.get().isSolutionProtected(this);
+		return ApplicationServerRegistry.get().isSolutionProtected(this);
 	}
 
 	public int getSolutionType()

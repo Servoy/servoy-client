@@ -49,7 +49,7 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -258,10 +258,10 @@ public class Messages
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
 				null, null, null, null, fm);
 		}
-		else if (ApplicationServerSingleton.get() != null)
+		else if (ApplicationServerRegistry.get() != null)
 		{
-			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
-				ApplicationServerSingleton.get().getLocalRepository(), properties, null, language, ALL_LOCALES, null, null, null, null, fm);
+			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerRegistry.get().getDataServer(),
+				ApplicationServerRegistry.get().getLocalRepository(), properties, null, language, ALL_LOCALES, null, null, null, null, fm);
 		}
 	}
 
@@ -314,10 +314,10 @@ public class Messages
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, properties, null, language, ALL_LOCALES,
 				searchKey, searchText, columnNameFilter, columnValueFilter, fm);
 		}
-		else if (ApplicationServerSingleton.get() != null)
+		else if (ApplicationServerRegistry.get() != null)
 		{
-			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
-				ApplicationServerSingleton.get().getLocalRepository(), properties, null, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
+			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerRegistry.get().getDataServer(),
+				ApplicationServerRegistry.get().getLocalRepository(), properties, null, language, ALL_LOCALES, searchKey, searchText, columnNameFilter,
 				columnValueFilter, fm);
 		}
 	}
@@ -335,10 +335,10 @@ public class Messages
 			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, dataServer, repository, defaultProperties, localeProperties,
 				language, ALL_LOCALES, searchKey, searchText, columnNameFilter, columnValueFilter, fm);
 		}
-		else if (ApplicationServerSingleton.get() != null)
+		else if (ApplicationServerRegistry.get() != null)
 		{
-			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerSingleton.get().getDataServer(),
-				ApplicationServerSingleton.get().getLocalRepository(), defaultProperties, localeProperties, language, ALL_LOCALES, searchKey, searchText,
+			loadMessagesFromDatabaseRepositoryInternal(i18nDatasource, clientId, settings, ApplicationServerRegistry.get().getDataServer(),
+				ApplicationServerRegistry.get().getLocalRepository(), defaultProperties, localeProperties, language, ALL_LOCALES, searchKey, searchText,
 				columnNameFilter, columnValueFilter, fm);
 		}
 	}

@@ -31,7 +31,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 
 public class SecuritySupport
@@ -155,7 +155,7 @@ public class SecuritySupport
 						File file = new File(filename);
 						if (!file.exists())
 						{
-							IApplicationServerSingleton appServer = ApplicationServerSingleton.get();
+							IApplicationServerSingleton appServer = ApplicationServerRegistry.get();
 							if (appServer != null && appServer.getServoyApplicationServerDirectory() != null)
 							{
 								String applicationServerDirectory = appServer.getServoyApplicationServerDirectory();

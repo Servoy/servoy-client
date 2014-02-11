@@ -40,7 +40,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -109,7 +109,7 @@ public final class ServoyResourceStreamLocator implements IResourceStreamLocator
 						{
 							try
 							{
-								IApplicationServerSingleton as = ApplicationServerSingleton.get();
+								IApplicationServerSingleton as = ApplicationServerRegistry.get();
 								RootObjectMetaData sd = as.getLocalRepository().getRootObjectMetaData(names[0], IRepository.SOLUTIONS);
 								if (sd != null)
 								{
@@ -283,7 +283,7 @@ public final class ServoyResourceStreamLocator implements IResourceStreamLocator
 			}
 			try
 			{
-				Solution sol = (Solution)ApplicationServerSingleton.get().getLocalRepository().getActiveRootObject(sol_id);
+				Solution sol = (Solution)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(sol_id);
 				if (sol != null)
 				{
 					return Time.valueOf(sol.getLastModifiedTime());
@@ -304,7 +304,7 @@ public final class ServoyResourceStreamLocator implements IResourceStreamLocator
 		{
 			try
 			{
-				Solution sol = (Solution)ApplicationServerSingleton.get().getLocalRepository().getActiveRootObject(sol_id);
+				Solution sol = (Solution)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(sol_id);
 				if (sol != null)
 				{
 					return "Markup[solution:" + sol.getName() + ", fullpath:" + fullpath + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

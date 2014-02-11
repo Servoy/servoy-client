@@ -69,7 +69,7 @@ import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Debug;
@@ -278,7 +278,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			};
 			if (serviceProvider == getDebugHeadlessClient() || serviceProvider == getDebugAuthenticator())
 			{
-				ApplicationServerSingleton.get().getExecutor().execute(new Runnable()
+				ApplicationServerRegistry.get().getExecutor().execute(new Runnable()
 				{
 					public void run()
 					{
@@ -288,7 +288,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			}
 			else if (serviceProvider == getDebugWebClient())
 			{
-				ApplicationServerSingleton.get().getExecutor().execute(new Runnable()
+				ApplicationServerRegistry.get().getExecutor().execute(new Runnable()
 				{
 					public void run()
 					{
@@ -507,7 +507,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	private <T extends IDebugClient> T createDebugClient(final IDebugClientPovider<T> debugClientprovider)
 	{
-		if (!ApplicationServerSingleton.waitForApplicationServerStarted())
+		if (!ApplicationServerRegistry.waitForApplicationServerStarted())
 		{
 			return null;
 		}
@@ -520,7 +520,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 				{
 					try
 					{
-						synchronized (ApplicationServerSingleton.get())
+						synchronized (ApplicationServerRegistry.get())
 						{
 							if (client[0] == null)
 							{
@@ -627,7 +627,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			currentSolution.getReferencedModulesRecursive(modules);
 			if (modules.containsKey(preferedSolution))
 			{
-				solutionMetaData = (SolutionMetaData)ApplicationServerSingleton.get().getLocalRepository().getRootObjectMetaData(preferedSolution,
+				solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(preferedSolution,
 					IRepository.SOLUTIONS);
 			}
 		}
@@ -650,7 +650,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugAuthenticator.shutDown(true);
 		}
-		RootObjectMetaData rootObjectMetaData = ApplicationServerSingleton.get().getLocalRepository().getRootObjectMetaData(authenticatorName,
+		RootObjectMetaData rootObjectMetaData = ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(authenticatorName,
 			IRepository.SOLUTIONS);
 		debugAuthenticator = new DebugAuthenticator(method, objects, (SolutionMetaData)rootObjectMetaData)
 		{

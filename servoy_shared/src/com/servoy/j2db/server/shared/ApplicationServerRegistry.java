@@ -21,15 +21,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.servoy.j2db.util.Debug;
 
 /**
- * This class holds a reference to the single application server instance in this jvm.
+ * This class holds a reference to the single application server instance in this JVM and provides the registry (services).
  * @author rgansevles, jblok
  */
-public final class ApplicationServerSingleton //refactor rename to ApplicationServerRegistry
+public final class ApplicationServerRegistry
 {
 	private static final AtomicReference<IApplicationServerSingleton> as_instanceRef = new AtomicReference<IApplicationServerSingleton>();
 	private static final AtomicReference<IServiceRegistry> reg_instanceRef = new AtomicReference<IServiceRegistry>();
 
-	private ApplicationServerSingleton()
+	//cannot be created
+	private ApplicationServerRegistry()
 	{
 	}
 

@@ -61,7 +61,7 @@ import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.StartupArguments;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
@@ -1706,7 +1706,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public final boolean isInDeveloper()
 	{
-		return ApplicationServerSingleton.get() != null && ApplicationServerSingleton.get().isDeveloperStartup();
+		return ApplicationServerRegistry.get() != null && ApplicationServerRegistry.get().isDeveloperStartup();
 	}
 
 	public abstract void blockGUI(String reason);

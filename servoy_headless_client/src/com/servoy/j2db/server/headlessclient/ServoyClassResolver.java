@@ -27,7 +27,7 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.application.IClassResolver;
 
 import com.servoy.j2db.ClientState;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
 /**
  * @author jcompagner
@@ -41,7 +41,7 @@ public class ServoyClassResolver implements IClassResolver
 	 */
 	public Class resolveClass(String classname)
 	{
-		ClassLoader classLoader = ApplicationServerSingleton.get().getBeanManager().getClassLoader();
+		ClassLoader classLoader = ApplicationServerRegistry.get().getBeanManager().getClassLoader();
 		try
 		{
 			return classLoader.loadClass(classname);
@@ -72,7 +72,7 @@ public class ServoyClassResolver implements IClassResolver
 		try
 		{
 			// Try the classloader for the wicket jar/bundle
-			ClassLoader classLoader = ApplicationServerSingleton.get().getBeanManager().getClassLoader();
+			ClassLoader classLoader = ApplicationServerRegistry.get().getBeanManager().getClassLoader();
 			Enumeration<URL> resources = classLoader.getResources(name);
 			loadResources(resources, loadedFiles);
 			if (classLoader != ClientState.class.getClassLoader())

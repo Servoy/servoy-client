@@ -46,7 +46,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.MainPage.ShowUrlInfo;
-import com.servoy.j2db.server.shared.ApplicationServerSingleton;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -61,8 +61,8 @@ public class SolutionLoader extends WebPage
 
 		try
 		{
-			if (ApplicationServerSingleton.get().getDataServer().isInGlobalMaintenanceMode() ||
-				ApplicationServerSingleton.get().getDataServer().isInServerMaintenanceMode())
+			if (ApplicationServerRegistry.get().getDataServer().isInGlobalMaintenanceMode() ||
+				ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode())
 			{
 				// do this before redirect & register client - where it is usually detected, because when clustered
 				// this should result in a valid switch to another server in the cluster by the load balancer; if we wait until
@@ -92,12 +92,12 @@ public class SolutionLoader extends WebPage
 
 		try
 		{
-			IRepository repository = ApplicationServerSingleton.get().getLocalRepository();
+			IRepository repository = ApplicationServerRegistry.get().getLocalRepository();
 			SolutionMetaData smd = (SolutionMetaData)repository.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
 			if (smd == null ||
 				smd.getSolutionType() == SolutionMetaData.SOLUTION ||
 				smd.getSolutionType() == SolutionMetaData.WEB_CLIENT_ONLY ||
-				((smd.getSolutionType() == SolutionMetaData.MOBILE || smd.getSolutionType() == SolutionMetaData.MODULE) && ApplicationServerSingleton.get().isDeveloperStartup()))
+				((smd.getSolutionType() == SolutionMetaData.MOBILE || smd.getSolutionType() == SolutionMetaData.MODULE) && ApplicationServerRegistry.get().isDeveloperStartup()))
 			{
 				theReq = smd;
 			}
