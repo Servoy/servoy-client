@@ -290,10 +290,11 @@ public class TemplateGeneratorFilter implements Filter
 			final Solution mainSolution = solution;
 			final Solution[] modules = mods;
 
+			ApplicationServerSingleton.setServiceRegistry(new LocalRegistry());
 			RuntimeLAFManager lafManager = new RuntimeLAFManager(lafUrls);
 			ServerPluginManager pluginManager = new ServerPluginManager(pluginUrls, supportLibUrls, lafManager.getClassLoader());
 			RuntimeBeanManager beanManager = new RuntimeBeanManager(pluginManager.getClassLoader(), beanUrls);
-			IServerStarter ss = new ServerStarter(settings, new LocalRegistry());
+			IServerStarter ss = new ServerStarter(settings, ApplicationServerSingleton.getServiceRegistry());
 			ss.setAppServerStartup(true);
 			ss.init();
 			ss.setRepositoryFactory(new IRepositoryFactory()
