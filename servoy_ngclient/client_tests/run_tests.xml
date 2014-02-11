@@ -27,7 +27,7 @@
 	    </condition>
 	 </target>
 	
-	 <target name="install_karma_if_necessary" depends="karma_installed_check" unless="${karma.installed}">
+	 <target name="install_karma_if_necessary" depends="karma_installed_check" unless="karma.installed">
 	 	 <antcall target="install_karma"/>
 	 </target>
 	
