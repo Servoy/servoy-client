@@ -94,6 +94,11 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 	{
 	}
 
+	public static IWebSocketApplication getClient(String uuid)
+	{
+		return clients.get(uuid);
+	}
+
 	@OnOpen
 	public void start(Session session, EndpointConfig config)
 	{

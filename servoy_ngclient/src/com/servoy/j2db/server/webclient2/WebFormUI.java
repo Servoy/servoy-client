@@ -46,7 +46,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	public WebFormUI(IFormController formController)
 	{
-		super(formController.getName(), formController.getForm());
+		super(formController.getName(), formController.getForm(), formController.getApplication().getFlattenedSolution());
 		this.formController = formController;
 		this.application = (IWebSocketApplication)formController.getApplication();
 		try

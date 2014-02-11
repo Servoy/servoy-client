@@ -42,6 +42,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
@@ -64,10 +65,12 @@ public final class FormElement
 {
 	private final IPersist persist;
 	private final Map<String, Object> propertyValues;
+	private final FlattenedSolution fs;
 
-	public FormElement(Form form)
+	public FormElement(Form form, FlattenedSolution fs)
 	{
 		this.persist = form;
+		this.fs = fs;
 		Map<String, Object> map = ((AbstractBase)persist).getPropertiesMap();
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
@@ -78,6 +81,7 @@ public final class FormElement
 	public FormElement(IFormElement persist, FlattenedSolution fs)
 	{
 		this.persist = persist;
+		this.fs = fs;
 
 		if (persist instanceof Bean)
 		{
@@ -278,7 +282,6 @@ public final class FormElement
 		Map<String, Object> properties = new HashMap<>();
 		WebComponentSpec componentSpec = getWebComponentSpec();
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
-
 		for (PropertyDescription pd : propDescription.values())
 		{
 			Object val = getProperty(pd.getName());
@@ -286,6 +289,15 @@ public final class FormElement
 			switch (pd.getType())
 			{
 			// dataprovider,formats,valuelist are always only pushed through the components
+				case media :
+				{
+					Media media = fs.getMedia(Utils.getAsInteger(val));
+					if (media != null)
+					{
+						properties.put(pd.getName(), "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName());
+					}
+					break;
+				}
 				case dataprovider :
 				case format :
 				case valuelist :

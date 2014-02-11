@@ -12,6 +12,7 @@ import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Form;
@@ -30,9 +31,9 @@ public class WebComponent implements ListDataListener
 	private final Set<String> changedProperties = new HashSet<>(3);
 	private final FormElement formElement;
 
-	protected WebComponent(String name, Form form)
+	protected WebComponent(String name, Form form, FlattenedSolution fs)
 	{
-		this(name, new FormElement(form), null);
+		this(name, new FormElement(form, fs), null);
 	}
 
 	public WebComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)

@@ -4097,7 +4097,7 @@
   <!-- to use within your application.                                       -->
 
     <welcome-file-list>
-        <welcome-file>chat.html</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 
 </web-app>
