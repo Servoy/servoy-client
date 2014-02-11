@@ -608,6 +608,11 @@ public class RepositoryHelper
 			return true;
 		}
 
+		if (name.equals(StaticContentSpecLoader.PROPERTY_I18NDATASOURCE.getPropertyName()))
+		{
+			return true;
+		}
+
 		if (GraphicalComponent.class.isAssignableFrom(persistClass) && name.equals(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID.getPropertyName()) &&
 			!isButton)
 		{
