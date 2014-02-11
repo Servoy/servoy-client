@@ -18,6 +18,8 @@ package com.servoy.j2db.smart.dataui;
 
 
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.ParseException;
 
 import javax.swing.text.Document;
@@ -30,7 +32,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDisplayTagText;
-import com.servoy.j2db.ui.scripting.IFormatChangeListener;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
@@ -40,7 +41,7 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
  * Runtime swing label component
  * @author jblok, jcompagner
  */
-public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth, IFormatChangeListener
+public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth, PropertyChangeListener
 {
 	private String dataProviderID;
 	private Object value;
@@ -49,7 +50,7 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	public DataLabel(IApplication app, RuntimeDataLabel scriptable)
 	{
 		super(app, scriptable);
-		scriptable.addFormatChangeListener(this);
+		scriptable.addPropertyChangeListener(this);
 	}
 
 	/*
@@ -295,11 +296,14 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.servoy.j2db.ui.scripting.IFormatChangeListener#formatChanged()
+	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
 	@Override
-	public void formatChanged()
+	public void propertyChange(PropertyChangeEvent evt)
 	{
-		resetRawValue();
+		if ("format".equals(evt.getPropertyName()))
+		{
+			resetRawValue();
+		}
 	}
 }
