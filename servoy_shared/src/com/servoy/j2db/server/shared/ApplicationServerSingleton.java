@@ -22,34 +22,61 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * This class holds a reference to the single application server instance in this jvm.
- * @author rgansevles
- *
+ * @author rgansevles, jblok
  */
-public class ApplicationServerSingleton
+public final class ApplicationServerSingleton //refactor rename to ApplicationServerRegistry
 {
-	private static final AtomicReference<IApplicationServerSingleton> instanceRef = new AtomicReference<IApplicationServerSingleton>();
+	private static final AtomicReference<IApplicationServerSingleton> as_instanceRef = new AtomicReference<IApplicationServerSingleton>();
+	private static final AtomicReference<IServiceRegistry> reg_instanceRef = new AtomicReference<IServiceRegistry>();
+
+	private ApplicationServerSingleton()
+	{
+	}
 
 	public static IApplicationServerSingleton get()
 	{
-		return instanceRef.get();
+		return as_instanceRef.get();
 	}
 
 	/** 
 	 * Set instance, will not overwrite existing instance
 	 * @param instance
-	 * @return
+	 * @return true if successful
 	 */
-	public static boolean set(IApplicationServerSingleton instance)
+	public static boolean setApplicationServerSingleton(IApplicationServerSingleton instance)
 	{
-		return instanceRef.compareAndSet(null, instance) || instanceRef.compareAndSet(instance, instance);
+		return as_instanceRef.compareAndSet(null, instance) || as_instanceRef.compareAndSet(instance, instance);
+	}
+
+	/** 
+	 * Set instance, will not overwrite existing instance
+	 * @param instance
+	 * @return true if successful
+	 */
+	public static boolean setServiceRegistry(IServiceRegistry instance)
+	{
+		return reg_instanceRef.compareAndSet(null, instance) || reg_instanceRef.compareAndSet(instance, instance);
+	}
+
+	public static <S> S getService(Class<S> reference)
+	{
+		IServiceRegistry reg = reg_instanceRef.get();
+		if (reg != null) reg.getService(reference);
+		return null;
+	}
+
+	public static IServiceRegistry getServiceRegistry()
+	{
+		return reg_instanceRef.get();
 	}
 
 	public static void clear()
 	{
-		instanceRef.set(null);
+		as_instanceRef.set(null);
+		reg_instanceRef.set(null);
 	}
 
-	public static boolean waitForInstanceStarted()
+	public static boolean waitForApplicationServerStarted()
 	{
 		IApplicationServerSingleton instance = get();
 		if (instance == null)

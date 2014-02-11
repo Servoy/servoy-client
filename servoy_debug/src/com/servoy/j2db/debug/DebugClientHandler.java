@@ -507,7 +507,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	private <T extends IDebugClient> T createDebugClient(final IDebugClientPovider<T> debugClientprovider)
 	{
-		if (!ApplicationServerSingleton.waitForInstanceStarted())
+		if (!ApplicationServerSingleton.waitForApplicationServerStarted())
 		{
 			return null;
 		}

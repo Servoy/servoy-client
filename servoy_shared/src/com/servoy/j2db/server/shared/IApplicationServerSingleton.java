@@ -51,9 +51,8 @@ import com.servoy.j2db.util.xmlxport.VersionInfo;
 /**
  * public application server methods 
  * @author rgansevles
- *
  */
-public interface IApplicationServerSingleton extends IServiceRegistry
+public interface IApplicationServerSingleton
 {
 	IRepository getLocalRepository();
 
@@ -139,6 +138,8 @@ public interface IApplicationServerSingleton extends IServiceRegistry
 	IServerStatus getServerStatus();
 
 	IServerAccess getServerAccess();
+
+	public <S> S getService(Class<S> reference);
 
 	public boolean hadIncompatibleExtensionsWhenStarted();
 
