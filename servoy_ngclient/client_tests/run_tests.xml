@@ -6,7 +6,7 @@
 	
 	<!-- checks if used dependencies from package.json are outdated should be used manualy from time to time--> 
 	<target name="check_outdated">
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="sh" dir="${basedir}" osfamily="unix"
 					failonerror="true">
 					<arg line="npm outdated" />
 		</exec>
@@ -34,7 +34,7 @@
 			failonerror="true">
 			<arg line="/c npm config set color false" />
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="sh" dir="${basedir}" osfamily="unix"
 			failonerror="true">
 			<arg line="npm config set color false" />
 		</exec>
@@ -43,7 +43,7 @@
 			failonerror="true">
 			<arg line="/c npm install" />
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="sh" dir="${basedir}" osfamily="unix"
 			failonerror="true">
 			<arg line="npm install" />
 		</exec>
@@ -58,7 +58,7 @@
 					<arg value="start"/>
 					<arg value="${karma.conf}"/>
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="sh" dir="${basedir}" osfamily="unix"
 							failonerror="true">
 							<arg value="node"/>
 							<arg value="./node_modules/karma/bin/karma"/>
@@ -77,7 +77,7 @@
 					<arg value="start"/>
 					<arg value="${karma_run_on_file_change.conf}"/>
 		</exec>
-		<exec executable="bash" dir="${basedir}" osfamily="unix"
+		<exec executable="sh" dir="${basedir}" osfamily="unix"
 							failonerror="true">
 							<arg value="node"/>
 							<arg value="./node_modules/karma/bin/karma"/>
