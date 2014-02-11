@@ -8,11 +8,15 @@
 	<target name="check_outdated">
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 					failonerror="true">
-					<arg line="-c npm outdated" />
+					<arg value="-c"/>
+					<arg value="npm"/>
+			        <arg value="outdated"/>
 		</exec>
 		<exec executable="cmd" dir="${basedir}" osfamily="windows"
 					failonerror="true">
-					<arg line="/c npm outdated" />
+					<arg value="/c" />
+					<arg value="npm"/>
+					<arg value="outdated"/>
 		</exec>
 	</target>
 	
@@ -36,7 +40,12 @@
 		</exec>
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 			failonerror="true">
-			<arg line="-c npm config set color false" />
+			<arg value="-c" />
+			<arg value="npm"/>
+			<arg value="config"/>
+			<arg value="set"/>
+			<arg value="color"/>
+			<arg value="false"/>
 		</exec>
 
 		<exec executable="cmd" dir="${basedir}" osfamily="windows"
@@ -45,7 +54,9 @@
 		</exec>
 		<exec executable="bash" dir="${basedir}" osfamily="unix"
 			failonerror="true">
-			<arg line="-c npm install" />
+			<arg line="-c" />
+			<arg value="npm"/>
+			<arg value="install"/>
 		</exec>
 	</target>
 	
