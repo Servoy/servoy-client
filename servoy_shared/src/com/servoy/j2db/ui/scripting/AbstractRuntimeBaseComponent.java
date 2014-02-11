@@ -440,7 +440,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void addPropertyChangeListener(PropertyChangeListener listener)
 	{
-		synchronized (getObjectLock())
+		synchronized (this)
 		{
 			if (listener == null)
 			{
@@ -456,7 +456,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 
 	public void removePropertyChangeListener(PropertyChangeListener listener)
 	{
-		synchronized (getObjectLock())
+		synchronized (this)
 		{
 			if (listener == null || changeSupport == null)
 			{
@@ -469,7 +469,7 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue)
 	{
 		PropertyChangeSupport changeSupport;
-		synchronized (getObjectLock())
+		synchronized (this)
 		{
 			changeSupport = this.changeSupport;
 		}
@@ -478,12 +478,5 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 			return;
 		}
 		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
-	}
-
-	private transient Object objectLock = new Object();
-
-	Object getObjectLock()
-	{
-		return objectLock;
 	}
 }
