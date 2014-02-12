@@ -2572,7 +2572,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * // type the foundset returned from the call with JSDoc, fill in the right server/tablename
 	 * /** @type {JSFoundset<db:/servername/tablename>} *&#47;
 	 * var fs = databaseManager.getFoundSet(controller.getDataSource())
-	 * // same as datasources.example_data.orders.getFoundSet() or datasources.mem['myds'].getFoundSet()
+	 * // same as datasources.db.example_data.orders.getFoundSet() or datasources.mem['myds'].getFoundSet()
 	 * var ridx = fs.newRecord()
 	 * var record = fs.getRecord(ridx)
 	 * record.emp_name = 'John'

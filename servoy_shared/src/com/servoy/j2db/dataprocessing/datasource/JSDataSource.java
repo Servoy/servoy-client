@@ -22,6 +22,8 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
@@ -76,6 +78,25 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	public IFoundSet getFoundSet() throws ServoyException
 	{
 		return application.getFoundSetManager().getFoundSet(datasource);
+	}
+
+	/**
+	 *  Create a query builder for a data source.
+	 *  
+	 *  @sample
+	 *  /** @type {QBSelect<db:/example_data/book_nodes>} *&#47;
+	 *  var q = datasources.db.example_data.book_nodes.createSelect()
+	 *  q.result.addPk()
+	 *  q.where.add(q.columns.label_text.not.isin(null))
+	 *  datasources.db.example_data.book_nodes.getFoundSet().loadRecords(q)
+	 *  
+	 *  @return query builder
+	 * 
+	 */
+	@JSFunction
+	public QBSelect createSelect() throws RepositoryException
+	{
+		return (QBSelect)application.getFoundSetManager().getQueryFactory().createSelect(datasource);
 	}
 
 	@Override
