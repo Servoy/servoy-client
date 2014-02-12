@@ -1680,6 +1680,9 @@ public class TemplateGenerator
 		styleObj.setProperty("right", "0px");
 		styleObj.setProperty("position", "absolute");
 
+		styleObj = css.addStyle("div.webform");//$NON-NLS-1$ 
+		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
+
 		styleObj = css.addStyle("div.opaquecontainer");//$NON-NLS-1$ 
 		styleObj.setProperty("background-color", PersistHelper.createColorString(DEFAULT_FORM_BG_COLOR));
 
