@@ -130,11 +130,6 @@ public class FormWrapper
 		return baseComponents;
 	}
 
-	public String getDefaultNavigatorName()
-	{
-		return DefaultNavigator.NAME_PROP_VALUE;
-	}
-
 	public String getPropertiesString() throws JSONException, IllegalArgumentException
 	{
 		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties

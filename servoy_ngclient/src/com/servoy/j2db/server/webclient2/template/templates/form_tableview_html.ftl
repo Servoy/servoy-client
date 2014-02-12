@@ -19,11 +19,9 @@
 	<div ng-style="${part.name}Style">
 		<#if (part.baseComponents)??>
 			<#list part.baseComponents as bc>
-			  	<#if bc.name != defaultNavigatorName>
 					<div ng-style="layout.${bc.name}" svy-layout-update="${bc.name}">
 						<${bc.tagname} name="${bc.name}" svy-model="model.${bc.name}" svy-api="api.${bc.name}" svy-handlers="handlers.${bc.name}" svy-apply="handlers.${bc.name}.svy_apply"/>
 					</div>
-			  	</#if>
 			</#list>
 		<#else>
 		    <div class="gridStyle" ng-grid="grid${name}"></div>
