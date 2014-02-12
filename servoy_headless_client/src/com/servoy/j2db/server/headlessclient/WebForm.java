@@ -115,7 +115,6 @@ import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
 import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
 import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;
 import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebAccordionPanel;
 import com.servoy.j2db.server.headlessclient.dataui.WebBaseButton;
@@ -223,17 +222,14 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			@Override
 			public String getObject()
 			{
-				String style = formController.getForm().getTransparent() ? "" : "background-color: " +
-					PersistHelper.createColorString(TemplateGenerator.DEFAULT_FORM_BG_COLOR) + ";";
-
 				IWebFormContainer container = findParent(IWebFormContainer.class);
 				if (container != null && !(container instanceof WebAccordionPanel) && container.getBorder() instanceof TitledBorder)
 				{
 					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
-					return style + "top: " + offset + "px;";
+					return "top: " + offset + "px;";
 				}
 
-				return style;
+				return "";
 			}
 		}));
 
@@ -300,35 +296,33 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 			@Override
 			public String getObject()
 			{
-				IWebFormContainer formContainer = findParent(IWebFormContainer.class);
-				if (formContainer != null)
+				// in case of dialogs, tab/split/... panel, popup form (from window plugin), this component must
+				// also have proper rounded border and transparency when needed (it's style can be tweaked from overridden default styles
+				// see TemplateGenerator - bkcolor white)
+				String styleAddition = "";
+				if (getBorder() instanceof RoundedBorder)
 				{
-					String styleAddition = "";
-					if (getBorder() instanceof RoundedBorder)
+					float[] radius = ((RoundedBorder)getBorder()).getRadius();
+					StringBuilder builder = new StringBuilder();
+					builder.append("border-radius:");
+					for (int i = 0; i < 8; i++)
 					{
-						float[] radius = ((RoundedBorder)getBorder()).getRadius();
-						StringBuilder builder = new StringBuilder();
-						builder.append("border-radius:");
-						for (int i = 0; i < 8; i++)
-						{
-							builder.append(radius[i]);
-							builder.append("px ");
-							if (i == 3) builder.append("/ ");
-						}
-						builder.append(";");
-						styleAddition = builder.toString();
+						builder.append(radius[i]);
+						builder.append("px ");
+						if (i == 3) builder.append("/ ");
 					}
-					IStyleRule formStyle = controller.getFormStyle();
-					boolean hasSemiTransparentBackground = false;
-					if (formStyle != null && formStyle.hasAttribute(CSSName.BACKGROUND_COLOR.toString()) &&
-						formStyle.getValue(CSSName.BACKGROUND_COLOR.toString()).contains(PersistHelper.COLOR_RGBA_DEF)) hasSemiTransparentBackground = true;
-					if (controller.getForm().getTransparent() || hasSemiTransparentBackground)
-					{
-						styleAddition += "background:transparent;"; //$NON-NLS-1$
-					}
-					return styleAddition;
+					builder.append(";");
+					styleAddition = builder.toString();
 				}
-				return null;
+				IStyleRule formStyle = controller.getFormStyle();
+				boolean hasSemiTransparentBackground = false;
+				if (formStyle != null && formStyle.hasAttribute(CSSName.BACKGROUND_COLOR.toString()) &&
+					formStyle.getValue(CSSName.BACKGROUND_COLOR.toString()).contains(PersistHelper.COLOR_RGBA_DEF)) hasSemiTransparentBackground = true;
+				if (controller.getForm().getTransparent() || hasSemiTransparentBackground)
+				{
+					styleAddition += "background:transparent;"; //$NON-NLS-1$
+				}
+				return styleAddition;
 			}
 		}));
 		add(new AttributeAppender("class", new Model<String>()
