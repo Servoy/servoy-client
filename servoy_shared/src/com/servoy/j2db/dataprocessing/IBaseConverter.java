@@ -47,7 +47,7 @@ public interface IBaseConverter extends IColumnTypes
 
 	/**
 	 * Convert from a converted object to the input type.
-	 * <p>For column converters, this method converts from to dataprovider value to db value.
+	 * <p>For column converters, this method converts from dataprovider value to db value.
 	 * <p>For ui converters, this method converts from ui value to dataprovider value.
 	 * 
 	 * @param props properties for this converter
