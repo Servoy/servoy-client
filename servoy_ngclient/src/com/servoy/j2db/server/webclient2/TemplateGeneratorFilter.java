@@ -45,6 +45,7 @@ import com.servoy.j2db.server.main.RuntimeLAFManager;
 import com.servoy.j2db.server.main.ServerPluginManager;
 import com.servoy.j2db.server.main.ServerStarter;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.starter.IServerStarter;
 import com.servoy.j2db.server.webclient2.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.webclient2.template.FormTemplateGenerator;
@@ -95,8 +96,9 @@ public class TemplateGeneratorFilter implements Filter
 					FlattenedSolution fs = null;
 					try
 					{
+						IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
 						fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(solutionName,
-							IRepository.SOLUTIONS), new AbstractActiveSolutionHandler()
+							IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
 						{
 
 							@Override

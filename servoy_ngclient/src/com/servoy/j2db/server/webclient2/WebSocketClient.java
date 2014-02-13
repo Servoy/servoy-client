@@ -42,7 +42,6 @@ import com.servoy.j2db.server.webclient2.eventthread.EventDispatcher;
 import com.servoy.j2db.server.webclient2.eventthread.WebSocketEvent;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
@@ -265,7 +264,7 @@ public class WebSocketClient extends ClientState implements IWebSocketApplicatio
 	{
 		try
 		{
-			applicationServer = (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.class.getName());
+			applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
 			return true;
 		}
 		catch (Exception ex)
