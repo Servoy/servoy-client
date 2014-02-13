@@ -830,8 +830,16 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 		converter = null;
 		boolean emptyCustom = (list instanceof CustomValueList) && list.getSize() == 0;
 		parsedFormat = componentFormat.parsedFormat;
-		if (formatAttributeModifier != null) remove(formatAttributeModifier);
-		if (formatPasteBehavior != null) remove(formatPasteBehavior);
+		if (formatAttributeModifier != null)
+		{
+			remove(formatAttributeModifier);
+			formatAttributeModifier = null;
+		}
+		if (formatPasteBehavior != null)
+		{
+			remove(formatPasteBehavior);
+			formatPasteBehavior = null;
+		}
 		addMaxLengthBehavior(-1);
 		if (!componentFormat.parsedFormat.isEmpty() && (list == null || (!list.hasRealValues() && !emptyCustom)))
 		{
