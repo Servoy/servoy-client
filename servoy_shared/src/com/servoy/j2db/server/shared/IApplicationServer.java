@@ -38,7 +38,6 @@ public interface IApplicationServer extends Remote
 	public static final String NAME = SERVICE_NAME;
 
 	public static final String DUMMY_LOGIN = "<dummy-login>"; //$NON-NLS-1$
-	public static final String DEBUG_POSTFIX = ".debug"; //$NON-NLS-1$
 
 	public IApplicationServerAccess getApplicationServerAccess(String clientId) throws RemoteException;
 

@@ -113,7 +113,6 @@ import com.servoy.j2db.smart.dataui.DataRendererFactory;
 import com.servoy.j2db.smart.dataui.SwingItemFactory;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.RendererParentWrapper;
@@ -616,7 +615,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	{
 		try
 		{
-			applicationServer = (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.class.getName());
+			applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
 			return true;
 		}
 		catch (Exception ex)
@@ -1138,8 +1137,8 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			{
 				properties = new Properties();
 				Messages.invalidConnection = false;
-				Messages.loadMessagesFromDatabaseInternal(null, ApplicationServerRegistry.get().getClientId(), getSettings(), getDataServer(),
-					getRepository(), properties, loc, getFoundSetManager());
+				Messages.loadMessagesFromDatabaseInternal(null, ApplicationServerRegistry.get().getClientId(), getSettings(), getDataServer(), getRepository(),
+					properties, loc, getFoundSetManager());
 				if (getSolution() != null) //must be sure that solution is loaded, app might retrieve system messages, before solution loaded!
 				{
 					Messages.loadMessagesFromDatabaseInternal(getSolution().getI18nDataSource(), ApplicationServerRegistry.get().getClientId(), getSettings(),

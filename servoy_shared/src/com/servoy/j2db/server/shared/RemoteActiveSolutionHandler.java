@@ -55,9 +55,9 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 
 	private final Map<Integer, Long> loadedActiveSolutionUpdateSequences = new HashMap<Integer, Long>(); //solution_id -> asus
 
-	public RemoteActiveSolutionHandler(IServiceProvider sp)
+	public RemoteActiveSolutionHandler(IApplicationServer as, IServiceProvider sp)
 	{
-		super(sp);
+		super(as, sp);
 	}
 
 	@Override

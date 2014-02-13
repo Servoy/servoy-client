@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2014 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,28 +17,10 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.util.Dictionary;
-
-
 /**
- * An service registry which is implemented by OSGi or simple local map in non OSGI env
+ * Tagging interface for debug purposes
  * @author jblok
  */
-public interface IServiceRegistry
+public interface IDebugApplicationServer extends IApplicationServer
 {
-	@Deprecated
-	public Object getService(String reference);
-
-	public <S> S getService(Class<S> reference);
-
-	public <S> S getService(Class<S> clazz, String filter);
-
-	@Deprecated
-	public void registerService(String reference, Object service);
-
-	public <S> void registerService(Class<S> clazz, S service);
-
-	public <S> void registerService(Class<S> clazz, S service, Dictionary properties);
-
-	public <S> void ungetService(Class<S> clazz);
 }

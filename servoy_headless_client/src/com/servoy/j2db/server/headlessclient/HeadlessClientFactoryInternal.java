@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -132,7 +133,8 @@ public class HeadlessClientFactoryInternal
 			@Override
 			protected IActiveSolutionHandler createActiveSolutionHandler()
 			{
-				return new LocalActiveSolutionHandler(this)
+				IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+				return new LocalActiveSolutionHandler(as, this)
 				{
 					@Override
 					protected Solution loadSolution(RootObjectMetaData solutionDef) throws RemoteException, RepositoryException

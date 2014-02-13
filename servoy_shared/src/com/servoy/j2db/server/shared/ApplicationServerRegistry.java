@@ -62,7 +62,10 @@ public final class ApplicationServerRegistry
 	public static <S> S getService(Class<S> reference)
 	{
 		IServiceRegistry reg = reg_instanceRef.get();
-		if (reg != null) reg.getService(reference);
+		if (reg != null)
+		{
+			return reg.getService(reference);
+		}
 		return null;
 	}
 

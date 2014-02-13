@@ -92,6 +92,7 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.ui.ISupportRowBGColorScript;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
@@ -345,7 +346,8 @@ public class TemplateGenerator
 					{
 						try
 						{
-							fsToClose = fs = new FlattenedSolution(solution.getSolutionMetaData(), new AbstractActiveSolutionHandler()
+							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+							fsToClose = fs = new FlattenedSolution(solution.getSolutionMetaData(), new AbstractActiveSolutionHandler(as)
 							{
 								@Override
 								public IRepository getRepository()

@@ -32,6 +32,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.headlessclient.dataui.MediaResource;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 
@@ -137,7 +138,8 @@ public final class SharedMediaResource extends DynamicWebResource
 								SolutionMetaData solutionMetaData = (SolutionMetaData)repository.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
 								if (solutionMetaData == null) return new byte[0];
 								closeFS = true;
-								fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler()
+								IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+								fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
 								{
 									@Override
 									public IRepository getRepository()

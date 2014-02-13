@@ -437,7 +437,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	@Override
 	protected IActiveSolutionHandler createActiveSolutionHandler()
 	{
-		return new RemoteActiveSolutionHandler(this);
+		return new RemoteActiveSolutionHandler(getApplicationServer(), this);
 	}
 
 	@Override

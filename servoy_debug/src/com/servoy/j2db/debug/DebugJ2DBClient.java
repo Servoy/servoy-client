@@ -94,6 +94,7 @@ import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
+import com.servoy.j2db.server.shared.IDebugApplicationServer;
 import com.servoy.j2db.server.shared.RemoteActiveSolutionHandler;
 import com.servoy.j2db.smart.FormFrame;
 import com.servoy.j2db.smart.J2DBClient;
@@ -110,7 +111,6 @@ import com.servoy.j2db.smart.scripting.ScriptMenuItem;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.ILogLevel;
-import com.servoy.j2db.util.LocalhostRMIRegistry;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
@@ -980,7 +980,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected IApplicationServer connectApplicationServer() throws Exception
 	{
-		return (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.class.getName() + IApplicationServer.DEBUG_POSTFIX);
+		return ApplicationServerRegistry.getService(IDebugApplicationServer.class);
 	}
 
 	/**
@@ -1001,7 +1001,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	protected IActiveSolutionHandler createActiveSolutionHandler()
 	{
-		return new RemoteActiveSolutionHandler(this)
+		return new RemoteActiveSolutionHandler(getApplicationServer(), this)
 		{
 			@Override
 			public void saveActiveSolution(Solution solution)

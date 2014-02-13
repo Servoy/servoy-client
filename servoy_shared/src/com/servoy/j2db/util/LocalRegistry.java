@@ -29,24 +29,24 @@ import com.servoy.j2db.server.shared.IServiceRegistry;
  */
 public class LocalRegistry implements IServiceRegistry
 {
-	private final Map<Class, Object> map = new HashMap<Class, Object>();
+	private final Map<String, Object> map = new HashMap<String, Object>();
 
 	@Override
 	public <S> S getService(Class<S> reference)
 	{
-		return (S)map.get(reference);
+		return (S)map.get(reference.getName());
 	}
 
 	@Override
 	public <S> void registerService(Class<S> clazz, S service)
 	{
-		map.put(clazz, service);
+		map.put(clazz.getName(), service);
 	}
 
 	@Override
 	public <S> void ungetService(Class<S> clazz)
 	{
-		map.remove(clazz);
+		map.remove(clazz.getName());
 	}
 
 	@Override
@@ -58,6 +58,18 @@ public class LocalRegistry implements IServiceRegistry
 	@Override
 	public <S> void registerService(Class<S> clazz, S service, Dictionary properties)
 	{
-		//nop
+		map.put(clazz.getName(), service);
+	}
+
+	@Override
+	public Object getService(String reference)
+	{
+		return map.get(reference);
+	}
+
+	@Override
+	public void registerService(String reference, Object service)
+	{
+		map.put(reference, service);
 	}
 }

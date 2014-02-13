@@ -1390,7 +1390,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	 */
 	protected IActiveSolutionHandler createActiveSolutionHandler()
 	{
-		return new LocalActiveSolutionHandler(this);
+		return new LocalActiveSolutionHandler(getApplicationServer(), this);
 	}
 
 	public void clearLoginForm()

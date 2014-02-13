@@ -25,7 +25,6 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.util.LocalhostRMIRegistry;
 
 /**
  * Base active solution handler.
@@ -34,12 +33,19 @@ import com.servoy.j2db.util.LocalhostRMIRegistry;
  */
 public abstract class AbstractActiveSolutionHandler implements IActiveSolutionHandler
 {
-	public IApplicationServer getApplicationServer()
+	protected IApplicationServer applicationServer;
+
+	protected AbstractActiveSolutionHandler(IApplicationServer applicationServer)
 	{
-		return (IApplicationServer)LocalhostRMIRegistry.getService(IApplicationServer.class.getName());
+		this.applicationServer = applicationServer;
 	}
 
-	abstract public IRepository getRepository();
+	public IApplicationServer getApplicationServer()
+	{
+		return applicationServer;
+	}
+
+	public abstract IRepository getRepository();
 
 	public boolean haveRepositoryAccess()
 	{
@@ -91,5 +97,4 @@ public abstract class AbstractActiveSolutionHandler implements IActiveSolutionHa
 	{
 		// ignore
 	}
-
 }

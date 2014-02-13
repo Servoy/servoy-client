@@ -13,10 +13,11 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db;
 
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.server.shared.IApplicationServer;
 
 /**
  * Active solution handler (loader) for access from within the Application Server.
@@ -28,8 +29,9 @@ public class LocalActiveSolutionHandler extends AbstractActiveSolutionHandler
 {
 	private final IServiceProvider serviceProvider;
 
-	public LocalActiveSolutionHandler(IServiceProvider sp)
+	public LocalActiveSolutionHandler(IApplicationServer applicationServer, IServiceProvider sp)
 	{
+		super(applicationServer);
 		serviceProvider = sp;
 	}
 
@@ -39,6 +41,7 @@ public class LocalActiveSolutionHandler extends AbstractActiveSolutionHandler
 		return getServiceProvider().getRepository();
 	}
 
+	@Override
 	public boolean haveRepositoryAccess()
 	{
 		return getServiceProvider().haveRepositoryAccess();
@@ -47,6 +50,13 @@ public class LocalActiveSolutionHandler extends AbstractActiveSolutionHandler
 	protected IServiceProvider getServiceProvider()
 	{
 		return serviceProvider;
+	}
+
+	@Override
+	public IApplicationServer getApplicationServer()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
