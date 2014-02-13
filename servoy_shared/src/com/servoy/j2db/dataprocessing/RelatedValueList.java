@@ -61,6 +61,18 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 		int showValues = vl.getShowDataProviders();
 		int returnValues = vl.getReturnDataProviders();
+		Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
+		if (relations != null && relations.length > 0)
+		{
+			try
+			{
+				setContainsCalculationFlag(relations[relations.length - 1].getForeignTable());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
+		}
 
 		//more than one value -> concat
 		concatShowValues = (showValues & 7) != 1 && (showValues & 7) != 2 && (showValues & 7) != 4;
@@ -171,7 +183,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				realValues = new SafeArrayList<Object>();
 				fireIntervalRemoved(this, 0, size);
 
-				if (sameServer && relations.length > 1)
+				if (sameServer && relations.length > 1 && !containsCalculation)
 				{
 					// multiple-level relation on same server, use query
 					fillWithQuery(relations);
