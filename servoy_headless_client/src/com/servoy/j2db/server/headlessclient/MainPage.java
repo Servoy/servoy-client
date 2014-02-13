@@ -1144,6 +1144,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	{
 		// a new main form is added clear everything
 		webForms.clear();
+		FormController currentNavigator = navigator;
 		WebMarkupContainer container = (WebMarkupContainer)c;
 		if (!"webform".equals(container.getId())) //$NON-NLS-1$
 		{
@@ -1172,6 +1173,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		((WebForm)container).setMainPage(this);
 		main = (WebForm)container;
 		webForms.add(main);
+		navigator = currentNavigator;
 		if (navigator != null)
 		{
 			webForms.add(navigator.getFormUI());
