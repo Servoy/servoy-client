@@ -21,6 +21,7 @@ package com.servoy.j2db.dataprocessing;
  * Interface used to handle a record during a foundset parse.
  * 
  * @author lvostinar
+ * @since 7.4
  */
 
 public interface IRecordCallback

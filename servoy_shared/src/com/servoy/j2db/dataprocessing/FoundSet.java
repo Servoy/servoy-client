@@ -6441,7 +6441,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	private class FoundSetIterator implements Iterator<IRecord>
 	{
-		public int currentIndex = -1;
+		private int currentIndex = -1;
 		private Object[] currentPK = null;
 		private final List<Object[]> processedPKS = new ArrayList<Object[]>();
 		private PKDataSet pks = null;
