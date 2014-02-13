@@ -226,7 +226,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 					{
 						if (label.getIcon() != null) label.setIcon(null);
 					}
-					else
+					else if (parentTable.shouldDisplaySortIcons())
 					{
 						if (parentTable.getCurrentSortColumn().get(new Integer(columnIndex)).booleanValue())
 						{
