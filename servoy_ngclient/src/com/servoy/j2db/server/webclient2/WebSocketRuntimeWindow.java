@@ -24,6 +24,7 @@ import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 
 /**
@@ -272,6 +273,10 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 		application.getActiveWebSocketClientEndpoint().executeServiceCall(DIALOG_SERVICE, "dismiss", new Object[] { getName() });
 
 		// resume
+		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
+		{
+			application.getEventDispatcher().resume(this);
+		}
 	}
 
 	/*
@@ -298,10 +303,9 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 		application.getActiveWebSocketClientEndpoint().executeServiceCall(DIALOG_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
 
-		// TODO if this is a modal dialog then this call should now block 
-//		if (windowType == JSWindow.MODAL_DIALOG && ((WebClient)application).getEventDispatcher() != null)
-//		{
-//			((WebClient)application).getEventDispatcher().suspend(this);
-//		}
+		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
+		{
+			application.getEventDispatcher().suspend(this);
+		}
 	}
 }

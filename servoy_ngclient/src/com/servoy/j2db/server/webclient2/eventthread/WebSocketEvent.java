@@ -31,6 +31,7 @@ public class WebSocketEvent extends Event
 {
 	private final IWebSocketApplication client;
 	private final String currentWindowName;
+	private String previous;
 
 	public WebSocketEvent(IWebSocketApplication client, Runnable runnable)
 	{
@@ -52,7 +53,7 @@ public class WebSocketEvent extends Event
 	public void execute()
 	{
 		client.getActiveWebSocketClientEndpoint().startHandlingEvent();
-		String current = client.getRuntimeWindowManager().getCurrentWindowName();
+		previous = client.getRuntimeWindowManager().getCurrentWindowName();
 		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
 		try
 		{
@@ -60,8 +61,35 @@ public class WebSocketEvent extends Event
 		}
 		finally
 		{
-			client.getRuntimeWindowManager().setCurrentWindowName(current);
+			client.getRuntimeWindowManager().setCurrentWindowName(previous);
 			client.getActiveWebSocketClientEndpoint().stopHandlingEvent();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.eventthread.Event#willSuspend()
+	 */
+	@Override
+	public void willSuspend()
+	{
+		super.willSuspend();
+		client.getRuntimeWindowManager().setCurrentWindowName(previous);
+		client.getActiveWebSocketClientEndpoint().stopHandlingEvent();
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.headlessclient.eventthread.Event#willResume()
+	 */
+	@Override
+	public void willResume()
+	{
+		super.willResume();
+		client.getActiveWebSocketClientEndpoint().startHandlingEvent();
+		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
 	}
 }
