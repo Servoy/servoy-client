@@ -571,12 +571,13 @@ public class JSWindow implements IConstantsObject
 
 	/**
 	 * Set the window location.
+	 * If the coordinates are not valid they might be corrected. (for example out of screen locations)
 	 * 
 	 * @sample
 	 * var window = application.createWindow('test',JSWindow.DIALOG);
-	 * window.show(forms.child1);
 	 * window.setLocation(0,0);
 	 * window.setSize(400,600);
+	 * window.show(forms.child1);
 	 * 
 	 * @param x x coordinate.
 	 * @param y y coordinate.
@@ -608,9 +609,9 @@ public class JSWindow implements IConstantsObject
 	 * 
 	 * @sample
 	 * var window = application.createWindow('test',JSWindow.DIALOG);
-	 * window.show(forms.child1);
 	 * window.setLocation(0,0);
 	 * window.setSize(400,600);
+	 * window.show(forms.child1);
 	 * 
 	 * @param width the width.
 	 * @param height the height.
