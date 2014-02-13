@@ -13,15 +13,17 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 package com.servoy.j2db.server.headlessclient;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.protocol.http.WebRequest;
 
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -63,7 +65,7 @@ public class ServoyExpiredPage extends WebPage
 		else
 		{
 			container.setVisible(false);
-			add(homePageLink("homePageLink"));
+			add(new ExternalLink("homePageLink", ((WebRequest)RequestCycle.get().getRequest()).getServletPath()));
 		}
 	}
 
