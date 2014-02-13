@@ -296,9 +296,9 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 		int hght = height;
 		if (wdth == -1) wdth = form.getSize().width;
 		if (hght == -1) hght = form.getSize().height;
-		Map<String, Integer> size = new HashMap<>();
-		size.put("width", Integer.valueOf(wdth));
-		size.put("height", Integer.valueOf(hght));
+		Map<String, String> size = new HashMap<>();
+		size.put("width", wdth + "px");
+		size.put("height", hght + "px");
 		arguments.put("size", size);
 		application.getActiveWebSocketClientEndpoint().executeServiceCall(DIALOG_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
