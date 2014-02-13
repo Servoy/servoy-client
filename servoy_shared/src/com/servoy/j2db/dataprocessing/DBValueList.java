@@ -56,7 +56,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 
 	protected List<SortColumn> defaultSort = null;
 	private Table table;
-	private boolean containsCalculation = false;
+	protected boolean containsCalculation = false;
 	protected boolean registered = false;
 
 /*
@@ -73,8 +73,6 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			allowEmptySelection = true;
 		}
 
-		setContainsCalculationFlag();
-
 		realValues = new SafeArrayList<Object>();
 		if (vl.getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 		{
@@ -84,6 +82,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				if (s != null)
 				{
 					table = (Table)s.getTable(vl.getTableName());
+					setContainsCalculationFlag(table);
 
 					//if changes are performed on the data refresh this list.
 					if (!registered)
@@ -343,17 +342,18 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		}
 	}
 
-	protected void setContainsCalculationFlag()
+	protected void setContainsCalculationFlag(Table t)
 	{
 		if (valueList != null && application != null && application.getFlattenedSolution() != null)
 		{
-			containsCalculation = (checkIfCalc(valueList.getDataProviderID1()) || checkIfCalc(valueList.getDataProviderID2()) || checkIfCalc(valueList.getDataProviderID3()));
+			containsCalculation = (checkIfCalc(valueList.getDataProviderID1(), t) || checkIfCalc(valueList.getDataProviderID2(), t) || checkIfCalc(
+				valueList.getDataProviderID3(), t));
 		}
 	}
 
-	private boolean checkIfCalc(String dp)
+	private boolean checkIfCalc(String dp, Table t)
 	{
-		return dp != null && application.getFlattenedSolution().getScriptCalculation(dp, table) != null;
+		return dp != null && application.getFlattenedSolution().getScriptCalculation(dp, t) != null;
 	}
 
 	public static IQuerySelectValue getQuerySelectValue(Table table, BaseQueryTable queryTable, String dataprovider)
