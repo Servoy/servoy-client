@@ -357,6 +357,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	public void setMaxLength(int maxLength)
 	{
 		if (maxLengthBehavior != null) remove(maxLengthBehavior);
+		maxLengthBehavior = null;
 		if (maxLength > 0)
 		{
 			maxLengthBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(),
