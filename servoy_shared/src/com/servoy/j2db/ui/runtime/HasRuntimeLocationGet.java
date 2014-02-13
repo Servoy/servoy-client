@@ -49,7 +49,7 @@ public interface HasRuntimeLocationGet
 	public int getLocationX();
 
 	/**
-	 * Returns the y location of the current element. 
+	 * Returns the y location of the current element. The method can only be used in Record view.
 	 * 
 	 * NOTE: getLocationY() can be used with getLocationX() to set the location of an element using the setLocation function. For Example:
 	 * 
