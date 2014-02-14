@@ -45,6 +45,7 @@ import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.CustomValueList.DisplayString;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
+import com.servoy.j2db.dataprocessing.IDisplayDependencyData;
 import com.servoy.j2db.dataprocessing.IDisplayRelatedData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -66,7 +67,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataLookupField extends WebDataField implements IDisplayRelatedData
+public class WebDataLookupField extends WebDataField implements IDisplayRelatedData, IDisplayDependencyData
 {
 
 	private static final long serialVersionUID = 1L;
@@ -575,8 +576,19 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 	 */
 	public void setRecord(IRecordInternal parentState, boolean stopEditing)
 	{
-		IRecordInternal prevState = this.parentState;
-		this.parentState = parentState;
+		if (this.parentState == parentState) return;
+		dependencyChanged(parentState);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.dataprocessing.IDisplayDependencyData#dependencyChanged(com.servoy.j2db.dataprocessing.IRecordInternal)
+	 */
+	@Override
+	public void dependencyChanged(IRecordInternal record)
+	{
+		this.parentState = record;
 		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
 			int index = -1;
@@ -586,10 +598,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 			}
 			if (index == -1 || parentState == null)
 			{
-				if (prevState != parentState)
-				{
-					list.fill(parentState);
-				}
+				list.fill(parentState);
 			}
 			else
 			{
