@@ -60,6 +60,7 @@ import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.behavior.IIgnoreDisabledComponentBehavior;
@@ -1969,6 +1970,52 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				return false;
 			}
 		});
+
+		add(new ServoyAjaxEventBehavior("onkeydown", null, true)
+		{
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				int i = fc.getFormModel().getSelectedIndex();
+				boolean downArrow = Utils.getAsBoolean(RequestCycle.get().getRequest().getParameter("downArrow"));
+				if (downArrow)
+				{
+					i++;
+				}
+				else
+				{
+					i--;
+				}
+				if (i >= 0)
+				{
+					fc.getFormModel().setSelectedIndex(i);
+					WebEventExecutor.generateResponse(target, getPage());
+				}
+			}
+
+			@Override
+			protected CharSequence generateCallbackScript(final CharSequence partialCall)
+			{
+				return super.generateCallbackScript(partialCall + "+Servoy.Utils.getArrowParams()"); //$NON-NLS-1$
+			}
+
+			@Override
+			protected IAjaxCallDecorator getAjaxCallDecorator()
+			{
+				return new AjaxCallDecorator()
+				{
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public CharSequence decorateScript(CharSequence script)
+					{
+						return "return Servoy.Utils.testArrowKey(event, function() {" + script + "},'" + getMarkupId() + "');"; //$NON-NLS-1$ //$NON-NLS-2$ 
+					}
+				};
+			}
+
+		});
+
 	}
 
 	private static String scrollBarDefinitionToOverflowAttribute(int scrollbarDefinition, boolean isScrollMode, boolean isScrollingElement, boolean emptyData)

@@ -220,22 +220,15 @@ function restoreValueAndCursorAfterUpdate()
 
 function testEnterKey(e, script) 
 {
-     var code;
-     
-     if (!e) e = window.event;
-     if (!e) return true;
-     if (e.keyCode) code = e.keyCode;
-     else if (e.which) code = e.which;
-     
-     if(code==13)
-     {
-        if (script) script();
-	    return false;
-     }
-     return true;
+	return testKeyPressed(e, script,13);
 }
 
 function filterBackKey(e) 
+{
+	return testKeyPressed(e, null,8);
+}
+
+function testKeyPressed(e, script,keyCode) 
 {
      var code;
      
@@ -244,8 +237,19 @@ function filterBackKey(e)
      if (e.keyCode) code = e.keyCode;
      else if (e.which) code = e.which;
      
-     if(code==8)
+     if(code==keyCode)
      {
+    	if (keyCode == 38)
+    	{
+    		//up arrow was pressed
+    		Servoy.Utils.downArrow = false;
+    	}
+    	else if (keyCode == 40)
+    	{
+    		// down arrow key pressed
+	  		Servoy.Utils.downArrow = true;
+    	}
+        if (script) script();
 	    return false;
      }
      return true;
@@ -1943,6 +1947,7 @@ if (typeof(Servoy.Utils) == "undefined")
 	{
 		clickTimer: null,
 		clickTimerRunning: false,
+		downArrow: null,
 		
 		startClickTimer: function(f)
 		{
@@ -2347,6 +2352,28 @@ if (typeof(Servoy.Utils) == "undefined")
 				  }
 			  }
 		  });
+	  },
+	  
+	  testArrowKey : function(e, script,viewID) {
+	  	var upArrowPressed = testKeyPressed(e, script,38);
+	  	var downArrowPressed = testKeyPressed(e, script,40);
+	  	if (!upArrowPressed || !downArrowPressed)
+	  	{
+	  		// arrow pressed
+	  		var focusedElement = Wicket.Focus.getFocusedElement();
+			if (typeof(focusedElement) != "undefined" && focusedElement != null && focusedElement.id != viewID)
+			{
+				focusedElement.blur();
+			}
+			// if table will be replaced by wicket, make it restore focus to the view so that we can continue traversal
+			Wicket.Focus.lastFocusId = viewID;
+			requestFocus(viewID);
+	  	}
+	  	return upArrowPressed && downArrowPressed;
+	  },
+	  
+	  getArrowParams: function(e) {
+		return '&downArrow='+(Servoy.Utils.downArrow ? "true" : "false");
 	  }
 	}
 }
