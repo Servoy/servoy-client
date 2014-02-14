@@ -51,12 +51,4 @@ public class LocalActiveSolutionHandler extends AbstractActiveSolutionHandler
 	{
 		return serviceProvider;
 	}
-
-	@Override
-	public IApplicationServer getApplicationServer()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
