@@ -819,6 +819,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		releaseAllLocks(null);
 
 		createEmptyFoundsets = false;
+		for (RowManager rm : rowManagers.values())
+		{
+			rm.dispose();
+		}
 		initMembers();
 		sqlGenerator = null;
 		scopesScopeProvider = null;

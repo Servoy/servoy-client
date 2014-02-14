@@ -92,6 +92,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		lockedRowPKs = Collections.synchronizedSet(new HashSet<NamedLock>());//my locks
 	}
 
+	public void dispose()
+	{
+		fsm.removeGlobalFoundsetEventListener(this);
+	}
+
 	private static Object dummy = new Object();
 
 	void register(IRowListener fs)
@@ -1020,7 +1025,13 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			fireDependingCalcs(removed, null, null);
 		}
-
+		else
+		{
+			synchronized (this)
+			{
+				pkRowMap.remove(r.getPKHashKey());
+			}
+		}
 		fireNotifyChange(src, r, null, RowEvent.DELETE);
 	}
 
