@@ -1,4 +1,4 @@
-<div style="background-color:{{model.background}};" title="{{model.toolTipText}}" >
+<div svy-border='model.borderType' style="background-color:{{model.background}};" title="{{model.toolTipText}}" >
   <div ng-repeat="item in model.valuelistID | filter:notNull('realValue')"  title="{{model.toolTipText}}">
      <input 
           type="radio" ng-model="model.dataProviderID"  ng-value="item.realValue"  ng-change

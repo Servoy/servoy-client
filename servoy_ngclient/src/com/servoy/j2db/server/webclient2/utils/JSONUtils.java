@@ -19,12 +19,21 @@ package com.servoy.j2db.server.webclient2.utils;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,8 +51,11 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.webclient2.ClientConversion;
 import com.servoy.j2db.server.webclient2.property.PropertyType;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.gui.RoundedBorder;
+import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * Utility methods for JSON usage.
@@ -163,6 +175,10 @@ public class JSONUtils
 			w.key("type").value(Column.getDisplayTypeString(format.uiType));
 			w.key("display").value(format.parsedFormat.getDisplayFormat());
 			w.endObject();
+		}
+		else if (value instanceof Border)
+		{
+			writeBorderToJson((Border)value, w);
 		}
 		else if (value instanceof JSONArray)
 		{
@@ -366,6 +382,180 @@ public class JSONUtils
 			toJSONValue(jsonWriter.key(entry.getKey()), entry.getValue());
 		}
 		return jsonWriter;
+	}
+
+	private static void writeBorderToJson(Border value, JSONWriter w) throws JSONException
+	{
+
+		if (value instanceof SpecialMatteBorder)
+		{
+			SpecialMatteBorder border = (SpecialMatteBorder)value;
+			w.object();
+			w.key("type").value(((border instanceof RoundedBorder) ? ComponentFactoryHelper.ROUNDED_BORDER : ComponentFactoryHelper.SPECIAL_MATTE_BORDER));
+			w.key("borderStyle");
+			w.object();
+			w.key("borderTop").value(border.getTop() + "px");
+			w.key("borderRight").value(border.getRight() + "px");
+			w.key("borderBottom").value(border.getBottom() + "px");
+			w.key("borderLeft").value(border.getLeft() + "px");
+			w.key("borderTopColor").value(PersistHelper.createColorString(border.getTopColor()));
+			w.key("borderRightColor").value(PersistHelper.createColorString(border.getRightColor()));
+			w.key("borderBottomColor").value(PersistHelper.createColorString(border.getBottomColor()));
+			w.key("borderLeftColor").value(PersistHelper.createColorString(border.getLeftColor()));
+
+			if (border instanceof RoundedBorder)
+			{
+				float[] radius = ((RoundedBorder)border).getRadius();
+				w.key("borderRadius").value(
+					radius[0] + "px " + radius[2] + "px " + radius[4] + "px " + radius[6] + "px /" + radius[1] + "px " + radius[3] + "px " + radius[5] + "px " +
+						radius[7] + "px");
+				String styles[] = ((RoundedBorder)border).getBorderStyles();
+				w.key("borderStyle").value(styles[0] + " " + styles[1] + " " + styles[2] + " " + styles[3] + " ");
+			}
+			else
+			{
+				w.key("borderRadius").value(border.getRoundingRadius() + "px"); //$NON-NLS-1$
+				//retval += "," + SpecialMatteBorder.createDashString(border.getDashPattern()); //$NON-NLS-1$
+				w.key("borderStyle").value("dashed");
+			}
+			w.endObject();// end borderStyle
+			w.endObject();// end borderType
+		}
+		else if (value instanceof EtchedBorder)
+		{
+			EtchedBorder border = (EtchedBorder)value;
+			w.object();
+			w.key("type").value(ComponentFactoryHelper.ETCHED_BORDER);
+			w.key("borderStyle");
+			w.object();
+			String hi = PersistHelper.createColorString(border.getHighlightColor());
+			String sh = PersistHelper.createColorString(border.getShadowColor());
+			if (border.getEtchType() != EtchedBorder.RAISED)
+			{
+				String tmp = hi;
+				hi = sh;
+				sh = tmp;
+			}
+			w.key("borderColor").value(hi + " " + sh + " " + hi + " " + sh);
+			String etchedType = border.getEtchType() == EtchedBorder.RAISED ? "ridge" : "groove";
+			w.key("borderStyle").value(etchedType);
+			w.endObject();// end borderStyle
+			w.endObject();// end borderType
+		}
+		else if (value instanceof BevelBorder)
+		{
+			BevelBorder border = (BevelBorder)value;
+			w.object();
+			w.key("type").value(ComponentFactoryHelper.BEVEL_BORDER);
+			w.key("borderStyle");
+			w.object();
+			String bevelType = border.getBevelType() == BevelBorder.RAISED ? "outset" : "inset";
+			w.key("borderStyle").value(bevelType);
+
+			String hiOut = PersistHelper.createColorString(border.getHighlightOuterColor());
+			String hiin = PersistHelper.createColorString(border.getHighlightInnerColor());
+			String shOut = PersistHelper.createColorString(border.getShadowOuterColor());
+			String shIn = PersistHelper.createColorString(border.getShadowInnerColor());
+			if (border.getBevelType() == BevelBorder.LOWERED)
+			{
+				String temp = hiOut; // swap 1-3
+				hiOut = shOut;
+				shOut = temp;
+				temp = hiin; // swap 2-4
+				hiin = shIn;
+				shIn = temp;
+			}
+			w.key("borderColor").value(hiOut + " " + hiin + " " + shOut + " " + shIn);
+			w.endObject();// end borderStyle
+			w.endObject();// end borderType
+		}
+		else if (value instanceof LineBorder)
+		{
+			LineBorder border = (LineBorder)value;
+			w.object();
+			w.key("type").value(ComponentFactoryHelper.LINE_BORDER);
+			w.key("borderStyle");
+			w.object();
+			int thick = border.getThickness();
+			String lineColor = PersistHelper.createColorString(border.getLineColor());
+			w.key("borderColor").value(lineColor);
+			w.key("borderStyle").value("solid");
+			w.key("borderWidth").value(thick + "px");
+			w.endObject();// end borderStyle
+			w.endObject();// end borderType
+		}
+		else if (value instanceof MatteBorder)
+		{
+			MatteBorder border = (MatteBorder)value;
+			w.object();
+			w.key("type").value(ComponentFactoryHelper.MATTE_BORDER);
+			w.key("borderStyle");
+			w.object();
+			Insets in = border.getBorderInsets();
+			w.key("borderWidth").value(in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
+			String lineColor = PersistHelper.createColorString(border.getMatteColor());
+			w.key("borderColor").value(lineColor);
+			w.key("borderStyle").value("solid");
+			w.endObject();// end borderStyle
+			w.endObject();// end borderType
+		}
+		else if (value instanceof EmptyBorder)
+		{
+			EmptyBorder border = (EmptyBorder)value;
+			w.object();
+			w.key("type").value(ComponentFactoryHelper.EMPTY_BORDER);
+			w.key("borderStyle");
+			w.object();
+			Insets in = border.getBorderInsets();
+			w.key("borderWidth").value(in.top + "px " + in.right + "px " + in.bottom + "px " + in.left + "px ");
+			w.key("borderColor").value("rgba(0,0,0,0)");
+			w.endObject();// end borderStyle
+			w.endObject();// end borderType
+		}
+		else if (value instanceof TitledBorder)
+		{
+			TitledBorder border = (TitledBorder)value;
+			w.object();
+			w.key("type").value(ComponentFactoryHelper.TITLED_BORDER);
+			w.key("title").value(border.getTitle());
+
+			w.key("font").value(PersistHelper.createFontCssString(border.getTitleFont()));
+			w.key("color").value(PersistHelper.createColorString(border.getTitleColor()));
+			int just = border.getTitleJustification();
+			String titleJust = "left";
+			switch (just)
+			{
+				case TitledBorder.LEFT :
+					titleJust = "left";
+					break;
+				case TitledBorder.RIGHT :
+					titleJust = "right";
+					break;
+				case TitledBorder.CENTER :
+					titleJust = "center";
+					break;
+			}
+			w.key("titleJustiffication").value(titleJust);
+			//w.endObject();// end borderStyle
+			w.endObject();// end borderType
+
+//			retval = TITLED_BORDER + "," + s; //$NON-NLS-1$
+//
+//			int justification = border.getTitleJustification();
+//			int position = border.getTitlePosition();
+//			if (justification != 0 || position != 0 || f != null || c != null)
+//			{
+//				retval += "," + justification + "," + position; //$NON-NLS-1$ //$NON-NLS-2$
+//				if (f != null)
+//				{
+//					retval += "," + PersistHelper.createFontString(f); //$NON-NLS-1$
+//					if (c != null)
+//					{
+//						retval += "," + PersistHelper.createColorString(c); //$NON-NLS-1$
+//					}
+//				}
+//			}
+		}
 	}
 
 	public static interface JSONWritable

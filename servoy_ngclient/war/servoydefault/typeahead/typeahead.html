@@ -1,4 +1,5 @@
-<input type="text" style="width:100%; height:100%; background-color:{{model.bgcolor}};" 
+<input svy-border='model.borderType'
+	   type="text" style="width:100%; height:100%; background-color:{{model.bgcolor}};" 
        ng-model="model.dataProviderID" title="{{model.tooltiptext}}" 
        typeahead-min-length="-1"
        typeahead="value.realValue as value.displayValue for value in model.valuelistID_filter($viewValue)"

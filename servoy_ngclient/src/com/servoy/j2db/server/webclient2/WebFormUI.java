@@ -110,6 +110,16 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 						component.putProperty(pd.getName(), format);
 					}
 				}
+				Map<String, PropertyDescription> borderProperties = componentSpec.getProperties(PropertyType.border);
+				for (PropertyDescription pd : borderProperties.values())
+				{
+					Object propValue = fe.getProperty(pd.getName());
+					if (propValue instanceof String)
+					{
+						Border border = com.servoy.j2db.util.ComponentFactoryHelper.createBorder((String)propValue);
+						component.putProperty(pd.getName(), border);
+					}
+				}
 
 				for (String eventName : componentSpec.getEvents().keySet())
 				{

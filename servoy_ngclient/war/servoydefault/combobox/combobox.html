@@ -1,2 +1,7 @@
-<select style="width:100%; height:100%; background-color:{{model.background}};" ng-model="model.dataProviderID" title="{{model.toolTipText}}" svy-autoapply ng-options="value.realValue as value.displayValue for value in model.valuelistID">
+<select svy-border='model.borderType'
+		style="width:100%; height:100%; 
+		background-color:{{model.background}};" 
+		ng-model="model.dataProviderID" 
+		title="{{model.toolTipText}}" svy-autoapply 
+		ng-options="value.realValue as value.displayValue for value in model.valuelistID">
 </select>

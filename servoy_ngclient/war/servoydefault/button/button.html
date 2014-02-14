@@ -1,1 +1,6 @@
-<button ng-style="style" title="{{model.toolTipText}}"  ng-click="handlers.onActionMethodID($event)">{{model.dataProviderID == null && model.text || model.dataProviderID}}</button>
+<button svy-border='model.borderType'
+		ng-style="style" 
+		title="{{model.toolTipText}}"  
+		ng-click="handlers.onActionMethodID($event)">
+{{model.dataProviderID == null && model.text || model.dataProviderID}} 
+</button>
