@@ -1,6 +1,8 @@
 <div svy-border='model.borderType'>
 <tabset>
-    <tab ng-repeat="tab in model.tabs" heading="{{tab.text}}" active="tab.active" select="select(tab)">
+    <tab ng-repeat="tab in model.tabs"
+    	 ng-style="style" 
+    	 heading="{{tab.text}}" active="tab.active" select="select(tab)">
       <div ng-include="getForm(tab)" style="position:absolute;width:100%;height:100%"></div><div ></div>
     </tab>
 </tabset>

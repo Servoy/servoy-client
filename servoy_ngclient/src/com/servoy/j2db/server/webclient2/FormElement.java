@@ -54,6 +54,7 @@ import com.servoy.j2db.server.webclient2.property.PropertyType;
 import com.servoy.j2db.server.webclient2.template.FormTemplateGenerator;
 import com.servoy.j2db.server.webclient2.utils.JSONUtils;
 import com.servoy.j2db.server.webclient2.utils.MiniMap;
+import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -125,7 +126,7 @@ public final class FormElement
 		}
 		else if (persist instanceof AbstractBase)
 		{
-			Map<String, Object> map = ((AbstractBase)persist).getPropertiesMap();
+			Map<String, Object> map = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap());
 			if (persist instanceof TabPanel)
 			{
 				ArrayList<Map<String, Object>> tabList = new ArrayList<>();
@@ -315,6 +316,7 @@ public final class FormElement
 		if (persist instanceof BaseComponent)
 		{
 			Map<String, Object> propertiesMap = ((BaseComponent)persist).getPropertiesMap();
+			;
 			Point location = (Point)propertiesMap.get(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
 			if (location != null)
 			{
@@ -347,6 +349,34 @@ public final class FormElement
 			Debug.error("Problem detected when handling a component's (" + getTagname() + ") properties / events.", e);
 			throw e;
 		}
+	}
+
+	/**
+	 * AbstractBase.getPropertiesMap() returns for format,borderType  etc the string representation instead of the high level class representation used in ngClient
+	 * Converts string representation to high level Class representation of properties
+	 * 
+	 * Initially only for border
+	 */
+	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap)
+	{
+		Map<String, Object> convPropertiesMap = new HashMap<>();
+		WebComponentSpec componentSpec = getWebComponentSpec();
+		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
+		for (PropertyDescription pd : propDescription.values())
+		{
+			Object val = propertiesMap.get(pd.getName());
+			if (val == null) continue;
+			switch (pd.getType())
+			{
+				case border :
+					convPropertiesMap.put(pd.getName(), ComponentFactoryHelper.createBorder((String)val));
+					break;
+				default :
+					convPropertiesMap.put(pd.getName(), val);
+					break;
+			}
+		}
+		return convPropertiesMap;
 	}
 
 	/*

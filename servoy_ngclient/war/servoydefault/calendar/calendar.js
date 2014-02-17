@@ -1,4 +1,4 @@
-servoyModule.directive('svyCalendar', function(dateFilter,$log) {  
+servoyModule.directive('svyCalendar', function(dateFilter,$log,$utils) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -7,6 +7,10 @@ servoyModule.directive('svyCalendar', function(dateFilter,$log) {
         handlers: "=svyHandlers"
       },
       controller: function($scope, $element, $attrs) {
+          $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
+          $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
+          $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
+          
           $scope.editModel =''; // use string edit model 
           $scope.inputType = 'date';
           var dateFormat = 'yyyy-MM-dd';

@@ -1,4 +1,4 @@
-servoyModule.directive('svyLabel', ["formatFilterFilter", function(formatFilter) {  
+servoyModule.directive('svyLabel', ["formatFilterFilter",'$utils', function(formatFilter,$utils) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -7,15 +7,10 @@ servoyModule.directive('svyLabel', ["formatFilterFilter", function(formatFilter)
       },
       controller: function($scope, $element, $attrs) {
        $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-       $scope.$watch('model.background', function() {
-			 if ($scope.model.background) {
-       			$scope.style['background-color'] = $scope.model.background;
-       		 }
-       		 else {
-       		 	delete $scope.style['background-color'];
-       		 }
-       })
-        $scope.$watch('model.imageMediaID', function() {
+       $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
+       $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
+       
+       $scope.$watch('model.imageMediaID', function() {
 			 if ($scope.model.imageMediaID) {
 			    $scope.bgstyle = {width:'100%',height:'100%',overflow:'hidden'};
        			$scope.bgstyle['background-image'] = "url('" + $scope.model.imageMediaID + "')"; 

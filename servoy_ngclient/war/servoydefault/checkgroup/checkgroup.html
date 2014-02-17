@@ -1,4 +1,5 @@
-<div svy-border='model.borderType' style="background-color:{{model.background}};" title="{{model.toolTipText}}" >
+<div svy-border='model.borderType' 
+     ng-style="style"  title="{{model.toolTipText}}" >
   <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')"  title="{{model.toolTipText}}">
      <input 
           type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" ng-click="checkBoxClicked($index)" /> {{item.displayValue}}

@@ -216,7 +216,6 @@ servoyModule.factory("$formatterUtils",function($filter){     // to remove
 
 		return ret 
 	}
-	window.oviFormat =  formatInternal;
 	function formatInternal(data,servoyFormatObj){
 		if((!servoyFormatObj) || (!servoyFormatObj.type) || (!data) ) return data;
 		if(servoyFormatObj.type == "NUMBER"){

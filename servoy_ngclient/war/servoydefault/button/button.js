@@ -1,4 +1,4 @@
-servoyModule.directive('svyButton', function($servoy) {  
+servoyModule.directive('svyButton', function($servoy,$utils) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -8,14 +8,9 @@ servoyModule.directive('svyButton', function($servoy) {
       },
       controller: function($scope, $element, $attrs) {
        $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-       $scope.$watch('model.background', function() {
-			 if ($scope.model.background) {
-       			$scope.style['background-color'] = $scope.model.background;
-       		 }
-       		 else {
-       		 	delete $scope.style['background-color'];
-       		 }
-       })
+       $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
+       $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
+       
         $scope.$watch('model.imageMediaID', function() {
 			 if ($scope.model.imageMediaID) {
        			$scope.style['background-image'] = "url('" + $scope.model.imageMediaID + "')"; 

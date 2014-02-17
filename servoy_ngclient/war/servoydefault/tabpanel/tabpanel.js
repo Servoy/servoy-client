@@ -1,4 +1,4 @@
-servoyModule.directive('svyTabpanel', function() {  
+servoyModule.directive('svyTabpanel', function($utils) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -9,6 +9,9 @@ servoyModule.directive('svyTabpanel', function() {
       },
       controller: function($scope, $element, $attrs) {
        var selectedTab;
+       $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
+       $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
+       $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
        
        $scope.getForm = function(tab) {
        	if (tab == selectedTab) {
