@@ -19,7 +19,6 @@ package com.servoy.j2db.plugins;
 
 import java.awt.Component;
 import java.awt.Window;
-import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
@@ -346,9 +345,8 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	public Remote getRemoteService(String name) throws Exception
 	{
 		Remote remote = application.getServerService(name);
-		if (remote == null || !useThreadingInvocationHandler || Proxy.isProxyClass(remote.getClass()))
+		if (remote == null || !useThreadingInvocationHandler || application.isRunningRemote())
 		{
-			// When remote object is already a proxy, we assume it is a rmi object, the code runs separate already anyway.
 			return remote;
 		}
 		return ThreadingRemoteInvocationHandler.createThreadingRemoteInvocationHandler(remote);
