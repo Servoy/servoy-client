@@ -5341,6 +5341,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		walkParents(parentToIndexen);
 
 		int[] indexen = parentToIndexen.get(this);
+		// if it is already a full flush (invalidate_foundset) don't do anything.
+		if (indexen != null && indexen[0] < 0 && indexen[1] < 0) return;
 
 		for (int i = 0; i < records.size(); i++)
 		{
