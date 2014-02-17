@@ -101,27 +101,32 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				for (PropertyDescription pd : formatProperties.values())
 				{
 					Object propValue = fe.getProperty(pd.getName());
-					assert (propValue instanceof String);
-					// get dataproviderId
-					String dataproviderId = (String)fe.getProperty((String)pd.getConfig());
-					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
-						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
-					component.putProperty(pd.getName(), format);
+					if (propValue instanceof String)
+					{
+						// get dataproviderId
+						String dataproviderId = (String)fe.getProperty((String)pd.getConfig());
+						ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
+							application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
+						component.putProperty(pd.getName(), format);
+					}
 				}
 				Map<String, PropertyDescription> borderProperties = componentSpec.getProperties(PropertyType.border);
 				for (PropertyDescription pd : borderProperties.values())
 				{
 					Object propValue = fe.getProperty(pd.getName());
-					assert (propValue instanceof Border);
-					component.putProperty(pd.getName(), propValue);
-
+					if (propValue instanceof Border)
+					{
+						component.putProperty(pd.getName(), propValue);
+					}
 				}
 				Map<String, PropertyDescription> colorProperties = componentSpec.getProperties(PropertyType.color);
 				for (PropertyDescription pd : colorProperties.values())
 				{
 					Object propValue = fe.getProperty(pd.getName());
-					assert (propValue instanceof Color);
-					component.putProperty(pd.getName(), propValue);
+					if (propValue instanceof Color)
+					{
+						component.putProperty(pd.getName(), propValue);
+					}
 
 				}
 
