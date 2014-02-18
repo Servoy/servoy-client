@@ -89,7 +89,7 @@ public final class FormElement
 			String customJSONString = ((Bean)persist).getBeanXML();
 			if (customJSONString != null)
 			{
-				Map<String, Object> jsonMap = new HashMap<String, Object>();
+				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap());
 				try
 				{
 					Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
@@ -140,6 +140,7 @@ public final class FormElement
 					tabMap.put("text", tab.getText());
 					tabMap.put("relationName", tab.getRelationName());
 					tabMap.put("active", Boolean.valueOf(active));
+					tabMap.put("foreground", tab.getForeground());
 					int containsFormID = tab.getContainsFormID();
 					// TODO should this be resolved way later on?
 					// if solution model then this form can change..
@@ -315,7 +316,7 @@ public final class FormElement
 
 		if (persist instanceof BaseComponent)
 		{
-			Map<String, Object> propertiesMap = getConvertedPropertiesMap(((BaseComponent)persist).getPropertiesMap());
+			Map<String, Object> propertiesMap = new HashMap<>(propertyValues);
 			Point location = (Point)propertiesMap.get(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
 			if (location != null)
 			{
@@ -373,6 +374,7 @@ public final class FormElement
 					break;
 			}
 		}
+
 		return convPropertiesMap;
 	}
 
