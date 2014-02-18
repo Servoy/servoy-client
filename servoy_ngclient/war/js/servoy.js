@@ -235,13 +235,6 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	        if (obj.srvuuid) {
 	        	webStorage.session.add("svyuuid",obj.srvuuid);
 	        }
-	        if (obj.switchform) {
-	        	$rootScope.$apply(function() { // TODO treat multiple windows case
-	        		$solutionSettings.mainForm = obj.switchform.mainForm;  
-	        		$solutionSettings.navigatorForm = obj.switchform.navigatorForm;
-	        		$solutionSettings.solutionTitle = obj.switchform.title; 
-        		})
-	        }
 	        
 	        if (obj.services) {
 	        	for (var index in obj.services)
@@ -478,9 +471,6 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	    		var cmd = {cmd:'service', cmsgid:cmsgid,servicename:serviceName,methodname:methodName,args:argsObject}
 	    		websocket.send(JSON.stringify(cmd))
 	    		return deferred.promise;
-	    	},
-	    	startEdit: function(formname,beanname,property) {
-	    		websocket.send(JSON.stringify({cmd:'svystartedit',formname:formname,beanname:beanname,property:property}))
 	    	}
 	   }
 }).directive('ngOnChange', function($parse){
@@ -544,7 +534,7 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	        // Listen for start edit
   	        element.bind('focus', function() {
   	        	setTimeout(function() { 
-  	        		$servoy.startEdit(formname,beanname,propertyname)}, 0);
+  	        		$servoy.callService("formService", "startEdit", {formname:formname,beanname:beanname,property:propertyname})}, 0);
   	        });
         }
         else {
@@ -657,7 +647,7 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'}
 }).controller("MainController", function($scope, $solutionSettings, $servoy) {
 	$scope.solutionSettings = $solutionSettings;
-}).factory("$dialogService", function($modal, $log, $templateCache) {
+}).factory("$dialogService", function($modal, $log, $templateCache, $rootScope, $solutionSettings) {
 	var instances = {};
 	
 	 $templateCache.put("template/modal/window.html",
@@ -708,6 +698,15 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 				}
 			}
 			return null;
+		},
+		switchForm: function(name,mainForm,navigatorForm,title) {		
+        	$rootScope.$apply(function() { // TODO treat multiple windows case
+        		if(!name) { // main window form switch
+        			$solutionSettings.mainForm = mainForm;
+        			$solutionSettings.navigatorForm = navigatorForm;
+        			$solutionSettings.solutionTitle = title;
+        		}
+    		})
 		},
 	}
 	

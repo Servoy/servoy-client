@@ -49,7 +49,6 @@ import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.webclient2.component.WebComponentApiDefinition;
 import com.servoy.j2db.server.webclient2.property.PropertyType;
 import com.servoy.j2db.server.webclient2.utils.JSONUtils;
@@ -78,7 +77,6 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 
 	private WebSocketClient client;
 	private String uuid;
-	private boolean mainFormSwitched = false;
 	private String windowName;
 
 	// modal dialogs are just divs, so they share the same endpoint, we need to store the actual one.
@@ -217,7 +215,6 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 					IWebFormController currentForm = this.client.getFormManager().getCurrentForm();
 					JSONStringer stringer = new JSONStringer();
 					stringer.object().key("srvuuid").value(uuid);
-					switchForm(currentForm, stringer);
 					sendText(stringer.endObject().toString());
 					break;
 				}
@@ -403,28 +400,6 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 					}
 					break;
 				}
-				case "svystartedit" :
-				{
-					client.invokeLater(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							try
-							{
-								String formName = obj.getString("formname");
-								IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-								form.getDataAdapterList().startEdit(form.getWebComponent(obj.getString("beanname")), obj.getString("property"));
-							}
-							catch (JSONException e)
-							{
-								Debug.error(e);
-								e.printStackTrace();
-							}
-						}
-					});
-					break;
-				}
 				case "service" :
 				{
 					client.invokeLater(new Runnable()
@@ -488,54 +463,6 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 		}
 	}
 
-	/**
-	 * @param currentForm
-	 * @param writer
-	 * @throws JSONException
-	 */
-	private void switchForm(IWebFormController currentForm, JSONWriter writer) throws JSONException
-	{
-		mainFormSwitched = false;
-		writer.key("switchform").object().key("mainForm").object().key("templateURL").value(JSONUtils.toStringObject(currentForm.getForm(), PropertyType.form)).key(
-			"width").value(currentForm.getForm().getWidth()).key("name").value(currentForm.getName()).endObject();
-		writer.key("title").value("Superheroic new Servoy client");
-		int navigatorId = currentForm.getForm().getNavigatorID();
-		if (currentForm.getFormUI() instanceof WebGridFormUI && navigatorId == Form.NAVIGATOR_DEFAULT)
-		{
-			navigatorId = Form.NAVIGATOR_NONE;
-		}
-		switch (navigatorId)
-		{
-			case Form.NAVIGATOR_NONE :
-			{
-				// just make it an empty object.
-				writer.key("navigatorForm").object().key("width").value(0).endObject();
-				break;
-			}
-			case Form.NAVIGATOR_DEFAULT :
-			{
-				writer.key("navigatorForm").object().key("templateURL").value("servoydefault/navigator/default_navigator_container.html").key("width").value(70).endObject();
-				break;
-			}
-			case Form.NAVIGATOR_IGNORE :
-			{
-				// just leave what it is now.
-				break;
-			}
-			default :
-			{
-				Form navForm = client.getFlattenedSolution().getForm(navigatorId);
-				if (navForm != null)
-				{
-					writer.key("navigatorForm").object().key("templateURL").value(JSONUtils.toStringObject(navForm, PropertyType.form)).key("width").value(
-						navForm.getWidth()).endObject();
-				}
-			}
-		}
-
-		writer.endObject();
-	}
-
 	public void startHandlingEvent()
 	{
 		handlingEvent.incrementAndGet();
@@ -578,7 +505,7 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 
 	private void sendChanges(Map<String, Map<String, Map<String, Object>>> properties) throws JSONException
 	{
-		if (properties.size() == 0 && !mainFormSwitched && serviceCalls.size() == 0) return;
+		if (properties.size() == 0 && serviceCalls.size() == 0) return;
 
 		if (serviceCalls.size() > 0)
 		{
@@ -659,35 +586,6 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 			webComponent.putBrowserProperty(key, object);
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.webclient2.IWebSocketClientEndpoint#switchMainForm(com.servoy.j2db.server.webclient2.IWebFormController)
-	 */
-	@Override
-	public void switchMainForm(IWebFormController currentForm)
-	{
-		if (handlingEvent.get() == 0)
-		{
-			try
-			{
-				JSONStringer stringer = new JSONStringer();
-				JSONWriter object = stringer.object();
-				switchForm(currentForm, object);
-				sendText(object.endObject().toString());
-			}
-			catch (JSONException e)
-			{
-				Debug.error(e);
-			}
-		}
-		else
-		{
-			mainFormSwitched = true;
-		}
-	}
-
 
 	/*
 	 * (non-Javadoc)
@@ -812,13 +710,6 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 			writeConversions(writer, clientConversion.getConversions());
 			writer.endObject();
 		}
-
-		// TODO should be moved to sendChanges.. (switch form should be a service call)
-		if (mainFormSwitched)
-		{
-			switchForm(client.getFormManager().getCurrentForm(), writer);
-		}
-
 
 		return writer.endObject().toString();
 	}

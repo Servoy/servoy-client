@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 
@@ -39,6 +40,8 @@ import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -58,7 +61,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public class WebSocketFormManager implements IWebSocketFormManager
+public class WebSocketFormManager implements IWebSocketFormManager, IService
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 
@@ -73,6 +76,7 @@ public class WebSocketFormManager implements IWebSocketFormManager
 		this.application = application;
 		this.possibleForms = new ConcurrentHashMap<String, Form>();
 		this.createdFormControllers = new ConcurrentHashMap<>();
+		application.registerService("formService", this);
 	}
 
 	@Override
@@ -514,7 +518,6 @@ public class WebSocketFormManager implements IWebSocketFormManager
 //				}
 //				invokeLaterRunnables.add(title_focus);
 				Utils.invokeLater(application, invokeLaterRunnables);
-				application.getActiveWebSocketClientEndpoint().switchMainForm(getCurrentForm());
 			}
 			else
 			{
@@ -659,5 +662,24 @@ public class WebSocketFormManager implements IWebSocketFormManager
 		return application.getRuntimeWindowManager().getWindow(windowName);
 	}
 
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.webclient2.IService#executeMethod(java.lang.String, org.json.JSONObject)
+	 */
+	@Override
+	public Object executeMethod(String methodName, JSONObject args)
+	{
+		switch (methodName)
+		{
+			case "startEdit" :
+			{
+				String formName = args.optString("formname");
+				IWebFormUI form = getForm(formName).getFormUI();
+				form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"));
+				break;
+			}
+		}
+		return null;
+	}
 }

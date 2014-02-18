@@ -26,6 +26,9 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.server.webclient2.component.WebFormController;
+import com.servoy.j2db.server.webclient2.property.PropertyType;
+import com.servoy.j2db.server.webclient2.utils.JSONUtils;
 
 /**
  * @author jcompagner
@@ -91,8 +94,15 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 	@Override
 	public void setController(IFormController form)
 	{
-		this.formName = form != null ? form.getName() : null;
-		// todo should this now be pushed?
+		if (form != null)
+		{
+			this.formName = form.getName();
+			switchForm((WebFormController)form);
+		}
+		else
+		{
+			this.formName = null;
+		}
 	}
 
 	/*
@@ -307,5 +317,57 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 		{
 			application.getEventDispatcher().suspend(this);
 		}
+	}
+
+	private void switchForm(IWebFormController currentForm)
+	{
+		Map<String, Object> mainForm = new HashMap<String, Object>();
+		mainForm.put("templateURL", JSONUtils.toStringObject(currentForm.getForm(), PropertyType.form));
+		mainForm.put("width", currentForm.getForm().getWidth());
+		mainForm.put("name", currentForm.getName());
+
+		String formTitle = "Superheroic new Servoy client";
+
+		Map<String, Object> navigatorForm = new HashMap<String, Object>();
+		int navigatorId = currentForm.getForm().getNavigatorID();
+		if (currentForm.getFormUI() instanceof WebGridFormUI && navigatorId == Form.NAVIGATOR_DEFAULT)
+		{
+			navigatorId = Form.NAVIGATOR_NONE;
+		}
+		switch (navigatorId)
+		{
+			case Form.NAVIGATOR_NONE :
+			{
+				// just make it an empty object.
+				navigatorForm.put("width", 0);
+				break;
+			}
+			case Form.NAVIGATOR_DEFAULT :
+			{
+				navigatorForm.put("templateURL", "servoydefault/navigator/default_navigator_container.html");
+				navigatorForm.put("width", 70);
+				break;
+			}
+			case Form.NAVIGATOR_IGNORE :
+			{
+				// just leave what it is now.
+				break;
+			}
+			default :
+			{
+				Form navForm = application.getFlattenedSolution().getForm(navigatorId);
+				if (navForm != null)
+				{
+					navigatorForm.put("templateURL", JSONUtils.toStringObject(navForm, PropertyType.form));
+					navigatorForm.put("width", navForm.getWidth());
+				}
+			}
+		}
+
+		application.getActiveWebSocketClientEndpoint().executeServiceCall(
+			DIALOG_SERVICE,
+			"switchForm",
+			new Object[] { this.equals(application.getRuntimeWindowManager().getMainApplicationWindow()) ? null : getName(), mainForm, navigatorForm, formTitle });
+
 	}
 }

@@ -33,8 +33,6 @@ public interface IWebSocketClientEndpoint extends IChangeListener
 
 	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String beanName, Object[] arguments);
 
-	void switchMainForm(IWebFormController currentForm);
-
 	void closeSession();
 
 	String getCurrentWindowName();
