@@ -66,12 +66,10 @@ public final class FormElement
 {
 	private final IPersist persist;
 	private final Map<String, Object> propertyValues;
-	private final FlattenedSolution fs;
 
-	public FormElement(Form form, FlattenedSolution fs)
+	public FormElement(Form form)
 	{
 		this.persist = form;
-		this.fs = fs;
 		Map<String, Object> map = ((AbstractBase)persist).getPropertiesMap();
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
@@ -82,14 +80,13 @@ public final class FormElement
 	public FormElement(IFormElement persist, FlattenedSolution fs)
 	{
 		this.persist = persist;
-		this.fs = fs;
 
 		if (persist instanceof Bean)
 		{
 			String customJSONString = ((Bean)persist).getBeanXML();
 			if (customJSONString != null)
 			{
-				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap());
+				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), fs);
 				try
 				{
 					Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
@@ -108,8 +105,21 @@ public final class FormElement
 						}
 						if (pd != null)
 						{
-							// TODO where the handle PropertyType.form properties? (see tabpanel below)
-							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType()));
+							if (pd.getType() == PropertyType.media)
+							{
+								// special support for media type (that needs a FS to resolve the media)
+								int mediaId = jsonProperties.getInt(key);
+								Media media = fs.getMedia(mediaId);
+								if (media != null)
+								{
+									jsonMap.put(key, "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName());
+								}
+							}
+							else
+							{
+								// TODO where the handle PropertyType.form properties? (see tabpanel below)
+								jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType()));
+							}
 						}
 					}
 				}
@@ -126,7 +136,7 @@ public final class FormElement
 		}
 		else if (persist instanceof AbstractBase)
 		{
-			Map<String, Object> map = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap());
+			Map<String, Object> map = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), fs);
 			if (persist instanceof TabPanel)
 			{
 				ArrayList<Map<String, Object>> tabList = new ArrayList<>();
@@ -291,15 +301,6 @@ public final class FormElement
 			switch (pd.getType())
 			{
 			// dataprovider,formats,valuelist are always only pushed through the components
-				case media :
-				{
-					Media media = fs.getMedia(Utils.getAsInteger(val));
-					if (media != null)
-					{
-						properties.put(pd.getName(), "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName());
-					}
-					break;
-				}
 				case dataprovider :
 				case format :
 				case valuelist :
@@ -357,7 +358,7 @@ public final class FormElement
 	 * 
 	 * Initially only for border
 	 */
-	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap)
+	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, FlattenedSolution fs)
 	{
 		Map<String, Object> convPropertiesMap = new HashMap<>();
 		for (String pv : propertiesMap.keySet())
@@ -369,6 +370,18 @@ public final class FormElement
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_BORDERTYPE : //PropertyType.border.getType
 					convPropertiesMap.put(pv, ComponentFactoryHelper.createBorder((String)val));
 					break;
+
+				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID :
+				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_IMAGEMEDIAID :
+				{
+					Media media = fs.getMedia(Utils.getAsInteger(val));
+					if (media != null)
+					{
+						convPropertiesMap.put(pv, "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName());
+					}
+					break;
+				}
+
 				default :
 					convPropertiesMap.put(pv, val);
 					break;
