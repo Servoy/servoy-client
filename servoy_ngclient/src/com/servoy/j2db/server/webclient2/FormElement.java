@@ -360,22 +360,23 @@ public final class FormElement
 	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap)
 	{
 		Map<String, Object> convPropertiesMap = new HashMap<>();
-		WebComponentSpec componentSpec = getWebComponentSpec();
-		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
-		for (PropertyDescription pd : propDescription.values())
+		//WebComponentSpec componentSpec = getWebComponentSpec();
+		//Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
+		for (String pv : propertiesMap.keySet())
 		{
-			Object val = propertiesMap.get(pd.getName());
+			Object val = propertiesMap.get(pv);
 			if (val == null) continue;
-			switch (pd.getType())
+			switch (pv)
 			{
-				case border :
-					convPropertiesMap.put(pd.getName(), ComponentFactoryHelper.createBorder((String)val));
+				case "border" : //PropertyType.border.getType
+					convPropertiesMap.put(pv, ComponentFactoryHelper.createBorder((String)val));
 					break;
 				default :
-					convPropertiesMap.put(pd.getName(), val);
+					convPropertiesMap.put(pv, val);
 					break;
 			}
 		}
+
 		return convPropertiesMap;
 	}
 
