@@ -1,4 +1,4 @@
-servoyModule.directive('svyButton', function($servoy,$utils) {  
+servoyModule.directive('svyButton', function($servoy,$utils,formatFilterFilter) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -10,8 +10,8 @@ servoyModule.directive('svyButton', function($servoy,$utils) {
        $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
        $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
        $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
-       
-        $scope.$watch('model.imageMediaID', function() {
+     
+       $scope.$watch('model.imageMediaID', function() {
 			 if ($scope.model.imageMediaID) {
        			$scope.style['background-image'] = "url('" + $scope.model.imageMediaID + "')"; 
 				$scope.style['background-repeat'] = "no-repeat";
@@ -28,8 +28,6 @@ servoyModule.directive('svyButton', function($servoy,$utils) {
       replace: true
     };
   })
-
-  
   
   
   

@@ -9,7 +9,7 @@ servoyModule.directive('svyTabpanel', function($utils) {
       },
       controller: function($scope, $element, $attrs) {
        var selectedTab;
-       $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
+       $scope.style = {}
        $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
        $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
        

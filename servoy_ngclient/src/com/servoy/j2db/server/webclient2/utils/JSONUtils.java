@@ -296,6 +296,12 @@ public class JSONUtils
 						return propertyValue;
 					}
 					break;
+				case border :
+					if (propertyValue instanceof String)
+					{
+						return ComponentFactoryHelper.createBorder((String)propertyValue);
+					}
+					break;
 
 				default :
 			}

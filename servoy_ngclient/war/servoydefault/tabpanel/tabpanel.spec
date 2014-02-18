@@ -19,7 +19,8 @@ model:
         tabOrientation : 'int', 
         location : 'point', 
         foreground : 'color', 
-        background : 'color' 
+        background : 'color',
+        tabs : 'tab[]'
 },
 handlers:
 {
@@ -156,4 +157,15 @@ api:
             returns: 'void',
             parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
         } 
+},
+types: {
+  tab: {
+  	model: {
+  		containsFormId: 'form',
+  		text: 'tagstring',
+  		relationName: 'relation',
+  		active: 'boolean',
+  		foreground: Color
+  	}
+  }
 }

@@ -1,6 +1,6 @@
 <button svy-border='model.borderType'
 		ng-style="style" 
 		title="{{model.toolTipText}}"  
-		ng-click="handlers.onActionMethodID($event)">
-{{model.dataProviderID == null && model.text || model.dataProviderID}} 
+		ng-click="handlers.onActionMethodID($event)"
+        ng-bind='model.dataProviderID == null && model.text || model.dataProviderID | formatFilter:model.format'>
 </button>

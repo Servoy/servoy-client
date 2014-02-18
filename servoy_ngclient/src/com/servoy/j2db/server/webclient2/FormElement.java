@@ -315,8 +315,7 @@ public final class FormElement
 
 		if (persist instanceof BaseComponent)
 		{
-			Map<String, Object> propertiesMap = ((BaseComponent)persist).getPropertiesMap();
-			;
+			Map<String, Object> propertiesMap = getConvertedPropertiesMap(((BaseComponent)persist).getPropertiesMap());
 			Point location = (Point)propertiesMap.get(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
 			if (location != null)
 			{
@@ -360,15 +359,13 @@ public final class FormElement
 	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap)
 	{
 		Map<String, Object> convPropertiesMap = new HashMap<>();
-		//WebComponentSpec componentSpec = getWebComponentSpec();
-		//Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (String pv : propertiesMap.keySet())
 		{
 			Object val = propertiesMap.get(pv);
 			if (val == null) continue;
 			switch (pv)
 			{
-				case "border" : //PropertyType.border.getType
+				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_BORDERTYPE : //PropertyType.border.getType
 					convPropertiesMap.put(pv, ComponentFactoryHelper.createBorder((String)val));
 					break;
 				default :
@@ -376,7 +373,6 @@ public final class FormElement
 					break;
 			}
 		}
-
 		return convPropertiesMap;
 	}
 
