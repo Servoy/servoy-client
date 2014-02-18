@@ -561,7 +561,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	@Override
 	public String getContainerName()
 	{
-		return (String)application.getActiveWebSocketClientEndpoint().executeDirectServiceCall("$dialogService", "getContainerName",
+		return (String)application.getActiveWebSocketClientEndpoint().executeDirectServiceCall("$windowService", "getContainerName",
 			new Object[] { formController.getForm() });
 	}
 

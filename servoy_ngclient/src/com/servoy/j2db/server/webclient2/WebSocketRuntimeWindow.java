@@ -37,7 +37,7 @@ import com.servoy.j2db.server.webclient2.utils.JSONUtils;
 public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainContainer
 {
 
-	private static final String DIALOG_SERVICE = "$dialogService";
+	private static final String WINDOW_SERVICE = "$windowService";
 
 	private final History history;
 	private final IWebSocketApplication application;
@@ -280,7 +280,7 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 	public void hideUI()
 	{
 		visible = false;
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(DIALOG_SERVICE, "dismiss", new Object[] { getName() });
+		application.getActiveWebSocketClientEndpoint().executeServiceCall(WINDOW_SERVICE, "dismiss", new Object[] { getName() });
 
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
@@ -310,7 +310,7 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 		size.put("width", wdth + "px");
 		size.put("height", hght + "px");
 		arguments.put("size", size);
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(DIALOG_SERVICE, "show", new Object[] { getName(), arguments });
+		application.getActiveWebSocketClientEndpoint().executeServiceCall(WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
 
 		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
@@ -364,10 +364,8 @@ public class WebSocketRuntimeWindow extends RuntimeWindow implements IBasicMainC
 			}
 		}
 
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(
-			DIALOG_SERVICE,
-			"switchForm",
-			new Object[] { this.equals(application.getRuntimeWindowManager().getMainApplicationWindow()) ? null : getName(), mainForm, navigatorForm, formTitle });
+		application.getActiveWebSocketClientEndpoint().executeServiceCall(WINDOW_SERVICE, "switchForm",
+			new Object[] { getName(), mainForm, navigatorForm, formTitle });
 
 	}
 }

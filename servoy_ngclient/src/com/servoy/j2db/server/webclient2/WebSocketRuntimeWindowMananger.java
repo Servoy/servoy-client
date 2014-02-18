@@ -65,8 +65,6 @@ public class WebSocketRuntimeWindowMananger extends RuntimeWindowManager impleme
 		return null;
 	}
 
-	protected RuntimeWindow mainApplicationWindow;
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -75,8 +73,7 @@ public class WebSocketRuntimeWindowMananger extends RuntimeWindowManager impleme
 	@Override
 	protected RuntimeWindow getMainApplicationWindow()
 	{
-		if (mainApplicationWindow == null) createMainWindow();
-		return mainApplicationWindow;
+		return new WebSocketRuntimeWindow((IWebSocketApplication)application, null, JSWindow.WINDOW, null);
 	}
 
 	/*
@@ -130,7 +127,7 @@ public class WebSocketRuntimeWindowMananger extends RuntimeWindowManager impleme
 	public String createMainWindow()
 	{
 		String windowsUUID = UUID.randomUUID().toString();
-		mainApplicationWindow = createWindow(windowsUUID, JSWindow.WINDOW, null);
+		createWindow(windowsUUID, JSWindow.WINDOW, null);
 		setCurrentWindowName(windowsUUID);
 		return windowsUUID;
 	}

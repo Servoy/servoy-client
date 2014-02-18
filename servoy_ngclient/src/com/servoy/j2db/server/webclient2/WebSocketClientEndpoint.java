@@ -214,7 +214,7 @@ public class WebSocketClientEndpoint implements IWebSocketClientEndpoint
 					}
 					IWebFormController currentForm = this.client.getFormManager().getCurrentForm();
 					JSONStringer stringer = new JSONStringer();
-					stringer.object().key("srvuuid").value(uuid);
+					stringer.object().key("srvuuid").value(uuid).key("windowName").value(windowName);
 					sendText(stringer.endObject().toString());
 					break;
 				}

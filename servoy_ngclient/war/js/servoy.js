@@ -235,7 +235,9 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	        if (obj.srvuuid) {
 	        	webStorage.session.add("svyuuid",obj.srvuuid);
 	        }
-	        
+	        if (obj.windowName) {
+	        	$solutionSettings.windowName = obj.windowName;
+	        }
 	        if (obj.services) {
 	        	for (var index in obj.services)
 	        	{
@@ -647,7 +649,7 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'}
 }).controller("MainController", function($scope, $solutionSettings, $servoy) {
 	$scope.solutionSettings = $solutionSettings;
-}).factory("$dialogService", function($modal, $log, $templateCache, $rootScope, $solutionSettings) {
+}).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings) {
 	var instances = {};
 	
 	 $templateCache.put("template/modal/window.html",
@@ -701,7 +703,7 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 		},
 		switchForm: function(name,mainForm,navigatorForm,title) {		
         	$rootScope.$apply(function() { // TODO treat multiple windows case
-        		if(!name) { // main window form switch
+        		if($solutionSettings.windowName == name) { // main window form switch
         			$solutionSettings.mainForm = mainForm;
         			$solutionSettings.navigatorForm = navigatorForm;
         			$solutionSettings.solutionTitle = title;
@@ -717,7 +719,7 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
           scope.$$childHead.formSize = scope.formSize; 
         }
       };
-}]).controller("DialogInstanceCtrl", function ($scope, $modalInstance,$dialogService, $servoy,windowName,title,form,formSize) {
+}]).controller("DialogInstanceCtrl", function ($scope, $modalInstance,$windowService, $servoy,windowName,title,form,formSize) {
 	$scope.form = form;
 	$scope.title = title;
 	$scope.windowName = windowName;
@@ -726,10 +728,10 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	$servoy.setFormVisibility(form,true);
 	
 	$scope.cancel = function () {
-		var promise = $servoy.callService("dialogService", "windowClosing", {window:windowName});
+		var promise = $servoy.callService("windowService", "windowClosing", {window:windowName});
 		promise.then(function(ok) {
     		if (ok) {
-    			$dialogService.dismiss(windowName);
+    			$windowService.dismiss(windowName);
     			
     		}
     	})
