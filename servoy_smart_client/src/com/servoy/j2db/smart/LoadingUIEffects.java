@@ -43,6 +43,7 @@ public class LoadingUIEffects
 {
 
 	public static final String SERVOY_BRANDING = "servoy.branding"; //$NON-NLS-1$
+	public static final String SERVOY_BRANDING_WEBSTART_SPLASH = "servoy.branding.webstart.splash"; //$NON-NLS-1$
 	public static final String SERVOY_BRANDING_LOADING_IMAGE = "servoy.branding.loadingimage"; //$NON-NLS-1$
 	public static final String SERVOY_BRANDING_LOADING_BACKGROUND = "servoy.branding.loadingbackground"; //$NON-NLS-1$
 	public static final String SERVOY_BRANDING_HIDE_FRAME_WHILE_LOADING = "servoy.branding.hideframewhileloading"; //$NON-NLS-1$
@@ -51,6 +52,9 @@ public class LoadingUIEffects
 	private final J2DBClient application;
 	private final MainPanel mainPanel;
 
+	// before the first solution loaded in this client we should always use "hide frame while loading" behaviour
+	// but using the WEBSTART_SPLASH - it is nicer to do this until we actually have something useful to show in main window
+	private boolean beforeFirstSolutionLoad = true;
 
 	public LoadingUIEffects(J2DBClient client, MainPanel mainPanel)
 	{
@@ -75,7 +79,7 @@ public class LoadingUIEffects
 			createLoadingLabel();
 		}
 
-		if (shouldShowFrameWhileLoading())
+		if ((!beforeFirstSolutionLoad) && shouldShowFrameWhileLoading())
 		{
 			// show the "loading" img as part of the main frame/main panel
 			JFrame f = application.getMainApplicationFrame();
@@ -118,6 +122,14 @@ public class LoadingUIEffects
 				}
 			}
 		}
+
+		if (!b)
+		{
+			// we are ready to show a solution; from now on, the loading image will now be different and
+			// loading behaviour will actually take into account the value of SERVOY_BRANDING_HIDE_FRAME_WHILE_LOADING
+			beforeFirstSolutionLoad = false;
+			loadingLabel = null;
+		}
 	}
 
 	private Color getLoadingBackgroundColor()
@@ -159,8 +171,9 @@ public class LoadingUIEffects
 
 	protected void createLoadingLabel()
 	{
-		String loadingImage = application.getSettings().getProperty(SERVOY_BRANDING_LOADING_IMAGE);
-		if (isBrandingOn() && loadingImage != null && Utils.isSwingClient(application.getApplicationType()))
+		String loadingImage = beforeFirstSolutionLoad ? application.getSettings().getProperty(SERVOY_BRANDING_WEBSTART_SPLASH, "lib/splashclient.gif") //$NON-NLS-1$
+			: application.getSettings().getProperty(SERVOY_BRANDING_LOADING_IMAGE);
+		if ((isBrandingOn() || beforeFirstSolutionLoad) && loadingImage != null && Utils.isSwingClient(application.getApplicationType()))
 		{
 			if (loadingImage.equals("")) //$NON-NLS-1$
 			{
@@ -173,9 +186,10 @@ public class LoadingUIEffects
 				{
 					try
 					{
+						if (!loadingImage.startsWith("/")) loadingImage = "/" + loadingImage; //$NON-NLS-1$//$NON-NLS-2$
 						String loadingImageFile = null;
 						String path = webstartUrl.getPath();
-						if (!path.equals("") && path.endsWith("/"))
+						if (!path.equals("") && path.endsWith("/")) //$NON-NLS-1$//$NON-NLS-2$
 						{
 							loadingImageFile = path.substring(0, path.length() - 1) + loadingImage;
 						}
