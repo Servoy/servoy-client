@@ -77,8 +77,8 @@ public class HeadlessClientFactory
 	public static IHeadlessClient createHeadlessClient(String solutionname, String username, String password, Object[] solutionOpenMethodArgs) throws Exception
 	{
 		final ISessionClient sb = HeadlessClientFactoryInternal.createHeadlessClient(solutionname, username, password, solutionOpenMethodArgs);
-		return (IHeadlessClient)Proxy.newProxyInstance(HeadlessClientFactory.class.getClassLoader(), new Class[] { IHeadlessClient.class },
-			new InvocationHandler()
+		return (IHeadlessClient)Proxy.newProxyInstance(HeadlessClientFactory.class.getClassLoader(),
+			new Class[] { IHeadlessClient.class, ISessionClient.class }, new InvocationHandler()
 			{
 				@Override
 				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
