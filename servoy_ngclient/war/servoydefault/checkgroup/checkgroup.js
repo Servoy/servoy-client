@@ -27,13 +27,10 @@ servoyModule.directive('svyCheckgroup', function($utils) {
           })
           
           $scope.checkBoxClicked = function($index){
-             var checkedTotal = $scope.selection.reduce(function(previousValue, currentValue, index, array){
-                    if(currentValue==true){
-                        return previousValue +1;
-                    }else{
-                        return previousValue ;
-                    }
-            })
+             var checkedTotal = 0;
+             for(var i=0;i< $scope.selection.length ;i++){
+            	 if($scope.selection[i]==true) checkedTotal++;            	 
+             }
             // prevent unselection of the last element if 'allow null' is not set                                          
             if(checkedTotal==0 && allowNullinc ==0){
                $scope.selection[$index] = true;
