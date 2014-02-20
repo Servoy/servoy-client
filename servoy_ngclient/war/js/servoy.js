@@ -1,4 +1,4 @@
-var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','ngGrid'])
+var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','ngGrid','svy.ui.bootstrap'])
 .factory('$servoy', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window,$injector) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
 	   // this holds the form model with all the data, per form is this the "synced" view of the the IFormUI on the server 

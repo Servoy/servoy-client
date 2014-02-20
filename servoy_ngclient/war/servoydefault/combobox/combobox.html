@@ -1,6 +1,7 @@
 <select svy-border='model.borderType'
 		ng-style="style"
 		ng-model="model.dataProviderID" 
-		title="{{model.toolTipText}}" svy-autoapply 
+		svy-tooltip-html-unsafe="{{model.toolTipText}}"
+		svy-autoapply 
 		ng-options="value.realValue as value.displayValue for value in model.valuelistID">
 </select>

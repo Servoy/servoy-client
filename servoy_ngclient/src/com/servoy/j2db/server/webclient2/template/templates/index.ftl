@@ -34,6 +34,7 @@
       <link rel="stylesheet" href="css/servoy.css">
 	  <script src="js/servoy.js"></script>
 	  <script src="js/servoyformat.js"></script>
+	  <script src="js/servoytooltip.js"></script>
         
 	  <!-- list of all the beans/components maybe having 1 file that includes them all -->
 	  <!-- standard "servoydefault.jar , should  be generated" beans -->

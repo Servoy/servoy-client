@@ -1,4 +1,5 @@
-<div svy-border='model.borderType' ng-style="style" 
-	 title="{{model.toolTipText}}">
-<span  ng-style="bgstyle" ng-bind='(model.dataProviderID == null && model.text || model.dataProviderID ) | formatFilter:model.format' ></span>
+<div svy-border='model.borderType' ng-style="style" svy-tooltip-html-unsafe="{{model.toolTipText}}" svy-tooltip-placement="right" svy-tooltip-append-to-body="true">
+<span  ng-style="bgstyle" 
+	   ng-bind='(model.dataProviderID == null && model.text || model.dataProviderID ) | formatFilter:model.format'
+ 	   ></span>
  </div>

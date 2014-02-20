@@ -1,5 +1,5 @@
 <div svy-border='model.borderType' ng-style="style" 
-	 title="{{model.toolTipText}}" >
+	 svy-tooltip-html-unsafe="{{model.toolTipText}}" >
   <div ng-repeat="item in model.valuelistID | filter:notNull('realValue')"  title="{{model.toolTipText}}">
      <input 
           type="radio" ng-model="model.dataProviderID"  ng-value="item.realValue"  
