@@ -15,15 +15,14 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.headlessclient;
+package com.servoy.j2db.ui;
 
-import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 
 /**
- * Interface for web components that support on render
+ * Interface for components that support on render
  * @author gboros
  */
-public interface ISupportWebOnRender extends IProviderStylePropertyChanges
+public interface ISupportOnRender
 {
-	void fireOnRender();
+	void fireOnRender(boolean force);
 }

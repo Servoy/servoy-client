@@ -52,6 +52,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeValuelistComponent;
 import com.servoy.j2db.util.HtmlUtils;
@@ -66,7 +67,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public class DataRadioButton extends JRadioButton implements IFieldComponent, IDisplayData, ISkinnable, INullableAware, ISupportCachedLocationAndSize,
-	ISupportValueList, IMarginAwareBorder
+	ISupportValueList, IMarginAwareBorder, ISupportOnRender
 {
 	private Object value;
 	protected IValueList onValue;
@@ -437,9 +438,17 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		fireOnRender(false);
 	}
 
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
+	}
 
 	public void setComponentEnabled(final boolean b)
 	{

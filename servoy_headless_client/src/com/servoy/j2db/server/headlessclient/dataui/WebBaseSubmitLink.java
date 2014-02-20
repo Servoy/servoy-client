@@ -53,7 +53,6 @@ import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IAnchoredComponent;
@@ -63,6 +62,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportSecuritySettings;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
@@ -82,7 +82,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
 	ISupportSecuritySettings, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent,
-	ISupportSimulateBoundsProvider, ISupportWebOnRender
+	ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -952,10 +952,10 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) wcbw.addLabelCssClass(getId());
 		}
-		fireOnRender();
+		fireOnRender(false);
 	}
 
-	public void fireOnRender()
+	public void fireOnRender(boolean force)
 	{
 		if (scriptable instanceof ISupportOnRenderCallback)
 		{
@@ -965,6 +965,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
+			if (force) ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor().setRenderStateChanged();
 			((ISupportOnRenderCallback)scriptable).getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}

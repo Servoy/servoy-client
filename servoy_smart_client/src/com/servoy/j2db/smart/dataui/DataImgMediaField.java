@@ -74,6 +74,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnableScrollPanel;
@@ -93,7 +94,7 @@ import com.servoy.j2db.util.gui.SnapShot;
  */
 @SuppressWarnings("nls")
 public class DataImgMediaField extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, DropTargetListener, ISupportAsyncLoading,
-	ISupportCachedLocationAndSize
+	ISupportCachedLocationAndSize, ISupportOnRender
 {
 	private final static Icon NOT_EMPTY_IMAGE;
 
@@ -401,7 +402,16 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
 	}
 
 	private byte[] getByteArrayContents(Object tmp)

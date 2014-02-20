@@ -59,7 +59,6 @@ import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IComponent;
@@ -68,6 +67,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
@@ -87,7 +87,7 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  * @author jcompagner,jblok
  */
 public class WebBaseLabel extends Label implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportWebOnRender
+	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1032,10 +1032,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) wcbw.addLabelCssClass(getId());
 		}
-		fireOnRender();
+		fireOnRender(false);
 	}
 
-	public void fireOnRender()
+	public void fireOnRender(boolean force)
 	{
 		if (scriptable instanceof ISupportOnRenderCallback)
 		{
@@ -1045,6 +1045,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
+			if (force) ((ISupportOnRenderCallback)scriptable).getRenderEventExecutor().setRenderStateChanged();
 			((ISupportOnRenderCallback)scriptable).getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}

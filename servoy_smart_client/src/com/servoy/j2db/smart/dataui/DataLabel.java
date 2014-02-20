@@ -32,6 +32,7 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDisplayTagText;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
@@ -41,7 +42,7 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
  * Runtime swing label component
  * @author jblok, jcompagner
  */
-public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth, PropertyChangeListener
+public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDisplayTagText, IFixedPreferredWidth, PropertyChangeListener, ISupportOnRender
 {
 	private String dataProviderID;
 	private Object value;
@@ -210,8 +211,7 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 			{
 				if (obj.equals(value))
 				{
-					if (scriptable != null && scriptable.getRenderEventExecutor().isRenderStateChanged()) scriptable.getRenderEventExecutor().fireOnRender(
-						hasFocus());
+					if (scriptable != null && scriptable.getRenderEventExecutor().isRenderStateChanged()) fireOnRender(false);
 					return;
 				}
 
@@ -251,8 +251,16 @@ public class DataLabel extends AbstractScriptLabel implements IDisplayData, IDis
 				super.setToolTipText(tooltip);
 			}
 		}
+		fireOnRender(false);
+	}
 
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
 	}
 
 	public String getDataProviderID()

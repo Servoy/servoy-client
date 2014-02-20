@@ -43,7 +43,6 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.IDesignModeListener;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -52,6 +51,7 @@ import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -70,7 +70,7 @@ import com.servoy.j2db.util.PersistHelper;
  */
 public abstract class WebDataCompositeTextField extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds,
 	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent, IDesignModeListener,
-	ISupportSimulateBoundsProvider, ISupportWebOnRender
+	ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -619,10 +619,10 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		fireOnRender();
+		fireOnRender(false);
 	}
 
-	public void fireOnRender()
+	public void fireOnRender(boolean force)
 	{
 		if (scriptable != null)
 		{
@@ -632,6 +632,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 			{
 				isFocused = field.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}

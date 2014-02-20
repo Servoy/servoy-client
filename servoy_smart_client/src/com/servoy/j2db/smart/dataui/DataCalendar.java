@@ -62,6 +62,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.scripting.RuntimeDataCalendar;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.EnablePanel;
@@ -75,7 +76,7 @@ import com.servoy.j2db.util.ScopesUtils;
  * @author jblok
  */
 public class DataCalendar extends EnablePanel implements IFieldComponent, IDisplayData, ActionListener, IDelegate, ISupplyFocusChildren<Component>,
-	ISupportCachedLocationAndSize, IFormattingComponent
+	ISupportCachedLocationAndSize, IFormattingComponent, ISupportOnRender
 {
 	private final DataField enclosedComponent;
 	private String dataProviderID;
@@ -357,7 +358,16 @@ public class DataCalendar extends EnablePanel implements IFieldComponent, IDispl
 	public void setValueObject(Object obj)
 	{
 		enclosedComponent.setValueObject(obj);
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
+		}
 	}
 
 	public void setTagResolver(ITagResolver resolver)

@@ -33,6 +33,7 @@ import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -123,6 +124,7 @@ public class WebCellAdapter implements IDataAdapter
 									spc.setChanged();
 								}
 							}
+							if (cell instanceof ISupportOnRender) ((ISupportOnRender)cell).fireOnRender(true);
 						}
 					}
 					if (record != null) break;

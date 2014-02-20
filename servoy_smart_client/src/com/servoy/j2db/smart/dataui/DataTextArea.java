@@ -78,6 +78,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportPlaceholderText;
 import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 import com.servoy.j2db.util.Debug;
@@ -96,7 +97,8 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * @author jblok
  */
 public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IFixedPreferredWidth,
-	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportPlaceholderText
+	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportPlaceholderText,
+	ISupportOnRender
 {
 	private final JTextArea enclosedComponent;
 	private String dataProviderID;
@@ -762,7 +764,16 @@ public class DataTextArea extends EnableScrollPanel implements IDisplayData, IFi
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
+		}
 	}
 
 	/*

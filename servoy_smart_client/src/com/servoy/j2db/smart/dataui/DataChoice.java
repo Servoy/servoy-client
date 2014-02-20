@@ -81,6 +81,7 @@ import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
@@ -102,7 +103,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author jblok, jcompagner
  */
 public class DataChoice extends EnableScrollPanel implements IDisplayData, IFieldComponent, IScrollPane, IDisplayRelatedData, ListDataListener,
-	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportValueList, IFormattingComponent
+	ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize, ISupportValueList, IFormattingComponent, ISupportOnRender
 {
 	private String dataProviderID;
 	protected final ComboModelListModelWrapper list;
@@ -1078,7 +1079,16 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
 	}
 
 	public boolean needEditListener()

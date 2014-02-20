@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.ui.IDisplayTagText;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.scripting.RuntimeDataButton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Text;
@@ -39,7 +40,7 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
  * Runtime swing button
  * @author jblok
  */
-public class DataButton extends AbstractScriptButton implements IDisplayData, IDisplayTagText
+public class DataButton extends AbstractScriptButton implements IDisplayData, IDisplayTagText, ISupportOnRender
 {
 	private String dataProviderID;
 	private Object value;
@@ -213,7 +214,16 @@ public class DataButton extends AbstractScriptButton implements IDisplayData, ID
 			this.value = obj;
 		}
 
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
 	}
 
 	public Object getValueObject()

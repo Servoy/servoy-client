@@ -70,7 +70,6 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.headlessclient.ByteArrayResource;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IAnchoredComponent;
@@ -78,6 +77,7 @@ import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -99,7 +99,7 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class WebBaseButton extends Button implements IButton, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
 	ILinkListener, IAjaxIndicatorAware, IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, ISupportSimulateBoundsProvider,
-	IAnchoredComponent, ISupportWebOnRender
+	IAnchoredComponent, ISupportOnRender
 {
 	private int mediaOptions;
 //	private int rotation;
@@ -301,10 +301,10 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
 			if (wcbw != null) wcbw.addLabelCssClass(getId());
 		}
-		fireOnRender();
+		fireOnRender(false);
 	}
 
-	public void fireOnRender()
+	public void fireOnRender(boolean force)
 	{
 		if (scriptable != null)
 		{
@@ -314,6 +314,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}

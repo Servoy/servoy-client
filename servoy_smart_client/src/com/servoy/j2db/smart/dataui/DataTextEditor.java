@@ -96,6 +96,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Debug;
@@ -116,7 +117,7 @@ import com.servoy.j2db.util.rtf.FixedRTFEditorKit;
  * @author jblok
  */
 public class DataTextEditor extends EnableScrollPanel implements IDisplayData, IDisplayTagText, IFieldComponent, IScrollPane, ISupportAsyncLoading,
-	IFixedPreferredWidth, ISupportCachedLocationAndSize, ISupplyFocusChildren, ISupportDragNDropTextTransfer, ISupportEditProvider
+	IFixedPreferredWidth, ISupportCachedLocationAndSize, ISupplyFocusChildren, ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportOnRender
 {
 	private final FixedJEditorPane enclosedComponent;
 	private String dataProviderID;
@@ -1164,7 +1165,16 @@ public class DataTextEditor extends EnableScrollPanel implements IDisplayData, I
 				enclosedComponent.setToolTipText(tooltip);
 			}
 		}
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(enclosedComponent.hasFocus());
+		}
 	}
 
 	public Object getValueObject()

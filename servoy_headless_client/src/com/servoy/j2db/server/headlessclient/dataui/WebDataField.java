@@ -68,7 +68,6 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.mask.MaskBehavior;
 import com.servoy.j2db.ui.IComponent;
@@ -79,6 +78,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportInputSelection;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
@@ -103,7 +103,7 @@ import com.servoy.j2db.util.text.FixedMaskFormatter;
  */
 public class WebDataField extends TextField<Object> implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
 	IRightClickListener, ISupportValueList, ISupportInputSelection, ISupportSpecialClientProperty, IFormattingComponent, ISupportSimulateBoundsProvider,
-	IDestroyable, ISupportWebOnRender
+	IDestroyable, ISupportOnRender
 {
 	/**
 	 * @author jcompagner
@@ -1424,10 +1424,10 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		fireOnRender();
+		fireOnRender(false);
 	}
 
-	public void fireOnRender()
+	public void fireOnRender(boolean force)
 	{
 		if (!isIgnoreOnRender && scriptable != null)
 		{
@@ -1437,6 +1437,7 @@ public class WebDataField extends TextField<Object> implements IFieldComponent, 
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}
