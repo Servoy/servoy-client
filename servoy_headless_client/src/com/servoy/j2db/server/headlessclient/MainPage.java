@@ -685,6 +685,16 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 							WebForm formUI = ((WebForm)component);
 							if (MainPage.this == formUI.getMainPage())
 							{
+								// if the form is visible and it will be now removed from the mainpage
+								// then call notifyVisble false on it to let the form know it will hide
+								// we can't do much if that is blocked by an onhide here. 
+								// (could be triggered by a browser back button) 
+								if (formUI.getController().isFormVisible())
+								{
+									List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+									formUI.getController().notifyVisible(false, invokeLaterRunnables);
+									Utils.invokeLater(client, invokeLaterRunnables);
+								}
 								formUI.setMainPage(null);
 							}
 						}
