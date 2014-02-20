@@ -2631,7 +2631,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				((IDisplayData)c).setDataProviderID(id.substring(((Portal)cellview).getRelationName().length() + 1));
 			}
 		}
-		if (c instanceof WebDataCheckBox)
+		if (!isListViewMode() && c instanceof WebDataCheckBox)
 		{
 			((WebDataCheckBox)c).setText(""); //$NON-NLS-1$
 		}
