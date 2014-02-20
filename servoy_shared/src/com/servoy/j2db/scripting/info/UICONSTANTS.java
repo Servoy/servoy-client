@@ -133,7 +133,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final int FULL_SCREEN = IApplication.FULL_SCREEN;
 
 	/**
-	 * Property than can be set using application.putClientProperty().
+	 * Property that can be set using application.putClientProperty().
 	 * 
 	 * If set to true, the system standard Printing dialog will be used when printing is needed.
 	 * If set to false, the Servoy Printing dialog will be used.
@@ -147,7 +147,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String USE_SYSTEM_PRINT_DIALOG = IApplication.USE_SYSTEM_PRINT_DIALOG;
 
 	/**
-	 * Property than can be set using application.putClientProperty() and
+	 * Property that can be set using application.putClientProperty() and
 	 * indicates the delay in milliseconds before the tooltip is shown.
 	 *
 	 * @sample
@@ -156,7 +156,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TOOLTIP_INITIAL_DELAY = IApplication.TOOLTIP_INITIAL_DELAY;
 
 	/**
-	 * Property than can be set using application.putClientProperty() and
+	 * Property that can be set using application.putClientProperty() and
 	 * indicates the delay in milliseconds after the tooltip is dismissed.
 	 *
 	 * @sample
@@ -165,7 +165,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TOOLTIP_DISMISS_DELAY = IApplication.TOOLTIP_DISMISS_DELAY;
 
 	/**
-	 * Property than can be set using application.putClientProperty().
+	 * Property that can be set using application.putClientProperty().
 	 * 
 	 * If set to true, fields that are read-only won't be editable in find mode
 	 * If set to false, fields that are read-only will be editable in find mode
@@ -179,7 +179,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE;
 
 	/**
-	 * Property than can be set using application.putClientProperty().
+	 * Property that can be set using application.putClientProperty().
 	 * 
 	 * If set to true, table views in web client are scrollable by default
 	 * If set to false, table views in web client are not scrollable, but pageable by default
@@ -187,13 +187,17 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * The value can be true/false
 	 * DEFAULT: false 
 	 * 
+	 * When this property is set to true, you can control the size of the page by setting the servoy property "servoy.webclient.scrolling.tableview.multiplier".
+	 * The default value is 2. Setting the property to a higher value, will result in more data to be queried at once. You can also set it to a lower value, like 1 or 1.5 for example.
+	 * We strongly recommend that the default or lower size be used in order to avoid blocking situations due to the big request being made to the server.
+	 * 
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 
 	/**
-	 * Property than can be set using application.putClientProperty().
+	 * Property that can be set using application.putClientProperty().
 	 * 
 	 * If set to true, scrollable table views in web client will keep the already loaded rows in the view
 	 * If set to false, scrollable table views in web client will unload not visible rows in the view
@@ -206,7 +210,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
 	/**
-	 * Property than can be set using element.putClientProperty()
+	 * Property that can be set using element.putClientProperty()
 	 * 
 	 * If set to true, the element will accept javascript links in the input
 	 * If set to false, all 'javascript:' texts will be removed from the input
@@ -220,7 +224,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = IApplication.ALLOW_JAVASCRIPT_LINK_INPUT;
 
 	/**
-	 * Property than can be set on editable html area using element.putClientProperty()
+	 * Property that can be set on editable html area using element.putClientProperty()
 	 * 
 	 * The value must be a valid json string according to TinyMCE editor configuration (http://www.tinymce.com/wiki.php/configuration). 
 	 * It will be used to override/set configuration properties in order to customize the editor. 
@@ -237,7 +241,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
 	/**
-	 * Property than can be set using application.putClientProperty()
+	 * Property that can be set using application.putClientProperty()
 	 * 
 	 * The value can be a positive integer representing the maximum number of rows that will be retrieved by query in database or related valuelist. 
 	 * Can have a maximum value of 1000.
