@@ -40,11 +40,10 @@ public class JavaVersion
 	 */
 	public JavaVersion(String versionString)
 	{
-		StringTokenizer t = new StringTokenizer(versionString, "._"); //$NON-NLS-1$
+		StringTokenizer t = new StringTokenizer(versionString, "._-"); //$NON-NLS-1$
 		t.nextToken();
-		major = Integer.parseInt(t.nextToken());
+		major = Utils.getAsInteger(t.nextToken());
 		t.nextToken();
-		update = Integer.parseInt(t.nextToken());
+		update = Utils.getAsInteger(t.nextToken());
 	}
-
 }
