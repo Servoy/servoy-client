@@ -54,6 +54,7 @@ import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportPlaceholderText;
 import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 import com.servoy.j2db.util.HtmlUtils;
@@ -67,7 +68,7 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * @author jblok
  */
 public class DataPassword extends JPasswordField implements IFieldComponent, IDisplayData, ISupportCachedLocationAndSize, ISupportDragNDropTextTransfer,
-	ISupportPlaceholderText
+	ISupportPlaceholderText, ISupportOnRender
 {
 	private String dataProviderID;
 	private final EventExecutor eventExecutor;
@@ -339,7 +340,16 @@ public class DataPassword extends JPasswordField implements IFieldComponent, IDi
 		{
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
 	}
 
 	public Object getValueObject()

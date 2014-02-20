@@ -93,6 +93,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportFormatter;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportPlaceholderText;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -121,7 +122,7 @@ import com.servoy.j2db.util.text.ServoyMaskFormatter;
  */
 public class DataField extends JFormattedTextField implements IDisplayData, IFieldComponent, ISkinnable, ISupportCachedLocationAndSize,
 	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportValueList, ISupportSpecialClientProperty, ISupportFormatter, IFormattingComponent,
-	ISupportPlaceholderText
+	ISupportPlaceholderText, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -1163,7 +1164,16 @@ public class DataField extends JFormattedTextField implements IDisplayData, IFie
 				editProvider.setAdjusting(false);
 			}
 		}
-		if (!isIgnoreOnRender && scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (!isIgnoreOnRender && scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
 	}
 
 	// also used by datacalendar we than don't want the edit to be blocked by

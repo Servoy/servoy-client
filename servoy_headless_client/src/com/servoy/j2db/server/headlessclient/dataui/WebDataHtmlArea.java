@@ -50,7 +50,6 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexAttributeModifier;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -59,6 +58,7 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportInputSelection;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
@@ -72,7 +72,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection,
-	IOwnTabSequenceHandler, ISupportSpecialClientProperty, ISupportWebOnRender
+	IOwnTabSequenceHandler, ISupportSpecialClientProperty, ISupportOnRender
 {
 	public static final String htmlTextStartTags = "<html><body>";
 	public static final String htmlTextEndTags = "</body></html>";
@@ -530,10 +530,10 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		fireOnRender();
+		fireOnRender(false);
 	}
 
-	public void fireOnRender()
+	public void fireOnRender(boolean force)
 	{
 		if (scriptable != null)
 		{
@@ -543,6 +543,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}

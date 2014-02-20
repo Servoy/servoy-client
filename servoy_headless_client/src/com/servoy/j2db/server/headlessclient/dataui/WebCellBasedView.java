@@ -146,7 +146,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
@@ -165,6 +164,7 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScriptRenderMethods;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -5740,9 +5740,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				while (it.hasNext())
 				{
 					innerComponent = CellContainer.getContentsForCell(it.next());
-					if (innerComponent instanceof ISupportWebOnRender)
+					if (innerComponent instanceof ISupportOnRender)
 					{
-						changedListItem = changedListItem || WebOnRenderHelper.doRender((ISupportWebOnRender)innerComponent);
+						changedListItem = changedListItem || WebOnRenderHelper.doRender((ISupportOnRender)innerComponent);
 						components.remove(innerComponent); // just for safety, remove that also from components, if present
 					}
 				}
@@ -5755,7 +5755,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			for (Component c : components)
 			{
 				// if component's onRender don't change anything, don't add it to the target
-				if (c instanceof ISupportWebOnRender && !WebOnRenderHelper.doRender((ISupportWebOnRender)c))
+				if (c instanceof ISupportOnRender && !WebOnRenderHelper.doRender((ISupportOnRender)c))
 				{
 					continue;
 				}

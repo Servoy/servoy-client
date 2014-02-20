@@ -57,13 +57,13 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.server.headlessclient.ISupportWebOnRender;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -80,7 +80,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public abstract class WebBaseSelectBox extends MarkupContainer implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, INullableAware,
-	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList, ISupportSimulateBoundsProvider, ISupportWebOnRender
+	ISupportWebBounds, IRightClickListener, ISupplyFocusChildren<Component>, ISupportValueList, ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	protected static final long serialVersionUID = 1L;
 	protected static final String NO_COLOR = "NO_COLOR";
@@ -534,10 +534,10 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	protected void onBeforeRender()
 	{
 		super.onBeforeRender();
-		fireOnRender();
+		fireOnRender(false);
 	}
 
-	public void fireOnRender()
+	public void fireOnRender(boolean force)
 	{
 		if (scriptable != null)
 		{
@@ -547,6 +547,7 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 			{
 				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
 			}
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
 			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}

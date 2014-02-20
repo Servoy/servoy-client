@@ -94,6 +94,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.ISupportCachedLocationAndSize;
+import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
@@ -113,7 +114,7 @@ import com.servoy.j2db.util.model.ComboModelListModelWrapper;
  * @author jblok
  */
 public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRelatedData, IFieldComponent, ISkinnable, ItemListener,
-	ISupportCachedLocationAndSize, ISupportSpecialClientProperty, ISupportValueList, IFormattingComponent
+	ISupportCachedLocationAndSize, ISupportSpecialClientProperty, ISupportValueList, IFormattingComponent, ISupportOnRender
 {
 	private String dataProviderID;
 	private final ComboModelListModelWrapper list;
@@ -1457,7 +1458,16 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 			adjusting = false;
 			if (editProvider != null) editProvider.setAdjusting(false);
 		}
-		if (scriptable != null) scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		fireOnRender(false);
+	}
+
+	public void fireOnRender(boolean force)
+	{
+		if (scriptable != null)
+		{
+			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
+			scriptable.getRenderEventExecutor().fireOnRender(hasFocus());
+		}
 	}
 
 	public boolean needEditListener()
