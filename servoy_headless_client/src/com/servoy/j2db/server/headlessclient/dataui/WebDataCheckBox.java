@@ -110,7 +110,7 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 	@Override
 	protected FormComponent getSelector(String id)
 	{
-		return new MyCheckBox(id);
+		return new MyCheckBox(id, this);
 	}
 
 	// if this check box is linked to a integer non-null table column,
@@ -153,13 +153,15 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$ 
 	}
 
-	private final class MyCheckBox extends CheckBox implements IDisplayData
+	private final class MyCheckBox extends CheckBox implements IDisplayData, WebBaseSelectBox.ISelector
 	{
 		private static final long serialVersionUID = 1L;
+		private WebBaseSelectBox selectBox;
 
-		private MyCheckBox(String id)
+		private MyCheckBox(String id, WebBaseSelectBox selectBox)
 		{
 			super(id);
+			this.selectBox = selectBox;
 			setOutputMarkupPlaceholderTag(true);
 			add(new AttributeModifier("disabled", true, new Model<String>() //$NON-NLS-1$
 				{
@@ -387,6 +389,11 @@ public class WebDataCheckBox extends WebBaseSelectBox implements IResolveObject
 			{
 				((RecordItemModel)model).updateRenderedValue(WebDataCheckBox.this);
 			}
+		}
+
+		public WebBaseSelectBox getSelectBox()
+		{
+			return selectBox;
 		}
 	}
 

@@ -170,7 +170,7 @@ public class WebEventExecutor extends BaseEventExecutor
 		if (id != null && useAJAX)
 		{
 			if (!((component instanceof TextField< ? > || component instanceof TextArea< ? >) && component instanceof IDisplay && ((IDisplay)component).isReadOnly()) &&
-				!(component instanceof ILabel) && component instanceof FormComponent< ? >)
+				!(component instanceof ILabel) && !(component instanceof WebBaseSelectBox.ISelector) && component instanceof FormComponent< ? >)
 			{
 				component.add(new ServoyActionEventBehavior("onKeyDown", component, this, "ActionCmd")); // please keep the case in the event name //$NON-NLS-1$ //$NON-NLS-2$ 
 			}
@@ -185,7 +185,8 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected void onEvent(AjaxRequestTarget target)
 					{
-						WebEventExecutor.this.onEvent(JSEvent.EventType.action, target, component,
+						WebEventExecutor.this.onEvent(JSEvent.EventType.action, target, component instanceof WebBaseSelectBox.ISelector
+							? ((WebBaseSelectBox.ISelector)component).getSelectBox() : component,
 							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
 							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
 								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$

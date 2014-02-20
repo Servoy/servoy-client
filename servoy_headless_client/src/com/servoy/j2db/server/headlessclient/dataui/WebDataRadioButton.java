@@ -71,7 +71,7 @@ public class WebDataRadioButton extends WebBaseSelectBox
 	@Override
 	protected FormComponent getSelector(String id)
 	{
-		return new MyRadioButton(id);
+		return new MyRadioButton(id, this);
 	}
 
 
@@ -92,13 +92,15 @@ public class WebDataRadioButton extends WebBaseSelectBox
 		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$ 
 	}
 
-	public final class MyRadioButton extends FormComponent<Boolean> implements IDisplayData
+	public final class MyRadioButton extends FormComponent<Boolean> implements IDisplayData, WebBaseSelectBox.ISelector
 	{
 		private static final long serialVersionUID = 1L;
+		private WebBaseSelectBox selectBox;
 
-		private MyRadioButton(String id)
+		private MyRadioButton(String id, WebBaseSelectBox selectBox)
 		{
 			super(id);
+			this.selectBox = selectBox;
 			setOutputMarkupPlaceholderTag(true);
 			add(new AttributeModifier("disabled", true, new Model<String>() //$NON-NLS-1$
 				{
@@ -377,6 +379,17 @@ public class WebDataRadioButton extends WebBaseSelectBox
 			{
 				((RecordItemModel)model).updateRenderedValue(WebDataRadioButton.this);
 			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox.ISelector#getSelectBox()
+		 */
+		@Override
+		public WebBaseSelectBox getSelectBox()
+		{
+			return selectBox;
 		}
 	}
 

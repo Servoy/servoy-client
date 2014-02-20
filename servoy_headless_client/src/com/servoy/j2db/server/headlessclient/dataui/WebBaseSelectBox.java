@@ -878,4 +878,9 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 	{
 		return findParent(ISupportSimulateBounds.class);
 	}
+
+	interface ISelector
+	{
+		public WebBaseSelectBox getSelectBox();
+	}
 }
