@@ -4597,10 +4597,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	public String getRowSelectionScript(boolean allCurrentPageRows)
 	{
+		return getRowSelectionScript(getIndexToUpdate(allCurrentPageRows));
+	}
+
+	public String getRowSelectionScript(List<Integer> indexToUpdate)
+	{
 		if (currentData == null) return null;
-		List<Integer> indexToUpdate;
 		if (!hasOnRender() && (bgColorScript != null || (getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0)) &&
-			(indexToUpdate = getIndexToUpdate(allCurrentPageRows)) != null)
+			indexToUpdate != null)
 		{
 			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
 			int lastRow = firstRow + table.getViewSize() - 1;
@@ -5583,10 +5587,18 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			StringBuilder body = new StringBuilder();
 			Iterator<ListItem< ? >> rowsIte = rows.iterator();
 			ListItem< ? > listItem;
+			ArrayList<Integer> rowsIndex = new ArrayList<Integer>();
 			while (rowsIte.hasNext())
 			{
 				listItem = rowsIte.next();
+				rowsIndex.add(Integer.valueOf(listItem.getIndex()));
 				body.append(renderComponent(response, listItem, headerJS));
+			}
+
+			String rowSelScritpt = getRowSelectionScript(rowsIndex);
+			if (rowSelScritpt != null)
+			{
+				headerJS.append('\n').append(rowSelScritpt);
 			}
 
 			return new StringBuilder[] { headerJS, body };
