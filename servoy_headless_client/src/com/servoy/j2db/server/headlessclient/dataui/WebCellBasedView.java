@@ -657,7 +657,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				listItem.add(new AttributeModifier("class", new Model<String>((listItem.getIndex() % 2) == 0 ? "even" : "odd"))); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 			}
 
-			final int visibleRowIndex = listItem.getIndex() % getRowsPerPage();
+			final int visibleRowIndex = isScrollMode ? listItem.getIndex() : listItem.getIndex() % getRowsPerPage();
 			final WebMarkupContainer listItemContainer = listItem instanceof WebCellBasedViewListItem ? ((WebCellBasedViewListItem)listItem).getListContainer()
 				: listItem;
 
