@@ -267,7 +267,10 @@ public class PageContributor extends WebMarkupContainer implements IPageContribu
 		{
 			for (WebSplitPane splitPane : splitPanesToUpdateDivider)
 			{
-				response.renderOnLoadJavascript((new StringBuilder("(function() {").append(splitPane.getDividerLocationJSSetter(true).append("}).call();"))).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+				if (splitPane.findParent(Page.class) != null)
+				{
+					response.renderOnLoadJavascript((new StringBuilder("(function() {").append(splitPane.getDividerLocationJSSetter(true).append("}).call();"))).toString()); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 			splitPanesToUpdateDivider.clear();
 		}
