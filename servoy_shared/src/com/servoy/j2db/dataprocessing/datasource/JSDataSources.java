@@ -32,7 +32,7 @@ import com.servoy.j2db.util.IDestroyable;
  * @since 7.4
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Data Sources", scriptingName = "datasources")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Datasources", scriptingName = "datasources")
 public class JSDataSources implements IDestroyable
 {
 	static
