@@ -298,7 +298,7 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 							{
 								public void run()
 								{
-									application.reportError(ae.getLocalizedMessage(), ae);
+									application.handleException(null, ae); // ApplicationException knows how to translate this null into an i18n message
 								}
 							});
 						}
