@@ -281,43 +281,47 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	private void performLoopUpdate()
 	{
 		//update via loop
-		int arrayIndex = 0;
-		int i = rowsToUpdate >= 0 ? foundset.getSelectedIndex() : 0;
-		int size = 0;
-		while (i < (size = foundset.getSize()))
+		final int[] arrayIndex = new int[] { 0 };
+		final int[] startRow = new int[] { rowsToUpdate >= 0 ? foundset.getSelectedIndex() : 0 };
+		foundset.forEach(new IRecordCallback()
 		{
-			if (arrayIndex == rowsToUpdate) break;
-
-			IRecordInternal r = foundset.getRecord(i);
-			boolean wasEditing = r.isEditing();
-			if (r.startEditing())
+			@Override
+			public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset)
 			{
-
-				//update the fields
-				for (int j = 0; j < list.size(); j++)
+				if (arrayIndex[0] == rowsToUpdate)
 				{
-					Pair<String, Object> p = list.get(j);
-					String name = p.getLeft();
-					Object val = p.getRight();
-					if (val instanceof Object[])
-					{
-						int indx = arrayIndex;
-						if (arrayIndex >= ((Object[])val).length) indx = ((Object[])val).length - 1;//incase there is a length difference between arrays, repeat last value
-						val = ((Object[])val)[indx];
-					}
-					r.setValue(name, val);
+					return Boolean.FALSE;
 				}
+				if (recordIndex >= startRow[0])
+				{
+					startRow[0] = 0;
+					boolean wasEditing = ((IRecordInternal)record).isEditing();
+					if (record.startEditing())
+					{
+						//update the fields
+						for (int j = 0; j < list.size(); j++)
+						{
+							Pair<String, Object> p = list.get(j);
+							String name = p.getLeft();
+							Object val = p.getRight();
+							if (val instanceof Object[])
+							{
+								int indx = arrayIndex[0];
+								if (arrayIndex[0] >= ((Object[])val).length) indx = ((Object[])val).length - 1;//incase there is a length difference between arrays, repeat last value
+								val = ((Object[])val)[indx];
+							}
+							record.setValue(name, val);
+						}
+					}
+					if (!wasEditing)
+					{
+						((IRecordInternal)record).stopEditing();
+					}
+					arrayIndex[0]++;
+				}
+				return null;
 			}
-			if (!wasEditing)
-			{
-				r.stopEditing();
-			}
-			i++;
-			arrayIndex++;
-
-			//check if record did fall out of foundset, due to update relation field incase of related foundset or search field
-			if (foundset.getSize() < size) i--;
-		}
+		});
 	}
 
 	private IRecordInternal currentRecord;
@@ -348,7 +352,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 
 	/**
 	 * Go to next record in this updater, returns true if successful.
-	 *
+	 * NOTE: this method doesn't take into account deletes and inserts that may happen at same time. For more reliable iterator see foundset.forEach
+	 * 
 	 * @sample
 	 * controller.setSelectedIndex(1)
 	 * var count = 0
