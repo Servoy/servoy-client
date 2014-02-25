@@ -4299,6 +4299,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			for (IRecordInternal dsState : recordsToOmit)
 			{
 				omittedPKs.addRow(dsState.getPK());
+				removeRecordInternalEx(dsState, pksAndRecords.getCachedRecords().indexOf(dsState));
 			}
 
 			QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
@@ -4308,7 +4309,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sqlSelect.setCondition(SQLGenerator.CONDITION_OMIT, SQLGenerator.createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR,
 				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), sheet.getTable().getRowIdentColumns(), omittedPKs));
 
-			refreshFromDBInternal(sqlSelect, false, false, fsm.pkChunkSize, true, false);
+			synchronized (pksAndRecords)
+			{
+				pksAndRecords.setPksAndQuery(pksAndRecords.getPksClone(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
+			}
 		}
 
 		return success;
