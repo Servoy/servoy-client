@@ -269,7 +269,7 @@ public class JSUtils implements IJSUtils
 		}
 		if (date instanceof Date)
 		{
-			return js_dateFormat(date, format);
+			return dateFormat((Date)date, format);
 		}
 		return ""; //$NON-NLS-1$
 	}
