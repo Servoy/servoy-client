@@ -3118,7 +3118,15 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 				editor.on('blur', function(e) {
 					var textarea = document.getElementById(editorId);
 					textarea.value = editor.getContent();
-					textarea.onsubmit();
+					if (typeof textarea.onsubmit == 'function')
+					{
+						textarea.onsubmit();
+					}
+					else
+					{
+						// strange ie8 issue
+						eval(textarea.onsubmit)
+					}
 				});
 			};
 			if (defaultConfiguration)
