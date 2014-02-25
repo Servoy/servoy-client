@@ -1479,7 +1479,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.formDesignHeight = form.getSize().height;
 		this.sizeHint = sizeHint;
 		this.isListViewMode = viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW;
-
 		this.bodyWidthHint = form.getWidth();
 
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
@@ -4600,11 +4599,23 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return getRowSelectionScript(getIndexToUpdate(allCurrentPageRows));
 	}
 
+	boolean hasOddEvenSelected()
+	{
+		if ((getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0) ||
+			(getRowEvenStyle() != null && getRowEvenStyle().getAttributeCount() > 0) || (getRowOddStyle() != null && getRowOddStyle().getAttributeCount() > 0))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	public String getRowSelectionScript(List<Integer> indexToUpdate)
 	{
 		if (currentData == null) return null;
-		if (!hasOnRender() && (bgColorScript != null || (getRowSelectedStyle() != null && getRowSelectedStyle().getAttributeCount() > 0)) &&
-			indexToUpdate != null)
+		if (!hasOnRender() && (bgColorScript != null || hasOddEvenSelected()) && indexToUpdate != null)
 		{
 			int firstRow = table.isPageableMode() ? table.getCurrentPage() * table.getRowsPerPage() : table.getStartIndex();
 			int lastRow = firstRow + table.getViewSize() - 1;
@@ -4742,7 +4753,6 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		}
 		return null;
 	}
-
 
 	public void updateRowSelection(AjaxRequestTarget target)
 	{
@@ -5708,6 +5718,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		WebCellBasedView.this.currentScrollTop = 0;
 		WebCellBasedView.this.topPhHeight = 0;
 		WebCellBasedView.this.currentScrollLeft = 0;
+	}
+
+	int indexOf(ListItem<IRecordInternal> item)
+	{
+		for (int i = table.getStartIndex(); i < table.getViewSize(); i++)
+		{
+			if (item == table.get(i)) return i;
+		}
+		return -1;
 	}
 
 	/**
