@@ -44,6 +44,7 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.protocol.http.ClientProperties;
@@ -70,6 +71,7 @@ import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAcces
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WebOnRenderHelper;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
+import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField.AugmentedTextField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDisplay;
@@ -796,7 +798,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				});
 
 				String rowSelectionScript, columnResizeScript;
-				for (WebCellBasedView wcbv : tableViewsToRender)
+				for (final WebCellBasedView wcbv : tableViewsToRender)
 				{
 					if (wcbv.isScrollMode()) wcbv.scrollViewPort(target);
 					wcbv.updateRowSelection(target);
@@ -805,6 +807,34 @@ public class WebEventExecutor extends BaseEventExecutor
 					if (rowSelectionScript != null) target.appendJavascript(rowSelectionScript);
 					columnResizeScript = wcbv.getColumnResizeScript();
 					if (columnResizeScript != null) target.appendJavascript(columnResizeScript);
+
+					final List<Integer> changedRows = new ArrayList<Integer>();
+					wcbv.visitChildren(ListItem.class, new Component.IVisitor<Component>()
+					{
+						public Object component(Component li)
+						{
+							Iterator< ? extends Component> cells = ((ListItem)li).iterator();
+							while (cells.hasNext())
+							{
+								Component someCell = CellContainer.getContentsForCell(cells.next());
+								if (someCell instanceof IProviderStylePropertyChanges)
+								{
+									if (((IProviderStylePropertyChanges)someCell).getStylePropertyChanges().isChanged())
+									{
+										int changedRowIdx = wcbv.indexOf((ListItem<IRecordInternal>)li);
+										if (changedRowIdx >= 0)
+										{
+											changedRows.add(changedRowIdx);
+											break;
+										}
+									}
+								}
+							}
+							return IVisitor.CONTINUE_TRAVERSAL;
+						}
+					});
+					String changedRowsScript = wcbv.getRowSelectionScript(changedRows);
+					if (changedRowsScript != null) target.appendJavascript(changedRowsScript);
 				}
 
 				// double check if the page contributor is changed, because the above IStylePropertyChanges ischanged could have altered it.
