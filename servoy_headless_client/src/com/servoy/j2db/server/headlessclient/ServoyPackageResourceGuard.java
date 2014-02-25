@@ -28,7 +28,7 @@ public class ServoyPackageResourceGuard extends SecurePackageResourceGuard
 	@Override
 	protected boolean acceptAbsolutePath(String path)
 	{
-		if (path.endsWith("tinymce.ttf") || path.endsWith("tinymce.woff"))
+		if (path.endsWith("tinymce.ttf") || path.endsWith("tinymce.woff") || path.endsWith("tinymce-small.eot") || path.endsWith("tinymce.eot"))
 		{
 			return true;
 		}
