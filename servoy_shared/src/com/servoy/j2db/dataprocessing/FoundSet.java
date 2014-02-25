@@ -4195,27 +4195,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		int sizeBefore;
 		QuerySelect sqlSelect;
-		ISQLCondition where;
+		ArrayList<String> invertConditionNames = new ArrayList<String>();
 		synchronized (pksAndRecords)
 		{
 			sizeBefore = getSize();
 			sqlSelect = pksAndRecords.getQuerySelectForReading();
-			where = sqlSelect.getCondition(SQLGenerator.CONDITION_SEARCH);
-			if (where == null)
+
+			Map<String, AndCondition> conditions = sqlSelect.getConditions();
+			Iterator<String> conditionNamesIte = conditions.keySet().iterator();
+			String conditionName;
+			while (conditionNamesIte.hasNext())
+			{
+				conditionName = conditionNamesIte.next();
+				if (conditionName != null &&
+					(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
+				{
+					invertConditionNames.add(conditionName);
+				}
+			}
+			if (invertConditionNames.size() == 0)
 			{
 				pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
 			}
 			else
 			{
 				sqlSelect = pksAndRecords.getQuerySelectForModification();
-				sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, where.negate());
+				for (String inverConditionName : invertConditionNames)
+				{
+					sqlSelect.setCondition(inverConditionName, conditions.get(inverConditionName).negate());
+				}
 				clearOmit(sqlSelect);
 				// set pks here in case a refresh comes along
 				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect);
 			}
 		}
 
-		if (where != null)
+		if (invertConditionNames.size() > 0)
 		{
 			//cache pks
 			String transaction_id = fsm.getTransactionID(sheet);
