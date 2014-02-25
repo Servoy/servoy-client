@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: servoy_webclient2
 Bundle-SymbolicName: servoy_webclient2
 Bundle-Version: 1.0.0.qualifier
-Export-Package: com.servoy.j2db.server.webclient2,
- com.servoy.j2db.server.webclient2.component,
- com.servoy.j2db.server.webclient2.property,
- com.servoy.j2db.server.webclient2.template,
- com.servoy.j2db.server.webclient2.utils
+Export-Package: com.servoy.j2db.server.ngclient,
+ com.servoy.j2db.server.ngclient.component,
+ com.servoy.j2db.server.ngclient.property,
+ com.servoy.j2db.server.ngclient.template,
+ com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,
  j2db_server,
  servoy_smart_client,

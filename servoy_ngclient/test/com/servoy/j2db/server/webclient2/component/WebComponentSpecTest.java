@@ -21,8 +21,10 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.servoy.j2db.server.webclient2.property.PropertyDescription;
-import com.servoy.j2db.server.webclient2.property.PropertyType;
+import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
+import com.servoy.j2db.server.ngclient.component.WebComponentType;
+import com.servoy.j2db.server.ngclient.property.PropertyDescription;
+import com.servoy.j2db.server.ngclient.property.PropertyType;
 
 /**
  * @author jcompagner

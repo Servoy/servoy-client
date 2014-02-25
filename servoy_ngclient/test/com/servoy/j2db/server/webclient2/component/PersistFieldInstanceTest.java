@@ -59,13 +59,14 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.WebComponent;
+import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
-import com.servoy.j2db.server.webclient2.ComponentFactory;
-import com.servoy.j2db.server.webclient2.FormElement;
-import com.servoy.j2db.server.webclient2.WebComponent;
-import com.servoy.j2db.server.webclient2.WebSocketClient;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.UUID;
 
@@ -85,7 +86,7 @@ public class PersistFieldInstanceTest
 	};
 
 	private Solution solution;
-	private WebSocketClient client;
+	private NGClient client;
 
 	@Before
 	public void buildSoluton()
@@ -109,7 +110,7 @@ public class PersistFieldInstanceTest
 			ValueList valuelist = solution.createNewValueList(validator, "test");
 			valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
 
-			client = new WebSocketClient(null)
+			client = new NGClient(null)
 			{
 
 				/*
