@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,8 +28,9 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
-@WebFilter("/solutions/*")
+@WebFilter(urlPatterns = { "/solutions/*" }, initParams = { @WebInitParam(name = "startAppServer", value = "true") })
 @SuppressWarnings("nls")
 public class TemplateGeneratorFilter implements Filter
 {
@@ -123,8 +125,7 @@ public class TemplateGeneratorFilter implements Filter
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
-//		boolean startAppServer = Utils.getAsBoolean(fc.getInitParameter("startAppServer"));
-//		if (startAppServer) 
-		WarClientServlet.startAppServer(fc.getServletContext());
+		boolean startAppServer = Utils.getAsBoolean(fc.getInitParameter("startAppServer"));
+		if (startAppServer) WarClientServlet.startAppServer(fc.getServletContext());
 	}
 }
