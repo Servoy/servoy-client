@@ -4202,15 +4202,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sqlSelect = pksAndRecords.getQuerySelectForReading();
 
 			Map<String, AndCondition> conditions = sqlSelect.getConditions();
-			Iterator<String> conditionNamesIte = conditions.keySet().iterator();
-			String conditionName;
-			while (conditionNamesIte.hasNext())
+			if (conditions != null)
 			{
-				conditionName = conditionNamesIte.next();
-				if (conditionName != null &&
-					(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
+				Iterator<String> conditionNamesIte = conditions.keySet().iterator();
+				String conditionName;
+				while (conditionNamesIte.hasNext())
 				{
-					invertConditionNames.add(conditionName);
+					conditionName = conditionNamesIte.next();
+					if (conditionName != null &&
+						(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
+					{
+						invertConditionNames.add(conditionName);
+					}
 				}
 			}
 			if (invertConditionNames.size() == 0)
