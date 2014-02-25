@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: servoy_webclient2
-Bundle-SymbolicName: servoy_webclient2
-Bundle-Version: 1.0.0.qualifier
+Bundle-Name: Servoy NG Client Plug-in
+Bundle-SymbolicName: servoy_ngclient
+Bundle-Version: 8.0.0.3000
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.property,
@@ -15,5 +15,7 @@ Require-Bundle: servoy_shared,
  servoy_headless_client,
  org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: war/WEB-INF/lib/freemarker.jar
- .
+Bundle-ClassPath: .,
+ war/WEB-INF/lib/freemarker.jar
+Bundle-Vendor: Servoy
+Import-Package: org.osgi.framework
