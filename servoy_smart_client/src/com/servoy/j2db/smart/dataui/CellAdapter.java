@@ -660,6 +660,7 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 		}
 
 		boolean isRenderWithOnRender = renderEventExecutor != null && renderEventExecutor.hasRenderCallback() && renderable instanceof RenderableWrapper;
+		Color renderBgColor = null;
 		if (isSelected)
 		{
 			if (!isRenderWithOnRender || renderEventExecutor.isDifferentRenderState(state, row, isSelected))
@@ -673,7 +674,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 				((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
 				renderer.setForeground(fgColor != null ? fgColor : tableSelectionColor);
 				((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
-				renderer.setBackground((bgColor != null ? bgColor : jtable.getSelectionBackground()));
+				renderBgColor = (bgColor != null ? bgColor : jtable.getSelectionBackground());
+				renderer.setBackground(renderBgColor);
 
 				if (font != null)
 				{
@@ -698,7 +700,8 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 					if (newBGColor != null)
 					{
 						((RenderableWrapper)renderable).clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
-						renderer.setBackground(newBGColor);
+						renderBgColor = newBGColor;
+						renderer.setBackground(renderBgColor);
 					}
 					Color newFGColor = fgColor != null ? fgColor : componentFgColor;
 					if (newFGColor != null)
@@ -882,6 +885,13 @@ public class CellAdapter extends TableColumn implements TableCellEditor, TableCe
 			renderEventExecutor.hasRenderCallback())
 		{
 			renderEventExecutor.fireOnRender(false);
+		}
+
+		// when enabled state is changed during onRender, the bgcolor is cleared; make sure we have that set again
+		// if the bgcolor is not changed during onRender
+		if (isRenderWithOnRender && renderBgColor != null && ((RenderableWrapper)renderable).getProperty(RenderableWrapper.PROPERTY_BGCOLOR) == null)
+		{
+			renderer.setBackground(renderBgColor);
 		}
 
 		return renderer.isVisible() ? renderer : empty;
