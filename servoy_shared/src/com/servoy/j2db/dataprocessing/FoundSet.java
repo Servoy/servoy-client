@@ -6553,7 +6553,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						nextIndex = currentIndex;
 						nextRecord = currentRecord;
 					}
-					if (currentRecord == null)
+					if (nextRecord == null)
 					{
 						return null;
 					}
