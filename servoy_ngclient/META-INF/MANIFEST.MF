@@ -14,7 +14,6 @@ Require-Bundle: servoy_shared,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
  org.junit,
- org.eclipse.equinox.http.servlet,
  javax.servlet;bundle-version="3.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
