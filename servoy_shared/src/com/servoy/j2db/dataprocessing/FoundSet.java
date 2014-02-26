@@ -4314,7 +4314,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			synchronized (pksAndRecords)
 			{
-				pksAndRecords.setPksAndQuery(pksAndRecords.getPksClone(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
+				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
 			}
 		}
 
@@ -6557,7 +6557,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						nextIndex = currentIndex;
 						nextRecord = currentRecord;
 					}
-					if (currentRecord == null)
+					if (nextRecord == null)
 					{
 						return null;
 					}
