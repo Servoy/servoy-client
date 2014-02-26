@@ -72,9 +72,9 @@ public class LoadingUIEffects
 		return application.getSettings().getProperty(SERVOY_BRANDING_HIDE_FRAME_WHILE_LOADING, "false").equals("false"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public void showSolutionLoading(boolean b)
+	public void showSolutionLoading(boolean loading)
 	{
-		if (b && loadingLabel == null)
+		if (loading && loadingLabel == null)
 		{
 			createLoadingLabel();
 		}
@@ -83,11 +83,11 @@ public class LoadingUIEffects
 		{
 			// show the "loading" img as part of the main frame/main panel
 			JFrame f = application.getMainApplicationFrame();
-			if (b && f != null && !f.isVisible())
+			if (loading && f != null && !f.isVisible())
 			{
 				f.setVisible(true);
 			}
-			if (b)
+			if (loading)
 			{
 				Color loadingBackground = getLoadingBackgroundColor();
 				mainPanel.showLoadingUI(loadingLabel, loadingBackground);
@@ -103,12 +103,12 @@ public class LoadingUIEffects
 
 			// hide main frame when showing splash / show the frame when done loading
 			JFrame f = application.getMainApplicationFrame();
-			if (f != null && f.isVisible() == b)
+			if (f != null && f.isVisible() == loading)
 			{
-				f.setVisible(!b);
+				f.setVisible(!loading);
 			}
 
-			if (b)
+			if (loading)
 			{
 				getSplashFrame(true).setVisible(true);
 			}
@@ -123,7 +123,7 @@ public class LoadingUIEffects
 			}
 		}
 
-		if (!b)
+		if (!loading && beforeFirstSolutionLoad)
 		{
 			// we are ready to show a solution; from now on, the loading image will now be different and
 			// loading behaviour will actually take into account the value of SERVOY_BRANDING_HIDE_FRAME_WHILE_LOADING
