@@ -3120,6 +3120,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 						if (name_password == null || name_password.length < 2 || name_password[0] == null || name_password[1] == null)
 						{
 							// user hit cancel
+							showSolutionLoading(false);
 							return;
 						}
 
