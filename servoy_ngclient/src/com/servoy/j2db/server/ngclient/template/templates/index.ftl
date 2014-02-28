@@ -17,7 +17,7 @@
 <!DOCTYPE html>
 <html ng-app="servoy" ng-controller="MainController">
 	<head>
-	  <base href="/webclient2/">
+	  <base href="${context}/">
 	  <title>{{solutionSettings.solutionTitle}}</title>
 	  <!-- base 3th party libraries -->
       <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">

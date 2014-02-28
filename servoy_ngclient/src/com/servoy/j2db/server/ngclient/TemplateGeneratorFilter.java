@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
-import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,33 +22,17 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.IndexTemplateGenerator;
-import com.servoy.j2db.server.servlets.WarClientServlet;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.Utils;
 
-@WebFilter(urlPatterns = { "/solutions/*" }, initParams = { @WebInitParam(name = "startAppServer", value = "true") })
+@WebFilter(urlPatterns = { "/solutions/*" })
 @SuppressWarnings("nls")
 public class TemplateGeneratorFilter implements Filter
 {
 	public static final String SOLUTIONS_PATH = "solutions/";
 	public static final String FORMS_PATH = "forms/";
-
-	@Override
-	public void destroy()
-	{
-		try
-		{
-			ApplicationServerRegistry.get().shutDown();
-			ApplicationServerRegistry.clear();
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-	}
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
@@ -107,7 +90,7 @@ public class TemplateGeneratorFilter implements Filter
 					else if (uri.endsWith("index.html"))
 					{
 						((HttpServletResponse)servletResponse).setContentType("text/html");
-						new IndexTemplateGenerator(fs).generate(fs, "index.ftl", servletResponse.getWriter());
+						new IndexTemplateGenerator(fs, request.getContextPath()).generate(fs, "index.ftl", servletResponse.getWriter());
 						return;
 					}
 				}
@@ -125,7 +108,11 @@ public class TemplateGeneratorFilter implements Filter
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
-		boolean startAppServer = Utils.getAsBoolean(fc.getInitParameter("startAppServer"));
-		if (startAppServer) WarClientServlet.startAppServer(fc.getServletContext());
+		WebComponentSpecProvider.init(fc.getServletContext());
+	}
+
+	@Override
+	public void destroy()
+	{
 	}
 }

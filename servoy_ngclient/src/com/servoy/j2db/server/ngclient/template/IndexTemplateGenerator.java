@@ -49,12 +49,12 @@ public class IndexTemplateGenerator
 {
 	private final Configuration cfg;
 
-	public IndexTemplateGenerator(FlattenedSolution fs)
+	public IndexTemplateGenerator(FlattenedSolution fs, String contextPath)
 	{
 		cfg = new Configuration();
 
 		cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "templates"));
-		cfg.setObjectWrapper(new IndexTemplateObjectWrapper(fs));
+		cfg.setObjectWrapper(new IndexTemplateObjectWrapper(fs, contextPath));
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		cfg.setIncompatibleImprovements(new Version(2, 3, 20));
@@ -76,13 +76,16 @@ public class IndexTemplateGenerator
 	private static class IndexTemplateObjectWrapper extends DefaultObjectWrapper
 	{
 		private final FlattenedSolution fs;
+		private final String contextPath;
 
 		/**
 		 * @param fs
+		 * @param contextPath 
 		 */
-		public IndexTemplateObjectWrapper(FlattenedSolution fs)
+		public IndexTemplateObjectWrapper(FlattenedSolution fs, String contextPath)
 		{
 			this.fs = fs;
+			this.contextPath = contextPath;
 		}
 
 		@Override
@@ -91,7 +94,7 @@ public class IndexTemplateGenerator
 			Object wrapped;
 			if (obj instanceof FlattenedSolution)
 			{
-				wrapped = new FormReferencesWrapper((FlattenedSolution)obj);
+				wrapped = new FormReferencesWrapper((FlattenedSolution)obj, contextPath);
 			}
 			else
 			{
@@ -105,10 +108,12 @@ public class IndexTemplateGenerator
 	public static class FormReferencesWrapper
 	{
 		private final FlattenedSolution fs;
+		private final String contextPath;
 
-		public FormReferencesWrapper(FlattenedSolution fs)
+		public FormReferencesWrapper(FlattenedSolution fs, String contextPath)
 		{
 			this.fs = fs;
+			this.contextPath = contextPath;
 		}
 
 		/** exposed in tpl file */
@@ -124,6 +129,11 @@ public class IndexTemplateGenerator
 				forms.add("solutions/" + sol.getName() + "/forms/" + form.getName() + ".js");
 			}
 			return forms;
+		}
+
+		public String getContext()
+		{
+			return contextPath;
 		}
 	}
 }

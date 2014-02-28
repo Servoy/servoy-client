@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy NG Client Plug-in
-Bundle-SymbolicName: servoy_ngclient
+Bundle-SymbolicName: servoy_ngclient;singleton:=true
 Bundle-Version: 8.0.0.3000
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
@@ -14,10 +14,13 @@ Require-Bundle: servoy_shared,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
  org.junit,
- javax.servlet;bundle-version="3.0.0"
+ javax.servlet;bundle-version="3.0.0",
+ org.apache.tomcat;bundle-version="7.0.52",
+ javax.websocket-api;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
- war/WEB-INF/lib/freemarker.jar
+ lib/freemarker.jar
 Bundle-Vendor: Servoy
 Import-Package: org.osgi.framework
 Bundle-Activator: com.servoy.j2db.server.ngclient.startup.Activator
+Bundle-ActivationPolicy: lazy

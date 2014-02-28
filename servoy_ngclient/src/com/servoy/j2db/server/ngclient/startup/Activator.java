@@ -17,41 +17,29 @@
 
 package com.servoy.j2db.server.ngclient.startup;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
-import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
-import com.servoy.j2db.server.ngclient.TemplateGeneratorFilter;
 
 /**
  * @author jblok
  */
 public class Activator implements BundleActivator
 {
-	@Override
-	public void start(BundleContext context) throws Exception
+	private static BundleContext context;
+
+	public static BundleContext getContext()
 	{
-		Dictionary properties = new Hashtable();
-		properties.put("alias", "/resources/*");
-		context.registerService(Servlet.class.getName(), new MediaResourcesServlet(), properties);
-
-		properties = new Hashtable();
-		properties.put("urlPatterns", new String[] { "/solutions/*" });
-		context.registerService(Filter.class.getName(), new TemplateGeneratorFilter(), properties);
-
-//		properties = new Hashtable();
-//		properties.put("url", "/websocket");
-//		context.registerService(Endpoint.class.getName(), new NGClientEndpoint(), properties);
+		return context;
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception
+	public void start(BundleContext ctx) throws Exception
+	{
+		Activator.context = ctx;
+	}
+
+	@Override
+	public void stop(BundleContext ctx) throws Exception
 	{
 	}
 }
