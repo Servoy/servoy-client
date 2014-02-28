@@ -618,6 +618,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 * var model = dataset.getAsTableModel() //gets a Java/Swing tablemodel to be used in beans
 	 * elements.inmemDatagridBean.setModel(model)
 	 * 
+	 * @return TableModel
+	 * 
 	 */
 	@Deprecated
 	public TableModel js_getAsTableModel()
