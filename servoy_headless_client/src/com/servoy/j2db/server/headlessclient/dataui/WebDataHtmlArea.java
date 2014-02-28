@@ -807,4 +807,9 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	{
 		return null;
 	}
+
+	public String getEditorID()
+	{
+		return textArea.getMarkupId();
+	}
 }
