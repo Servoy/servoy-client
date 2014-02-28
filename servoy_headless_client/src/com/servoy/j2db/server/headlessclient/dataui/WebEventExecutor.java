@@ -797,6 +797,28 @@ public class WebEventExecutor extends BaseEventExecutor
 					}
 				});
 
+				final List<String> visibleEditors = new ArrayList<String>();
+				page.visitChildren(WebDataHtmlArea.class, new Component.IVisitor<Component>()
+				{
+					public Object component(Component component)
+					{
+						visibleEditors.add(((WebDataHtmlArea)component).getEditorID());
+						return IVisitor.CONTINUE_TRAVERSAL;
+					}
+				});
+				StringBuffer argument = new StringBuffer();
+				for (String id : visibleEditors)
+				{
+					argument.append("\"");
+					argument.append(id);
+					argument.append("\"");
+					if (visibleEditors.indexOf(id) != visibleEditors.size() - 1)
+					{
+						argument.append(",");
+					}
+				}
+				target.prependJavascript("Servoy.HTMLEdit.removeInvalidEditors(" + argument + ");");
+
 				String rowSelectionScript, columnResizeScript;
 				for (final WebCellBasedView wcbv : tableViewsToRender)
 				{
@@ -868,7 +890,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					// the new window would be displayed in the background).
 					target.focusComponent(null);
 				}
-				StringBuffer argument = new StringBuffer();
+				argument = new StringBuffer();
 				for (String id : valueChangedIds)
 				{
 					argument.append("\"");

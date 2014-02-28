@@ -3150,6 +3150,35 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 				}
 			}
 			tinymce.init(Servoy.HTMLEdit.ServoyTinyMCESettings);
+		},
+		
+		removeInvalidEditors: function()
+		{
+			for (edId in tinymce.editors)
+			{
+				var valid = false;
+				if (arguments && arguments.length >0)
+				{
+					for (var i=0;i<arguments.length;i++)
+					{
+						if(arguments[i] == edId)
+						{
+							valid = true;
+							break;
+						}
+					}
+				}
+				if (!valid)
+				{
+					tinymce.remove('#'+edId);
+				}
+			}
+			// temporary hack until http://www.tinymce.com/develop/bugtracker_view.php?id=6750 is fixed
+			if (tinymce.activeEditor && tinymce.activeEditor.destroyed == 1)
+			{
+				tinymce.activeEditor = tinymce.editors[0];
+			}
+			
 		}
 	};
 }
