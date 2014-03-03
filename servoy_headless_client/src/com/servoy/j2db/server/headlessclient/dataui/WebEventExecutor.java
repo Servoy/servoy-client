@@ -21,9 +21,11 @@ import java.awt.Event;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.wicket.Component;
@@ -71,7 +73,6 @@ import com.servoy.j2db.server.headlessclient.WebClientsApplication.ModifiedAcces
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.server.headlessclient.WebOnRenderHelper;
 import com.servoy.j2db.server.headlessclient.WrapperContainer;
-import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField.AugmentedTextField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDisplay;
@@ -740,6 +741,7 @@ public class WebEventExecutor extends BaseEventExecutor
 				final Set<WebCellBasedView> tableViewsToRender = new HashSet<WebCellBasedView>();
 				final List<String> valueChangedIds = new ArrayList<String>();
 				final List<String> invalidValueIds = new ArrayList<String>();
+				final Map<WebCellBasedView, List<Integer>> tableViewsWithChangedRowIds = new HashMap<WebCellBasedView, List<Integer>>();
 				page.visitChildren(IProviderStylePropertyChanges.class, new Component.IVisitor<Component>()
 				{
 					public Object component(Component component)
@@ -779,6 +781,25 @@ public class WebEventExecutor extends BaseEventExecutor
 									}
 									// some components need to perform js layout tasks when their markup is replaced when using anchored layout
 									mainPage.getPageContributor().markComponentForAnchorLayoutIfNeeded(component);
+								}
+
+								ListItem<IRecordInternal> row = component.findParent(ListItem.class);
+								if (row != null)
+								{
+									WebCellBasedView wcbv = row.findParent(WebCellBasedView.class);
+									if (wcbv != null)
+									{
+										if (tableViewsWithChangedRowIds.get(wcbv) == null)
+										{
+											tableViewsWithChangedRowIds.put(wcbv, new ArrayList<Integer>());
+										}
+										List<Integer> ids = tableViewsWithChangedRowIds.get(wcbv);
+										int changedRowIdx = wcbv.indexOf(row);
+										if (changedRowIdx >= 0 && !ids.contains(changedRowIdx))
+										{
+											ids.add(changedRowIdx);
+										}
+									}
 								}
 							}
 							return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
@@ -824,39 +845,24 @@ public class WebEventExecutor extends BaseEventExecutor
 				{
 					if (wcbv.isScrollMode()) wcbv.scrollViewPort(target);
 					wcbv.updateRowSelection(target);
-					rowSelectionScript = wcbv.getRowSelectionScript(false);
+					List<Integer> changedIds = tableViewsWithChangedRowIds.get(wcbv);
+					List<Integer> selectedIndexesChanged = wcbv.getIndexToUpdate(false);
+					List<Integer> mergedIds = selectedIndexesChanged != null ? selectedIndexesChanged : new ArrayList<Integer>();
+					if (changedIds != null)
+					{
+						for (Integer id : changedIds)
+						{
+							if (!mergedIds.contains(id))
+							{
+								mergedIds.add(id);
+							}
+						}
+					}
+					rowSelectionScript = wcbv.getRowSelectionScript(mergedIds);
 					wcbv.clearSelectionByCellActionFlag();
 					if (rowSelectionScript != null) target.appendJavascript(rowSelectionScript);
 					columnResizeScript = wcbv.getColumnResizeScript();
 					if (columnResizeScript != null) target.appendJavascript(columnResizeScript);
-
-					final List<Integer> changedRows = new ArrayList<Integer>();
-					wcbv.visitChildren(ListItem.class, new Component.IVisitor<Component>()
-					{
-						public Object component(Component li)
-						{
-							Iterator< ? extends Component> cells = ((ListItem)li).iterator();
-							while (cells.hasNext())
-							{
-								Component someCell = CellContainer.getContentsForCell(cells.next());
-								if (someCell instanceof IProviderStylePropertyChanges)
-								{
-									if (((IProviderStylePropertyChanges)someCell).getStylePropertyChanges().isChanged())
-									{
-										int changedRowIdx = wcbv.indexOf((ListItem<IRecordInternal>)li);
-										if (changedRowIdx >= 0)
-										{
-											changedRows.add(changedRowIdx);
-											break;
-										}
-									}
-								}
-							}
-							return IVisitor.CONTINUE_TRAVERSAL;
-						}
-					});
-					String changedRowsScript = wcbv.getRowSelectionScript(changedRows);
-					if (changedRowsScript != null) target.appendJavascript(changedRowsScript);
 				}
 
 				// double check if the page contributor is changed, because the above IStylePropertyChanges ischanged could have altered it.

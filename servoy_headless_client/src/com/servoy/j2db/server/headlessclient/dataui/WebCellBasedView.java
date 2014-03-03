@@ -4811,7 +4811,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		return null;
 	}
 
-	private List<Integer> getIndexToUpdate(boolean allCurrentPageIndexes)
+	public List<Integer> getIndexToUpdate(boolean allCurrentPageIndexes)
 	{
 		if (allCurrentPageIndexes)
 		{
