@@ -1347,13 +1347,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 	private Scriptable getNamedColumns(int index)
 	{
-		if (columnameMap == null) makeColumnMap();
-		TreeMap<Integer, String> colNamesSorted = new TreeMap<Integer, String>();
-		for (String cname : columnameMap.keySet())
-		{
-			Integer cindex = columnameMap.get(cname);
-			colNamesSorted.put(cindex, cname);
-		}
+		TreeMap<Integer, String> colNamesSorted = getColumnNamesSorted();
 		Object[] row = set.getRow(index - 1);
 		Context cx = Context.enter();
 		try
@@ -1427,16 +1421,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 		if (name.endsWith("rowColumns")) //$NON-NLS-1$
 		{
-			if (columnameMap == null)
-			{
-				makeColumnMap();
-			}
-			TreeMap<Integer, String> colNamesSorted = new TreeMap<Integer, String>();
-			for (String cname : columnameMap.keySet())
-			{
-				Integer cindex = columnameMap.get(cname);
-				colNamesSorted.put(cindex, cname);
-			}
+			TreeMap<Integer, String> colNamesSorted = getColumnNamesSorted();
 			return NativeJavaArray.wrap(this, colNamesSorted.values().toArray());
 		}
 
@@ -1473,17 +1458,15 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					try
 					{
 						Scriptable arrayScriptable = (Scriptable)cx.getWrapFactory().wrap(cx, start, array, Object[].class);
-						if (columnameMap == null)
-						{
-							makeColumnMap();
-						}
-						Iterator<Entry<String, Integer>> iterator = columnameMap.entrySet().iterator();
+						TreeMap<Integer, String> colNamesSorted = getColumnNamesSorted();
+
+						Iterator<Entry<Integer, String>> iterator = colNamesSorted.entrySet().iterator();
 						while (iterator.hasNext())
 						{
-							Entry<String, Integer> entry = iterator.next();
-							Object object = array[entry.getValue().intValue() - 1];
-							arrayScriptable.put(entry.getKey(), arrayScriptable, object != null
-								? cx.getWrapFactory().wrap(cx, start, object, object.getClass()) : null);
+							Entry<Integer, String> entry = iterator.next();
+							Object object = array[entry.getKey().intValue() - 1];
+							arrayScriptable.put(entry.getValue(), arrayScriptable,
+								object != null ? cx.getWrapFactory().wrap(cx, start, object, object.getClass()) : null);
 						}
 						return arrayScriptable;
 					}
@@ -1642,6 +1625,18 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public IDataSet getDelegate()
 	{
 		return set;
+	}
+
+	private TreeMap<Integer, String> getColumnNamesSorted()
+	{
+		if (columnameMap == null) makeColumnMap();
+		TreeMap<Integer, String> colNamesSorted = new TreeMap<Integer, String>();
+		for (String cname : columnameMap.keySet())
+		{
+			Integer cindex = columnameMap.get(cname);
+			colNamesSorted.put(cindex, cname);
+		}
+		return colNamesSorted;
 	}
 
 	private class DataModel extends AbstractTableModel
