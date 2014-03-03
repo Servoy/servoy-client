@@ -2,7 +2,7 @@
 	   type="text" 
 	   ng-style="style" 
        ng-model="model.dataProviderID" 
-       svy-tooltip-html-unsafe="{{model.toolTipText}}" svy-tooltip-placement="right" svy-tooltip-append-to-body="true"
+       svy-tooltip="{{model.toolTipText}}"
        typeahead-min-length="-1"
        typeahead="value.realValue as value.displayValue for value in model.valuelistID_filter($viewValue)"
        ng-blur="doSvyApply()"/>
