@@ -1475,7 +1475,7 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	{
 		if (!list.isValueListChanging() && e.getIndex0() == -1 && e.getIndex1() == -1 && editProvider != null && !editProvider.isAdjusting())
 		{
-			editProvider.commitData();
+			application.getFoundSetManager().getEditRecordList().prepareForSave(false);
 		}
 		else if (previousValue != null && list.isValueListChanging() && !(editProvider != null && editProvider.isAdjusting()))
 		{
