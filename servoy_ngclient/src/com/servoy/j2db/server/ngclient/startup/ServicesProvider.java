@@ -3,14 +3,14 @@ package com.servoy.j2db.server.ngclient.startup;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.tomcat.starter.IServiceProvider;
+import org.apache.tomcat.starter.IServicesProvider;
 
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.TemplateGeneratorFilter;
 
 
-public class ServiceProvider implements IServiceProvider
+public class ServicesProvider implements IServicesProvider
 {
 	@Override
 	public void registerServices()
@@ -20,7 +20,7 @@ public class ServiceProvider implements IServiceProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.apache.tomcat.starter.IServiceProvider#getAnnotatedClasses(java.lang.String)
+	 * @see org.apache.tomcat.starter.IServicesProvider#getAnnotatedClasses(java.lang.String)
 	 */
 	@Override
 	public Set<Class< ? >> getAnnotatedClasses(String context)
