@@ -41,6 +41,7 @@
 	  <script src="servoydefault/label/label.js"></script>
       <script src="servoydefault/button/button.js"></script>
       <script src="servoydefault/textfield/textfield.js"></script>
+       <script src="servoydefault/password/password.js"></script>
       <script src="servoydefault/combobox/combobox.js"></script>
       <script src="servoydefault/radiogroup/radiogroup.js"></script>
       <script src="servoydefault/checkgroup/checkgroup.js"></script>

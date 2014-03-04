@@ -20,6 +20,9 @@ Web-Component: True
 Name: textfield/textfield.spec
 Web-Component: True
 
+Name: password/password.spec
+Web-Component: True
+
 Name: calendar/calendar.spec
 Web-Component: True
 
