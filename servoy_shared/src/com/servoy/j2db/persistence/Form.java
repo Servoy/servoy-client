@@ -152,6 +152,7 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 		return stn == null ? null : stn[0];
 	}
 
+
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. This method shouldn't be called from outside the persistance package!!
 	 * 
@@ -230,6 +231,25 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 			propertyName = StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName();
 		}
 		super.clearProperty(propertyName);
+	}
+
+	/**
+	 * Set the form layout grid.
+	 * 
+	 * @param arg the layout contents
+	 */
+	public void setLayout(String arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUT, arg);
+	}
+
+	/**
+	 * Get the form layout grid.
+	 * @return the layout
+	 */
+	public String getLayout()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUT);
 	}
 
 	/**
