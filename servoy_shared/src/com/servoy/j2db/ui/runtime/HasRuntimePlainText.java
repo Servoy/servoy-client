@@ -30,7 +30,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 public interface HasRuntimePlainText
 {
 	/**
-	 * Gets the plain text for the formatted HTML/RTF text of a specified field element with a design time display property of HTML_AREA/RTF only.
+	 * Gets the plain text for the formatted HTML/RTF text of a specified field element with a design time display property of HTML_AREA/RTF only. It is for Smart Client use only.
 	 * 
 	 * NOTE: As of Servoy 4.x (and higher) you can also get/set the relative or absolute URL for an HTML_AREA field element. For more detail, see the .URL and .baseURL field element runtime properties earlier in this section.
 	 * 
