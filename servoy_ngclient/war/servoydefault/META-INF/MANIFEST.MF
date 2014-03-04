@@ -20,6 +20,9 @@ Web-Component: True
 Name: textfield/textfield.spec
 Web-Component: True
 
+Name: textarea/textarea.spec
+Web-Component: True
+
 Name: password/password.spec
 Web-Component: True
 

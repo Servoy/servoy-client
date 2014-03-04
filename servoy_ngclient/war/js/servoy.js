@@ -640,7 +640,31 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 				       		 	delete objectToPutChange[propertyStr];
 				       		 }
 				       })
-		}
+		},
+	    getSelectedTextApi: function (elem){
+	    	return function(){
+	    		return elem.value.substr(elem.selectionStart, elem.selectionEnd - elem.selectionStart);
+	    	}
+	    },
+	    setSelectionApi: function (elem){
+	    	return function(start, end) { 
+	    		 if (elem.createTextRange) {
+	    		      var selRange = elem.createTextRange();
+	    		      selRange.collapse(true);
+	    		      selRange.moveStart('character', start);
+	    		      selRange.moveEnd('character', end);
+	    		      selRange.select();
+	    		      elem.focus();
+	    		 } else if (elem.setSelectionRange) {
+	    		    	elem.focus();
+	    		    	elem.setSelectionRange(start, end);
+	    		 } else if (typeof elem.selectionStart != 'undefined') {
+	    		    	elem.selectionStart = start;
+	    		    	elem.selectionEnd = end;
+	    		    	elem.focus();
+	    		 } 
+	    	 }
+	    }
 	}
 }).value("$solutionSettings",  {
 	mainForm: {},

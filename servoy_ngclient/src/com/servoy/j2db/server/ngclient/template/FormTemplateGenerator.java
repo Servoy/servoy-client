@@ -108,6 +108,8 @@ public class FormTemplateGenerator
 						return "svy-calendar";
 					case Field.TYPE_AHEAD :
 						return "svy-typeahead";
+					case Field.TEXT_AREA :
+						return "svy-textarea";
 					case Field.PASSWORD :
 						return "svy-password";
 				}
