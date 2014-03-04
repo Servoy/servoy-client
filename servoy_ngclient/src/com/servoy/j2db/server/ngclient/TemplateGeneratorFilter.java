@@ -1,6 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -21,11 +22,13 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.ngclient.template.FormWithInlineLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.IndexTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 @WebFilter(urlPatterns = { "/solutions/*" })
 @SuppressWarnings("nls")
@@ -39,7 +42,10 @@ public class TemplateGeneratorFilter implements Filter
 	{
 		try
 		{
-			if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue()) WebComponentSpecProvider.reload();
+			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.internal.reloadSpecsAllTheTime", "false")))
+			{
+				WebComponentSpecProvider.reload();
+			}
 
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			String uri = request.getRequestURI();
@@ -57,19 +63,18 @@ public class TemplateGeneratorFilter implements Filter
 						fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(solutionName,
 							IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
 						{
-
 							@Override
 							public IRepository getRepository()
 							{
 								return ApplicationServerRegistry.get().getLocalRepository();
 							}
-
 						});
 					}
 					catch (RepositoryException e)
 					{
 						Debug.error(e);
 					}
+
 					if (fs != null && formIndex > 0)
 					{
 						String formName = uri.substring(formIndex + FORMS_PATH.length());
@@ -79,18 +84,32 @@ public class TemplateGeneratorFilter implements Filter
 						Form form = (f != null) ? fs.getFlattenedForm(f) : null;
 						if (form != null)
 						{
-							String view = form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED
-								? "tableview" : "recordview";
-							String output = uri.endsWith(".html") ? "html" : "js";
-							((HttpServletResponse)servletResponse).setContentType("text/" + (output == "html" ? "html" : "javascript"));
-							new FormTemplateGenerator(fs).generate(form, "form_" + view + "_" + output + ".ftl", servletResponse.getWriter());
+							boolean html = uri.endsWith(".html");
+							boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
+							if (!tableview && html && form.getLayout() != null)
+							{
+								((HttpServletResponse)servletResponse).setContentType("text/html");
+								PrintWriter w = servletResponse.getWriter();
+								FormWithInlineLayoutGenerator.generate(form, fs, w);
+								w.flush();
+							}
+							else
+							{
+								String view = (tableview ? "tableview" : "recordview");
+								((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
+								PrintWriter w = servletResponse.getWriter();
+								new FormTemplateGenerator(fs).generate(form, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
+								w.flush();
+							}
 							return;
 						}
 					}
 					else if (uri.endsWith("index.html"))
 					{
 						((HttpServletResponse)servletResponse).setContentType("text/html");
-						new IndexTemplateGenerator(fs, request.getContextPath()).generate(fs, "index.ftl", servletResponse.getWriter());
+						PrintWriter w = servletResponse.getWriter();
+						new IndexTemplateGenerator(fs, request.getContextPath()).generate(fs, "index.ftl", w);
+						w.flush();
 						return;
 					}
 				}

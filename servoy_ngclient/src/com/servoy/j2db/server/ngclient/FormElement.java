@@ -60,8 +60,8 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
- *
  */
+@SuppressWarnings("nls")
 public final class FormElement
 {
 	private final IPersist persist;
@@ -125,7 +125,7 @@ public final class FormElement
 				}
 				catch (Exception ex)
 				{
-					Debug.error("Error while parsing json", ex); //$NON-NLS-1$
+					Debug.error("Error while parsing json", ex);
 				}
 				propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(jsonMap, jsonMap.size()));
 			}
@@ -198,7 +198,7 @@ public final class FormElement
 		String name = ((ISupportName)persist).getName();
 		if (name == null)
 		{
-			name = "svy_" + persist.getID(); //$NON-NLS-1$
+			name = "svy_" + persist.getID();
 		}
 		return name;
 	}
@@ -252,7 +252,7 @@ public final class FormElement
 		{
 			return "data-" + FormTemplateGenerator.getComponentTypeName((IFormElement)persist);
 		}
-		return "data-form"; //$NON-NLS-1$
+		return "data-form";
 
 	}
 
@@ -399,6 +399,8 @@ public final class FormElement
 	@Override
 	public String toString()
 	{
-		return "FormElement[name:" + getName() + ",values:" + propertyValues + "]";
+		return String.format(
+			"<%1$s name=\"%2$s\" svy-model=\"model.%2$s\" svy-api=\"api.%2$s\" svy-handlers=\"handlers.%2$s\" svy-apply=\"handlers.%2$s.svy_apply\" svy-servoyApi=\"handlers.%2$s.svy_servoyApi\"></%1$s>",
+			getTagname(), getName());
 	}
 }
