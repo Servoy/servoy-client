@@ -3,46 +3,34 @@ displayName: 'Split Pane',
 definition: 'servoydefault/splitpane/splitpane.js',
 model:
 {
-        placeholderText : 'tagstring', 
+        horizontalAlignment : {type:'number', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
         enabled : 'boolean', 
         visible : 'boolean', 
-        styleClass : 'string', 
-        text : 'tagstring', 
-        margin : 'dimension', 
-        printable : 'boolean', 
-        valuelistID : { type: 'valuelist', for: 'dataProviderID'}, 
-        verticalAlignment : {type:'number', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
-        horizontalAlignment : {type:'number', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
-        transparent : 'boolean', 
         tabSeq : 'tabseq', 
-        selectOnEnter : 'boolean', 
-        scrollbars : 'int', 
-        location : 'point', 
-        size : 'dimension', 
-        useRTF : 'boolean', 
-        format : {for:'dataProviderID' , type:'format'}, 
+        closeOnTabs : 'boolean', 
+        scrollTabs : 'boolean', 
+        styleClass : 'string', 
+        transparent : 'boolean', 
+        selectedTabColor : 'color', 
         fontType : 'font', 
-        editable : 'boolean', 
+        printable : 'boolean', 
         borderType : 'border', 
-        dataProviderID : { 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}, 
-        toolTipText : 'tagstring', 
+        size : 'dimension', 
+        tabOrientation : 'int', 
+        location : 'point', 
         foreground : 'color', 
         background : 'color' 
 },
 handlers:
 {
-        onRenderMethodID : 'function', 
-        onRightClickMethodID : 'function', 
-        onDataChangeMethodID : 'function', 
-        onFocusLostMethodID : 'function', 
-        onFocusGainedMethodID : 'function', 
-        onActionMethodID : 'function' 
+        onChangeMethodID : 'function', 
+        onTabChangeMethodID : 'function' 
 },
 api:
 {
         addTab:{
             returns: 'boolean',
-            parameters:[ {'form/formname':'object []','optional':'false'}, {'name':'object','optional':'true'}, {'tabText':'object','optional':'true'}, {'tooltip':'object','optional':'true'}, {'iconURL':'object','optional':'true'}, {'fg':'object','optional':'true'}, {'bg':'object','optional':'true'}, {'relatedfoundset/relationname':'object','optional':'true'}, {'index':'object','optional':'true'}]
+            parameters:[ {'vargs':'object []','optional':'false'}]
         }, 
         getAbsoluteFormLocationY:{
             returns: 'int',
@@ -62,6 +50,10 @@ api:
         }, 
         getHeight:{
             returns: 'int',
+            parameters:[]
+        }, 
+        getLeftForm:{
+            returns: 'formscope',
             parameters:[]
         }, 
         getLocationX:{
@@ -84,13 +76,9 @@ api:
             returns: 'string',
             parameters:[]
         }, 
-        getSelectedTabFormName:{
-            returns: 'string',
+        getRightForm:{
+            returns: 'formscope',
             parameters:[]
-        }, 
-        getTabBGColorAt:{
-            returns: 'string',
-            parameters:[ {'unnamed_0':'int','optional':'false'}]
         }, 
         getTabFGColorAt:{
             returns: 'string',
@@ -116,10 +104,6 @@ api:
             returns: 'int',
             parameters:[]
         }, 
-        isTabEnabled:{
-            returns: 'boolean',
-            parameters:[ {'unnamed_0':'int','optional':'false'}]
-        }, 
         isTabEnabledAt:{
             returns: 'boolean',
             parameters:[ {'i':'int','optional':'false'}]
@@ -134,7 +118,11 @@ api:
         }, 
         removeTabAt:{
             returns: 'boolean',
-            parameters:[ {'index':'int','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}]
+        }, 
+        setLeftForm:{
+            returns: 'boolean',
+            parameters:[ {'form':'object','optional':'false'}, {'relation':'object','optional':'true'}]
         }, 
         setLocation:{
             returns: 'void',
@@ -144,17 +132,13 @@ api:
             returns: 'void',
             parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
         }, 
+        setRightForm:{
+            returns: 'boolean',
+            parameters:[ {'form':'object','optional':'false'}, {'relation':'object','optional':'true'}]
+        }, 
         setSize:{
             returns: 'void',
             parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
-        }, 
-        setTabBGColorAt:{
-            returns: 'void',
-            parameters:[ {'unnamed_0':'int','optional':'false'}, {'unnamed_1':'string','optional':'false'}]
-        }, 
-        setTabEnabled:{
-            returns: 'void',
-            parameters:[ {'unnamed_0':'int','optional':'false'}, {'unnamed_1':'boolean','optional':'false'}]
         }, 
         setTabEnabledAt:{
             returns: 'void',
@@ -162,10 +146,10 @@ api:
         }, 
         setTabFGColorAt:{
             returns: 'void',
-            parameters:[ {'i':'int','optional':'false'}, {'s':'string','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}, {'clr':'string','optional':'false'}]
         }, 
         setTabTextAt:{
             returns: 'void',
-            parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
+            parameters:[ {'i':'int','optional':'false'}, {'text':'string','optional':'false'}]
         } 
 }

@@ -40,14 +40,6 @@ handlers:
 },
 api:
 {
-        deleteRecord:{
-            returns: 'void',
-            parameters:[]
-        }, 
-        duplicateRecord:{
-            returns: 'void',
-            parameters:[ {'addOnTop':'boolean','optional':'true'}]
-        }, 
         getAbsoluteFormLocationY:{
             returns: 'int',
             parameters:[]
@@ -55,6 +47,10 @@ api:
         getClientProperty:{
             returns: 'object',
             parameters:[ {'key':'object','optional':'false'}]
+        }, 
+        getDataProviderID:{
+            returns: 'string',
+            parameters:[]
         }, 
         getDesignTimeProperty:{
             returns: 'object',
@@ -68,6 +64,10 @@ api:
             returns: 'int',
             parameters:[]
         }, 
+        getLabelForElementNames:{
+            returns: 'string []',
+            parameters:[]
+        }, 
         getLocationX:{
             returns: 'int',
             parameters:[]
@@ -76,27 +76,11 @@ api:
             returns: 'int',
             parameters:[]
         }, 
-        getMaxRecordIndex:{
-            returns: 'int',
-            parameters:[]
-        }, 
         getName:{
             returns: 'string',
             parameters:[]
         }, 
-        getScrollX:{
-            returns: 'int',
-            parameters:[]
-        }, 
-        getScrollY:{
-            returns: 'int',
-            parameters:[]
-        }, 
-        getSelectedIndex:{
-            returns: 'int',
-            parameters:[]
-        }, 
-        getSortColumns:{
+        getValueListName:{
             returns: 'string',
             parameters:[]
         }, 
@@ -104,28 +88,24 @@ api:
             returns: 'int',
             parameters:[]
         }, 
-        newRecord:{
-            returns: 'void',
-            parameters:[ {'addOnTop':'boolean','optional':'true'}]
-        }, 
         putClientProperty:{
             returns: 'void',
             parameters:[ {'key':'object','optional':'false'}, {'value':'object','optional':'false'}]
+        }, 
+        requestFocus:{
+            returns: 'void',
+            parameters:[ {'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         }, 
         setLocation:{
             returns: 'void',
             parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
-        setScroll:{
-            returns: 'void',
-            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
-        }, 
-        setSelectedIndex:{
-            returns: 'void',
-            parameters:[ {'index':'int','optional':'false'}]
-        }, 
         setSize:{
             returns: 'void',
             parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
+        }, 
+        setValueListItems:{
+            returns: 'void',
+            parameters:[ {'value':'object','optional':'false'}]
         } 
 }

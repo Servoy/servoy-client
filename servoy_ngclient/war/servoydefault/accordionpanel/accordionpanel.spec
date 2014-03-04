@@ -3,50 +3,34 @@ displayName: 'AccordionPanel',
 definition: 'servoydefault/accordionpanel/accordionpanel.js',
 model:
 {
-        placeholderText : 'tagstring', 
+        horizontalAlignment : {type:'number', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
         enabled : 'boolean', 
         visible : 'boolean', 
-        styleClass : 'string', 
-        text : 'tagstring', 
-        margin : 'dimension', 
-        printable : 'boolean', 
-        valuelistID : { type: 'valuelist', for: 'dataProviderID'}, 
-        verticalAlignment : {type:'number', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
-        horizontalAlignment : {type:'number', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
-        transparent : 'boolean', 
         tabSeq : 'tabseq', 
-        selectOnEnter : 'boolean', 
-        scrollbars : 'int', 
-        location : 'point', 
-        size : 'dimension', 
-        useRTF : 'boolean', 
-        format : {for:'dataProviderID' , type:'format'}, 
+        closeOnTabs : 'boolean', 
+        scrollTabs : 'boolean', 
+        styleClass : 'string', 
+        transparent : 'boolean', 
+        selectedTabColor : 'color', 
         fontType : 'font', 
-        editable : 'boolean', 
+        printable : 'boolean', 
         borderType : 'border', 
-        dataProviderID : { 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}, 
-        toolTipText : 'tagstring', 
+        size : 'dimension', 
+        tabOrientation : 'int', 
+        location : 'point', 
         foreground : 'color', 
         background : 'color' 
 },
 handlers:
 {
-        onRenderMethodID : 'function', 
-        onRightClickMethodID : 'function', 
-        onDataChangeMethodID : 'function', 
-        onFocusLostMethodID : 'function', 
-        onFocusGainedMethodID : 'function', 
-        onActionMethodID : 'function' 
+        onChangeMethodID : 'function', 
+        onTabChangeMethodID : 'function' 
 },
 api:
 {
-        deleteRecord:{
-            returns: 'void',
-            parameters:[]
-        }, 
-        duplicateRecord:{
-            returns: 'void',
-            parameters:[ {'addOnTop':'boolean','optional':'true'}]
+        addTab:{
+            returns: 'boolean',
+            parameters:[ {'form/formname':'object []','optional':'false'}, {'name':'object','optional':'true'}, {'tabText':'object','optional':'true'}, {'tooltip':'object','optional':'true'}, {'iconURL':'object','optional':'true'}, {'fg':'object','optional':'true'}, {'bg':'object','optional':'true'}, {'relatedfoundset/relationname':'object','optional':'true'}, {'index':'object','optional':'true'}]
         }, 
         getAbsoluteFormLocationY:{
             returns: 'int',
@@ -76,56 +60,80 @@ api:
             returns: 'int',
             parameters:[]
         }, 
-        getMaxRecordIndex:{
+        getMaxTabIndex:{
             returns: 'int',
             parameters:[]
+        }, 
+        getMnemonicAt:{
+            returns: 'string',
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getName:{
             returns: 'string',
             parameters:[]
         }, 
-        getScrollX:{
-            returns: 'int',
-            parameters:[]
-        }, 
-        getScrollY:{
-            returns: 'int',
-            parameters:[]
-        }, 
-        getSelectedIndex:{
-            returns: 'int',
-            parameters:[]
-        }, 
-        getSortColumns:{
+        getTabFGColorAt:{
             returns: 'string',
-            parameters:[]
+            parameters:[ {'i':'int','optional':'false'}]
+        }, 
+        getTabFormNameAt:{
+            returns: 'string',
+            parameters:[ {'i':'int','optional':'false'}]
+        }, 
+        getTabNameAt:{
+            returns: 'string',
+            parameters:[ {'i':'int','optional':'false'}]
+        }, 
+        getTabRelationNameAt:{
+            returns: 'string',
+            parameters:[ {'i':'int','optional':'false'}]
+        }, 
+        getTabTextAt:{
+            returns: 'string',
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         getWidth:{
             returns: 'int',
             parameters:[]
         }, 
-        newRecord:{
-            returns: 'void',
-            parameters:[ {'addOnTop':'boolean','optional':'true'}]
+        isTabEnabledAt:{
+            returns: 'boolean',
+            parameters:[ {'i':'int','optional':'false'}]
         }, 
         putClientProperty:{
             returns: 'void',
             parameters:[ {'key':'object','optional':'false'}, {'value':'object','optional':'false'}]
         }, 
+        removeAllTabs:{
+            returns: 'boolean',
+            parameters:[]
+        }, 
+        removeTabAt:{
+            returns: 'boolean',
+            parameters:[ {'index':'int','optional':'false'}]
+        }, 
         setLocation:{
             returns: 'void',
             parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
         }, 
-        setScroll:{
+        setMnemonicAt:{
             returns: 'void',
-            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
-        }, 
-        setSelectedIndex:{
-            returns: 'void',
-            parameters:[ {'index':'int','optional':'false'}]
+            parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
         }, 
         setSize:{
             returns: 'void',
             parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
+        }, 
+        setTabEnabledAt:{
+            returns: 'void',
+            parameters:[ {'i':'int','optional':'false'}, {'b':'boolean','optional':'false'}]
+        }, 
+        setTabFGColorAt:{
+            returns: 'void',
+            parameters:[ {'i':'int','optional':'false'}, {'s':'string','optional':'false'}]
+        }, 
+        setTabTextAt:{
+            returns: 'void',
+            parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
         } 
 }

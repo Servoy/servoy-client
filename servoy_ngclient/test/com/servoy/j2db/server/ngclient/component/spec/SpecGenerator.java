@@ -99,11 +99,11 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("check", "Check", IRepository.FIELDS, IRuntimeCheck.class));
 		specTemplateList.add(new SpecTemplateModel("radio", "Radio", IRepository.FIELDS, IRuntimeRadio.class));
 		specTemplateList.add(new SpecTemplateModel("imagemedia", "Image Media", IRepository.FIELDS, IRuntimeImageMedia.class));
-		specTemplateList.add(new SpecTemplateModel("splitpane", "Split Pane", IRepository.FIELDS, com.servoy.j2db.ui.IScriptTabPanelMethods.class));
-		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.FIELDS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
-		specTemplateList.add(new SpecTemplateModel("accordionpanel", "AccordionPanel", IRepository.FIELDS,
-			com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
-		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
+		specTemplateList.add(new SpecTemplateModel("splitpane", "Split Pane", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptSplitPaneMethods.class));
+		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
+		specTemplateList.add(new SpecTemplateModel("accordionpanel", "AccordionPanel", IRepository.TABPANELS,
+			com.servoy.j2db.ui.IScriptAccordionPanelMethods.class));
+		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class));
 
 		//specTemplateList.add(new SpecTemplateModel("navigator","Navigator", IRepository.FIELDS));
 	}
