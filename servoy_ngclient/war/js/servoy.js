@@ -46,6 +46,16 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
           		case 'anchors':
           			anchorInfoChanged = anchorInfoChanged || (beanModel[key] == undefined) || (beanData[key] != beanModel[key]);
           			break;
+          		case 'visible':
+          			if (beanData[key] == false)
+          			{
+          				beanLayout.display = 'none';
+          			}
+          			else
+          			{
+          				delete beanLayout.display;
+          			}
+          			break;	
           		}
           		
           		// also make location and size available in model
