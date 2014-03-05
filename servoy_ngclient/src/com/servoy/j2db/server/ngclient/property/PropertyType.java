@@ -27,7 +27,6 @@ package com.servoy.j2db.server.ngclient.property;
 public enum PropertyType
 {
 	// @formatter:off
-
 	color,
 	string,
 	tagstring,
@@ -51,7 +50,11 @@ public enum PropertyType
 	form,
 	format,
 	relation,
+	tabseq,
 	media,
+	mediaoptions,
+	object,
+	bean,
 	custom, // special type for custom types defined in the spec file.
 	date; // can be used in api calls
 

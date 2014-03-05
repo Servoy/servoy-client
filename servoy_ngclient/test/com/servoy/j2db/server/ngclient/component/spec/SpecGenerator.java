@@ -330,9 +330,9 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put("valuelistID", "{ type: 'valuelist', for: 'dataProviderID'}");
 		repoTypeMappingExceptions.put("rolloverImageMediaID", "media");
 		repoTypeMappingExceptions.put("imageMediaID", "media");
-		repoTypeMappingExceptions.put("horizontalAlignment", "{type:'number', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}");
-		repoTypeMappingExceptions.put("verticalAlignment", "{type:'number', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}");
-		repoTypeMappingExceptions.put("textRotation", "{type:'number', values:[0,90,180,270]}");
+		repoTypeMappingExceptions.put("horizontalAlignment", "{type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}");
+		repoTypeMappingExceptions.put("verticalAlignment", "{type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}");
+		repoTypeMappingExceptions.put("textRotation", "{type:'int', values:[0,90,180,270]}");
 		repoTypeMappingExceptions.put("tabSeq", "tabseq");
 		repoTypeMappingExceptions.put("mediaOptions", "mediaoptions");
 		repoTypeMappingExceptions.put("labelFor", "bean");

@@ -39,91 +39,78 @@ handlers:
 api:
 {
         deleteRecord:{
-            returns: 'void',
-            parameters:[]
-        }, 
+            
+                 }, 
         duplicateRecord:{
-            returns: 'void',
-            parameters:[ {'addOnTop':'boolean','optional':'true'}]
+            
+            parameters:[{'addOnTop':'boolean','optional':'true'}]
         }, 
         getAbsoluteFormLocationY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getClientProperty:{
             returns: 'object',
-            parameters:[ {'key':'object','optional':'false'}]
+            parameters:[{'key':'object'}]
         }, 
         getDesignTimeProperty:{
             returns: 'object',
-            parameters:[ {'unnamed_0':'string','optional':'false'}]
+            parameters:[{'unnamed_0':'string'}]
         }, 
         getElementType:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getHeight:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getLocationX:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getLocationY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getMaxRecordIndex:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getName:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getScrollX:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getScrollY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getSelectedIndex:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getSortColumns:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getWidth:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         newRecord:{
-            returns: 'void',
-            parameters:[ {'addOnTop':'boolean','optional':'true'}]
+            
+            parameters:[{'addOnTop':'boolean','optional':'true'}]
         }, 
         putClientProperty:{
-            returns: 'void',
-            parameters:[ {'key':'object','optional':'false'}, {'value':'object','optional':'false'}]
+            
+            parameters:[{'key':'object'},{'value':'object'}]
         }, 
         setLocation:{
-            returns: 'void',
-            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
+            
+            parameters:[{'x':'int'},{'y':'int'}]
         }, 
         setScroll:{
-            returns: 'void',
-            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
+            
+            parameters:[{'x':'int'},{'y':'int'}]
         }, 
         setSelectedIndex:{
-            returns: 'void',
-            parameters:[ {'index':'int','optional':'false'}]
+            
+            parameters:[{'index':'int'}]
         }, 
         setSize:{
-            returns: 'void',
-            parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
+            
+            parameters:[{'width':'int'},{'height':'int'}]
         } 
 }

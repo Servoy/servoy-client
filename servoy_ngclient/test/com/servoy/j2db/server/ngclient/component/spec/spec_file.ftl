@@ -33,8 +33,12 @@ api:
 {
     <#list apis as api>
         ${api.name}:{
-            returns: '${api.returnType}',
-            parameters:[<#list api.parameters as param> {'${param.left}':'${param.right}','optional':'${api.isOpitionalParameter(param.left)}'}<#if param_has_next>,</#if></#list>]
+            <#if (api.returnType != 'void')>returns: '${api.returnType}',</#if>
+         <#if (api.parameters?size>0)>   parameters:[<#list api.parameters as param><#rt>
+           {'${param.left}':'${param.right}'<#t>
+            <#if (api.isOpitionalParameter(param.left)!='false')>,'optional':'${api.isOpitionalParameter(param.left)}'}<#else>}</#if><#t>
+            <#if param_has_next>,</#if></#list>]<#lt>
+         </#if>
         }<#if api_has_next>,</#if> 
     </#list>
 }

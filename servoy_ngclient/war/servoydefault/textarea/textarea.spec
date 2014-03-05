@@ -11,8 +11,8 @@ model:
         margin : 'dimension', 
         printable : 'boolean', 
         valuelistID : { type: 'valuelist', for: 'dataProviderID'}, 
-        verticalAlignment : {type:'number', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
-        horizontalAlignment : {type:'number', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
+        verticalAlignment : {type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
+        horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
         transparent : 'boolean', 
         tabSeq : 'tabseq', 
         selectOnEnter : 'boolean', 
@@ -42,86 +42,73 @@ api:
 {
         getAbsoluteFormLocationY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getClientProperty:{
             returns: 'object',
-            parameters:[ {'key':'object','optional':'false'}]
+            parameters:[{'key':'object'}]
         }, 
         getDataProviderID:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getDesignTimeProperty:{
             returns: 'object',
-            parameters:[ {'unnamed_0':'string','optional':'false'}]
+            parameters:[{'unnamed_0':'string'}]
         }, 
         getElementType:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getHeight:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getLabelForElementNames:{
             returns: 'string []',
-            parameters:[]
-        }, 
+                 }, 
         getLocationX:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getLocationY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getName:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getScrollX:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getScrollY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getSelectedText:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getWidth:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         putClientProperty:{
-            returns: 'void',
-            parameters:[ {'key':'object','optional':'false'}, {'value':'object','optional':'false'}]
+            
+            parameters:[{'key':'object'},{'value':'object'}]
         }, 
         replaceSelectedText:{
-            returns: 'void',
-            parameters:[ {'s':'string','optional':'false'}]
+            
+            parameters:[{'s':'string'}]
         }, 
         requestFocus:{
-            returns: 'void',
-            parameters:[ {'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
+            
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
         }, 
         selectAll:{
-            returns: 'void',
-            parameters:[]
-        }, 
+            
+                 }, 
         setLocation:{
-            returns: 'void',
-            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
+            
+            parameters:[{'x':'int'},{'y':'int'}]
         }, 
         setScroll:{
-            returns: 'void',
-            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
+            
+            parameters:[{'x':'int'},{'y':'int'}]
         }, 
         setSize:{
-            returns: 'void',
-            parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
+            
+            parameters:[{'width':'int'},{'height':'int'}]
         } 
 }

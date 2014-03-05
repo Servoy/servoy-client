@@ -3,7 +3,7 @@ displayName: 'AccordionPanel',
 definition: 'servoydefault/accordionpanel/accordionpanel.js',
 model:
 {
-        horizontalAlignment : {type:'number', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
+        horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
         enabled : 'boolean', 
         visible : 'boolean', 
         tabSeq : 'tabseq', 
@@ -30,110 +30,101 @@ api:
 {
         addTab:{
             returns: 'boolean',
-            parameters:[ {'form/formname':'object []','optional':'false'}, {'name':'object','optional':'true'}, {'tabText':'object','optional':'true'}, {'tooltip':'object','optional':'true'}, {'iconURL':'object','optional':'true'}, {'fg':'object','optional':'true'}, {'bg':'object','optional':'true'}, {'relatedfoundset/relationname':'object','optional':'true'}, {'index':'object','optional':'true'}]
+            parameters:[{'form/formname':'object []'},{'name':'object','optional':'true'},{'tabText':'object','optional':'true'},{'tooltip':'object','optional':'true'},{'iconURL':'object','optional':'true'},{'fg':'object','optional':'true'},{'bg':'object','optional':'true'},{'relatedfoundset/relationname':'object','optional':'true'},{'index':'object','optional':'true'}]
         }, 
         getAbsoluteFormLocationY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getClientProperty:{
             returns: 'object',
-            parameters:[ {'key':'object','optional':'false'}]
+            parameters:[{'key':'object'}]
         }, 
         getDesignTimeProperty:{
             returns: 'object',
-            parameters:[ {'unnamed_0':'string','optional':'false'}]
+            parameters:[{'unnamed_0':'string'}]
         }, 
         getElementType:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getHeight:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getLocationX:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getLocationY:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getMaxTabIndex:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         getMnemonicAt:{
             returns: 'string',
-            parameters:[ {'i':'int','optional':'false'}]
+            parameters:[{'i':'int'}]
         }, 
         getName:{
             returns: 'string',
-            parameters:[]
-        }, 
+                 }, 
         getTabFGColorAt:{
             returns: 'string',
-            parameters:[ {'i':'int','optional':'false'}]
+            parameters:[{'i':'int'}]
         }, 
         getTabFormNameAt:{
             returns: 'string',
-            parameters:[ {'i':'int','optional':'false'}]
+            parameters:[{'i':'int'}]
         }, 
         getTabNameAt:{
             returns: 'string',
-            parameters:[ {'i':'int','optional':'false'}]
+            parameters:[{'i':'int'}]
         }, 
         getTabRelationNameAt:{
             returns: 'string',
-            parameters:[ {'i':'int','optional':'false'}]
+            parameters:[{'i':'int'}]
         }, 
         getTabTextAt:{
             returns: 'string',
-            parameters:[ {'i':'int','optional':'false'}]
+            parameters:[{'i':'int'}]
         }, 
         getWidth:{
             returns: 'int',
-            parameters:[]
-        }, 
+                 }, 
         isTabEnabledAt:{
             returns: 'boolean',
-            parameters:[ {'i':'int','optional':'false'}]
+            parameters:[{'i':'int'}]
         }, 
         putClientProperty:{
-            returns: 'void',
-            parameters:[ {'key':'object','optional':'false'}, {'value':'object','optional':'false'}]
+            
+            parameters:[{'key':'object'},{'value':'object'}]
         }, 
         removeAllTabs:{
             returns: 'boolean',
-            parameters:[]
-        }, 
+                 }, 
         removeTabAt:{
             returns: 'boolean',
-            parameters:[ {'index':'int','optional':'false'}]
+            parameters:[{'index':'int'}]
         }, 
         setLocation:{
-            returns: 'void',
-            parameters:[ {'x':'int','optional':'false'}, {'y':'int','optional':'false'}]
+            
+            parameters:[{'x':'int'},{'y':'int'}]
         }, 
         setMnemonicAt:{
-            returns: 'void',
-            parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
+            
+            parameters:[{'index':'int'},{'text':'string'}]
         }, 
         setSize:{
-            returns: 'void',
-            parameters:[ {'width':'int','optional':'false'}, {'height':'int','optional':'false'}]
+            
+            parameters:[{'width':'int'},{'height':'int'}]
         }, 
         setTabEnabledAt:{
-            returns: 'void',
-            parameters:[ {'i':'int','optional':'false'}, {'b':'boolean','optional':'false'}]
+            
+            parameters:[{'i':'int'},{'b':'boolean'}]
         }, 
         setTabFGColorAt:{
-            returns: 'void',
-            parameters:[ {'i':'int','optional':'false'}, {'s':'string','optional':'false'}]
+            
+            parameters:[{'i':'int'},{'s':'string'}]
         }, 
         setTabTextAt:{
-            returns: 'void',
-            parameters:[ {'index':'int','optional':'false'}, {'text':'string','optional':'false'}]
+            
+            parameters:[{'index':'int'},{'text':'string'}]
         } 
 }
