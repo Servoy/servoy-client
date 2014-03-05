@@ -1,4 +1,4 @@
-servoyModule.directive('svyTextfield', function($servoy,$utils) {  
+servoyModule.directive('svyTextfield', function($servoy,$utils,$apifunctions) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -21,8 +21,8 @@ servoyModule.directive('svyTextfield', function($servoy,$utils) {
     		  $element[0].focus()
     	 },
     	 
-    	 $scope.api.getSelectedText = $utils.getSelectedTextApi($element[0]);
-    	 $scope.api.setSelection = $utils.setSelectionApi($element[0]);
+    	 $scope.api.getSelectedText = $apifunctions.getSelectedText($element[0]);
+    	 $scope.api.setSelection = $apifunctions.setSelection($element[0]);
       },
       templateUrl: 'servoydefault/textfield/textfield.html',
       replace: true

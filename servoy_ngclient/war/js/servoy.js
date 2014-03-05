@@ -632,6 +632,14 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 		}
 	}
 	
+	var SCROLLBARS_WHEN_NEEDED = 0;
+	var VERTICAL_SCROLLBAR_AS_NEEDED = 1;
+	var VERTICAL_SCROLLBAR_ALWAYS = 2;
+	var VERTICAL_SCROLLBAR_NEVER = 4;
+	var HORIZONTAL_SCROLLBAR_AS_NEEDED = 8;
+	var HORIZONTAL_SCROLLBAR_ALWAYS = 16;
+	var HORIZONTAL_SCROLLBAR_NEVER = 32;
+	
 	return{
 		
 		/** this function can be used in filters .It accepts a string jsonpath the property to test for null. 
@@ -651,30 +659,36 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 				       		 }
 				       })
 		},
-	    getSelectedTextApi: function (elem){
-	    	return function(){
-	    		return elem.value.substr(elem.selectionStart, elem.selectionEnd - elem.selectionStart);
-	    	}
-	    },
-	    setSelectionApi: function (elem){
-	    	return function(start, end) { 
-	    		 if (elem.createTextRange) {
-	    		      var selRange = elem.createTextRange();
-	    		      selRange.collapse(true);
-	    		      selRange.moveStart('character', start);
-	    		      selRange.moveEnd('character', end);
-	    		      selRange.select();
-	    		      elem.focus();
-	    		 } else if (elem.setSelectionRange) {
-	    		    	elem.focus();
-	    		    	elem.setSelectionRange(start, end);
-	    		 } else if (typeof elem.selectionStart != 'undefined') {
-	    		    	elem.selectionStart = start;
-	    		    	elem.selectionEnd = end;
-	    		    	elem.focus();
-	    		 } 
-	    	 }
-	    }
+		getScrollbarsStyleObj:function (scrollbars){
+				     var style = {}; 
+				        if ((scrollbars & HORIZONTAL_SCROLLBAR_NEVER) == HORIZONTAL_SCROLLBAR_NEVER)
+						{
+							style.overflowX = "hidden";
+						}
+						else if ((scrollbars & HORIZONTAL_SCROLLBAR_ALWAYS) == HORIZONTAL_SCROLLBAR_ALWAYS)
+						{
+							style.overflowX = "scroll";
+						}
+						else
+						{
+							style.overflowX = "auto";
+						}
+				    
+						if ((scrollbars & VERTICAL_SCROLLBAR_NEVER) == VERTICAL_SCROLLBAR_NEVER)
+						{
+							style.overflowY = "hidden"; 
+						}
+						else if ((scrollbars & VERTICAL_SCROLLBAR_ALWAYS) == VERTICAL_SCROLLBAR_ALWAYS)
+						{
+							style.overflowY = "scroll"; //$NON-NLS-1$
+						}
+						else
+						{
+							style.overflowY = "auto"; //$NON-NLS-1$
+						}
+			
+					return style;
+		}
 	}
 }).value("$solutionSettings",  {
 	mainForm: {},
@@ -790,6 +804,37 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
         	}
         }
       };
+}).factory("$apifunctions", function (){
+	
+	return {
+		
+	    getSelectedText: function (elem){
+	    	return function(){
+	    		return elem.value.substr(elem.selectionStart, elem.selectionEnd - elem.selectionStart);
+	    	}
+	    },
+	    setSelection: function (elem){
+	    	return function(start, end) { 
+	    		 if (elem.createTextRange) {
+	    		      var selRange = elem.createTextRange();
+	    		      selRange.collapse(true);
+	    		      selRange.moveStart('character', start);
+	    		      selRange.moveEnd('character', end);
+	    		      selRange.select();
+	    		      elem.focus();
+	    		 } else if (elem.setSelectionRange) {
+	    		    	elem.focus();
+	    		    	elem.setSelectionRange(start, end);
+	    		 } else if (typeof elem.selectionStart != 'undefined') {
+	    		    	elem.selectionStart = start;
+	    		    	elem.selectionEnd = end;
+	    		    	elem.focus();
+	    		 } 
+	    	 }
+	    }
+	}
+	
+	
 })
 
 
