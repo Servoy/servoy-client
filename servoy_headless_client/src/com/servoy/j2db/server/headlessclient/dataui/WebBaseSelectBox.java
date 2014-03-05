@@ -254,21 +254,14 @@ public abstract class WebBaseSelectBox extends MarkupContainer implements IField
 
 	public void notifyLastNewValueWasChange(final Object oldVal, final Object newVal)
 	{
-		if (eventExecutor.hasChangeCmd() || eventExecutor.hasActionCmd())
+		if (eventExecutor.hasChangeCmd())
 		{
 			application.invokeLater(new Runnable()
 			{
 				public void run()
 				{
 					WebEventExecutor.setSelectedIndex(WebBaseSelectBox.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-
 					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebBaseSelectBox.this);
-
-					//if change cmd is not succeeded also don't call action cmd?
-					if (isValueValid)
-					{
-						eventExecutor.fireActionCommand(false, WebBaseSelectBox.this);
-					}
 				}
 			});
 		}
