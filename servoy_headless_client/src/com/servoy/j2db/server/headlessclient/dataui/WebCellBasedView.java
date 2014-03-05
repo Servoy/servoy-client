@@ -4070,7 +4070,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
+					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_BGCOLOR), sbm.getBgcolor())) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BGCOLOR);
 					sbm.setBgcolor(sbm.getBgcolor());
 					setParentBGcolor(comp, "");
 				}
@@ -4082,14 +4082,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
+					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_FGCOLOR), sbm.getFgcolor()))
+					{
+						sbmRW.clearProperty(RenderableWrapper.PROPERTY_FGCOLOR);
+					}
 					sbm.setFgcolor(sbm.getFgcolor());
-
 				}
 
 				if (compFont != null)
 				{
-					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FONT);
+					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_FONT), sbm.getFont())) sbmRW.clearProperty(RenderableWrapper.PROPERTY_FONT);
 					sbm.setFont(compFont.toString());
 				}
 				else
@@ -4128,7 +4130,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				}
 				else
 				{
-					if (sbmRW != null) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BORDER);
+					if (sbmRW != null && !Utils.equalObjects(sbmRW.getOnRenderSetProperties().get(RenderableWrapper.PROPERTY_BORDER), sbm.getBorder())) sbmRW.clearProperty(RenderableWrapper.PROPERTY_BORDER);
 					sbm.setBorder(sbm.getBorder());
 				}
 			}

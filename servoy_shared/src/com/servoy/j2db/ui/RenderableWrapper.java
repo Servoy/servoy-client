@@ -46,6 +46,7 @@ public class RenderableWrapper implements IScriptRenderMethodsWithOptionalProps
 
 	private final IScriptRenderMethods renderable;
 	private final HashMap<String, Object> properties = new HashMap<String, Object>();
+	private final HashMap<String, Object> onRenderSetProperties = new HashMap<String, Object>();
 
 	public RenderableWrapper(IScriptRenderMethods renderable)
 	{
@@ -85,6 +86,7 @@ public class RenderableWrapper implements IScriptRenderMethodsWithOptionalProps
 			properties.put(PROPERTY_BGCOLOR, renderable.getBgcolor());
 		}
 		renderable.setBgcolor(clr);
+		onRenderSetProperties.put(PROPERTY_BGCOLOR, renderable.getBgcolor());
 	}
 
 	public String getFgcolor()
@@ -99,6 +101,7 @@ public class RenderableWrapper implements IScriptRenderMethodsWithOptionalProps
 			properties.put(PROPERTY_FGCOLOR, renderable.getFgcolor());
 		}
 		renderable.setFgcolor(clr);
+		onRenderSetProperties.put(PROPERTY_FGCOLOR, renderable.getFgcolor());
 	}
 
 	public boolean isVisible()
@@ -186,6 +189,8 @@ public class RenderableWrapper implements IScriptRenderMethodsWithOptionalProps
 			properties.put(PROPERTY_BORDER, renderable.getBorder());
 		}
 		renderable.setBorder(spec);
+		onRenderSetProperties.put(PROPERTY_BORDER, renderable.getBorder());
+
 	}
 
 	public String getToolTipText()
@@ -214,6 +219,7 @@ public class RenderableWrapper implements IScriptRenderMethodsWithOptionalProps
 			properties.put(PROPERTY_FONT, renderable.getFont());
 		}
 		renderable.setFont(spec);
+		onRenderSetProperties.put(PROPERTY_FONT, renderable.getFont());
 	}
 
 	public boolean isTransparent()
@@ -334,5 +340,10 @@ public class RenderableWrapper implements IScriptRenderMethodsWithOptionalProps
 			}
 			((HasRuntimeImageURL)renderable).setImageURL(text_url);
 		}
+	}
+
+	public HashMap<String, Object> getOnRenderSetProperties()
+	{
+		return onRenderSetProperties;
 	}
 }

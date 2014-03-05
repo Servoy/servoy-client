@@ -42,7 +42,6 @@ import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
@@ -76,7 +75,6 @@ import com.servoy.j2db.server.headlessclient.WrapperContainer;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataCompositeTextField.AugmentedTextField;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataImgMediaField.ImageDisplay;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioButton.MyRadioButton;
 import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.headlessclient.eventthread.WicketEvent;
@@ -103,6 +101,7 @@ public class WebEventExecutor extends BaseEventExecutor
 {
 	private final Component component;
 	private final boolean useAJAX;
+	private IBehavior updatingBehavior;
 
 	public WebEventExecutor(Component c, boolean useAJAX)
 	{
@@ -115,9 +114,10 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				component.add(new ServoyChoiceComponentUpdatingBehavior(component, this));
 			}
-			else if (component instanceof CheckBox || component instanceof MyRadioButton)
+			else if (component instanceof WebBaseSelectBox.ISelector)
 			{
-				component.add(new ServoyFormComponentUpdatingBehavior("onclick", component, this, "FormUpdate")); //$NON-NLS-1$ //$NON-NLS-2$
+				updatingBehavior = new ServoySelectBoxUpdatingBehavior("onclick", ((WebBaseSelectBox.ISelector)component).getSelectBox(), this, "FormUpdate"); //$NON-NLS-1$ //$NON-NLS-2$ 
+				component.add(updatingBehavior);
 			}
 			else if (component instanceof WebDataLookupField || component instanceof WebDataComboBox || component instanceof AugmentedTextField ||
 				component instanceof WebDataListBox) // these fields can change contents without having focus or should generate dataProvider update without loosing focus; for example calendar&spinner might modify field content without field having focus
@@ -177,6 +177,10 @@ public class WebEventExecutor extends BaseEventExecutor
 			{
 				component.add(new ServoyActionEventBehavior("onKeyDown", component, this, "ActionCmd")); // please keep the case in the event name //$NON-NLS-1$ //$NON-NLS-2$ 
 			}
+			else if (component instanceof WebBaseSelectBox.ISelector)
+			{
+				((ServoySelectBoxUpdatingBehavior)updatingBehavior).setFireActionCommand(true);
+			}
 			else
 			{
 				// for ImageDisplay (that is an input with type='image') 'onclick' cannot be used, as it considered a submit button and any
@@ -188,8 +192,7 @@ public class WebEventExecutor extends BaseEventExecutor
 					@Override
 					protected void onEvent(AjaxRequestTarget target)
 					{
-						WebEventExecutor.this.onEvent(JSEvent.EventType.action, target, component instanceof WebBaseSelectBox.ISelector
-							? ((WebBaseSelectBox.ISelector)component).getSelectBox() : component,
+						WebEventExecutor.this.onEvent(JSEvent.EventType.action, target, component,
 							Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER)),
 							new Point(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("mx")), //$NON-NLS-1$
 								Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("my")))); //$NON-NLS-1$
