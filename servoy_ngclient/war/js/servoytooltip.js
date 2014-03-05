@@ -153,7 +153,7 @@ servoyModule.factory("$svyTooltipUtils", function($window){
 })
 .directive('svyTooltip', function ($svyTooltipUtils) {
 	return {
-		restrict: 'EA',
+		restrict: 'A',
         link: function (scope, element, attrs) {
         	var tooltip = attrs['svyTooltip'];
         	if(tooltip && tooltip.length > 0) {
