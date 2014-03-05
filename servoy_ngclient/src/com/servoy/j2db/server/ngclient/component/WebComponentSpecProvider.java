@@ -19,14 +19,14 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
 
-import org.json.JSONException;
-
+import com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -39,38 +39,52 @@ public class WebComponentSpecProvider
 
 	private final Map<String, WebComponentSpec> cachedDescriptions = new HashMap<>();
 
-	private final File[] packages;
+	private final IPackageReader[] packageReaders;
+
+	public WebComponentSpecProvider(IPackageReader[] packageReaders)
+	{
+		this.packageReaders = packageReaders;
+		for (IPackageReader packageReader : packageReaders)
+		{
+			WebComponentPackage p = new WebComponentPackage(packageReader);
+
+			try
+			{
+				cache(p.getWebComponentDescriptions());
+			}
+			catch (IOException e)
+			{
+				Debug.error("Cannot read web component package: " + packageReader.getName(), e); //$NON-NLS-1$
+			}
+			finally
+			{
+				p.dispose();
+			}
+		}
+		instance = this;
+	}
 
 	public WebComponentSpecProvider(File[] packages)
 	{
-		this.packages = packages;
+		this(getReades(packages));
+	}
+
+	private static IPackageReader[] getReades(File[] packages)
+	{
+		ArrayList<IPackageReader> readers = new ArrayList<>();
 		for (File f : packages)
 		{
 			if (f.exists())
 			{
-				WebComponentPackage p;
-				if (f.isDirectory()) p = new WebComponentPackage(new WebComponentPackage.DirPackageReader(f));
-				else p = new WebComponentPackage(new WebComponentPackage.JarPackageReader(f));
-
-				try
-				{
-					cache(p.getWebComponentDescriptions());
-				}
-				catch (IOException | JSONException e)
-				{
-					Debug.error("Cannot read web component package: " + f.getAbsolutePath(), e); //$NON-NLS-1$
-				}
-				finally
-				{
-					p.dispose();
-				}
+				if (f.isDirectory()) readers.add(new WebComponentPackage.DirPackageReader(f));
+				else readers.add(new WebComponentPackage.JarPackageReader(f));
 			}
 			else
 			{
 				Debug.error("A web component package location does not exist: " + f.getAbsolutePath()); //$NON-NLS-1$
 			}
 		}
-		instance = this;
+		return readers.toArray(new IPackageReader[readers.size()]);
 	}
 
 	private void cache(List<WebComponentSpec> webComponentDescriptions)
@@ -103,6 +117,15 @@ public class WebComponentSpecProvider
 		return instance;
 	}
 
+	/**
+	 * @param array
+	 */
+	public static void init(IPackageReader[] locations)
+	{
+		instance = new WebComponentSpecProvider(locations);
+	}
+
+
 	public static WebComponentSpecProvider init(ServletContext servletContext)
 	{
 		if (instance == null)
@@ -129,7 +152,7 @@ public class WebComponentSpecProvider
 	{
 		synchronized (WebComponentSpecProvider.class)
 		{
-			instance = new WebComponentSpecProvider(instance.packages);
+			instance = new WebComponentSpecProvider(instance.packageReaders);
 		}
 	}
 

@@ -31,8 +31,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.json.JSONException;
-
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.Debug;
@@ -48,6 +46,7 @@ public class WebComponentPackage
 
 	public interface IPackageReader
 	{
+		String getName();
 
 		Manifest getManifest() throws IOException;
 
@@ -64,7 +63,7 @@ public class WebComponentPackage
 		this.reader = reader;
 	}
 
-	public List<WebComponentSpec> getWebComponentDescriptions() throws IOException, JSONException
+	public List<WebComponentSpec> getWebComponentDescriptions() throws IOException
 	{
 		if (cachedDescriptions == null)
 		{
@@ -130,6 +129,17 @@ public class WebComponentPackage
 			this.jarFile = jarFile;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
+		 */
+		@Override
+		public String getName()
+		{
+			return jarFile.getAbsolutePath();
+		}
+
 		@Override
 		public Manifest getManifest() throws IOException
 		{
@@ -173,6 +183,17 @@ public class WebComponentPackage
 		{
 			if (!dir.isDirectory()) throw new IllegalArgumentException("Non-directory package cannot be read by directory reader: " + dir.getAbsolutePath());
 			this.dir = dir;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
+		 */
+		@Override
+		public String getName()
+		{
+			return dir.getAbsolutePath();
 		}
 
 		@Override

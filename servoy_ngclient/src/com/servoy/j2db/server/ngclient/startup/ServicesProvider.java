@@ -32,6 +32,7 @@ public class ServicesProvider implements IServicesProvider
 			set.add(MediaResourcesServlet.class);
 			set.add(TemplateGeneratorFilter.class);
 			set.add(NGClientEndpoint.class);
+			set.add(ResourceProvider.class);
 			return set;
 		}
 		return null;
