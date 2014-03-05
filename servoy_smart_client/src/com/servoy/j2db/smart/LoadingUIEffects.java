@@ -181,35 +181,41 @@ public class LoadingUIEffects
 			}
 			else
 			{
-				URL webstartUrl = getWebStartURL();
-				if (webstartUrl != null)
-				{
-					try
-					{
-						if (!loadingImage.startsWith("/")) loadingImage = "/" + loadingImage; //$NON-NLS-1$//$NON-NLS-2$
-						String loadingImageFile = null;
-						String path = webstartUrl.getPath();
-						if (!path.equals("") && path.endsWith("/")) //$NON-NLS-1$//$NON-NLS-2$
-						{
-							loadingImageFile = path.substring(0, path.length() - 1) + loadingImage;
-						}
-						else loadingImageFile = loadingImage;
-						URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), loadingImageFile);
-						loadingLabel = new JLabel(new ImageIcon(url), SwingConstants.CENTER);
-					}
-					catch (MalformedURLException ex)
-					{
-						Debug.error("Error loading the solution loading image", ex); //$NON-NLS-1$
-					}
-				}
+				loadingLabel = getWebStartURLImageLabel(loadingImage);
 			}
-
 		}
 
 		if (loadingLabel == null)
 		{
-			loadingLabel = new JLabel(application.loadImage("solutionloading.gif"), SwingConstants.CENTER); //$NON-NLS-1$
+			loadingLabel = getWebStartURLImageLabel("lib/images/solutionloading.gif"); //$NON-NLS-1$
 		}
+	}
+
+	protected JLabel getWebStartURLImageLabel(String imgPath)
+	{
+		String loadingImage = imgPath;
+		URL webstartUrl = getWebStartURL();
+		if (webstartUrl != null)
+		{
+			try
+			{
+				if (!loadingImage.startsWith("/")) loadingImage = "/" + loadingImage; //$NON-NLS-1$//$NON-NLS-2$
+				String loadingImageFile = null;
+				String path = webstartUrl.getPath();
+				if (!path.equals("") && path.endsWith("/")) //$NON-NLS-1$//$NON-NLS-2$
+				{
+					loadingImageFile = path.substring(0, path.length() - 1) + loadingImage;
+				}
+				else loadingImageFile = loadingImage;
+				URL url = new URL(webstartUrl.getProtocol(), webstartUrl.getHost(), webstartUrl.getPort(), loadingImageFile);
+				return new JLabel(new ImageIcon(url), SwingConstants.CENTER);
+			}
+			catch (MalformedURLException ex)
+			{
+				Debug.error("Error loading the solution loading image", ex); //$NON-NLS-1$
+			}
+		}
+		return null;
 	}
 
 	protected URL getWebStartURL()
