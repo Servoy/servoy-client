@@ -166,7 +166,7 @@ public abstract class RuntimeWindowManager
 				if (key != null)
 				{
 					IMainContainer mContainer = fm.getMainContainer(key);
-					if (fm.getMainContainer(null) != mContainer)
+					if (fm.getMainContainer(null) != mContainer && mContainer != null)
 					{
 						ret = doCloseFormInWindow(mContainer);
 						if (ret)
