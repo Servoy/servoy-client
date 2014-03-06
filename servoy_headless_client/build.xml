@@ -18,7 +18,10 @@
 	<property name="compilerArg" value=""/>
 	<property name="compilation.prereq.log" value="${buildDirectory}/prereqErrors.log"/>
 	<condition property="dir_bootclasspath" value="${java.home}/../Classes">
-		<os family="mac"/>
+		<and>
+			<os family="mac"/>
+			<available file="${java.home}/../Classes" type="dir"/>
+		</and>
 	</condition>
 	<property name="dir_bootclasspath" value="${java.home}/lib"/>
 	<path id="path_bootclasspath">
@@ -217,14 +220,14 @@
 	<target name="checkCompilationResults" if="compilation.error.occured">
 		<echo file="${compilation.problem.marker}" message="servoy_headless_client_7.4.0.2024${line.separator}compilation.error.occured=${compilation.error.occured}"/>
 		<eclipse.logCompileError bundle="servoy_headless_client_7.4.0.2024" log="${compilation.prereq.log}">
-			<include name="C:/Users/Administrator/dev_v7xx_branch/servoy_base/compilation.problem"/>
-			<include name="${pluginTemp}/servoy_base_7.4.0.2024/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_v7xx_branch/servoy_smart_client/compilation.problem"/>
+			<include name="E:/Workspaces/7_4/servoy_smart_client/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_smart_client_7.4.0.2024/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_v7xx_branch/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
-			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.4.0.2024/compilation.problem"/>
-			<include name="C:/Users/Administrator/dev_v7xx_branch/servoy_shared/compilation.problem"/>
+			<include name="E:/Workspaces/7_4/servoy_shared/compilation.problem"/>
 			<include name="${pluginTemp}/servoy_shared_7.4.0.2024/compilation.problem"/>
+			<include name="E:/Workspaces/7_4/servoy_base/compilation.problem"/>
+			<include name="${pluginTemp}/servoy_base_7.4.0.2024/compilation.problem"/>
+			<include name="E:/Workspaces/7_4/org.eclipse.dltk.javascript.rhino/compilation.problem"/>
+			<include name="${pluginTemp}/org.eclipse.dltk.javascript.rhino_7.4.0.2024/compilation.problem"/>
 		</eclipse.logCompileError>
 	</target>
 
@@ -320,7 +323,7 @@
 	</target>
 
 	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
-		<eclipse.convertPath fileSystemPath="C:/Users/Administrator/dev_v7xx_branch/servoy_headless_client" property="resourcePath"/>
+		<eclipse.convertPath fileSystemPath="E:/Workspaces/7_4/servoy_headless_client" property="resourcePath"/>
 		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 
