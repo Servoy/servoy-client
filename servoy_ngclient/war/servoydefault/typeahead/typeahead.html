@@ -1,6 +1,7 @@
 <input svy-border='model.borderType'
 	   type="text" 
-	   ng-style="style" 
+	   ng-style="style"
+	   ng-disabled="model.enabled == false" 
        ng-model="model.dataProviderID" 
        svy-tooltip="{{model.toolTipText}}"
        typeahead-min-length="-1"

@@ -1,5 +1,6 @@
 <input svy-border='model.borderType' type="{{inputType}}" 
 	   ng-style='style'
+	   ng-disabled="model.enabled == false"
        ng-model="editModel" 
        svy-tooltip="{{model.toolTipText}}"
        ng-blur="pushChange()"/>

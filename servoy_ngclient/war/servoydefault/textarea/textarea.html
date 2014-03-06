@@ -1,5 +1,6 @@
 <textarea ng-style="style" placeholder="{{model.placeholderText}}" svy-border='model.borderType' 
-       ng-model="model.dataProviderID"  
+       ng-model="model.dataProviderID"
+       ng-disabled="model.enabled == false" 
        svy-tooltip="{{model.toolTipText}}"
        svy-autoapply  svy-format="model.format">
 </textarea>
