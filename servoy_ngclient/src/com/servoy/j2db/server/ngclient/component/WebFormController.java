@@ -32,9 +32,9 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
 import com.servoy.j2db.util.ServoyException;
@@ -289,8 +289,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean recreateUI()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		getFormUI().init();
+		return true;
 	}
 
 	/*
