@@ -1,4 +1,5 @@
-<div svy-border='model.borderType' 
+<div svy-border='model.borderType'
+	 svy-margin='model.margin'
      ng-style="style" svy-tooltip="{{model.toolTipText}}" >
   <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')">
      <input 

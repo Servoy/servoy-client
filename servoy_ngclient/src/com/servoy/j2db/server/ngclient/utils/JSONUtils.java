@@ -180,6 +180,16 @@ public class JSONUtils
 		{
 			writeBorderToJson((Border)value, w);
 		}
+		else if (value instanceof Insets)
+		{
+			Insets i = (Insets)value;
+			w.object();
+			w.key("paddingTop").value(i.top + "px");
+			w.key("paddingBottom").value(i.bottom + "px");
+			w.key("paddingLeft").value(i.left + "px");
+			w.key("paddingRight").value(i.right + "px");
+			w.endObject();
+		}
 		else if (value instanceof JSONArray)
 		{
 			w = w.value(value);
@@ -442,9 +452,10 @@ public class JSONUtils
 				hi = sh;
 				sh = tmp;
 			}
-			w.key("borderColor").value(hi + " " + sh + " " + hi + " " + sh);
+			w.key("borderColor").value(hi + " " + sh + " " + sh + " " + hi);
 			String etchedType = border.getEtchType() == EtchedBorder.RAISED ? "ridge" : "groove";
 			w.key("borderStyle").value(etchedType);
+			w.key("borderWidth").value("2px");
 			w.endObject();// end borderStyle
 			w.endObject();// end borderType
 		}
@@ -471,7 +482,8 @@ public class JSONUtils
 				hiin = shIn;
 				shIn = temp;
 			}
-			w.key("borderColor").value(hiOut + " " + hiin + " " + shOut + " " + shIn);
+			w.key("borderColor").value(hiOut + " " + shOut + " " + shIn + " " + hiin);
+			w.key("borderWidth").value("2px");
 			w.endObject();// end borderStyle
 			w.endObject();// end borderType
 		}

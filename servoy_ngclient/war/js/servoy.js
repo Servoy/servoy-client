@@ -809,6 +809,19 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
         	}
         }
       };
+}).directive('svyMargin',  function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	if(attrs.svyBorder){
+        	  scope.$watch(attrs.svyMargin,function(newVal){
+        		  if(typeof newVal !== 'object') return;
+        	      element.css('padding','')
+        		  element.css(newVal)
+        	  })
+        	}
+        }
+      };
 }).factory("$apifunctions", function (){
 	
 	return {
