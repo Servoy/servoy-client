@@ -82,7 +82,28 @@ public class ResourceProvider implements Filter
 					return;
 				}
 
-				InputStream is = url.openStream();
+				response.setContentLength(connection.getContentLength());
+				if (connection.getContentType() != null)
+				{
+					response.setContentType(connection.getContentType());
+				}
+				else
+				{
+					String file = url.getFile();
+					if (file.toLowerCase().endsWith(".js"))
+					{
+						response.setContentType("text/javascript");
+					}
+					else if (file.toLowerCase().endsWith(".css"))
+					{
+						response.setContentType("text/css");
+					}
+					else if (file.toLowerCase().endsWith(".html"))
+					{
+						response.setContentType("text/html");
+					}
+				}
+				InputStream is = connection.getInputStream();
 				Utils.streamCopy(is, response.getOutputStream());
 			}
 			else
