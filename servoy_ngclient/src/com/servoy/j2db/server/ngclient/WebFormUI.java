@@ -25,6 +25,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
@@ -35,7 +36,6 @@ import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 
 public class WebFormUI extends WebComponent implements IWebFormUI
@@ -49,112 +49,131 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		super(formController.getName(), formController.getForm());
 		this.formController = formController;
 		this.application = (INGApplication)formController.getApplication();
-		try
+		init();
+	}
+
+	/**
+	 * this is a full recreate ui.
+	 * 
+	 * @param formController
+	 * @param dal
+	 * @return
+	 * @throws RepositoryException
+	 */
+	public void init()
+	{
+		components.clear();
+		DataAdapterList dal = new DataAdapterList(application, formController);
+		Form form = formController.getForm();
+		ElementScope elementsScope = initElementScope(formController);
+		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), application.getFlattenedSolution());
+		int counter = 0;
+		for (FormElement fe : formElements)
 		{
-			DataAdapterList dal = new DataAdapterList(application, formController);
-			dataAdapterList = dal;
+			WebComponentSpec componentSpec = fe.getWebComponentSpec();
 
-			Form form = formController.getForm();
-			ElementScope elementsScope = initElementScope(formController);
-			List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), application.getFlattenedSolution());
-			int counter = 0;
-			for (FormElement fe : formElements)
+			WebComponent component = ComponentFactory.createComponent(application, dataAdapterList, fe);
+			if (!fe.getName().startsWith("svy_"))
 			{
-				WebComponentSpec componentSpec = fe.getWebComponentSpec();
+				RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
+				elementsScope.put(fe.getName(), formController.getFormScope(), runtimeComponent);
+				elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
+				if (fe.isLegacy())
+				{
+					// add legacy behavior
+					runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
+				}
+			}
+			add(component);
 
-				WebComponent component = ComponentFactory.createComponent(application, dal, fe);
-				if (!fe.getName().startsWith("svy_"))
+			Map<String, PropertyDescription> dataproviderProperties = componentSpec.getProperties(PropertyType.dataprovider);
+			for (String dataproviderProperty : dataproviderProperties.keySet())
+			{
+				Object dataproviderID = fe.getProperty(dataproviderProperty);
+				if (dataproviderID instanceof String)
 				{
-					RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
-					elementsScope.put(fe.getName(), formController.getFormScope(), runtimeComponent);
-					elementsScope.put(counter++, formController.getFormScope(), runtimeComponent);
-					if (fe.isLegacy())
-					{
-						// add legacy behavior
-						runtimeComponent.setPrototype(new RuntimeLegacyComponent(component));
-					}
+					dal.add(component, (String)dataproviderID, dataproviderProperty);
 				}
-				add(component);
+			}
 
-				Map<String, PropertyDescription> dataproviderProperties = componentSpec.getProperties(PropertyType.dataprovider);
-				for (String dataproviderProperty : dataproviderProperties.keySet())
+			Map<String, PropertyDescription> tagstringProperties = componentSpec.getProperties(PropertyType.tagstring);
+			for (String dataproviderProperty : tagstringProperties.keySet())
+			{
+				Object propValue = fe.getProperty(dataproviderProperty);
+				//bind tag expressions
+				//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
+				if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
 				{
-					Object dataproviderID = fe.getProperty(dataproviderProperty);
-					if (dataproviderID instanceof String)
-					{
-						dal.add(component, (String)dataproviderID, dataproviderProperty);
-					}
+					dal.addTaggedProperty(component, dataproviderProperty);
 				}
-
-				Map<String, PropertyDescription> tagstringProperties = componentSpec.getProperties(PropertyType.tagstring);
-				for (String dataproviderProperty : tagstringProperties.keySet())
+			}
+			Map<String, PropertyDescription> formatProperties = componentSpec.getProperties(PropertyType.format);
+			for (PropertyDescription pd : formatProperties.values())
+			{
+				Object propValue = fe.getProperty(pd.getName());
+				if (propValue instanceof String)
 				{
-					Object propValue = fe.getProperty(dataproviderProperty);
-					//bind tag expressions
-					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
-					if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
-					{
-						dal.addTaggedProperty(component, dataproviderProperty);
-					}
+					// get dataproviderId
+					String dataproviderId = (String)fe.getProperty((String)pd.getConfig());
+					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
+						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
+					component.putProperty(pd.getName(), format);
 				}
-				Map<String, PropertyDescription> formatProperties = componentSpec.getProperties(PropertyType.format);
-				for (PropertyDescription pd : formatProperties.values())
+			}
+			Map<String, PropertyDescription> borderProperties = componentSpec.getProperties(PropertyType.border);
+			for (PropertyDescription pd : borderProperties.values())
+			{
+				Object propValue = fe.getProperty(pd.getName());
+				if (propValue instanceof Border)
 				{
-					Object propValue = fe.getProperty(pd.getName());
-					if (propValue instanceof String)
-					{
-						// get dataproviderId
-						String dataproviderId = (String)fe.getProperty((String)pd.getConfig());
-						ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
-							application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
-						component.putProperty(pd.getName(), format);
-					}
+					component.putProperty(pd.getName(), propValue);
 				}
-				Map<String, PropertyDescription> borderProperties = componentSpec.getProperties(PropertyType.border);
-				for (PropertyDescription pd : borderProperties.values())
+			}
+			Map<String, PropertyDescription> colorProperties = componentSpec.getProperties(PropertyType.color);
+			for (PropertyDescription pd : colorProperties.values())
+			{
+				Object propValue = fe.getProperty(pd.getName());
+				if (propValue instanceof Color)
 				{
-					Object propValue = fe.getProperty(pd.getName());
-					if (propValue instanceof Border)
-					{
-						component.putProperty(pd.getName(), propValue);
-					}
-				}
-				Map<String, PropertyDescription> colorProperties = componentSpec.getProperties(PropertyType.color);
-				for (PropertyDescription pd : colorProperties.values())
-				{
-					Object propValue = fe.getProperty(pd.getName());
-					if (propValue instanceof Color)
-					{
-						component.putProperty(pd.getName(), propValue);
-					}
-
+					component.putProperty(pd.getName(), propValue);
 				}
 
-				for (String eventName : componentSpec.getEvents().keySet())
+			}
+
+			for (String eventName : componentSpec.getEvents().keySet())
+			{
+				Object eventValue = fe.getProperty(eventName);
+				if (eventValue instanceof String)
 				{
-					Object eventValue = fe.getProperty(eventName);
-					if (eventValue instanceof String)
+					UUID uuid = UUID.fromString((String)eventValue);
+					try
 					{
-						UUID uuid = UUID.fromString((String)eventValue);
 						component.add(eventName, ((AbstractPersistFactory)ApplicationServerRegistry.get().getLocalRepository()).getElementIdForUUID(uuid));
 					}
-					else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
+					catch (RepositoryException e)
 					{
-						component.add(eventName, ((Number)eventValue).intValue());
-
+						Debug.error(e);
 					}
 				}
-			}
-			// special support for the default navigator
-			if (form.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
-			{
-				add(new DefaultNavigatorWebComponent(dal));
+				else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
+				{
+					component.add(eventName, ((Number)eventValue).intValue());
+
+				}
 			}
 		}
-		catch (ServoyException e)
+		// special support for the default navigator
+		if (formController.getForm().getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{
-			Debug.error(e);
+			add(new DefaultNavigatorWebComponent(dataAdapterList));
 		}
+
+		if (dataAdapterList != null)
+		{
+			dal.setRecord(((DataAdapterList)dataAdapterList).getRecord(), false);
+			dataAdapterList.setRecord(null, false);
+		}
+		dataAdapterList = dal;
 	}
 
 	public IDataAdapterList getDataAdapterList()

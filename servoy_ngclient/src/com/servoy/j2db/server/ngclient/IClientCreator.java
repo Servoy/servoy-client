@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2014 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,42 +17,11 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.util.Map;
-
-import com.servoy.j2db.IBasicFormUI;
-import com.servoy.j2db.IView;
-
 /**
  * @author jcompagner
  *
  */
-public interface IWebFormUI extends IBasicFormUI, IView
+public interface IClientCreator
 {
-
-	/**
-	 * @return
-	 */
-	Map<String, Map<String, Object>> getAllProperties();
-
-	/**
-	 * @param string
-	 * @return
-	 */
-	WebComponent getWebComponent(String name);
-
-	/**
-	 * @return
-	 */
-	Map<String, WebComponent> getWebComponents();
-
-	/**
-	 * @return
-	 */
-	IDataAdapterList getDataAdapterList();
-
-	/**
-	 * 
-	 */
-	void init();
-
+	public NGClient createClient(INGClientEndpoint endpoint);
 }

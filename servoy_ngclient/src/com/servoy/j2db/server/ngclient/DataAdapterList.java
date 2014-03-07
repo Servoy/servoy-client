@@ -68,8 +68,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.servoy.j2db.server.ngclient.IDataAdapterList#executeApi(com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition,
-	 * java.lang.String, java.lang.Object[])
+	 * @see com.servoy.j2db.server.ngclient.IDataAdapterList#executeApi(com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition, java.lang.String,
+	 * java.lang.Object[])
 	 */
 	@Override
 	public Object executeApi(WebComponentApiDefinition apiDefinition, String elementName, Object[] args)
@@ -126,8 +126,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (this.record != null)
 		{
 			this.record.addModificationListener(this);
+			pushRecordValues(fireChangeEvent, false);
 		}
-		pushRecordValues(fireChangeEvent, false);
+	}
+
+	/**
+	 * @return the record
+	 */
+	public IRecordInternal getRecord()
+	{
+		return record;
 	}
 
 	/**

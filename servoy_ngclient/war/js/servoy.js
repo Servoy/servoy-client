@@ -697,7 +697,7 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'}
 }).controller("MainController", function($scope, $solutionSettings, $servoy) {
 	$scope.solutionSettings = $solutionSettings;
-}).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings) {
+}).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window) {
 	var instances = {};
 	
 	 $templateCache.put("template/modal/window.html",
@@ -756,6 +756,11 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
         			$solutionSettings.navigatorForm = navigatorForm;
         			$solutionSettings.solutionTitle = title;
         		}
+    		})
+		},
+		reload: function() {
+		$rootScope.$apply(function() {
+        		$window.location.reload(true);
     		})
 		},
 	}

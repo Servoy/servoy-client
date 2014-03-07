@@ -73,6 +73,8 @@ public class NGClientEndpoint implements INGClientEndpoint
 
 	private static final long SESSION_TIMEOUT = 1 * 60 * 1000;
 
+	private static IClientCreator clientCreator;
+
 	private Session session;
 
 	private NGClient client;
@@ -203,7 +205,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 						{
 							String solutionName = obj.optString("solutionName");
 							if (Utils.stringIsEmpty(solutionName)) solutionName = "InvalidSolutionNameInURL";
-							client = new NGClient(this);
+							client = getClientCreator().createClient(this);
 							windowName = this.client.getRuntimeWindowManager().createMainWindow();
 							uuid = UUID.randomUUID().toString();
 							clients.put(uuid, client);
@@ -212,7 +214,6 @@ public class NGClientEndpoint implements INGClientEndpoint
 							client.loadSolution(solutionName);
 						}
 					}
-					IWebFormController currentForm = this.client.getFormManager().getCurrentForm();
 					JSONStringer stringer = new JSONStringer();
 					stringer.object().key("srvuuid").value(uuid).key("windowName").value(windowName);
 					sendText(stringer.endObject().toString());
@@ -764,5 +765,32 @@ public class NGClientEndpoint implements INGClientEndpoint
 			Debug.error(e);
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * @return the clientCreator
+	 */
+	public static IClientCreator getClientCreator()
+	{
+		if (clientCreator == null)
+		{
+			clientCreator = new IClientCreator()
+			{
+				@Override
+				public NGClient createClient(INGClientEndpoint endpoint)
+				{
+					return new NGClient(endpoint);
+				}
+			};
+		}
+		return clientCreator;
+	}
+
+	/**
+	 * @param clientCreator the clientCreator to set
+	 */
+	public static void setClientCreator(IClientCreator clientCreator)
+	{
+		NGClientEndpoint.clientCreator = clientCreator;
 	}
 }

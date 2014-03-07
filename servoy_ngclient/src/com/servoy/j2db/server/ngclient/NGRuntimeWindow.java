@@ -37,7 +37,7 @@ import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContainer
 {
 
-	private static final String WINDOW_SERVICE = "$windowService";
+	public static final String WINDOW_SERVICE = "$windowService";
 
 	private final History history;
 	private final INGApplication application;

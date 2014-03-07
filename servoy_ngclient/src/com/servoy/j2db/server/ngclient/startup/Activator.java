@@ -20,6 +20,13 @@ package com.servoy.j2db.server.ngclient.startup;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import com.servoy.j2db.IDebugClientHandler;
+import com.servoy.j2db.server.ngclient.IClientCreator;
+import com.servoy.j2db.server.ngclient.INGClientEndpoint;
+import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGClientEndpoint;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+
 /**
  * @author jblok
  */
@@ -36,6 +43,19 @@ public class Activator implements BundleActivator
 	public void start(BundleContext ctx) throws Exception
 	{
 		Activator.context = ctx;
+		final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
+		if (service != null)
+		{
+			NGClientEndpoint.setClientCreator(new IClientCreator()
+			{
+
+				@Override
+				public NGClient createClient(INGClientEndpoint endpoint)
+				{
+					return (NGClient)service.createDebugNGClient(endpoint);
+				}
+			});
+		}
 	}
 
 	@Override

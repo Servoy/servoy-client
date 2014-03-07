@@ -113,7 +113,6 @@ public class ComponentFactory
 	{
 		if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue())
 		{
-			persistWrappers.clear();
 			WebComponentSpecProvider.reload();
 		}
 		List<FormElement> lst = new ArrayList<>();
@@ -153,5 +152,10 @@ public class ComponentFactory
 		return persistWrapper;
 	}
 
+	public static void reload()
+	{
+		persistWrappers.clear();
+		WebComponentSpecProvider.reload();
+	}
 
 }
