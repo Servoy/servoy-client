@@ -775,7 +775,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 	 */
 	public static IClientCreator getClientCreator()
 	{
-		if (clientCreator == null)
+		if ((clientCreator == null))
 		{
 			clientCreator = new IClientCreator()
 			{
