@@ -115,6 +115,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 		}
 		if (changedForms.size() > 0)
 		{
+			boolean mustReload = false;
 			ComponentFactory.reload();
 			Collection<IWebFormController> activeFormControllers = getFormManager().getActiveFormControllers();
 			for (Form form : changedForms)
@@ -124,11 +125,12 @@ public class DebugNGClient extends NGClient implements IDebugClient
 					if (formController.getForm().equals(form))
 					{
 						formController.getFormUI().init();
+						mustReload = true;
 					}
 				}
 			}
 
-			getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindow.WINDOW_SERVICE, "reload", null);
+			if (mustReload) getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindow.WINDOW_SERVICE, "reload", null);
 		}
 
 	}
