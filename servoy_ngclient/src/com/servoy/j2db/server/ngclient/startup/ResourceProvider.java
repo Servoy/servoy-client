@@ -104,7 +104,14 @@ public class ResourceProvider implements Filter
 					}
 				}
 				InputStream is = connection.getInputStream();
-				Utils.streamCopy(is, response.getOutputStream());
+				try
+				{
+					Utils.streamCopy(is, response.getOutputStream());
+				}
+				finally
+				{
+					is.close();
+				}
 			}
 			else
 			{
