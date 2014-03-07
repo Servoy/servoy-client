@@ -541,49 +541,49 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 	 */
 	public void valueChanged(ModificationEvent e)
 	{
-		if (adjusting) return;
-
-		try
+		if (!adjusting)
 		{
-			adjusting = true;
-			Object obj = null;
-			boolean formVariable = false;
-			if (dataProviderID != null)
+			try
 			{
-				if (dal.getFormScope().has(dataProviderID, dal.getFormScope()))
+				adjusting = true;
+				Object obj = null;
+				boolean formVariable = false;
+				if (dataProviderID != null)
 				{
-					formVariable = true;
-					obj = dal.getFormScope().get(dataProviderID);
-				}
-				else if (record != null)
-				{
-					obj = record.getValue(dataProviderID);
-					if (obj == Scriptable.NOT_FOUND)
+					if (dal.getFormScope().has(dataProviderID, dal.getFormScope()))
 					{
-						obj = null;
+						formVariable = true;
+						obj = dal.getFormScope().get(dataProviderID);
 					}
-					// have to do this because for calcs in calcs. Better was to had a check for previous value.
-					fireModificationEvent(obj);
+					else if (record != null)
+					{
+						obj = record.getValue(dataProviderID);
+						if (obj == Scriptable.NOT_FOUND)
+						{
+							obj = null;
+						}
+						// have to do this because for calcs in calcs. Better was to had a check for previous value.
+						fireModificationEvent(obj);
+					}
 				}
-			}
-			// do not set value for form variable except when really changed
-			if (!formVariable || dataProviderID == null || dataProviderID.equals(e.getName()))
-			{
-				setValueToDisplays(obj);
-			}
-
-			// do fire on render on all components
-			for (IDisplayData displayData : displays)
-			{
-				if (displayData instanceof ISupportOnRender)
+				// do not set value for form variable except when really changed
+				if (!formVariable || dataProviderID == null || dataProviderID.equals(e.getName()))
 				{
-					((ISupportOnRender)displayData).fireOnRender(true);
+					setValueToDisplays(obj);
 				}
+			}
+			finally
+			{
+				adjusting = false;
 			}
 		}
-		finally
+		// do fire on render on all components
+		for (IDisplayData displayData : displays)
 		{
-			adjusting = false;
+			if (displayData instanceof ISupportOnRender)
+			{
+				((ISupportOnRender)displayData).fireOnRender(true);
+			}
 		}
 	}
 
