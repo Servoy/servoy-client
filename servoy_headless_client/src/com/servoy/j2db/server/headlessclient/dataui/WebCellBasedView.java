@@ -912,6 +912,10 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					WebCellBasedView.this.setSelectionMadeByCellAction();
 					modelFs.setSelectedIndex(recIndex);
 					currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
+					if (application.getFoundSetManager().getEditRecordList().isEditing())
+					{
+						application.getFoundSetManager().getEditRecordList().stopEditing(false);
+					}
 					WebEventExecutor.generateResponse(target, getPage());
 				}
 
@@ -2014,7 +2018,37 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			}
 
 		});
+		if (!isListViewMode())
+		{
+			add(new ServoyAjaxEventBehavior("onclick", null, true)
+			{
+				@Override
+				protected void onEvent(AjaxRequestTarget target)
+				{
+					if (application.getFoundSetManager().getEditRecordList().isEditing())
+					{
+						application.getFoundSetManager().getEditRecordList().stopEditing(false);
+						WebEventExecutor.generateResponse(target, getPage());
+					}
+				}
 
+				@Override
+				protected IAjaxCallDecorator getAjaxCallDecorator()
+				{
+					return new AjaxCallDecorator()
+					{
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public CharSequence decorateScript(CharSequence script)
+						{
+							return "if ((event.target || event.srcElement) == this){ " + script + " }"; //$NON-NLS-1$ 
+						}
+					};
+				}
+
+			});
+		}
 	}
 
 	private static String scrollBarDefinitionToOverflowAttribute(int scrollbarDefinition, boolean isScrollMode, boolean isScrollingElement, boolean emptyData)

@@ -32,6 +32,8 @@ import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
@@ -107,7 +109,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	/**
 	 * @param id
 	 */
-	public WebDataRenderer(String id, String formPartName, IApplication app)
+	public WebDataRenderer(String id, String formPartName, final IApplication app)
 	{
 		super(id);
 //		application = app;
@@ -144,6 +146,34 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 				}
 				return false;
 			}
+		});
+		add(new ServoyAjaxEventBehavior("onclick", null, true)
+		{
+			@Override
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				if (app.getFoundSetManager().getEditRecordList().isEditing())
+				{
+					app.getFoundSetManager().getEditRecordList().stopEditing(false);
+					WebEventExecutor.generateResponse(target, getPage());
+				}
+			}
+
+			@Override
+			protected IAjaxCallDecorator getAjaxCallDecorator()
+			{
+				return new AjaxCallDecorator()
+				{
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public CharSequence decorateScript(CharSequence script)
+					{
+						return "if ((event.target || event.srcElement) == this){ " + script + " }"; //$NON-NLS-1$ 
+					}
+				};
+			}
+
 		});
 	}
 
