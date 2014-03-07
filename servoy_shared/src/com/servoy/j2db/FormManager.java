@@ -1226,9 +1226,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 			return "History"; //$NON-NLS-1$
 		}
 
-		private IMainContainer getCurrentContainer()
+		private IBasicMainContainer getCurrentContainer()
 		{
-			return ((FormManager)application.getFormManager()).getCurrentContainer();
+			return application.getFormManager().getCurrentContainer();
 		}
 
 		/**
@@ -1239,14 +1239,14 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSFunction
 		public void clear()
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			container.getHistory().clear();
 		}
 
 		@JSSetter
 		public void setButtonsEnabled(boolean b)
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			container.getHistory().setButtonsEnabled(b);
 		}
 
@@ -1260,7 +1260,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSGetter
 		public boolean getButtonsEnabled()
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			return container.getHistory().getButtonsEnabled();
 		}
 
@@ -1274,7 +1274,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSFunction
 		public String getFormName(int i)
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			return container.getHistory().getFormName(i - 1); // js offset 1
 		}
 
@@ -1287,7 +1287,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSFunction
 		public void go(int i)
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			container.getHistory().go(i);
 		}
 
@@ -1300,7 +1300,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		public void back()
 		{
 			// TODO printpreview must be in this container...
-			if (((FormManager)application.getFormManager()).isShowingPrintPreview())
+			if (application.getFormManager() instanceof FormManager && ((FormManager)application.getFormManager()).isShowingPrintPreview())
 			{
 				application.getModeManager().setMode(IModeManager.EDIT_MODE);
 			}
@@ -1330,7 +1330,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSFunction
 		public int size()
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			return container.getHistory().getLength();
 		}
 
@@ -1343,7 +1343,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSFunction
 		public int getCurrentIndex()
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			return container.getHistory().getIndex() + 1; // js offset 1
 		}
 
@@ -1359,7 +1359,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSFunction
 		public boolean removeIndex(int index)
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			return container.getHistory().removeIndex(index - 1); // js offset 1
 		}
 
@@ -1380,7 +1380,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		@JSFunction
 		public boolean removeForm(String formName)
 		{
-			IMainContainer container = getCurrentContainer();
+			IBasicMainContainer container = getCurrentContainer();
 			return container.getHistory().removeForm(formName);
 		}
 
