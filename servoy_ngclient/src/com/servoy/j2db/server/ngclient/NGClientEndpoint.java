@@ -122,14 +122,17 @@ public class NGClientEndpoint implements INGClientEndpoint
 	@Override
 	public void closeSession()
 	{
-		try
+		if (session != null)
 		{
-			session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Application Server shutdown"));
+			try
+			{
+				session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Application Server shutdown"));
+			}
+			catch (IOException e)
+			{
+			}
+			session = null;
 		}
-		catch (IOException e)
-		{
-		}
-		session = null;
 		client = null;
 	}
 
