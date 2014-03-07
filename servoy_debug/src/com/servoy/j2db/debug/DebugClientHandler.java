@@ -69,6 +69,7 @@ import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication;
+import com.servoy.j2db.server.ngclient.INGClientEndpoint;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.server.shared.WebCredentials;
@@ -91,6 +92,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	private volatile DebugHeadlessClient debugHeadlessClient;
 	private volatile DebugAuthenticator debugAuthenticator;
 	private volatile DebugWebClient debugWebClient;
+	@SuppressWarnings("unused")
+	private volatile DebugNGClient debugNGClient;
 	private volatile DebugJ2DBClient debugJ2DBClient;
 	private volatile Solution currentSolution;
 
@@ -112,6 +115,11 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			SolutionScope solutionScope = debugWebClient.getScriptEngine().getSolutionScope();
 			designerCallback.addScriptObjects(debugWebClient, solutionScope);
+		}
+		if (debugNGClient != null && debugNGClient.getSolution() != null)
+		{
+			SolutionScope solutionScope = debugNGClient.getScriptEngine().getSolutionScope();
+			designerCallback.addScriptObjects(debugNGClient, solutionScope);
 		}
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
 		{
@@ -139,6 +147,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		ArrayList<IDebugClient> lst = new ArrayList<IDebugClient>();
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) lst.add(debugJ2DBClient);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) lst.add(debugWebClient);
+		if (debugNGClient != null && debugNGClient.getSolution() != null) lst.add(debugNGClient);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) lst.add(debugHeadlessClient);
 		for (IDebugClient c : customDebugClients.values())
 		{
@@ -152,6 +161,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshForI18NChange(recreateForms);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshForI18NChange(recreateForms);
+		if (debugNGClient != null && debugNGClient.getSolution() != null) debugNGClient.refreshForI18NChange(recreateForms);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshForI18NChange(recreateForms);
 		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshForI18NChange(recreateForms);
 		for (IDebugClient c : customDebugClients.values())
@@ -167,6 +177,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshPersists(changes);
 		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshPersists(changes);
+		if (debugNGClient != null && debugNGClient.getSolution() != null) debugNGClient.refreshPersists(changes);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshPersists(changes);
 		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshPersists(changes);
 		for (IDebugClient c : customDebugClients.values())
@@ -186,6 +197,11 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			String dataSource = debugWebClient.getFoundSetManager().getDataSource(table);
 			((FoundSetManager)debugWebClient.getFoundSetManager()).flushSQLSheet(dataSource);
+		}
+		if (debugNGClient != null && debugNGClient.getSolution() != null)
+		{
+			String dataSource = debugNGClient.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)debugNGClient.getFoundSetManager()).flushSQLSheet(dataSource);
 		}
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
 		{
@@ -330,6 +346,10 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugWebClient.setCurrent(solution);
 		}
+		if (debugNGClient != null)
+		{
+			debugNGClient.setCurrent(solution);
+		}
 		if (debugHeadlessClient != null)
 		{
 			debugHeadlessClient.setCurrent(solution);
@@ -358,6 +378,17 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			try
 			{
 				debugWebClient.loadSecuritySettings(debugWebClient.getFlattenedSolution());
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+		if (debugNGClient != null && debugNGClient.getSolution() != null && debugNGClient.getFlattenedSolution() != null)
+		{
+			try
+			{
+				debugNGClient.loadSecuritySettings(debugNGClient.getFlattenedSolution());
 			}
 			catch (Exception e)
 			{
@@ -403,6 +434,10 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugWebClient != null && debugWebClient.getSolution() != null)
 		{
 			debugWebClient.show(form);
+		}
+		if (debugNGClient != null && debugNGClient.getSolution() != null)
+		{
+			debugNGClient.show(form);
 		}
 		// this has no effect for headless client nor any sense for jsunit client
 	}
@@ -493,6 +528,12 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public IDebugWebClient getDebugWebClient()
 	{
 		return debugWebClient;
+	}
+
+	@Override
+	public IDebugClient getDebugNGClient()
+	{
+		return debugNGClient;
 	}
 
 	public DebugHeadlessClient getDebugHeadlessClient()
@@ -613,6 +654,22 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return debugWebClient;
 	}
 
+	public synchronized IDebugClient createDebugNGClient(Object webSocketClientEndpoint)
+	{
+		IFlattenedSolutionDebugListener debugListener = null;
+		if (debugNGClient != null && debugNGClient.getSolution() != null)
+		{
+			debugNGClient.shutDown(true);
+		}
+		if (debugNGClient != null && debugNGClient.getFlattenedSolution() != null)
+		{
+			debugListener = debugNGClient.getFlattenedSolution().getDebugListener();
+		}
+		debugNGClient = new DebugNGClient((INGClientEndpoint)webSocketClientEndpoint, designerCallback);
+		if (debugListener != null && debugNGClient.getFlattenedSolution() != null) debugNGClient.getFlattenedSolution().registerDebugListener(debugListener);
+		return debugNGClient;
+	}
+
 	public synchronized SessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects,
 		String preferedSolution) throws Exception
 	{
@@ -668,6 +725,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		if (debugJ2DBClient != null && !debugJ2DBClient.isShutDown()) return true;
 		if (debugWebClient != null) return true;
+		if (debugNGClient != null) return true;
 		if (debugHeadlessClient != null) return true;
 		return false;
 	}
@@ -676,6 +734,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		if (debugJ2DBClient != null) ComponentFactory.flushValueList(debugJ2DBClient, valueList);
 		if (debugWebClient != null) ComponentFactory.flushValueList(debugWebClient, valueList);
+		if (debugNGClient != null) ComponentFactory.flushValueList(debugNGClient, valueList);
 		if (debugHeadlessClient != null) ComponentFactory.flushValueList(debugHeadlessClient, valueList);
 		if (debugAuthenticator != null) ComponentFactory.flushValueList(debugAuthenticator, valueList);
 		for (IDebugClient c : customDebugClients.values())
@@ -690,6 +749,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		// TODO really refresh all styles (not just flush cache)
 		if (debugJ2DBClient != null) ComponentFactory.flushCachedItems(debugJ2DBClient);
 		if (debugWebClient != null) ComponentFactory.flushCachedItems(debugWebClient);
+		if (debugNGClient != null) ComponentFactory.flushCachedItems(debugNGClient);
 		if (debugHeadlessClient != null) ComponentFactory.flushCachedItems(debugHeadlessClient);
 		if (debugAuthenticator != null) ComponentFactory.flushCachedItems(debugAuthenticator);
 		for (IDebugClient c : customDebugClients.values())

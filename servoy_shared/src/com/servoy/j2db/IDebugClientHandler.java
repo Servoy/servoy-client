@@ -49,6 +49,8 @@ public interface IDebugClientHandler
 	IWebClientApplication createDebugWebClient(WebSession webClientSession, HttpServletRequest req, WebCredentials credentials, String method, Object[] objects)
 		throws Exception;
 
+	IDebugClient createDebugNGClient(Object webSocketClientEndpoint);
+
 	List<IDebugClient> getActiveDebugClients();
 
 	IDebugJ2DBClient getDebugSmartClient();
@@ -56,6 +58,8 @@ public interface IDebugClientHandler
 	IDebugHeadlessClient getDebugHeadlessClient();
 
 	IDebugWebClient getDebugWebClient();
+
+	IDebugClient getDebugNGClient();
 
 	<T extends IDebugClient> T getDebugClient(DebugClientType<T> type);
 
@@ -84,4 +88,5 @@ public interface IDebugClientHandler
 	boolean isClientStarted();
 
 	void flushValueList(ValueList valueList);
+
 }
