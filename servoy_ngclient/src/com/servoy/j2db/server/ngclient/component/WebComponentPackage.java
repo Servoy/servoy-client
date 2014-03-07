@@ -143,25 +143,35 @@ public class WebComponentPackage
 		@Override
 		public Manifest getManifest() throws IOException
 		{
-			try (JarFile jar = new JarFile(jarFile))
+			JarFile jar = null;
+			try
 			{
+				jar = new JarFile(jarFile);
 				return jar.getManifest();
+			}
+			finally
+			{
+				if (jar != null) jar.close();
 			}
 		}
 
 		@Override
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
-			try (JarFile jar = new JarFile(jarFile))
+			JarFile jar = null;
+			try
 			{
+				jar = new JarFile(jarFile);
 				JarEntry entry = jar.getJarEntry(path);
 				if (entry != null)
 				{
-					try (InputStream is = jar.getInputStream(entry))
-					{
-						return Utils.getTXTFileContent(is, charset);
-					}
+					InputStream is = jar.getInputStream(entry);
+					return Utils.getTXTFileContent(is, charset);
 				}
+			}
+			finally
+			{
+				if (jar != null) jar.close();
 			}
 			return null;
 		}
@@ -199,18 +209,30 @@ public class WebComponentPackage
 		@Override
 		public Manifest getManifest() throws IOException
 		{
-			try (InputStream x = new FileInputStream(new File(dir, "META-INF/MANIFEST.MF")); InputStream is = new BufferedInputStream(x))
+			InputStream is = null;
+			try
 			{
+				is = new BufferedInputStream(new FileInputStream(new File(dir, "META-INF/MANIFEST.MF")));
 				return new Manifest(is);
+			}
+			finally
+			{
+				if (is != null) is.close();
 			}
 		}
 
 		@Override
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
-			try (InputStream x = new FileInputStream(new File(dir, path)); InputStream is = new BufferedInputStream(x))
+			InputStream is = null;
+			try
 			{
+				is = new BufferedInputStream(new FileInputStream(new File(dir, path)));
 				return Utils.getTXTFileContent(is, charset);
+			}
+			finally
+			{
+				if (is != null) is.close();
 			}
 		}
 
