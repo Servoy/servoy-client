@@ -30,13 +30,12 @@ import javax.swing.SwingUtilities;
 
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
-import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
-import org.mozilla.javascript.RhinoException;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -54,7 +53,6 @@ import com.servoy.j2db.server.headlessclient.eventthread.WicketEventDispatcher;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
-import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author jcompagner
@@ -159,7 +157,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	private Form form;
 
 	private final List<List<IPersist>> changesQueue = Collections.synchronizedList(new ArrayList<List<IPersist>>());
-	private final List<List<FormController>> recreateUISet = Collections.synchronizedList(new ArrayList<List<FormController>>());
+	private final List<List<IFormController>> recreateUISet = Collections.synchronizedList(new ArrayList<List<IFormController>>());
 
 	private boolean performRefresh()
 	{
@@ -171,8 +169,8 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		if (!changed) changed = recreateUISet.size() > 0;
 		while (recreateUISet.size() > 0)
 		{
-			List<FormController> lst = recreateUISet.remove(0);
-			for (FormController fc : lst)
+			List<IFormController> lst = recreateUISet.remove(0);
+			for (IFormController fc : lst)
 			{
 				fc.recreateUI();
 			}
@@ -182,9 +180,9 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	private void performRefresh(List<IPersist> changes)
 	{
-		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
-		for (FormController controller : scopesAndFormsToReload[0])
+		for (IFormController controller : scopesAndFormsToReload[0])
 		{
 			if (controller.getForm() instanceof FlattenedForm)
 			{
@@ -203,7 +201,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 		if (recreateForms)
 		{
-			List<FormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
+			List<IFormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
 			recreateUISet.add(cachedFormControllers);
 		}
 	}
@@ -261,32 +259,12 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		super.output(msg, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			errorToDebugger(msg.toString(), null);
+			DebugUtils.errorToDebugger(getScriptEngine(), msg.toString(), null);
 		}
 		else
 		{
-			stdoutToDebugger(msg);
+			DebugUtils.stdoutToDebugger(getScriptEngine(), msg);
 		}
-	}
-
-	protected void stdoutToDebugger(Object message)
-	{
-		DBGPDebugger debugger = getDebugger();
-		if (debugger != null)
-		{
-			debugger.outputStdOut((message == null ? "<null>" : message.toString()) + '\n');
-		}
-		else
-		{
-			Debug.error("No debugger found, for msg report: " + message);
-		}
-	}
-
-	private DBGPDebugger getDebugger()
-	{
-		RemoteDebugScriptEngine rdse = (RemoteDebugScriptEngine)getScriptEngine();
-		if (rdse == null) return null;
-		return rdse.getDebugger();
 	}
 
 	/**
@@ -295,7 +273,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
-		errorToDebugger(message, detail);
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
 		super.reportJSError(message, detail);
 	}
 
@@ -305,86 +283,23 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 	@Override
 	public void reportError(String message, Object detail)
 	{
-		errorToDebugger(message, detail);
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
 		super.reportError(message, detail);
 	}
 
 	@Override
 	public void reportJSWarning(String s)
 	{
-		errorToDebugger(s, null);
+		DebugUtils.errorToDebugger(getScriptEngine(), s, null);
 		super.reportJSWarning(s);
 	}
 
 	@Override
 	public void reportJSInfo(String s)
 	{
-		stdoutToDebugger("INFO: " + s);
+		DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);
 		super.reportJSInfo(s);
 	}
-
-	/**
-	 * @param message
-	 * @param detail
-	 */
-	private void errorToDebugger(String message, Object detail)
-	{
-		DBGPDebugger debugger = getDebugger();
-		if (debugger != null)
-		{
-			RhinoException rhinoException = null;
-			if (detail instanceof Exception)
-			{
-				Throwable exception = (Exception)detail;
-				while (exception != null)
-				{
-					if (exception instanceof RhinoException)
-					{
-						rhinoException = (RhinoException)exception;
-						break;
-					}
-					exception = exception.getCause();
-				}
-			}
-			String msg = message;
-			if (rhinoException != null)
-			{
-				if (msg == null)
-				{
-					msg = rhinoException.getLocalizedMessage();
-				}
-				else msg += '\n' + rhinoException.getLocalizedMessage();
-				msg += '\n' + rhinoException.getScriptStackTrace();
-			}
-			else if (detail instanceof Exception)
-			{
-				Object e = ((Exception)detail).getCause();
-				if (e != null)
-				{
-					msg += "\n > " + e.toString(); // complete stack? 
-				}
-				else
-				{
-					msg += "\n > " + detail.toString(); // complete stack? 
-				}
-				if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
-				{
-					msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
-				}
-
-			}
-			else if (detail != null)
-			{
-				msg += "\n" + detail;
-			}
-			debugger.outputStdErr(msg.toString() + '\n');
-		}
-		else
-		{
-			Debug.error("No debugger found, for error report: " + message);
-		}
-	}
-
 
 	/**
 	 * @param form

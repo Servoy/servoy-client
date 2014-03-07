@@ -27,9 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.SwingUtilities;
 
+import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
+import org.mozilla.javascript.RhinoException;
+
 import com.servoy.j2db.ClientState;
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.DebugJ2DBClient.DebugSwingFormMananger;
@@ -46,8 +48,10 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 
 public class DebugUtils
 {
@@ -56,10 +60,91 @@ public class DebugUtils
 		public void updateForm(Form form);
 	}
 
-	public static Set<FormController>[] getScopesAndFormsToReload(ClientState clientState, Collection<IPersist> changes)
+	@SuppressWarnings("nls")
+	public static void errorToDebugger(IExecutingEnviroment engine, String message, Object errorDetail)
 	{
-		Set<FormController> scopesToReload = new HashSet<FormController>();
-		Set<FormController> formsToReload = new HashSet<FormController>();
+		Object detail = errorDetail;
+		if (engine instanceof RemoteDebugScriptEngine)
+		{
+			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
+			if (debugger != null)
+			{
+				RhinoException rhinoException = null;
+				if (detail instanceof Exception)
+				{
+					Throwable exception = (Exception)detail;
+					while (exception != null)
+					{
+						if (exception instanceof RhinoException)
+						{
+							rhinoException = (RhinoException)exception;
+							break;
+						}
+						exception = exception.getCause();
+					}
+				}
+				String msg = message;
+				if (rhinoException != null)
+				{
+					if (msg == null)
+					{
+						msg = rhinoException.getLocalizedMessage();
+					}
+					else msg += '\n' + rhinoException.getLocalizedMessage();
+					msg += '\n' + rhinoException.getScriptStackTrace();
+				}
+				else if (detail instanceof Exception)
+				{
+					Object e = ((Exception)detail).getCause();
+					if (e != null)
+					{
+						detail = e;
+					}
+					msg += "\n > " + detail.toString(); // complete stack? 
+					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
+					{
+						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
+					}
+				}
+				else if (detail != null)
+				{
+					msg += "\n" + detail;
+				}
+				debugger.outputStdErr(msg.toString() + '\n');
+			}
+		}
+	}
+
+	@SuppressWarnings("nls")
+	public static void stdoutToDebugger(IExecutingEnviroment engine, Object message)
+	{
+		if (engine instanceof RemoteDebugScriptEngine)
+		{
+			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
+			if (debugger != null)
+			{
+				debugger.outputStdOut((message == null ? "<null>" : message.toString()) + '\n');
+			}
+		}
+	}
+
+
+	public static void infoToDebugger(IExecutingEnviroment engine, String message)
+	{
+		if (engine instanceof RemoteDebugScriptEngine)
+		{
+			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
+			if (debugger != null)
+			{
+				debugger.outputStdOut(message + '\n');
+			}
+		}
+	}
+
+	public static Set<IFormController>[] getScopesAndFormsToReload(ClientState clientState, Collection<IPersist> changes)
+	{
+		Set<IFormController> scopesToReload = new HashSet<IFormController>();
+		Set<IFormController> formsToReload = new HashSet<IFormController>();
 
 		Set<Form> formsUpdated = new HashSet<Form>();
 		for (IPersist persist : changes)
@@ -71,9 +156,9 @@ public class DebugUtils
 				if (persist.getParent() instanceof Form)
 				{
 					Form form = (Form)persist.getParent();
-					List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers(form);
+					List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers(form);
 
-					for (FormController formController : cachedFormControllers)
+					for (IFormController formController : cachedFormControllers)
 					{
 						scopesToReload.add(formController);
 					}
@@ -105,9 +190,9 @@ public class DebugUtils
 				if (persist.getParent() instanceof Form)
 				{
 					Form form = (Form)persist.getParent();
-					List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers(form);
+					List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers(form);
 
-					for (FormController formController : cachedFormControllers)
+					for (IFormController formController : cachedFormControllers)
 					{
 						FormScope scope = formController.getFormScope();
 						scope.put(sv);
@@ -120,14 +205,14 @@ public class DebugUtils
 				if (!formsUpdated.contains(form))
 				{
 					formsUpdated.add(form);
-					List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers(form);
+					List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers(form);
 
-					for (FormController formController : cachedFormControllers)
+					for (IFormController formController : cachedFormControllers)
 					{
 						formsToReload.add(formController);
 					}
 				}
-				if (persist instanceof Form)
+				if (persist instanceof Form && clientState.getFormManager() instanceof DebugUtils.DebugUpdateFormSupport)
 				{
 					((DebugUtils.DebugUpdateFormSupport)clientState.getFormManager()).updateForm((Form)persist);
 				}
@@ -159,12 +244,12 @@ public class DebugUtils
 			{
 				((FoundSetManager)clientState.getFoundSetManager()).flushSQLSheet((Relation)persist);
 
-				List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers();
+				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
 
 				try
 				{
 					String primary = ((Relation)persist).getPrimaryDataSource();
-					for (FormController formController : cachedFormControllers)
+					for (IFormController formController : cachedFormControllers)
 					{
 						if (primary.equals(formController.getDataSource()))
 						{
@@ -180,8 +265,8 @@ public class DebugUtils
 			else if (persist instanceof ValueList)
 			{
 				ComponentFactory.flushValueList(clientState, (ValueList)persist);
-				List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers();
-				for (FormController formController : cachedFormControllers)
+				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
+				for (IFormController formController : cachedFormControllers)
 				{
 					formsToReload.add(formController);
 				}
@@ -189,10 +274,10 @@ public class DebugUtils
 			else if (persist instanceof Style)
 			{
 				ComponentFactory.flushStyle(null, ((Style)persist));
-				List<FormController> cachedFormControllers = ((FormManager)clientState.getFormManager()).getCachedFormControllers();
+				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
 
 				String styleName = ((Style)persist).getName();
-				for (FormController formController : cachedFormControllers)
+				for (IFormController formController : cachedFormControllers)
 				{
 					if (styleName.equals(formController.getForm().getStyleName()))
 					{

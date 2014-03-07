@@ -54,7 +54,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 
 import com.servoy.j2db.Credentials;
@@ -66,6 +65,7 @@ import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IBrowserLauncher;
 import com.servoy.j2db.IDebugJ2DBClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMainContainer;
@@ -1017,24 +1017,11 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		super.output(message, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
 		{
-			errorToDebugger(message.toString(), null);
+			DebugUtils.errorToDebugger(getScriptEngine(), message.toString(), null);
 		}
 		else
 		{
-			stdoutToDebugger(message);
-		}
-	}
-
-	@SuppressWarnings("nls")
-	protected void stdoutToDebugger(Object message)
-	{
-		if (getScriptEngine() != null)
-		{
-			DBGPDebugger debugger = ((RemoteDebugScriptEngine)getScriptEngine()).getDebugger();
-			if (debugger != null)
-			{
-				debugger.outputStdOut((message == null ? "<null>" : message.toString()) + '\n');
-			}
+			DebugUtils.stdoutToDebugger(getScriptEngine(), message);
 		}
 	}
 
@@ -1044,101 +1031,28 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	@Override
 	public void reportJSError(String message, Object detail)
 	{
-		errorToDebugger(message, detail);
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
 		super.reportJSError(message, detail);
 	}
 
 	@Override
 	public void reportJSWarning(String s)
 	{
-		errorToDebugger(s, null);
+		DebugUtils.errorToDebugger(getScriptEngine(), s, null);
 		super.reportJSWarning(s);
 	}
 
 	@Override
 	public void reportJSInfo(String s)
 	{
-		stdoutToDebugger("INFO: " + s);
+		DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);
 		super.reportJSInfo(s);
-	}
-
-	/**
-	 * @param message
-	 * @param errorDetail
-	 */
-	@SuppressWarnings("nls")
-	protected void errorToDebugger(String message, Object errorDetail)
-	{
-		Object detail = errorDetail;
-		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
-		if (engine != null)
-		{
-			DBGPDebugger debugger = engine.getDebugger();
-			if (debugger != null)
-			{
-				RhinoException rhinoException = null;
-				if (detail instanceof Exception)
-				{
-					Throwable exception = (Exception)detail;
-					while (exception != null)
-					{
-						if (exception instanceof RhinoException)
-						{
-							rhinoException = (RhinoException)exception;
-							break;
-						}
-						exception = exception.getCause();
-					}
-				}
-				String msg = message;
-				if (rhinoException != null)
-				{
-					if (msg == null)
-					{
-						msg = rhinoException.getLocalizedMessage();
-					}
-					else msg += '\n' + rhinoException.getLocalizedMessage();
-					msg += '\n' + rhinoException.getScriptStackTrace();
-				}
-				else if (detail instanceof Exception)
-				{
-					Object e = ((Exception)detail).getCause();
-					if (e != null)
-					{
-						detail = e;
-					}
-					msg += "\n > " + detail.toString(); // complete stack? 
-					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
-					{
-						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();
-					}
-				}
-				else if (detail != null)
-				{
-					msg += "\n" + detail;
-				}
-				debugger.outputStdErr(msg.toString() + '\n');
-			}
-		}
-	}
-
-	protected void infoToDebugger(String message)
-	{
-		RemoteDebugScriptEngine engine = (RemoteDebugScriptEngine)getScriptEngine();
-		if (engine != null)
-		{
-			DBGPDebugger debugger = engine.getDebugger();
-			if (debugger != null)
-			{
-				debugger.outputStdOut(message + '\n');
-			}
-		}
 	}
 
 	@Override
 	public void reportInfo(Component parentComponent, String message, String title)
 	{
-		infoToDebugger(message);
+		DebugUtils.infoToDebugger(getScriptEngine(), message);
 		super.reportInfo(parentComponent, message, title);
 	}
 
@@ -1150,7 +1064,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void reportError(final Component parentComponent, String msg, Object detail)
 	{
 		String message = msg;
-		errorToDebugger(message, detail);
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
 		Debug.error(detail);
 		mainPanel.getToolkit().beep();
 		if (detail instanceof ServoyException)
@@ -1194,7 +1108,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				@Override
 				public void run()
 				{
-					for (FormController fc : ((FormManager)getFormManager()).getCachedFormControllers())
+					for (IFormController fc : getFormManager().getCachedFormControllers())
 					{
 						fc.recreateUI();
 					}
@@ -1232,14 +1146,14 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	{
 		if (shutDown) return;
 
-		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
-		for (FormController controller : scopesAndFormsToReload[1])
+		for (IFormController controller : scopesAndFormsToReload[1])
 		{
 			destroyForm(controller);
 		}
 
-		for (FormController controller : scopesAndFormsToReload[0])
+		for (IFormController controller : scopesAndFormsToReload[0])
 		{
 			if (controller.getForm() instanceof FlattenedForm)
 			{
@@ -1254,12 +1168,12 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	 * @param formController
 	 * @return
 	 */
-	private void destroyForm(FormController formController)
+	private void destroyForm(IFormController formController)
 	{
 		refreshI18NMessages();
 		if (formController.isFormVisible())
 		{
-			IFoundSetInternal foundSet = formController.getFoundSet();
+			IFoundSetInternal foundSet = formController.getFormModel();
 			if (foundSet instanceof FoundSet)
 			{
 				((FoundSet)foundSet).refresh();

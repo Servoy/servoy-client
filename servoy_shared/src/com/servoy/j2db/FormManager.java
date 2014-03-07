@@ -1551,9 +1551,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	 * @param form
 	 * @return
 	 */
-	public List<FormController> getCachedFormControllers(Form form)
+	public List<IFormController> getCachedFormControllers(Form form)
 	{
-		ArrayList<FormController> al = new ArrayList<FormController>();
+		ArrayList<IFormController> al = new ArrayList<IFormController>();
 		for (FormController controller : createdFormControllers.values())
 		{
 			if (controller.getForm().getName().equals(form.getName()))
@@ -1576,9 +1576,9 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	 * @param form
 	 * @return
 	 */
-	public List<FormController> getCachedFormControllers()
+	public List<IFormController> getCachedFormControllers()
 	{
-		return new ArrayList<FormController>(createdFormControllers.values());
+		return new ArrayList<IFormController>(createdFormControllers.values());
 	}
 
 	/**

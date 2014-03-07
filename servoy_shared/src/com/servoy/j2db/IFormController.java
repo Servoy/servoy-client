@@ -47,6 +47,8 @@ public interface IFormController extends IForm
 
 	FormScope getFormScope();
 
+	boolean recreateUI();
+
 	/**
 	 * @param creationalPrototype
 	 */

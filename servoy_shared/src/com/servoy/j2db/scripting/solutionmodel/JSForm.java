@@ -37,9 +37,9 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
 import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -106,8 +106,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 			//forms scope still uses the old copy of Script Providers
 			Form oldform = form;
-			List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
-			for (FormController formController : controllers)
+			List<IFormController> controllers = application.getFormManager().getCachedFormControllers(form);
+			for (IFormController formController : controllers)
 			{
 				FormScope formScope = formController.getFormScope();
 				formScope.updateProviderswithCopy(oldform, form);
@@ -4895,8 +4895,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	private void addVariableToScopes(ScriptVariable var)
 	{
-		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
-		for (FormController formController : controllers)
+		List<IFormController> controllers = application.getFormManager().getCachedFormControllers(form);
+		for (IFormController formController : controllers)
 		{
 			FormScope formScope = formController.getFormScope();
 			formScope.put(var, true);
@@ -4905,8 +4905,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	private void removeVariableFromScopes(ScriptVariable var)
 	{
-		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
-		for (FormController formController : controllers)
+		List<IFormController> controllers = application.getFormManager().getCachedFormControllers(form);
+		for (IFormController formController : controllers)
 		{
 			FormScope formScope = formController.getFormScope();
 			formScope.updateProviderswithCopy(form, form);
@@ -4916,8 +4916,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 
 	private void refreshFromScopes()
 	{
-		List<FormController> controllers = ((FormManager)application.getFormManager()).getCachedFormControllers(form);
-		for (FormController formController : controllers)
+		List<IFormController> controllers = application.getFormManager().getCachedFormControllers(form);
+		for (IFormController formController : controllers)
 		{
 			FormScope formScope = formController.getFormScope();
 			formScope.updateProviderswithCopy(form, form);

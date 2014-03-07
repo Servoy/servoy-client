@@ -36,6 +36,7 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.dataprocessing.IDataSet;
@@ -241,10 +242,10 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 	private void performRefresh(List<IPersist> changes)
 	{
 
-		Set<FormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
 		refreshI18NMessages();
-		for (FormController controller : scopesAndFormsToReload[0])
+		for (IFormController controller : scopesAndFormsToReload[0])
 		{
 			if (controller.getForm() instanceof FlattenedForm)
 			{
@@ -259,9 +260,9 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 
 	public void refreshForI18NChange(boolean recreateForms)
 	{
-		List<FormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
+		List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
 		ArrayList<IPersist> formsToReload = new ArrayList<IPersist>();
-		for (FormController fc : cachedFormControllers)
+		for (IFormController fc : cachedFormControllers)
 			formsToReload.add(fc.getForm());
 		refreshPersists(formsToReload);
 	}

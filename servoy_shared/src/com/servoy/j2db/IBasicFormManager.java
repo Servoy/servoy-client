@@ -19,6 +19,7 @@ package com.servoy.j2db;
 
 import java.awt.Rectangle;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.Action;
 
@@ -32,6 +33,10 @@ import com.servoy.j2db.util.SafeArrayList;
 public interface IBasicFormManager extends IFormManager
 {
 	public static final String NO_TITLE_TEXT = "-none-"; //$NON-NLS-1$
+
+	public List<IFormController> getCachedFormControllers();
+
+	public List<IFormController> getCachedFormControllers(Form form);
 
 	/**
 	 * @param name

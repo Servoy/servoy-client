@@ -18,22 +18,22 @@
 package com.servoy.j2db.debug;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IFormController;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.INGClientEndpoint;
-import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindow;
+import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.util.ILogLevel;
 
 /**
  * @author jcompagner
@@ -63,6 +63,54 @@ public class DebugNGClient extends NGClient implements IDebugClient
 			designerCallback.addScriptObjects(this, engine.getSolutionScope());
 		}
 		return engine;
+	}
+
+	@Override
+	public void output(Object msg, int level)
+	{
+		super.output(msg, level);
+		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR)
+		{
+			DebugUtils.errorToDebugger(getScriptEngine(), msg.toString(), null);
+		}
+		else
+		{
+			DebugUtils.stdoutToDebugger(getScriptEngine(), msg);
+		}
+	}
+
+	/**
+	 * @see com.servoy.j2db.smart.J2DBClient#reportJSError(java.lang.String, java.lang.Object)
+	 */
+	@Override
+	public void reportJSError(String message, Object detail)
+	{
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		super.reportJSError(message, detail);
+	}
+
+	/**
+	 * @see com.servoy.j2db.ClientState#reportError(java.lang.String, java.lang.Object)
+	 */
+	@Override
+	public void reportError(String message, Object detail)
+	{
+		DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+		super.reportError(message, detail);
+	}
+
+	@Override
+	public void reportJSWarning(String s)
+	{
+		DebugUtils.errorToDebugger(getScriptEngine(), s, null);
+		super.reportJSWarning(s);
+	}
+
+	@Override
+	public void reportJSInfo(String s)
+	{
+		DebugUtils.stdoutToDebugger(getScriptEngine(), "INFO: " + s);
+		super.reportJSInfo(s);
 	}
 
 	/*
@@ -97,41 +145,30 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	@Override
 	public void refreshPersists(Collection<IPersist> changes)
 	{
-		Set<Form> changedForms = new HashSet<Form>();
-		for (IPersist persist : changes)
-		{
-			if (persist instanceof IFormElement)
-			{
-				ISupportChilds parent = persist.getParent();
-				while (parent != null && !(parent instanceof Form))
-				{
-					parent = parent.getParent();
-				}
-				if (parent instanceof Form)
-				{
-					changedForms.add((Form)parent);
-				}
-			}
-		}
-		if (changedForms.size() > 0)
-		{
-			boolean mustReload = false;
-			ComponentFactory.reload();
-			Collection<IWebFormController> activeFormControllers = getFormManager().getActiveFormControllers();
-			for (Form form : changedForms)
-			{
-				for (IWebFormController formController : activeFormControllers)
-				{
-					if (formController.getForm().equals(form))
-					{
-						formController.getFormUI().init();
-						mustReload = true;
-					}
-				}
-			}
+		if (isShutDown()) return;
 
-			if (mustReload) getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindow.WINDOW_SERVICE, "reload", null);
+		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
+
+		if (scopesAndFormsToReload[1].size() > 0)
+		{
+			ComponentFactory.reload();
+			for (IFormController controller : scopesAndFormsToReload[1])
+			{
+				((WebFormUI)controller.getFormUI()).init();
+			}
+			getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindow.WINDOW_SERVICE, "reload", null);
 		}
+
+		for (IFormController controller : scopesAndFormsToReload[0])
+		{
+			if (controller.getForm() instanceof FlattenedForm)
+			{
+				FlattenedForm ff = (FlattenedForm)controller.getForm();
+				ff.reload();
+			}
+			controller.getFormScope().reload();
+		}
+
 
 	}
 
