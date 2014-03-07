@@ -20,8 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -40,8 +38,7 @@ import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -79,11 +76,38 @@ public class NGFormManager implements INGFormManager, IService
 		application.registerService("formService", this);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.IBasicFormManager#getCachedFormControllers()
+	 */
 	@Override
-	public Collection<IWebFormController> getActiveFormControllers()
+	public List<IFormController> getCachedFormControllers()
 	{
-		return Collections.unmodifiableCollection(createdFormControllers.values());
+		return new ArrayList<IFormController>(createdFormControllers.values());
 	}
+
+	public List<IFormController> getCachedFormControllers(Form form)
+	{
+		ArrayList<IFormController> al = new ArrayList<IFormController>();
+		for (IFormController controller : createdFormControllers.values())
+		{
+			if (controller.getForm().getName().equals(form.getName()))
+			{
+				al.add(controller);
+			}
+			else if (controller.getForm() instanceof FlattenedForm)
+			{
+				List<Form> formHierarchy = application.getFlattenedSolution().getFormHierarchy(controller.getForm());
+				if (formHierarchy.contains(form))
+				{
+					al.add(controller);
+				}
+			}
+		}
+		return al;
+	}
+
 
 	public void makeSolutionSettings(Solution s)
 	{

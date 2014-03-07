@@ -72,7 +72,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		{
 			WebComponentSpec componentSpec = fe.getWebComponentSpec();
 
-			WebComponent component = ComponentFactory.createComponent(application, dataAdapterList, fe);
+			WebComponent component = ComponentFactory.createComponent(application, dal, fe);
 			if (!fe.getName().startsWith("svy_"))
 			{
 				RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
@@ -165,7 +165,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		// special support for the default navigator
 		if (formController.getForm().getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{
-			add(new DefaultNavigatorWebComponent(dataAdapterList));
+			add(new DefaultNavigatorWebComponent(dal));
 		}
 
 		if (dataAdapterList != null)

@@ -130,7 +130,7 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	{
 		Map<String, Map<String, Map<String, Object>>> changes = new HashMap<>(8);
 
-		for (IFormController fc : getFormManager().getActiveFormControllers())
+		for (IFormController fc : getFormManager().getCachedFormControllers())
 		{
 			if (fc.isFormVisible())
 			{
@@ -566,8 +566,26 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	@Override
 	public void output(Object msg, int level)
 	{
-		// TODO Auto-generated method stub
-
+		if (level == DEBUG)
+		{
+			Debug.debug(msg);
+		}
+		else if (level == WARNING)
+		{
+			Debug.warn(msg);
+		}
+		else if (level == ERROR)
+		{
+			Debug.error(msg);
+		}
+		else if (level == FATAL)
+		{
+			Debug.fatal(msg);
+		}
+		else
+		{
+			Debug.log(msg);
+		}
 	}
 
 	@Override

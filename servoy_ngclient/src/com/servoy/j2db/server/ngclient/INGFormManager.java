@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.util.Collection;
-
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.persistence.Solution;
 
@@ -28,8 +26,6 @@ import com.servoy.j2db.persistence.Solution;
  */
 public interface INGFormManager extends IBasicFormManager
 {
-	Collection<IWebFormController> getActiveFormControllers();
-
 	void makeSolutionSettings(Solution solution);
 
 	IWebFormController getForm(String name);
