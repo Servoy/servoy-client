@@ -22,6 +22,7 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.Form;
@@ -162,6 +163,12 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				}
 			}
 		}
+
+		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
+		if (nav != null)
+		{
+			nav.newFoundset(null);
+		}
 		// special support for the default navigator
 		if (formController.getForm().getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{
@@ -170,8 +177,15 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 		if (dataAdapterList != null)
 		{
-			dal.setRecord(((DataAdapterList)dataAdapterList).getRecord(), false);
-			dataAdapterList.setRecord(null, false);
+			IRecordInternal record = ((DataAdapterList)dataAdapterList).getRecord();
+			if (record != null)
+			{
+				dal.setRecord(record, false);
+				dataAdapterList.setRecord(null, false);
+
+				nav = (DefaultNavigatorWebComponent)components.get(DefaultNavigator.NAME_PROP_VALUE);
+				if (nav != null) nav.newFoundset(record.getParentFoundSet());
+			}
 		}
 		dataAdapterList = dal;
 	}
