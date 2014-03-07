@@ -168,11 +168,16 @@ public class ResourceProvider implements Filter
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
 			URL url = Activator.getContext().getBundle().getEntry("/war/" + componentName + '/' + path);
-			try (InputStream is = url.openStream())
+			InputStream is = null;
+			try
 			{
+				is = url.openStream();
 				return Utils.getTXTFileContent(is, charset);
 			}
+			finally
+			{
+				if (is != null) is.close();
+			}
 		}
-
 	}
 }
