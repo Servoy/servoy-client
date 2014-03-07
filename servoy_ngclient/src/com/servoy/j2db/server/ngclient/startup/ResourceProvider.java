@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.startup;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -33,6 +34,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.servoy.j2db.server.ngclient.component.WebComponentPackage;
 import com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader;
@@ -70,6 +72,16 @@ public class ResourceProvider implements Filter
 			URL url = Activator.getContext().getBundle().getEntry("/war/" + pathInfo);
 			if (url != null)
 			{
+				URLConnection connection = url.openConnection();
+				long lastModifiedTime = connection.getLastModified() / 1000 * 1000;
+				((HttpServletResponse)response).setDateHeader("Last-Modified", lastModifiedTime);
+				long lm = ((HttpServletRequest)request).getDateHeader("If-Modified-Since");
+				if (lm != -1 && lm == lastModifiedTime)
+				{
+					((HttpServletResponse)response).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+					return;
+				}
+
 				InputStream is = url.openStream();
 				Utils.streamCopy(is, response.getOutputStream());
 			}

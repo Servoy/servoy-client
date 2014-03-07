@@ -84,6 +84,14 @@ public class TemplateGeneratorFilter implements Filter
 						Form form = (f != null) ? fs.getFlattenedForm(f) : null;
 						if (form != null)
 						{
+							long lastModifiedTime = fs.getSolution().getLastModifiedTime() / 1000 * 1000;
+							((HttpServletResponse)servletResponse).setDateHeader("Last-Modified", lastModifiedTime);
+							long lm = ((HttpServletRequest)servletRequest).getDateHeader("If-Modified-Since");
+							if (lm != -1 && lm == lastModifiedTime)
+							{
+								((HttpServletResponse)servletResponse).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+								return;
+							}
 							boolean html = uri.endsWith(".html");
 							boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 							if (!tableview && html && form.getLayout() != null)
