@@ -557,7 +557,11 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 		}
 		if (labelFor != null && hasBgImage && labelFor.getOnActionMethodID() > 0)
 		{
-			add(new AttributeModifier("onclick", true, new Model<String>("this.getElementsByTagName('a')[0].click()")));
+			add(new AttributeModifier(
+				"onclick",
+				true,
+				new Model<String>(
+					"var target = event.target || event.srcElement; var aEl = this.getElementsByTagName('a')[0]; if($(target).parents('#'+aEl.id).length == 0) { aEl.click(); }")));
 		}
 		Boolean dir = group.get(id);
 		if (dir != null && form.getOnSortCmdMethodID() >= 0)
