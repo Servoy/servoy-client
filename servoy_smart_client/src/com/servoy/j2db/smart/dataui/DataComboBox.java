@@ -409,10 +409,13 @@ public class DataComboBox extends JComboBox implements IDisplayData, IDisplayRel
 						{
 							public void run()
 							{
-								// first close the one that was just being shown, but only through the ui classes
-								setPopupVisible(false);
-								// then show the popup through our own method so that the size is correct.
-								setPopupVisible(true);
+								if (isShowing())
+								{
+									// first close the one that was just being shown, but only through the ui classes
+									setPopupVisible(false);
+									// then show the popup through our own method so that the size is correct.
+									setPopupVisible(true);
+								}
 							}
 						});
 					}
