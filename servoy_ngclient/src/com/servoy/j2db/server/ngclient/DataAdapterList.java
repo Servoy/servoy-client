@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -316,6 +317,21 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
+			if (propertyValue instanceof JSONArray)
+			{
+				// this are multiple values
+				JSONArray array = (JSONArray)propertyValue;
+				String valueString = "";
+				for (int i = 0; i < array.length(); i++)
+				{
+					valueString += array.get(i).toString();
+					if (i < array.length() - 1)
+					{
+						valueString += "\n";
+					}
+				}
+				return valueString;
+			}
 			return propertyValue;
 		}
 		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperties().get(propertyName).getType());

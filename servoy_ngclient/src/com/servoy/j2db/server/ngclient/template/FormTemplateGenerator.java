@@ -112,6 +112,9 @@ public class FormTemplateGenerator
 						return "svy-textarea";
 					case Field.PASSWORD :
 						return "svy-password";
+					case Field.LIST_BOX :
+					case Field.MULTISELECT_LISTBOX :
+						return "svy-listbox";
 				}
 			}
 			if (persist instanceof TabPanel)

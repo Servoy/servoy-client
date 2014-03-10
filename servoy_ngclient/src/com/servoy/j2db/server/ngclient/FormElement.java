@@ -37,6 +37,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -254,6 +255,15 @@ public final class FormElement
 		}
 		return "data-form";
 
+	}
+
+	public String getMultiple()
+	{
+		if (persist instanceof Field && ((Field)persist).getDisplayType() == Field.MULTISELECT_LISTBOX)
+		{
+			return "multiple=\"true\"";
+		}
+		return "";
 	}
 
 	public Collection<String> getHandlers()

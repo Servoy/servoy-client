@@ -104,6 +104,7 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("accordionpanel", "AccordionPanel", IRepository.TABPANELS,
 			com.servoy.j2db.ui.IScriptAccordionPanelMethods.class));
 		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class));
+		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class));
 
 		//specTemplateList.add(new SpecTemplateModel("navigator","Navigator", IRepository.FIELDS));
 	}

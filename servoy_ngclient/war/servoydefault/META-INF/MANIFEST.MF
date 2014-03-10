@@ -29,6 +29,9 @@ Web-Component: True
 Name: calendar/calendar.spec
 Web-Component: True
 
+Name: listbox/listbox.spec
+Web-Component: True
+
 Name: typeahead/typeahead.spec
 Web-Component: True
 
