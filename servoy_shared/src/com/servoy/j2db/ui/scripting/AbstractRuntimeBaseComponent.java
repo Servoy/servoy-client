@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
+import org.apache.wicket.Application;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.IApplication;
@@ -433,7 +434,14 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	@Override
 	public String toString()
 	{
-		return toString(getComponent() == null ? null : getValueString());
+		if (Application.exists())
+		{
+			return toString(getComponent() == null ? null : getValueString());
+		}
+		else
+		{
+			return getClass().getSimpleName();
+		}
 	}
 
 	private PropertyChangeSupport changeSupport;
