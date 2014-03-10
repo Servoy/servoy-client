@@ -69,7 +69,9 @@ public class ResourceProvider implements Filter
 		String pathInfo = ((HttpServletRequest)request).getRequestURI();
 		if (pathInfo != null)
 		{
-			URL url = Activator.getContext().getBundle().getEntry("/war/" + pathInfo);
+			if (pathInfo.startsWith("/")) pathInfo = "/war" + pathInfo;
+			else pathInfo = "/war/" + pathInfo;
+			URL url = Activator.getContext().getBundle().getEntry(pathInfo);
 			if (url != null)
 			{
 				URLConnection connection = url.openConnection();
