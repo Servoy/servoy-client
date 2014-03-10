@@ -9,14 +9,13 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,
- j2db_server,
  servoy_smart_client,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
  org.junit,
  javax.servlet;bundle-version="3.0.0",
  org.apache.tomcat;bundle-version="7.0.52",
- javax.websocket-api;bundle-version="1.0.0"
+ javax.websocket;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  lib/freemarker.jar
