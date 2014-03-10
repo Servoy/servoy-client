@@ -199,7 +199,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 {
 	private static final int SCROLLBAR_SIZE = 17;
 	private static final long serialVersionUID = 1L;
-
+	private final double NEW_PAGE_MULITPLIER;
 	public final ResourceReference R_ARROW_OFF = new ResourceReference(IApplication.class, "images/arrow_off.png"); //$NON-NLS-1$
 	public final ResourceReference R_ARROW_DOWN = new ResourceReference(IApplication.class, "images/arrow_down.png"); //$NON-NLS-1$
 	public final ResourceReference R_ARROW_UP = new ResourceReference(IApplication.class, "images/arrow_up.png"); //$NON-NLS-1$
@@ -1481,6 +1481,15 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.isListViewMode = viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW;
 		this.bodyWidthHint = form.getWidth();
 
+		double multiplier = Utils.getAsDouble(Settings.getInstance().getProperty("servoy.webclient.scrolling.tableview.multiplier", "2"));
+		if (multiplier > 0)
+		{
+			NEW_PAGE_MULITPLIER = multiplier;
+		}
+		else
+		{
+			NEW_PAGE_MULITPLIER = 2;
+		}
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 
@@ -2971,7 +2980,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 					if (isScrollFirstShow)
 					{
 						table.setStartIndex(0);
-						table.setViewSize(2 * maxRowsPerPage);
+						table.setViewSize((int)(NEW_PAGE_MULITPLIER * maxRowsPerPage));
 						isScrollFirstShow = false;
 					}
 					else
@@ -5192,22 +5201,11 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	private class ScrollBehavior extends ServoyAjaxEventBehavior implements IIgnoreDisabledComponentBehavior
 	{
-		private final double NEW_PAGE_MULITPLIER;
-
 		private boolean isGettingRows;
 
 		public ScrollBehavior(String event)
 		{
 			super(event);
-			double multiplier = Utils.getAsDouble(Settings.getInstance().getProperty("servoy.webclient.scrolling.tableview.multiplier", "2"));
-			if (multiplier > 0)
-			{
-				NEW_PAGE_MULITPLIER = multiplier;
-			}
-			else
-			{
-				NEW_PAGE_MULITPLIER = 2;
-			}
 		}
 
 		private static final long serialVersionUID = 1L;
