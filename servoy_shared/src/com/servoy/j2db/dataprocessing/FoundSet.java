@@ -2410,15 +2410,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time. 
-	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a value the traversal will be stopped and that value is returned.
-	 * If no value is returned all records of the foundset will be traversed. In the callback function cannot do foundset modifications( like sort, omit...). If foundset is modified an exception will be thrown.
+	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a non null value the traversal will be stopped and that value is returned.
+	 * If no value is returned all records of the foundset will be traversed. Foundset modifications( like sort, omit...) cannot be performed in the callback function. If foundset is modified an exception will be thrown.
+	 * When an exception is thrown from the callback function, the iteraion over the foundset will be stopped.
 	 *
 	 * @sample
 	 *  foundset.forEach(function(record,recordIndex,foundset) { 
 	 *  	//handle the record here  
 	 *  });
 	 *
-	 * @param callback The callback function to be called for each loaded record in the foundset.
+	 * @param callback The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
 	 * 
 	 * @return Object the return value of the callback
 	 * 
@@ -6610,7 +6611,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			catch (Exception ex)
 			{
-				Debug.error("Error executing callback:", ex);
+				Debug.error("Error executing callback: ", ex);
 				if (ex instanceof RuntimeException)
 				{
 					throw (RuntimeException)ex;

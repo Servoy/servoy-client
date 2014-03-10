@@ -100,9 +100,9 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
 
 	/**
 	 * Iterates over all records of the foundset. The callback method will be called for each record. 
-	 * This method takes into acount inserts and deletes that may occur at same time. It will dynamically load records in the foundset. 
+	 * This method takes into account inserts and deletes that may occur at same time. It will dynamically load records in the foundset. 
 	 * If callback returns a value, the traversal will be stopped and function will return that value. 
-	 * During traversal cannot perform foundset modifications (like sort, load records...), otherwise will throw an exception.
+	 * During traversal, foundset modifications (like sort, load records...) cannot be performed, otherwise it will throw an exception.
 	 * 
 	 * @param callback Callback interface to be called for each record.
 	 * 
