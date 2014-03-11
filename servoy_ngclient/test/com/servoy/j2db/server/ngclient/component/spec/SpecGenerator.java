@@ -146,6 +146,7 @@ public class SpecGenerator
 				if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
 				FileWriter fw = new FileWriter(file);
 				System.out.println("generating file: " + file);
+				componentSpec.sortByName();
 				generate(componentSpec, fw);
 				fw.close();
 			}

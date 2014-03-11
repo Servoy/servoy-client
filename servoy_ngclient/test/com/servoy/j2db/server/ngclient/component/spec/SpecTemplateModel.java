@@ -18,6 +18,8 @@
 package com.servoy.j2db.server.ngclient.component.spec;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.servoy.j2db.persistence.ContentSpec.Element;
@@ -35,7 +37,6 @@ public class SpecTemplateModel
 	Class< ? > apiInterface;
 	List<ApiMethod> apis = new ArrayList<>();
 	int repositoryType;
-
 
 	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface)
 	{
@@ -109,5 +110,28 @@ public class SpecTemplateModel
 		{
 			return "'" + type + "'";
 		}
+	}
+
+	public void sortByName()
+	{
+		Collections.sort(apis, new Comparator<ApiMethod>()
+		{
+			@Override
+			public int compare(ApiMethod o1, ApiMethod o2)
+			{
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+
+		Comparator<Element> elementComparator = new Comparator<Element>()
+		{
+			public int compare(Element o1, Element o2)
+			{
+				return o1.getName().compareTo(o2.getName());
+			}
+		};
+
+		Collections.sort(model, elementComparator);
+		Collections.sort(handlers, elementComparator);
 	}
 }
