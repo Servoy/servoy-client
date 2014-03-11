@@ -39,6 +39,7 @@ import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
@@ -64,8 +65,10 @@ import com.servoy.j2db.solutionmodel.ISMUnits;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
@@ -464,7 +467,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	}
 
 	/**
-	 * Removes the relation specified by name.
+	 * Removes the relation specified by name. You can not remove the the relation if it is touched within the application 
+	 * so even if you remove all the ui elements using it, like tabs, it still can't be removed, because of underlying created and cached data. 
 	 * 
 	 * @sample
 	 * var success = solutionModel.removeRelation('myRelation');
@@ -482,7 +486,20 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		Relation rel = fs.getRelation(name);
 		if (rel != null)
 		{
-			fs.deletePersistCopy(rel, false);
+			try
+			{
+				if (((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(rel.getForeignDataSource()).getRelatedSQLDescription(
+					name) != null)
+				{
+					return false;
+				}
+				fs.deletePersistCopy(rel, false);
+			}
+			catch (ServoyException e)
+			{
+				Debug.error(e);
+				return false;
+			}
 			return true;
 		}
 		return false;
