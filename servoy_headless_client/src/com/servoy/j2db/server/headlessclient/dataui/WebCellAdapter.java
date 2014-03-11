@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -126,10 +127,10 @@ public class WebCellAdapter implements IDataAdapter
 									spc.setChanged();
 								}
 							}
-							if (cell instanceof ISupportOnRender)
+							if (cell instanceof ISupportOnRender && cell instanceof IScriptableProvider)
 							{
-								IScriptable so = ((ISupportOnRender)cell).getScriptObject();
-								if (so instanceof ISupportOnRender && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
+								IScriptable so = ((IScriptableProvider)cell).getScriptObject();
+								if (so instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
 								{
 									((ISupportOnRender)cell).fireOnRender(true);
 								}
