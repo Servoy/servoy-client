@@ -204,7 +204,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			{
 				locale = req.getLocale();
 			}
-
+			guessLocaleCountryIfAbsent();
 			applicationSetup();
 			applicationInit();
 			applicationServerInit();
@@ -220,6 +220,27 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		finally
 		{
 			unsetThreadLocals(prev);
+		}
+	}
+
+	private void guessLocaleCountryIfAbsent()
+	{
+		// fix weird firefox issue that doesn't report a country
+		if (locale != null && "".equals(locale.getCountry()) && locale.getLanguage() != null && locale.getLanguage().length() > 0)
+		{
+			Locale[] locales = Locale.getAvailableLocales();
+			if (locales != null)
+			{
+				for (Locale current : locales)
+				{
+					if (this.locale.getLanguage().equals(current.getLanguage()) && current.getCountry().length() != 0 &&
+						(current.getVariant() == null || current.getVariant().isEmpty()))
+					{
+						this.locale = current;
+						break;
+					}
+				}
+			}
 		}
 	}
 
