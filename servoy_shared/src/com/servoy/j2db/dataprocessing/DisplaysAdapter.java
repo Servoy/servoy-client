@@ -582,10 +582,10 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		// do fire on render on all components
 		for (IDisplayData displayData : displays)
 		{
-			if (displayData instanceof ISupportOnRender)
+			if (displayData instanceof ISupportOnRender && displayData instanceof IScriptableProvider)
 			{
-				IScriptable so = ((ISupportOnRender)displayData).getScriptObject();
-				if (so instanceof ISupportOnRender && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
+				IScriptable so = ((IScriptableProvider)displayData).getScriptObject();
+				if (so instanceof ISupportOnRenderCallback && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
 				{
 					((ISupportOnRender)displayData).fireOnRender(true);
 				}

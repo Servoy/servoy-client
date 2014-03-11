@@ -17,14 +17,13 @@
 
 package com.servoy.j2db.ui;
 
-import com.servoy.j2db.scripting.IScriptableProvider;
 
 
 /**
  * Interface for components that support on render
  * @author gboros
  */
-public interface ISupportOnRender extends IScriptableProvider
+public interface ISupportOnRender
 {
 	void fireOnRender(boolean force);
 }
