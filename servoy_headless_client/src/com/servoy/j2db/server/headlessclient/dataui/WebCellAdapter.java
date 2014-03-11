@@ -29,11 +29,13 @@ import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRender;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -124,7 +126,14 @@ public class WebCellAdapter implements IDataAdapter
 									spc.setChanged();
 								}
 							}
-							if (cell instanceof ISupportOnRender) ((ISupportOnRender)cell).fireOnRender(true);
+							if (cell instanceof ISupportOnRender)
+							{
+								IScriptable so = ((ISupportOnRender)cell).getScriptObject();
+								if (so instanceof ISupportOnRender && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
+								{
+									((ISupportOnRender)cell).fireOnRender(true);
+								}
+							}
 						}
 					}
 					if (record != null) break;
