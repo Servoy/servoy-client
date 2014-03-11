@@ -1839,10 +1839,9 @@ public class TemplateGenerator
 		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close");
 		styleObj.setProperty("display", "none");
 
-		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_content_2");
+		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_caption,div.wicket-modal div.w_undecorated div.w_content,div.wicket-modal div.w_undecorated div.w_content_container,div.wicket-modal div.w_undecorated div.w_content_1,div.wicket-modal div.w_undecorated div.w_content_2,div.wicket-modal div.w_undecorated div.w_content_3,div.wicket-modal div.w_undecorated div.w_top,div.wicket-modal div.w_undecorated div.w_top_1,div.wicket-modal div.w_undecorated div.w_bottom,div.wicket-modal div.w_undecorated div.w_bottom_1,div.wicket-modal div.w_undecorated div.w_topLeft,div.wicket-modal div.w_undecorated div.w_left,div.wicket-modal div.w_undecorated div.w_topRight,div.wicket-modal div.w_undecorated div.w_right,div.wicket-modal div.w_undecorated div.w_right_1,div.wicket-modal div.w_undecorated div.w_bottomRight,div.wicket-modal div.w_undecorated div.w_bottomLeft,div.wicket-modal div.w_undecorated a.w_close,div.wicket-modal div.w_undecorated span.w_captionText");
 		styleObj.setProperty("padding", "0px");
-
-		styleObj = css.addStyle("div.wicket-modal div.w_undecorated div.w_content_3");
+		styleObj.setProperty("margin", "0px");
 		styleObj.setProperty("border-width", "0px");
 
 		// placeholder style

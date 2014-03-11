@@ -309,7 +309,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		// "div.wicket-modal div.w_right_1" brings 10px through "margin-left" property
 		// "div.wicket-modal div.w_right_1" brings 10px through "margin-right" property
 		// "div.wicket-modal div.w_right_1" brings 2px through "border" property (1px from left and 1px from right)
-		size.width += 22;
+		if (!isUndecorated()) size.width += 22;
 
 		Border b = fp.getFormUI().getBorder();
 		if (b != null)
