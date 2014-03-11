@@ -5,7 +5,7 @@
          point="org.apache.tomcat.serviceprovider">
       <serviceprovider
             class="com.servoy.j2db.server.ngclient.startup.ServicesProvider"
-            id="servoy_webclient2.serviceprovider2">
+            id="servoy_ngclient.servicesprovider">
       </serviceprovider>
    </extension>
 </plugin>
