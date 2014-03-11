@@ -94,7 +94,7 @@ public class TemplateGeneratorFilter implements Filter
 							}
 							boolean html = uri.endsWith(".html");
 							boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
-							if (!tableview && html && form.getLayout() != null)
+							if (!tableview && html && form.getLayoutGrid() != null)
 							{
 								((HttpServletResponse)servletResponse).setContentType("text/html");
 								PrintWriter w = servletResponse.getWriter();

@@ -69,7 +69,7 @@ public class FormWithInlineLayoutGenerator
 				if (element.getName() != null) allFormElements.put(element.getName(), fe);
 			}
 
-			HTMLParser parser = new HTMLParser(form.getLayout());
+			HTMLParser parser = new HTMLParser(form.getLayoutGrid());
 			List<MarkupElement> elems = parser.parse();
 
 			writer.println(String.format("<div ng-controller=\"%1$s\" ng-style=\"formStyle\" svy-layout-update>", form.getName()));
