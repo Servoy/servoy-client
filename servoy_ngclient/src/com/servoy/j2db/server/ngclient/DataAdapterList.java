@@ -23,8 +23,10 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
@@ -317,7 +319,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
-			if (propertyValue instanceof JSONArray)
+			if (fe.getIntProperty(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName()) == Field.MULTISELECT_LISTBOX &&
+				propertyValue instanceof JSONArray)
 			{
 				// this are multiple values
 				JSONArray array = (JSONArray)propertyValue;
