@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -67,6 +68,7 @@ import org.apache.wicket.request.target.basic.EmptyAjaxRequestTarget;
 import org.apache.wicket.request.target.basic.EmptyRequestTarget;
 import org.apache.wicket.request.target.coding.BookmarkablePageRequestTargetUrlCodingStrategy;
 import org.apache.wicket.request.target.coding.HybridUrlCodingStrategy;
+import org.apache.wicket.request.target.coding.SharedResourceRequestTargetUrlCodingStrategy;
 import org.apache.wicket.request.target.component.listener.BehaviorRequestTarget;
 import org.apache.wicket.request.target.resource.SharedResourceRequestTarget;
 import org.apache.wicket.session.ISessionStore;
@@ -74,6 +76,7 @@ import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
+import org.apache.wicket.util.value.ValueMap;
 import org.odlabs.wiquery.core.commons.IWiQuerySettings;
 import org.odlabs.wiquery.core.commons.WiQuerySettings;
 import org.odlabs.wiquery.ui.themes.IThemableApplication;
@@ -377,6 +380,38 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 
 		sharedMediaResource = new SharedMediaResource();
 		getSharedResources().add("media", sharedMediaResource); //$NON-NLS-1$
+
+		mount(new SharedResourceRequestTargetUrlCodingStrategy("mediafolder", "servoy/media") //$NON-NLS-1$ //$NON-NLS-2$
+		{
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.apache.wicket.request.target.coding.AbstractRequestTargetUrlCodingStrategy#decodeParameters(java.lang.String, java.util.Map)
+			 */
+			@Override
+			protected ValueMap decodeParameters(String urlFragment, Map<String, ? > urlParameters)
+			{
+				ValueMap map = new ValueMap();
+				final String[] pairs = urlFragment.split("/"); //$NON-NLS-1$
+				if (pairs.length > 1)
+				{
+					map.add("s", pairs[1]); //$NON-NLS-1$
+					StringBuffer sb = new StringBuffer();
+					for (int i = 2; i < pairs.length; i++)
+					{
+						sb.append(pairs[i]);
+						sb.append("/"); //$NON-NLS-1$
+					}
+					sb.setLength(sb.length() - 1);
+					map.add("id", sb.toString()); //$NON-NLS-1$
+				}
+				if (urlParameters != null)
+				{
+					map.putAll(urlParameters);
+				}
+				return map;
+			}
+		});
 
 		getSharedResources().add("resources", new ServeResources()); //$NON-NLS-1$
 
