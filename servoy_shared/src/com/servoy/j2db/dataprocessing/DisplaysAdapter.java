@@ -38,9 +38,11 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ISupportOnRender;
+import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
@@ -582,7 +584,11 @@ public class DisplaysAdapter implements IDataAdapter, IEditListener, TableModelL
 		{
 			if (displayData instanceof ISupportOnRender)
 			{
-				((ISupportOnRender)displayData).fireOnRender(true);
+				IScriptable so = ((ISupportOnRender)displayData).getScriptObject();
+				if (so instanceof ISupportOnRender && ((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
+				{
+					((ISupportOnRender)displayData).fireOnRender(true);
+				}
 			}
 		}
 	}
