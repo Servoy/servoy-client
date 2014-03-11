@@ -41,9 +41,17 @@ public class JavaVersion
 	public JavaVersion(String versionString)
 	{
 		StringTokenizer t = new StringTokenizer(versionString, "._-"); //$NON-NLS-1$
-		t.nextToken();
-		major = Utils.getAsInteger(t.nextToken());
-		t.nextToken();
-		update = Utils.getAsInteger(t.nextToken());
+		t.nextToken(); // skip the 1
+		major = Utils.getAsInteger(t.nextToken()); // get the 7 or 8
+		if (t.hasMoreTokens())
+		{
+			t.nextToken(); // skip the 0
+			if (t.hasMoreTokens()) update = Utils.getAsInteger(t.nextToken()); // get the update
+			else update = 0;
+		}
+		else
+		{
+			update = 0;
+		}
 	}
 }
