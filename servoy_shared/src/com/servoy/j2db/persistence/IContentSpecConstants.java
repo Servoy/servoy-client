@@ -202,5 +202,5 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_TITLETEXT = "titleText";
 	public static final String PROPERTY_TOOLTIPTEXT = "toolTipText";
 	public static final String PROPERTY_TEXTROTATION = "textRotation";
-	public static final String PROPERTY_LAYOUT = "layout";
+	public static final String PROPERTY_LAYOUTGRID = "layoutGrid";
 }

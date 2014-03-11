@@ -238,18 +238,18 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 	 * 
 	 * @param arg the layout contents
 	 */
-	public void setLayout(String arg)
+	public void setLayoutGrid(String arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUT, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUTGRID, arg);
 	}
 
 	/**
 	 * Get the form layout grid.
 	 * @return the layout
 	 */
-	public String getLayout()
+	public String getLayoutGrid()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUT);
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LAYOUTGRID);
 	}
 
 	/**
