@@ -98,7 +98,7 @@ public class WebComponentSpec extends WebComponentType
 
 	private static ParsedProperty parsePropertyString(final String propertyString, final WebComponentSpec spec, final String specpath)
 	{
-		String property = propertyString;
+		String property = propertyString.replaceAll("\\s", "");
 		boolean isArray = false;
 		PropertyType type = null;
 		WebComponentType wct = null;
@@ -185,20 +185,45 @@ public class WebComponentSpec extends WebComponentType
 					for (int p = 0; p < params.length(); p++)
 					{
 						JSONObject param = params.getJSONObject(p);
-						String paramName = (String)param.keys().next();
-						def.addParameter(new WebComponentFunctionParameter(paramName, getPropertyType(param.getString(paramName), specpath)));
+						String paramName = parseParamName(param);
+						boolean isOptional = false;
+						if (param.has("optional")) isOptional = true;
+
+						ParsedProperty pp = parsePropertyString(param.getString(paramName), spec, specpath);
+						PropertyDescription desc = new PropertyDescription(paramName, pp.type, pp.array);
+						def.addParameter(new WebComponentFunctionParameter(paramName, desc, isOptional));
 					}
 				}
 
 				if (jsonDef.has("returns"))
 				{
-					def.setReturnType(getPropertyType(jsonDef.getString("returns"), specpath));
+					ParsedProperty pp = parsePropertyString(jsonDef.getString("returns"), spec, specpath);
+					PropertyDescription desc = new PropertyDescription("return", pp.type, pp.array);
+					def.setReturnType(desc);
 				}
 
 				spec.addApi(def);
 			}
 		}
 		return spec;
+	}
+
+	private static String parseParamName(JSONObject param)
+	{
+		String paramName = (String)param.keys().next();
+		if (paramName.equals("optional"))
+		{
+			Iterator it = param.keys();
+			while (it.hasNext())
+			{
+				String name = (String)it.next();
+				if (!name.equals("optional"))
+				{
+					paramName = name;
+				}
+			}
+		}
+		return paramName;
 	}
 
 	/**

@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
-import com.servoy.j2db.server.ngclient.property.PropertyType;
+import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 
 /**
  * Parameter in Web component spec api function.
@@ -28,12 +28,14 @@ import com.servoy.j2db.server.ngclient.property.PropertyType;
 public class WebComponentFunctionParameter
 {
 	private final String name;
-	private final PropertyType type;
+	private final PropertyDescription propertyDescription;
+	private final boolean optional;
 
-	public WebComponentFunctionParameter(String name, PropertyType type)
+	public WebComponentFunctionParameter(String name, PropertyDescription propertyDescription, boolean optional)
 	{
 		this.name = name;
-		this.type = type;
+		this.propertyDescription = propertyDescription;
+		this.optional = optional;
 	}
 
 	public String getName()
@@ -41,8 +43,13 @@ public class WebComponentFunctionParameter
 		return name;
 	}
 
-	public PropertyType getType()
+	public PropertyDescription getType()
 	{
-		return type;
+		return propertyDescription;
+	}
+
+	public boolean isOptional()
+	{
+		return optional;
 	}
 }

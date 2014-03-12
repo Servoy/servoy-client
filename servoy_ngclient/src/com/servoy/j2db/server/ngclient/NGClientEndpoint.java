@@ -666,11 +666,11 @@ public class NGClientEndpoint implements INGClientEndpoint
 
 			Object ret = sendMessage(writeDataWithConversions(data), messageId);
 			// convert back
-			if (ret instanceof Long && apiDefinition.getReturnType() == PropertyType.date)
+			if (ret instanceof Long && apiDefinition.getReturnType().getType() == PropertyType.date)
 			{
 				return new Date(((Long)ret).longValue());
 			}
-			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType());
+			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType().getType()); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException e)
 		{

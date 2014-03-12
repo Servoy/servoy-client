@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.servoy.j2db.server.ngclient.property.PropertyType;
+import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 
 /**
  * Parsed web component api function definition.
@@ -33,7 +33,7 @@ public class WebComponentApiDefinition
 {
 	private final String name;
 	private final List<WebComponentFunctionParameter> parameters = new ArrayList<>();
-	private PropertyType returnType;
+	private PropertyDescription returnType;
 
 	public WebComponentApiDefinition(String name)
 	{
@@ -55,12 +55,12 @@ public class WebComponentApiDefinition
 		return Collections.unmodifiableList(parameters);
 	}
 
-	public void setReturnType(PropertyType returnType)
+	public void setReturnType(PropertyDescription returnType)
 	{
 		this.returnType = returnType;
 	}
 
-	public PropertyType getReturnType()
+	public PropertyDescription getReturnType()
 	{
 		return returnType;
 	}
