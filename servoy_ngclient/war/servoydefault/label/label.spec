@@ -21,7 +21,6 @@ model:
         rolloverCursor : 'int', 
         rolloverImageMediaID : 'media', 
         showClick : 'boolean', 
-        showFocus : 'boolean', 
         size : 'dimension', 
         styleClass : 'string', 
         tabSeq : 'tabseq', 

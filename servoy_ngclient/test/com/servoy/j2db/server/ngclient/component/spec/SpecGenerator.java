@@ -323,41 +323,42 @@ public class SpecGenerator
 		repoTypeMapping.put(IRepositoryConstants.MEDIA, "media");
 
 		//speciffic repository element mapping
-		repoTypeMappingExceptions.put("dataProviderID",
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}");
-		repoTypeMappingExceptions.put("format", "{for:'dataProviderID' , type:'format'}");
-		repoTypeMappingExceptions.put("text", "tagstring");
-		repoTypeMappingExceptions.put("placeholderText", "tagstring");
-		repoTypeMappingExceptions.put("toolTipText", "tagstring");
-		repoTypeMappingExceptions.put("valuelistID", "{ type: 'valuelist', for: 'dataProviderID'}");
-		repoTypeMappingExceptions.put("rolloverImageMediaID", "media");
-		repoTypeMappingExceptions.put("imageMediaID", "media");
-		repoTypeMappingExceptions.put("horizontalAlignment", "{type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}");
-		repoTypeMappingExceptions.put("verticalAlignment", "{type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}");
-		repoTypeMappingExceptions.put("textRotation", "{type:'int', values:[0,90,180,270]}");
-		repoTypeMappingExceptions.put("tabSeq", "tabseq");
-		repoTypeMappingExceptions.put("mediaOptions", "mediaoptions");
-		repoTypeMappingExceptions.put("labelFor", "bean");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName(), "{for:'dataProviderID' , type:'format'}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXT.getPropertyName(), "tagstring");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName(), "tagstring");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT.getPropertyName(), "tagstring");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName(), "{ type: 'valuelist', for: 'dataProviderID'}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName(), "media");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID.getPropertyName(), "media");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
+			"{type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
+			"{type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXTROTATION.getPropertyName(), "{type:'int', values:[0,90,180,270]}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), "tabseq");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "mediaoptions");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");
 
 		//internal properties (properties that should not be generated for any component)
-		internalProperties.add("extendsID");
-		internalProperties.add("anchors");
-		internalProperties.add("name");
-		internalProperties.add("formIndex");
-		internalProperties.add("displaysTags");
-		internalProperties.add("groupID");
-		internalProperties.add("locked");
-		internalProperties.add("printSliding");
-		internalProperties.add("rotation");
-		internalProperties.add("customProperties");
-		internalProperties.add("printSliding");
-		internalProperties.add("formIndex");
-		internalProperties.add("labelFor");
-		internalProperties.add("displayType");
-
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_DISPLAYSTAGS.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_GROUPID.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_LOCKED.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_PRINTSLIDING.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_ROTATION.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_PRINTSLIDING.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_FORMINDEX.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
 
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
-		perComponentExceptions.put("label", new ArrayList<>(Arrays.asList("labelFor")));
+		perComponentExceptions.put("label", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()))));
 	}
 
 	// @formatter:on
