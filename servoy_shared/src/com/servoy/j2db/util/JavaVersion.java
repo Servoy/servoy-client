@@ -36,13 +36,13 @@ public class JavaVersion
 	public final int update;
 
 	/**
-	 * @param versionString something similar to 1.7.0_21, 1.6.0_45 or 1.6.0_33.
+	 * @param versionString something similar to 1.7.0_21, 1.6.0_45, 1.6.0_33, 1.8.0, 1.8.0-ea.
 	 */
 	public JavaVersion(String versionString)
 	{
 		StringTokenizer t = new StringTokenizer(versionString, "._-"); //$NON-NLS-1$
 		t.nextToken(); // skip the 1
-		major = Utils.getAsInteger(t.nextToken()); // get the 7 or 8
+		major = Utils.getAsInteger(t.nextToken()); // get the 6, 7 or 8
 		if (t.hasMoreTokens())
 		{
 			t.nextToken(); // skip the 0
@@ -54,4 +54,11 @@ public class JavaVersion
 			update = 0;
 		}
 	}
+
+	@Override
+	public String toString()
+	{
+		return "JavaVersion: major - " + major + ", update - " + update; //$NON-NLS-1$//$NON-NLS-2$
+	}
+
 }
