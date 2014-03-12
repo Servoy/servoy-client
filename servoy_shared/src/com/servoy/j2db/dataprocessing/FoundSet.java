@@ -4414,30 +4414,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			loadAllRecords();
 		}
 
-		boolean addToEnd = false;
-		int size = getSize();
-		int indexToAdd = (idx < 0) ? 0 : (idx > size) ? size : idx;
-		if (indexToAdd == size)
-		{
-			if (hadMoreRows())
-			{
-				Debug.trace("Cannot add new record to end of foundset because foundset is not fully loaded yet, adding at begin of foundset"); //$NON-NLS-1$
-				indexToAdd = 0;
-			}
-			else
-			{
-				addToEnd = true;
-			}
-		}
-
 		if (changeSelection && fsm.getEditRecordList().isEditing(getRecord(getSelectedIndex())))
 		{
 			fsm.getEditRecordList().stopEditing(false, getRecord(getSelectedIndex()));
+		}		
+		
+		int size = getSize();
+		int indexToAdd = (idx < 0) ? 0 : (idx > size) ? size : idx;
+		if (indexToAdd == size && hadMoreRows())
+		{
+			Debug.trace("Cannot add new record to end of foundset because foundset is not fully loaded yet, adding at begin of foundset"); //$NON-NLS-1$
+			indexToAdd = 0;
 		}
 
 		synchronized (pksAndRecords)
 		{
-			if (addToEnd) indexToAdd = getSize();
 			SafeArrayList<IRecordInternal> cachedRecords = null;
 			PKDataSet pks = pksAndRecords.getPks();
 			if (pks == null)
