@@ -615,6 +615,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		private boolean isRecordSelected(IRecordInternal rec)
 		{
+			if (rec == null) return false;
 			IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
 			if (parentFoundSet instanceof FoundSet)
 			{
