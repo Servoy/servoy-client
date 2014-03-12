@@ -1511,14 +1511,17 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			for (int r = 0; r < pks.getRowCount(); r++)
 			{
 				Object[] pkrow = pks.getRow(r);
-				boolean match = pkrow.length == pk.length;
-				for (int c = 0; c < pkrow.length; c++)
+				if (pkrow != null)
 				{
-					match = match && Utils.equalObjects(pk[c], pkrow[c]);
-				}
-				if (match)
-				{
-					return r;
+					boolean match = pkrow.length == pk.length;
+					for (int c = 0; c < pkrow.length; c++)
+					{
+						match = match && Utils.equalObjects(pk[c], pkrow[c]);
+					}
+					if (match)
+					{
+						return r;
+					}
 				}
 			}
 		}
@@ -4411,13 +4414,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			loadAllRecords();
 		}
 
+		boolean addToEnd = false;
 		int size = getSize();
-
 		int indexToAdd = (idx < 0) ? 0 : (idx > size) ? size : idx;
-		if (indexToAdd == size && hadMoreRows())
+		if (indexToAdd == size)
 		{
-			Debug.trace("Cannot add new record to end of foundset because foundset is not fully loaded yet, adding at begin of foundset"); //$NON-NLS-1$
-			indexToAdd = 0;
+			if (hadMoreRows())
+			{
+				Debug.trace("Cannot add new record to end of foundset because foundset is not fully loaded yet, adding at begin of foundset"); //$NON-NLS-1$
+				indexToAdd = 0;
+			}
+			else
+			{
+				addToEnd = true;
+			}
 		}
 
 		if (changeSelection && fsm.getEditRecordList().isEditing(getRecord(getSelectedIndex())))
@@ -4427,6 +4437,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		synchronized (pksAndRecords)
 		{
+			if (addToEnd) indexToAdd = getSize();
 			SafeArrayList<IRecordInternal> cachedRecords = null;
 			PKDataSet pks = pksAndRecords.getPks();
 			if (pks == null)
