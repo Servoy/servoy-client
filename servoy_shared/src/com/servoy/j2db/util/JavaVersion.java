@@ -41,18 +41,29 @@ public class JavaVersion
 	public JavaVersion(String versionString)
 	{
 		StringTokenizer t = new StringTokenizer(versionString, "._-"); //$NON-NLS-1$
-		t.nextToken(); // skip the 1
-		major = Utils.getAsInteger(t.nextToken()); // get the 6, 7 or 8
+		int m = 0;
+		int u = 0;
 		if (t.hasMoreTokens())
 		{
-			t.nextToken(); // skip the 0
-			if (t.hasMoreTokens()) update = Utils.getAsInteger(t.nextToken()); // get the update
-			else update = 0;
+			m = Utils.getAsInteger(t.nextToken());
+			if (t.hasMoreTokens())
+			{
+				if (m == 1) m = Utils.getAsInteger(t.nextToken()); // skip the 1, get the 6, 7 or 8
+				if (t.hasMoreTokens())
+				{
+					u = Utils.getAsInteger(t.nextToken());
+					if (u == 0 && t.hasMoreTokens()) u = Utils.getAsInteger(t.nextToken()); // skip the 0, get the update
+				}
+			}
 		}
-		else
+		if (m == 0 && u == 0)
 		{
-			update = 0;
+			Debug.warn(new RuntimeException("Cannot correctly parse Java Version string: '" + versionString + "'. Assuming new version.")); //$NON-NLS-1$ //$NON-NLS-2$
+			m = 10000; // probably a new unsupported version string... report a big version number
 		}
+
+		major = m;
+		update = u;
 	}
 
 	@Override
