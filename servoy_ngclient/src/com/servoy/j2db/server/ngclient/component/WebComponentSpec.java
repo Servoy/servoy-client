@@ -191,7 +191,8 @@ public class WebComponentSpec extends WebComponentType
 
 						ParsedProperty pp = parsePropertyString(param.getString(paramName), spec, specpath);
 						PropertyDescription desc = new PropertyDescription(paramName, pp.type, pp.array);
-						def.addParameter(new WebComponentFunctionParameter(paramName, desc, isOptional));
+						desc.setOptional(isOptional);
+						def.addParameter(desc);
 					}
 				}
 

@@ -30,6 +30,7 @@ public class PropertyDescription
 	private final PropertyType type;
 	private final Object config;
 	private final boolean array;
+	private boolean optional = false; // currently only used in the context of an api function parameter
 
 	public PropertyDescription(String name, PropertyType type)
 	{
@@ -117,6 +118,16 @@ public class PropertyDescription
 		if (type != other.type) return false;
 		if (array != other.array) return false;
 		return true;
+	}
+
+	public boolean isOptional()
+	{
+		return optional;
+	}
+
+	public void setOptional(boolean optional)
+	{
+		this.optional = optional;
 	}
 
 	/*

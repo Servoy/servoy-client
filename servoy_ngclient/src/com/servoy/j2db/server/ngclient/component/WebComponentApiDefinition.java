@@ -32,7 +32,7 @@ import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 public class WebComponentApiDefinition
 {
 	private final String name;
-	private final List<WebComponentFunctionParameter> parameters = new ArrayList<>();
+	private final List<PropertyDescription> parameters = new ArrayList<>();
 	private PropertyDescription returnType;
 
 	public WebComponentApiDefinition(String name)
@@ -45,12 +45,12 @@ public class WebComponentApiDefinition
 		return name;
 	}
 
-	public void addParameter(WebComponentFunctionParameter parameter)
+	public void addParameter(PropertyDescription parameter)
 	{
 		parameters.add(parameter);
 	}
 
-	public List<WebComponentFunctionParameter> getParameters()
+	public List<PropertyDescription> getParameters()
 	{
 		return Collections.unmodifiableList(parameters);
 	}
