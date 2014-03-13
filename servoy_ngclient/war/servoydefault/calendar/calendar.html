@@ -1,5 +1,5 @@
 <input svy-border='model.borderType' type="{{inputType}}" 
-	   svy-background='model.background'
+	   svy-background='model.transparent ? "transparent" : model.background'
 	   svy-foreground='model.foreground'
 	   svy-margin='model.margin'
 	   ng-style='style'
