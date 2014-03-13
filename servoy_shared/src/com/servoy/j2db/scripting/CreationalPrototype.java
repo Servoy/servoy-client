@@ -27,8 +27,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IFormController;
@@ -87,7 +85,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		ArrayList<String> al = new ArrayList<String>();
 		al.add("allnames"); //$NON-NLS-1$
 		al.add("length"); //$NON-NLS-1$
-		FormManager fm = (FormManager)application.getFormManager();
+		IBasicFormManager fm = application.getFormManager();
 		Iterator<String> it = fm.getPossibleFormNames();
 		while (it.hasNext())
 		{
@@ -210,7 +208,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		return o;
 	}
 
-	public void removeFormPanel(FormController fp)
+	public void removeFormPanel(IFormController fp)
 	{
 		String name = fp.getName();
 		Object o = allVars.remove(name);
