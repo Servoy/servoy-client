@@ -296,6 +296,18 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.servoy.j2db.IFormController#refreshView()
+	 */
+	@Override
+	public void refreshView()
+	{
+		// TODO Auto-generated method stub (called when valuelist is changed)
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.servoy.j2db.BasicFormController#getDesignMode()
 	 */
 	@Override
