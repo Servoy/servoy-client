@@ -3,7 +3,8 @@ servoyModule.directive('svyListbox', function($servoy,$utils,$parse) {
       restrict: 'E',
       transclude: true,
       scope: {
-        model: "=svyModel"
+        model: "=svyModel",
+        handlers: "=svyHandlers"
       },
       require: 'ngModel',
       compile: function(tElement, tAttrs) {
@@ -15,14 +16,33 @@ servoyModule.directive('svyListbox', function($servoy,$utils,$parse) {
     		  $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
     		  $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
     		  $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
-    		  if ($scope.model.multiselectListbox && $scope.model.multiselectListbox == true)
-    		  {
-    			  ngModel.$formatters.push(function(modelValue) {
-    				  // angular model is an array
-    				  return modelValue.split('\n'); //converted
-    			  });
-    		  }
-
+    		  $scope.$watch('model.dataProviderID', function() {
+    			  if(!$scope.model.dataProviderID)
+    			  {
+    				  $scope.convertModel = null;
+    			  }
+    			  else
+    			  {
+    				  $scope.convertModel = $scope.model.dataProviderID.split('\n'); 
+    			  }
+    		  })
+    		  $scope.$watch('convertModel', function() {
+    			  var oldValue = $scope.model.dataProviderID;
+    			  var newValue = null;
+    			  if(!$scope.convertModel)
+    			  {
+    				  newValue = null;
+    			  }
+    			  else
+    			  {
+    				  newValue = $scope.convertModel.join('\n'); 
+    			  }
+    			  if (oldValue != newValue)
+    			  {
+    				  $scope.model.dataProviderID = newValue;
+    				  $scope.handlers.svy_apply('dataProviderID');
+    			  }	  
+    		  })
     	  } 
       },
       templateUrl: 'servoydefault/listbox/listbox.html',

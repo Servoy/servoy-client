@@ -297,6 +297,11 @@ public class SpecGenerator
 					model.add(element);
 				}
 			}
+			if ("listbox".equals(componentSpec.getName()))
+			{
+				ContentSpec cs = new ContentSpec();
+				model.add(cs.new Element(-1, IRepository.FIELDS, "multiselectListbox", IRepository.BOOLEAN, Boolean.FALSE));
+			}
 			componentSpec.setModel(model);
 			componentSpec.setHandlers(handlers);
 		}

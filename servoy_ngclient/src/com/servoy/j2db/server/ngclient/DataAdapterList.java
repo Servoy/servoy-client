@@ -319,22 +319,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
-			int fieldDisplayType = fe.getIntProperty(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName());
-			if ((fieldDisplayType == Field.MULTISELECT_LISTBOX || fieldDisplayType == Field.LIST_BOX) && propertyValue instanceof JSONArray)
-			{
-				// this are multiple values
-				JSONArray array = (JSONArray)propertyValue;
-				String valueString = "";
-				for (int i = 0; i < array.length(); i++)
-				{
-					valueString += array.get(i).toString();
-					if (i < array.length() - 1)
-					{
-						valueString += "\n";
-					}
-				}
-				return valueString;
-			}
 			return propertyValue;
 		}
 		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperties().get(propertyName).getType());

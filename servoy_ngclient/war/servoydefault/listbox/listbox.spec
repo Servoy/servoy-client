@@ -14,6 +14,7 @@ model:
         horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
         location : 'point', 
         margin : 'dimension', 
+        multiselectListbox : 'boolean', 
         placeholderText : 'tagstring', 
         printable : 'boolean', 
         scrollbars : 'int', 

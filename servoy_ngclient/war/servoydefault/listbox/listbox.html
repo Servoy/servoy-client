@@ -2,9 +2,8 @@
 		size='2'
 		multiple
 		ng-style="style"
-		ng-model="model.dataProviderID"
+		ng-model="convertModel"
 		ng-disabled="model.enabled == false"
 		svy-tooltip="{{model.toolTipText}}"
-		svy-autoapply 
 		ng-options="value.realValue as value.displayValue for value in model.valuelistID">
 </select>
