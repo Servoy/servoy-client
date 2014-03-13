@@ -1179,13 +1179,12 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					((FormManager)client.getFormManager()).showFormInMainPanel(formName, MainPage.this, null, true, MainPage.this.getPageMap().getName());
 				}
 			});
-			main.setMainPage(null);
+			if (main.getMainPage() != this) main.setMainPage(null);
 		}
 		listview.removeAll();
 
 		((WebForm)container).setMainPage(this);
 		main = (WebForm)container;
-		currentForm = main.getController();
 		webForms.add(main);
 		navigator = currentNavigator;
 		if (navigator != null)
