@@ -92,4 +92,9 @@ public interface IFormController extends IForm
 	 * @param b
 	 */
 	boolean loadAllRecordsImpl(boolean b) throws ServoyException;
+
+	/**
+	 * 
+	 */
+	void refreshView();
 }

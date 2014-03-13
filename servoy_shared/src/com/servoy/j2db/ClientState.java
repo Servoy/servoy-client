@@ -26,6 +26,7 @@ import java.rmi.UnmarshalException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -1778,14 +1779,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 				((CustomValueList)valuelist).fillWithArrayValues(displayValues, realValues);
 
-				FormManager fm = (FormManager)getFormManager();
-				for (String formName : Utils.iterate(fm.getPossibleFormNames()))
+				IBasicFormManager fm = getFormManager();
+				List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
+				for (IFormController form : cachedFormControllers)
 				{
-					FormController form = fm.getCachedFormController(formName);
-					if (form != null)
-					{
-						form.refreshView();
-					}
+					form.refreshView();
 				}
 			}
 		}
