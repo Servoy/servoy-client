@@ -104,7 +104,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 		ArrayList<String> al = new ArrayList<String>();
 		al.add("allnames"); //$NON-NLS-1$
 		al.add("length"); //$NON-NLS-1$
-		FormManager fm = (FormManager)application.getFormManager();
+		IBasicFormManager fm = application.getFormManager();
 		if (fm == null) return new Object[0];
 		Iterator<String> it = fm.getPossibleFormNames();
 		while (it.hasNext())
@@ -115,7 +115,7 @@ public class CreationalPrototype extends DefaultScope implements LazyInitScope
 			{
 				if (o instanceof FormScope)
 				{
-					FormController fp = (FormController)((FormScope)o).getFormController();
+					IFormController fp = ((FormScope)o).getFormController();
 					if (!fp.isShowingData()) continue;
 				}
 				al.add(form);
