@@ -19,7 +19,8 @@ model:
         tabOrientation : 'int', 
         tabSeq : 'tabseq', 
         transparent : 'boolean', 
-        visible : 'boolean' 
+        visible : 'boolean',
+		tabs : 'tab[]'
 },
 handlers:
 {
@@ -141,4 +142,15 @@ api:
             
             parameters:[{'i':'int'},{'text':'string'}]
         } 
+},
+types: {
+  tab: {
+  	model: {
+  		containsFormId: 'form',
+  		text: 'tagstring',
+  		relationName: 'relation',
+  		active: 'boolean',
+  		foreground: Color
+  	}
+  }
 }

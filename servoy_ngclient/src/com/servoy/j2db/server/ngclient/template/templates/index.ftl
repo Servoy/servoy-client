@@ -42,7 +42,7 @@
 	  <script src="servoydefault/label/label.js"></script>
       <script src="servoydefault/button/button.js"></script>
       <script src="servoydefault/textfield/textfield.js"></script>
-       <script src="servoydefault/password/password.js"></script>
+      <script src="servoydefault/password/password.js"></script>
       <script src="servoydefault/combobox/combobox.js"></script>
       <script src="servoydefault/radiogroup/radiogroup.js"></script>
       <script src="servoydefault/checkgroup/checkgroup.js"></script>
@@ -51,10 +51,15 @@
       <script src="servoydefault/tabpanel/tabpanel.js"></script>
       <script src="servoydefault/navigator/navigator.js"></script>
       <script src="servoydefault/textarea/textarea.js"></script>
-       <script src="servoydefault/listbox/listbox.js"></script>
+      <script src="servoydefault/listbox/listbox.js"></script>
       <script src="servoydefault/navigator/default_navigator_container.js"></script> <!-- not a component-->
       <!-- "webcomponents.jar" beans, should  be generated -->
       <script src="webcomponents/namepanel/namepanel.js"></script>
+
+      <!-- split pane using bg-splitter -->
+      <script src="servoydefault/splitpane/bg-splitter/js/splitter.js"></script>
+      <link rel="stylesheet" href="servoydefault/splitpane/bg-splitter/css/style.css">
+      <script src="servoydefault/splitpane/splitpane.js"></script>
             
       <!-- external js/css used by beans, should  be generated -->
       <script src="webcomponents/signaturefield/js/jquery.signaturepad.min.js"></script>

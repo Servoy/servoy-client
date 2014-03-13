@@ -119,6 +119,8 @@ public class FormTemplateGenerator
 			}
 			if (persist instanceof TabPanel)
 			{
+				int orient = ((TabPanel)persist).getTabOrientation();
+				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "svy-splitpane";
 				return "svy-tabpanel";
 			}
 		}

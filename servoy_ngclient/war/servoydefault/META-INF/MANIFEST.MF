@@ -41,3 +41,5 @@ Web-Component: True
 Name: navigator/navigator.spec
 Web-Component: True
 
+Name: splitpane/splitpane.spec
+Web-Component: True
