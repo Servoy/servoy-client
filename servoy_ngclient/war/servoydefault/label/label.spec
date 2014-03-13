@@ -20,7 +20,6 @@ model:
         printable : 'boolean', 
         rolloverCursor : 'int', 
         rolloverImageMediaID : 'media', 
-        showClick : 'boolean', 
         size : 'dimension', 
         styleClass : 'string', 
         tabSeq : 'tabseq', 

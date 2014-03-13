@@ -361,6 +361,7 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWCLICK.getPropertyName());
 
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
 		perComponentExceptions.put("label", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()))));
