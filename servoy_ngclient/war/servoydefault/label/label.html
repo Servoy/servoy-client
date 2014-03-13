@@ -1,5 +1,9 @@
-<div svy-border='model.borderType' ng-style="style"
+<div svy-border='model.borderType' 
+	 svy-background='model.background'
+	 svy-foreground='model.foreground'
+	 ng-style="style"
      svy-margin='model.margin' 
+     svy-font='model.fontType'
      svy-tooltip="{{model.toolTipText}}">
 <span  ng-style="bgstyle" 
 	   ng-bind='(model.dataProviderID == null && model.text || model.dataProviderID ) | formatFilter:model.format'

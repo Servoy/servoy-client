@@ -1,9 +1,11 @@
-<div svy-border='model.borderType'>
+<div style='min-height:100%' svy-border='model.borderType'>
 <tabset>
     <tab ng-repeat="tab in model.tabs"
     	 active="tab.active" select="select(tab)">
       <tab-heading >
-        <span ng-style="bgstyle"  style='color:{{tab.foreground == null && foregroundStyle || tab.foreground }}'> {{tab.text}} </span>
+        <span	 svy-background='model.background'
+	 			 svy-foreground='tab.foreground == null && model.foreground || tab.foreground'
+             > {{tab.text}} </span>
       </tab-heading>
       <div ng-include="getForm(tab)" style="position:absolute;width:100%;height:100%"></div>
     </tab>

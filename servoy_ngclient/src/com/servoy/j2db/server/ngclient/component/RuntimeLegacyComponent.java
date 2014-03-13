@@ -51,6 +51,8 @@ public class RuntimeLegacyComponent implements Scriptable
 		ScriptNameToSpecName.put("height", StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
 		ScriptNameToSpecName.put("locationX", StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
 		ScriptNameToSpecName.put("locationY", StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
+		ScriptNameToSpecName.put("border", StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName());
+		ScriptNameToSpecName.put("font", StaticContentSpecLoader.PROPERTY_FONTTYPE.getPropertyName());
 	}
 
 	public RuntimeLegacyComponent(WebComponent component)

@@ -649,16 +649,18 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 				return !(getPropByStringPath(item,propPath) === null)
 			}
 		},
-		watchProperty :  function ($scope,watchString,objectToPutChange, propertyStr){
-				       $scope.$watch(watchString, function(newVal, oldVal) {
-							 if (newVal) {
-								 objectToPutChange[propertyStr] = newVal;
-				       		 }
-				       		 else {
-				       		 	delete objectToPutChange[propertyStr];
-				       		 }
-				       })
-		},
+	    autoApplyStyle: function(scope,element,modelToWatch,cssPropertyName){
+				      	  scope.$watch(modelToWatch,function(newVal,oldVal){
+				      		  if(!newVal) {element.css(cssPropertyName,''); return;}
+				      		  if(typeof newVal != 'object'){ //for cases with direct values instead of json string background and foreground
+				      			var obj ={}
+				      			obj[cssPropertyName] = newVal;
+				      			newVal = obj;
+				      		  } 
+				    	      element.css(cssPropertyName,'')
+				    		  element.css(newVal)
+				    	  })
+	    				},
 		getScrollbarsStyleObj:function (scrollbars){
 				     var style = {}; 
 				        if ((scrollbars & HORIZONTAL_SCROLLBAR_NEVER) == HORIZONTAL_SCROLLBAR_NEVER)
@@ -793,9 +795,8 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-        	if(attrs.svyBorder){
         	  scope.$watch(attrs.svyBorder,function(newVal){
-        		  if(typeof newVal !== 'object') return;
+        		  if(typeof newVal !== 'object' || newVal == null) {element.css('border',''); return;}
         		  if(newVal.type == "TitledBorder"){
         			  element.wrap('<fieldset style="padding:5px;margin:0px;border:1px solid silver;width:100%;height:100%"></fieldset>')
         			  element.parent().prepend("<legend align='"+newVal.titleJustiffication+"' style='border-bottom:0px; margin:0px;width:auto;color:"+
@@ -806,23 +807,56 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
         			  element.css(newVal.borderStyle)
         		  }
         	  })
-        	}
+
         }
       };
-}).directive('svyMargin',  function () {
+}).directive('svyMargin',  function ($utils,$parse) {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-        	if(attrs.svyBorder){
-        	  scope.$watch(attrs.svyMargin,function(newVal){
-        		  if(typeof newVal !== 'object') return;
-        	      element.css('padding','')
-        		  element.css(newVal)
-        	  })
+        	var marginModelObj= $parse(attrs.svyMargin)(scope);
+        	if(marginModelObj){ //only design time property, no watch
+                element.css(marginModelObj);
         	}
         }
       };
-}).factory("$apifunctions", function (){
+})
+.directive('svyFont',  function ($utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.autoApplyStyle(scope,element,attrs.svyFont,'font')
+        }
+      }
+})
+.directive('svyBackground',  function ($utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.autoApplyStyle(scope,element,attrs.svyBackground,'backgroundColor')
+        }
+      }
+})
+.directive('svyForeground',  function ($utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.autoApplyStyle(scope,element,attrs.svyForeground,'color')
+        }
+      }
+})
+.directive('svyScrollbars',  function ($utils,$parse) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	var scrollbarsModelObj= $parse(attrs.svyScrollbars)(scope);
+        	if(scrollbarsModelObj){ //only design time property, no watch
+                element.css($utils.getScrollbarsStyleObj(scrollbarsModelObj));
+        	}
+         }
+    }
+})
+.factory("$apifunctions", function (){
 	
 	return {
 		

@@ -14,8 +14,6 @@ servoyModule.directive('svyListbox', function($servoy,$utils,$parse) {
     	  }
     	  return function($scope, $element, $attrs, ngModel) {
     		  $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
-    		  $utils.watchProperty($scope,'model.background',$scope.style,'backgroundColor')
-    		  $utils.watchProperty($scope,'model.foreground',$scope.style,'color')
     		  $scope.$watch('model.dataProviderID', function() {
     			  if(!$scope.model.dataProviderID)
     			  {

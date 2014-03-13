@@ -125,10 +125,13 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 			for (PropertyDescription pd : borderProperties.values())
 			{
 				Object propValue = fe.getProperty(pd.getName());
-				if (propValue instanceof Border)
-				{
-					component.putProperty(pd.getName(), propValue);
-				}
+				component.putProperty(pd.getName(), propValue);
+			}
+			Map<String, PropertyDescription> fontProperties = componentSpec.getProperties(PropertyType.font);
+			for (PropertyDescription pd : fontProperties.values())
+			{
+				Object propValue = fe.getProperty(pd.getName());
+				component.putProperty(pd.getName(), propValue);
 			}
 			Map<String, PropertyDescription> colorProperties = componentSpec.getProperties(PropertyType.color);
 			for (PropertyDescription pd : colorProperties.values())

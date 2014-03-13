@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.utils;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.util.Date;
@@ -188,6 +189,22 @@ public class JSONUtils
 			w.key("paddingBottom").value(i.bottom + "px");
 			w.key("paddingLeft").value(i.left + "px");
 			w.key("paddingRight").value(i.right + "px");
+			w.endObject();
+		}
+		else if (value instanceof Font)
+		{
+			Font font = (Font)value;
+			w.object();
+			if (font.isBold())
+			{
+				w.key("fontWeight").value("bold");
+			}
+			if (font.isItalic())
+			{
+				w.key("italic").value("italic"); //$NON-NLS-1$
+			}
+			w.key("fontSize").value(font.getSize() + "px");
+			w.key("fontFamily").value(font.getFamily() + ", Verdana, Arial");
 			w.endObject();
 		}
 		else if (value instanceof JSONArray)

@@ -1,4 +1,7 @@
 <div svy-border='model.borderType'
+	 svy-background='model.background'
+	 svy-foreground='model.foreground'
+	 svy-scrollbars='model.scrollbars'
 	 svy-margin='model.margin'
      ng-style="style" svy-tooltip="{{model.toolTipText}}" >
   <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')">

@@ -10,9 +10,6 @@ servoyModule.directive('svyTabpanel', function($utils) {
       controller: function($scope, $element, $attrs) {
        var selectedTab;
        $scope.bgstyle = {}
-       $utils.watchProperty($scope,'model.background',$scope.bgstyle,'backgroundColor')
-       $scope.foregroundStyle= {}
-       $utils.watchProperty($scope,'model.foreground',$scope.foregroundStyle,'color')
        
        $scope.getForm = function(tab) {
        	if (tab == selectedTab) {

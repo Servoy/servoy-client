@@ -57,6 +57,7 @@ import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -358,9 +359,9 @@ public final class FormElement
 	}
 
 	/**
-	 * AbstractBase.getPropertiesMap() returns for format,borderType  etc the string representation instead of the high level class representation used in ngClient
+	 * AbstractBase.getPropertiesMap() returns for format,borderType  etc the STRING representation instead of the high level class representation used in ngClient
 	 * Converts string representation to high level Class representation of properties
-	 * 
+	 *  
 	 * Initially only for border
 	 */
 	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, FlattenedSolution fs)
@@ -375,7 +376,9 @@ public final class FormElement
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_BORDERTYPE : //PropertyType.border.getType
 					convPropertiesMap.put(pv, ComponentFactoryHelper.createBorder((String)val));
 					break;
-
+				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_FONTTYPE : //PropertyType.font.getType
+					convPropertiesMap.put(pv, PersistHelper.createFont((String)val));
+					break;
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID :
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_IMAGEMEDIAID :
 				{
