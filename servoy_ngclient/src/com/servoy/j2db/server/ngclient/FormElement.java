@@ -37,6 +37,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -160,6 +161,10 @@ public final class FormElement
 					active = false;
 				}
 				map.put("tabs", tabList);
+			}
+			else if (persist instanceof Field && ((Field)persist).getDisplayType() == Field.MULTISELECT_LISTBOX)
+			{
+				map.put("multiselectListbox", Boolean.TRUE);
 			}
 			propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		}

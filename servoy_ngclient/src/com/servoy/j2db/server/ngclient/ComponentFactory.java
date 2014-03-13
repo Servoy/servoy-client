@@ -33,7 +33,6 @@ import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
-import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ValueList;
@@ -98,10 +97,6 @@ public class ComponentFactory
 						webComponent.putProperty(vlProp.getName(), valueList);
 					}
 				}
-			}
-			if (fe.getIntProperty("displayType") == Field.MULTISELECT_LISTBOX)
-			{
-				webComponent.putProperty("multiselectListbox", Boolean.TRUE);
 			}
 			return webComponent;
 		}
