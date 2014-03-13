@@ -199,6 +199,9 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 	private Dimension size = null; // keeps the size in case of browser windows (non-modal windows); not used for dialogs;
 
+	private boolean tempRemoveMainForm = false;
+
+
 	private class DivDialogsKeeper
 	{
 		private final HashMap<String, ServoyDivDialog> divDialogsMap = new HashMap<String, ServoyDivDialog>();
@@ -620,13 +623,12 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 		listview = new ListView<IFormUIInternal< ? >>("forms", loopModel) //$NON-NLS-1$
 		{
 			private static final long serialVersionUID = 1L;
-			private boolean tempRemove = false;
 
 			@Override
 			protected void populateItem(ListItem<IFormUIInternal< ? >> item)
 			{
 				final WebForm form = (WebForm)item.getModelObject();
-				tempRemove = true;
+				tempRemoveMainForm = true;
 				try
 				{
 					if (form.getParent() != null)
@@ -637,7 +639,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 				}
 				finally
 				{
-					tempRemove = false;
+					tempRemoveMainForm = false;
 				}
 
 				IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(client, client.getSolution(),
@@ -680,7 +682,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 					{
 						super.remove(component);
 						// for example when a form is shown in a popup form (window plugin) it must know that it's main page changed
-						if (!tempRemove && component instanceof WebForm)
+						if (!tempRemoveMainForm && component instanceof WebForm)
 						{
 							WebForm formUI = ((WebForm)component);
 							if (MainPage.this == formUI.getMainPage())
@@ -1182,6 +1184,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 
 		((WebForm)container).setMainPage(this);
 		main = (WebForm)container;
+		currentForm = main.getController();
 		webForms.add(main);
 		navigator = currentNavigator;
 		if (navigator != null)
@@ -2025,6 +2028,14 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 	public boolean isAChildPopupClosing()
 	{
 		return closingAChildDivPopoup;
+	}
+
+	/**
+	 * @param tempRemoveMainForms the tempRemoveMainForms to set
+	 */
+	public void setTempRemoveMainForm(boolean tempRemoveMainForms)
+	{
+		this.tempRemoveMainForm = tempRemoveMainForms;
 	}
 
 	public void renderJavascriptChanges(final AjaxRequestTarget target)

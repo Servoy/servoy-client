@@ -211,7 +211,23 @@ public class WebFormManager extends FormManager
 					}
 				}
 
-				fp.destroy();
+				MainPage page = wf.findParent(MainPage.class);
+				try
+				{
+					if (page != null)
+					{
+						page.setTempRemoveMainForm(true);
+					}
+
+					fp.destroy();
+				}
+				finally
+				{
+					if (page != null)
+					{
+						page.setTempRemoveMainForm(false);
+					}
+				}
 
 				while (wfParent != null && !(wfParent instanceof IWebFormContainer) && !(wfParent.getParent() instanceof MainPage) &&
 					!(wfParent.getParent() instanceof WebForm))
