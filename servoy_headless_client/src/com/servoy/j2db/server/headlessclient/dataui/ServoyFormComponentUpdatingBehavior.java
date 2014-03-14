@@ -19,7 +19,6 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.form.CheckBox;
 
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
@@ -95,12 +94,12 @@ public class ServoyFormComponentUpdatingBehavior extends ServoyAjaxFormComponent
 	{
 		if (super.isEnabled(comp))
 		{
-			if (!eventExecutor.hasLeaveCmds() || component instanceof AugmentedTextField || component instanceof CheckBox ||
-				component instanceof WebDataComboBox || component instanceof WebDataLookupField || component instanceof WebDataListBox)
+			if (!eventExecutor.hasLeaveCmds() || component instanceof AugmentedTextField || component instanceof WebDataComboBox ||
+				component instanceof WebDataLookupField || component instanceof WebDataListBox || component instanceof WebBaseSelectBox)
 			{
-				if (comp instanceof IScriptableProvider)
+				if (component instanceof IScriptableProvider)
 				{
-					IScriptable scriptObject = ((IScriptableProvider)comp).getScriptObject();
+					IScriptable scriptObject = ((IScriptableProvider)component).getScriptObject();
 					if (scriptObject instanceof HasRuntimeReadOnly)
 					{
 						if (((HasRuntimeReadOnly)scriptObject).isReadOnly())
