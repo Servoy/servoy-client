@@ -1635,9 +1635,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		for (int i = 0; i < split.length - 1; i++)
 		{
 			Relation r = application.getFlattenedSolution().getRelation(split[i]);
-			if (r == null || !r.isUsableInSort() || !lastTable.equals(getTable(r.getPrimaryDataSource())))
+			String reason = null;
+			if (r == null)
 			{
-				Debug.warn("Cannot sort on dataprovider " + dataProviderID);
+				reason = "relation '" + split[i] + "' not found";
+			}
+			else if (!r.isUsableInSort())
+			{
+				reason = "relation '" + split[i] + "' not usable in sort";
+			}
+			else if (!lastTable.equals(getTable(r.getPrimaryDataSource())))
+			{
+				reason = "table '" + lastTable.getName() + "' does not match with relation '" + split[i] + "'primary table";
+			}
+			if (reason != null)
+			{
+				Debug.log("Cannot sort on dataprovider " + dataProviderID + ", " + reason, new Exception(split[i]));
 				return null;
 			}
 			relations.add(r);
