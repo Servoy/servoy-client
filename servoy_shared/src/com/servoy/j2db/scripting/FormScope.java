@@ -214,9 +214,10 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		return object;
 	}
 
-	List<String> getDataproviderIdList(Table table)
+	private List<String> getDataproviderIdList(Table table)
 	{
 		List<String> al = new ArrayList<String>();
+		if (table == null) return al;
 		Iterator<Column> columns = table.getColumnsSortedByName();
 		try
 		{
