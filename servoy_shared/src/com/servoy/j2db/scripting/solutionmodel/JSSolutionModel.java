@@ -467,8 +467,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	}
 
 	/**
-	 * Removes the relation specified by name. You can not remove the the relation if it is touched within the application 
-	 * so even if you remove all the ui elements using it, like tabs, it still can't be removed, because of underlying created and cached data. 
+	 * Removes the relation specified by name. You cannot remove the the relation if it is touched within the application.
+	 * So even if you remove all the ui elements using it, like tabs, it still can't be removed, because of underlying created and cached data. 
 	 * 
 	 * @sample
 	 * var success = solutionModel.removeRelation('myRelation');
