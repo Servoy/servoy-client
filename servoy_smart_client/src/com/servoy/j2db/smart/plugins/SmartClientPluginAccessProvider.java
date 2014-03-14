@@ -37,7 +37,7 @@ import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.smart.ISmartClientPluginAccess;
 import com.servoy.j2db.util.FileChooserUtils;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
 
 
@@ -199,7 +199,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 		{
 			try
 			{
-				return ImageLoader.getContentType(FileChooserUtils.readFile(f, 32), f.getName());
+				return MimeTypes.getContentType(FileChooserUtils.readFile(f, 32), f.getName());
 			}
 			catch (Exception e)
 			{

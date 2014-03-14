@@ -84,7 +84,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeMediaField;
 import com.servoy.j2db.ui.scripting.RuntimeScriptButton;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -721,7 +721,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 						val = model.getValue(WebDataImgMediaField.this, mediaDataProviderID + IMediaFieldConstants.MIMETYPE);
 						mimeType = (val instanceof String) ? (String)val : null;
 					}
-					if (mimeType == null) mimeType = ImageLoader.getContentType((byte[])data);
+					if (mimeType == null) mimeType = MimeTypes.getContentType((byte[])data);
 					ByteArrayResource bar = new ByteArrayResource(mimeType, (byte[])data, fileName);
 					bar.onResourceRequested();
 				}
@@ -759,7 +759,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 				}
 				if (data != null && data instanceof byte[])
 				{
-					String contentType = ImageLoader.getContentType((byte[])data);
+					String contentType = MimeTypes.getContentType((byte[])data);
 					if (contentType == null || !contentType.startsWith("image")) //$NON-NLS-1$
 					{
 						data = notEmptyImage;

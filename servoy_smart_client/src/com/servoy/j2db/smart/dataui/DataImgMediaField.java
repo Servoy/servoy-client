@@ -81,6 +81,7 @@ import com.servoy.j2db.util.EnableScrollPanel;
 import com.servoy.j2db.util.FileChooserUtils;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.FileNameSuggestionFileChooser;
@@ -828,7 +829,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 				if (resolver instanceof DataAdapterList)
 				{
 					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, f.getName());
-					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, ImageLoader.getContentType(content, f.getName()));
+					((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE, MimeTypes.getContentType(content, f.getName()));
 				}
 			}
 			catch (Exception e)
@@ -964,7 +965,7 @@ public class DataImgMediaField extends EnableScrollPanel implements IDisplayData
 						{
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.FILENAME, file.getName());
 							((DataAdapterList)resolver).setValueObject(dataProviderID + IMediaFieldConstants.MIMETYPE,
-								ImageLoader.getContentType(content, file.getName()));
+								MimeTypes.getContentType(content, file.getName()));
 						}
 					}
 					catch (Exception e)

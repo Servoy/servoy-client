@@ -71,7 +71,7 @@ import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -253,7 +253,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 			{
 				m = application.getFlattenedSolution().getMedia(mediaName);
 				byte[] bytes = m.getMediaData();
-				new ByteArrayResource(ImageLoader.getContentType(bytes), bytes, null).onResourceRequested();
+				new ByteArrayResource(MimeTypes.getContentType(bytes), bytes, null).onResourceRequested();
 			}
 			catch (Exception ex)
 			{
@@ -269,7 +269,7 @@ public class WebBaseSubmitLink extends SubmitLink implements ILabel, IResourceLi
 				if (bytes != null)
 				{
 					String mime = MediaURLStreamHandler.getBlobLoaderMimeType(url);
-					if (mime == null) mime = ImageLoader.getContentType(bytes);
+					if (mime == null) mime = MimeTypes.getContentType(bytes);
 					String filename = MediaURLStreamHandler.getBlobLoaderFileName(url);
 					if (size != null)
 					{

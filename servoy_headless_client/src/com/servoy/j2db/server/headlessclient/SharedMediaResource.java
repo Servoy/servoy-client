@@ -34,7 +34,7 @@ import com.servoy.j2db.server.headlessclient.dataui.MediaResource;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 
 /**
  * @author jcompagner
@@ -180,7 +180,7 @@ public final class SharedMediaResource extends DynamicWebResource
 						{
 							if (contentType == null)
 							{
-								contentType = ImageLoader.getContentType(array);
+								contentType = MimeTypes.getContentType(array);
 							}
 							length = array.length;
 						}

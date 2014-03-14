@@ -38,7 +38,7 @@ import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
 
@@ -114,7 +114,7 @@ public class MediaURLStreamHandler extends URLStreamHandler
 					{
 						if (mimeType == null && array != null)
 						{
-							return ImageLoader.getContentType(array);
+							return MimeTypes.getContentType(array);
 						}
 						else
 						{
@@ -282,7 +282,7 @@ public class MediaURLStreamHandler extends URLStreamHandler
 
 					return mp;
 				}
-				
+
 				@Override
 				public int getResponseCode() throws IOException
 				{

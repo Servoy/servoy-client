@@ -77,6 +77,7 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.JpegEncoder;
@@ -202,7 +203,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 			{
 				m = application.getFlattenedSolution().getMedia(mediaParameter);
 				byte[] bytes = m.getMediaData();
-				new ByteArrayResource(ImageLoader.getContentType(bytes), bytes, null).onResourceRequested();
+				new ByteArrayResource(MimeTypes.getContentType(bytes), bytes, null).onResourceRequested();
 			}
 			catch (Exception ex)
 			{
@@ -218,7 +219,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 				if (bytes != null)
 				{
 					String mime = MediaURLStreamHandler.getBlobLoaderMimeType(url);
-					if (mime == null) mime = ImageLoader.getContentType(bytes);
+					if (mime == null) mime = MimeTypes.getContentType(bytes);
 					String filename = MediaURLStreamHandler.getBlobLoaderFileName(url);
 					if (size != null)
 					{
@@ -1010,7 +1011,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
 		replaceComponentTagBody(markupStream, openTag, WebBaseButton.instrumentBodyText(bodyText, halign, valign, hasHtmlOrImage, border, null, cssid,
 			(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor,
-			cssclass, rotation, scriptable.isEnabled())); //$NON-NLS-1$
+			cssclass, rotation, scriptable.isEnabled()));
 	}
 
 	protected boolean hasHtmlOrImage()

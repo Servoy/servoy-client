@@ -24,6 +24,7 @@ import org.apache.wicket.util.time.Time;
 
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 
 /**
  * A {@link DynamicWebResource} that will or can resize itself based on the {@link Dimension} it gets.
@@ -116,7 +117,7 @@ public final class MediaResource extends DynamicWebResource
 		this.reduce = (mediaOptions & 2) == 2;
 		this.enlarge = (mediaOptions & 4) == 4;
 		this.keepAspect = (mediaOptions & 8) == 8;
-		this.contentType = ImageLoader.getContentType(bs);
+		this.contentType = MimeTypes.getContentType(bs);
 
 		this.setCacheable(true);
 
@@ -268,7 +269,7 @@ public final class MediaResource extends DynamicWebResource
 			resized = bs;
 		}
 		resizedSize = ImageLoader.getSize(resized);
-		contentType = ImageLoader.getContentType(resized);
+		contentType = MimeTypes.getContentType(resized);
 		return;
 	}
 

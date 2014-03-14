@@ -85,7 +85,7 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeButton;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Text;
@@ -220,7 +220,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				if (bytes != null)
 				{
 					String mime = MediaURLStreamHandler.getBlobLoaderMimeType(url);
-					if (mime == null) mime = ImageLoader.getContentType(bytes);
+					if (mime == null) mime = MimeTypes.getContentType(bytes);
 					String filename = MediaURLStreamHandler.getBlobLoaderFileName(url);
 					if (size != null)
 					{
@@ -1257,7 +1257,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 		if (cssClass != null)
 		{
 			instrumentedBodyText.append(" class='"); //$NON-NLS-1$
-			instrumentedBodyText.append(cssClass); //$NON-NLS-1$
+			instrumentedBodyText.append(cssClass);
 			instrumentedBodyText.append("'"); //$NON-NLS-1$
 		}
 

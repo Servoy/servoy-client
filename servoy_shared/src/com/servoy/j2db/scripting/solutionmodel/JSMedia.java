@@ -25,7 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.solutionmodel.ISMMedia;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -122,7 +122,7 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 
 		if (bytes != null)
 		{
-			media.setMimeType(ImageLoader.getContentType(bytes));
+			media.setMimeType(MimeTypes.getContentType(bytes));
 		}
 	}
 
@@ -148,8 +148,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	{
 		return "JSMedia[name: " + media.getName() + ']';
 	}
-	
-	
+
+
 	/*
 	 * (non-Javadoc)
 	 * 

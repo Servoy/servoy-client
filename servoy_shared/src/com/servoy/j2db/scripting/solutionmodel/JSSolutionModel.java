@@ -66,7 +66,7 @@ import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
@@ -954,7 +954,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		{
 			Media media = fs.getSolutionCopy().createNewMedia(new ScriptNameValidator(fs), name);
 			media.setPermMediaData(bytes);
-			media.setMimeType(ImageLoader.getContentType(bytes));
+			media.setMimeType(MimeTypes.getContentType(bytes));
 			return new JSMedia(media, application.getFlattenedSolution(), true);
 		}
 		catch (RepositoryException e)
