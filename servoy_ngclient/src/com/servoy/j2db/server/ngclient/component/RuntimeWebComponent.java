@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -169,7 +170,10 @@ public class RuntimeWebComponent implements Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return null;
+		ArrayList<String> al = new ArrayList<>();
+		al.addAll(specProperties);
+		al.addAll(apiFunctions.keySet());
+		return al.toArray();
 	}
 
 	@Override

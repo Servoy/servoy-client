@@ -182,7 +182,7 @@ public class RuntimeLegacyComponent implements Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return null;
+		return new Object[0];
 	}
 
 	@Override
