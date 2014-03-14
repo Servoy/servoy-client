@@ -3,11 +3,12 @@ package com.servoy.j2db.server.ngclient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,13 +24,12 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
-import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
+import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
@@ -327,6 +327,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public Object convertFromJavaObjectToString(FormElement fe, String propertyName, Object propertyValue)
 	{
-		return JSONUtils.toStringObject(propertyValue, fe.getWebComponentSpec().getProperties().get(propertyName).getType());
+		PropertyDescription propertyDescription = fe.getWebComponentSpec().getProperties().get(propertyName);
+		if (propertyDescription == null) propertyDescription = fe.getWebComponentSpec().getEvents().get(propertyName);
+		return JSONUtils.toStringObject(propertyValue, propertyDescription.getType());
 	}
+
 }
