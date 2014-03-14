@@ -15,6 +15,8 @@ describe('servoy $formatUtils', function() {
 	        expect(formatFun(10,{display:'-0000.000',type:'NUMBER'})).toEqual("-10.000")
 	        expect(formatFun(10.49,{display:'#.###',type:'NUMBER'})).toEqual("10.49")
 	        expect(formatFun(10.49,{display:'+#.###',type:'NUMBER'})).toEqual("+10.49")
+	        expect(formatFun(1000,{display:'#,###.00',type:'NUMBER'})).toEqual("1,000.00")
+	        expect(formatFun(1000,{display:'#,###.##',type:'NUMBER'})).toEqual("1,000")
 	        expect(formatFun(10.49,{display:'+0',type:'NUMBER'})).toEqual("+10")
 	        expect(formatFun(10.49,{display:'+%00.00',type:'NUMBER'})).toEqual("+%1049.00")
 	        expect(formatFun(10.49,{display: MILLSIGN+'+00.00',type:'NUMBER'})).toEqual(MILLSIGN+"+10490.00") 
@@ -31,6 +33,9 @@ describe('servoy $formatUtils', function() {
 	        expect(unFormatFun("+%1049.00",{display:'+%00.00',type:'NUMBER'})).toEqual(10.49)
 	        expect(unFormatFun("-10.000",{display:'-0000.000',type:'NUMBER'})).toEqual(10)
 	        expect(unFormatFun("-10.000",{display:'###.###',type:'NUMBER'})).toEqual(-10)
+	        expect(unFormatFun("1,000",{display:'#,###.00',type:'NUMBER'})).toEqual(1000)
+	        expect(unFormatFun("1,000.00",{display:'#,###.00',type:'NUMBER'})).toEqual(1000)
+	        expect(unFormatFun("1,000.00",{display:'#,###.##',type:'NUMBER'})).toEqual(1000)
 	        expect(unFormatFun(MILLSIGN+"+10490.00",{display:MILLSIGN+'+00.00',type:'NUMBER'})).toEqual(10.49)
 	        expect(unFormatFun('1.0490e+1',{display: '00.00E00',type:'NUMBER'})).toEqual(10.49); 
 	    	})
