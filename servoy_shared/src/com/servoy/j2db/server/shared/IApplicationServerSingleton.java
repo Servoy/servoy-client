@@ -38,7 +38,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IPluginManagerInternal;
 import com.servoy.j2db.plugins.IServerAccess;
-import com.servoy.j2db.util.IMessageDispatcher;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
 import com.servoy.j2db.util.xmlxport.IXMLImportEngine;
@@ -142,8 +141,6 @@ public interface IApplicationServerSingleton
 	public <S> S getService(Class<S> reference);
 
 	public boolean hadIncompatibleExtensionsWhenStarted();
-
-	IMessageDispatcher getMessageDispatcher();
 
 	boolean isClientRepositoryAccessAllowed(String serverName);
 
