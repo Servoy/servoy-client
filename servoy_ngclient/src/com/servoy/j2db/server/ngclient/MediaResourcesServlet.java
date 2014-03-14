@@ -30,7 +30,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.util.ImageLoader;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -87,7 +87,7 @@ public class MediaResourcesServlet extends HttpServlet
 			{
 				if (contentType == null)
 				{
-					contentType = ImageLoader.getContentType(mediaData, mediaName);
+					contentType = MimeTypes.getContentType(mediaData, mediaName);
 				}
 				if (contentType != null) resp.setContentType(contentType);
 				resp.setContentLength(mediaData.length);
