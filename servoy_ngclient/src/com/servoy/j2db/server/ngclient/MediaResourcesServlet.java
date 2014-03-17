@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -62,7 +64,15 @@ public class MediaResourcesServlet extends HttpServlet
 			int blobID = Utils.getAsInteger(paths[1]);
 			String mediaName = paths[2];
 			// try to look it up as clientId. (solution model)
-			INGApplication client = NGClientEndpoint.getClient(clientUUID);
+			IApplication client = NGClientEndpoint.getClient(clientUUID);
+			if (client == null)
+			{
+				IDebugClientHandler debugClientHandler = ApplicationServerRegistry.get().getDebugClientHandler();
+				if (debugClientHandler != null)
+				{
+					client = debugClientHandler.getDebugNGClient();
+				}
+			}
 			if (client != null)
 			{
 				Media media = client.getFlattenedSolution().getMedia(mediaName);
