@@ -145,7 +145,8 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 							{
 								try
 								{
-									if (repository.getRootObjectMetaDatasForType(IRepository.SOLUTIONS).length != 0 && application.getSolution() == null)
+									if (repository.getRootObjectMetaDatasForType(IRepository.SOLUTIONS).length != 0 && application.getSolution() == null &&
+										(application.getFlattenedSolution() == null || !application.getFlattenedSolution().isLoadingSolution()))
 									{
 										executeCmd((ICmd)cmdopensolution, null);
 									}
