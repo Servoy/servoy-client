@@ -20,13 +20,21 @@ package com.servoy.j2db.server.ngclient.template;
 import java.io.IOException;
 import java.io.Writer;
 
+import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -103,7 +111,7 @@ public class FormTemplateGenerator
 					case Field.RADIOS :
 						return "svy-radiogroup";
 					case Field.CHECKS :
-						return "svy-checkgroup";
+						return getCheckComponentTypeName(persist);
 					case Field.CALENDAR :
 						return "svy-calendar";
 					case Field.TYPE_AHEAD :
@@ -125,5 +133,38 @@ public class FormTemplateGenerator
 			}
 		}
 		throw new RuntimeException("unknown persist type: " + persist);
+	}
+
+	/**
+	 * @param persist
+	 * @return
+	 */
+	private static String getCheckComponentTypeName(IFormElement persist)
+	{
+		Field field = (Field)persist;
+		if (field.getValuelistID() > 0)
+		{
+			try
+			{
+				IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+				FlattenedSolution fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
+					((Solution)persist.getRootObject()).getName(), IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
+				{
+					@Override
+					public IRepository getRepository()
+					{
+						return ApplicationServerRegistry.get().getLocalRepository();
+					}
+				});
+
+				ValueList valuelist = fs.getValueList(field.getValuelistID());
+				if (!ComponentFactory.isSingleValue(valuelist)) return "svy-checkgroup";
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+		return "svy-check";
 	}
 }

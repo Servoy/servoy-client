@@ -158,4 +158,20 @@ public class ComponentFactory
 		WebComponentSpecProvider.reload();
 	}
 
+	/**
+	 * @param valuelist
+	 * @return
+	 */
+	public static boolean isSingleValue(ValueList valuelist)
+	{
+		if (valuelist != null && valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES &&
+			valuelist.getAddEmptyValue() != IValueListConstants.EMPTY_VALUE_ALWAYS && valuelist.getCustomValues() != null &&
+			!valuelist.getCustomValues().contains("\n") && !valuelist.getCustomValues().contains("\r"))
+		{
+			return true;
+		}
+		return false;
+	}
+
+
 }

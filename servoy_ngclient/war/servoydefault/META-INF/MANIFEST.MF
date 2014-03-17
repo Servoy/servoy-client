@@ -43,3 +43,6 @@ Web-Component: True
 
 Name: splitpane/splitpane.spec
 Web-Component: True
+
+Name: check/check.spec
+Web-Component: True

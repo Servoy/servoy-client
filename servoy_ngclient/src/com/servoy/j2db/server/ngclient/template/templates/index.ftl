@@ -46,6 +46,7 @@
       <script src="servoydefault/combobox/combobox.js"></script>
       <script src="servoydefault/radiogroup/radiogroup.js"></script>
       <script src="servoydefault/checkgroup/checkgroup.js"></script>
+      <script src="servoydefault/check/check.js"></script>
       <script src="servoydefault/calendar/calendar.js"></script>
       <script src="servoydefault/typeahead/typeahead.js"></script>
       <script src="servoydefault/tabpanel/tabpanel.js"></script>
