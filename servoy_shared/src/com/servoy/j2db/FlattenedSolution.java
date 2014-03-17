@@ -560,57 +560,72 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return mainSolution != null;
 	}
 
+	private boolean isLoadingSolution = false;
+
 	public void setSolution(SolutionMetaData sol, boolean loadLoginSolution, boolean loadMainSolution, IActiveSolutionHandler activeSolutionHandler)
 		throws RepositoryException, RemoteException
 	{
 		if (sol == null) throw new IllegalArgumentException("use close method!"); //$NON-NLS-1$
 
-		copySolution = null;
-		persistFactory = null;
-		mainSolution = null;
-		user_created_styles = null;
-		all_styles = null;
-		mainSolutionMetaData = sol;
-
-		if (loadLoginSolution)
+		isLoadingSolution = true;
+		try
 		{
-			// get login solution
-			Solution[] loginSolutionAndModules = activeSolutionHandler.loadLoginSolutionAndModules(mainSolutionMetaData);
-			if (loginSolutionAndModules != null && loginSolutionAndModules.length > 0)
-			{
-				if (loginFlattenedSolution == null)
-				{
-					loginFlattenedSolution = new FlattenedSolution();
-				}
-				loginFlattenedSolution.setSolutionAndModules(loginSolutionAndModules[0].getName(), loginSolutionAndModules);
-				loginFlattenedSolution.setParentSolution(this);
-			}
-		}
+			copySolution = null;
+			persistFactory = null;
+			mainSolution = null;
+			user_created_styles = null;
+			all_styles = null;
+			mainSolutionMetaData = sol;
 
-		// get regular solution if available
-		if (loadMainSolution && activeSolutionHandler.haveRepositoryAccess()) // local or already access to repository
-		{
-			// Note: referencedModules includes main solution
-			List<RootObjectReference> referencedModules = activeSolutionHandler.getRepository().getActiveSolutionModuleMetaDatas(
-				mainSolutionMetaData.getRootObjectId());
-			if (referencedModules != null && referencedModules.size() != 0)
+			if (loadLoginSolution)
 			{
-				List<RootObjectMetaData> solutionAndModuleMetaDatas = new ArrayList<RootObjectMetaData>();
-				for (int idx = 0; idx < referencedModules.size(); idx++)
+				// get login solution
+				Solution[] loginSolutionAndModules = activeSolutionHandler.loadLoginSolutionAndModules(mainSolutionMetaData);
+				if (loginSolutionAndModules != null && loginSolutionAndModules.length > 0)
 				{
-					RootObjectReference moduleReference = referencedModules.get(idx);
-					RootObjectMetaData moduleMetaData = moduleReference.getMetaData();
-					if (moduleMetaData == null)
+					if (loginFlattenedSolution == null)
 					{
-						throw new RepositoryException(Messages.getString("servoy.client.module.notfound", new Object[] { moduleReference.toString() })); //$NON-NLS-1$
+						loginFlattenedSolution = new FlattenedSolution();
 					}
-					solutionAndModuleMetaDatas.add(moduleMetaData);
+					loginFlattenedSolution.setSolutionAndModules(loginSolutionAndModules[0].getName(), loginSolutionAndModules);
+					loginFlattenedSolution.setParentSolution(this);
 				}
+			}
 
-				Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
-				setSolutionAndModules(mainSolutionMetaData.getName(), mods);
+			// get regular solution if available
+			if (loadMainSolution && activeSolutionHandler.haveRepositoryAccess()) // local or already access to repository
+			{
+				// Note: referencedModules includes main solution
+				List<RootObjectReference> referencedModules = activeSolutionHandler.getRepository().getActiveSolutionModuleMetaDatas(
+					mainSolutionMetaData.getRootObjectId());
+				if (referencedModules != null && referencedModules.size() != 0)
+				{
+					List<RootObjectMetaData> solutionAndModuleMetaDatas = new ArrayList<RootObjectMetaData>();
+					for (int idx = 0; idx < referencedModules.size(); idx++)
+					{
+						RootObjectReference moduleReference = referencedModules.get(idx);
+						RootObjectMetaData moduleMetaData = moduleReference.getMetaData();
+						if (moduleMetaData == null)
+						{
+							throw new RepositoryException(Messages.getString("servoy.client.module.notfound", new Object[] { moduleReference.toString() })); //$NON-NLS-1$
+						}
+						solutionAndModuleMetaDatas.add(moduleMetaData);
+					}
+
+					Solution[] mods = activeSolutionHandler.loadActiveSolutions(solutionAndModuleMetaDatas.toArray(new RootObjectMetaData[solutionAndModuleMetaDatas.size()]));
+					setSolutionAndModules(mainSolutionMetaData.getName(), mods);
+				}
 			}
 		}
+		finally
+		{
+			isLoadingSolution = false;
+		}
+	}
+
+	public boolean isLoadingSolution()
+	{
+		return isLoadingSolution;
 	}
 
 	protected void setSolutionAndModules(String mainSolutionName, Solution[] mods) throws RemoteException
