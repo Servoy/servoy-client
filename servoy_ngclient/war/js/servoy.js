@@ -202,7 +202,8 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	        		var func = funcThis[call.api];
 	        	}
 	        	if (!func) {
-	        		console.error("bean " + call.bean + " did not provide the api: " + call.api)
+	        		// just ignore if it didn't have setFindMode method.
+	        		if (call.api != "setFindMode") console.error("bean " + call.bean + " did not provide the api: " + call.api)
 	        		return;
 	        	}
 

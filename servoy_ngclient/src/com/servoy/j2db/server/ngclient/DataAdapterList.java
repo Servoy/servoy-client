@@ -49,6 +49,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final EventExecutor executor;
 
 	private IRecordInternal record;
+	private boolean findMode;
 
 	public DataAdapterList(INGApplication application, IFormController formController)
 	{
@@ -317,6 +318,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (dataproviderID != null)
 		{
+			if (findMode)
+			{
+				return propertyValue;
+			}
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
 			return propertyValue;
@@ -327,9 +332,37 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public Object convertFromJavaObjectToString(FormElement fe, String propertyName, Object propertyValue)
 	{
+		if (findMode)
+		{
+			return propertyValue;
+		}
 		PropertyDescription propertyDescription = fe.getWebComponentSpec().getProperties().get(propertyName);
 		if (propertyDescription == null) propertyDescription = fe.getWebComponentSpec().getEvents().get(propertyName);
 		return JSONUtils.toStringObject(propertyValue, propertyDescription.getType());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.IDataAdapterList#setFindMode(boolean)
+	 */
+	@Override
+	public void setFindMode(boolean findMode)
+	{
+		this.findMode = findMode;
+		Set<WebComponent> webcomponents = new HashSet<>();
+		for (List<Pair<WebComponent, String>> lst : recordDataproviderToComponent.values())
+		{
+			for (Pair<WebComponent, String> pair : lst)
+			{
+				webcomponents.add(pair.getLeft());
+			}
+		}
+		WebComponentApiDefinition apiDef = new WebComponentApiDefinition("setFindMode");
+		Object[] args = new Object[] { findMode ? Boolean.TRUE : Boolean.FALSE };
+		for (WebComponent webComponent : webcomponents)
+		{
+			executeApi(apiDef, webComponent.getName(), args);
+		}
+	}
 }

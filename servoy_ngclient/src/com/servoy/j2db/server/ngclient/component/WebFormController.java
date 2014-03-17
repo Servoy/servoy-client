@@ -229,8 +229,20 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public void propagateFindMode(boolean findMode)
 	{
-		// TODO Auto-generated method stub
-
+		if (!findMode)
+		{
+			application.getFoundSetManager().getEditRecordList().prepareForSave(true);
+		}
+		if (isReadOnly())
+		{
+			// TODO should something happen here, should edit state be pushed or is that just handled in the find mode call?
+//			if (view != null)
+//			{
+//				view.setEditable(findMode);
+//			}
+		}
+		IDataAdapterList dal = getFormUI().getDataAdapterList();
+		dal.setFindMode(findMode);//disables related data en does getText instead if getValue on fields
 	}
 
 	/*

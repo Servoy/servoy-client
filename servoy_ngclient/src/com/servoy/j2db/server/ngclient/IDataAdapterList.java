@@ -60,4 +60,9 @@ public interface IDataAdapterList extends IDataConverter
 	 */
 	void startEdit(WebComponent webComponent, String property);
 
+	/**
+	 * @param findMode
+	 */
+	void setFindMode(boolean findMode);
+
 }

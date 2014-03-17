@@ -1,4 +1,4 @@
-<input ng-style="style" svy-border='model.borderType' 
+                                                                                                                            <input ng-style="style" svy-border='model.borderType' 
 	   svy-background='model.transparent ? "transparent" : model.background'
 	   svy-foreground='model.foreground'
 	   svy-scrollbars='model.scrollbars'
@@ -9,5 +9,6 @@
        ng-disabled="model.enabled == false"  
        svy-tooltip="{{model.toolTipText}}"
        placeholder="{{model.placeholderText}}"
-       svy-autoapply  svy-format="model.format"/>
+       svy-autoapply  
+       svy-format="findMode ? '' : model.format"/>
        

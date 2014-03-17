@@ -4,7 +4,8 @@ servoyModule.directive('svyCalendar', function(dateFilter,$log,$utils) {
       transclude: true,
       scope: {
       	model: "=svyModel",
-        handlers: "=svyHandlers"
+        handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       controller: function($scope, $element, $attrs) {
           $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
@@ -27,12 +28,17 @@ servoyModule.directive('svyCalendar', function(dateFilter,$log,$utils) {
           
           //convert from UI input to servoy model
           $scope.pushChange = function (){
-              var date=null;
-              if($scope.editModel !=null && $scope.editModel !='') {
-                  var editDate = new Date($scope.editModel);
+              // test for prevInputType == findmode if that is set
+              if (!prevInputType) {
+                var date=null;
+                if($scope.editModel !=null && $scope.editModel !='') {
+                 var editDate = new Date($scope.editModel);
                  date = new Date(editDate.getTime()+editDate.getTimezoneOffset()*60*1000)
+                }
+            	$scope.model.dataProviderID = date
+              } else {
+                $scope.model.dataProviderID = $scope.editModel;
               }
-            $scope.model.dataProviderID = date
             $scope.handlers.svy_apply('dataProviderID');
           }
           
@@ -57,6 +63,20 @@ servoyModule.directive('svyCalendar', function(dateFilter,$log,$utils) {
                  dateFormat = 'yyyy-MM-dd'
               }
           }
+          
+          var prevInputType = null;
+           // special method that servoy calls when this component goes into find mode.
+    	 $scope.api.setFindMode = function(findMode) {
+    	 	$log.error("findmode on calendar " + findMode);
+    	 	if (findMode) {
+    	 		prevInputType = $scope.inputType;
+    	 		$scope.inputType = "text";
+    	 	}
+    	 	else {
+    	 		$scope.inputType = prevInputType;
+    	 		prevInputType = null;
+    	 	}
+    	 };
           
       },
       templateUrl: 'servoydefault/calendar/calendar.html',
