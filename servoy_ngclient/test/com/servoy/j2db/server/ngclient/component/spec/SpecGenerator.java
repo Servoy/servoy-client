@@ -303,6 +303,11 @@ public class SpecGenerator
 				ContentSpec cs = new ContentSpec();
 				model.add(cs.new Element(-1, IRepository.FIELDS, "multiselectListbox", IRepository.BOOLEAN, Boolean.FALSE));
 			}
+			if (componentSpec.getRepositoryType() == IRepository.TABPANELS)
+			{
+				ContentSpec cs = new ContentSpec();
+				model.add(cs.new Element(-1, IRepository.FIELDS, "tabIndex", IRepository.SERVERS, ""));
+			}
 			componentSpec.setModel(model);
 			componentSpec.setHandlers(handlers);
 		}
@@ -328,6 +333,7 @@ public class SpecGenerator
 		repoTypeMapping.put(IRepository.DIMENSION, "dimension");
 		repoTypeMapping.put(IRepository.INSETS, "dimension");
 		repoTypeMapping.put(IRepositoryConstants.MEDIA, "media");
+		repoTypeMapping.put(IRepositoryConstants.SERVERS, "object"); // use SERVERS to generate 'object type'
 
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),

@@ -15,6 +15,7 @@ model:
         selectedTabColor : 'color', 
         size : 'dimension', 
         styleClass : 'string', 
+        tabIndex : 'object', 
         tabOrientation : 'int', 
         tabSeq : 'tabseq', 
         transparent : 'boolean', 
