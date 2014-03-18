@@ -12,7 +12,6 @@ servoyModule.directive('svyTabpanel', function($utils) {
        $scope.bgstyle = {}
        
         $scope.$watch("model.tabIndex", function(newValue) {
-        	$log.error("current index: "  + $scope.model.tabIndex);
         	 for(var i=0;i<$scope.model.tabs.length;i++) {
         	 	if (i == $scope.model.tabIndex) $scope.model.tabs[i].active = true;
         	 	else $scope.model.tabs[i].active = false;
@@ -36,7 +35,6 @@ servoyModule.directive('svyTabpanel', function($utils) {
        }
        
        $scope.getForm = function(tab) {
-    	   $log.error("get: " + tab + ", selected: " + selectedTab)
        	if (tab == selectedTab) {
        		return tab.containsFormId;
        	}
@@ -56,7 +54,6 @@ servoyModule.directive('svyTabpanel', function($utils) {
        
        $scope.select = function(tab) {
     	if (tab == selectedTab) return;
-    	$log.error("select: " + tab + ", selected: " + selectedTab)
         if (selectedTab) {
         	var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
         	promise.then(function(ok) {
