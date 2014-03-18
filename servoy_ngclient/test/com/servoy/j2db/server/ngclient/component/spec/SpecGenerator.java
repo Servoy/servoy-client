@@ -350,6 +350,8 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
 			"{type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXTROTATION.getPropertyName(), "{type:'int', values:[0,90,180,270]}");
+		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABORIENTATION.getPropertyName(),
+			"{type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), "tabseq");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "mediaoptions");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");

@@ -153,6 +153,7 @@ public final class FormElement
 					tabMap.put("relationName", tab.getRelationName());
 					tabMap.put("active", Boolean.valueOf(active));
 					tabMap.put("foreground", tab.getForeground());
+					tabMap.put("name", tab.getName());
 					int containsFormID = tab.getContainsFormID();
 					// TODO should this be resolved way later on?
 					// if solution model then this form can change..

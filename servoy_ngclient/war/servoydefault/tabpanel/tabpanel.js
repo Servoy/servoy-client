@@ -7,11 +7,36 @@ servoyModule.directive('svyTabpanel', function($utils) {
         svyApply: "=",
         svyServoyapi: "="
       },
-      controller: function($scope, $element, $attrs) {
+      controller: function($scope, $element, $attrs, $log) {
        var selectedTab;
        $scope.bgstyle = {}
        
+        $scope.$watch("model.tabIndex", function(newValue) {
+        	$log.error("current index: "  + $scope.model.tabIndex);
+        	 for(var i=0;i<$scope.model.tabs.length;i++) {
+        	 	if (i == $scope.model.tabIndex) $scope.model.tabs[i].active = true;
+        	 	else $scope.model.tabs[i].active = false;
+        	 }
+        });
+       $scope.getTemplateUrl = function() {
+    	   if ($scope.model.tabOrientation == -1) return "servoydefault/tabpanel/tablesspanel.html";
+    	   else return "servoydefault/tabpanel/tabpanel.html";
+       }
+       $scope.getActiveTab = function() {
+    	   for(var i=0;i<$scope.model.tabs.length;i++) {
+    		   if ($scope.model.tabs[i].active) {
+    			   if (selectedTab != $scope.model.tabs[i])
+    			   {
+    			   	$scope.select($scope.model.tabs[i]);
+    			   } 
+    			   break;
+    		   }
+    	   }
+    	   return selectedTab?selectedTab.containsFormId:"";
+       }
+       
        $scope.getForm = function(tab) {
+    	   $log.error("get: " + tab + ", selected: " + selectedTab)
        	if (tab == selectedTab) {
        		return tab.containsFormId;
        	}
@@ -30,6 +55,8 @@ servoyModule.directive('svyTabpanel', function($utils) {
        }
        
        $scope.select = function(tab) {
+    	if (tab == selectedTab) return;
+    	$log.error("select: " + tab + ", selected: " + selectedTab)
         if (selectedTab) {
         	var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
         	promise.then(function(ok) {
@@ -38,7 +65,7 @@ servoyModule.directive('svyTabpanel', function($utils) {
         		}
         		else {
         			tab.active = false;
-        			selecteTab.active = true;
+        			selectedTab.active = true;
         		}
         	})
         }
@@ -47,7 +74,7 @@ servoyModule.directive('svyTabpanel', function($utils) {
         }
        }
       },
-      templateUrl: 'servoydefault/tabpanel/tabpanel.html',
+      template: "<div style='min-height:100%' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()'></div></div>",
       replace: true
     };
   })

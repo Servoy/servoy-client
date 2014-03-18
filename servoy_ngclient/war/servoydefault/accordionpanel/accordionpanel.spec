@@ -16,10 +16,11 @@ model:
         size : 'dimension', 
         styleClass : 'string', 
         tabIndex : 'object', 
-        tabOrientation : 'int', 
+        tabOrientation : {type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}, 
         tabSeq : 'tabseq', 
         transparent : 'boolean', 
-        visible : 'boolean' 
+        visible : 'boolean',
+        tabs : 'tab[]' 
 },
 handlers:
 {
@@ -127,4 +128,16 @@ api:
             
             parameters:[{'index':'int'},{'text':'string'}]
         } 
+},
+types: {
+  tab: {
+  	model: {
+		name: 'string',
+  		containsFormId: 'form',
+  		text: 'tagstring',
+  		relationName: 'relation',
+  		active: 'boolean',
+  		foreground: Color
+  	}
+  }
 }
