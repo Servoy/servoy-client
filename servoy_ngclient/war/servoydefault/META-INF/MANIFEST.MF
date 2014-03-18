@@ -46,3 +46,6 @@ Web-Component: True
 
 Name: check/check.spec
 Web-Component: True
+
+Name: radio/radio.spec
+Web-Component: True

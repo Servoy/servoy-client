@@ -45,6 +45,7 @@
       <script src="servoydefault/password/password.js"></script>
       <script src="servoydefault/combobox/combobox.js"></script>
       <script src="servoydefault/radiogroup/radiogroup.js"></script>
+      <script src="servoydefault/radio/radio.js"></script>
       <script src="servoydefault/checkgroup/checkgroup.js"></script>
       <script src="servoydefault/check/check.js"></script>
       <script src="servoydefault/calendar/calendar.js"></script>

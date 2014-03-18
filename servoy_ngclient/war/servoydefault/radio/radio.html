@@ -1,0 +1,16 @@
+<div ng-click="radioClicked()" 
+     ng-hide = "model.valuelistID == null || model.valuelistID[0] == null" 
+     ng-style="style" 
+     svy-border="model.borderType" 
+     svy-foreground="model.foreground" 
+     svy-background="model.transparent ? 'transparent' : model.background" 
+     svy-tooltip="{{model.toolTipText}}">
+  <input type="radio"
+	     ng-model ="model.dataProviderID"
+	     ng-value = "model.valuelistID[0].realValue"
+		 ng-disabled="model.enabled == false || model.editable == false"
+		 svy-margin="model.margin"
+		 svy-scrollbars="model.scrollbars"
+		/>
+  <span ng-bind="model.text" svy-font="model.fontType"/>
+</div>

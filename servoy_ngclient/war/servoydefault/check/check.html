@@ -1,12 +1,14 @@
-<div ng-style="style" svy-border="model.borderType" svy-foreground='model.foreground' 
- svy-background="model.transparent ? 'transparent' : model.background" ng-click='checkBoxClicked()'>
-	<input type="checkbox"
-	    ng-model ='selection'
-		ng-disabled="model.enabled == false || model.editable == false"
-		svy-font="model.fontType"
-		svy-margin='model.margin'
-		svy-scrollbars='model.scrollbars'
-		svy-tooltip="{{model.toolTipText}}"
+<div ng-click="checkBoxClicked()"  
+	 ng-style="style" 
+     svy-border="model.borderType" 
+ 	 svy-background="model.transparent ? 'transparent' : model.background" 
+ 	 svy-foreground="model.foreground" 
+ 	 svy-tooltip="{{model.toolTipText}}">
+  <input type="checkbox"
+	    ng-model ="selection"
+	    ng-disabled="model.enabled == false || model.editable == false"
+		svy-margin="model.margin"
+		svy-scrollbars="model.scrollbars"
 		/>
-	<span ng-bind='model.text'/>
+  <span ng-bind="model.text" svy-font="model.fontType"/>
 </div>

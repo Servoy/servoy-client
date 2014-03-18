@@ -109,9 +109,9 @@ public class FormTemplateGenerator
 					case Field.TEXT_FIELD :
 						return "svy-textfield";
 					case Field.RADIOS :
-						return "svy-radiogroup";
+						return isSingleValueComponent(persist) ? "svy-radio" : "svy-radiogroup";
 					case Field.CHECKS :
-						return getCheckComponentTypeName(persist);
+						return isSingleValueComponent(persist) ? "svy-check" : "svy-checkgroup";
 					case Field.CALENDAR :
 						return "svy-calendar";
 					case Field.TYPE_AHEAD :
@@ -137,9 +137,9 @@ public class FormTemplateGenerator
 
 	/**
 	 * @param persist
-	 * @return
+	 * @return false if the persist has no valuelist or at most one value in the valuelist, true otherwise
 	 */
-	private static String getCheckComponentTypeName(IFormElement persist)
+	private static boolean isSingleValueComponent(IFormElement persist)
 	{
 		Field field = (Field)persist;
 		if (field.getValuelistID() > 0)
@@ -158,13 +158,13 @@ public class FormTemplateGenerator
 				});
 
 				ValueList valuelist = fs.getValueList(field.getValuelistID());
-				if (!ComponentFactory.isSingleValue(valuelist)) return "svy-checkgroup";
+				return ComponentFactory.isSingleValue(valuelist);
 			}
 			catch (Exception e)
 			{
 				throw new RuntimeException(e);
 			}
 		}
-		return "svy-check";
+		return true;
 	}
 }

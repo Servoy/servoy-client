@@ -20,15 +20,15 @@ servoyModule.directive('svyCheck', function($utils) {
           {
         	  if ($scope.model.valuelistID && $scope.model.valuelistID[0])
         	  {
-        		  $scope.model.dataProviderID == $scope.model.valuelistID[0].realValue ? $scope.model.dataProviderID = null : $scope.model.dataProviderID = $scope.model.valuelistID[0].realValue;
+        		  $scope.model.dataProviderID = $scope.model.dataProviderID == $scope.model.valuelistID[0].realValue ?  null : $scope.model.valuelistID[0].realValue;
         	  }  
         	  else if (angular.isString($scope.model.dataProviderID))
         	  {
-        		  $scope.model.dataProviderID == "1" ? $scope.model.dataProviderID = "0" : $scope.model.dataProviderID = "1";
+        		  $scope.model.dataProviderID = $scope.model.dataProviderID == "1" ? "0" : "1";
         	  }
         	  else
         	  {
-        		  $scope.model.dataProviderID > 0 ? $scope.model.dataProviderID = 0 : $scope.model.dataProviderID = 1;
+        		  $scope.model.dataProviderID = $scope.model.dataProviderID > 0 ?  0 :  1;
         	  }
         	  $scope.handlers.svy_apply('dataProviderID')
           }
