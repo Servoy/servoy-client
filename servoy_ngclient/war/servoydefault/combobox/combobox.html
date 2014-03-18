@@ -7,5 +7,6 @@
 		ng-disabled="model.enabled == false"
 		svy-tooltip="{{model.toolTipText}}"
 		svy-autoapply 
+		svy-font='model.fontType'
 		ng-options="value.realValue as value.displayValue for value in model.valuelistID">
 </select>

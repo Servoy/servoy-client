@@ -3,7 +3,8 @@
 	 svy-foreground='model.foreground'
 	 svy-scrollbars='model.scrollbars'
 	 svy-margin='model.margin'
-     ng-style="style" svy-tooltip="{{model.toolTipText}}" >
+     ng-style="style" svy-tooltip="{{model.toolTipText}}"
+     svy-font='model.fontType' >
   <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')">
      <input 
           type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" ng-click="checkBoxClicked($index)" ng-disabled="model.enabled == false"/> {{item.displayValue}}
