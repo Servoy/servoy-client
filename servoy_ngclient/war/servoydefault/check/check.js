@@ -13,7 +13,7 @@ servoyModule.directive('svyCheck', function($utils) {
           $scope.selection = false;
           $scope.$watch('model.dataProviderID', function() 
           { 
-        	  $scope.selection = setSelectionFromDataprovider();
+        	  $scope.selection = getSelectionFromDataprovider();
           })
           
           $scope.checkBoxClicked = function()
@@ -33,7 +33,7 @@ servoyModule.directive('svyCheck', function($utils) {
         	  $scope.handlers.svy_apply('dataProviderID')
           }
           
-          function setSelectionFromDataprovider()
+          function getSelectionFromDataprovider()
           {
               if(!$scope.model.dataProviderID) return false;
               if ($scope.model.valuelistID && $scope.model.valuelistID[0])
