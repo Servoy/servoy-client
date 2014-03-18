@@ -54,6 +54,7 @@
       <script src="servoydefault/navigator/navigator.js"></script>
       <script src="servoydefault/textarea/textarea.js"></script>
       <script src="servoydefault/listbox/listbox.js"></script>
+      <script src="servoydefault/htmlview/htmlview.js"></script>
       <script src="servoydefault/navigator/default_navigator_container.js"></script> <!-- not a component-->
       <!-- "webcomponents.jar" beans, should  be generated -->
       <script src="webcomponents/namepanel/namepanel.js"></script>

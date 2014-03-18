@@ -95,6 +95,7 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class));
 		specTemplateList.add(new SpecTemplateModel("password", "Password field", IRepository.FIELDS, IRuntimePassword.class));
 		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area", IRepository.FIELDS, IRuntimeHtmlArea.class));
+		specTemplateList.add(new SpecTemplateModel("htmlview", "Html View", IRepository.FIELDS, IRuntimeHtmlArea.class));
 		specTemplateList.add(new SpecTemplateModel("textarea", "Text Area", IRepository.FIELDS, IRuntimeTextArea.class));
 		specTemplateList.add(new SpecTemplateModel("check", "Check", IRepository.FIELDS, IRuntimeCheck.class));
 		specTemplateList.add(new SpecTemplateModel("radio", "Radio", IRepository.FIELDS, IRuntimeRadio.class));
@@ -312,6 +313,7 @@ public class SpecGenerator
 	private static final Map<String, String> repoTypeMappingExceptions = new HashMap<String, String>();
 	private static final List<String> internalProperties = new ArrayList<>();
 	private static final Map<String, List<String>> perComponentExceptions = new HashMap<>();
+	private static final Map<String, List<String>> perComponentInternalProperties = new HashMap<>();
 	static
 	{
 		// general type mappings
@@ -362,9 +364,18 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWCLICK.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_USERTF.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_PRINTABLE.getPropertyName());
 
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
 		perComponentExceptions.put("label", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()))));
+
+		perComponentInternalProperties.put(
+			"htmlview",
+			new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),
+				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()), (StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),
+				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()),
+				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
 	}
 
 	// @formatter:on
@@ -375,6 +386,13 @@ public class SpecGenerator
 			if (perComponentExceptions.get(componentName).contains(propName))
 			{
 				return true;
+			}
+		}
+		if (perComponentInternalProperties.get(componentName) != null)
+		{
+			if (perComponentInternalProperties.get(componentName).contains(propName))
+			{
+				return false;
 			}
 		}
 		if (internalProperties.contains(propName)) return false;

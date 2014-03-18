@@ -889,6 +889,15 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
 	
 	
 })
+.filter('htmlFilter', ['$sce', function($sce){
+	  return function(input) {
+		  if (input && input.indexOf('<body') >=0 && input.lastIndexOf('</body') >=0)
+		  {
+			  input = input.substring(input.indexOf('<body')+6,input.lastIndexOf('</body'));
+		  }
+		  return $sce.trustAsHtml(input);;
+	 };
+}])
 
 
 

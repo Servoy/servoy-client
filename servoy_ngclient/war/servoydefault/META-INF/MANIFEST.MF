@@ -49,3 +49,6 @@ Web-Component: True
 
 Name: radio/radio.spec
 Web-Component: True
+
+Name: htmlview/htmlview.spec
+Web-Component: True

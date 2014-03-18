@@ -16,7 +16,6 @@ model:
         margin : 'dimension', 
         mediaOptions : 'mediaoptions', 
         mnemonic : 'string', 
-        printable : 'boolean', 
         rolloverCursor : 'int', 
         rolloverImageMediaID : 'media', 
         size : 'dimension', 

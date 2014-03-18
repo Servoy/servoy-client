@@ -1,6 +1,6 @@
-name: 'svy-label',
-displayName: 'label',
-definition: 'servoydefault/label/label.js',
+name: 'svy-htmlview',
+displayName: 'Html View',
+definition: 'servoydefault/htmlview/htmlview.js',
 model:
 {
         background : 'color', 
@@ -9,21 +9,14 @@ model:
         enabled : 'boolean', 
         fontType : 'font', 
         foreground : 'color', 
-        format : {for:'dataProviderID' , type:'format'}, 
         horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
-        imageMediaID : 'media', 
-        labelFor : 'bean', 
         location : 'point', 
         margin : 'dimension', 
-        mediaOptions : 'mediaoptions', 
-        mnemonic : 'string', 
-        rolloverCursor : 'int', 
-        rolloverImageMediaID : 'media', 
+        scrollbars : 'int', 
         size : 'dimension', 
         styleClass : 'string', 
         tabSeq : 'tabseq', 
         text : 'tagstring', 
-        textRotation : {type:'int', values:[0,90,180,270]}, 
         toolTipText : 'tagstring', 
         transparent : 'boolean', 
         verticalAlignment : {type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
@@ -32,7 +25,9 @@ model:
 handlers:
 {
         onActionMethodID : 'function', 
-        onDoubleClickMethodID : 'function', 
+        onDataChangeMethodID : 'function', 
+        onFocusGainedMethodID : 'function', 
+        onFocusLostMethodID : 'function', 
         onRenderMethodID : 'function', 
         onRightClickMethodID : 'function' 
 },
@@ -40,6 +35,9 @@ api:
 {
         getAbsoluteFormLocationY:{
             returns: 'int',
+                 }, 
+        getAsPlainText:{
+            returns: 'string',
                  }, 
         getClientProperty:{
             returns: 'object',
@@ -58,8 +56,8 @@ api:
         getHeight:{
             returns: 'int',
                  }, 
-        getLabelForElementName:{
-            returns: 'string',
+        getLabelForElementNames:{
+            returns: 'string []',
                  }, 
         getLocationX:{
             returns: 'int',
@@ -70,14 +68,15 @@ api:
         getName:{
             returns: 'string',
                  }, 
-        getParameterValue:{
+        getScrollX:{
+            returns: 'int',
+                 }, 
+        getScrollY:{
+            returns: 'int',
+                 }, 
+        getSelectedText:{
             returns: 'string',
-            parameters:[{'param':'string'}]
-        }, 
-        getThumbnailJPGImage:{
-            returns: 'byte []',
-            parameters:[{'width':'int','optional':'true'},{'height':'int','optional':'true'}]
-        }, 
+                 }, 
         getWidth:{
             returns: 'int',
                  }, 
@@ -85,7 +84,22 @@ api:
             
             parameters:[{'key':'object'},{'value':'object'}]
         }, 
+        replaceSelectedText:{
+            
+            parameters:[{'s':'string'}]
+        }, 
+        requestFocus:{
+            
+            parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
+        }, 
+        selectAll:{
+            
+                 }, 
         setLocation:{
+            
+            parameters:[{'x':'int'},{'y':'int'}]
+        }, 
+        setScroll:{
             
             parameters:[{'x':'int'},{'y':'int'}]
         }, 

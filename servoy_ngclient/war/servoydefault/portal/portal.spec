@@ -11,7 +11,6 @@ model:
         intercellSpacing : 'dimension', 
         location : 'point', 
         multiLine : 'boolean', 
-        printable : 'boolean', 
         relationName : 'string', 
         reorderable : 'boolean', 
         resizable : 'boolean', 

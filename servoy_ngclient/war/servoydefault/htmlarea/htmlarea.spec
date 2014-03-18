@@ -15,7 +15,6 @@ model:
         location : 'point', 
         margin : 'dimension', 
         placeholderText : 'tagstring', 
-        printable : 'boolean', 
         scrollbars : 'int', 
         selectOnEnter : 'boolean', 
         size : 'dimension', 
@@ -24,7 +23,6 @@ model:
         text : 'tagstring', 
         toolTipText : 'tagstring', 
         transparent : 'boolean', 
-        useRTF : 'boolean', 
         valuelistID : { type: 'valuelist', for: 'dataProviderID'}, 
         verticalAlignment : {type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
         visible : 'boolean' 

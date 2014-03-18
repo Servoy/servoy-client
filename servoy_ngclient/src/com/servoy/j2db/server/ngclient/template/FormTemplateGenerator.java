@@ -123,6 +123,15 @@ public class FormTemplateGenerator
 					case Field.LIST_BOX :
 					case Field.MULTISELECT_LISTBOX :
 						return "svy-listbox";
+					case Field.HTML_AREA :
+						if (((Field)persist).getEditable())
+						{
+							return "svy-htmlarea";
+						}
+						else
+						{
+							return "svy-htmlview";
+						}
 				}
 			}
 			if (persist instanceof TabPanel)

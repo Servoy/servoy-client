@@ -11,7 +11,6 @@ model:
         foreground : 'color', 
         horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
         location : 'point', 
-        printable : 'boolean', 
         scrollTabs : 'boolean', 
         selectedTabColor : 'color', 
         size : 'dimension', 
