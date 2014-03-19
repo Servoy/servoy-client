@@ -306,7 +306,11 @@ public class SpecGenerator
 			if (componentSpec.getRepositoryType() == IRepository.TABPANELS)
 			{
 				ContentSpec cs = new ContentSpec();
-				model.add(cs.new Element(-1, IRepository.FIELDS, "tabIndex", IRepository.SERVERS, ""));
+				Element el = cs.new Element(-1, IRepository.FIELDS, "tabIndex", IRepository.SERVERS, "");
+				if (isAllowedProperty(componentSpec.getName(), el.getName()) && getSpecTypeFromRepoType(el) != null)
+				{
+					model.add(el);
+				}
 			}
 			componentSpec.setModel(model);
 			componentSpec.setHandlers(handlers);
@@ -384,6 +388,7 @@ public class SpecGenerator
 				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()), (StaticContentSpecLoader.PROPERTY_FORMAT.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
+		perComponentInternalProperties.put("splitpane", new ArrayList<>(Arrays.asList("tabIndex")));
 	}
 
 	// @formatter:on
