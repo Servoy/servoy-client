@@ -1,4 +1,4 @@
-servoyModule.directive('svyRadio', function($utils) {  
+servoyModule.directive('svyRadio', function() {  
     return {
       restrict: 'E',
       transclude: true,

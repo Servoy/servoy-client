@@ -1,4 +1,4 @@
-servoyModule.directive('svyButton', function($servoy,$utils,formatFilterFilter) {  
+servoyModule.directive('svyButton', function(formatFilterFilter) {  
     return {
       restrict: 'E',
       transclude: true,

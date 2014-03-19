@@ -1,4 +1,4 @@
-servoyModule.directive('svyCalendar', function(dateFilter,$log,$utils) {  
+servoyModule.directive('svyCalendar', function(dateFilter,$log) {  
     return {
       restrict: 'E',
       transclude: true,

@@ -1,4 +1,4 @@
-servoyModule.directive('svyListbox', function($servoy,$utils,$parse) {  
+servoyModule.directive('svyListbox', function($parse) {  
     return {
       restrict: 'E',
       transclude: true,

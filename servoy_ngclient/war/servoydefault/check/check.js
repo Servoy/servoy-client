@@ -1,4 +1,4 @@
-servoyModule.directive('svyCheck', function($utils) {  
+servoyModule.directive('svyCheck', function() {  
     return {
       restrict: 'E',
       transclude: true,

@@ -1,4 +1,4 @@
-servoyModule.directive('svySplitpane', function($utils) {  
+servoyModule.directive('svySplitpane', function() {  
     return {
       restrict: 'E',
       transclude: true,

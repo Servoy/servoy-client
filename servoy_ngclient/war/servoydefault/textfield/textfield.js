@@ -1,4 +1,4 @@
-servoyModule.directive('svyTextfield', function($servoy,$utils,$apifunctions) {  
+servoyModule.directive('svyTextfield', function($apifunctions) {  
     return {
       restrict: 'E',
       transclude: true,

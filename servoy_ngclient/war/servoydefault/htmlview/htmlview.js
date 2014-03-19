@@ -1,4 +1,4 @@
-servoyModule.directive('svyHtmlview', function($servoy,htmlFilterFilter,$apifunctions) {  
+servoyModule.directive('svyHtmlview', function() {  
     return {
       restrict: 'E',
       transclude: true,

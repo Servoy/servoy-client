@@ -1,4 +1,4 @@
-servoyModule.directive('svyTabpanel', function($utils) {  
+servoyModule.directive('svyTabpanel', function() {  
     return {
       restrict: 'E',
       transclude: true,
@@ -7,7 +7,7 @@ servoyModule.directive('svyTabpanel', function($utils) {
         svyApply: "=",
         svyServoyapi: "="
       },
-      controller: function($scope, $element, $attrs, $log) {
+      controller: function($scope, $element, $attrs) {
        var selectedTab;
        $scope.bgstyle = {}
        

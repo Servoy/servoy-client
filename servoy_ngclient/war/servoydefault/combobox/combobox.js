@@ -1,4 +1,4 @@
-servoyModule.directive('svyCombobox', function($servoy,$utils) {  
+servoyModule.directive('svyCombobox', function() {  
     return {
       restrict: 'E',
       transclude: true,
