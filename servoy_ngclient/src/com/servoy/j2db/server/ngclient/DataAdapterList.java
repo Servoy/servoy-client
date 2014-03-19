@@ -150,7 +150,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		boolean changed = false;
 		for (Entry<String, List<Pair<WebComponent, String>>> entry : recordDataproviderToComponent.entrySet())
 		{
-			Object value = this.record.getValue(entry.getKey());
+			Object value = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(this.record, formController.getFormScope(), entry.getKey());
 			Object oldValue;
 			boolean isPropertyChanged;
 			WebComponent wc;
@@ -224,21 +224,21 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		Map<String, String> map = beanToDataHolder.get(webComponent.getFormElement());
 		String property = map.get(beanProperty);
-		Object oldValue = record.getValue(property);
+		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
+		// but what if it was a global or form variable?
 		if (record.startEditing())
 		{
-			record.setValue(property, value);
-		}
-
-		String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChange();
-		if (onDataChange != null && webComponent.hasEvent(onDataChange))
-		{
-			JSONObject event = EventExecutor.createEvent(onDataChange);
-			Object returnValue = webComponent.execute(onDataChange, new Object[] { oldValue, value, event });
-			String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChangeCallback();
-			if (onDataChangeCallback != null)
+			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, value);
+			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChange();
+			if (onDataChange != null && webComponent.hasEvent(onDataChange))
 			{
-				webComponent.executeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+				JSONObject event = EventExecutor.createEvent(onDataChange);
+				Object returnValue = webComponent.execute(onDataChange, new Object[] { oldValue, value, event });
+				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChangeCallback();
+				if (onDataChangeCallback != null)
+				{
+					webComponent.executeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
+				}
 			}
 		}
 	}
@@ -322,6 +322,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				return propertyValue;
 			}
+			// TODO should globals or formscope be checked for that variable? (currently the conversion will be done in the put(String,value) of the scope itself.
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
 			return propertyValue;
