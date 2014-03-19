@@ -1487,14 +1487,16 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 		this.bodyWidthHint = form.getWidth();
 
 		double multiplier = Utils.getAsDouble(Settings.getInstance().getProperty("servoy.webclient.scrolling.tableview.multiplier", "2"));
-		if (multiplier > 0)
+
+		if (multiplier > 1.1)
 		{
 			NEW_PAGE_MULITPLIER = multiplier;
 		}
 		else
 		{
-			NEW_PAGE_MULITPLIER = 2;
+			NEW_PAGE_MULITPLIER = 1.1;
 		}
+
 		useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 
