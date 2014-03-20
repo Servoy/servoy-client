@@ -55,4 +55,8 @@ public interface IWebFormUI extends IBasicFormUI, IView
 	 */
 	void init();
 
+	boolean isReadOnly();
+
+	void setReadOnly(boolean readOnly);
+
 }

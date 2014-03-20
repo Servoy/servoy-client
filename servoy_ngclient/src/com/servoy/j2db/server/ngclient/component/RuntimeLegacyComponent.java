@@ -103,8 +103,21 @@ public class RuntimeLegacyComponent implements Scriptable
 				return getCallable;
 			}
 		}
-		return convertValue(name,
+		boolean isReadonly = false;
+		if (name.equals("readOnly"))
+		{
+			isReadonly = true;
+			name = StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName();
+		}
+		Object value = convertValue(name,
 			component.getConvertedPropertyWithDefault(convertName(name), StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name)));
+
+		if (isReadonly && value instanceof Boolean)
+		{
+			return !((Boolean)value).booleanValue();
+		}
+
+		return value;
 	}
 
 	@Override
@@ -132,6 +145,14 @@ public class RuntimeLegacyComponent implements Scriptable
 		{
 			//cannot set
 			return;
+		}
+		if (name.equals("readOnly"))
+		{
+			name = StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName();
+			if (value instanceof Boolean)
+			{
+				value = !((Boolean)value).booleanValue();
+			}
 		}
 		component.putProperty(convertName(name), value);
 	}

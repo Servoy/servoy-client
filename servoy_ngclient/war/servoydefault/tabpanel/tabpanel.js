@@ -17,6 +17,20 @@ servoyModule.directive('svyTabpanel', function() {
         	 	else $scope.model.tabs[i].active = false;
         	 }
         });
+       $scope.$watch("model.readOnly", function(newValue) {
+    	   var activeForm = $scope.getActiveTab()
+    	   if (activeForm)
+    	   {
+    		   $scope.svyServoyapi.setFormReadOnly(activeForm,newValue);
+    	   }
+       });
+       $scope.$watch("model.enabled", function(newValue) {
+    	   var activeForm = $scope.getActiveTab()
+    	   if (activeForm)
+    	   {
+    		   $scope.svyServoyapi.setFormEnabled(activeForm,newValue);
+    	   }
+       });
        $scope.getTemplateUrl = function() {
     	   if ($scope.model.tabOrientation == -1) return "servoydefault/tabpanel/tablesspanel.html";
     	   else return "servoydefault/tabpanel/tabpanel.html";

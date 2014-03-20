@@ -477,6 +477,12 @@ var servoyModule = angular.module('servoy', ['webStorageModule','ui.bootstrap','
             	  websocket.send(JSON.stringify(cmd))
             	  return deferred.promise;
 	    	},
+	    	setFormEnabled: function(form,enabled) {
+          	  websocket.send(JSON.stringify({cmd:'formenabled',form:form,enabled:enabled}))
+	    	},
+	    	setFormReadOnly: function(form,readOnly) {
+	          	  websocket.send(JSON.stringify({cmd:'formreadOnly',form:form,readOnly:readOnly}))
+		    },
 	    	callService: function(serviceName, methodName, argsObject) {
 	    		var deferred = $q.defer();
 	    		var cmsgid = getNextMessageId()

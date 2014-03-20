@@ -245,59 +245,30 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		dal.setFindMode(findMode);//disables related data en does getText instead if getValue on fields
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#setReadOnly(boolean)
-	 */
 	@Override
 	public void setReadOnly(boolean b)
 	{
-		// TODO Auto-generated method stub
-
+		formUI.setReadOnly(b);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#isReadOnly()
-	 */
 	@Override
 	public boolean isReadOnly()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return formUI.isReadOnly();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled()
 	{
-		// TODO Auto-generated method stub
-		return true;
+		return formUI.isEnabled();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#setComponentEnabled(boolean)
-	 */
 	@Override
 	public void setComponentEnabled(boolean b)
 	{
-		// TODO Auto-generated method stub
-
+		formUI.setComponentEnabled(b);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.BasicFormController#recreateUI()
-	 */
 	@Override
 	public boolean recreateUI()
 	{

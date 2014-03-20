@@ -6,7 +6,8 @@
  	 svy-tooltip="{{model.toolTipText}}">
   <input type="checkbox"
 	    ng-model ="selection"
-	    ng-disabled="model.enabled == false || model.editable == false"
+	    ng-disabled="model.enabled == false"
+	    ng-readonly="model.editable == false" 
 		svy-margin="model.margin"
 		svy-scrollbars="model.scrollbars"
 		/>

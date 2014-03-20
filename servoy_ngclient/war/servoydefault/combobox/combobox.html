@@ -4,7 +4,7 @@
 		svy-margin='model.margin'
 		ng-style="style"
 		ng-model="model.dataProviderID"
-		ng-disabled="model.enabled == false"
+		ng-disabled="model.enabled == false || model.editable == false"
 		svy-tooltip="{{model.toolTipText}}"
 		svy-autoapply 
 		svy-font='model.fontType'

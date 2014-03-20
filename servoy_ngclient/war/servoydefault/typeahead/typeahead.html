@@ -6,7 +6,8 @@
 	   type="text" 
 	   ng-style="style"
 	   svy-font='model.fontType'
-	   ng-disabled="model.enabled == false" 
+	   ng-disabled="model.enabled == false"
+	   ng-readonly="model.editable == false"  
        ng-model="model.dataProviderID" 
        svy-tooltip="{{model.toolTipText}}"
        typeahead-min-length="-1"

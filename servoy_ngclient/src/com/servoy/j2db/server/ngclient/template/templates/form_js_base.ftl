@@ -72,6 +72,12 @@ servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
 		return {
 			setFormVisibility: function(formname, visibility,relationname) {
 				return $servoy.setFormVisibility(formname, visibility,relationname,$scope.formname, beanname);
+			},
+			setFormEnabled: function(formname, enabled) {
+				return $servoy.setFormEnabled(formname, enabled);
+			},
+			setFormReadOnly: function(formname, readOnly) {
+				return $servoy.setFormReadOnly(formname, readOnly);
 			}
 		}	
 	}

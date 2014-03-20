@@ -311,6 +311,8 @@ public class SpecGenerator
 				{
 					model.add(el);
 				}
+				el = cs.new Element(-1, IRepository.TABPANELS, "readOnly", IRepository.BOOLEAN, Boolean.FALSE);
+				model.add(el);
 			}
 			componentSpec.setModel(model);
 			componentSpec.setHandlers(handlers);

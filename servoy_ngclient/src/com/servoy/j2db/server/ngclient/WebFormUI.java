@@ -45,6 +45,9 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	private final INGApplication application;
 	private final IFormController formController;
 
+	private boolean enabled = true;
+	private boolean readOnly = false;
+
 	public WebFormUI(IFormController formController)
 	{
 		super(formController.getName(), formController.getForm());
@@ -300,29 +303,53 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		}
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ui.IComponent#setComponentEnabled(boolean)
-	 */
 	@Override
 	public void setComponentEnabled(boolean enabled)
 	{
-		// TODO Auto-generated method stub
-
+		this.enabled = enabled;
+		propagatePropertyToAllComponents("enabled", enabled);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.ui.IComponent#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return enabled;
+	}
+
+	@Override
+	public boolean isReadOnly()
+	{
+		return readOnly;
+	}
+
+	@Override
+	public void setReadOnly(boolean readOnly)
+	{
+		this.readOnly = readOnly;
+		propagatePropertyToAllComponents("readOnly", readOnly);
+	}
+
+	private void propagatePropertyToAllComponents(String property, Object value)
+	{
+		FormScope formScope = formController.getFormScope();
+		if (formScope != null)
+		{
+			ElementScope elementScope = (ElementScope)formScope.get("elements", null); //$NON-NLS-1$
+			if (elementScope != null)
+			{
+				Object[] components = elementScope.getValues();
+				if (components != null)
+				{
+					for (Object component : components)
+					{
+						if (component instanceof RuntimeWebComponent)
+						{
+							((RuntimeWebComponent)component).put(property, null, value);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/*

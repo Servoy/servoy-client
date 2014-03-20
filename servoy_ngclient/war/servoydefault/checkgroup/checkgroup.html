@@ -7,7 +7,7 @@
      svy-font='model.fontType' >
   <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')">
      <input 
-          type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" ng-click="checkBoxClicked($index)" ng-disabled="model.enabled == false"/> {{item.displayValue}}
+          type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" ng-click="checkBoxClicked($index)" ng-disabled="model.enabled == false" ng-readonly="model.editable == false" /> {{item.displayValue}}
   </div>
 </div>
     

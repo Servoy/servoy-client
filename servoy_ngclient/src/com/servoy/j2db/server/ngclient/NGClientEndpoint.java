@@ -50,6 +50,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
+import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
@@ -320,6 +321,24 @@ public class NGClientEndpoint implements INGClientEndpoint
 					}
 					break;
 				}
+				case "formreadOnly" :
+				{
+					IWebFormController form = parseForm(obj);
+					if (form != null)
+					{
+						((WebFormController)form).setReadOnly(obj.getBoolean("readOnly"));
+					}
+					break;
+				}
+				case "formenabled" :
+				{
+					IWebFormController form = parseForm(obj);
+					if (form != null)
+					{
+						((WebFormController)form).setComponentEnabled(obj.getBoolean("enabled"));
+					}
+					break;
+				}
 				case "formvisibility" :
 				{
 					client.invokeLater(new Runnable()
@@ -331,13 +350,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 							try
 							{
 								response = new JSONStringer().object().key("cmsgid").value(obj.get("cmsgid"));
-								String formName = obj.getString("form");
-								if (formName.endsWith(".html"))
-								{
-									int index = formName.lastIndexOf('/');
-									formName = formName.substring(index + 1, formName.length() - 5);
-								}
-								IWebFormController form = client.getFormManager().getForm(formName);
+								IWebFormController form = parseForm(obj);
 								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 								boolean ok = form.notifyVisible(obj.getBoolean("visible"), invokeLaterRunnables);
 								Utils.invokeLater(client, invokeLaterRunnables);
@@ -755,6 +768,25 @@ public class NGClientEndpoint implements INGClientEndpoint
 		}
 
 		return null;
+	}
+
+	private IWebFormController parseForm(JSONObject obj)
+	{
+		try
+		{
+			String formName = obj.getString("form");
+			if (formName.endsWith(".html"))
+			{
+				int index = formName.lastIndexOf('/');
+				formName = formName.substring(index + 1, formName.length() - 5);
+			}
+			return client.getFormManager().getForm(formName);
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+			return null;
+		}
 	}
 
 	private synchronized void sendText(String txt)

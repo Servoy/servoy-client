@@ -5,6 +5,7 @@
 	   ng-style='style'
 	   svy-font='model.fontType'
 	   ng-disabled="model.enabled == false"
+	   ng-readonly="model.editable == false"
        ng-model="editModel" 
        svy-tooltip="{{model.toolTipText}}"
        ng-blur="pushChange()"/>
