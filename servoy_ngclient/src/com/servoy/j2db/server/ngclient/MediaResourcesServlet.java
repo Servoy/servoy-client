@@ -17,7 +17,12 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -26,6 +31,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.wicket.util.upload.FileItemIterator;
+import org.apache.wicket.util.upload.FileItemStream;
+import org.apache.wicket.util.upload.FileUploadException;
+import org.apache.wicket.util.upload.ServletFileUpload;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.persistence.IRepository;
@@ -33,6 +43,7 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.MimeTypes;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -44,6 +55,21 @@ import com.servoy.j2db.util.Utils;
 @WebServlet("/resources/*")
 public class MediaResourcesServlet extends HttpServlet
 {
+
+	private static final WeakHashMap<byte[], MediaInfo> mediaBytesMap = new WeakHashMap<>();
+
+	public static synchronized MediaInfo getMediaInfo(byte[] mediaBytes)
+	{
+		MediaInfo mediaInfo = null;
+		if (!mediaBytesMap.containsKey(mediaBytes))
+		{
+			mediaInfo = new MediaInfo(UUID.randomUUID().toString(), MimeTypes.getContentType(mediaBytes, null));
+			mediaBytesMap.put(mediaBytes, mediaInfo);
+		}
+
+		return mediaInfo == null ? mediaBytesMap.get(mediaBytes) : mediaInfo;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -56,10 +82,10 @@ public class MediaResourcesServlet extends HttpServlet
 		String path = req.getPathInfo();
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
+		byte[] mediaData = null;
+		String contentType = null;
 		if (paths.length == 3)
 		{
-			byte[] mediaData = null;
-			String contentType = null;
 			String clientUUID = paths[0];
 			int blobID = Utils.getAsInteger(paths[1]);
 			String mediaName = paths[2];
@@ -93,20 +119,115 @@ public class MediaResourcesServlet extends HttpServlet
 				{
 				}
 			}
-			if (mediaData != null && mediaData.length > 0)
+		}
+		else if (paths.length == 1)
+		{
+			Iterator<Map.Entry<byte[], MediaInfo>> entryIte = mediaBytesMap.entrySet().iterator();
+			Map.Entry<byte[], MediaInfo> entry;
+			while (entryIte.hasNext())
 			{
-				if (contentType == null)
+				entry = entryIte.next();
+				if (paths[0].equals(entry.getValue().getName()))
 				{
-					contentType = MimeTypes.getContentType(mediaData, mediaName);
+					mediaData = entry.getKey();
+					contentType = entry.getValue().getContentType();
 				}
-				if (contentType != null) resp.setContentType(contentType);
-				resp.setContentLength(mediaData.length);
-				ServletOutputStream outputStream = resp.getOutputStream();
-				outputStream.write(mediaData);
-				outputStream.flush();
-				dataSend = true;
 			}
 		}
+		if (mediaData != null && mediaData.length > 0)
+		{
+			if (contentType == null)
+			{
+				contentType = MimeTypes.getContentType(mediaData, null);
+			}
+			if (contentType != null) resp.setContentType(contentType);
+			resp.setContentLength(mediaData.length);
+			ServletOutputStream outputStream = resp.getOutputStream();
+			outputStream.write(mediaData);
+			outputStream.flush();
+			dataSend = true;
+		}
+
 		if (!dataSend) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	{
+		String path = req.getPathInfo();
+		if (path.startsWith("/")) path = path.substring(1);
+		String[] paths = path.split("/");
+
+		if (paths.length == 5 && paths[0].equals("upload"))
+		{
+			if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").startsWith("multipart/form-data"))
+			{
+				try
+				{
+					ServletFileUpload upload = new ServletFileUpload();
+					FileItemIterator iterator = upload.getItemIterator(req);
+					if (iterator.hasNext())
+					{
+						FileItemStream item = iterator.next();
+						byte[] data = read(item.openStream());
+						String clientID = paths[1];
+						String formName = paths[2];
+						String elementName = paths[3];
+						String propertyName = paths[4];
+
+						NGClient client = (NGClient)NGClientEndpoint.getClient(clientID);
+						IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
+						WebComponent webComponent = form.getWebComponent(elementName);
+						form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
+					}
+				}
+				catch (FileUploadException ex)
+				{
+					throw new ServletException(ex.toString());
+				}
+			}
+		}
+	}
+
+	private byte[] read(InputStream stream) throws IOException
+	{
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		try
+		{
+			byte[] buffer = new byte[2048];
+			int len;
+			while ((len = stream.read(buffer)) != -1)
+			{
+				bos.write(buffer, 0, len);
+			}
+			bos.flush();
+			return bos.toByteArray();
+		}
+		finally
+		{
+			bos.close();
+		}
+	}
+
+	public static class MediaInfo
+	{
+		private final String name;
+		private final String contentType;
+
+		MediaInfo(String name, String contentType)
+		{
+			this.name = name;
+			this.contentType = contentType;
+		}
+
+		public String getName()
+		{
+			return name;
+		}
+
+		public String getContentType()
+		{
+			return contentType;
+		}
 	}
 }

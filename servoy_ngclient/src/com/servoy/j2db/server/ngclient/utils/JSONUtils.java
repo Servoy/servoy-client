@@ -51,6 +51,7 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.ClientConversion;
+import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
@@ -259,6 +260,14 @@ public class JSONUtils
 		else if (value instanceof JSONWritable)
 		{
 			toJSONValue(w, ((JSONWritable)value).toMap(), clientConversion);
+		}
+		else if (value instanceof byte[])
+		{
+			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.getMediaInfo((byte[])value);
+			w.object();
+			w.key("url").value("resources/" + mediaInfo.getName());
+			w.key("contentType").value(mediaInfo.getContentType());
+			w.endObject();
 		}
 		else
 		{

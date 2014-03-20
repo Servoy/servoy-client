@@ -220,20 +220,23 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void pushChanges(WebComponent webComponent, String beanProperty)
 	{
-		Object value = webComponent.getProperty(beanProperty);
+		pushChanges(webComponent, beanProperty, webComponent.getProperty(beanProperty));
+	}
 
+	public void pushChanges(WebComponent webComponent, String beanProperty, Object newValue)
+	{
 		Map<String, String> map = beanToDataHolder.get(webComponent.getFormElement());
 		String property = map.get(beanProperty);
 		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
 		// but what if it was a global or form variable?
 		if (record.startEditing())
 		{
-			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, value);
+			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, newValue);
 			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChange();
 			if (onDataChange != null && webComponent.hasEvent(onDataChange))
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange);
-				Object returnValue = webComponent.execute(onDataChange, new Object[] { oldValue, value, event });
+				Object returnValue = webComponent.execute(onDataChange, new Object[] { oldValue, newValue, event });
 				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{

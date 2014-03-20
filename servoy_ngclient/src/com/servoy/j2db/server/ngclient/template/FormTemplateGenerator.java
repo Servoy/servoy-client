@@ -123,6 +123,8 @@ public class FormTemplateGenerator
 					case Field.LIST_BOX :
 					case Field.MULTISELECT_LISTBOX :
 						return "svy-listbox";
+					case Field.IMAGE_MEDIA :
+						return "svy-imagemedia";
 					case Field.HTML_AREA :
 						if (((Field)persist).getEditable())
 						{

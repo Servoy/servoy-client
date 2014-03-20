@@ -35,6 +35,13 @@ public interface IDataAdapterList extends IDataConverter
 	/**
 	 * @param webComponent
 	 * @param string
+	 * @param newValue
+	 */
+	void pushChanges(WebComponent webComponent, String string, Object newValue);
+
+	/**
+	 * @param webComponent
+	 * @param string
 	 * @param args
 	 */
 	Object execute(WebComponent webComponent, String event, int eventId, Object[] args);

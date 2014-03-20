@@ -30,12 +30,14 @@
       <script src="js/angularui/ui-bootstrap-tpls-0.10.0.js"></script>
       <script src="js/angularui/ng-grid-2.0.7.debug.js"></script>
       <script src="js/numeral.js"></script>
+      <script src="js/angular-file-upload/dist/angular-file-upload.min.js"></script>
       
       <!-- base servoy libraries -->
       <link rel="stylesheet" href="css/servoy.css">
 	  <script src="js/servoy.js"></script>
 	  <script src="js/servoyformat.js"></script>
 	  <script src="js/servoytooltip.js"></script>
+	  <script src="js/fileupload.js"></script>
         
 	  <!-- list of all the beans/components maybe having 1 file that includes them all -->
 	  <!-- standard "servoydefault.jar , should  be generated" beans -->
@@ -63,7 +65,9 @@
       <script src="servoydefault/splitpane/bg-splitter/js/splitter.js"></script>
       <link rel="stylesheet" href="servoydefault/splitpane/bg-splitter/css/style.css">
       <script src="servoydefault/splitpane/splitpane.js"></script>
-            
+
+	  <script src="servoydefault/imagemedia/imagemedia.js"></script>
+
       <!-- external js/css used by beans, should  be generated -->
       <script src="webcomponents/signaturefield/js/jquery.signaturepad.min.js"></script>
       <script src="webcomponents/signaturefield/signaturefield.js"></script>
