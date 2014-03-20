@@ -65,6 +65,9 @@
       <!-- split pane using bg-splitter -->
       <script src="servoydefault/splitpane/bg-splitter/js/splitter.js"></script>
       <link rel="stylesheet" href="servoydefault/splitpane/bg-splitter/css/style.css">
+      <script src="servoydefault/spinner/spinner.js"></script>
+      <link rel="stylesheet" href="servoydefault/spinner/spinner.css">
+      <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
       
       <!-- "webcomponents.jar" beans, should  be generated -->
       <script src="webcomponents/namepanel/namepanel.js"></script>
