@@ -1,4 +1,4 @@
-servoyModule.directive('svyCombobox', function() {  
+angular.module('svyCombobox',['servoy']).directive('svyCombobox', function() {  
     return {
       restrict: 'E',
       transclude: true,

@@ -1,4 +1,4 @@
-servoyModule.directive('svyFileupload', function ($modal, $upload, $window, $parse, webStorage) {
+angular.module('servoyfileupload',['webStorageModule']).directive('svyFileupload', function ($modal, $upload, $window, $parse, webStorage) {
 	return {
 		restrict: 'A',
         link: function ($scope, $element, $attrs) {

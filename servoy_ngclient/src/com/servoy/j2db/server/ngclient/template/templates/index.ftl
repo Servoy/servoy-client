@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 <!DOCTYPE html>
-<html ng-app="servoy" ng-controller="MainController">
+<html ng-app="servoyApp" ng-controller="MainController">
 	<head>
 	  <base href="${context}/">
 	  <title ng-bind="solutionSettings.solutionTitle">Servoy NGClient</title>
@@ -38,6 +38,9 @@
 	  <script src="js/servoyformat.js"></script>
 	  <script src="js/servoytooltip.js"></script>
 	  <script src="js/fileupload.js"></script>
+	  <script src="js/servoy-components.js"></script>
+      <script src="js/servoy_app.js"></script>
+	  
         
 	  <!-- list of all the beans/components maybe having 1 file that includes them all -->
 	  <!-- standard "servoydefault.jar , should  be generated" beans -->
@@ -57,27 +60,22 @@
       <script src="servoydefault/textarea/textarea.js"></script>
       <script src="servoydefault/listbox/listbox.js"></script>
       <script src="servoydefault/htmlview/htmlview.js"></script>
-      <script src="servoydefault/navigator/default_navigator_container.js"></script> <!-- not a component-->
-      <!-- "webcomponents.jar" beans, should  be generated -->
-      <script src="webcomponents/namepanel/namepanel.js"></script>
-
+	  <script src="servoydefault/imagemedia/imagemedia.js"></script>
+      <script src="servoydefault/splitpane/splitpane.js"></script>
       <!-- split pane using bg-splitter -->
       <script src="servoydefault/splitpane/bg-splitter/js/splitter.js"></script>
       <link rel="stylesheet" href="servoydefault/splitpane/bg-splitter/css/style.css">
-      <script src="servoydefault/splitpane/splitpane.js"></script>
+      
+      <!-- "webcomponents.jar" beans, should  be generated -->
+      <script src="webcomponents/namepanel/namepanel.js"></script>
+      <script src="webcomponents/signaturefield/signaturefield.js"></script>
+      <script src="webcomponents/inlineeditfield/inlineeditfield.js"></script>
 
-	  <script src="servoydefault/imagemedia/imagemedia.js"></script>
-
+            
       <!-- external js/css used by beans, should  be generated -->
       <script src="webcomponents/signaturefield/js/jquery.signaturepad.min.js"></script>
-      <script src="webcomponents/signaturefield/signaturefield.js"></script>
       <link rel="stylesheet" href="webcomponents/signaturefield/css/jquery.signaturepad.css">
-        
-        <!-- inlineeditfield commponent/bean -->
-      <script src="webcomponents/inlineeditfield/inlineeditfield.js"></script>
       <link rel="stylesheet" href="webcomponents/inlineeditfield/css/inlineeditfield.css">  
-
-       
         
 	  <!-- -list of all the form controller scripts, maybe one solution so have all the controllers as once in 1 file -->
 	  <#list formScriptReferences as formScript>

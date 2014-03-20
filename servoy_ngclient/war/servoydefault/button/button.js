@@ -1,4 +1,4 @@
-servoyModule.directive('svyButton', function(formatFilterFilter) {  
+angular.module('svyButton',['servoy']).directive('svyButton', function(formatFilterFilter) {  
     return {
       restrict: 'E',
       transclude: true,

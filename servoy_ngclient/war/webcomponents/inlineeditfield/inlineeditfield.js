@@ -1,4 +1,4 @@
-servoyModule.directive('inlineeditfield', function($timeout) {  
+angular.module('inlineeditfield',['servoy']).directive('inlineeditfield', function($timeout) {  
     return {
       restrict: 'E',
       transclude: true,

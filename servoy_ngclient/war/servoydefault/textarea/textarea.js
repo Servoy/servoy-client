@@ -1,4 +1,4 @@
-servoyModule.directive('svyTextarea', function($apifunctions) {  
+angular.module('svyTextarea',['servoy']).directive('svyTextarea', function($apifunctions) {  
     return {
       restrict: 'E',
       transclude: true,

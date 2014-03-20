@@ -1,4 +1,4 @@
-servoyModule.directive('namepanel', function($servoy) {  
+angular.module('namepanel',['servoy']).directive('namepanel', function() {  
     return {
       restrict: 'E',
       transclude: true,

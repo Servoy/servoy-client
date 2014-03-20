@@ -1,4 +1,4 @@
-servoyModule.directive('signaturefield', function() {
+angular.module('signaturefield',['servoy']).directive('signaturefield', function() {
         return {
            restrict : 'E',
            scope : {

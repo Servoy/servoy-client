@@ -1,4 +1,4 @@
-servoyModule.directive('svyPassword', function() {  
+angular.module('svyPassword',['servoy']).directive('svyPassword', function() {  
     return {
       restrict: 'E',
       transclude: true,

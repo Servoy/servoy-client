@@ -1,4 +1,4 @@
-servoyModule.factory("$svyTooltipUtils", function($window){
+angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window){
 	
 	var tooltipDiv;
 	function getTooltipDiv() {

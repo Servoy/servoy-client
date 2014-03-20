@@ -1,4 +1,4 @@
-servoyModule.directive('svyRadiogroup', function($utils) {  
+angular.module('svyRadiogroup',['servoy']).directive('svyRadiogroup', function($utils) {  
     return {
       restrict: 'E',
       transclude: true,

@@ -1,4 +1,4 @@
-servoyModule.directive('svyTypeahead', function($timeout) {  
+angular.module('svyTypeahead',['servoy']).directive('svyTypeahead', function($timeout) {  
     return {
       restrict: 'E',
       transclude: true,

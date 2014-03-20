@@ -1,4 +1,4 @@
-servoyModule.directive('svyLabel', ["formatFilterFilter",'$utils', function(formatFilter,$utils) {  
+angular.module('svyLabel',['servoy']).directive('svyLabel', ["formatFilterFilter",'$utils', function(formatFilter,$utils) {  
     return {
       restrict: 'E',
       transclude: true,

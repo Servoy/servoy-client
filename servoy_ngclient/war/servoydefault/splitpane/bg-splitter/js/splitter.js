@@ -1,4 +1,4 @@
-servoyModule.directive('bgSplitter', function() {
+angular.module('svySplitpane').directive('bgSplitter', function() {
     return {
       restrict: 'E',
       replace: true,

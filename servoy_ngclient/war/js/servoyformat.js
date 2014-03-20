@@ -1,4 +1,4 @@
-servoyModule.factory("$formatterUtils",function($filter){     // to remove
+angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){     // to remove
 	// add replace all to String 
 	String.prototype.replaceAll = function (find, replace) {
 	    var str = this;

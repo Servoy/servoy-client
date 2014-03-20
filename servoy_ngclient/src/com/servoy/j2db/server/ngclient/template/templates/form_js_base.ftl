@@ -16,7 +16,7 @@
 -->
 <#macro form_js_body>Abstract macro</#macro>
 <#macro form_js>
-servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
+angular.module('servoyApp').controller("${name}", function($scope, $servoyInternal,$timeout) {
 
 	var beans = {
 	<#list baseComponents as bc>
@@ -28,7 +28,7 @@ servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
 		<#list bc.valuelistProperties as vlprop>
 	beans.${bc.name}.${vlprop}_filter = function(filterString) {
 		if (filterString) {
-			return $servoy.filterList('${name}','${bc.name}','${vlprop}',filterString);
+			return $servoyInternal.filterList('${name}','${bc.name}','${vlprop}',filterString);
 		}
 		return $scope.model.${bc.name}.${vlprop}
 	}
@@ -36,7 +36,7 @@ servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
 	</#list>
 
 	var formProperties = ${propertiesString}
-	var formState = $servoy.initFormState("${name}", beans, formProperties);
+	var formState = $servoyInternal.initFormState("${name}", beans, formProperties);
 	$scope.model = formState.model;
 	$scope.api = formState.api;
 	$scope.layout = formState.layout;
@@ -50,7 +50,7 @@ servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
 	
 	var getExecutor = function(beanName,eventType) {
 		var callExecutor = function(args, svy_pk) {
-			return $servoy.getExecutor("${name}").on(beanName,eventType,null,args,svy_pk);
+			return $servoyInternal.getExecutor("${name}").on(beanName,eventType,null,args,svy_pk);
 		}
 		var wrapper = function() {
 			return callExecutor(arguments, null);
@@ -63,7 +63,7 @@ servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
 
 	var getApply = function(beanname) {
 		var wrapper = function(property, beanModel) {
-			$servoy.push("${name}",beanname,property,beanModel);
+			$servoyInternal.push("${name}",beanname,property,beanModel);
 		}
 		return wrapper;
 	}
@@ -71,13 +71,13 @@ servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
 	var servoyApi = function(beanname) {
 		return {
 			setFormVisibility: function(formname, visibility,relationname) {
-				return $servoy.setFormVisibility(formname, visibility,relationname,$scope.formname, beanname);
+				return $servoyInternal.setFormVisibility(formname, visibility,relationname,$scope.formname, beanname);
 			},
 			setFormEnabled: function(formname, enabled) {
-				return $servoy.setFormEnabled(formname, enabled);
+				return $servoyInternalk.setFormEnabled(formname, enabled);
 			},
 			setFormReadOnly: function(formname, readOnly) {
-				return $servoy.setFormReadOnly(formname, readOnly);
+				return $servoyInternal.setFormReadOnly(formname, readOnly);
 			}
 		}	
 	}
@@ -93,7 +93,7 @@ servoyModule.controller("${name}", function($scope, $servoy,$timeout) {
 	var wrapper = function(beanName) {
 		return function(newvalue,oldvalue) {
 			if(oldvalue === newvalue) return;
-			$servoy.sendChanges(newvalue,oldvalue, "${name}", beanName);
+			$servoyInternal.sendChanges(newvalue,oldvalue, "${name}", beanName);
 		}
 	}
 
