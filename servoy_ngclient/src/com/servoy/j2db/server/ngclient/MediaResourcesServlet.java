@@ -49,7 +49,10 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  * 
- * media resources url: /resources/[clientuuid_or_solutionname]/[mediaid]/[media.name]
+ * media resources url:
+ * 	/resources/[clientuuid_or_solutionname]/[mediaid]/[media.name]
+ *  /resources/[mediaid] (mediaid returned by MediaResourcesServlet.getMediaInfo(byte[]))
+ *  /resources/upload/[clientuuid]/[formName]/[elementName]/[propertyName] for binary upload
  *
  */
 @WebServlet("/resources/*")
