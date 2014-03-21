@@ -3,8 +3,8 @@
 	<div class="input-append">
     <input type="text" class="spinner-input" 
     	   ng-model="selection" 
-    	   ng-disabled="isDisabled()"
-    	   ng-readonly="true" 
+    	   ng-disabled="model.enabled == false"
+    	   readonly
     	   svy-border='model.borderType'
     	   svy-background='model.transparent ? "transparent" : model.background'
     	   svy-foreground='model.foreground'
