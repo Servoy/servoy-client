@@ -3,16 +3,16 @@
 	<div class="input-append">
     <input type="text" class="spinner-input" 
     	   ng-model="selection" 
-    	   ng-disabled="model.enabled == false"
+    	   ng-disabled="isDisabled()"
     	   ng-readonly="true" 
     	   svy-border='model.borderType'
     	   svy-background='model.transparent ? "transparent" : model.background'
     	   svy-foreground='model.foreground'
 		   svy-margin='model.margin'>
     <div class="spinner-buttons">
-      <button ng-click="increment()" ng-disabled="model.enabled == false" class="btn btn-default spinner-button-up" type="button">
+      <button ng-click="increment()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-up" type="button">
         <i class="icon-angle-up"></i></button>
-      <button ng-click="decrement()" ng-disabled="model.enabled == false" class="btn btn-default spinner-button-down" type="button">
+      <button ng-click="decrement()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-down" type="button">
         <i class="icon-angle-down"></i></button>
     </div>
   </div>

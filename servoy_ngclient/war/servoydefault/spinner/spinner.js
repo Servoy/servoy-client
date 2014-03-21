@@ -27,14 +27,25 @@ angular.module('svySpinner',['servoy']).directive('svySpinner', function($utils)
 	          return (e.detail || delta > 0);
           };
           input.bind('mousewheel wheel', function(e) {
-              $scope.$apply( (isScrollingUp(e)) ? $scope.increment() : $scope.decrement() );
+        	  if (!$scope.isDisabled())
+        	  {
+        		  $scope.$apply( (isScrollingUp(e)) ? $scope.increment() : $scope.decrement() );
+        	  }
               e.preventDefault();
           });
           input.bind('keydown keypress', function(e){
-        	  if (e.which == 40) $scope.decrement();
-        	  if (e.which == 38) $scope.increment();
+        	  if (!$scope.isDisabled())
+        	  {
+	        	  if (e.which == 40) $scope.decrement();
+	        	  if (e.which == 38) $scope.increment();
+        	  }
         	  e.preventDefault();
           });
+          
+          $scope.isDisabled = function()
+          {
+        	  return $scope.model.enabled == false || $scope.model.editable == false;
+          }
         	  
           $scope.increment = function()
           {
