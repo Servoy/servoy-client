@@ -1,6 +1,7 @@
 name: 'svy-imagemedia',
 displayName: 'Image Media',
 definition: 'servoydefault/imagemedia/imagemedia.js',
+libraries: [],
 model:
 {
         background : 'color', 

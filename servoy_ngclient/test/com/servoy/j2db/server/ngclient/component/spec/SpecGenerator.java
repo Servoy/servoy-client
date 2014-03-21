@@ -84,28 +84,33 @@ public class SpecGenerator
 	private static final List<SpecTemplateModel> specTemplateList = new ArrayList<SpecTemplateModel>();
 	static
 	{
-		specTemplateList.add(new SpecTemplateModel("button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class));
-		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class));
-		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class));
-		specTemplateList.add(new SpecTemplateModel("combobox", "Combobox ", IRepository.FIELDS, IRuntimeCombobox.class));
-		specTemplateList.add(new SpecTemplateModel("label", "label", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class));
-		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadio.class));
-		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class));
-		specTemplateList.add(new SpecTemplateModel("typeahead", "TypeAhead ", IRepository.FIELDS, IRuntimeTextField.class));
-		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class));
-		specTemplateList.add(new SpecTemplateModel("password", "Password field", IRepository.FIELDS, IRuntimePassword.class));
-		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area", IRepository.FIELDS, IRuntimeHtmlArea.class));
-		specTemplateList.add(new SpecTemplateModel("htmlview", "Html View", IRepository.FIELDS, IRuntimeHtmlArea.class));
-		specTemplateList.add(new SpecTemplateModel("textarea", "Text Area", IRepository.FIELDS, IRuntimeTextArea.class));
-		specTemplateList.add(new SpecTemplateModel("check", "Check", IRepository.FIELDS, IRuntimeCheck.class));
-		specTemplateList.add(new SpecTemplateModel("radio", "Radio", IRepository.FIELDS, IRuntimeRadio.class));
-		specTemplateList.add(new SpecTemplateModel("imagemedia", "Image Media", IRepository.FIELDS, IRuntimeImageMedia.class));
-		specTemplateList.add(new SpecTemplateModel("splitpane", "Split Pane", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptSplitPaneMethods.class));
-		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class));
+		specTemplateList.add(new SpecTemplateModel("button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("combobox", "Combobox ", IRepository.FIELDS, IRuntimeCombobox.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("label", "label", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadio.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("typeahead", "TypeAhead ", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,
+			new String[0]));
+		specTemplateList.add(new SpecTemplateModel("password", "Password field", IRepository.FIELDS, IRuntimePassword.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area", IRepository.FIELDS, IRuntimeHtmlArea.class,
+			new String[] { "servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "servoydefault/htmlarea/lib/ui-tinymce.js" }));
+		specTemplateList.add(new SpecTemplateModel("htmlview", "Html View", IRepository.FIELDS, IRuntimeHtmlArea.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("textarea", "Text Area", IRepository.FIELDS, IRuntimeTextArea.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("check", "Check", IRepository.FIELDS, IRuntimeCheck.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("radio", "Radio", IRepository.FIELDS, IRuntimeRadio.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("imagemedia", "Image Media", IRepository.FIELDS, IRuntimeImageMedia.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("splitpane", "Split Pane", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
+			new String[] { "servoydefault/splitpane/bg-splitter/js/splitter.js", "servoydefault/splitpane/bg-splitter/css/style.css" }));
+		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
+			new String[0]));
 		specTemplateList.add(new SpecTemplateModel("accordionpanel", "AccordionPanel", IRepository.TABPANELS,
-			com.servoy.j2db.ui.IScriptAccordionPanelMethods.class));
-		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class));
-		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class));
+			com.servoy.j2db.ui.IScriptAccordionPanelMethods.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
+			new String[] { "servoydefault/spinner/spinner.css", "//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" }));
+		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class, new String[0]));
 
 		//specTemplateList.add(new SpecTemplateModel("navigator","Navigator", IRepository.FIELDS));
 	}

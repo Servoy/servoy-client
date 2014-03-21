@@ -1,6 +1,7 @@
 name: 'svy-label',
 displayName: 'label',
 definition: 'servoydefault/label/label.js',
+libraries: [],
 model:
 {
         background : 'color', 

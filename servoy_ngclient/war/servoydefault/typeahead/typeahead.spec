@@ -1,6 +1,7 @@
 name: 'svy-typeahead',
 displayName: 'TypeAhead ',
 definition: 'servoydefault/typeahead/typeahead.js',
+libraries: [],
 model:
 {
         background : 'color', 

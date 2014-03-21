@@ -1,6 +1,7 @@
 name: 'svy-tabpanel',
 displayName: 'Tab panel',
 definition: 'servoydefault/tabpanel/tabpanel.js',
+libraries: [],
 model:
 {
         background : 'color', 

@@ -1,6 +1,7 @@
 name: 'svy-calendar',
 displayName: 'Calendar',
 definition: 'servoydefault/calendar/calendar.js',
+libraries: [],
 model:
 {
         background : 'color', 

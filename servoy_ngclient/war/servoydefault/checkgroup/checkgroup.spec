@@ -1,6 +1,7 @@
 name: 'svy-checkgroup',
 displayName: 'Check group',
 definition: 'servoydefault/checkgroup/checkgroup.js',
+libraries: [],
 model:
 {
         background : 'color', 

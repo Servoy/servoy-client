@@ -17,6 +17,7 @@
 name: 'svy-${name}',
 displayName: '${displayName}',
 definition: 'servoydefault/${name}/${name}.js',
+libraries: [<#list libraries as lib>'${lib}'<#if lib_has_next>,</#if></#list>],
 model:
 {
     <#list model as prop>

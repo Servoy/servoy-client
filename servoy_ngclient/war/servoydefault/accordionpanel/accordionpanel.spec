@@ -1,6 +1,7 @@
 name: 'svy-accordionpanel',
 displayName: 'AccordionPanel',
 definition: 'servoydefault/accordionpanel/accordionpanel.js',
+libraries: [],
 model:
 {
         background : 'color', 
@@ -20,8 +21,7 @@ model:
         tabOrientation : {type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}, 
         tabSeq : 'tabseq', 
         transparent : 'boolean', 
-        visible : 'boolean',
-        tabs : 'tab[]' 
+        visible : 'boolean' 
 },
 handlers:
 {
@@ -129,16 +129,4 @@ api:
             
             parameters:[{'index':'int'},{'text':'string'}]
         } 
-},
-types: {
-  tab: {
-  	model: {
-		name: 'string',
-  		containsFormId: 'form',
-  		text: 'tagstring',
-  		relationName: 'relation',
-  		active: 'boolean',
-  		foreground: Color
-  	}
-  }
 }

@@ -1,6 +1,7 @@
 name: 'svy-htmlview',
 displayName: 'Html View',
 definition: 'servoydefault/htmlview/htmlview.js',
+libraries: [],
 model:
 {
         background : 'color', 

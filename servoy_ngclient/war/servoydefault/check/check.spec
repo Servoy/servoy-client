@@ -1,6 +1,7 @@
 name: 'svy-check',
 displayName: 'Check',
 definition: 'servoydefault/check/check.js',
+libraries: [],
 model:
 {
         background : 'color', 

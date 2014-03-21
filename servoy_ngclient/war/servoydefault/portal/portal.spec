@@ -1,6 +1,7 @@
 name: 'svy-portal',
 displayName: 'Portal',
 definition: 'servoydefault/portal/portal.js',
+libraries: [],
 model:
 {
         background : 'color', 

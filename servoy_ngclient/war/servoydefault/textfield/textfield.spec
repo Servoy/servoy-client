@@ -1,6 +1,7 @@
 name: 'svy-textfield',
 displayName: 'Text field',
 definition: 'servoydefault/textfield/textfield.js',
+libraries: [],
 model:
 {
         background : 'color', 

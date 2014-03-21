@@ -1,6 +1,7 @@
 name: 'svy-password',
 displayName: 'Password field',
 definition: 'servoydefault/password/password.js',
+libraries: [],
 model:
 {
         background : 'color', 

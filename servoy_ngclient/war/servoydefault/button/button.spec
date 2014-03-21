@@ -1,6 +1,7 @@
 name: 'svy-button',
 displayName: 'Button',
 definition: 'servoydefault/button/button.js',
+libraries: [],
 model:
 {
         background : 'color', 

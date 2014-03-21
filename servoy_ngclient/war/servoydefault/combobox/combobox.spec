@@ -1,6 +1,7 @@
 name: 'svy-combobox',
 displayName: 'Combobox ',
 definition: 'servoydefault/combobox/combobox.js',
+libraries: [],
 model:
 {
         background : 'color', 

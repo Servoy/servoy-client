@@ -1,6 +1,7 @@
 name: 'svy-listbox',
 displayName: 'ListBox',
 definition: 'servoydefault/listbox/listbox.js',
+libraries: [],
 model:
 {
         background : 'color', 

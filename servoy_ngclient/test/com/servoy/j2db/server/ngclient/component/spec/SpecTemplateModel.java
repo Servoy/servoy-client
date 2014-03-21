@@ -30,22 +30,22 @@ import com.servoy.j2db.persistence.ContentSpec.Element;
  */
 public class SpecTemplateModel
 {
-	String name;
-	String displayName;
-	List<Element> model;
-	List<Element> handlers;
-	Class< ? > apiInterface;
-	List<ApiMethod> apis = new ArrayList<>();
-	int repositoryType;
+	private final String name;
+	private final String displayName;
+	private final Class< ? > apiInterface;
+	private final String[] libraries;
+	private final List<ApiMethod> apis = new ArrayList<>();
+	private final int repositoryType;
+	private List<Element> handlers;
+	private List<Element> model;
 
-	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface)
+	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface, String[] libaries)
 	{
 		this.name = name;
 		this.displayName = displayName;
 		this.apiInterface = apiInterface;
 		this.repositoryType = repositoryType;
-		//this.model = model;
-		//this.handlers = handlers;
+		this.libraries = libaries;
 	}
 
 	public String getName()
@@ -93,11 +93,13 @@ public class SpecTemplateModel
 		return apis;
 	}
 
-	public void setApis(List<ApiMethod> apis)
+	/**
+	 * @return the libaries
+	 */
+	public String[] getLibraries()
 	{
-		this.apis = apis;
+		return libraries;
 	}
-
 
 	public String getPropType(Element element)
 	{

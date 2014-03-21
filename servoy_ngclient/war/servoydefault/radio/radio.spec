@@ -1,6 +1,7 @@
 name: 'svy-radio',
 displayName: 'Radio',
 definition: 'servoydefault/radio/radio.js',
+libraries: [],
 model:
 {
         background : 'color', 

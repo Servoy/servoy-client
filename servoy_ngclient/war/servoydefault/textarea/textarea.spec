@@ -1,6 +1,7 @@
 name: 'svy-textarea',
 displayName: 'Text Area',
 definition: 'servoydefault/textarea/textarea.js',
+libraries: [],
 model:
 {
         background : 'color', 
