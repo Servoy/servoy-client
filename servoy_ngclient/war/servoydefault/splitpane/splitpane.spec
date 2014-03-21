@@ -1,6 +1,7 @@
 name: 'svy-splitpane',
 displayName: 'Split Pane',
 definition: 'servoydefault/splitpane/splitpane.js',
+libraries:["servoydefault/splitpane/bg-splitter/js/splitter.js","servoydefault/splitpane/bg-splitter/css/style.css"],
 model:
 {
         background : 'color', 

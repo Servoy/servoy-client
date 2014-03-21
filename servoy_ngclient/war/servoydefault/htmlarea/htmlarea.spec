@@ -1,6 +1,7 @@
 name: 'svy-htmlarea',
 displayName: 'Html Area',
 definition: 'servoydefault/htmlarea/htmlarea.js',
+libraries:["servoydefault/htmlarea/lib/tinymce/tinymce.min.js","servoydefault/htmlarea/lib/ui-tinymce.js"],
 model:
 {
         background : 'color', 

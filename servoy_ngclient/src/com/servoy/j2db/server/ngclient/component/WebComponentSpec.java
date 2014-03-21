@@ -45,11 +45,21 @@ public class WebComponentSpec extends WebComponentType
 	private final Map<String, WebComponentApiDefinition> apis = new HashMap<>();
 	private final Map<String, WebComponentType> types = new HashMap<>();
 	private final String definition;
+	private final String[] libraries;
 
-	public WebComponentSpec(String name, String definition)
+	public WebComponentSpec(String name, String definition, JSONArray libs)
 	{
 		super(name);
 		this.definition = definition;
+		if (libs != null)
+		{
+			this.libraries = new String[libs.length()];
+			for (int i = 0; i < libs.length(); i++)
+			{
+				this.libraries[i] = libs.optString(i);
+			}
+		}
+		else this.libraries = new String[0];
 	}
 
 	void addEvent(PropertyDescription propertyDescription)
@@ -94,6 +104,11 @@ public class WebComponentSpec extends WebComponentType
 		Set<String> names = super.getAllPropertiesNames();
 		names.addAll(events.keySet());
 		return names;
+	}
+
+	public String[] getLibraries()
+	{
+		return libraries;
 	}
 
 	private static ParsedProperty parsePropertyString(final String propertyString, final WebComponentSpec spec, final String specpath)
@@ -142,7 +157,7 @@ public class WebComponentSpec extends WebComponentType
 	{
 		JSONObject json = new JSONObject('{' + specfileContent + '}');
 
-		WebComponentSpec spec = new WebComponentSpec(json.getString("name"), json.getString("definition"));
+		WebComponentSpec spec = new WebComponentSpec(json.getString("name"), json.getString("definition"), json.optJSONArray("libraries"));
 
 		// first types, can be used in properties
 		if (json.has("types"))
@@ -475,5 +490,4 @@ public class WebComponentSpec extends WebComponentType
 			this.wct = wct;
 		}
 	}
-
 }

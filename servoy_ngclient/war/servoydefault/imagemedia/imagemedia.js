@@ -1,4 +1,4 @@
-angular.module('svyImagemedia',['servoy','angularFileUpload']).directive('svyImagemedia', function($utils, $window, $document) {  
+angular.module('svyImagemedia',['servoy']).directive('svyImagemedia', function($utils, $window, $document) {  
     return {
       restrict: 'E',
       transclude: true,

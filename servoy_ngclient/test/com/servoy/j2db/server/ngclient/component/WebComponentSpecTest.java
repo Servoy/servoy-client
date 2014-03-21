@@ -21,8 +21,6 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
-import com.servoy.j2db.server.ngclient.component.WebComponentType;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 
@@ -34,9 +32,53 @@ import com.servoy.j2db.server.ngclient.property.PropertyType;
 public class WebComponentSpecTest
 {
 	@Test
+	public void testDefinition() throws JSONException
+	{
+		String property = "name:'test',definition:'/test.js', model: {}";
+
+		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
+		Assert.assertEquals("/test.js", spec.getDefinition());
+	}
+
+
+	@Test
+	public void testLibsWith0Enry() throws JSONException
+	{
+		String property = "name:'test',definition:'/test.js', libraries:[],model: {}";
+
+		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
+		String[] libs = spec.getLibraries();
+		Assert.assertEquals(0, libs.length);
+	}
+
+
+	@Test
+	public void testLibsWith1Enry() throws JSONException
+	{
+		String property = "name:'test',definition:'/test.js', libraries:['/test.css'],model: {}";
+
+		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
+		String[] libs = spec.getLibraries();
+		Assert.assertEquals(1, libs.length);
+		Assert.assertEquals(libs[0], "/test.css");
+	}
+
+	@Test
+	public void testLibsWith2Enry() throws JSONException
+	{
+		String property = "name:'test',definition:'/test.js', libraries:['/test.css','/something.js'],model: {}";
+
+		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
+		String[] libs = spec.getLibraries();
+		Assert.assertEquals(2, libs.length);
+		Assert.assertEquals(libs[0], "/test.css");
+		Assert.assertEquals(libs[1], "/something.js");
+	}
+
+	@Test
 	public void testValueListType() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {mydataprovider:'dataprovider',myvaluelist:{for:'mydataprovider' , type:'valuelist'}}";
+		String property = "name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myvaluelist:{for:'mydataprovider' , type:'valuelist'}}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(2, spec.getProperties().size());
@@ -51,7 +93,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testFormatType() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {mydataprovider:'dataprovider',myformat:{for:'mydataprovider' , type:'format'}}";
+		String property = "name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myformat:{for:'mydataprovider' , type:'format'}}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(2, spec.getProperties().size());
@@ -66,7 +108,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testStringProperyType() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {myproperty:'string'}";
+		String property = "name:'test',definition:'/test.js', model: {myproperty:'string'}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(1, spec.getProperties().size());
@@ -79,7 +121,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testMultiplyProperies() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {myproperty:'string',prop2:'boolean',prop3:'int',prop4:'date'}";
+		String property = "name:'test',definition:'/test.js', model: {myproperty:'string',prop2:'boolean',prop3:'int',prop4:'date'}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(spec.getProperties().toString(), 4, spec.getProperties().size());
@@ -104,7 +146,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testArrayStringProperyType() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {myproperty:'string[]'}";
+		String property = "name:'test',definition:'/test.js', model: {myproperty:'string[]'}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(1, spec.getProperties().size());
@@ -117,7 +159,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testOwnTypeProperyType() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {myproperty:'mytype'}, types: {mytype:{properties:{typeproperty:'string'}}}";
+		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'string'}}}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(1, spec.getProperties().size());
@@ -140,7 +182,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testArrayOwnTypeProperyType() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {myproperty:'mytype[]'}, types: {mytype:{properties:{typeproperty:'string'}}}";
+		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string'}}}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(1, spec.getProperties().size());
@@ -164,7 +206,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testArrayOwnTypeProperyTypeAsArray() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {myproperty:'mytype[]'}, types: {mytype:{properties:{typeproperty:'string[]'}}}";
+		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string[]'}}}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(1, spec.getProperties().size());
@@ -188,7 +230,7 @@ public class WebComponentSpecTest
 	@Test
 	public void testOwnTypeProperyTypeRefernceInOtherOwnType() throws JSONException
 	{
-		String property = "name:'test',definition:'/test.js', properties: {myproperty:'mytype'}, types: {mytype:{properties:{typeproperty:'mytype2'}},mytype2:{properties:{typeproperty:'string'}}}";
+		String property = "name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'mytype2'}},mytype2:{model:{typeproperty:'string'}}}";
 
 		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
 		Assert.assertEquals(1, spec.getProperties().size());

@@ -1,6 +1,7 @@
 name: 'svy-spinner',
 displayName: 'Spinner',
 definition: 'servoydefault/spinner/spinner.js',
+libraries: ['servoydefault/spinner/spinner.css','//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css'],
 model:
 {
         background : 'color', 
