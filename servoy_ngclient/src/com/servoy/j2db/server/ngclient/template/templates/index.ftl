@@ -69,6 +69,11 @@
       <link rel="stylesheet" href="servoydefault/spinner/spinner.css">
       <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
       
+      <!-- htmlarea using tinyMCE -->
+      <script src="servoydefault/htmlarea/lib/tinymce/tinymce.min.js"></script>
+      <script src="servoydefault/htmlarea/lib/ui-tinymce.js"></script>
+      <script src="servoydefault/htmlarea/htmlarea.js"></script>
+      
       <!-- "webcomponents.jar" beans, should  be generated -->
       <script src="webcomponents/namepanel/namepanel.js"></script>
       <script src="webcomponents/signaturefield/signaturefield.js"></script>

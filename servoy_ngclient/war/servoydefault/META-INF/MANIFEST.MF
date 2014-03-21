@@ -56,5 +56,8 @@ Web-Component: True
 Name: htmlview/htmlview.spec
 Web-Component: True
 
+Name: htmlarea/htmlarea.spec
+Web-Component: True
+
 Name: spinner/spinner.spec
 Web-Component: True

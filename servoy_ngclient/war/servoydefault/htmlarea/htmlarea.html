@@ -1,0 +1,9 @@
+<div  svy-border='model.borderType' 
+	 svy-background='model.transparent ? "transparent" : model.background'
+	 svy-foreground='model.foreground'
+	 ng-style="style"				
+     svy-margin='model.margin' 
+     svy-font='model.fontType'
+     svy-tooltip="{{model.toolTipText}}">
+   <textarea  ui-tinymce="tinyConfig" ng-model="model.dataProviderID" ></textarea>
+ </div>
