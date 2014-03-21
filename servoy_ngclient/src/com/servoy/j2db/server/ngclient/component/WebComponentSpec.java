@@ -108,7 +108,7 @@ public class WebComponentSpec extends WebComponentType
 
 	public String[] getLibraries()
 	{
-		return libraries;
+		return libraries == null ? new String[0] : libraries;
 	}
 
 	private static ParsedProperty parsePropertyString(final String propertyString, final WebComponentSpec spec, final String specpath)

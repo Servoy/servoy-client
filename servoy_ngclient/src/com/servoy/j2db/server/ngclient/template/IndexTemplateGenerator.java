@@ -28,6 +28,8 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
+import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -129,6 +131,53 @@ public class IndexTemplateGenerator
 				forms.add("solutions/" + sol.getName() + "/forms/" + form.getName() + ".js");
 			}
 			return forms;
+		}
+
+		public Collection<String> getComponentReferences()
+		{
+			List<String> references = new ArrayList<>();
+			WebComponentSpec[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentDescriptions();
+			for (WebComponentSpec webComponentSpec : webComponentDescriptions)
+			{
+				references.add(webComponentSpec.getDefinition());
+			}
+			return references;
+		}
+
+		public Collection<String> getComponentCssReferences()
+		{
+			List<String> references = new ArrayList<>();
+			WebComponentSpec[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentDescriptions();
+			for (WebComponentSpec webComponentSpec : webComponentDescriptions)
+			{
+				String[] libraries = webComponentSpec.getLibraries();
+				for (String lib : libraries)
+				{
+					if (lib.toLowerCase().endsWith(".css"))
+					{
+						references.add(lib);
+					}
+				}
+			}
+			return references;
+		}
+
+		public Collection<String> getComponentJsReferences()
+		{
+			List<String> references = new ArrayList<>();
+			WebComponentSpec[] webComponentDescriptions = WebComponentSpecProvider.getInstance().getWebComponentDescriptions();
+			for (WebComponentSpec webComponentSpec : webComponentDescriptions)
+			{
+				String[] libraries = webComponentSpec.getLibraries();
+				for (String lib : libraries)
+				{
+					if (lib.toLowerCase().endsWith(".js"))
+					{
+						references.add(lib);
+					}
+				}
+			}
+			return references;
 		}
 
 		public String getContext()

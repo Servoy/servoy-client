@@ -19,7 +19,6 @@
 	<head>
 	  <base href="${context}/">
 	  <title ng-bind="solutionSettings.solutionTitle">Servoy NGClient</title>
-	  <title>{{solutionSettings.solutionTitle}}</title>
 	  <!-- base 3th party libraries -->
       <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
       <link rel="stylesheet" href="css/ng-grid.css">
@@ -40,50 +39,16 @@
 	  <script src="js/fileupload.js"></script>
 	  <script src="js/servoy-components.js"></script>
       <script src="js/servoy_app.js"></script>
-	  
-        
-	  <!-- list of all the beans/components maybe having 1 file that includes them all -->
-	  <!-- standard "servoydefault.jar , should  be generated" beans -->
-	  <script src="servoydefault/label/label.js"></script>
-      <script src="servoydefault/button/button.js"></script>
-      <script src="servoydefault/textfield/textfield.js"></script>
-      <script src="servoydefault/password/password.js"></script>
-      <script src="servoydefault/combobox/combobox.js"></script>
-      <script src="servoydefault/radiogroup/radiogroup.js"></script>
-      <script src="servoydefault/radio/radio.js"></script>
-      <script src="servoydefault/checkgroup/checkgroup.js"></script>
-      <script src="servoydefault/check/check.js"></script>
-      <script src="servoydefault/calendar/calendar.js"></script>
-      <script src="servoydefault/typeahead/typeahead.js"></script>
-      <script src="servoydefault/tabpanel/tabpanel.js"></script>
-      <script src="servoydefault/navigator/navigator.js"></script>
-      <script src="servoydefault/textarea/textarea.js"></script>
-      <script src="servoydefault/listbox/listbox.js"></script>
-      <script src="servoydefault/htmlview/htmlview.js"></script>
-	  <script src="servoydefault/imagemedia/imagemedia.js"></script>
-      <script src="servoydefault/splitpane/splitpane.js"></script>
-      <!-- split pane using bg-splitter -->
-      <script src="servoydefault/splitpane/bg-splitter/js/splitter.js"></script>
-      <link rel="stylesheet" href="servoydefault/splitpane/bg-splitter/css/style.css">
-      <script src="servoydefault/spinner/spinner.js"></script>
-      <link rel="stylesheet" href="servoydefault/spinner/spinner.css">
-      <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
       
-      <!-- htmlarea using tinyMCE -->
-      <script src="servoydefault/htmlarea/lib/tinymce/tinymce.min.js"></script>
-      <script src="servoydefault/htmlarea/lib/ui-tinymce.js"></script>
-      <script src="servoydefault/htmlarea/htmlarea.js"></script>
-      
-      <!-- "webcomponents.jar" beans, should  be generated -->
-      <script src="webcomponents/namepanel/namepanel.js"></script>
-      <script src="webcomponents/signaturefield/signaturefield.js"></script>
-      <script src="webcomponents/inlineeditfield/inlineeditfield.js"></script>
-
-            
-      <!-- external js/css used by beans, should  be generated -->
-      <script src="webcomponents/signaturefield/js/jquery.signaturepad.min.js"></script>
-      <link rel="stylesheet" href="webcomponents/signaturefield/css/jquery.signaturepad.css">
-      <link rel="stylesheet" href="webcomponents/inlineeditfield/css/inlineeditfield.css">  
+      <#list componentReferences as componentScript>
+	  	 <script src="${componentScript}"></script>
+	  </#list>
+      <#list componentCssReferences as componentCss>
+	  	 <link rel="stylesheet" href="${componentCss}">
+	  </#list>
+      <#list componentJsReferences as componentJs>
+	  	 <script src="${componentJs}"></script>
+	  </#list>
         
 	  <!-- -list of all the form controller scripts, maybe one solution so have all the controllers as once in 1 file -->
 	  <#list formScriptReferences as formScript>
