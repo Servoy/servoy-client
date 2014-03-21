@@ -448,6 +448,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			else if (currentRecord != null) currentRecord.removeModificationListener(this);
 			return;
 		}
+		if (formController != null && formController.isDestroyed())
+		{
+			Debug.error("Destroying DataAdapterList of a destroyed " + formController, new RuntimeException());
+			destroy();
+			return;
+		}
 		FormScope formScope = getFormScope();
 		if (visible && (currentRecord != null || (formScope != null && formScope.has(e.getName(), formScope))))
 		{
@@ -732,7 +738,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 			setRecord(null, false);
 		}
 
-		if (formController != null && formController.getFormScope() != null)
+		if (formController != null && !formController.isDestroyed() && formController.getFormScope() != null)
 		{
 			formController.getFormScope().getModificationSubject().removeModificationListener(this);
 		}
