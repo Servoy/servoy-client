@@ -74,7 +74,7 @@ angular.module('servoyApp').controller("${name}", function($scope, $servoyIntern
 				return $servoyInternal.setFormVisibility(formname, visibility,relationname,$scope.formname, beanname);
 			},
 			setFormEnabled: function(formname, enabled) {
-				return $servoyInternalk.setFormEnabled(formname, enabled);
+				return $servoyInternal.setFormEnabled(formname, enabled);
 			},
 			setFormReadOnly: function(formname, readOnly) {
 				return $servoyInternal.setFormReadOnly(formname, readOnly);
