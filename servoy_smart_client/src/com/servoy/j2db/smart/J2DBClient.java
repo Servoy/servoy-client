@@ -340,7 +340,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 	/**
 	 * Decl. of the application name
 	 */
-	protected static String splashImage = "images/splashclient.gif"; //$NON-NLS-1$
+	protected static String splashImage = "images/splashclient.png"; //$NON-NLS-1$
 
 	public JMenu getImportMenu()
 	{
