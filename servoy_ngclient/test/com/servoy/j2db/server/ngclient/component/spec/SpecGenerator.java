@@ -316,6 +316,9 @@ public class SpecGenerator
 				{
 					model.add(el);
 				}
+				el = cs.new Element(-1, IRepository.TABPANELS, "tabs", IRepository.SERVERS, null);
+				model.add(el);
+
 				el = cs.new Element(-1, IRepository.TABPANELS, "readOnly", IRepository.BOOLEAN, Boolean.FALSE);
 				model.add(el);
 			}
@@ -366,6 +369,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), "tabseq");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_MEDIAOPTIONS.getPropertyName(), "mediaoptions");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName(), "bean");
+		repoTypeMappingExceptions.put("tabs", "tab[]");
 
 		//internal properties (properties that should not be generated for any component)
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());

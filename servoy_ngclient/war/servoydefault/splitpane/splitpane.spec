@@ -19,9 +19,9 @@ model:
         styleClass : 'string', 
         tabOrientation : {type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}, 
         tabSeq : 'tabseq', 
+        tabs : 'tab[]', 
         transparent : 'boolean', 
-        visible : 'boolean',
-        tabs : 'tab[]' 
+        visible : 'boolean' 
 },
 handlers:
 {
@@ -147,7 +147,7 @@ api:
 types: {
   tab: {
   	model: {
-  		name: 'string',  	
+  		name: 'string',
   		containsFormId: 'form',
   		text: 'tagstring',
   		relationName: 'relation',
@@ -156,3 +156,4 @@ types: {
   	}
   }
 }
+ 

@@ -42,4 +42,5 @@ api:
          </#if>
         }<#if api_has_next>,</#if> 
     </#list>
-}
+}<#if types??>${types}</#if>
+ 

@@ -136,4 +136,25 @@ public class SpecTemplateModel
 		Collections.sort(model, elementComparator);
 		Collections.sort(handlers, elementComparator);
 	}
+	
+	public String getTypes()
+	{
+		if (name.equals("tabpanel") || name.equals("accordionpanel") || name.equals("splitpane")) 
+		{
+			return",\r\n" + 
+				"types: {\r\n" + 
+				"  tab: {\r\n" + 
+				"  	model: {\r\n" + 
+				"  		name: 'string',\r\n" + 
+				"  		containsFormId: 'form',\r\n" + 
+				"  		text: 'tagstring',\r\n" + 
+				"  		relationName: 'relation',\r\n" + 
+				"  		active: 'boolean',\r\n" + 
+				"  		foreground: Color\r\n" + 
+				"  	}\r\n" + 
+				"  }\r\n" + 
+				"}";
+		}
+		return null;
+	}
 }
