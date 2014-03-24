@@ -12,6 +12,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.bgstyle = {}
        
         $scope.$watch("model.tabIndex", function(newValue) {
+        	 if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 0; // default it is 0 
         	 for(var i=0;i<$scope.model.tabs.length;i++) {
         	 	if (i == $scope.model.tabIndex) $scope.model.tabs[i].active = true;
         	 	else $scope.model.tabs[i].active = false;
