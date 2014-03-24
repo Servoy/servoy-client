@@ -1949,6 +1949,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 				}
 				catch (final Exception ex)
 				{
+					showSolutionLoading(false);
 					invokeLater(new Runnable()
 					{
 						public void run()
