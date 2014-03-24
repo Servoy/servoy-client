@@ -6,6 +6,7 @@ Bundle-Version: 8.0.0.3000
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.property,
+ com.servoy.j2db.server.ngclient.startup.resourceprovider,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,

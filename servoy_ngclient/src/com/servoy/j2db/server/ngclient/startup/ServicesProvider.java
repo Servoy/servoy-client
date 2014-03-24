@@ -10,6 +10,7 @@ import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.SolutionCSSServlet;
 import com.servoy.j2db.server.ngclient.TemplateGeneratorFilter;
+import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
 
 
 public class ServicesProvider implements IServicesProvider

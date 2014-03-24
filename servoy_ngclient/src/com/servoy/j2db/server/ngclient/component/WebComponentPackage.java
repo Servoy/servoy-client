@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,8 @@ public class WebComponentPackage
 		Manifest getManifest() throws IOException;
 
 		String readTextFile(String path, Charset charset) throws IOException;
+
+		URL getUrlForPath(String path);
 
 	}
 
@@ -155,6 +159,41 @@ public class WebComponentPackage
 			}
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
+		 */
+		@Override
+		public URL getUrlForPath(String path)
+		{
+			JarFile jar = null;
+			try
+			{
+				jar = new JarFile(jarFile);
+				JarEntry entry = jar.getJarEntry(path.substring(1)); // strip /
+				if (entry != null)
+				{
+					return new URL("jar:" + jarFile.toURI().toURL() + "!" + path);
+				}
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
+			finally
+			{
+				if (jar != null) try
+				{
+					jar.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+			return null;
+		}
+
 		@Override
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
@@ -221,6 +260,29 @@ public class WebComponentPackage
 			}
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
+		 */
+		@Override
+		public URL getUrlForPath(String path)
+		{
+			File file = new File(dir, path);
+			if (file.exists())
+			{
+				try
+				{
+					return file.toURI().toURL();
+				}
+				catch (MalformedURLException e)
+				{
+					Debug.error(e);
+				}
+			}
+			return null;
+		}
+
 		@Override
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
@@ -241,7 +303,6 @@ public class WebComponentPackage
 		{
 			return "DirPackage: " + dir.getAbsolutePath();
 		}
-
 	}
 
 }

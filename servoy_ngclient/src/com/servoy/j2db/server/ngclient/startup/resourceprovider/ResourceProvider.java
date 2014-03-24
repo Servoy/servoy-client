@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.startup;
+package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +23,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.Manifest;
 
 import javax.servlet.Filter;
@@ -39,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.servoy.j2db.server.ngclient.component.WebComponentPackage;
 import com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader;
 import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
+import com.servoy.j2db.server.ngclient.startup.Activator;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -49,10 +52,23 @@ import com.servoy.j2db.util.Utils;
 @WebFilter(urlPatterns = { "/*" })
 public class ResourceProvider implements Filter
 {
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException
+	private static final List<IPackageReader> packageReaders = new ArrayList<>();
+
+	public static void addResources(Collection<IPackageReader> readers)
 	{
-		ArrayList<IPackageReader> readers = new ArrayList<>();
+		packageReaders.addAll(readers);
+		initSpecProvider();
+	}
+
+	public static void removeResources(Collection<IPackageReader> readers)
+	{
+		packageReaders.removeAll(readers);
+		initSpecProvider();
+	}
+
+	private static void initSpecProvider()
+	{
+		ArrayList<IPackageReader> readers = new ArrayList<>(packageReaders);
 		Enumeration<URL> findEntries = Activator.getContext().getBundle().findEntries("/war/", "MANIFEST.MF", true);
 		while (findEntries.hasMoreElements())
 		{
@@ -62,6 +78,12 @@ public class ResourceProvider implements Filter
 		WebComponentSpecProvider.init(readers.toArray(new IPackageReader[readers.size()]));
 	}
 
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException
+	{
+		initSpecProvider();
+	}
+
 	@SuppressWarnings("nls")
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
@@ -69,9 +91,22 @@ public class ResourceProvider implements Filter
 		String pathInfo = ((HttpServletRequest)request).getRequestURI();
 		if (pathInfo != null)
 		{
-			if (pathInfo.startsWith("/")) pathInfo = "/war" + pathInfo;
-			else pathInfo = "/war/" + pathInfo;
-			URL url = Activator.getContext().getBundle().getEntry(pathInfo);
+			URL url = null;
+			if (pathInfo.startsWith("/")) url = Activator.getContext().getBundle().getEntry("/war" + pathInfo);
+			else url = Activator.getContext().getBundle().getEntry("/war/" + pathInfo);
+
+			if (url == null)
+			{
+				int index = pathInfo.indexOf('/', 1);
+				if (index > 1)
+				{
+					for (IPackageReader reader : packageReaders)
+					{
+						url = reader.getUrlForPath(pathInfo.substring(index));
+						if (url != null) break;
+					}
+				}
+			}
 			if (url != null)
 			{
 				URLConnection connection = url.openConnection();
@@ -85,7 +120,7 @@ public class ResourceProvider implements Filter
 				}
 
 				response.setContentLength(connection.getContentLength());
-				if (connection.getContentType() != null)
+				if (connection.getContentType() != null && connection.getContentType().indexOf("unknown") == -1)
 				{
 					response.setContentType(connection.getContentType());
 				}
@@ -170,6 +205,17 @@ public class ResourceProvider implements Filter
 			{
 				is.close();
 			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
+		 */
+		@Override
+		public URL getUrlForPath(String path)
+		{
+			return Activator.getContext().getBundle().getEntry("/war/" + componentName + path); // path includes /
 		}
 
 		@SuppressWarnings("nls")
