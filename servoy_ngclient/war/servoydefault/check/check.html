@@ -1,5 +1,6 @@
 <div ng-click="checkBoxClicked()"  
 	 ng-style="style" 
+	 ng-class='model.styleClass ? model.styleClass : "checkbox"'
      svy-border="model.borderType" 
  	 svy-background="model.transparent ? 'transparent' : model.background" 
  	 svy-foreground="model.foreground" 

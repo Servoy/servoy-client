@@ -1,5 +1,5 @@
 <div svy-border='model.borderType'  
-     svy-font='model.fontType'>
+     svy-font='model.fontType' ng-class="model.styleClass">
 	<bg-splitter orientation="{{ model.tabOrientation == -3 ? 'vertical' : 'horizontal' }}">
 		<bg-pane min-size="30">
 			<div ng-include="model.tabs[0].containsFormId" style="position:absolute;width:100%;height:100%;overflow:auto;"></div>

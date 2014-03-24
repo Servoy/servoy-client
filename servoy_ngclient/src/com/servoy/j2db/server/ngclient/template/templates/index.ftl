@@ -20,8 +20,8 @@
 	  <base href="${context}/">
 	  <title ng-bind="solutionSettings.solutionTitle">Servoy NGClient</title>
 	  <!-- base 3th party libraries -->
-      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-      <link rel="stylesheet" href="css/ng-grid.css">
+      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css"/>
+      <link rel="stylesheet" href="css/ng-grid.css"/>
 	  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.js"></script>
 	  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.min.js"></script> -->
 	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -30,30 +30,32 @@
       <script src="js/angularui/ng-grid-2.0.7.debug.js"></script>
       <script src="js/numeral.js"></script>
       <script src="js/angular-file-upload/dist/angular-file-upload.min.js"></script>
-      
+
       <!-- base servoy libraries -->
-      <link rel="stylesheet" href="css/servoy.css">
+      <link rel="stylesheet" href="css/servoy.css"/>
 	  <script src="js/servoy.js"></script>
 	  <script src="js/servoyformat.js"></script>
 	  <script src="js/servoytooltip.js"></script>
 	  <script src="js/fileupload.js"></script>
 	  <script src="js/servoy-components.js"></script>
       <script src="js/servoy_app.js"></script>
-      
+
       <#list componentReferences as componentScript>
 	  	 <script src="${componentScript}"></script>
 	  </#list>
       <#list componentCssReferences as componentCss>
-	  	 <link rel="stylesheet" href="${componentCss}">
+	  	 <link rel="stylesheet" href="${componentCss}"/>
 	  </#list>
       <#list componentJsReferences as componentJs>
 	  	 <script src="${componentJs}"></script>
 	  </#list>
-        
+
 	  <!-- -list of all the form controller scripts, maybe one solution so have all the controllers as once in 1 file -->
 	  <#list formScriptReferences as formScript>
 	  	 <script src="${formScript}"></script>
 	  </#list>
+	  
+	  <link rel="stylesheet" ng-href='{{solutionSettings.clientUUID ? "solution-css/" + solutionSettings.clientUUID : undefined}}'/>
 	</head>
 <body >
 

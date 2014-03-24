@@ -2,6 +2,7 @@
 	   svy-background='model.transparent ? "transparent" : model.background'
 	   svy-foreground='model.foreground'
 	   svy-margin='model.margin'
+	   ng-class='model.styleClass ? model.styleClass : "form-control input-sm"'
 	   ng-style='style'
 	   svy-font='model.fontType'
 	   ng-disabled="model.enabled == false"

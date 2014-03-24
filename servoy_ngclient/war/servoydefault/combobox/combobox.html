@@ -1,12 +1,25 @@
-<select svy-border='model.borderType'
-	 	svy-background='model.transparent ? "transparent" : model.background'
-	 	svy-foreground='model.foreground'
-		svy-margin='model.margin'
-		ng-style="style"
-		ng-model="model.dataProviderID"
-		ng-disabled="model.enabled == false || model.editable == false"
-		svy-tooltip="{{model.toolTipText}}"
-		svy-autoapply 
-		svy-font='model.fontType'
-		ng-options="value.realValue as value.displayValue for value in model.valuelistID">
-</select>
+<div svy-border='isSelect2 ? model.borderType : ""'
+	 	svy-background='isSelect2 ? (model.transparent ? "transparent" : model.background) : ""'
+	 	svy-foreground='isSelect2 ? model.foreground : ""'
+		svy-margin='isSelect2 ? model.margin : ""'
+		ng-style='style'
+		ng-disabled='isSelect2 ? (model.enabled == false) : false'
+		svy-tooltip='{{isSelect2 ? model.toolTipText : ""}}'
+		svy-font='isSelect2 ? model.fontType : ""'>
+
+	<select svy-border='model.borderType'
+	 		svy-background='model.transparent ? "transparent" : model.background'
+	 		svy-foreground='model.foreground'
+			svy-margin='model.margin'
+			ng-style='style'
+			ng-disabled='model.enabled == false'
+			svy-font='model.fontType'
+			svy-tooltip='{{model.toolTipText}}'
+			ng-class='customClasses'
+			ng-style='style'
+			ng-model='model.dataProviderID'
+			ng-options='value.realValue as value.displayValue for value in model.valuelistID'
+			svy-autoapply>
+	</select>
+
+</div>

@@ -8,6 +8,7 @@ import org.apache.tomcat.starter.IServicesProvider;
 import com.servoy.j2db.server.ngclient.ComponentsModuleGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientEndpoint;
+import com.servoy.j2db.server.ngclient.SolutionCSSServlet;
 import com.servoy.j2db.server.ngclient.TemplateGeneratorFilter;
 
 
@@ -31,6 +32,7 @@ public class ServicesProvider implements IServicesProvider
 		{
 			HashSet<Class< ? >> set = new HashSet<Class< ? >>();
 			set.add(MediaResourcesServlet.class);
+			set.add(SolutionCSSServlet.class);
 			set.add(ComponentsModuleGenerator.class);
 			set.add(TemplateGeneratorFilter.class);
 			set.add(NGClientEndpoint.class);

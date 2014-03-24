@@ -4,6 +4,7 @@
 	 svy-scrollbars='model.scrollbars'
 	 svy-margin='model.margin'
 	 svy-font='model.fontType'
+	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm"'
 	 svy-tooltip="{{model.toolTipText}}" >
   <div ng-repeat="item in model.valuelistID | filter:notNull('realValue')"  svy-tooltip="{{model.toolTipText}}">
      <input 

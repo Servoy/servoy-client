@@ -115,6 +115,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
            if (srvuuid != null)
     	   {
         	   initcmd.srvuuid = srvuuid;
+        	   $solutionSettings.clientUUID = srvuuid;
     	   }
            websocket.send(JSON.stringify(initcmd));
        };
@@ -245,6 +246,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        }
 	        if (obj.srvuuid) {
 	        	webStorage.session.add("svyuuid",obj.srvuuid);
+	        	$solutionSettings.clientUUID = obj.srvuuid;
 	        }
 	        if (obj.windowName) {
 	        	$solutionSettings.windowName = obj.windowName;
@@ -525,7 +527,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	mainForm: {},
 	navigatorForm: {width:0},
 	solutionTitle: "Servoy WebClient",
-	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'}
+	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
+	clientUUID: undefined
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal) {
 	$scope.solutionSettings = $solutionSettings;
 }).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window) {

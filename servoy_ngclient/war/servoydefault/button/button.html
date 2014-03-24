@@ -2,11 +2,11 @@
 	    svy-background='model.transparent ? "transparent" : model.background'
 	    svy-foreground='model.foreground'
 		svy-margin='model.margin'
-		ng-class="model.styleClass"
-		ng-style="style"
+		ng-class='model.styleClass ? model.styleClass : "btn btn-default btn-xs"'
+		ng-style='style'
 		svy-font='model.fontType'
-		ng-disabled="model.enabled == false" 
-		svy-tooltip="{{model.toolTipText}}"
-		ng-click="handlers.onActionMethodID($event)"
+		ng-disabled='model.enabled == false' 
+		svy-tooltip='{{model.toolTipText}}'
+		ng-click='handlers.onActionMethodID($event)'
         ng-bind='model.dataProviderID == null && model.text || model.dataProviderID | formatFilter:model.format'>
 </button>

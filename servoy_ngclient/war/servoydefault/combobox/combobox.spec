@@ -1,7 +1,7 @@
 name: 'svy-combobox',
 displayName: 'Combobox ',
 definition: 'servoydefault/combobox/combobox.js',
-libraries: [],
+libraries: ["servoydefault/combobox/lib/select2-3.4.5/select2.js", "servoydefault/combobox/lib/select2-3.4.5/select2.css"], // minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 model:
 {
         background : 'color', 
