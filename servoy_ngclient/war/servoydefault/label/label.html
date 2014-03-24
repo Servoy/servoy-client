@@ -7,6 +7,7 @@
      svy-font='model.fontType'
      svy-tooltip="{{model.toolTipText}}">
 <span  ng-style="bgstyle" 
+	   svy-rotate="model.textRotation"
 	   ng-bind='(model.dataProviderID == null && model.text || model.dataProviderID ) | formatFilter:model.format'
  	   ></span>
  </div>
