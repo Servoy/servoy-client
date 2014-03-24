@@ -1440,6 +1440,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 				if (solutionRoot.getSolution() == null && clientInfo.getUserUid() == null)
 				{
+					// no login solution, use default servoy login
 					if (haveRepositoryAccess())
 					{
 						// Have repository access, don't need authorised access
@@ -1457,7 +1458,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 					}
 					else
 					{
-						// no login solution, use default servoy login
 						showDefaultLogin();
 						if (clientInfo.getUserUid() == null)
 						{
