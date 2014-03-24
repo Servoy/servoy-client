@@ -2,11 +2,12 @@
   "name": "ngclient-unit-test-module",
   "description": "A module that bundles karma depenencies needed to tun karma for webclient2",
   "dependencies": {
-    "karma": "~0.10.9",    
-    "karma-jasmine": "~0.1.5",
+    "karma": "~0.12.1",
+    "karma-jasmine": "~0.2.0",
     "karma-chrome-launcher": "~0.1.2",
     "karma-phantomjs-launcher": "~0.1.2",
-    "karma-coverage": "~0.1.5",
-    "karma-junit-reporter": "~0.2.1"
+    "karma-coverage": "~0.2.1",
+    "karma-junit-reporter": "~0.2.1",
+    "karma-ng-html2js-preprocessor": "~0.1.0"
   }
 }

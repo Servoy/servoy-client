@@ -1,4 +1,4 @@
-angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.bootstrap'])
+angular.module('servoy',['servoyformat','servoytooltip','ui.bootstrap'])
 .directive('ngBlur', ['$parse', function($parse) {
     return function(scope, element, attr) {
         var fn = $parse(attr['ngBlur']);
@@ -116,7 +116,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
             	onChangeFunction(scope, { $cmd: event });
             })});
     };
-}).directive('svyAutoapply', function($injector,$parse,$log) {
+}).directive('svyAutoapply', function($servoyInternal,$parse,$log) {
     return {
       restrict: 'A', // only activate on element attribute
       require: '?ngModel', // get a hold of NgModelController
@@ -160,22 +160,21 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	        	}
 	        }
 	        
-    		if ($injector.has("$servoyInternal")) {
-    			var $servoyInternal = $injector.get("$servoyInternal");
+
 		        // Listen for change events to enable binding
-		        element.bind('change', function() {
+		     element.bind('change', function() {
 		        	// model has not been updated yet
 		        	setTimeout(function() { 
 		        		$servoyInternal.push(formname,beanname,propertyname,modelFunction(scope))
 		        	}, 0);
-		        });
-		        // Listen for start edit
-	  	        element.bind('focus', function() {
+		     });
+		     // Listen for start edit
+	  	     element.bind('focus', function() {
 	  	        	setTimeout(function() { 
 		        		$servoyInternal.callService("formService", "startEdit", {formname:formname,beanname:beanname,property:propertyname})
 	  	        	}, 0);
-	  	        });
-    		}
+	  	     });
+
         }
         else {
         	$log.error("svyAutoapply attached to a element that doesn't have the right ngmodel (model.value): " + dataproviderString)
