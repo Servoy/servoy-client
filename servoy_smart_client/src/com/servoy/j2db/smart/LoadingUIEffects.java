@@ -171,7 +171,7 @@ public class LoadingUIEffects
 
 	protected void createLoadingLabel()
 	{
-		String loadingImage = beforeFirstSolutionLoad ? application.getSettings().getProperty(SERVOY_BRANDING_WEBSTART_SPLASH, "lib/splashclient.gif") //$NON-NLS-1$
+		String loadingImage = beforeFirstSolutionLoad ? application.getSettings().getProperty(SERVOY_BRANDING_WEBSTART_SPLASH, "lib/splashclient.png") //$NON-NLS-1$
 			: application.getSettings().getProperty(SERVOY_BRANDING_LOADING_IMAGE);
 		if ((isBrandingOn() || beforeFirstSolutionLoad) && loadingImage != null && Utils.isSwingClient(application.getApplicationType()))
 		{
