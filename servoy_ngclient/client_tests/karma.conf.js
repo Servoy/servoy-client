@@ -9,8 +9,7 @@ module.exports = function(config){
        'lib/angular.js',
        'lib/angular-mocks.js',
        'lib/*',
-       '../war/js/*',
-       '../war/js/angularui/**',
+       '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',
        './test/*.js',
        '../war/servoydefault/*/*.html'
