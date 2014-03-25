@@ -87,7 +87,9 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("combobox", "Combobox ", IRepository.FIELDS, IRuntimeCombobox.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("combobox", "Combobox ", IRepository.FIELDS, IRuntimeCombobox.class,
+			new String[] { "servoydefault/combobox/lib/select2-3.4.5/select2.js", "servoydefault/combobox/lib/select2-3.4.5/select2.css" // minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
+			}));
 		specTemplateList.add(new SpecTemplateModel("label", "label", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadio.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
