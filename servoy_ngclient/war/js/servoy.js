@@ -317,4 +317,31 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		  }
 		  return $sce.trustAsHtml(input);;
 	 };
-}]);
+}]).directive('svyFormstyle',  function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	scope.$watch(attrs.svyFormstyle, function(newVal) {
+        		if (newVal)
+        		{
+        			if(isInContainer(scope)){
+        				delete newVal.minWidth
+        				delete newVal.minHeight
+        			}
+        			element.css(newVal)
+        		}	
+        	})
+        }
+      }
+    // checks if formProperties on the scope exists
+   function isInContainer(scope){
+		var parent = scope.$parent;
+		while(parent){
+			if(parent.formProperties && parent.formStyle) return true
+			parent =parent.$parent
+		}
+		return false
+	}
+	
+    
+})
