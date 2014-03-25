@@ -204,7 +204,23 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        	}
 	        	if (!func) {
 	        		// just ignore if it didn't have setFindMode method.
-	        		if (call.api != "setFindMode") console.error("bean " + call.bean + " did not provide the api: " + call.api)
+	        		if (call.api != "setFindMode") 
+	        		{
+	        			console.error("bean " + call.bean + " did not provide the api: " + call.api)
+	        		}
+	        		else
+	        		{
+	        			if (call.args[0])
+	        			{
+	        				formState.model[call.bean].editableBeforeFindMode = formState.model[call.bean].editable;
+	        				formState.model[call.bean].editable = false;
+	        			}
+	        			else
+	        			{
+	        				formState.model[call.bean].editable = formState.model[call.bean].editableBeforeFindMode;
+	        			}
+	        			
+	        		}
 	        		return;
 	        	}
 
