@@ -61,7 +61,7 @@ public interface IMobileProperties
 	public final static MobileProperty<Number> RADIO_STYLE = new MobileProperty<Number>("radioStyle", RADIO_STYLE_VERTICAL);
 	public final static MobileProperty<String> DATA_ICON = new MobileProperty<String>("dataIcon", null);
 	public final static MobileProperty<Boolean> COMPONENT_TITLE = new MobileProperty<Boolean>("componentTitle", Boolean.FALSE);
-	public final static MobileProperty<Boolean> COMPONENT_SINGLE_CHECKBOX = new MobileProperty<Boolean>("checkBoxGroup", Boolean.FALSE);
+	public final static MobileProperty<Boolean> COMPONENT_SINGLE_CHECKBOX = new MobileProperty<Boolean>("singleCheckBox", Boolean.FALSE);
 
 	<T> void setPropertyValue(MobileProperty<T> property, T value);
 
