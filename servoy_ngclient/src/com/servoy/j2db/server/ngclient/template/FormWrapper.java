@@ -27,8 +27,10 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONStringer;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -47,10 +49,12 @@ import com.servoy.j2db.util.Utils;
 public class FormWrapper
 {
 	private final Form form;
+	private final boolean isTableView;
 
 	public FormWrapper(Form form)
 	{
 		this.form = form;
+		isTableView = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 	}
 
 	public String getName()
@@ -118,6 +122,7 @@ public class FormWrapper
 		while (it.hasNext())
 		{
 			IPersist persist = it.next();
+			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
 			if (persist instanceof BaseComponent)
 			{
 				Point location = ((BaseComponent)persist).getLocation();

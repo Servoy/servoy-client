@@ -153,6 +153,11 @@ public class ComponentFactory
 		return persistWrapper;
 	}
 
+	public static String getMarkupId(String formName, String elementName)
+	{
+		return Utils.calculateMD5HashBase16(formName + elementName);
+	}
+
 	public static void reload()
 	{
 		persistWrappers.clear();

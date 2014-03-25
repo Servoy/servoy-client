@@ -1,0 +1,12 @@
+<label for='{{ model.labelFor }}'
+	 svy-border='model.borderType' 
+	 svy-background='model.transparent ? "transparent" : model.background'
+	 svy-foreground='model.foreground'
+	 ng-style="style"
+     svy-margin='model.margin' 
+     svy-font='model.fontType'
+     svy-tooltip="{{model.toolTipText}}">
+<span  ng-style="bgstyle" 
+	   ng-bind='(model.dataProviderID == null && model.text || model.dataProviderID ) | formatFilter:model.format'
+ 	   ></span>
+ </label>

@@ -39,6 +39,7 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
@@ -295,6 +296,34 @@ public final class FormElement
 		}
 		return "data-form";
 
+	}
+
+	public IFormElement getLabel()
+	{
+		IFormElement label = null;
+		if (persist instanceof IFormElement)
+		{
+			String name = ((IFormElement)persist).getName();
+			if (name != null)
+			{
+				ISupportChilds persistParent = ((IFormElement)persist).getParent();
+				if (persistParent instanceof Form)
+				{
+					Iterator<IPersist> formElementsIte = ((Form)persistParent).getAllObjects();
+					IPersist p;
+					while (formElementsIte.hasNext())
+					{
+						p = formElementsIte.next();
+						if (p instanceof GraphicalComponent && name.equals(((GraphicalComponent)p).getLabelFor()))
+						{
+							label = (GraphicalComponent)p;
+							break;
+						}
+					}
+				}
+			}
+		}
+		return label;
 	}
 
 	public Collection<String> getHandlers()

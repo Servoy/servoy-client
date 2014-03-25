@@ -147,6 +147,17 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 			}
 
+			Map<String, PropertyDescription> beanProperties = componentSpec.getProperties(PropertyType.bean);
+			for (PropertyDescription pd : beanProperties.values())
+			{
+				Object propValue = fe.getProperty(pd.getName());
+				if (propValue instanceof String)
+				{
+					component.putProperty(pd.getName(), ComponentFactory.getMarkupId(fe.getForm().getName(), (String)propValue));
+				}
+
+			}
+
 			for (String eventName : componentSpec.getEvents().keySet())
 			{
 				Object eventValue = fe.getProperty(eventName);
