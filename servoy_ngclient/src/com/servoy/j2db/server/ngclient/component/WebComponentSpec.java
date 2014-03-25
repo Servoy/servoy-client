@@ -270,6 +270,7 @@ public class WebComponentSpec extends WebComponentType
 				PropertyType type = null;
 				boolean isArray = false;
 				JSONObject configObject = null;
+				Object defaultValue = null;
 				if (value instanceof String)
 				{
 					ParsedProperty pp = parsePropertyString((String)value, spec, specpath);
@@ -284,8 +285,12 @@ public class WebComponentSpec extends WebComponentType
 					isArray = pp.array;
 					propWCT = pp.wct; // todo can this be not null here and then having also a config object?
 					configObject = ((JSONObject)value);
-				}
+					if (((JSONObject)value).has("default"))
+					{
+						defaultValue = ((JSONObject)value).get("default");
+					}
 
+				}
 				if (type != null)
 				{
 					Object config = null;
@@ -327,7 +332,7 @@ public class WebComponentSpec extends WebComponentType
 							break;
 					}
 
-					PropertyDescription desc = new PropertyDescription(key, type, isArray, config);
+					PropertyDescription desc = new PropertyDescription(key, type, isArray, config, defaultValue);
 					if (type == PropertyType.function)
 					{
 						if (wct instanceof WebComponentSpec)

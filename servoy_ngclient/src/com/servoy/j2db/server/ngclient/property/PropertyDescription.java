@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import com.servoy.j2db.util.Utils;
+
 
 /**
  * Property description as parsed from web component spec file.
@@ -31,23 +33,25 @@ public class PropertyDescription
 	private final Object config;
 	private final boolean array;
 	private boolean optional = false; // currently only used in the context of an api function parameter
+	private final Object defaultValue;
 
 	public PropertyDescription(String name, PropertyType type)
 	{
-		this(name, type, false, null);
+		this(name, type, false, null, null);
 	}
 
 	public PropertyDescription(String name, PropertyType type, Object config)
 	{
-		this(name, type, false, config);
+		this(name, type, false, config, null);
 	}
 
-	public PropertyDescription(String name, PropertyType type, boolean array, Object config)
+	public PropertyDescription(String name, PropertyType type, boolean array, Object config, Object defaultValue)
 	{
 		this.name = name;
 		this.type = type;
 		this.array = array;
 		this.config = config;
+		this.defaultValue = defaultValue;
 	}
 
 	/**
@@ -68,6 +72,10 @@ public class PropertyDescription
 		return config;
 	}
 
+	public Object getDefaultValue()
+	{
+		return defaultValue;
+	}
 
 	/**
 	 * @return
@@ -117,6 +125,7 @@ public class PropertyDescription
 		else if (!name.equals(other.name)) return false;
 		if (type != other.type) return false;
 		if (array != other.array) return false;
+		if (!Utils.equalObjects(defaultValue, other.defaultValue)) return false;
 		return true;
 	}
 
@@ -138,6 +147,6 @@ public class PropertyDescription
 	@Override
 	public String toString()
 	{
-		return "PropertyDescription[name:" + name + ",type:" + type + ",array:" + array + ",config:" + config + "]";
+		return "PropertyDescription[name:" + name + ",type:" + type + ",array:" + array + ",config:" + config + ",default value:" + defaultValue + "]";
 	}
 }

@@ -7,8 +7,8 @@ model:
         background : 'color', 
         borderType : 'border', 
         dataProviderID : { 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}, 
-        editable : 'boolean', 
-        enabled : 'boolean', 
+        editable : {type:'boolean', default:true}, 
+        enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 
         format : {for:'dataProviderID' , type:'format'}, 
@@ -26,7 +26,7 @@ model:
         transparent : 'boolean', 
         valuelistID : { type: 'valuelist', for: 'dataProviderID'}, 
         verticalAlignment : {type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
-        visible : 'boolean' 
+        visible : {type:'boolean', default:true} 
 },
 handlers:
 {
@@ -108,3 +108,4 @@ api:
             parameters:[{'value':'object'}]
         } 
 }
+ 

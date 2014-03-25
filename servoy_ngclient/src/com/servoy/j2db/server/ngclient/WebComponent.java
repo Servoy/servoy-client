@@ -131,7 +131,7 @@ public class WebComponent implements ListDataListener
 
 	public Object getInitialProperty(String propertyName)
 	{
-		return formElement.getProperty(propertyName);
+		return formElement.getPropertyWithDefault(propertyName);
 	}
 
 	private Object convertValue(String propertyName, Object propertyValue) throws JSONException

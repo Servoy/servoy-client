@@ -7,7 +7,7 @@ model:
         background : 'color', 
         borderType : 'border', 
         closeOnTabs : 'boolean', 
-        enabled : 'boolean', 
+        enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 
         horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
@@ -22,7 +22,7 @@ model:
         tabSeq : 'tabseq', 
         tabs : 'tab[]', 
         transparent : 'boolean', 
-        visible : 'boolean' 
+        visible : {type:'boolean', default:true} 
 },
 handlers:
 {

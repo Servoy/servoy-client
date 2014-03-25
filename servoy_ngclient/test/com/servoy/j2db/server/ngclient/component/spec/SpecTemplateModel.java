@@ -22,7 +22,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.servoy.j2db.persistence.ContentSpec;
 import com.servoy.j2db.persistence.ContentSpec.Element;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author obuligan
@@ -101,17 +103,22 @@ public class SpecTemplateModel
 		return libraries;
 	}
 
-	public String getPropType(Element element)
+	public String getPropTypeWithDefault(Element element)
 	{
 		String type = SpecGenerator.getSpecTypeFromRepoType(element);
-		if (type.startsWith("{") || type.startsWith("["))
+		if (!type.startsWith("{") && !type.startsWith("["))
 		{
-			return type;
+			type = "'" + type + "'";
 		}
 		else
 		{
-			return "'" + type + "'";
+			return type;
 		}
+		if (element.getContentID() > 0 && !Utils.equalObjects(ContentSpec.getJavaClassMemberDefaultValue(element.getTypeID()), element.getDefaultClassValue()))
+		{
+			type = "{type:" + type + ", default:" + element.getDefaultTextualClassValue() + "}";
+		}
+		return type;
 	}
 
 	public void sortByName()
@@ -136,24 +143,14 @@ public class SpecTemplateModel
 		Collections.sort(model, elementComparator);
 		Collections.sort(handlers, elementComparator);
 	}
-	
+
 	public String getTypes()
 	{
-		if (name.equals("tabpanel") || name.equals("accordionpanel") || name.equals("splitpane")) 
+		if (name.equals("tabpanel") || name.equals("accordionpanel") || name.equals("splitpane"))
 		{
-			return",\r\n" + 
-				"types: {\r\n" + 
-				"  tab: {\r\n" + 
-				"  	model: {\r\n" + 
-				"  		name: 'string',\r\n" + 
-				"  		containsFormId: 'form',\r\n" + 
-				"  		text: 'tagstring',\r\n" + 
-				"  		relationName: 'relation',\r\n" + 
-				"  		active: 'boolean',\r\n" + 
-				"  		foreground: Color\r\n" + 
-				"  	}\r\n" + 
-				"  }\r\n" + 
-				"}";
+			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
+				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: Color\r\n" + "  	}\r\n"
+				+ "  }\r\n" + "}";
 		}
 		return null;
 	}

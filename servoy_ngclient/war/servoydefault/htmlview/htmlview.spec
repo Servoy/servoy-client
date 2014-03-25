@@ -7,7 +7,7 @@ model:
         background : 'color', 
         borderType : 'border', 
         dataProviderID : { 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}, 
-        enabled : 'boolean', 
+        enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 
         horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
@@ -21,7 +21,7 @@ model:
         toolTipText : 'tagstring', 
         transparent : 'boolean', 
         verticalAlignment : {type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
-        visible : 'boolean' 
+        visible : {type:'boolean', default:true} 
 },
 handlers:
 {
@@ -109,3 +109,4 @@ api:
             parameters:[{'width':'int'},{'height':'int'}]
         } 
 }
+ 

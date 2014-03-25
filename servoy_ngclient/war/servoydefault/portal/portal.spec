@@ -6,7 +6,7 @@ model:
 {
         background : 'color', 
         borderType : 'border', 
-        enabled : 'boolean', 
+        enabled : {type:'boolean', default:true}, 
         foreground : 'color', 
         initialSort : 'string', 
         intercellSpacing : 'dimension', 
@@ -26,7 +26,7 @@ model:
         styleClass : 'string', 
         tabSeq : 'tabseq', 
         transparent : 'boolean', 
-        visible : 'boolean' 
+        visible : {type:'boolean', default:true} 
 },
 handlers:
 {
@@ -114,3 +114,4 @@ api:
             parameters:[{'width':'int'},{'height':'int'}]
         } 
 }
+ 

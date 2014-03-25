@@ -40,6 +40,7 @@ import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 
 /**
@@ -57,7 +58,7 @@ public class ComponentFactory
 			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(PropertyType.valuelist);
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{
-				int valuelistID = fe.getIntProperty(vlProp.getName());
+				int valuelistID = Utils.getAsInteger(fe.getPropertyWithDefault(vlProp.getName()));
 				if (valuelistID > 0)
 				{
 					ValueList val = application.getFlattenedSolution().getValueList(valuelistID);

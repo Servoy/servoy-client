@@ -124,6 +124,7 @@ public final class FormElement
 							}
 						}
 					}
+					fillPropertiesWithDefaults(specProperties, jsonMap);
 				}
 				catch (Exception ex)
 				{
@@ -168,11 +169,27 @@ public final class FormElement
 			{
 				map.put("multiselectListbox", Boolean.TRUE);
 			}
+			Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
+			fillPropertiesWithDefaults(specProperties, map);
 			propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		}
 		else
 		{
 			propertyValues = Collections.emptyMap();
+		}
+	}
+
+	private void fillPropertiesWithDefaults(Map<String, PropertyDescription> specProperties, Map<String, Object> map)
+	{
+		if (specProperties != null && map != null)
+		{
+			for (PropertyDescription pd : specProperties.values())
+			{
+				if (pd.getDefaultValue() != null && !map.containsKey(pd.getName()))
+				{
+					map.put(pd.getName(), pd.getDefaultValue());
+				}
+			}
 		}
 	}
 
@@ -213,22 +230,39 @@ public final class FormElement
 	/**
 	 * @param name
 	 */
-	public int getIntProperty(String name)
-	{
-		Object object = propertyValues.get(name);
-		if (object != null)
-		{
-			return Utils.getAsInteger(object);
-		}
-		return 0;
-	}
-
-	/**
-	 * @param name
-	 */
 	public Object getProperty(String name)
 	{
 		return propertyValues.get(name);
+	}
+
+	public Object getPropertyWithDefault(String name)
+	{
+		if (propertyValues.containsKey(name))
+		{
+			return propertyValues.get(name);
+		}
+		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(name);
+		if (propertyDescription != null)
+		{
+			switch (propertyDescription.getType())
+			{
+				case bool :
+					return Boolean.FALSE;
+				case valuelist :
+				case bytenumber :
+				case doublenumber :
+				case floatnumber :
+				case intnumber :
+				case longnumber :
+				case shortnumber :
+					return Integer.valueOf(0);
+				case dimension :
+					return new Dimension(0, 0);
+				case point :
+					return new Point(0, 0);
+			}
+		}
+		return null;
 	}
 
 	/**
