@@ -395,14 +395,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	            	  var newargs = []
 	            	  for (var i in args) {
 	            		  var arg;
-	                      if(args[i]  instanceof MouseEvent){
+	                      if(args[i]  instanceof MouseEvent ||args[i]  instanceof KeyboardEvent){
 	                    	var $event = args[i]
 	                    	var eventObj = {}
 	                        var modifiers = 0;
 	                        if($event.shiftKey) modifiers = modifiers||$swingModifiers.SHIFT_DOWN_MASK;
 	                        if($event.metaKey) modifiers = modifiers||$swingModifiers.META_DOWN_MASK;
 	                        if($event.altKey) modifiers = modifiers|| $swingModifiers.ALT_DOWN_MASK;
-	                        if($event.ctrlKey) modifiers = modifiers || $swingModifiers.CTRL_DOWN_MASK;
 	                        if($event.ctrlKey) modifiers = modifiers || $swingModifiers.CTRL_DOWN_MASK;
 	                          
 	                        eventObj.type = 'event'; 

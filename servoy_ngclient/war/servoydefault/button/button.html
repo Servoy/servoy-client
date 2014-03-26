@@ -8,5 +8,6 @@
 		ng-disabled='model.enabled == false' 
 		svy-tooltip='{{model.toolTipText}}'
 		ng-click='handlers.onActionMethodID($event)'
-        ng-bind='model.dataProviderID == null && model.text || model.dataProviderID | formatFilter:model.format'>
+		svy-mnemonic="{key:'model.mnemonic',callback:'handlers.onActionMethodID'}"
+        ng-bind='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format'>
 </button>
