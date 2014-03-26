@@ -1,3 +1,11 @@
+.svy-padding-xs {
+	padding: 1px 5px;
+}
+
+input[type=date] {
+	line-height: normal;
+}
+
 .gridStyle {
     border: 1px solid rgb(212,212,212);
     width: 1024px; 

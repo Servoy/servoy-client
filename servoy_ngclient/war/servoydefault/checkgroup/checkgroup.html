@@ -3,7 +3,7 @@
 	 svy-foreground='model.foreground'
 	 svy-scrollbars='model.scrollbars'
 	 svy-margin='model.margin'
-	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm"'
+	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
 	 svy-font='model.fontType'
      ng-style="style" svy-tooltip="{{model.toolTipText}}" >
   <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')">
