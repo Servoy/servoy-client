@@ -5,7 +5,8 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
       scope: {
         model: "=svyModel",
         svyApply: "=",
-        svyServoyapi: "="
+        svyServoyapi: "=",
+        handlers: "=svyHandlers"
       },
       controller: function($scope, $element, $attrs) {
        var selectedTab;
@@ -56,11 +57,19 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        	return "";
        }
        
-       function setFormVisible(tab) {
+       function setFormVisible(tab,event) {
        	var promise = $scope.svyServoyapi.setFormVisibility(tab.containsFormId,true, tab.relationName);
        	promise.then(function(ok) {
        		if (ok){
-       			selectedTab = tab;
+       			if(selectedTab != tab)
+       			{
+	       			for(var i=0;i<$scope.model.tabs.length;i++) {
+	       				if ($scope.model.tabs[i] == selectedTab) {
+	       					$scope.handlers.onChangeMethodID(i + 1,event);
+	       				}
+	       			}
+       			}           			
+       			selectedTab = tab;   			
        		} else {
        			// will this ever happen?
        		}
@@ -70,10 +79,11 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.select = function(tab) {
     	if (tab == selectedTab) return;
         if (selectedTab) {
+        	var selectEvent = event;
         	var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
         	promise.then(function(ok) {
         		if (ok) {
-        			setFormVisible(tab);
+        			setFormVisible(tab,selectEvent);
         		}
         		else {
         			tab.active = false;

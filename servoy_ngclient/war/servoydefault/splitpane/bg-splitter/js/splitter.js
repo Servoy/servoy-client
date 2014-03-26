@@ -4,7 +4,8 @@ angular.module('svySplitpane').directive('bgSplitter', function() {
       replace: true,
       transclude: true,
       scope: {
-        orientation: '@'
+        orientation: '@',
+        onDividerChange: '&'
       },      
       template: '<div class="split-panes {{orientation}}" ng-transclude></div>',
       controller: function ($scope) {
@@ -64,8 +65,11 @@ angular.module('svySplitpane').directive('bgSplitter', function() {
           ev.preventDefault();
           drag = true; 
         });
-    
+
         angular.element(document).bind('mouseup', function (ev) {
+          if(drag) {
+        	  scope.onDividerChange();
+          }
           drag = false;
         });
       }
