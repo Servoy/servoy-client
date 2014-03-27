@@ -378,4 +378,22 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         	}
         }
       }
-})
+}).factory('$svyNGEvents', ['$timeout', '$rootScope', function($timeout, $rootScope) {
+	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+	 
+	return {
+		
+		/** Sometimes you want to execute code after the DOM is processed already by Angular; for example if a component directive
+  			is using jQuery plugins/code to manipulate / hide / replace DOM that is populated with Angular. That is the purpose of this function.
+  			It will try to execute the given function before the browser render happens. */
+		afterNGProcessedDOM : function (fn, doApply) {
+			if (requestAnimationFrame) {
+				if (doApply) {
+					window.requestAnimationFrame(function (scope) {
+						$rootScope.$apply(fn);
+					});
+				} else window.requestAnimationFrame(fn);
+			} else $timeout(fn, 0, doApply); // it could produce flicker, but better then nothing
+		}
+	}
+}])
