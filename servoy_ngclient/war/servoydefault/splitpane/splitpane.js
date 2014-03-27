@@ -31,7 +31,7 @@ angular.module('svySplitpane',['servoy']).directive('svySplitpane', function() {
     	  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[0].containsFormId, true, $scope.model.tabs[0].relationName);
     	  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[1].containsFormId, true, $scope.model.tabs[1].relationName);
     	  $scope.onChange = function() {
-    		  $scope.handlers.onChangeMethodID(-1,event);
+    		  if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,event);
     	  }
       },
       templateUrl: 'servoydefault/splitpane/splitpane.html',
