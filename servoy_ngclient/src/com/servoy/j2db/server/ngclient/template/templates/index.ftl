@@ -50,18 +50,11 @@
 	  	 <script src="${componentJs}"></script>
 	  </#list>
 
-	  <!-- -list of all the form controller scripts, maybe one solution so have all the controllers as once in 1 file -->
-	  <#list formScriptReferences as formScript>
-	  	 <script src="${formScript}"></script>
-	  </#list>
-	  
 	  <link rel="stylesheet" ng-href='{{solutionSettings.clientUUID ? "solution-css/" + solutionSettings.clientUUID : undefined}}'/>
 	</head>
 <body >
-
 	<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="{'width':solutionSettings.navigatorForm.width+'px'}"
-	 ng-include="solutionSettings.navigatorForm.templateURL"></div>
-	<div ng-include="solutionSettings.mainForm.templateURL"
-		ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':solutionSettings.navigatorForm.width+'px'}" ></div>
+	 ng-include="getNavigatorFormUrl()"></div>
+	<div ng-include="getMainFormUrl()" ng-style="{'position':'absolute','top':'0px','right':'0px','bottom':'0px','left':solutionSettings.navigatorForm.width+'px'}"></div>
 </body>
 </html>
