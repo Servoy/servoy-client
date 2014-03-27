@@ -48,7 +48,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     			   break;
     		   }
     	   }
-    	   return selectedTab?selectedTab.containsFormId:"";
+    	   return selectedTab?$scope.svyServoyapi.getFormUrl(selectedTab.containsFormId):"";
        }
        
        $scope.getSelectedTab = function() {
@@ -63,7 +63,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        
        $scope.getForm = function(tab) {
        	if (tab == selectedTab) {
-       		return tab.containsFormId;
+       		return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
        	}
        	return "";
        }
@@ -72,13 +72,12 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        	var promise = $scope.svyServoyapi.setFormVisibility(tab.containsFormId,true, tab.relationName);
        	promise.then(function(ok) {
        		if (ok){
-       			if(selectedTab != tab)
+       			if(selectedTab != tab && $scope.handlers.onChangeMethodID)
        			{
        				$scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab) + 1,event);
        			}   			
        			selectedTab = tab;
        			$scope.model.tabIndex = $scope.getTabIndex(selectedTab);
-       			$scope.handlers.svy_apply('tabIndex');   			
        		} else {
        			// will this ever happen?
        		}
@@ -127,7 +126,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     			   relationName: relation,
     			   active: false,
     			   foreground: fg };
-    	   $scope.handlers.svy_apply('tabs');
     	   return true;
        }
        
@@ -137,7 +135,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
         		   $scope.model.tabs[i] = $scope.model.tabs[i + 1];
         	   }
         	   $scope.model.tabs.length = $scope.model.tabs.length - 1;
-        	   $scope.handlers.svy_apply('tabs');
         	   return true;
     	   }
     	   return false;
@@ -146,7 +143,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.api.removeAllTabs = function() {
     	   if($scope.model.tabs.length > 0) {
     		   $scope.model.tabs.length = 0;
-    		   $scope.handlers.svy_apply('tabs');
     		   return true;
     	   }
     	   return false;
@@ -210,7 +206,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     	   var tab = $scope.getTabAt(index);
     	   if(tab) {
     		   tab.active = enabled;
-    		   $scope.handlers.svy_apply('tabs');
     	   }
        }
 
@@ -218,7 +213,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     	   var tab = $scope.getTabAt(index);
     	   if(tab) {
     		   tab.foreground = fgcolor;
-    		   $scope.handlers.svy_apply('tabs');
     	   }    	   
        }
 
@@ -226,7 +220,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     	   var tab = $scope.getTabAt(index);
     	   if(tab) {
     		   tab.text = text;
-    		   $scope.handlers.svy_apply('tabs');
     	   }    	    	   
        }
       },
