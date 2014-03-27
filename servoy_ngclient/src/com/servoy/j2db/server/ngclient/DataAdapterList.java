@@ -226,6 +226,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void pushChanges(WebComponent webComponent, String beanProperty, Object newValue)
 	{
 		Map<String, String> map = beanToDataHolder.get(webComponent.getFormElement());
+		if (map == null)
+		{
+			Debug.log("apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + newValue + " of component: " +
+				webComponent);
+			return;
+		}
 		String property = map.get(beanProperty);
 		// TODO should this always be tried? (Calendar field has no push for edit, because it doesn't use svyAutoApply)
 		// but what if it was a global or form variable?
