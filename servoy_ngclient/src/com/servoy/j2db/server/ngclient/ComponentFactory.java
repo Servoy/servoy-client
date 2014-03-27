@@ -33,8 +33,11 @@ import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
@@ -122,17 +125,7 @@ public class ComponentFactory
 			IPersist persist = iterator.next();
 			if (persist instanceof IFormElement)
 			{
-				FormElement persistWrapper = persistWrappers.get(persist);
-				if (persistWrapper == null)
-				{
-					persistWrapper = new FormElement((IFormElement)persist, fs);
-					FormElement existing = persistWrappers.putIfAbsent(persist, persistWrapper);
-					if (existing != null)
-					{
-						persistWrapper = existing;
-					}
-				}
-				lst.add(persistWrapper);
+				lst.add(getFormElement((IFormElement)persist, fs));
 			}
 		}
 		return lst;
@@ -140,6 +133,17 @@ public class ComponentFactory
 
 	public static FormElement getFormElement(IFormElement formElement, FlattenedSolution fs)
 	{
+		// dont cache solution model changed or created elements
+		ISupportChilds parent = formElement.getParent();
+		while (!(parent instanceof Form) && parent != null)
+		{
+			parent = parent.getParent();
+		}
+		if (parent instanceof Form)
+		{
+			Solution copy = fs.getSolutionCopy(false);
+			if (copy != null && copy.getChild(parent.getUUID()) != null) return new FormElement(formElement, fs);
+		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
 		{

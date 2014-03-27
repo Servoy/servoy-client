@@ -22,6 +22,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import com.servoy.j2db.RuntimeWindowManager;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.util.UUID;
@@ -33,6 +34,8 @@ import com.servoy.j2db.util.UUID;
 @SuppressWarnings("nls")
 public class NGRuntimeWindowMananger extends RuntimeWindowManager implements IService
 {
+	public static final String WINDOW_SERVICE = "$windowService";
+
 
 	/**
 	 * @param application
@@ -40,7 +43,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 	public NGRuntimeWindowMananger(INGApplication application)
 	{
 		super(application);
-		application.registerService("dialogService", this);
+		application.registerService(WINDOW_SERVICE, this);
 	}
 
 	/*
@@ -60,6 +63,19 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 				{
 					return Boolean.valueOf(window.hide());
 				}
+				break;
+			}
+			case "touchForm" :
+			{
+				String formUrl = args.optString("url");
+				if (formUrl != null)
+				{
+					int lastSlash = formUrl.lastIndexOf('/');
+					Form form = application.getFlattenedSolution().getForm(formUrl.substring(lastSlash + 1, formUrl.length() - 5));
+					if (form != null) ((INGApplication)application).getActiveWebSocketClientEndpoint().touchForm(
+						application.getFlattenedSolution().getFlattenedForm(form));
+				}
+				break;
 			}
 		}
 		return null;

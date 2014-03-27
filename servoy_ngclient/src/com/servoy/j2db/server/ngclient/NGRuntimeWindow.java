@@ -36,9 +36,6 @@ import com.servoy.j2db.server.ngclient.utils.JSONUtils;
  */
 public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContainer
 {
-
-	public static final String WINDOW_SERVICE = "$windowService";
-
 	private final History history;
 	private final INGApplication application;
 	private int x = -1;
@@ -280,7 +277,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public void hideUI()
 	{
 		visible = false;
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(WINDOW_SERVICE, "dismiss", new Object[] { getName() });
+		application.getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
 
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
@@ -310,7 +307,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		size.put("width", wdth + "px");
 		size.put("height", hght + "px");
 		arguments.put("size", size);
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
+		application.getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
 
 		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
@@ -360,11 +357,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				{
 					navigatorForm.put("templateURL", JSONUtils.toStringObject(navForm, PropertyType.form));
 					navigatorForm.put("width", navForm.getWidth());
+					application.getActiveWebSocketClientEndpoint().touchForm(application.getFlattenedSolution().getFlattenedForm(navForm));
 				}
 			}
 		}
-
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(WINDOW_SERVICE, "switchForm",
+		application.getActiveWebSocketClientEndpoint().touchForm(currentForm.getForm());
+		application.getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
 			new Object[] { getName(), mainForm, navigatorForm, formTitle });
 
 	}

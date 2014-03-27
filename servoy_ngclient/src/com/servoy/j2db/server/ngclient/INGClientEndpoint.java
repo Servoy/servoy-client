@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 
 /**
@@ -45,4 +46,14 @@ public interface INGClientEndpoint extends IChangeListener
 	void executeServiceCall(String serviceName, String functionName, Object[] arguments);
 
 	Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments);
+
+	/**
+	 * @param object
+	 */
+	void touchForm(Form form);
+
+	/**
+	 * @param form
+	 */
+	void updateForm(Form form);
 }

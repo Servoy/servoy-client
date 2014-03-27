@@ -57,22 +57,31 @@ public class TemplateGeneratorFilter implements Filter
 				{
 					String solutionName = uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
 					FlattenedSolution fs = null;
-					try
+					String clientUUID = request.getParameter("uuid");
+					if (clientUUID != null)
 					{
-						IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-						fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(solutionName,
-							IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
-						{
-							@Override
-							public IRepository getRepository()
-							{
-								return ApplicationServerRegistry.get().getLocalRepository();
-							}
-						});
+						INGApplication client = NGClientEndpoint.getClient(clientUUID);
+						if (client != null) fs = client.getFlattenedSolution();
 					}
-					catch (RepositoryException e)
+					if (fs == null)
 					{
-						Debug.error(e);
+						try
+						{
+							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+							fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
+								solutionName, IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
+							{
+								@Override
+								public IRepository getRepository()
+								{
+									return ApplicationServerRegistry.get().getLocalRepository();
+								}
+							});
+						}
+						catch (RepositoryException e)
+						{
+							Debug.error(e);
+						}
 					}
 
 					if (fs != null && formIndex > 0)

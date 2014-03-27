@@ -17,6 +17,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.websocket.CloseReason;
@@ -43,15 +46,20 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 
+import com.servoy.base.persistence.constants.IFormConstants;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
+import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -91,6 +99,9 @@ public class NGClientEndpoint implements INGClientEndpoint
 
 	private final List<Map<String, Object>> serviceCalls = new ArrayList<>();
 
+	private final ConcurrentMap<String, String> formsOnClient = new ConcurrentHashMap<>();
+
+
 	public NGClientEndpoint()
 	{
 	}
@@ -98,6 +109,76 @@ public class NGClientEndpoint implements INGClientEndpoint
 	public static INGApplication getClient(String uuid)
 	{
 		return clients.get(uuid);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.INGClientEndpoint#touchForm(java.lang.String)
+	 */
+	@Override
+	public void touchForm(Form form)
+	{
+		if (form == null) return;
+		String formUrl = (String)JSONUtils.toStringObject(form, PropertyType.form);
+		if (formsOnClient.putIfAbsent(formUrl, formUrl) == null)
+		{
+			// form is not yet on the client, send over the controller
+			updateController(form, formUrl);
+		}
+
+	}
+
+	/**
+	 * @param formUrl
+	 * @param fs
+	 * @param form
+	 */
+	private void updateController(Form form, String formUrl)
+	{
+		try
+		{
+			String realUrl = formUrl;
+			FlattenedSolution fs = client.getFlattenedSolution();
+			Solution sc = fs.getSolutionCopy(false);
+			if (sc != null && sc.getChild(form.getUUID()) != null)
+			{
+				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + uuid;
+			}
+
+			boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
+			String view = (tableview ? "tableview" : "recordview");
+			StringWriter sw = new StringWriter(512);
+			new FormTemplateGenerator(fs).generate(form, "form_" + view + "_js.ftl", sw);
+			if (client.isEventDispatchThread())
+			{
+				executeDirectServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController",
+					new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
+			}
+			else
+			{
+				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.server.ngclient.INGClientEndpoint#updateFormUrl(com.servoy.j2db.persistence.Form)
+	 */
+	@Override
+	public void updateForm(Form form)
+	{
+		String formUrl = (String)JSONUtils.toStringObject(form, PropertyType.form);
+		if (formsOnClient.containsKey(formUrl))
+		{
+			updateController(form, formUrl);
+		}
 	}
 
 	@OnOpen
@@ -112,7 +193,8 @@ public class NGClientEndpoint implements INGClientEndpoint
 	@OnError
 	public void onError(Throwable t)
 	{
-		Debug.error(t);
+		if (t instanceof IOException) Debug.error(t.getMessage());
+		else Debug.error(t);
 	}
 
 	/*
@@ -127,7 +209,8 @@ public class NGClientEndpoint implements INGClientEndpoint
 		{
 			try
 			{
-				session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Application Server shutdown"));
+				System.err.println("calling close on " + session);
+				session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Application Server shutdown!!!!!!!"));
 			}
 			catch (IOException e)
 			{
@@ -187,6 +270,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 			{
 				case "init" :
 				{
+					formsOnClient.clear();
 					uuid = obj.optString("srvuuid");
 					synchronized (clients)
 					{

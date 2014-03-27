@@ -272,7 +272,10 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	public boolean recreateUI()
 	{
+		Form f = application.getFlattenedSolution().getForm(form.getName());
+		form = application.getFlattenedSolution().getFlattenedForm(f);
 		getFormUI().init();
+		((INGApplication)application).getActiveWebSocketClientEndpoint().updateForm(form);
 		return true;
 	}
 
