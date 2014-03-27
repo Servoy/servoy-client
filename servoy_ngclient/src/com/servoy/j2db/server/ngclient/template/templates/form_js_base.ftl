@@ -16,7 +16,7 @@
 -->
 <#macro form_js_body>Abstract macro</#macro>
 <#macro form_js>
-angular.module('servoyApp').controller("${name}", function($scope, $servoyInternal,$timeout) {
+controllerProvider.register("${name}", function($scope, $servoyInternal,$timeout,$windowService) {
 
 	var beans = {
 	<#list baseComponents as bc>
@@ -78,6 +78,9 @@ angular.module('servoyApp').controller("${name}", function($scope, $servoyIntern
 			},
 			setFormReadOnly: function(formname, readOnly) {
 				return $servoyInternal.setFormReadOnly(formname, readOnly);
+			},
+			getFormUrl: function(formUrl) {
+				return $windowService.getFormUrl(formUrl);
 			}
 		}	
 	}
