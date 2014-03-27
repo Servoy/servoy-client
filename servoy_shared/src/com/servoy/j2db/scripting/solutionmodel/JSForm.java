@@ -102,7 +102,7 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 		if (!isCopy)
 		{
 			form = application.getFlattenedSolution().createPersistCopy(form);
-			((FormManager)application.getFormManager()).addForm(form, false);
+			application.getFormManager().addForm(form, false);
 
 			//forms scope still uses the old copy of Script Providers
 			Form oldform = form;

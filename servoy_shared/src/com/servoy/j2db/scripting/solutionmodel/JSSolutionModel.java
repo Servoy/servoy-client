@@ -198,7 +198,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				form.setStyleName("_servoy_mobile"); // set internal style name
 			}
 
-			((FormManager)application.getFormManager()).addForm(form, false);
+			application.getFormManager().addForm(form, false);
 			return instantiateForm(form, true);
 		}
 		catch (RepositoryException e)
@@ -774,7 +774,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public JSForm getForm(String name)
 	{
 		if (name == null) return null;
-		Form form = ((FormManager)application.getFormManager()).getPossibleForm(name);
+		Form form = application.getFormManager().getPossibleForm(name);
 
 		if (form == null)
 		{
