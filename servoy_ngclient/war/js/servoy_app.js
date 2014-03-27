@@ -1,5 +1,7 @@
-angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components'])
-.factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window,$injector) {
+var controllerProvider;
+angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components']).config(function($controllerProvider) {
+	controllerProvider = $controllerProvider;
+}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window,$injector) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
 	   // this holds the form model with all the data, per form is this the "synced" view of the the IFormUI on the server 
 	   // (3 way binding)
@@ -127,7 +129,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
        }
        websocket.onmessage = function (message) {
 		   try {
-			ignoreChanges = true;
 	        var obj = JSON.parse(message.data);
 	        var conversions = {};
 	        if (obj.conversions) conversions = obj.conversions; 
@@ -171,7 +172,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            for(var beanname in newFormData) {
 		            	// copy over the changes, skip for form properties (beanname empty)
 		            	if(beanname != ''){
+				            ignoreChanges = true;
 		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], newFormProperties ? newFormProperties.size : formState.properties.size);
+				            ignoreChanges = false;
 		            		for (var defProperty in deferredProperties) {
 		            			for(var key in newFormData[beanname]) {
 		            				if (defProperty == (formname + "_" + beanname + "_" + key)) {
@@ -352,6 +355,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 			   return defered.promise;
 		   },
 		   
+		   clearformState: function(formName) {
+			   delete formStates[formName];
+		   },
 	       initFormState: function(formName, beanDatas, formProperties) {
 	        var state = formStates[formName];
 	        // if the form is already initialized or if the beanDatas are not given, return that 
@@ -395,8 +401,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	            	  var newargs = []
 	            	  for (var i in args) {
 	            		  var arg;
-	                      if(args[i]  instanceof MouseEvent ||args[i]  instanceof KeyboardEvent){
-	                    	var $event = args[i]
+	            		  var arg = args[i]
+						  if (arg && arg.originalEvent) arg = arg.originalEvent;
+ 	                      if(arg  instanceof MouseEvent ||arg  instanceof KeyboardEvent){
+	                    	var $event = arg;
 	                    	var eventObj = {}
 	                        var modifiers = 0;
 	                        if($event.shiftKey) modifiers = modifiers||$swingModifiers.SHIFT_DOWN_MASK;
@@ -411,9 +419,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	                        eventObj.x= $event.pageX;
 	                        eventObj.y= $event.pageY;
 	                        arg = eventObj
-	                      }
-	                      else {
-	                    	arg = args[i]
 	                      }
 	                      newargs.push(arg)
 	            	  }
@@ -544,10 +549,19 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	solutionTitle: "Servoy WebClient",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	clientUUID: undefined
-}).controller("MainController", function($scope, $solutionSettings, $servoyInternal) {
+}).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService) {
 	$scope.solutionSettings = $solutionSettings;
-}).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window) {
+	$scope.getMainFormUrl = function() {
+		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";
+	}
+	$scope.getNavigatorFormUrl = function() {
+		return $solutionSettings.navigatorForm.templateURL?$windowService.getFormUrl($solutionSettings.navigatorForm.templateURL):"";
+	}
+	
+}).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
 	var instances = {};
+	
+	var formTemplateUrls = {};
 	
 	 $templateCache.put("template/modal/window.html",
 			    "<div tabindex=\"-1\" class=\"modal fade {{ windowClass }}\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\">\n" +
@@ -608,9 +622,23 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
     		})
 		},
 		reload: function() {
-		$rootScope.$apply(function() {
+			$rootScope.$apply(function() {
         		$window.location.reload(true);
     		})
+		},
+		updateController: function(formName,controllerCode, formUrl, realFormUrl) {
+			$rootScope.$apply(function() {
+				$servoyInternal.clearformState(formName)
+				eval(controllerCode);
+				formTemplateUrls[formUrl] = realFormUrl;
+			});
+		},
+ 		getFormUrl: function(formUrl) {
+			var realFormUrl = formTemplateUrls[formUrl];
+			if (realFormUrl == null) {
+				$servoyInternal.callService("$windowService", "touchForm", {url:formUrl});
+			}
+			return realFormUrl;
 		},
 	}
 	
@@ -630,7 +658,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	$servoyInternal.setFormVisibility(form,true);
 	
 	$scope.cancel = function () {
-		var promise = $servoyInternal.callService("windowService", "windowClosing", {window:windowName});
+		var promise = $servoyInternal.callService("$windowService", "windowClosing", {window:windowName});
 		promise.then(function(ok) {
     		if (ok) {
     			$windowService.dismiss(windowName);
