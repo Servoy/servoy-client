@@ -241,7 +241,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		        	if (obj.smsgid) {
 		        		// server wants a response
 		        		var response = {cmd: 'response', smsgid: obj.smsgid}
-		        		if (ret) response.ret = convertClientObject(ret);
+		        		if (ret != undefined) response.ret = convertClientObject(ret);
 		        		websocket.send(JSON.stringify(response));
 		        	}
 	        	})
