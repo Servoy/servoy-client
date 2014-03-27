@@ -1,16 +1,15 @@
-<div>
-	<div style="text-align: center"> 
-		{{model.maxIndex > 0? 1:0}} 
-		<br> | 
-    </div>
-    <div>
-		 <input type="text" ng-model="editIndex"  ng-blur="setIndex(editIndex)" style="width:70px">
-    </div>
-    <div style="text-align: center">
-		 | <br>
-		 {{model.maxIndex > 0? model.maxIndex:0}}
+<div class="svy-nav-container">
+	<div style="svy-nav-slider">
+		<div ui-slider="{orientation: 'vertical', range: 'min'}"
+		     min="{{model.maxIndex > 0? 1:0}} " 
+		     max="{{model.maxIndex > 0? model.maxIndex:0}}" 
+		     ng-model="editIndex"
+		     ng-mouseup="setIndex(editIndex)"
+		     ng-keyup="setIndex(editIndex)"
+		     >
+		</div>
 	</div>
-	<button ng-click ="handlers.setSelectedIndex(model.currentIndex-1)"> &lt; </button>
-    <button ng-click ="handlers.setSelectedIndex(model.currentIndex+1)"> &gt; </button>
-
+    <div class="svy-nav-input">
+		 <input type="text" ng-model="editIndex" ng-blur="setIndex(editIndex)" style="width:100%">
+    </div>
 </div>

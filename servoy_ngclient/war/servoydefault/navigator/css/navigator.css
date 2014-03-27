@@ -1,0 +1,4 @@
+.ui-slider .ui-slider-handle {position: absolute;z-index: 2;left: -3px;margin-left: 0;margin-bottom: -0.6em;width: 15px;height: 24px;background: url(images/handle-vertical.png) no-repeat;border: none;cursor: pointer;}
+.svy-nav-container { margin:10px;position:relative;}
+.svy-nav-slider {width:15%;}
+.svy-nav-input {width:80%;position:absolute;left:40%;top:50%;}

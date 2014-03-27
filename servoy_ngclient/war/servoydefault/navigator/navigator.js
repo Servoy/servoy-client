@@ -1,4 +1,4 @@
-angular.module('svyNavigator',['servoy']).directive('svyNavigator', function() {  
+angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', function() {  
     return {
       restrict: 'E',
       transclude: true,
