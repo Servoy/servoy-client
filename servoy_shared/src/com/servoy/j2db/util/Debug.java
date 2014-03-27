@@ -26,6 +26,7 @@ import org.slf4j.MDC;
 import com.servoy.base.util.ILogger;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.persistence.Solution;
 
 public class Debug
 {
@@ -159,13 +160,23 @@ public class Debug
 	private static boolean insetClientInfoWithMDC(boolean insert)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
-		if (insert && serviceProvider != null && serviceProvider.getSolution() != null && serviceProvider.getClientID() != null)
+		if (insert && serviceProvider != null)
 		{
-			if (MDC.get("clientid") == null)
+			Solution solution = serviceProvider.getSolution();
+			String clientID = serviceProvider.getClientID();
+			if (solution != null && clientID != null)
 			{
-				MDC.put("clientid", serviceProvider.getClientID());
-				MDC.put("solution", serviceProvider.getSolution().getName());
-				return true;
+				if (MDC.get("clientid") == null)
+				{
+					MDC.put("clientid", clientID);
+					MDC.put("solution", solution.getName());
+					return true;
+				}
+			}
+			else
+			{
+				MDC.remove("clientid");
+				MDC.remove("solution");
 			}
 		}
 		else
