@@ -22,9 +22,9 @@
 	  <!-- base 3th party libraries -->
       <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css"/>
       <link rel="stylesheet" href="css/ng-grid.css"/>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.js"></script>
 	  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.min.js"></script> -->
-	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	  <script src="js/angular-webstorage.js"></script>
       <script src="js/angularui/ui-bootstrap-tpls-0.10.0.js"></script>
       <script src="js/angularui/ng-grid-2.0.7.debug.js"></script>
