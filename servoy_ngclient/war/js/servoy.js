@@ -385,7 +385,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		
 		/** Sometimes you want to execute code after the DOM is processed already by Angular; for example if a component directive
   			is using jQuery plugins/code to manipulate / hide / replace DOM that is populated with Angular. That is the purpose of this function.
-  			It will try to execute the given function before the browser render happens. */
+  			It will try to execute the given function before the browser render happens - only once. */
 		afterNGProcessedDOM : function (fn, doApply) {
 			if (requestAnimationFrame) {
 				if (doApply) {

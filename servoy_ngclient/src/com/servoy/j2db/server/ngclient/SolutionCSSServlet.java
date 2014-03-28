@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
 /**
@@ -38,6 +39,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
  * solution CSS url:
  * 	/solution-css/[clientuuid]
  */
+@SuppressWarnings("nls")
 @WebServlet("/solution-css/*")
 public class SolutionCSSServlet extends HttpServlet
 {
@@ -45,13 +47,13 @@ public class SolutionCSSServlet extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		boolean solutionCSSServed = false;
+		byte[] dataToReturn = null;
 
 		String path = req.getPathInfo();
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
 
-		if (paths.length == 1)
+		if (paths.length >= 1)
 		{
 			String clientUUID = paths[0];
 			// try to look it up as clientId. (solution model)
@@ -66,21 +68,51 @@ public class SolutionCSSServlet extends HttpServlet
 			}
 			if (client != null)
 			{
-				solutionCSSServed = true;
 
-				// TODO get that solution CSS from the solution itself
-				String cssContent = "/* p { background: yellow } /**/";
-				byte[] data = cssContent.getBytes(Charset.forName("UTF-8")); // this is currently hardcoded; we could in the future look for something like this in the content first '@charset "UTF-8";'
+				if (paths.length == 1)
+				{
+					String styleSheet = client.getSolution().getStyleSheet();
+					if (styleSheet != null)
+					{
+						dataToReturn = getMediaCSS(client, styleSheet);
+					}
+				}
+				else
+				{
+					// probably an - @import "myOtherStyleSheet.css"; - in solution CSS
+					StringBuffer tmp = new StringBuffer();
+					for (int i = 1; i < paths.length - 1; i++)
+						tmp.append(paths[i]).append('/');
+					tmp.append(paths[paths.length - 1]);
+					dataToReturn = getMediaCSS(client, tmp.toString());
+				}
 
-				resp.setContentType("text/css");
-				resp.setContentLength(data.length);
-				ServletOutputStream outputStream = resp.getOutputStream();
-				outputStream.write(data);
-				outputStream.flush();
+				if (dataToReturn != null)
+				{
+					// add client uuid in case @import 'solution-css/a/b/myOtherStyleSheet.css' is used
+					Charset utf8 = Charset.forName("UTF-8"); // TODO should we support others as well in the future?
+					dataToReturn = new String(dataToReturn, utf8).replace("solution-css/", clientUUID + "/").getBytes(utf8);
+					resp.setContentType("text/css");
+					resp.setContentLength(dataToReturn.length);
+					ServletOutputStream outputStream = resp.getOutputStream();
+					outputStream.write(dataToReturn);
+					outputStream.flush();
+				}
 			}
 		}
 
-		if (!solutionCSSServed) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		if (dataToReturn == null) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	private byte[] getMediaCSS(IApplication client, String styleSheet)
+	{
+		Media mainCss = client.getFlattenedSolution().getMedia(styleSheet);
+
+		if (mainCss != null)
+		{
+			return mainCss.getMediaData();
+		}
+		return null;
 	}
 
 }
