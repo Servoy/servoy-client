@@ -76,6 +76,18 @@ public class NGFormManager implements INGFormManager, IService
 		application.registerService("formService", this);
 	}
 
+	public boolean createNewFormInstance(String designFormName, String newInstanceScriptName)
+	{
+		Form f = possibleForms.get(designFormName);
+		Form test = possibleForms.get(newInstanceScriptName);
+		if (f != null && test == null)
+		{
+			possibleForms.put(newInstanceScriptName, f);
+			return true;
+		}
+		return false;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
