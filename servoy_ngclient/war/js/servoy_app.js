@@ -147,7 +147,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 
 	        // data got back from the server
 	        if (obj.forms) {
-	        	// TODO check is it better to call apply on the form scopes that are changed? (performance?)
+		        ignoreChanges = true;
 	        	$rootScope.$apply(function() {
 		          for(var formname in obj.forms) {
 		        	// current model
@@ -172,9 +172,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            for(var beanname in newFormData) {
 		            	// copy over the changes, skip for form properties (beanname empty)
 		            	if(beanname != ''){
-				            ignoreChanges = true;
 		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], newFormProperties ? newFormProperties.size : formState.properties.size);
-				            ignoreChanges = false;
 		            		for (var defProperty in deferredProperties) {
 		            			for(var key in newFormData[beanname]) {
 		            				if (defProperty == (formname + "_" + beanname + "_" + key)) {
@@ -191,6 +189,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            }
 		          }
 	        	});
+		        ignoreChanges = false;
 	        }
 	        if (obj.call) {
 	        	// {"call":{"form":"product","element":"datatextfield1","api":"requestFocus","args":[arg1, arg2]}, // optionally "viewIndex":1 
