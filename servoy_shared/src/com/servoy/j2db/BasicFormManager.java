@@ -18,6 +18,8 @@
 package com.servoy.j2db;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -50,6 +52,40 @@ public abstract class BasicFormManager implements IBasicFormManager
 		possibleForms = new ConcurrentHashMap<String, Form>();
 	}
 
+	public void addForm(Form form, boolean selected)
+	{
+		Form f = possibleForms.put(form.getName(), form);
+
+		if (f != null && form != f)
+		{
+			// replace all occurrences to the previous form to this new form (newFormInstances) 
+			Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
+			while (iterator.hasNext())
+			{
+				Entry<String, Form> next = iterator.next();
+				if (next.getValue() == f)
+				{
+					next.setValue(form);
+				}
+			}
+		}
+	}
+
+
+	public Iterator<String> getPossibleFormNames()
+	{
+		return possibleForms.keySet().iterator();
+	}
+
+	public Form getPossibleForm(String name)
+	{
+		return possibleForms.get(name);
+	}
+
+	public boolean isPossibleForm(String formName)
+	{
+		return possibleForms.containsKey(formName);
+	}
 
 	public boolean createNewFormInstance(String designFormName, String newInstanceScriptName)
 	{

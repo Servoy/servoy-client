@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -181,6 +180,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	protected List<String> readOnlyCheck = new ArrayList<String>();
 
+	@Override
 	public void setFormReadOnly(String formName, boolean readOnly)
 	{
 		if (readOnly && readOnlyCheck.contains(formName)) return;
@@ -216,25 +216,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		}
 	}
 
-	public void addForm(Form form, boolean selected)
-	{
-		Form f = possibleForms.put(form.getName(), form);
-
-		if (f != null && form != f)
-		{
-			// replace all occurrences to the previous form to this new form (newFormInstances) 
-			Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
-			while (iterator.hasNext())
-			{
-				Entry<String, Form> next = iterator.next();
-				if (next.getValue() == f)
-				{
-					next.setValue(form);
-				}
-			}
-		}
-	}
-
 	public boolean removeForm(Form form)
 	{
 		boolean removed = destroyFormInstance(form.getName());
@@ -252,16 +233,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 	protected abstract void enableCmds(boolean enable);
 
 	protected Form loginForm = null;//as long this is set do not allow to leave this form!
-
-	public Iterator<String> getPossibleFormNames()
-	{
-		return possibleForms.keySet().iterator();
-	}
-
-	public Form getPossibleForm(String name)
-	{
-		return possibleForms.get(name);
-	}
 
 	//initialize this manager for the solution
 	protected void makeSolutionSettings(Solution s)
@@ -969,11 +940,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 	protected int getMaxFormsLoaded()
 	{
 		return MAX_FORMS_LOADED;
-	}
-
-	public boolean isPossibleForm(String formName)
-	{
-		return possibleForms.containsKey(formName);
 	}
 
 	/**
