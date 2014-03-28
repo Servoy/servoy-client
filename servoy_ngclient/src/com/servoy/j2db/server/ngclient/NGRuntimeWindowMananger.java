@@ -67,21 +67,18 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 			}
 			case "touchForm" :
 			{
-				String formUrl = args.optString("url");
-				if (formUrl != null)
+				String formNameOrUrl = args.optString("url");
+				if (formNameOrUrl != null)
 				{
-					int lastSlash = formUrl.lastIndexOf('/');
-					Form form = null;
-					if (lastSlash == -1)
+					String formName = formNameOrUrl;
+					int lastSlash = formName.lastIndexOf('/');
+					if (lastSlash != -1)
 					{
-						form = application.getFlattenedSolution().getForm(formUrl);
+						formName = formName.substring(lastSlash + 1, formName.length() - 5);
 					}
-					else
-					{
-						form = application.getFlattenedSolution().getForm(formUrl.substring(lastSlash + 1, formUrl.length() - 5));
-					}
+					Form form = application.getFormManager().getPossibleForm(formName);
 					if (form != null) ((INGApplication)application).getActiveWebSocketClientEndpoint().touchForm(
-						application.getFlattenedSolution().getFlattenedForm(form));
+						application.getFlattenedSolution().getFlattenedForm(form), formNameOrUrl);
 				}
 				break;
 			}

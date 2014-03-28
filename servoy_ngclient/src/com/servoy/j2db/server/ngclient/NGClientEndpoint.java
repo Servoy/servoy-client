@@ -118,7 +118,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 	 * @see com.servoy.j2db.server.ngclient.INGClientEndpoint#touchForm(java.lang.String)
 	 */
 	@Override
-	public void touchForm(Form form)
+	public void touchForm(Form form, String realInstanceName)
 	{
 		if (form == null) return;
 		String formUrl = (String)JSONUtils.toStringObject(form, PropertyType.form);
@@ -126,6 +126,18 @@ public class NGClientEndpoint implements INGClientEndpoint
 		{
 			// form is not yet on the client, send over the controller
 			updateController(form, formUrl);
+		}
+		if (realInstanceName != null && formsOnClient.putIfAbsent(realInstanceName, formUrl) == null)
+		{
+			// this is a instance reference to another form push that to the client.
+			if (client.isEventDispatchThread())
+			{
+				executeDirectServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
+			}
+			else
+			{
+				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
+			}
 		}
 
 	}

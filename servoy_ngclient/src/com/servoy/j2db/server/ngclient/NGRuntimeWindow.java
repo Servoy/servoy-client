@@ -357,11 +357,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				{
 					navigatorForm.put("templateURL", JSONUtils.toStringObject(navForm, PropertyType.form));
 					navigatorForm.put("width", navForm.getWidth());
-					application.getActiveWebSocketClientEndpoint().touchForm(application.getFlattenedSolution().getFlattenedForm(navForm));
+					application.getActiveWebSocketClientEndpoint().touchForm(application.getFlattenedSolution().getFlattenedForm(navForm), null);
 				}
 			}
 		}
-		application.getActiveWebSocketClientEndpoint().touchForm(currentForm.getForm());
+		application.getActiveWebSocketClientEndpoint().touchForm(currentForm.getForm(), null);
 		application.getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
 			new Object[] { getName(), mainForm, navigatorForm, formTitle });
 

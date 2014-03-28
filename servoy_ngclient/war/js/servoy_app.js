@@ -564,6 +564,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	var instances = {};
 	
 	var formTemplateUrls = {};
+	var instanceForms = {};
 	
 	 $templateCache.put("template/modal/window.html",
 			    "<div tabindex=\"-1\" class=\"modal fade {{ windowClass }}\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\">\n" +
@@ -639,9 +640,15 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
  		getFormUrl: function(formNameOrUrl) {
 			var realFormUrl = formTemplateUrls[formNameOrUrl];
 			if (realFormUrl == null) {
-				$servoyInternal.callService("$windowService", "touchForm", {url:formNameOrUrl});
+				var instanceUrl = instanceForms[formNameOrUrl];
+				if (instanceUrl) realFormUrl = formTemplateUrls[instanceUrl];
+				if (realFormUrl == null)
+					$servoyInternal.callService("$windowService", "touchForm", {url:formNameOrUrl});
 			}
 			return realFormUrl;
+		},
+		putFormInstance: function(realInstanceName, formUrl) {
+			instanceForms[realInstanceName] = formUrl;
 		},
 	}
 	

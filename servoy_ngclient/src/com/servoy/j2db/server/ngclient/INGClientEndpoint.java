@@ -48,12 +48,13 @@ public interface INGClientEndpoint extends IChangeListener
 	Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments);
 
 	/**
-	 * @param object
-	 */
-	void touchForm(Form form);
-
-	/**
 	 * @param form
 	 */
 	void updateForm(Form form);
+
+	/**
+	 * @param flattenedForm
+	 * @param realInstanceName
+	 */
+	void touchForm(Form flattenedForm, String realInstanceName);
 }
