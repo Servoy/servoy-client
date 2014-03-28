@@ -25,20 +25,16 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaObject;
-import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -46,11 +42,9 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.base.scripting.api.IJSHistory;
 import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.cmd.ICmdManagerInternal;
-import com.servoy.j2db.dataprocessing.EditRecordList;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -59,13 +53,10 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
-import com.servoy.j2db.scripting.ScopesScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
@@ -80,7 +71,7 @@ import com.servoy.j2db.util.gui.AppletController;
  * 
  * @author jblok, jcompagner
  */
-public abstract class FormManager implements PropertyChangeListener, IFormManagerInternal
+public abstract class FormManager extends BasicFormManager implements PropertyChangeListener, IFormManagerInternal
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 
@@ -111,13 +102,10 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		Debug.trace("MaxFormsLoaded set to:" + MAX_FORMS_LOADED); //$NON-NLS-1$
 	}
 
-	protected final IApplication application;
-
 	protected final AllowNullMap<String, IMainContainer> containers; //windowname -> IMainContainer
 	protected IMainContainer currentContainer;
 	protected IMainContainer mainContainer;
 
-	protected final ConcurrentMap<String, Form> possibleForms; // formName -> Form
 	protected final ConcurrentMap<String, FormController> createdFormControllers; // formName -> FormController
 	protected LinkedList<FormController> leaseHistory;
 
@@ -131,14 +119,13 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	 */
 	public FormManager(IApplication app, IMainContainer mainContainer)
 	{
-		application = app;
+		super(app);
 		containers = new AllowNullMap<String, IMainContainer>(new ConcurrentHashMap<String, IMainContainer>());
 		containers.put(mainContainer.getContainerName(), mainContainer);
 		currentContainer = mainContainer;
 		this.mainContainer = mainContainer;
 		leaseHistory = new LinkedList<FormController>();
 		createdFormControllers = new ConcurrentHashMap<String, FormController>();
-		possibleForms = new ConcurrentHashMap<String, Form>();
 		appletContext = new AppletController(app);
 	}
 
@@ -995,6 +982,7 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 	 * @param f the form to check if there is a controller instance for
 	 * @return null if not found
 	 */
+	@Override
 	public synchronized FormController getCachedFormController(String formName)
 	{
 		if (formName == null) return null;
@@ -1002,86 +990,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		return fp;
 	}
 
-	protected boolean canBeDeleted(FormController fp)
-	{
-		if (fp.isFormVisible())
-		{
-			return false;
-		}
-
-		//  cannot be deleted if a global var has a ref
-		ScopesScope scopesScope = application.getScriptEngine().getScopesScope();
-		if (hasReferenceInScriptable(scopesScope, fp, new HashSet<Scriptable>()))
-		{
-			return false;
-		}
-
-		if (fp.isFormExecutingFunction())
-		{
-			return false;
-		}
-
-		// if this controller uses a separate foundset
-		if (fp.getForm().getUseSeparateFoundSet())
-		{
-			// test if that foundset has edited records that can't be saved
-			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
-			if (editRecordList.stopIfEditing(fp.getFoundSet()) != ISaveConstants.STOPPED)
-			{
-				return false;
-			}
-		}
-
-		// the cached currentcontroller may not be destroyed
-		SolutionScope ss = application.getScriptEngine().getSolutionScope();
-		return ss == null || fp.initForJSUsage() != ss.get("currentcontroller", ss); //$NON-NLS-1$
-	}
-
-	private boolean hasReferenceInScriptable(Scriptable scriptVar, FormController fc, Set<Scriptable> seen)
-	{
-		if (!seen.add(scriptVar))
-		{
-			// endless recursion
-			return false;
-		}
-		if (scriptVar instanceof FormScope)
-		{
-			return ((FormScope)scriptVar).getFormController().equals(fc);
-		}
-		if (scriptVar instanceof GlobalScope || scriptVar instanceof ScopesScope || scriptVar instanceof NativeArray) // if(o instanceof Scriptable) for all scriptable ?
-		{
-			Object[] propertyIDs = scriptVar.getIds();
-			if (propertyIDs != null)
-			{
-				Object propertyValue;
-				for (Object element : propertyIDs)
-				{
-					if (element != null)
-					{
-						if (element instanceof Integer)
-						{
-							propertyValue = scriptVar.get(((Integer)element).intValue(), scriptVar);
-						}
-						else
-						{
-							propertyValue = scriptVar.get(element.toString(), scriptVar);
-						}
-
-						if (propertyValue != null && propertyValue.equals(fc))
-						{
-							return true;
-						}
-						if (propertyValue instanceof Scriptable && hasReferenceInScriptable((Scriptable)propertyValue, fc, seen))
-						{
-							return true;
-						}
-					}
-				}
-			}
-		}
-
-		return false;
-	}
 
 	protected abstract boolean checkAndUpdateFormUser(FormController fp, Object parentContainer);
 
@@ -1508,44 +1416,6 @@ public abstract class FormManager implements PropertyChangeListener, IFormManage
 		application.getRuntimeWindowManager().setCurrentWindowName(name);
 	}
 
-	public boolean createNewFormInstance(String designFormName, String newInstanceScriptName)
-	{
-		Form f = possibleForms.get(designFormName);
-		Form test = possibleForms.get(newInstanceScriptName);
-		if (f != null && test == null)
-		{
-			possibleForms.put(newInstanceScriptName, f);
-			return true;
-		}
-		return false;
-	}
-
-	public boolean destroyFormInstance(String formName)
-	{
-		Form test = possibleForms.get(formName);
-		if (test != null)
-		{
-			// If form found, test if there is a formcontroller alive.
-			FormController fc = getCachedFormController(formName);
-			if (fc != null)
-			{
-				// if that one can be deleted destroy it.
-				if (!canBeDeleted(fc))
-				{
-					return false;
-				}
-				fc.destroy();
-			}
-			// if the formname is an alias then remove the alias.
-			if (!test.getName().equals(formName))
-			{
-				possibleForms.remove(formName);
-			}
-			setFormReadOnly(formName, false);
-			return true;
-		}
-		return false;
-	}
 
 	/**
 	 * @param form

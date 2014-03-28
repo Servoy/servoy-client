@@ -124,12 +124,12 @@ public class EditRecordList
 	 * @param set
 	 * @return
 	 */
-	public IRecordInternal[] getEditedRecords(IFoundSetInternal set)
+	public IRecordInternal[] getEditedRecords(IFoundSet set)
 	{
 		return getEditedRecords(set, false);
 	}
 
-	public IRecordInternal[] getEditedRecords(IFoundSetInternal set, boolean removeUnchanged)
+	public IRecordInternal[] getEditedRecords(IFoundSet set, boolean removeUnchanged)
 	{
 		if (removeUnchanged)
 		{
@@ -155,7 +155,7 @@ public class EditRecordList
 		return al.toArray(new IRecordInternal[al.size()]);
 	}
 
-	public IRecordInternal[] getFailedRecords(IFoundSetInternal set)
+	public IRecordInternal[] getFailedRecords(IFoundSet set)
 	{
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
@@ -177,12 +177,12 @@ public class EditRecordList
 		return al.toArray(new IRecordInternal[al.size()]);
 	}
 
-	public boolean hasEditedRecords(IFoundSetInternal foundset)
+	public boolean hasEditedRecords(IFoundSet foundset)
 	{
 		return hasEditedRecords(foundset, true);
 	}
 
-	public boolean hasEditedRecords(IFoundSetInternal foundset, boolean testForRemoves)
+	public boolean hasEditedRecords(IFoundSet foundset, boolean testForRemoves)
 	{
 		// TODO don't we have to check for any related foundset edits here as well?
 		if (testForRemoves)
@@ -218,7 +218,7 @@ public class EditRecordList
 
 	private boolean ignoreSave;
 
-	public int stopIfEditing(IFoundSetInternal fs)
+	public int stopIfEditing(IFoundSet fs)
 	{
 		if (hasEditedRecords(fs))
 		{
@@ -951,7 +951,7 @@ public class EditRecordList
 		removeUnChangedRecords(checkCalcValues, doActualRemove, null);
 	}
 
-	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove, IFoundSetInternal foundset)
+	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove, IFoundSet foundset)
 	{
 		if (preparingForSave) return;
 		// Test the edited records if they are changed or not.

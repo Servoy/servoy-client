@@ -152,7 +152,7 @@ public interface IBasicFormManager extends IFormManager
 			{
 				return false;
 			}
-			return ((FormManager)application.getFormManager()).destroyFormInstance(formName);
+			return application.getFormManager().destroyFormInstance(formName);
 		}
 
 		/**
@@ -321,6 +321,12 @@ public interface IBasicFormManager extends IFormManager
 	 * @param b
 	 */
 	public void addForm(Form form, boolean b);
+
+	/**
+	 * @param formName
+	 * @return
+	 */
+	public boolean destroyFormInstance(String formName);
 
 	/**
 	 * @param designFormName
