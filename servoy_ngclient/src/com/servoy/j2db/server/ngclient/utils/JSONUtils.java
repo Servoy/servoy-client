@@ -113,6 +113,10 @@ public class JSONUtils
 		{
 			w = w.value(value);
 		}
+		else if (value instanceof CharSequence)
+		{
+			w = w.value(value.toString());
+		}
 		else if (value instanceof Date || value instanceof NativeDate)
 		{
 			if (clientConversion != null) clientConversion.convert("Date");
