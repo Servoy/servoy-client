@@ -197,6 +197,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_SCOPENAME = "scopeName";
 	public static final String PROPERTY_SEPARATOR = "separator";
 	public static final String PROPERTY_SORTOPTIONS = "sortOptions";
+	public static final String PROPERTY_STYLESHEET = "styleSheet";
 	public static final String PROPERTY_STYLECLASS = "styleClass";
 	public static final String PROPERTY_STYLENAME = "styleName";
 	public static final String PROPERTY_TITLETEXT = "titleText";
