@@ -119,6 +119,10 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     	   for(var i = $scope.model.tabs.length; i > insertPosition; i--) {
     		   $scope.model.tabs[i] = $scope.model.tabs[i - 1]; 
     	   }
+    	   if (!tabText) {
+    		   if (nameArg) tabText = nameArg;
+    		   else tabText = form;
+    	   }
     	   $scope.model.tabs[insertPosition] = {
     			   name: nameArg,
     			   containsFormId: form,
