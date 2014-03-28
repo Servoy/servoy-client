@@ -555,7 +555,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		return $solutionSettings.mainForm.templateURL?$windowService.getFormUrl($solutionSettings.mainForm.templateURL):"";
 	}
 	$scope.getNavigatorFormUrl = function() {
-		return $solutionSettings.navigatorForm.templateURL?$windowService.getFormUrl($solutionSettings.navigatorForm.templateURL):"";
+		if ( $solutionSettings.navigatorForm.templateURL && $solutionSettings.navigatorForm.templateURL.lastIndexOf("solutions/", 0) === 0) {
+			return $windowService.getFormUrl($solutionSettings.navigatorForm.templateURL);
+		}
+		return $solutionSettings.navigatorForm.templateURL;
 	}
 	
 }).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
