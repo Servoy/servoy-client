@@ -55,6 +55,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
@@ -291,15 +292,33 @@ public class NGClientEndpoint implements INGClientEndpoint
 						}
 						else
 						{
-							String solutionName = obj.optString("solutionName");
-							if (Utils.stringIsEmpty(solutionName)) solutionName = "InvalidSolutionNameInURL";
+							final String solutionName = obj.optString("solutionName");
+							if (Utils.stringIsEmpty(solutionName))
+							{
+								session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Invalid solution name"));
+								return;
+							}
 							client = getClientCreator().createClient(this);
 							windowName = this.client.getRuntimeWindowManager().createMainWindow();
 							uuid = UUID.randomUUID().toString();
 							clients.put(uuid, client);
 							J2DBGlobals.setServiceProvider(client); // set before loadSolution call, scriptengine contextlistener depends on this
 							// TODO should just load not go into the invokeLater (solution load method and so on are executed as is the onload/onshow of the first form)
-							client.loadSolution(solutionName);
+							client.invokeLater(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									try
+									{
+										client.loadSolution(solutionName);
+									}
+									catch (RepositoryException e)
+									{
+										Debug.error("Failed to load the solution: " + solutionName, e);
+									}
+								}
+							});
 						}
 					}
 					JSONStringer stringer = new JSONStringer();
