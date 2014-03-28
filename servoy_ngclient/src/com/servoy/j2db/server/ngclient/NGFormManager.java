@@ -22,7 +22,6 @@ import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -63,7 +62,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 
-	private final ConcurrentMap<String, Form> possibleForms; // formName -> Form
 	protected final ConcurrentMap<String, IWebFormController> createdFormControllers; // formName -> FormController
 
 	private Form loginForm;
@@ -71,7 +69,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 	public NGFormManager(INGApplication application)
 	{
 		super(application);
-		this.possibleForms = new ConcurrentHashMap<String, Form>();
 		this.createdFormControllers = new ConcurrentHashMap<>();
 		application.registerService("formService", this);
 	}
@@ -223,25 +220,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		}
 	}
 
-	public void addForm(Form form, boolean selected)
-	{
-		Form f = possibleForms.put(form.getName(), form);
-
-		if (f != null && form != f)
-		{
-			// replace all occurrences to the previous form to this new form (newFormInstances) 
-			Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
-			while (iterator.hasNext())
-			{
-				Entry<String, Form> next = iterator.next();
-				if (next.getValue() == f)
-				{
-					next.setValue(form);
-				}
-			}
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -258,44 +236,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		return fc;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#getPossibleFormNames()
-	 */
-	@Override
-	public Iterator<String> getPossibleFormNames()
-	{
-		return possibleForms.keySet().iterator();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IFormManager#isPossibleForm(java.lang.String)
-	 */
-	@Override
-	public boolean isPossibleForm(String name)
-	{
-		return possibleForms.containsKey(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#getPossibleForm(java.lang.String)
-	 */
-	@Override
-	public Form getPossibleForm(String name)
-	{
-		return possibleForms.get(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IFormManager#leaseFormPanel(java.lang.String)
-	 */
 	@Override
 	public IWebFormController leaseFormPanel(String formName)
 	{
