@@ -14,10 +14,12 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.bgstyle = {}
        
         $scope.$watch("model.tabIndex", function(newValue) {
-        	 if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 0; // default it is 0
+        	 if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
+        	 var realTabIndex = $scope.model.tabIndex - 1;
         	 for(var i=0;i<$scope.model.tabs.length;i++) {
-        	 	if (i == $scope.model.tabIndex) $scope.model.tabs[i].active = true;
+        	 	if (i == realTabIndex) $scope.model.tabs[i].active = true;
         	 	else $scope.model.tabs[i].active = false;
+        	 	$scope.model.tabs[i].disabled = false;
         	 }
         });
        $scope.$watch("model.readOnly", function(newValue) {
@@ -74,7 +76,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        		if (ok){
        			if(selectedTab != tab && $scope.handlers.onChangeMethodID)
        			{
-       				$scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab) + 1,event);
+       				$scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab),event);
        			}   			
        			selectedTab = tab;
        			$scope.model.tabIndex = $scope.getTabIndex(selectedTab);
@@ -87,7 +89,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.getTabIndex = function(tab) {
     	   for(var i=0;i<$scope.model.tabs.length;i++) {
     		   if ($scope.model.tabs[i] == tab) {
-    			   return i;
+    			   return i + 1;
     		   }
     	   }
     	   return -1;
@@ -129,7 +131,9 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     			   text: tabText,
     			   relationName: relation,
     			   active: false,
+    			   disabled: false,
     			   foreground: fg };
+    	   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
     	   return true;
        }
        
@@ -139,6 +143,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
         		   $scope.model.tabs[i] = $scope.model.tabs[i + 1];
         	   }
         	   $scope.model.tabs.length = $scope.model.tabs.length - 1;
+        	   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
         	   return true;
     	   }
     	   return false;
@@ -147,6 +152,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.api.removeAllTabs = function() {
     	   if($scope.model.tabs.length > 0) {
     		   $scope.model.tabs.length = 0;
+    		   $scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
     		   return true;
     	   }
     	   return false;
@@ -196,7 +202,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
                 
        $scope.api.isTabEnabledAt = function(index) {
     	   var tab = $scope.getTabAt(index);
-    	   return tab ? tab.active  : '';
+    	   return tab ? (tab.disabled == undefined ? true : !tab.disabled) : true;
        }
         
        $scope.api.setTabBGColorAt = function(index, bgcolor) {
@@ -209,7 +215,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.api.setTabEnabledAt = function(index, enabled) {
     	   var tab = $scope.getTabAt(index);
     	   if(tab) {
-    		   tab.active = enabled;
+    		   tab.disabled = !enabled;
     	   }
        }
 
@@ -225,6 +231,40 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
     	   if(tab) {
     		   tab.text = text;
     	   }    	    	   
+       }
+
+       $scope.api.getHeight = function() {
+    	   return $scope.model.size.height;
+       }
+       
+       $scope.api.getLocationX = function() {
+    	   return $scope.model.location.x;
+       }
+       
+       $scope.api.getLocationY = function() {
+    	   return $scope.model.location.y;
+       }
+
+       $scope.api.getWidth = function() {
+    	   return $scope.model.size.width;
+       }
+       
+       $scope.api.setLocation = function(x, y) {
+    	   $scope.model.location.x = x;
+    	   $scope.model.location.y = y;
+       }
+       
+       $scope.api.setSize = function(width, height) {
+    	   $scope.model.size.width = width;
+    	   $scope.model.size.height = height;
+       }
+       
+       $scope.api.getElementType= function() {
+    	   return 'TABPANEL';
+       }
+       
+       $scope.api.getName = function() {
+    	   return $scope.model.name;
        }
       },
       template: "<div style='min-height:100%' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()'></div></div>",

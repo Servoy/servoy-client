@@ -40,6 +40,7 @@ public class WebComponent implements ListDataListener
 		this.name = name;
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
+		properties.put("name", name);
 		if (fe.getLabel() != null)
 		{
 			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));

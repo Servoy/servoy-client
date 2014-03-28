@@ -19,6 +19,9 @@ describe('svyTabpanel component', function() {
 					},
 					setFormVisibility: function (formname, visibility,relationname) {
 						
+					},
+					getFormUrl: function (formId) {
+						
 					}
 				}
 			}
@@ -80,6 +83,8 @@ describe('svyTabpanel component', function() {
     	  $httpBackend = _$httpBackend_;
     	  $httpBackend.when('GET', 'solutions/dummyUnitTestSol/forms/tab1.html').respond("<div>tab1 content</div>");
     	  $httpBackend.when('GET', 'solutions/dummyUnitTestSol/forms/tab2.html').respond("<div>tab2 content</div>");
+    	  $httpBackend.when('GET', 'solutions/dummyUnitTestSol/forms/tab3.html').respond("<div>tab3 content</div>");
+    	  $httpBackend.when('GET', 'solutions/dummyUnitTestSol/forms/tab4.html').respond("<div>tab4 content</div>");
     	  
     	  $compile = _$compile_
     	  $timeout = _$timeout_
@@ -127,14 +132,52 @@ describe('svyTabpanel component', function() {
         var tabsArr = tabPanelComponent.find('li').find('a');
         var iscope = tabPanelComponent.isolateScope();     
         //change tabindex on form scope
-        $scope.model.tabs.tabIndex = 1;
+        $scope.model.tabs.tabIndex = 2;
         $scope.$digest();
         $timeout.flush()
         expect(tabsArr[1].parentElement.classList.contains('active')).toBe(true)
         expect(tabsArr[0].parentElement.classList.contains('active')).toBe(false)
         expect(iscope.model.tabs[1].active).toBe(true);      
-        expect(iscope.model.tabs[0].active).toBe(false);  
+        expect(iscope.model.tabs[0].active).toBe(false)
         //expect(tabPanelComponent.html()).toContain("tab2 content");
+  	});
+  	
+  	it("tab panel api test", function() {
+        var tabPanelComponent = $compile('<data-svy-tabpanel name="tabs" svy-model="model.tabs" svy-api="api.tabs" svy-handlers="handlers.tabs" svy-apply="handlers.tabs.svy_apply" svy-servoyApi="handlers.tabs.svy_servoyApi"/>')($scope);        
+        $scope.$digest();
+        var iscope = tabPanelComponent.isolateScope();
+        expect(iscope.api.getMaxTabIndex()).toBe(2);
+        iscope.api.addTab('tab4');
+        iscope.api.addTab('tab3', 'vTab3', 'Third tab text', 'Third tab tooltip', null, '#ff0000', '#00ff00', null, 2);
+        expect(iscope.api.getMaxTabIndex()).toBe(4);
+        //change tabindex on form scope
+        $scope.model.tabs.tabIndex = 3;
+        $scope.$digest();
+        $timeout.flush()
+        expect(iscope.api.getSelectedTabFormName()).toBe('tab3');
+        
+        iscope.api.setTabFGColorAt(4, 'green');
+        iscope.api.setTabTextAt(4, 'Fourth tab text');
+        
+        expect(iscope.api.getTabFGColorAt(3)).toBe('#ff0000');
+        expect(iscope.api.getTabFGColorAt(4)).toBe('green');
+        
+        expect(iscope.api.getTabNameAt(3)).toBe('vTab3');
+        
+        expect(iscope.api.getTabTextAt(3)).toBe('Third tab text');
+        expect(iscope.api.getTabTextAt(4)).toBe('Fourth tab text');
+
+        iscope.api.removeTabAt(1);
+        expect(iscope.api.getTabNameAt(2)).toBe('vTab3');
+        iscope.api.removeTabAt(1);
+        expect(iscope.api.getTabNameAt(1)).toBe('vTab3');
+        
+        expect($scope.model.tabs.tabIndex).toBe(1);
+        
+        iscope.api.removeAllTabs();
+        expect(iscope.api.getMaxTabIndex()).toBe(0);
+        
+        expect($scope.model.tabs.tabIndex).toBe(-1);
   	});
 
 }); 
