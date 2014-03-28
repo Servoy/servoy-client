@@ -71,7 +71,15 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 				if (formUrl != null)
 				{
 					int lastSlash = formUrl.lastIndexOf('/');
-					Form form = application.getFlattenedSolution().getForm(formUrl.substring(lastSlash + 1, formUrl.length() - 5));
+					Form form = null;
+					if (lastSlash == -1)
+					{
+						form = application.getFlattenedSolution().getForm(formUrl);
+					}
+					else
+					{
+						form = application.getFlattenedSolution().getForm(formUrl.substring(lastSlash + 1, formUrl.length() - 5));
+					}
 					if (form != null) ((INGApplication)application).getActiveWebSocketClientEndpoint().touchForm(
 						application.getFlattenedSolution().getFlattenedForm(form));
 				}

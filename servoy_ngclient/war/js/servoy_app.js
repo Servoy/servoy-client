@@ -633,12 +633,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				$servoyInternal.clearformState(formName)
 				eval(controllerCode);
 				formTemplateUrls[formUrl] = realFormUrl;
+				formTemplateUrls[formName] = realFormUrl;
 			});
 		},
- 		getFormUrl: function(formUrl) {
-			var realFormUrl = formTemplateUrls[formUrl];
+ 		getFormUrl: function(formNameOrUrl) {
+			var realFormUrl = formTemplateUrls[formNameOrUrl];
 			if (realFormUrl == null) {
-				$servoyInternal.callService("$windowService", "touchForm", {url:formUrl});
+				$servoyInternal.callService("$windowService", "touchForm", {url:formNameOrUrl});
 			}
 			return realFormUrl;
 		},
