@@ -31,6 +31,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
 
 import com.servoy.j2db.BasicFormController.JSForm;
+import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
@@ -58,41 +59,44 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public class NGFormManager implements INGFormManager, IService
+public class NGFormManager extends BasicFormManager implements INGFormManager, IService
 {
 	public static final String DEFAULT_DIALOG_NAME = "dialog"; //$NON-NLS-1$
 
 	private final ConcurrentMap<String, Form> possibleForms; // formName -> Form
 	protected final ConcurrentMap<String, IWebFormController> createdFormControllers; // formName -> FormController
 
-	private final INGApplication application;
 	private Form loginForm;
 
 	public NGFormManager(INGApplication application)
 	{
-		this.application = application;
+		super(application);
 		this.possibleForms = new ConcurrentHashMap<String, Form>();
 		this.createdFormControllers = new ConcurrentHashMap<>();
 		application.registerService("formService", this);
 	}
 
-	public boolean createNewFormInstance(String designFormName, String newInstanceScriptName)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.BasicFormManager#getCachedFormController(java.lang.String)
+	 */
+	@Override
+	protected IFormController getCachedFormController(String formName)
 	{
-		Form f = possibleForms.get(designFormName);
-		Form test = possibleForms.get(newInstanceScriptName);
-		if (f != null && test == null)
-		{
-			possibleForms.put(newInstanceScriptName, f);
-			return true;
-		}
-		return false;
+		return createdFormControllers.get(formName);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.servoy.j2db.IBasicFormManager#getCachedFormControllers()
+	 * @see com.servoy.j2db.BasicFormManager#setFormReadOnly(java.lang.String, boolean)
 	 */
+	@Override
+	protected void setFormReadOnly(String formName, boolean b)
+	{
+	}
+
 	@Override
 	public List<IFormController> getCachedFormControllers()
 	{
@@ -310,7 +314,7 @@ public class NGFormManager implements INGFormManager, IService
 
 				f = application.getFlattenedSolution().getFlattenedForm(f);
 
-				fp = new WebFormController(application, f, name);
+				fp = new WebFormController((INGApplication)application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
 				fp.init();
 			}
@@ -353,7 +357,7 @@ public class NGFormManager implements INGFormManager, IService
 	@Override
 	public IWebFormController getCurrentMainShowingFormController()
 	{
-		return application.getRuntimeWindowManager().getCurrentWindow().getController();
+		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow().getController();
 	}
 
 	/*
@@ -660,7 +664,7 @@ public class NGFormManager implements INGFormManager, IService
 	@Override
 	public IBasicMainContainer getCurrentContainer()
 	{
-		return application.getRuntimeWindowManager().getCurrentWindow();
+		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow();
 	}
 
 	/*
@@ -695,7 +699,7 @@ public class NGFormManager implements INGFormManager, IService
 	@Override
 	public IBasicMainContainer getMainContainer(String windowName)
 	{
-		return application.getRuntimeWindowManager().getWindow(windowName);
+		return ((INGApplication)application).getRuntimeWindowManager().getWindow(windowName);
 	}
 
 	/*
