@@ -58,6 +58,7 @@ import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.ISmartClientApplication;
@@ -2193,7 +2194,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		if (f != null)
 		{
-			((FormManager)application.getFormManager()).showFormInCurrentContainer(f);
+			application.getFormManager().showFormInCurrentContainer(f);
 		}
 	}
 
@@ -2253,7 +2254,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		else if (form instanceof String)
 		{
-			fp = ((FormManager)application.getFormManager()).leaseFormPanel((String)form);
+			fp = application.getFormManager().leaseFormPanel((String)form);
 		}
 		return fp;
 	}
@@ -2480,7 +2481,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			if (f != null)
 			{
 				Form frm = application.getFlattenedSolution().getForm(f);
-				FormManager fm = (FormManager)application.getFormManager();
+				IBasicFormManager fm = application.getFormManager();
 				if (frm == null && fm.isPossibleForm(f)) frm = fm.getPossibleForm(f);
 				if (!application.getFlattenedSolution().formCanBeInstantiated(frm))
 				{
@@ -3368,7 +3369,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public boolean js_createNewFormInstance(String designFormName, String newInstanceScriptName)
 	{
-		return ((FormManager)application.getFormManager()).createNewFormInstance(designFormName, newInstanceScriptName);
+		return application.getFormManager().createNewFormInstance(designFormName, newInstanceScriptName);
 	}
 
 	/**

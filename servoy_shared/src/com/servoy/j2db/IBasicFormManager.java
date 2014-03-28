@@ -322,5 +322,12 @@ public interface IBasicFormManager extends IFormManager
 	 */
 	public void addForm(Form form, boolean b);
 
+	/**
+	 * @param designFormName
+	 * @param newInstanceScriptName
+	 * @return
+	 */
+	public boolean createNewFormInstance(String designFormName, String newInstanceScriptName);
+
 
 }
