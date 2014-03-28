@@ -17,6 +17,12 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.servoy.j2db.util.Utils;
 
 
@@ -34,6 +40,10 @@ public class PropertyDescription
 	private final boolean array;
 	private boolean optional = false; // currently only used in the context of an api function parameter
 	private final Object defaultValue;
+
+	//case of nested type
+	private Map<String, PropertyDescription> properties = null;
+
 
 	public PropertyDescription(String name, PropertyType type)
 	{
@@ -53,6 +63,37 @@ public class PropertyDescription
 		this.config = config;
 		this.defaultValue = defaultValue;
 	}
+
+	/**
+	 * @param valuelist
+	 */
+	public Map<String, PropertyDescription> getProperties(PropertyType pt)
+	{
+		if (properties != null)
+		{
+			Map<String, PropertyDescription> filtered = new HashMap<>(4);
+			for (PropertyDescription pd : properties.values())
+			{
+				if (pd.getType() == pt)
+				{
+					filtered.put(pd.getName(), pd);
+				}
+			}
+			return filtered;
+		}
+		return Collections.EMPTY_MAP;
+	}
+
+
+	public Set<String> getAllPropertiesNames()
+	{
+		if (properties != null)
+		{
+			return new HashSet<String>(properties.keySet());
+		}
+		return Collections.EMPTY_SET;
+	}
+
 
 	/**
 	 * @return the name
@@ -138,6 +179,42 @@ public class PropertyDescription
 	{
 		this.optional = optional;
 	}
+
+
+	public void putProperty(String name, PropertyDescription type)
+	{
+		if (properties == null) properties = new HashMap<>();
+		if (type == null) throw new RuntimeException("PropertyDescription type should not be null");
+		properties.put(name, type);
+	}
+
+	public PropertyDescription getProperty(String name)
+	{
+		// TODO remove this delegation when going with tree structure , this is needed for DataAdapterList which 'thinks' everything is flat
+		String[] split = name.split("\\.");
+		if (split.length > 1)
+		{
+			return properties.get(split[0]).getProperty(split[1]);
+		}// end ToRemove
+
+		if (properties != null)
+		{
+			return properties.get(name);
+		}
+		return null;
+	}
+
+	public Map<String, PropertyDescription> getProperties()
+	{
+		if (properties != null) return Collections.unmodifiableMap(properties);
+		return Collections.EMPTY_MAP;
+	}
+
+	public void putAll(Map<String, PropertyDescription> map)
+	{
+		properties = new HashMap<>(map);
+	}
+
 
 	/*
 	 * (non-Javadoc)

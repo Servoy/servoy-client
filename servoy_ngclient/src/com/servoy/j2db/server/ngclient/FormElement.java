@@ -108,21 +108,10 @@ public final class FormElement
 						}
 						if (pd != null)
 						{
-							if (pd.getType() == PropertyType.media)
-							{
-								// special support for media type (that needs a FS to resolve the media)
-								int mediaId = jsonProperties.getInt(key);
-								Media media = fs.getMedia(mediaId);
-								if (media != null)
-								{
-									jsonMap.put(key, "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName());
-								}
-							}
-							else
-							{
-								// TODO where the handle PropertyType.form properties? (see tabpanel below)
-								jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType()));
-							}
+							// TODO where the handle PropertyType.form properties? (see tabpanel below)
+							//toJavaObject shoudl accept application because it is needed for format
+							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, fs));
+							//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
 						}
 					}
 					fillPropertiesWithDefaults(specProperties, jsonMap);
@@ -194,6 +183,11 @@ public final class FormElement
 		}
 	}
 
+	public Map<String, Object> getProperties()
+	{
+		return propertyValues;
+	}
+
 	/**
 	 * @return
 	 */
@@ -238,11 +232,20 @@ public final class FormElement
 
 	public Object getPropertyWithDefault(String name)
 	{
+		// TODO remove this delegation when going with tree structure , this is needed for DataAdapterList which 'thinks' everything is flat
+		String[] split = name.split("\\.");
+		if (split.length > 1)
+		{
+			return ((Map)propertyValues.get(split[0])).get(split[1]);
+		}// end toRemove
+
 		if (propertyValues.containsKey(name))
 		{
 			return propertyValues.get(name);
 		}
+
 		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(name);
+
 		if (propertyDescription != null)
 		{
 			switch (propertyDescription.getType())

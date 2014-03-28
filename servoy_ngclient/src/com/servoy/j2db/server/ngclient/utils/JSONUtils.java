@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +46,16 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.ngclient.ClientConversion;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
@@ -251,8 +255,26 @@ public class JSONUtils
 			for (Entry<String, ? > entry : map.entrySet())
 			{
 				if (clientConversion != null) clientConversion.pushNode(entry.getKey());
-				w.key(entry.getKey());
-				toJSONValue(w, entry.getValue(), clientConversion);
+				//TODO remove the need for this when going to full tree recursion for sendChanges()
+				String[] keys = entry.getKey().split("\\.");
+				if (keys.length > 1)
+				{
+					//LIMITATION of JSONWriter because it can't add a property to an already written object 
+					// currently for 2 properties like complexmodel.firstNameDataprovider
+					//								   size
+					//								   complexmodel.lastNameDataprovider
+					// it creates 2 json entries with the same key ('complexmodel') and on the client side it only takes one of them
+					w.key(keys[0]);
+					w.object();
+					w.key(keys[1]);
+					toJSONValue(w, entry.getValue(), clientConversion);
+					w.endObject();
+				}// END TODO REMOVE
+				else
+				{
+					w.key(entry.getKey());
+					toJSONValue(w, entry.getValue(), clientConversion);
+				}
 				if (clientConversion != null) clientConversion.popNode();
 			}
 			w = w.endObject();
@@ -285,11 +307,14 @@ public class JSONUtils
 	 * @param propertyValue can be a JSONObject or array or primitive. (so something deserialized from a JSON string)
 	 * @return the corresponding Java object based on bean spec.
 	 */
-	public static Object toJavaObject(Object propertyValue, PropertyType componentSpecType) throws JSONException
+	public static Object toJavaObject(Object json, PropertyDescription componentSpecType, FlattenedSolution fs) throws JSONException
 	{
+
+		Object propertyValue = json;
 		if (propertyValue != null && componentSpecType != null)
 		{
-			switch (componentSpecType)
+
+			switch (componentSpecType.getType())
 			{
 				case dimension :
 					if (propertyValue instanceof Object[])
@@ -342,10 +367,40 @@ public class JSONUtils
 						return ComponentFactoryHelper.createBorder((String)propertyValue);
 					}
 					break;
-
+				case media :
+				{
+					if (propertyValue instanceof Integer)
+					{
+						// special support for media type (that needs a FS to resolve the media)
+						int mediaId = (Integer)propertyValue;//((JSONObject)json).getInt(key);
+						Media media = fs.getMedia(mediaId);
+						if (media != null)
+						{
+							return "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName();
+						}
+					}
+				}
+					break;
+				case custom :
+				{
+					if (json instanceof JSONObject)
+					{
+						Map<String, Object> ret = new HashMap<String, Object>();
+						for (String key : componentSpecType.getProperties().keySet())
+						{
+							PropertyDescription pd = componentSpecType.getProperty(key);
+							if (pd != null && ((JSONObject)json).has(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
+							{
+								ret.put(key, toJavaObject(((JSONObject)json).get(key), pd, fs));
+							}
+						}
+						return ret;
+					}
+				}
 				default :
 			}
 		}
+
 
 		return propertyValue;
 	}

@@ -85,9 +85,9 @@ public class WebComponentPackage
 						{
 							WebComponentSpec parsed = WebComponentSpec.parseSpec(specfileContent, specpath);
 							// add/overwrite properties defined by us
-							parsed.addProperty(new PropertyDescription("location", PropertyType.point));
-							parsed.addProperty(new PropertyDescription("size", PropertyType.dimension));
-							parsed.addProperty(new PropertyDescription("anchors", PropertyType.intnumber));
+							parsed.putProperty("location", new PropertyDescription("location", PropertyType.point));
+							parsed.putProperty("size", new PropertyDescription("size", PropertyType.dimension));
+							parsed.putProperty("anchors", new PropertyDescription("anchors", PropertyType.intnumber));
 							descriptions.add(parsed);
 						}
 						catch (Exception e)

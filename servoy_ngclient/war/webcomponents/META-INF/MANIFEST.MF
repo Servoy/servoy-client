@@ -8,5 +8,8 @@ Web-Component: True
 Name: namepanel/namepanel.spec
 Web-Component: True
 
+Name: namepanel2/namepanel2.spec
+Web-Component: True
+
 Name: signaturefield/signaturefield.spec
 Web-Component: True

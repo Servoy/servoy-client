@@ -3,6 +3,7 @@ package com.servoy.j2db.server.ngclient;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -11,6 +12,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
@@ -154,6 +156,16 @@ public class WebComponent implements ListDataListener
 	{
 		// currently we keep Java objects in here; we could switch to having only json objects in here is it make things quicker
 		// (then whenever a server-side value is put in the map, convert it via JSONUtils.toJSONValue())
+		//TODO remove this when hierarchical tree structure comes into play (only needed for ) 
+		if (propertyValue instanceof JSONObject)
+		{
+			Iterator it = ((JSONObject)propertyValue).keys();
+			while (it.hasNext())
+			{
+				String key = (String)it.next();
+				properties.put(propertyName + '.' + key, ((JSONObject)propertyValue).get(key));
+			}
+		}// end TODO REMOVE 
 		properties.put(propertyName, convertValue(propertyName, propertyValue));
 	}
 

@@ -52,7 +52,7 @@ api:
             returns: 'int',
                  }, 
         getLeftForm:{
-            returns: 'formscope',
+            returns: 'int',
                  }, 
         getLocationX:{
             returns: 'int',
@@ -71,7 +71,7 @@ api:
             returns: 'string',
                  }, 
         getRightForm:{
-            returns: 'formscope',
+            returns: 'int',
                  }, 
         getTabFGColorAt:{
             returns: 'string',
@@ -152,7 +152,7 @@ types: {
   		text: 'tagstring',
   		relationName: 'relation',
   		active: 'boolean',
-  		foreground: Color
+  		foreground: color
   	}
   }
 }

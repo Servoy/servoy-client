@@ -786,7 +786,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 			{
 				return new Date(((Long)ret).longValue());
 			}
-			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType() != null ? apiDefinition.getReturnType().getType() : null); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
+			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType() != null ? apiDefinition.getReturnType() : null, client.getFlattenedSolution()); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException e)
 		{

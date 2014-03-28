@@ -162,7 +162,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				property = pair.getRight();
 				oldValue = wc.getProperty(property);
 				isPropertyChanged = wc.putProperty(property, value);
-				onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperties().get(property).getConfig()).getOnDataChange();
+				onDataChange = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChange();
 				if (fireOnDataChange && onDataChange != null && wc.hasEvent(onDataChange) && isPropertyChanged)
 				{
 					JSONObject event = EventExecutor.createEvent(onDataChange);
@@ -238,12 +238,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (record.startEditing())
 		{
 			Object oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(record, formController.getFormScope(), property, newValue);
-			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChange();
+			String onDataChange = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChange();
 			if (onDataChange != null && webComponent.hasEvent(onDataChange))
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange);
 				Object returnValue = webComponent.execute(onDataChange, new Object[] { oldValue, newValue, event });
-				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperties().get(beanProperty).getConfig()).getOnDataChangeCallback();
+				String onDataChangeCallback = ((DataproviderConfig)webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig()).getOnDataChangeCallback();
 				if (onDataChangeCallback != null)
 				{
 					webComponent.executeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
@@ -336,7 +336,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
 			return propertyValue;
 		}
-		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperties().get(propertyName).getType());
+		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), application.getFlattenedSolution());
 	}
 
 	@Override

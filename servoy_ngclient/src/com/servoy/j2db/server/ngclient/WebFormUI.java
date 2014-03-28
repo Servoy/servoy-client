@@ -90,73 +90,8 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 			}
 			add(component);
 
-			Map<String, PropertyDescription> dataproviderProperties = componentSpec.getProperties(PropertyType.dataprovider);
-			for (String dataproviderProperty : dataproviderProperties.keySet())
-			{
-				Object dataproviderID = fe.getProperty(dataproviderProperty);
-				if (dataproviderID instanceof String)
-				{
-					dal.add(component, (String)dataproviderID, dataproviderProperty);
-				}
-			}
+			fillProperties(fe.getForm(), fe.getProperties(), componentSpec.getProperties(), dal, component, "");
 
-			Map<String, PropertyDescription> tagstringProperties = componentSpec.getProperties(PropertyType.tagstring);
-			for (String dataproviderProperty : tagstringProperties.keySet())
-			{
-				Object propValue = fe.getProperty(dataproviderProperty);
-				//bind tag expressions
-				//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
-				if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
-				{
-					dal.addTaggedProperty(component, dataproviderProperty);
-				}
-			}
-			Map<String, PropertyDescription> formatProperties = componentSpec.getProperties(PropertyType.format);
-			for (PropertyDescription pd : formatProperties.values())
-			{
-				Object propValue = fe.getProperty(pd.getName());
-				if (propValue instanceof String)
-				{
-					// get dataproviderId
-					String dataproviderId = (String)fe.getProperty((String)pd.getConfig());
-					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
-						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), fe.getForm()), application);
-					component.putProperty(pd.getName(), format);
-				}
-			}
-			Map<String, PropertyDescription> borderProperties = componentSpec.getProperties(PropertyType.border);
-			for (PropertyDescription pd : borderProperties.values())
-			{
-				Object propValue = fe.getProperty(pd.getName());
-				component.putProperty(pd.getName(), propValue);
-			}
-			Map<String, PropertyDescription> fontProperties = componentSpec.getProperties(PropertyType.font);
-			for (PropertyDescription pd : fontProperties.values())
-			{
-				Object propValue = fe.getProperty(pd.getName());
-				component.putProperty(pd.getName(), propValue);
-			}
-			Map<String, PropertyDescription> colorProperties = componentSpec.getProperties(PropertyType.color);
-			for (PropertyDescription pd : colorProperties.values())
-			{
-				Object propValue = fe.getProperty(pd.getName());
-				if (propValue instanceof Color)
-				{
-					component.putProperty(pd.getName(), propValue);
-				}
-
-			}
-
-			Map<String, PropertyDescription> beanProperties = componentSpec.getProperties(PropertyType.bean);
-			for (PropertyDescription pd : beanProperties.values())
-			{
-				Object propValue = fe.getProperty(pd.getName());
-				if (propValue instanceof String)
-				{
-					component.putProperty(pd.getName(), ComponentFactory.getMarkupId(fe.getForm().getName(), (String)propValue));
-				}
-
-			}
 
 			for (String eventName : componentSpec.getEvents().keySet())
 			{
@@ -206,6 +141,78 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		}
 		dataAdapterList = dal;
 	}
+
+	public void fillProperties(Form formElNodeForm, Map<String, Object> formElNodeProperties, Map<String, PropertyDescription> specNodeProps,
+		DataAdapterList dal, WebComponent component, String level)
+	{
+		for (String prop : specNodeProps.keySet())
+		{
+			PropertyDescription pd = specNodeProps.get(prop);
+			String propName = level + prop;
+			switch (pd.getType())
+			{
+
+				case dataprovider :
+				{
+					Object dataproviderID = formElNodeProperties.get(prop);
+					if (dataproviderID instanceof String)
+					{
+						dal.add(component, (String)dataproviderID, propName);
+					}
+					break;
+				}
+				case tagstring :
+				{
+					Object propValue = formElNodeProperties.get(prop);
+					//bind tag expressions
+					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
+					if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
+					{
+						dal.addTaggedProperty(component, propName); //SVY-6063 commment this line to see the dataprovider  of namepanel2 in acction
+					}
+					break;
+				}
+				case format :
+				{
+					Object propValue = formElNodeProperties.get(pd.getName());
+					if (propValue instanceof String)
+					{
+						// get dataproviderId
+						String dataproviderId = (String)formElNodeProperties.get(pd.getConfig());
+						ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
+							application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElNodeForm), application);
+						component.putProperty(propName, format);
+					}
+					break;
+				}
+				case bean :
+				{
+					Object propValue = formElNodeProperties.get(pd.getName());
+					if (propValue instanceof String)
+					{
+						component.putProperty(propName, ComponentFactory.getMarkupId(formElNodeForm.getName(), (String)propValue));
+					}
+					break;
+				}
+				case valuelist : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
+					break;
+				case custom :
+				{
+					Map<String, PropertyDescription> props = pd.getProperties();
+					fillProperties(formElNodeForm, (Map<String, Object>)formElNodeProperties.get(propName), props, dal, component, propName + ".");
+					break;
+				}
+				default :
+				{
+					Object propValue = formElNodeProperties.get(pd.getName());
+					if (propValue != null) component.putProperty(propName, propValue); /* pd.getName() instead of propName */
+					break;
+				}
+
+			}
+		}
+	}
+
 
 	public IDataAdapterList getDataAdapterList()
 	{
@@ -277,7 +284,8 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	{
 		if ("size".equals(propertyName))
 		{
-			properties.put(propertyName, JSONUtils.toJavaObject(propertyValue, PropertyType.dimension));
+			properties.put(propertyName,
+				JSONUtils.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension), application.getFlattenedSolution()));
 		}
 	}
 

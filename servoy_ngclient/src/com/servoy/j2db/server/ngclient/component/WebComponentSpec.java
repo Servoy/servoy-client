@@ -39,17 +39,17 @@ import com.servoy.j2db.util.Utils;
  *
  */
 @SuppressWarnings("nls")
-public class WebComponentSpec extends WebComponentType
+public class WebComponentSpec extends PropertyDescription
 {
 	private final Map<String, PropertyDescription> events = new HashMap<>(); // second String is always a "function" for now, but in the future it will probably contain more (to specify sent args/types...)
 	private final Map<String, WebComponentApiDefinition> apis = new HashMap<>();
-	private final Map<String, WebComponentType> types = new HashMap<>();
+	private final Map<String, PropertyDescription> types = new HashMap<>();
 	private final String definition;
 	private final String[] libraries;
 
 	public WebComponentSpec(String name, String definition, JSONArray libs)
 	{
-		super(name);
+		super(name, null);
 		this.definition = definition;
 		if (libs != null)
 		{
@@ -67,7 +67,7 @@ public class WebComponentSpec extends WebComponentType
 		events.put(propertyDescription.getName(), propertyDescription);
 	}
 
-	void addType(WebComponentType componentType)
+	void addType(PropertyDescription componentType)
 	{
 		types.put(componentType.getName(), componentType);
 	}
@@ -116,7 +116,7 @@ public class WebComponentSpec extends WebComponentType
 		String property = propertyString.replaceAll("\\s", "");
 		boolean isArray = false;
 		PropertyType type = null;
-		WebComponentType wct = null;
+		PropertyDescription wct = null;
 		if (property.endsWith("[]"))
 		{
 			isArray = true;
@@ -168,7 +168,7 @@ public class WebComponentSpec extends WebComponentType
 			while (types.hasNext())
 			{
 				String name = types.next();
-				WebComponentType wct = new WebComponentType(name);
+				PropertyDescription wct = new PropertyDescription(name, PropertyType.custom);
 				spec.addType(wct);
 			}
 			// then parse all the types (so that they can find each other)
@@ -246,7 +246,7 @@ public class WebComponentSpec extends WebComponentType
 	 * @param next
 	 * @return
 	 */
-	public WebComponentType getType(String name)
+	public PropertyDescription getType(String name)
 	{
 		return types.get(name);
 	}
@@ -258,7 +258,7 @@ public class WebComponentSpec extends WebComponentType
 	 * @param specpath
 	 * @throws JSONException
 	 */
-	private static void parseProperties(String propKey, WebComponentType wct, JSONObject json, String specpath, WebComponentSpec spec) throws JSONException
+	private static void parseProperties(String propKey, PropertyDescription wct, JSONObject json, String specpath, WebComponentSpec spec) throws JSONException
 	{
 		if (json.has(propKey))
 		{
@@ -266,7 +266,7 @@ public class WebComponentSpec extends WebComponentType
 			for (String key : Utils.iterate((Iterator<String>)jsonProps.keys()))
 			{
 				Object value = jsonProps.get(key);
-				WebComponentType propWCT = null;
+				PropertyDescription propWCT = null;
 				PropertyType type = null;
 				boolean isArray = false;
 				JSONObject configObject = null;
@@ -344,7 +344,14 @@ public class WebComponentSpec extends WebComponentType
 							Debug.error("Type '" + wct.getName() + "' in spec file '" + specpath + "', can't have a function '" + key + "' as param");
 						}
 					}
-					else wct.addProperty(desc);
+					if (propWCT != null && propWCT.getType() == PropertyType.custom)
+					{
+						//copy properties from type
+						//this will change whe tree structure comes in 
+						desc.putAll(spec.getType(propWCT.getName()).getProperties());
+						wct.putProperty(key, desc);
+					}
+					else wct.putProperty(key, desc);
 				}
 			}
 		}
@@ -486,9 +493,9 @@ public class WebComponentSpec extends WebComponentType
 	{
 		private final PropertyType type;
 		private final boolean array;
-		private final WebComponentType wct;
+		private final PropertyDescription wct;
 
-		ParsedProperty(PropertyType type, boolean array, WebComponentType wct)
+		ParsedProperty(PropertyType type, boolean array, PropertyDescription wct)
 		{
 			this.type = type;
 			this.array = array;
