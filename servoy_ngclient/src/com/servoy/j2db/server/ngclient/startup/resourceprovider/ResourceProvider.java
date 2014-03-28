@@ -223,6 +223,7 @@ public class ResourceProvider implements Filter
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
 			URL url = Activator.getContext().getBundle().getEntry("/war/" + componentName + '/' + path);
+			if (url == null) return null;
 			InputStream is = null;
 			try
 			{

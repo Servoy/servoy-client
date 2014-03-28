@@ -83,7 +83,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 
 	private static final long SESSION_TIMEOUT = 1 * 60 * 1000;
 
-	private static IClientCreator clientCreator;
+	private static volatile IClientCreator clientCreator;
 
 	private Session session;
 
