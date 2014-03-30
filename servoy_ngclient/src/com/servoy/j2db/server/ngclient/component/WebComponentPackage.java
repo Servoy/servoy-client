@@ -33,6 +33,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.Debug;
@@ -49,6 +51,8 @@ public class WebComponentPackage
 	public interface IPackageReader
 	{
 		String getName();
+
+		String getPackageName();
 
 		Manifest getManifest() throws IOException;
 
@@ -83,7 +87,7 @@ public class WebComponentPackage
 					{
 						try
 						{
-							WebComponentSpec parsed = WebComponentSpec.parseSpec(specfileContent, specpath);
+							WebComponentSpec parsed = WebComponentSpec.parseSpec(specfileContent, reader.getPackageName(), specpath);
 							// add/overwrite properties defined by us
 							parsed.putProperty("location", new PropertyDescription("location", PropertyType.point));
 							parsed.putProperty("size", new PropertyDescription("size", PropertyType.dimension));
@@ -142,6 +146,17 @@ public class WebComponentPackage
 		public String getName()
 		{
 			return jarFile.getAbsolutePath();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
+		 */
+		@Override
+		public String getPackageName()
+		{
+			return FilenameUtils.getBaseName(jarFile.getAbsolutePath());
 		}
 
 		@Override
@@ -243,6 +258,17 @@ public class WebComponentPackage
 		public String getName()
 		{
 			return dir.getAbsolutePath();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
+		 */
+		@Override
+		public String getPackageName()
+		{
+			return dir.getName();
 		}
 
 		@Override

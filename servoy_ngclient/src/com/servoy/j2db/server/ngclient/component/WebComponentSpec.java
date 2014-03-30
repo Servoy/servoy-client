@@ -47,10 +47,12 @@ public class WebComponentSpec extends PropertyDescription
 	private final String definition;
 	private final String[] libraries;
 	private final String displayName;
+	private final String packageName;
 
-	public WebComponentSpec(String name, String displayName, String definition, JSONArray libs)
+	public WebComponentSpec(String name, String packageName, String displayName, String definition, JSONArray libs)
 	{
 		super(name, null);
+		this.packageName = packageName;
 		this.displayName = displayName;
 		this.definition = definition;
 		if (libs != null)
@@ -98,6 +100,16 @@ public class WebComponentSpec extends PropertyDescription
 	public String getDisplayName()
 	{
 		return displayName == null ? getName() : displayName;
+	}
+
+	public String getPackageName()
+	{
+		return packageName;
+	}
+
+	public String getFullName()
+	{
+		return packageName + ':' + getName();
 	}
 
 	public String getDefinition()
@@ -160,11 +172,11 @@ public class WebComponentSpec extends PropertyDescription
 	}
 
 	@SuppressWarnings("unchecked")
-	public static WebComponentSpec parseSpec(String specfileContent, String specpath) throws JSONException
+	public static WebComponentSpec parseSpec(String specfileContent, String packageName, String specpath) throws JSONException
 	{
 		JSONObject json = new JSONObject('{' + specfileContent + '}');
 
-		WebComponentSpec spec = new WebComponentSpec(json.getString("name"), json.optString("displayName", null), json.getString("definition"),
+		WebComponentSpec spec = new WebComponentSpec(json.getString("name"), packageName, json.optString("displayName", null), json.getString("definition"),
 			json.optJSONArray("libraries"));
 
 		// first types, can be used in properties
@@ -213,7 +225,7 @@ public class WebComponentSpec extends PropertyDescription
 						if (param.has("optional")) isOptional = true;
 
 						ParsedProperty pp = parsePropertyString(param.getString(paramName), spec, specpath);
-						PropertyDescription desc = new PropertyDescription(paramName, pp.type, pp.array);
+						PropertyDescription desc = new PropertyDescription(paramName, pp.type, Boolean.valueOf(pp.array));
 						desc.setOptional(isOptional);
 						def.addParameter(desc);
 					}
@@ -222,7 +234,7 @@ public class WebComponentSpec extends PropertyDescription
 				if (jsonDef.has("returns"))
 				{
 					ParsedProperty pp = parsePropertyString(jsonDef.getString("returns"), spec, specpath);
-					PropertyDescription desc = new PropertyDescription("return", pp.type, pp.array);
+					PropertyDescription desc = new PropertyDescription("return", pp.type, Boolean.valueOf(pp.array));
 					def.setReturnType(desc);
 				}
 

@@ -169,7 +169,7 @@ public class ResourceProvider implements Filter
 	private static class URLPackageReader implements WebComponentPackage.IPackageReader
 	{
 		private final URL urlOfManifest;
-		private final String componentName;
+		private final String packageName;
 
 		public URLPackageReader(URL urlOfManifest)
 		{
@@ -177,7 +177,7 @@ public class ResourceProvider implements Filter
 			String file = urlOfManifest.getFile();
 			int warIndex = file.indexOf("/war/");
 			int componentJarIndex = file.indexOf("/", warIndex + 5);
-			componentName = file.substring(warIndex + 5, componentJarIndex);
+			packageName = file.substring(warIndex + 5, componentJarIndex);
 		}
 
 		/*
@@ -189,6 +189,17 @@ public class ResourceProvider implements Filter
 		public String getName()
 		{
 			return urlOfManifest.toExternalForm();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
+		 */
+		@Override
+		public String getPackageName()
+		{
+			return packageName;
 		}
 
 		@Override
@@ -215,14 +226,14 @@ public class ResourceProvider implements Filter
 		@Override
 		public URL getUrlForPath(String path)
 		{
-			return Activator.getContext().getBundle().getEntry("/war/" + componentName + path); // path includes /
+			return Activator.getContext().getBundle().getEntry("/war/" + packageName + path); // path includes /
 		}
 
 		@SuppressWarnings("nls")
 		@Override
 		public String readTextFile(String path, Charset charset) throws IOException
 		{
-			URL url = Activator.getContext().getBundle().getEntry("/war/" + componentName + '/' + path);
+			URL url = Activator.getContext().getBundle().getEntry("/war/" + packageName + '/' + path);
 			if (url == null) return null;
 			InputStream is = null;
 			try
