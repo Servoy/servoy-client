@@ -258,6 +258,20 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd3);
 		Assert.assertTrue(pd3.getType() == PropertyType.string);
 		Assert.assertFalse(pd3.isArray());
+	}
+
+	@Test
+	public void testDisplayName() throws JSONException
+	{
+		String property = "name:'test',definition:'/test.js'";
+		WebComponentSpec spec = WebComponentSpec.parseSpec(property, "test.path");
+		Assert.assertEquals("test", spec.getName());
+		Assert.assertEquals("test", spec.getDisplayName());
+
+		property = "name:'test', displayName: 'A Test',definition:'/test.js'";
+		spec = WebComponentSpec.parseSpec(property, "test.path");
+		Assert.assertEquals("test", spec.getName());
+		Assert.assertEquals("A Test", spec.getDisplayName());
 
 	}
 }

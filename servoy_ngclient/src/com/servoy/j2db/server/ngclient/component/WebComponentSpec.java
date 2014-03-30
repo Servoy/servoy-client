@@ -46,10 +46,12 @@ public class WebComponentSpec extends PropertyDescription
 	private final Map<String, PropertyDescription> types = new HashMap<>();
 	private final String definition;
 	private final String[] libraries;
+	private final String displayName;
 
-	public WebComponentSpec(String name, String definition, JSONArray libs)
+	public WebComponentSpec(String name, String displayName, String definition, JSONArray libs)
 	{
 		super(name, null);
+		this.displayName = displayName;
 		this.definition = definition;
 		if (libs != null)
 		{
@@ -91,6 +93,11 @@ public class WebComponentSpec extends PropertyDescription
 	public Map<String, WebComponentApiDefinition> getApis()
 	{
 		return Collections.unmodifiableMap(apis);
+	}
+
+	public String getDisplayName()
+	{
+		return displayName == null ? getName() : displayName;
 	}
 
 	public String getDefinition()
@@ -157,7 +164,8 @@ public class WebComponentSpec extends PropertyDescription
 	{
 		JSONObject json = new JSONObject('{' + specfileContent + '}');
 
-		WebComponentSpec spec = new WebComponentSpec(json.getString("name"), json.getString("definition"), json.optJSONArray("libraries"));
+		WebComponentSpec spec = new WebComponentSpec(json.getString("name"), json.optString("displayName", null), json.getString("definition"),
+			json.optJSONArray("libraries"));
 
 		// first types, can be used in properties
 		if (json.has("types"))

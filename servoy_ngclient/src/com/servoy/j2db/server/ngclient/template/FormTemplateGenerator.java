@@ -27,6 +27,7 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -76,18 +77,18 @@ public class FormTemplateGenerator
 		}
 	}
 
+	public static boolean isWebcomponentBean(IPersist persist)
+	{
+		return persist instanceof Bean && ((Bean)persist).getBeanClassName() != null && ((Bean)persist).getBeanClassName().indexOf(':') > 0;
+	}
+
 	public static String getComponentTypeName(IFormElement persist)
 	{
 		if (persist instanceof Bean)
 		{
-			String beanClass = ((Bean)persist).getBeanClassName();
-			if (beanClass != null)
+			if (isWebcomponentBean(persist))
 			{
-				int index = beanClass.indexOf(":");
-				if (index >= 0)
-				{
-					return beanClass.substring(index + 1);
-				}
+				return ((Bean)persist).getBeanClassName().substring(((Bean)persist).getBeanClassName().indexOf(':') + 1);
 			}
 		}
 		else
