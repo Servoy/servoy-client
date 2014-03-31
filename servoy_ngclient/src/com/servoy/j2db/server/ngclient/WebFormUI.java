@@ -199,7 +199,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				case custom :
 				{
 					Map<String, PropertyDescription> props = pd.getProperties();
-					fillProperties(formElNodeForm, (Map<String, Object>)formElNodeProperties.get(propName), props, dal, component, propName + ".");
+					//fillProperties(formElNodeForm, (Map<String, Object>)formElNodeProperties.get(propName), props, dal, component, propName + ".");
 					break;
 				}
 				default :
