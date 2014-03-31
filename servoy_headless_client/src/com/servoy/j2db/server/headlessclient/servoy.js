@@ -2265,8 +2265,8 @@ if (typeof(Servoy.Utils) == "undefined")
 		iReturnValue[1] = 0;
 		while( oElement != null )
 		{
-			iReturnValue[0] += oElement.offsetLeft;
-			iReturnValue[1] += oElement.offsetTop;
+			iReturnValue[0] += oElement.offsetLeft - oElement.scrollLeft + oElement.clientLeft;
+			iReturnValue[1] += oElement.offsetTop - oElement.scrollTop + oElement.clientTop;
 			oElement = oElement.offsetParent;
 		}
 		return iReturnValue;
@@ -2298,7 +2298,12 @@ if (typeof(Servoy.Utils) == "undefined")
 		{
 			elem = e.srcElement;
 		}
-		return '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(elem)[0]) + '&my=' + ((e.pageY ? e.pageY : e.clientY + document.body.scrollLeft + document.documentElement.scrollLeft) - Servoy.Utils.getXY(elem)[1]);
+  		
+  		var elXY = Servoy.Utils.getXY(elem);
+  		var mx = e.offsetX ? e.offsetX : ((e.pageX ? e.pageX : e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft) - elXY[0]);
+  		var my = e.offsetY ? e.offsetY : ((e.pageY ? e.pageY : e.clientY + document.body.scrollTop + document.documentElement.scrollTop) - elXY[1]);
+
+  		return '&modifiers='+Servoy.Utils.getModifiers(e)+'&mx=' + mx + '&my=' + my;
 	  },
 
 	  isChrome : navigator.userAgent.toLowerCase().indexOf('chrome') > -1,
