@@ -1,11 +1,9 @@
 <div class="svy-nav-container">
 	<div style="svy-nav-slider">
-		<div ui-slider="{orientation: 'vertical', range: 'min'}"
-		     min="{{model.maxIndex > 0? 1:0}} " 
-		     max="{{model.maxIndex > 0? model.maxIndex:0}}" 
-		     ng-model="editIndex"
-		     ng-mouseup="setIndex(editIndex)"
-		     ng-keyup="setIndex(editIndex)"
+		<div ui-slider="{orientation: 'vertical', range: 'max', stop:sliderStop}" 
+		     min="{{model.maxIndex > 0? -1*model.maxIndex:0}}"
+		     max="{{model.maxIndex > 0? -1:0}} "
+		     ng-model="sliderIndex"
 		     >
 		</div>
 	</div>

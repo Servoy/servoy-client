@@ -9,16 +9,24 @@ angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', 
       link: function($scope, $element, $attrs) {  
     	  
     	  $scope.editIndex = 0;
+    	  $scope.sliderIndex = 0;
     	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
     		  if(!newVal) return;
+    		  $scope.sliderIndex = -1*newVal
     		  $scope.editIndex = newVal
     	  })
     	  
     	  $scope.setIndex =  function (idx){
     		  var i = parseInt(idx)
-    		  $scope.handlers.setSelectedIndex(i);	
+    		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
     	  }
     	  
+      },
+      controller: function($scope)
+      {
+    	  $scope.sliderStop = function(event, ui) {
+    		  $scope.setIndex($scope.sliderIndex)
+    	  }
       },
       templateUrl: 'servoydefault/navigator/navigator.html',
       replace: true
