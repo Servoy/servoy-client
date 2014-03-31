@@ -97,8 +97,8 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
 
        $scope.select = function(tab) {
     	if (tab == selectedTab) return;
+    	var selectEvent = $window.event ? $window.event : null;
         if (selectedTab) {
-        	var selectEvent = $window.event ? $window.event : null;
         	var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
         	promise.then(function(ok) {
         		if (ok) {
@@ -111,7 +111,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
         	})
         }
         else {
-        	setFormVisible(tab);
+        	setFormVisible(tab, selectEvent);
         }
        }
        
