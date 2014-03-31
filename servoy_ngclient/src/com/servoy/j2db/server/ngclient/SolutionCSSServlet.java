@@ -76,6 +76,10 @@ public class SolutionCSSServlet extends HttpServlet
 					{
 						dataToReturn = getMediaCSS(client, styleSheet);
 					}
+					else
+					{
+						dataToReturn = "".getBytes(Charset.forName("UTF-8"));
+					}
 				}
 				else
 				{
@@ -90,18 +94,24 @@ public class SolutionCSSServlet extends HttpServlet
 				if (dataToReturn != null)
 				{
 					// add client uuid in case @import 'solution-css/a/b/myOtherStyleSheet.css' is used
-					Charset utf8 = Charset.forName("UTF-8"); // TODO should we support others as well in the future?
-					dataToReturn = new String(dataToReturn, utf8).replace("solution-css/", clientUUID + "/").getBytes(utf8);
-					resp.setContentType("text/css");
-					resp.setContentLength(dataToReturn.length);
-					ServletOutputStream outputStream = resp.getOutputStream();
-					outputStream.write(dataToReturn);
-					outputStream.flush();
+					dataToReturn = sendResponse(resp, dataToReturn, clientUUID);
 				}
 			}
 		}
 
 		if (dataToReturn == null) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	private byte[] sendResponse(HttpServletResponse resp, byte[] dataToReturn, String clientUUID) throws IOException
+	{
+		Charset utf8 = Charset.forName("UTF-8"); // TODO should we support others as well in the future?
+		dataToReturn = new String(dataToReturn, utf8).replace("solution-css/", clientUUID + "/").getBytes(utf8);
+		resp.setContentType("text/css");
+		resp.setContentLength(dataToReturn.length);
+		ServletOutputStream outputStream = resp.getOutputStream();
+		outputStream.write(dataToReturn);
+		outputStream.flush();
+		return dataToReturn;
 	}
 
 	private byte[] getMediaCSS(IApplication client, String styleSheet)
