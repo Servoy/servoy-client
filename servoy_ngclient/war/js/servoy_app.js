@@ -205,10 +205,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        		var func = funcThis[call.api];
 	        	}
 	        	if (!func) {
-	        		// just ignore if it didn't have setFindMode method.
+	        		// if setFindMode not present, set editable/readonly state
 	        		if (call.api != "setFindMode") 
 	        		{
-	        			console.error("bean " + call.bean + " did not provide the api: " + call.api)
+	        			console.warn("bean " + call.bean + " did not provide the api: " + call.api)
 	        		}
 	        		else
 	        		{
