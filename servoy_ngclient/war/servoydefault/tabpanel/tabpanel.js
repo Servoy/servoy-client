@@ -1,4 +1,4 @@
-angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {  
+angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($window) {  
     return {
       restrict: 'E',
       transclude: true,
@@ -76,7 +76,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        		if (ok){
        			if(selectedTab != tab && $scope.handlers.onChangeMethodID)
        			{
-       				$scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab),event);
+       				$scope.handlers.onChangeMethodID($scope.getTabIndex(selectedTab),event instanceof MouseEvent ? event : null);
        			}   			
        			selectedTab = tab;
        			$scope.model.tabIndex = $scope.getTabIndex(selectedTab);
@@ -98,7 +98,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function() {
        $scope.select = function(tab) {
     	if (tab == selectedTab) return;
         if (selectedTab) {
-        	var selectEvent = event;
+        	var selectEvent = $window.event ? $window.event : null;
         	var promise =  $scope.svyServoyapi.setFormVisibility(selectedTab.containsFormId,false);
         	promise.then(function(ok) {
         		if (ok) {
