@@ -41,7 +41,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class WebComponentSpec extends PropertyDescription
 {
-	private final Map<String, PropertyDescription> events = new HashMap<>(); // second String is always a "function" for now, but in the future it will probably contain more (to specify sent args/types...)
+	private final Map<String, PropertyDescription> handlers = new HashMap<>(); // second String is always a "function" for now, but in the future it will probably contain more (to specify sent args/types...)
 	private final Map<String, WebComponentApiDefinition> apis = new HashMap<>();
 	private final Map<String, PropertyDescription> types = new HashMap<>();
 	private final String definition;
@@ -66,10 +66,19 @@ public class WebComponentSpec extends PropertyDescription
 		else this.libraries = new String[0];
 	}
 
-	void addEvent(PropertyDescription propertyDescription)
+	void addHandler(PropertyDescription propertyDescription)
 	{
-		events.put(propertyDescription.getName(), propertyDescription);
+		handlers.put(propertyDescription.getName(), propertyDescription);
 	}
+
+	/**
+	 * @param hndlrs
+	 */
+	void putAllHandlers(Map<String, PropertyDescription> hndlrs)
+	{
+		handlers.putAll(hndlrs);
+	}
+
 
 	void addType(PropertyDescription componentType)
 	{
@@ -79,9 +88,9 @@ public class WebComponentSpec extends PropertyDescription
 	/**
 	 * You are not allowed to modify this map!
 	 */
-	public Map<String, PropertyDescription> getEvents()
+	public Map<String, PropertyDescription> getHandlers()
 	{
-		return Collections.unmodifiableMap(events);
+		return Collections.unmodifiableMap(handlers);
 	}
 
 	void addApi(WebComponentApiDefinition api)
@@ -121,7 +130,7 @@ public class WebComponentSpec extends PropertyDescription
 	public Set<String> getAllPropertiesNames()
 	{
 		Set<String> names = super.getAllPropertiesNames();
-		names.addAll(events.keySet());
+		names.addAll(handlers.keySet());
 		return names;
 	}
 
@@ -196,14 +205,20 @@ public class WebComponentSpec extends PropertyDescription
 			while (types.hasNext())
 			{
 				String typeName = types.next();
-				parseProperties("model", spec.getType(typeName), jsonObject.getJSONObject(typeName), specpath, spec);
-				parseProperties("handlers", spec.getType(typeName), jsonObject.getJSONObject(typeName), specpath, spec);
+				PropertyDescription type = spec.getType(typeName);
+				type.putAll(parseProperties("model", jsonObject.getJSONObject(typeName), specpath, spec));
+				// TODO this is currently never true? See 5 lines above this, types are always just PropertyDescription?
+				// is this really supported? or should we add it just to the properties? But how are these handlers then added and used?
+				if (type instanceof WebComponentSpec)
+				{
+					((WebComponentSpec)type).putAllHandlers(parseProperties("handlers", jsonObject.getJSONObject(typeName), specpath, spec));
+				}
 			}
 		}
 
 		// properties
-		parseProperties("model", spec, json, specpath, spec);
-		parseProperties("handlers", spec, json, specpath, spec);
+		spec.putAll(parseProperties("model", json, specpath, spec));
+		spec.putAllHandlers(parseProperties("handlers", json, specpath, spec));
 
 		// api
 		if (json.has("api"))
@@ -278,8 +293,10 @@ public class WebComponentSpec extends PropertyDescription
 	 * @param specpath
 	 * @throws JSONException
 	 */
-	private static void parseProperties(String propKey, PropertyDescription wct, JSONObject json, String specpath, WebComponentSpec spec) throws JSONException
+	private static Map<String, PropertyDescription> parseProperties(String propKey, JSONObject json, String specpath, WebComponentSpec spec)
+		throws JSONException
 	{
+		Map<String, PropertyDescription> pds = new HashMap<>();
 		if (json.has(propKey))
 		{
 			JSONObject jsonProps = json.getJSONObject(propKey);
@@ -353,28 +370,17 @@ public class WebComponentSpec extends PropertyDescription
 					}
 
 					PropertyDescription desc = new PropertyDescription(key, type, isArray, config, defaultValue);
-					if (type == PropertyType.function)
-					{
-						if (wct instanceof WebComponentSpec)
-						{
-							((WebComponentSpec)wct).addEvent(desc);
-						}
-						else
-						{
-							Debug.error("Type '" + wct.getName() + "' in spec file '" + specpath + "', can't have a function '" + key + "' as param");
-						}
-					}
 					if (propWCT != null && propWCT.getType() == PropertyType.custom)
 					{
 						//copy properties from type
 						//this will change whe tree structure comes in 
 						desc.putAll(spec.getType(propWCT.getName()).getProperties());
-						wct.putProperty(key, desc);
 					}
-					else wct.putProperty(key, desc);
+					pds.put(key, desc);
 				}
 			}
 		}
+		return pds;
 	}
 
 	private static DataproviderConfig parseDataproviderConfig(JSONObject json)

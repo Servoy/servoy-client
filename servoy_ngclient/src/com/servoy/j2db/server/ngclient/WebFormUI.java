@@ -93,7 +93,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 			fillProperties(fe.getForm(), fe.getProperties(), componentSpec.getProperties(), dal, component, "");
 
 
-			for (String eventName : componentSpec.getEvents().keySet())
+			for (String eventName : componentSpec.getHandlers().keySet())
 			{
 				Object eventValue = fe.getProperty(eventName);
 				if (eventValue instanceof String)

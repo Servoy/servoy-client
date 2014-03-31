@@ -347,7 +347,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			return propertyValue;
 		}
 		PropertyDescription propertyDescription = fe.getWebComponentSpec().getProperties().get(propertyName);
-		if (propertyDescription == null) propertyDescription = fe.getWebComponentSpec().getEvents().get(propertyName);
+		if (propertyDescription == null) propertyDescription = fe.getWebComponentSpec().getHandlers().get(propertyName);
 		return JSONUtils.toStringObject(propertyValue, propertyDescription.getType());
 	}
 

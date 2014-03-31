@@ -83,7 +83,6 @@ public final class FormElement
 	public FormElement(IFormElement persist, FlattenedSolution fs)
 	{
 		this.persist = persist;
-
 		if (persist instanceof Bean)
 		{
 			String customJSONString = ((Bean)persist).getBeanXML();
@@ -93,7 +92,7 @@ public final class FormElement
 				try
 				{
 					Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
-					Map<String, PropertyDescription> eventProperties = getWebComponentSpec().getEvents();
+					Map<String, PropertyDescription> eventProperties = getWebComponentSpec().getHandlers();
 					JSONObject jsonProperties = new JSONObject(customJSONString);
 					Iterator keys = jsonProperties.keys();
 					while (keys.hasNext())
@@ -333,7 +332,7 @@ public final class FormElement
 	{
 		List<String> handlers = new ArrayList<>();
 		WebComponentSpec componentSpec = getWebComponentSpec();
-		Set<String> events = componentSpec.getEvents().keySet();
+		Set<String> events = componentSpec.getHandlers().keySet();
 		for (String eventName : events)
 		{
 			if (getProperty(eventName) != null)
