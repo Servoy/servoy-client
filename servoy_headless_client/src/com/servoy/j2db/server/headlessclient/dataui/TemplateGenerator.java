@@ -2027,6 +2027,7 @@ public class TemplateGenerator
 		html.append(getCssClassForElement(tabPanel, tabPanelCssClass));
 		if (isSplitPane) html.append(" style='overflow: hidden;' ");
 		html.append(">\n");
+		boolean isTabbedTabPanel = false;
 
 //		int yoffset = 0;
 		if (tabPanel.getTabOrientation() != TabPanel.HIDE && tabPanel.getTabOrientation() != TabPanel.ACCORDION_PANEL && !isSplitPane &&
@@ -2034,6 +2035,7 @@ public class TemplateGenerator
 		{
 //			yoffset = 20;
 //			html.append("\t<thead><tr valign='bottom'><th height=20>\n");
+			isTabbedTabPanel = true;
 			html.append("\t<div tabholder='true' class='tabs'>\n");
 			html.append("\t<servoy:remove>\n");
 			html.append("\t\t<div class='selected_tab'><a href='tab1'>Tab1</a></div>\n");
@@ -2138,10 +2140,10 @@ public class TemplateGenerator
 		{
 			html.append("\t<div servoy:id='webform' ").append(style.toString());
 			String cssClass = "webform";
-			if (styleObj.containsKey(CSS.Attribute.BORDER_STYLE.toString()) && !"none".equals(styleObj.getProperty(CSS.Attribute.BORDER_STYLE.toString())) &&
-				!"hidden".equals(styleObj.getProperty(CSS.Attribute.BORDER_STYLE.toString())) &&
-				!(tabPanel.getTabOrientation() == TabPanel.HIDE || (tabPanel.getTabOrientation() == TabPanel.DEFAULT_ORIENTATION && tabPanel.hasOneTab())))
+			boolean tabPanelHasBorder = tabPanel.getBorderType() != null || styleObj.containsKey(CSS.Attribute.BORDER_STYLE.toString());
+			if (isTabbedTabPanel && !tabPanelHasBorder)
 			{
+				// apply default border
 				cssClass = "tabcontainer " + cssClass;
 			}
 			html.append(getCSSClassParameter(cssClass));
