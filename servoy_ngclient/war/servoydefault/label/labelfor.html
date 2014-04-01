@@ -2,9 +2,11 @@
 	 svy-border='model.borderType' 
 	 svy-background='model.transparent ? "transparent" : model.background'
 	 svy-foreground='model.foreground'
+	 ng-class="model.styleClass"
 	 ng-style="style"
      svy-margin='model.margin' 
      svy-font='model.fontType'
+     svy-mnemonic="{key:'model.mnemonic',callback:'handlers.onActionMethodID'}"
      svy-tooltip="{{model.toolTipText}}">
 <span  ng-style="bgstyle" 
 	   ng-bind='(model.dataProviderID == null && model.text || model.dataProviderID ) | formatFilter:model.format'
