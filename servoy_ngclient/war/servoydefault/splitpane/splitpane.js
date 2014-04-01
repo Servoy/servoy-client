@@ -33,6 +33,10 @@ angular.module('svySplitpane',['servoy']).directive('svySplitpane', function() {
     	  $scope.onChange = function() {
     		  if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,event);
     	  }
+    	  
+          $scope.getForm = function(tab) {
+        	  return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
+          }
       },
       templateUrl: 'servoydefault/splitpane/splitpane.html',
       replace: true
