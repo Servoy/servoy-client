@@ -235,37 +235,6 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         }
       }
 })
-.directive('svyRotate',  function ($utils) {
-    return {
-        restrict: 'A',
-        link: function (scope, element, attrs) {
-        	scope.$watch(attrs.svyRotate, function(rotation) {
-        		if (rotation && rotation != 0)
-        		{
-        			var r = 'rotate(' + rotation + 'deg)';
-                    element.css({
-                        '-moz-transform': r,
-                        '-webkit-transform': r,
-                        '-o-transform': r,
-                        '-ms-transform': r,
-                        'transform': r,
-                        'position': 'absolute'
-                    });
-                    if (rotation == 90 || rotation == 270)
-                    {
-                    	 element.css({
-                             'width': scope.model.size.height+'px',
-                             'height': scope.model.size.width+'px',
-                             'left': (scope.model.size.width -scope.model.size.height)/2 +'px',
-                             'top': (scope.model.size.height -scope.model.size.width)/2 +'px'
-                         });
-                    }
-                    
-        		}	
-        	})
-        }
-      }
-})
 .directive('svyScrollbars',  function ($utils,$parse) {
     return {
         restrict: 'A',
