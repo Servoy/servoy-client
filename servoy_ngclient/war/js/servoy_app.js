@@ -34,7 +34,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
           	for(var key in beanData) {
           		switch(key)
           		{
-          		case 'location': 
+          		case 'location':
           			beanLayout.left = beanData[key].x+'px';
           			beanLayout.top = beanData[key].y+'px';
                     anchorInfoChanged = anchorInfoChanged || (beanModel[key] == undefined) || (beanModel[key].x != beanData[key].x) || (beanModel[key].y != beanData[key].y);
@@ -168,11 +168,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            		formModel[''][p] = newFormProperties[p]; 
 		    			} 
 		            }
-	            	
+
 		            for(var beanname in newFormData) {
 		            	// copy over the changes, skip for form properties (beanname empty)
 		            	if(beanname != ''){
-		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], newFormProperties ? newFormProperties.size : formState.properties.size);
+		            		applyBeanData(formModel[beanname], layout[beanname], newFormData[beanname], (newFormProperties && newFormProperties.size) ? newFormProperties.size : formState.properties.size);
 		            		for (var defProperty in deferredProperties) {
 		            			for(var key in newFormData[beanname]) {
 		            				if (defProperty == (formname + "_" + beanname + "_" + key)) {
