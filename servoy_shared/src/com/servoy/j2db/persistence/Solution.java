@@ -959,12 +959,11 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return null;
 	}
 
-	// TODO if NG client will be defined as a separate client type, make it NG only
 	/**
 	 * The custom CSS used by the solution (a MEDIA lib entry). It can reference other media resources (even additional .css though '@import').
 	 * For NGClient - this CSS will be available directly in the browser.
 	 */
-	@ServoyClientSupport(mc = false, wc = true, sc = false)
+	@ServoyClientSupport(mc = false, wc = true, sc = true)
 	public String getStyleSheet()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET);
