@@ -399,7 +399,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	                  // is something that goes to the server
 	            	  var newargs = []
 	            	  for (var i in args) {
-	            		  var arg;
 	            		  var arg = args[i]
 						  if (arg && arg.originalEvent) arg = arg.originalEvent;
  	                      if(arg  instanceof MouseEvent ||arg  instanceof KeyboardEvent){
