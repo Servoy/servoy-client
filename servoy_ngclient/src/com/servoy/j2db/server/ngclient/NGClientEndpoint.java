@@ -469,7 +469,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 								boolean ok = form.notifyVisible(obj.getBoolean("visible"), invokeLaterRunnables);
 								Utils.invokeLater(client, invokeLaterRunnables);
-								if (ok && obj.has("relation"))
+								if (ok && obj.has("relation") && !obj.isNull("relation"))
 								{
 									IWebFormController parentForm = client.getFormManager().getForm(obj.getString("parentForm"));
 									FoundSet parentFs = parentForm.getFormModel();
