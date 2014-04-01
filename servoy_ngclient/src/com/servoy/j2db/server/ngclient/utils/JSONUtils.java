@@ -216,7 +216,7 @@ public class JSONUtils
 			w.key("fontFamily").value(font.getFamily() + ", Verdana, Arial");
 			w.endObject();
 		}
-		else if (value instanceof JSONArray)
+		else if (value instanceof JSONArray) // TODO are we using JSON object or Map and Lists? ( as internal representation of properties)
 		{
 			w = w.value(value);
 		}

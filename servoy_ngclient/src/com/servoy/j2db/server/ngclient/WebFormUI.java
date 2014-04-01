@@ -90,8 +90,11 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 			}
 			add(component);
 
-			fillProperties(fe.getForm(), fe.getProperties(), componentSpec.getProperties(), dal, component, "");
-
+			for (String propName : fe.getProperties().keySet())
+			{
+				if (fe.getPropertyWithDefault(propName) == null || componentSpec.getProperty(propName) == null) continue; //TODO this if should not be necessary. currently in the case of "printable" hidden property
+				fillProperties(fe.getForm(), fe, fe.getPropertyWithDefault(propName), componentSpec.getProperty(propName), dal, component, component, "");
+			}
 
 			for (String eventName : componentSpec.getHandlers().keySet())
 			{
@@ -142,75 +145,182 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		dataAdapterList = dal;
 	}
 
-	public void fillProperties(Form formElNodeForm, Map<String, Object> formElNodeProperties, Map<String, PropertyDescription> specNodeProps,
-		DataAdapterList dal, WebComponent component, String level)
+	/**
+	 *  -fe is only needed because of format . It accesses another property value based on the 'for' property (). TODO this FormElement parameter should be analyzed because format accepts a flat property value.
+	 *  
+	 * -level is only needed because the current implementation 'flattens' the dataproviderid's and tagstrings for DAL  .(level should be removed after next changes)
+	 *  
+	 *  -component is the whole component for now ,but it should be the current component node in the runtime component tree (instead of flat properties map)
+	 *  -component and componentNode should have been just componentNode (but currently WebCoponent is not nested)
+	 */
+	public void fillProperties(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec, DataAdapterList dal,
+		WebComponent component, Object componentNode, String level)
 	{
-		for (String prop : specNodeProps.keySet())
+		if (propertySpec.isArray())
 		{
-			PropertyDescription pd = specNodeProps.get(prop);
-			String propName = level + prop;
-			switch (pd.getType())
+			List<Object> processedArray = new ArrayList<>();
+			List<Object> fePropertyArray = (List<Object>)formElementProperty;
+			for (Object arrayValue : fePropertyArray)
 			{
-
-				case dataprovider :
+				Object propValue = initFormElementProperty(formElNodeForm, fe, arrayValue, propertySpec, dal, component, componentNode, level, true);
+				switch (propertySpec.getType())
 				{
-					Object dataproviderID = formElNodeProperties.get(prop);
+					case dataprovider : // array of dataprovider is not supported yet (DAL does not support arrays)  , Should be done in initFormElementProperty()
+					{
+						Debug.error("Array of dataprovider currently not supported dataprovider");
+						Object dataproviderID = propValue;
+						if (dataproviderID instanceof String)
+						{
+							dal.add(component, level + (String)dataproviderID, propertySpec.getName());
+						}
+						break;
+					}
+					case tagstring : // array of taggstring is not supported yet (DAL does not support arrays)
+					{
+						Debug.error("Array of tagstring currently not supported dataprovider");
+						//bind tag expressions
+						//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
+						if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
+						{
+							dal.addTaggedProperty(component, level + propertySpec.getName());
+						}
+						break;
+					}
+					default :
+					{
+						processedArray.add(propValue);
+					}
+
+				}
+			}
+			if (processedArray.size() > 0)
+			{
+				putInComponentNode(componentNode, propertySpec.getName(), processedArray);
+			}
+		}
+		else
+		{
+			Object propValue = initFormElementProperty(formElNodeForm, fe, formElementProperty, propertySpec, dal, component, componentNode, level, false);
+			String propName = propertySpec.getName();
+			switch (propertySpec.getType())
+			{
+				case dataprovider : // array of dataprovider is not supported yet (DAL does not support arrays)
+				{
+					Object dataproviderID = formElementProperty;
 					if (dataproviderID instanceof String)
 					{
-						dal.add(component, (String)dataproviderID, propName);
+						dal.add(component, (String)dataproviderID, level + propName);
 					}
 					break;
 				}
-				case tagstring :
+				case tagstring : // array of taggstring is not supported yet (DAL does not support arrays)
 				{
-					Object propValue = formElNodeProperties.get(prop);
 					//bind tag expressions
 					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
 					if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
 					{
-						dal.addTaggedProperty(component, propName); //SVY-6063 commment this line to see the dataprovider  of namepanel2 in acction
-					}
-					break;
-				}
-				case format :
-				{
-					Object propValue = formElNodeProperties.get(pd.getName());
-					if (propValue instanceof String)
-					{
-						// get dataproviderId
-						String dataproviderId = (String)formElNodeProperties.get(pd.getConfig());
-						ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
-							application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElNodeForm), application);
-						component.putProperty(propName, format);
-					}
-					break;
-				}
-				case bean :
-				{
-					Object propValue = formElNodeProperties.get(pd.getName());
-					if (propValue instanceof String)
-					{
-						component.putProperty(propName, ComponentFactory.getMarkupId(formElNodeForm.getName(), (String)propValue));
+						dal.addTaggedProperty(component, level + propName);
 					}
 					break;
 				}
 				case valuelist : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
 					break;
-				case custom :
-				{
-					Map<String, PropertyDescription> props = pd.getProperties();
-					//fillProperties(formElNodeForm, (Map<String, Object>)formElNodeProperties.get(propName), props, dal, component, propName + ".");
-					break;
-				}
-				default :
-				{
-					Object propValue = formElNodeProperties.get(pd.getName());
-					if (propValue != null) component.putProperty(propName, propValue); /* pd.getName() instead of propName */
-					break;
-				}
+			}
+			if (propValue != null) putInComponentNode(componentNode, propName, propValue); //TODO
+		}
+	}
 
+	/**
+	 * TEMPORARY FUNCTION until we move to nested web component tree , with each node having semantics (PropertyType)
+	 *  Webcomponent will be a tree 
+	 */
+	private void putInComponentNode(Object componentNode, String propName, Object propValue)
+	{
+		if (componentNode instanceof WebComponent)
+		{
+			((WebComponent)componentNode).putProperty(propName, propValue);
+		}
+		else
+		{
+			((Map)componentNode).put(propName, propValue);
+		}
+	}
+
+	/**
+	 *  TODO merge component and component node remove isarrayElement parameter
+	 * @return
+	 */
+	private Object initFormElementProperty(Form formElNodeForm, FormElement fe, Object formElementProperty, PropertyDescription propertySpec,
+		DataAdapterList dal, WebComponent component, Object componentNode, String level, boolean isArrayElement)
+	{
+		Object ret = null;
+		switch (propertySpec.getType())
+		{
+//			case dataprovider :
+//			{
+//				Object dataproviderID = formElementProperty;
+//				if (dataproviderID instanceof String)
+//				{
+//					return dataproviderID;
+//				}
+//				break;
+//			}
+//			case tagstring :
+//			{
+//				Object propValue = formElementProperty;
+//				//bind tag expressions
+//				//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
+//				if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
+//				{
+//					dal.addTaggedProperty(component, propName); 
+//				}
+//				break;
+//			}
+			case format :
+			{
+				Object propValue = formElementProperty;
+				if (propValue instanceof String)
+				{
+					// get dataproviderId
+					String dataproviderId = (String)fe.getProperties().get(propertySpec.getConfig());
+					ComponentFormat format = ComponentFormat.getComponentFormat((String)propValue, dataproviderId,
+						application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), formElNodeForm), application);
+					ret = format;
+				}
+				break;
+			}
+			case bean :
+			{
+				Object propValue = formElementProperty;
+				if (propValue instanceof String)
+				{
+					ret = ComponentFactory.getMarkupId(fe.getName(), (String)propValue);
+				}
+				break;
+			}
+			case valuelist : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
+				break;
+			case custom :
+			{
+				Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
+				Map<String, Object> newComponentNode = new HashMap<>();
+				//putInComponentNode(componentNode, propertySpec.getName(), newComponentNode); // TODO
+				for (String prop : props.keySet())
+				{
+					PropertyDescription localPropertyDescription = propertySpec.getProperty(prop);
+					String innerLevelpropName = level + propertySpec.getName();
+					fillProperties(formElNodeForm, fe, props.get(prop), localPropertyDescription, dal, component, newComponentNode, isArrayElement ? ""
+						: innerLevelpropName + ".");
+				}
+				ret = newComponentNode;
+				break;
+			}
+			default :
+			{
+				ret = formElementProperty;
 			}
 		}
+		return ret;
 	}
 
 

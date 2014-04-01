@@ -169,13 +169,13 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == PropertyType.custom);
 		Object config = pd.getConfig();
-		Assert.assertTrue(config instanceof WebComponentType);
+		Assert.assertTrue(config instanceof PropertyDescription);
 		Assert.assertFalse(pd.isArray());
 
-		WebComponentType wct = (WebComponentType)config;
+		PropertyDescription wct = (PropertyDescription)config;
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
-		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
+		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertTrue(pd2.getType() == PropertyType.string);
 		Assert.assertFalse(pd2.isArray());
@@ -192,13 +192,13 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd);
 		Assert.assertSame(PropertyType.custom, pd.getType());
 		Object config = pd.getConfig();
-		Assert.assertTrue(config instanceof WebComponentType);
+		Assert.assertTrue(config instanceof PropertyDescription);
 		Assert.assertTrue(pd.isArray());
 
-		WebComponentType wct = (WebComponentType)config;
+		PropertyDescription wct = (PropertyDescription)config;
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
-		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
+		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertTrue(pd2.getType() == PropertyType.string);
 		Assert.assertFalse(pd2.isArray());
@@ -216,13 +216,13 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == PropertyType.custom);
 		Object config = pd.getConfig();
-		Assert.assertTrue(config instanceof WebComponentType);
+		Assert.assertTrue(config instanceof PropertyDescription);
 		Assert.assertTrue(pd.isArray());
 
-		WebComponentType wct = (WebComponentType)config;
+		PropertyDescription wct = (PropertyDescription)config;
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
-		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
+		PropertyDescription pd2 = wct.getProperty("typeproperty");
 		Assert.assertNotNull(pd2);
 		Assert.assertTrue(pd2.getType() == PropertyType.string);
 		Assert.assertTrue(pd2.isArray());
@@ -240,10 +240,10 @@ public class WebComponentSpecTest
 		Assert.assertNotNull(pd);
 		Assert.assertTrue(pd.getType() == PropertyType.custom);
 		Object config = pd.getConfig();
-		Assert.assertTrue(config instanceof WebComponentType);
+		Assert.assertTrue(config instanceof PropertyDescription);
 		Assert.assertFalse(pd.isArray());
 
-		WebComponentType wct = (WebComponentType)config;
+		PropertyDescription wct = (PropertyDescription)config;
 		Assert.assertEquals("mytype", wct.getName());
 		Assert.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
@@ -252,11 +252,11 @@ public class WebComponentSpecTest
 		Assert.assertFalse(pd2.isArray());
 
 		config = pd2.getConfig();
-		WebComponentType wct2 = (WebComponentType)config;
-		Assert.assertTrue(config instanceof WebComponentType);
+		PropertyDescription wct2 = (PropertyDescription)config;
+		Assert.assertTrue(config instanceof PropertyDescription);
 		Assert.assertEquals("mytype2", wct2.getName());
 		Assert.assertEquals(1, wct2.getProperties().size());
-		PropertyDescription pd3 = wct2.getProperties().get("typeproperty");
+		PropertyDescription pd3 = wct2.getProperty("typeproperty");
 		Assert.assertNotNull(pd3);
 		Assert.assertTrue(pd3.getType() == PropertyType.string);
 		Assert.assertFalse(pd3.isArray());

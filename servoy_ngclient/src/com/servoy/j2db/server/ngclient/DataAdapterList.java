@@ -167,7 +167,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				{
 					JSONObject event = EventExecutor.createEvent(onDataChange);
 					Object returnValue = wc.execute(onDataChange, new Object[] { oldValue, value, event });
-					onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperties().get(property).getConfig()).getOnDataChangeCallback();
+					onDataChangeCallback = ((DataproviderConfig)wc.getFormElement().getWebComponentSpec().getProperty(property).getConfig()).getOnDataChangeCallback();
 					if (onDataChangeCallback != null)
 					{
 						wc.executeApi(new WebComponentApiDefinition(onDataChangeCallback), new Object[] { event, returnValue });
