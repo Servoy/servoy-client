@@ -31,6 +31,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.util.MimeTypes;
 
 /**
  * Provides the solution level CSS content to clients.
@@ -69,32 +70,34 @@ public class SolutionCSSServlet extends HttpServlet
 			if (client != null)
 			{
 
-				if (paths.length == 1)
+				if (paths.length > 1)
 				{
-					String styleSheet = client.getSolution().getStyleSheet();
-					if (styleSheet != null)
+					if ("svym.css".equals(paths[1]))
 					{
-						dataToReturn = getMediaCSS(client, styleSheet);
+						String styleSheet = client.getSolution().getStyleSheet();
+						if (styleSheet != null)
+						{
+							dataToReturn = getMediaCSS(client, styleSheet);
+						}
+						else
+						{
+							dataToReturn = "".getBytes(Charset.forName("UTF-8"));
+						}
 					}
 					else
 					{
-						dataToReturn = "".getBytes(Charset.forName("UTF-8"));
+						// probably an - @import "css/myOtherStyleSheet.css"; - in solution CSS
+						StringBuffer tmp = new StringBuffer();
+						for (int i = 1; i < paths.length - 1; i++)
+							tmp.append(paths[i]).append('/');
+						tmp.append(paths[paths.length - 1]);
+						dataToReturn = getMediaCSS(client, tmp.toString());
 					}
-				}
-				else
-				{
-					// probably an - @import "myOtherStyleSheet.css"; - in solution CSS
-					StringBuffer tmp = new StringBuffer();
-					for (int i = 1; i < paths.length - 1; i++)
-						tmp.append(paths[i]).append('/');
-					tmp.append(paths[paths.length - 1]);
-					dataToReturn = getMediaCSS(client, tmp.toString());
-				}
-
-				if (dataToReturn != null)
-				{
-					// add client uuid in case @import 'solution-css/a/b/myOtherStyleSheet.css' is used
-					dataToReturn = sendResponse(resp, dataToReturn, clientUUID);
+					if (dataToReturn != null)
+					{
+						// add client uuid in case @import 'solution-css/a/b/myOtherStyleSheet.css' is used
+						dataToReturn = sendResponse(resp, dataToReturn, clientUUID, paths[paths.length - 1].endsWith(".css"));
+					}
 				}
 			}
 		}
@@ -102,11 +105,9 @@ public class SolutionCSSServlet extends HttpServlet
 		if (dataToReturn == null) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 
-	private byte[] sendResponse(HttpServletResponse resp, byte[] dataToReturn, String clientUUID) throws IOException
+	private byte[] sendResponse(HttpServletResponse resp, byte[] dataToReturn, String clientUUID, boolean css) throws IOException
 	{
-		Charset utf8 = Charset.forName("UTF-8"); // TODO should we support others as well in the future?
-		dataToReturn = new String(dataToReturn, utf8).replace("solution-css/", clientUUID + "/").getBytes(utf8);
-		resp.setContentType("text/css");
+		resp.setContentType(css ? "text/css" : MimeTypes.getContentType(dataToReturn, null));
 		resp.setContentLength(dataToReturn.length);
 		ServletOutputStream outputStream = resp.getOutputStream();
 		outputStream.write(dataToReturn);
