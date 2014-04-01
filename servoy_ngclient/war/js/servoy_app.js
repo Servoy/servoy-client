@@ -214,12 +214,12 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        		{
 	        			if (call.args[0])
 	        			{
-	        				formState.model[call.bean].editableBeforeFindMode = formState.model[call.bean].editable;
-	        				formState.model[call.bean].editable = false;
+	        				formState.model[call.bean].readOnlyBeforeFindMode = formState.model[call.bean].readOnly;
+	        				formState.model[call.bean].readOnly = true;
 	        			}
 	        			else
 	        			{
-	        				formState.model[call.bean].editable = formState.model[call.bean].editableBeforeFindMode;
+	        				formState.model[call.bean].readOnly = formState.model[call.bean].readOnlyBeforeFindMode;
 	        			}
 	        			
 	        		}

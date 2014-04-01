@@ -8,6 +8,7 @@ model:
     lastNameDataprovider: 'dataprovider',
 	buttontext: 'string',
 	tooltiptext: 'string',
+	readOnly: 'boolean',
     firstNameFormat: {for:'firstNameDataprovider' , type:'format'}
 },
 handlers:
