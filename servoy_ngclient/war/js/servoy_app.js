@@ -37,16 +37,16 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
           		case 'location':
           			beanLayout.left = beanData[key].x+'px';
           			beanLayout.top = beanData[key].y+'px';
-                    anchorInfoChanged = anchorInfoChanged || (beanModel[key] == undefined) || (beanModel[key].x != beanData[key].x) || (beanModel[key].y != beanData[key].y);
+                    anchorInfoChanged = true;
           			break;
           			
           		case 'size': 
           			beanLayout.width = beanData[key].width+'px';
           			beanLayout.height = beanData[key].height+'px';
-          			anchorInfoChanged = anchorInfoChanged || (beanModel[key] == undefined) || (beanModel[key].width != beanData[key].width) || (beanModel[key].height != beanData[key].height);
+          			anchorInfoChanged = true;
           			break;
           		case 'anchors':
-          			anchorInfoChanged = anchorInfoChanged || (beanModel[key] == undefined) || (beanData[key] != beanModel[key]);
+          			anchorInfoChanged = true;
           			break;
           		case 'visible':
           			if (beanData[key] == false)
