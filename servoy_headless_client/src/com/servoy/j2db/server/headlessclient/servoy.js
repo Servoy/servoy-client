@@ -2314,15 +2314,18 @@ if (typeof(Servoy.Utils) == "undefined")
 	  
 	  doSelect: function(el) 
 	  {
-	  	if(Servoy.Utils.isChrome || Servoy.Utils.isSafari || Servoy.Utils.isFirefox)
-	  	{
-	  		var x= el;
-	  		setTimeout(function(){x.select();},0);
-	  	}
-	  	else
-	  	{
-	  		el.select();
-	  	}
+		  if (validationFailedId == null || validationFailedId == el.id)
+		  {
+			  if(Servoy.Utils.isChrome || Servoy.Utils.isSafari || Servoy.Utils.isFirefox)
+			  {
+				  var x= el;
+				  setTimeout(function(){x.select();},0);
+			  }
+			  else
+			  {
+				  el.select();
+			  }
+		  }
 	  },
 	  removeFormCssLink: function(id) 
 	  {
