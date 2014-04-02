@@ -320,7 +320,7 @@ public interface IBasicFormManager extends IFormManager
 	 * @param form
 	 * @param b
 	 */
-	public void addForm(Form form, boolean b);
+	public void addForm(Form form, boolean selected);
 
 	/**
 	 * @param formName
