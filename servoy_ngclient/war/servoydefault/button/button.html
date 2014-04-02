@@ -11,5 +11,6 @@
 		ng-click='handlers.onActionMethodID($event)'
 		svy-mnemonic='model.mnemonic' 
         ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic'
-        svy-textrotation ='model.textRotation'>
+        svy-textrotation ='model.textRotation'
+        svy-imagemediaid='model.imageMediaID'>
 </button>
