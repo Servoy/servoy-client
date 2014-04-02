@@ -462,6 +462,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	    		}
 	    	        }
 	    	    }
+	    	    if (changes.location || changes.size || changes.visible || changes.anchors) {
+	    	    	applyBeanData(formStates[formname].model[beanname], formStates[formname].layout[beanname], changes, formStates[formname].properties.size)
+	    	    }
+
 	    	    for (prop in changes) {
 	    	    	websocket.send(JSON.stringify({cmd:'datapush',formname:formname,beanname:beanname,changes:changes}))
 	    	    	return;
@@ -676,6 +680,3 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
     	})
 	};
 })
-
-
-

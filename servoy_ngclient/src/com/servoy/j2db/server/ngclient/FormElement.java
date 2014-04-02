@@ -148,7 +148,7 @@ public final class FormElement
 					// TODO should this be resolved way later on?
 					// if solution model then this form can change..
 					Form form = fs.getForm(containsFormID);
-					tabMap.put("containsFormId", form);
+					tabMap.put("containsFormId", form.getName());
 					tabList.add(tabMap);
 					active = false;
 				}
