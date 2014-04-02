@@ -286,7 +286,12 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		  }
 		  return $sce.trustAsHtml(input);;
 	 };
-}]).directive('svyFormstyle',  function () {
+}]).filter('mnemonicletterFilter', function($sce){  /* this filter is used for display only*/
+	  return function(input,letter) {
+		  return $sce.trustAsHtml(input.replace(letter, '<u>'+letter+'</u>'));
+	 };
+})
+.directive('svyFormstyle',  function () {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
@@ -313,40 +318,6 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	}
 	
     
-}).directive('svyMnemonic',  function ($document,$parse) {
-//usage  svy-mnemonic="{key:'model.mnemonic',callback:'handlers.onActionMethodID'}"
-	var mnemonics = { }
-
-	$document.on('keyup', function(e){
-		//stack of mnemonics with same key
-		var stack = mnemonics[String.fromCharCode(e.keyCode)]
-		if(stack && event.altKey && stack.length > 0){
-			cfg = stack[stack.length-1];
-			cfg.func.call(cfg.scope,e)
-		}
-    });
-	
-    return {
-        restrict: 'A',
-        controller: function ($scope, $element, $attrs) {
-        	var cfg = $parse($attrs.svyMnemonic)($scope);
-        	var key = $parse(cfg.key)($scope);
-        	if(key){
-        		key= key.toUpperCase();
-        		//stack of mnemonics with same key
-        		var stack = mnemonics[key];
-        		if(!stack)  {
-        			mnemonics[key] = stack = []
-        		}
-        		var func = $parse(cfg.callback)($scope)
-        		var stackEntry = {func:func,scope:$scope}
-        		stack.push(stackEntry)
-        		$scope.$on('$destroy', function() {
-        	           stack.splice(stack.indexOf(stackEntry),1) 
-        	    });
-        	}
-        }
-      }
 }).factory('$svyNGEvents', ['$timeout', '$rootScope', function($timeout, $rootScope) {
 	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 	 

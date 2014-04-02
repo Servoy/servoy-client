@@ -6,9 +6,10 @@
 	 ng-style="style"
      svy-margin='model.margin' 
      svy-font='model.fontType'
-     svy-mnemonic="{key:'model.mnemonic',callback:'handlers.onActionMethodID'}"
      svy-tooltip="{{model.toolTipText}}">
 <span  ng-style="bgstyle" 
-	   ng-bind='(model.dataProviderID == null && model.text || model.dataProviderID ) | formatFilter:model.format'
+	   ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic''
+	   accesskey= '{{model.mnemonic}}' 
+	   ng-click='handlers.onActionMethodID($event)'
  	   ></span>
  </label>

@@ -12,7 +12,8 @@ angular.module('svyLabel',['servoy'])
       restrict: 'E',
       transclude: true,
       scope: {
-      	model: "=svyModel"
+      	model: "=svyModel",
+      	handlers: "=svyHandlers"
       },
       link: function($scope, $element, $attrs) {
     	  
