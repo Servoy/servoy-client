@@ -53,7 +53,16 @@ describe('svyTabpanel component', function() {
 						text: "tab2",
 					   }
 				],
-				transparent: true
+				transparent: true,
+				location: {
+					x: 0,
+					y:0
+				},
+				size: {
+					width: 640,
+					height: 480
+				},
+				name: 'tabs'
 			}
 	}
     var apiMock ={
@@ -166,7 +175,22 @@ describe('svyTabpanel component', function() {
         
         expect(iscope.api.getTabTextAt(3)).toBe('Third tab text');
         expect(iscope.api.getTabTextAt(4)).toBe('Fourth tab text');
-
+		
+		iscope.api.setTabEnabledAt(3,true);
+		iscope.api.setTabEnabledAt(4,false);
+		expect(iscope.api.isTabEnabledAt(3)).toBe(true);
+		expect(iscope.api.isTabEnabledAt(4)).toBe(false);
+		
+		iscope.api.setSize(200,300);
+		expect(iscope.api.getWidth()).toBe(200);
+		expect(iscope.api.getHeight()).toBe(300);
+		
+		iscope.api.setLocation(100,150)
+		expect(iscope.api.getLocationX()).toBe(100)
+		expect(iscope.api.getLocationY()).toBe(150)
+		
+		expect(iscope.api.getName()).toBe('tabs');
+		
         iscope.api.removeTabAt(1);
         expect(iscope.api.getTabNameAt(2)).toBe('vTab3');
         iscope.api.removeTabAt(1);
@@ -178,6 +202,8 @@ describe('svyTabpanel component', function() {
         expect(iscope.api.getMaxTabIndex()).toBe(0);
         
         expect($scope.model.tabs.tabIndex).toBe(-1);
+		
+		
   	});
 
 }); 
