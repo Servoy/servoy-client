@@ -9,5 +9,5 @@
 	   ng-disabled="model.enabled == false"
 	   ng-readonly="model.editable == false"
        ng-model="editModel" 
-       svy-tooltip="{{model.toolTipText}}"
+       svy-tooltip="model.toolTipText"
        ng-blur="pushChange()" id="{{model.markupId}}"/>

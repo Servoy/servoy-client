@@ -151,11 +151,11 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 		}  
 	}
 })
-.directive('svyTooltip', function ($svyTooltipUtils) {
+.directive('svyTooltip', function ($parse,$svyTooltipUtils) {
 	return {
 		restrict: 'A',
         link: function (scope, element, attrs) {
-        	var tooltip = attrs['svyTooltip'];
+        	var tooltip =  $parse(attrs['svyTooltip']);
         	if(tooltip && tooltip.length > 0) {
 		        element.bind('mouseover', function(event) {
 		        	$svyTooltipUtils.showTooltip(event, tooltip, 750, 5000);

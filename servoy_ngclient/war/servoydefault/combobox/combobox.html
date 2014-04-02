@@ -4,7 +4,7 @@
 		svy-margin='isSelect2 ? model.margin : ""'
 		ng-style='style'
 		ng-disabled='isSelect2 ? (model.enabled == false) : false'
-		svy-tooltip='{{isSelect2 ? model.toolTipText : ""}}'
+		svy-tooltip='isSelect2 ? model.toolTipText : ""'
 		svy-font='isSelect2 ? model.fontType : ""'>
 
 	<select svy-border='model.borderType'
@@ -15,7 +15,7 @@
 			ng-disabled='model.enabled == false'
 			svy-font='model.fontType'
 			svy-tabseq='model.tabSeq'
-			svy-tooltip='{{model.toolTipText}}'
+			svy-tooltip='model.toolTipText'
 			ng-class='customClasses'
 			ng-style='style'
 			ng-model='model.dataProviderID'

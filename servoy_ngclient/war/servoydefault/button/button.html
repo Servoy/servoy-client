@@ -9,6 +9,7 @@
 		ng-disabled='model.enabled == false' 
 		svy-tooltip='{{model.toolTipText}}'
 		ng-click='handlers.onActionMethodID($event)'
-		accesskey="{{model.mnemonic}}"
-        ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic'>
+		svy-mnemonic='model.mnemonic' 
+        ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic'
+        svy-textrotation ='model.textRotation'>
 </button>

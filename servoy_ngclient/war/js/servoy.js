@@ -246,6 +246,66 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
          }
     }
 })
+.directive('svyMnemonic',  function ($utils,$parse) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	var letter= $parse(attrs.svyMnemonic)(scope);
+        	if(letter){ //only design time property, no watch
+                element.attr('accesskey',letter);
+        	}
+         }
+    }
+})
+.directive('svyImagemediaid',  function ($utils,$parse) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {        	
+        	scope.$watch(attrs.svyImagemediaid,function(newVal){
+        		if(newVal){
+          		  var bgstyle = {};
+        		  bgstyle['background-image'] = "url('" + newVal + "')"; 
+        		  bgstyle['background-repeat'] = "no-repeat";
+        		  bgstyle['background-position'] = "left";
+        		  bgstyle['background-size'] = "contain";
+        		  bgstyle['display'] = "inline-block";
+        		  bgstyle['vertical-align'] = "middle";     //  TODO is display and vertical-align only for bg image?
+        		  element.css(bgstyle)
+        		}else{
+        			element.css('background-image','');
+        		}        		
+        	})
+         }
+    }
+})
+.directive('svyTextrotation',  function ($utils,$parse) {
+	// DESIGN TIME ONLY
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {  
+        	var rotation= $parse(attrs.svyTextrotation)(scope);
+            if (rotation && rotation != 0)
+            {
+          	  var r = 'rotate(' + rotation + 'deg)';
+          	  var style ={}
+          	  style['-moz-transform'] = r;
+          	  style['-webkit-transform'] = r;
+          	  style['-o-transform'] = r;
+          	  style['-ms-transform'] = r;
+          	  style['transform'] = r;
+          	  style['position'] = 'absolute';
+          	  if (rotation == 90 || rotation == 270)
+          	  {
+          		 style['width'] = scope.model.size.height+'px';
+          	     style['height'] = scope.model.size.width+'px';
+          		 style['left'] =  (scope.model.size.width -scope.model.size.height)/2 +'px';
+          		 style['top'] = (scope.model.size.height -scope.model.size.width)/2 +'px';
+          	  }
+          	  element.css(style);
+            }
+         }
+    }
+})
 .directive('svyTabseq',  function () {
 	return {
 		restrict: 'A',
@@ -298,7 +358,9 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	 };
 }]).filter('mnemonicletterFilter', function($sce){  /* this filter is used for display only*/
 	  return function(input,letter) {
-		  return $sce.trustAsHtml(input.replace(letter, '<u>'+letter+'</u>'));
+		  if(letter && input) return $sce.trustAsHtml(input.replace(letter, '<u>'+letter+'</u>'));
+		  if(input) {return $sce.trustAsHtml(''+input);}
+		  return input
 	 };
 })
 .directive('svyFormstyle',  function () {

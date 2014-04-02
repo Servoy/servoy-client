@@ -10,7 +10,7 @@
        ng-model="model.dataProviderID"
        ng-disabled="model.enabled == false"
        ng-readonly="model.editable == false"  
-       svy-tooltip="{{model.toolTipText}}"
+       svy-tooltip='model.toolTipText'
        placeholder="{{model.placeholderText}}"
        svy-autoapply  
        svy-format="findMode ? '' : model.format"
