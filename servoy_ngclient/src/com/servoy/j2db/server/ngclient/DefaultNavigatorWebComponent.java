@@ -40,7 +40,7 @@ public class DefaultNavigatorWebComponent extends WebComponent implements IFound
 	 */
 	public DefaultNavigatorWebComponent(IDataAdapterList dataAdapterList)
 	{
-		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, null), dataAdapterList);
+		super(DefaultNavigator.NAME_PROP_VALUE, new FormElement(DefaultNavigator.INSTANCE, null), dataAdapterList, null);
 	}
 
 

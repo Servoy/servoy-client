@@ -246,6 +246,16 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
          }
     }
 })
+.directive('svyTabseq',  function () {
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			scope.$watch(attrs.svyTabseq,function(newVal){
+				element.attr('tabIndex',newVal ? newVal : 0);
+			})
+		}
+	};
+})
 .factory("$apifunctions", function (){
 	
 	return {

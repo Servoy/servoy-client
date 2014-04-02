@@ -9,6 +9,6 @@
   <div ng-repeat="item in model.valuelistID | filter:notNull('realValue')"  svy-tooltip="{{model.toolTipText}}">
      <input 
           type="radio" ng-model="model.dataProviderID"  ng-value="item.realValue"  
-          ng-change="handlers.svy_apply('dataProviderID')" ng-disabled="model.enabled == false" ng-readonly="model.editable == false" /> {{item.displayValue}}
+          ng-change="handlers.svy_apply('dataProviderID')" ng-disabled="model.enabled == false" ng-readonly="model.editable == false" svy-tabseq='model.tabSeq'/> {{item.displayValue}}
   </div>
 </div>

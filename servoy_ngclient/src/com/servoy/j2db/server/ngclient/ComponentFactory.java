@@ -52,12 +52,12 @@ import com.servoy.j2db.util.Utils;
  */
 public class ComponentFactory
 {
-	public static WebComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe)
+	public static WebComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe, IWebFormUI formUI)
 	{
 		String name = fe.getName();
 		if (name != null)
 		{
-			WebComponent webComponent = new WebComponent(name, fe, dataAdapterList);
+			WebComponent webComponent = new WebComponent(name, fe, dataAdapterList, formUI);
 			Map<String, PropertyDescription> valuelistProps = fe.getWebComponentSpec().getProperties(PropertyType.valuelist);
 			for (PropertyDescription vlProp : valuelistProps.values())
 			{

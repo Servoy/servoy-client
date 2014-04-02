@@ -59,4 +59,8 @@ public interface IWebFormUI extends IBasicFormUI, IView
 
 	void setReadOnly(boolean readOnly);
 
+	int recalculateTabIndex(int startIndex, WebComponent startComponent);
+
+	void setParentContainer(WebComponent parentContainer);
+
 }

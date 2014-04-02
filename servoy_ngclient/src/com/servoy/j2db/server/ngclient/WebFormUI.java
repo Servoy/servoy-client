@@ -9,6 +9,7 @@ import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,10 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ISupportTabSeq;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
@@ -37,7 +41,9 @@ import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 public class WebFormUI extends WebComponent implements IWebFormUI
 {
@@ -47,6 +53,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	private boolean enabled = true;
 	private boolean readOnly = false;
+	private WebComponent parentContainer;
 
 	public WebFormUI(IFormController formController)
 	{
@@ -76,7 +83,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		{
 			WebComponentSpec componentSpec = fe.getWebComponentSpec();
 
-			WebComponent component = ComponentFactory.createComponent(application, dal, fe);
+			WebComponent component = ComponentFactory.createComponent(application, dal, fe, this);
 			if (!fe.getName().startsWith("svy_"))
 			{
 				RuntimeWebComponent runtimeComponent = new RuntimeWebComponent(component, componentSpec);
@@ -479,6 +486,72 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				}
 			}
 		}
+	}
+
+	@Override
+	public int recalculateTabIndex(int startIndex, WebComponent startComponent)
+	{
+		int currentIndex = startIndex;
+		List<WebComponent> tabSeqComponents = getTabSeqComponents();
+		int startIndexInList = 0;
+		if (startComponent != null)
+		{
+			startIndexInList = tabSeqComponents.indexOf(startComponent);
+		}
+		for (int i = Math.max(0, startIndexInList); i < tabSeqComponents.size(); i++)
+		{
+			currentIndex = tabSeqComponents.get(i).setCalculatedTabSequence(currentIndex);
+		}
+		if (startComponent != null && parentContainer != null)
+		{
+			// upwards traversal
+			parentContainer.recalculateTabSequence(currentIndex);
+		}
+		return currentIndex;
+	}
+
+	private List<WebComponent> getTabSeqComponents()
+	{
+		SortedList<WebComponent> tabSeqComponents = new SortedList<WebComponent>(new Comparator<WebComponent>()
+		{
+			@Override
+			public int compare(WebComponent o1, WebComponent o2)
+			{
+				int seq1 = Utils.getAsInteger(o1.getInitialProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+				int seq2 = Utils.getAsInteger(o2.getInitialProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+
+				if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
+				{
+					//delegate to Yx
+					int yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(o1.getFormElement().getPersist(), o2.getFormElement().getPersist());
+					// if they are at the same position, and are different persist, just use UUID to decide the sequence
+					return yxCompare == 0 ? o1.getFormElement().getPersist().getUUID().compareTo(o2.getFormElement().getPersist().getUUID()) : yxCompare;
+				}
+				else if (seq1 == ISupportTabSeq.DEFAULT)
+				{
+					return 1;
+				}
+				else if (seq2 == ISupportTabSeq.DEFAULT)
+				{
+					return -1;
+				}
+				return seq1 - seq2;
+			}
+
+		});
+		for (WebComponent comp : components.values())
+		{
+			if (Utils.getAsInteger(comp.getInitialProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName())) >= 0)
+			{
+				tabSeqComponents.add(comp);
+			}
+		}
+		return tabSeqComponents;
+	}
+
+	public void setParentContainer(WebComponent parentContainer)
+	{
+		this.parentContainer = parentContainer;
 	}
 
 	/*

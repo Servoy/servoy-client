@@ -1,9 +1,11 @@
 package com.servoy.j2db.server.ngclient;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,6 +19,7 @@ import org.json.JSONObject;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -31,22 +34,29 @@ public class WebComponent implements ListDataListener
 
 	private final Set<String> changedProperties = new HashSet<>(3);
 	private final FormElement formElement;
+	private final IWebFormUI parentForm;
+	private final List<IWebFormUI> visibleForms = new ArrayList<IWebFormUI>();
+	private int calculatedTabSequence;
+	private int nextAvailableTabSequence;
 
 	protected WebComponent(String name, Form form)
 	{
-		this(name, new FormElement(form), null);
+		this(name, new FormElement(form), null, null);
 	}
 
-	public WebComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
+	public WebComponent(String name, FormElement fe, IDataAdapterList dataAdapterList, IWebFormUI parentForm)
 	{
 		this.name = name;
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
+		this.parentForm = parentForm;
 		properties.put("name", name);
 		if (fe.getLabel() != null)
 		{
 			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
 		}
+		calculatedTabSequence = Utils.getAsInteger(fe.getProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+		nextAvailableTabSequence = calculatedTabSequence + 1;
 	}
 
 	/**
@@ -271,5 +281,49 @@ public class WebComponent implements ListDataListener
 				changedProperties.add(entry.getKey());
 			}
 		}
+	}
+
+	public void updateVisibleForm(IWebFormUI form, boolean visible)
+	{
+		if (!visible)
+		{
+			visibleForms.remove(form);
+			form.setParentContainer(null);
+		}
+		else if (!visibleForms.contains(form))
+		{
+			form.setParentContainer(this);
+			visibleForms.add(form);
+			int maxTabIndex = form.recalculateTabIndex(calculatedTabSequence, null);
+			if (maxTabIndex > nextAvailableTabSequence)
+			{
+				nextAvailableTabSequence = maxTabIndex;
+				// go up in the tree
+				if (parentForm != null)
+				{
+					parentForm.recalculateTabIndex(maxTabIndex, this);
+				}
+			}
+		}
+	}
+
+	public void recalculateTabSequence(int availableSequence)
+	{
+		if (nextAvailableTabSequence < availableSequence)
+		{
+			// go up in the tree
+			if (parentForm != null)
+			{
+				parentForm.recalculateTabIndex(availableSequence, this);
+			}
+		}
+	}
+
+	public int setCalculatedTabSequence(int tabSequence)
+	{
+		this.calculatedTabSequence = tabSequence;
+		this.nextAvailableTabSequence = calculatedTabSequence + 1;
+		putProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), Integer.valueOf(calculatedTabSequence));
+		return nextAvailableTabSequence;
 	}
 }

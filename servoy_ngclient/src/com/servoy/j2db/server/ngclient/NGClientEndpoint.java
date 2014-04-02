@@ -467,14 +467,23 @@ public class NGClientEndpoint implements INGClientEndpoint
 								response = new JSONStringer().object().key("cmsgid").value(obj.get("cmsgid"));
 								IWebFormController form = parseForm(obj);
 								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-								boolean ok = form.notifyVisible(obj.getBoolean("visible"), invokeLaterRunnables);
+								boolean isVisible = obj.getBoolean("visible");
+								boolean ok = form.notifyVisible(isVisible, invokeLaterRunnables);
 								Utils.invokeLater(client, invokeLaterRunnables);
-								if (ok && obj.has("relation") && !obj.isNull("relation"))
+								if (ok)
 								{
 									IWebFormController parentForm = client.getFormManager().getForm(obj.getString("parentForm"));
-									FoundSet parentFs = parentForm.getFormModel();
-									IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
-									form.loadRecords(selectedRecord.getRelatedFoundSet(obj.getString("relation")));
+									WebComponent containerComponent = parentForm.getFormUI().getWebComponent(obj.getString("bean"));
+									if (containerComponent != null)
+									{
+										containerComponent.updateVisibleForm(form.getFormUI(), isVisible);
+									}
+									if (obj.has("relation") && !obj.isNull("relation"))
+									{
+										FoundSet parentFs = parentForm.getFormModel();
+										IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
+										form.loadRecords(selectedRecord.getRelatedFoundSet(obj.getString("relation")));
+									}
 								}
 								response.key("ret").value(ok);
 							}

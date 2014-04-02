@@ -10,5 +10,6 @@
 	   ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic''
  	   accesskey= '{{model.mnemonic}}' 
  	   ng-click='handlers.onActionMethodID($event)'
+	   svy-tabseq='model.tabSeq'
  	   ></span>
  </div>

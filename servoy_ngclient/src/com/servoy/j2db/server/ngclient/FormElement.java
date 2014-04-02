@@ -282,6 +282,11 @@ public final class FormElement
 		return (Form)parent;
 	}
 
+	public IPersist getPersist()
+	{
+		return persist;
+	}
+
 	/**
 	 * @return
 	 */
