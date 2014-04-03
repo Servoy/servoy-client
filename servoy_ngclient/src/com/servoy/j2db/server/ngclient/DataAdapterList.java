@@ -47,6 +47,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final INGApplication application;
 	private final IFormController formController;
 	private final EventExecutor executor;
+	private final InlineScriptExecutor inlineScriptExecutor;
 
 	private IRecordInternal record;
 	private boolean findMode;
@@ -56,6 +57,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		this.application = application;
 		this.formController = formController;
 		this.executor = new EventExecutor(application, formController);
+		this.inlineScriptExecutor = new InlineScriptExecutor(formController);
 	}
 
 	/*
@@ -80,6 +82,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
 		return application.getActiveWebSocketClientEndpoint().executeApi(apiDefinition, formController.getName(), elementName, args);
+	}
+
+	@Override
+	public Object executeInlineScript(String script, JSONObject args)
+	{
+		return inlineScriptExecutor.eval(script, args);
 	}
 
 	public void add(WebComponent component, Map<String, String> hm)
@@ -334,6 +342,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			// TODO should globals or formscope be checked for that variable? (currently the conversion will be done in the put(String,value) of the scope itself.
 			int columnType = record.getParentFoundSet().getTable().getColumnType(dataproviderID);
 			if (columnType == IColumnTypeConstants.DATETIME && propertyValue instanceof Long) return new Date(((Long)propertyValue).longValue());
+
+			if (((DataproviderConfig)fe.getWebComponentSpec().getProperty(propertyName).getConfig()).hasParseHtml())
+			{
+				return inlineScriptExecutor.updateScripts(propertyValue.toString());
+			}
+
 			return propertyValue;
 		}
 		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), application.getFlattenedSolution());

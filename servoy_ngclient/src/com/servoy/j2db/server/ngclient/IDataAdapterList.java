@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import org.json.JSONObject;
+
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 
@@ -53,6 +55,13 @@ public interface IDataAdapterList extends IDataConverter
 	 * @return
 	 */
 	Object executeApi(WebComponentApiDefinition apiDefinition, String elementName, Object[] args);
+
+	/**
+	 * @param script
+	 * @param args
+	 * @return
+	 */
+	Object executeInlineScript(String script, JSONObject args);
 
 	/**
 	 * @param record

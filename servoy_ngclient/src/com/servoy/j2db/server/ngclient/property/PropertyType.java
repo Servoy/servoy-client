@@ -97,11 +97,13 @@ public enum PropertyType
 	{
 		private final String onDataChange;
 		private final String onDataChangeCallback;
+		private final boolean parseHtml;
 
-		public DataproviderConfig(String onDataChange, String onDataChangeCallback)
+		public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml)
 		{
 			this.onDataChange = onDataChange;
 			this.onDataChangeCallback = onDataChangeCallback;
+			this.parseHtml = parseHtml;
 		}
 
 		public String getOnDataChange()
@@ -112,6 +114,11 @@ public enum PropertyType
 		public String getOnDataChangeCallback()
 		{
 			return onDataChangeCallback;
+		}
+
+		public boolean hasParseHtml()
+		{
+			return parseHtml;
 		}
 	}
 

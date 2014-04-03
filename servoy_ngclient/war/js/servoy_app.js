@@ -463,7 +463,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	        }
 	    	    }
 	    	    if (changes.location || changes.size || changes.visible || changes.anchors) {
-	    	    	applyBeanData(formStates[formname].model[beanname], formStates[formname].layout[beanname], changes, formStates[formname].properties.size)
+	    	    	var beanLayout = formStates[formname].layout[beanname];
+	    	    	if(beanLayout) {
+	    	    		applyBeanData(formStates[formname].model[beanname], beanLayout, changes, formStates[formname].properties.size)	
+	    	    	}
 	    	    }
 
 	    	    for (prop in changes) {
@@ -679,4 +682,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
     		}
     	})
 	};
+}).run(function($window, $servoyInternal) {
+	$window.executeInlineScript = function(formname, script, params) {
+		$servoyInternal.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params})
+	}
 })

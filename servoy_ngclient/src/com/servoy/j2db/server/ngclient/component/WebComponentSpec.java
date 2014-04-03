@@ -387,6 +387,7 @@ public class WebComponentSpec extends PropertyDescription
 	{
 		String onDataChange = null;
 		String onDataChangeCallback = null;
+		boolean hasParseHtml = false;
 		if (json != null)
 		{
 			JSONObject onDataChangeObj = json.optJSONObject("ondatachange");
@@ -395,9 +396,10 @@ public class WebComponentSpec extends PropertyDescription
 				onDataChange = onDataChangeObj.optString("onchange", null);
 				onDataChangeCallback = onDataChangeObj.optString("callback", null);
 			}
+			hasParseHtml = json.optBoolean("parsehtml");
 		}
 
-		return new DataproviderConfig(onDataChange, onDataChangeCallback);
+		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml);
 	}
 
 	private static Boolean parseFunctionConfig(JSONObject json)

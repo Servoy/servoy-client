@@ -52,6 +52,8 @@ import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.SecuritySupport;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -657,6 +659,20 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				String formName = args.optString("formname");
 				IWebFormUI form = getForm(formName).getFormUI();
 				form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"));
+				break;
+			}
+			case "executeInlineScript" :
+			{
+				try
+				{
+					String formName = SecuritySupport.decrypt(Settings.getInstance(), args.optString("formname"));
+					IWebFormUI form = getForm(formName).getFormUI();
+					form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"));
+				}
+				catch (Exception ex)
+				{
+					Debug.error("Cannot execute inline script", ex);
+				}
 				break;
 			}
 		}
