@@ -1,4 +1,5 @@
-<div ng-click="radioClicked()" 
+<label class='svy-check-radio'
+	 ng-click="radioClicked()" 
      ng-hide = "model.valuelistID == null || model.valuelistID[0] == null" 
 	 ng-class='model.styleClass ? model.styleClass : "radio"'
      ng-style="style" 
@@ -16,4 +17,4 @@
 		 svy-tabseq='model.tabSeq'
 		/>
   <span ng-bind="model.text" svy-font="model.fontType"/>
-</div>
+</label>

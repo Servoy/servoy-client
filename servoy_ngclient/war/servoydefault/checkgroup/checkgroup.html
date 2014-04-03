@@ -6,9 +6,14 @@
 	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
 	 svy-font='model.fontType'
      ng-style="style" svy-tooltip='model.toolTipText' >
-  <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')">
-     <input 
-          type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" ng-click="checkBoxClicked($index)" ng-disabled="model.enabled == false" ng-readonly="model.editable == false" svy-tabseq='model.tabSeq'/> {{item.displayValue}}
-  </div>
+  <label class='svy-check-radio-group'
+  		 ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')"
+  		 ng-click="checkBoxClicked($index)">
+     <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
+           ng-disabled="model.enabled == false" 
+          ng-readonly="model.editable == false" svy-tabseq='model.tabSeq'
+           />
+     <span ng-bind='item.displayValue'></span>
+  </label>
 </div>
     

@@ -24,3 +24,11 @@ input[type=date] {
 	left:0px;
 	top:0px;
 }
+/*align labels for radios and check groups with input element*/
+label.svy-check-radio{
+	display:block;
+}
+
+label.svy-check-radio span{
+	vertical-align: text-bottom;
+}

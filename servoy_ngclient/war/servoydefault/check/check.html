@@ -1,17 +1,18 @@
-<div ng-click="checkBoxClicked()"  
+<label class='svy-check-radio' 
+	 ng-click="checkBoxClicked()"  
 	 ng-style="style" 
 	 ng-class='model.styleClass ? model.styleClass : "checkbox"'
      svy-border="model.borderType" 
  	 svy-background="model.transparent ? 'transparent' : model.background" 
  	 svy-foreground="model.foreground" 
  	 svy-tooltip='model.toolTipText'>
-  <input type="checkbox"
-	    ng-model ="selection"
-	    ng-disabled="model.enabled == false"
-	    ng-readonly="model.editable == false" 
-		svy-margin="model.margin"
-		svy-tabseq='model.tabSeq'
-		svy-scrollbars="model.scrollbars" id="{{model.markupId}}"
-		/>
-  <span ng-bind="model.text" svy-font="model.fontType"/>
-</div>
+	<input type="checkbox"
+		    ng-model ="selection"
+		    ng-disabled="model.enabled == false"
+		    ng-readonly="model.editable == false" 
+			svy-margin="model.margin"
+			svy-tabseq='model.tabSeq'
+			svy-scrollbars="model.scrollbars" id="{{model.markupId}}"
+			/>
+	 <span ng-bind="model.text" svy-font="model.fontType"/>
+</label>
