@@ -6,7 +6,7 @@
 	 ng-class='model.styleClass ? model.styleClass : "form-control input-sm svy-padding-xs"'
 	 svy-font='model.fontType'
      ng-style="style" svy-tooltip='model.toolTipText' >
-  <label class='svy-check-radio-group'
+  <label class='svy-check-radio'
   		 ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')"
   		 ng-click="checkBoxClicked($index)">
      <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
