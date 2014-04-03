@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.server.shared;
 
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Map;
 import java.util.Properties;
@@ -108,8 +107,6 @@ public interface IApplicationServerSingleton
 	IDeveloperRepository getDeveloperRepository();
 
 	IServerManagerInternal getServerManager();
-
-	int updateAppServerFromSerclipse(File parentFile, int version, int releaseNumber, ActionListener listener) throws Exception;
 
 	IXMLExporter createXMLExporter(AbstractRepository repository, IUserManager ssm, IXMLExportUserChannel userChannel, Properties properties,
 		IDataServer sqlEngine, String clientID, IXMLExportI18NHelper i18nHelper);
