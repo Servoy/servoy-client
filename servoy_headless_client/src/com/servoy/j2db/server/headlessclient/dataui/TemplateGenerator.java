@@ -494,6 +494,7 @@ public class TemplateGenerator
 			html.append('\n');
 			boolean sortable = true;
 			boolean shouldFillAllHorizSpace = false;
+			boolean userCssClassAdded[] = new boolean[] { false };
 			if (obj instanceof ISupportScrollbars)
 			{
 				int scrollbars = ((ISupportScrollbars)obj).getScrollbars();
@@ -556,7 +557,7 @@ public class TemplateGenerator
 				html.append("<div style='overflow: auto' ");
 				html.append(getWicketIDParameter(form, p));
 //				html.append(getJavaScriptIDParameter(p));
-				html.append(getCssClassForElement(obj, "portal"));
+				html.append(getCssClassForElement(obj, userCssClassAdded, "portal"));
 				html.append("><span servoy:id='info'></span>\n<table cellpadding='0' cellspacing='0' class='portal'>\n");//$NON-NLS-1$ 
 			}
 
@@ -1923,11 +1924,11 @@ public class TemplateGenerator
 	 */
 	private static String getCssClassForElementHelper(AbstractBase comp, boolean[] alreadyAdded)
 	{
-		if (!(comp instanceof BaseComponent)) return "";
+		if (!(comp instanceof BaseComponent || comp instanceof Form)) return "";
 		if ("true".equals(Settings.getInstance().getProperty("servoy.webclient.pushClassToHTMLElement", "false")) && alreadyAdded != null && !alreadyAdded[0])
 		{
 			if (alreadyAdded != null) alreadyAdded[0] = true;
-			String className = ((BaseComponent)comp).getStyleClass();
+			String className = comp instanceof BaseComponent ? ((BaseComponent)comp).getStyleClass() : ((Form)comp).getStyleClass();
 			return (className != null ? className : "");
 		}
 		return "";
@@ -2024,7 +2025,8 @@ public class TemplateGenerator
 		html.append(getWicketIDParameter(form, tabPanel));
 		String tabPanelCssClass = "tabpanel";
 		if (!tabPanel.getTransparent()) tabPanelCssClass = "opaquecontainer " + tabPanelCssClass;
-		html.append(getCssClassForElement(tabPanel, tabPanelCssClass));
+		boolean userCssClassAdded[] = new boolean[] { false };
+		html.append(getCssClassForElement(tabPanel, userCssClassAdded, tabPanelCssClass));
 		if (isSplitPane) html.append(" style='overflow: hidden;' ");
 		html.append(">\n");
 		boolean isTabbedTabPanel = false;
