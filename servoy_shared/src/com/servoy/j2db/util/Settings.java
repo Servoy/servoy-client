@@ -58,8 +58,6 @@ public final class Settings extends SortedProperties
 	public static final int INITIAL_CLIENT_WIDTH = 800;
 	public static final int INITIAL_CLIENT_HEIGHT = 600;
 
-	public static final String ENHANCED_SECURITY_SETTING = "servoy.application_server.enhancedSecurity";
-	public static final boolean ENHANCED_SECURITY_DEFAULT = true;
 	public static final String TRUSTED_REMOTE_PLUGINS = "servoy.application_server.trustedRemotePlugins";
 	public static final String START_AS_TEAMPROVIDER_SETTING = "servoy.application_server.startRepositoryAsTeamProvider";
 	public static final boolean START_AS_TEAMPROVIDER_DEFAULT = false;

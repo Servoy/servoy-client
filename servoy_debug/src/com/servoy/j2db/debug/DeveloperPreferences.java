@@ -18,7 +18,6 @@ package com.servoy.j2db.debug;
 
 import java.util.Properties;
 
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -40,16 +39,6 @@ public class DeveloperPreferences
 	public DeveloperPreferences(Properties settings)
 	{
 		this.settings = settings;
-	}
-
-	public boolean getEnhancedSecurity()
-	{
-		return Utils.getAsBoolean(settings.getProperty(Settings.ENHANCED_SECURITY_SETTING, String.valueOf(Settings.ENHANCED_SECURITY_DEFAULT)));
-	}
-
-	public void setEnhancedSecurity(boolean enhancedSecurity)
-	{
-		settings.setProperty(Settings.ENHANCED_SECURITY_SETTING, String.valueOf(enhancedSecurity));
 	}
 
 	public boolean getUseDummyAuth()
