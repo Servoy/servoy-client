@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.util;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -24,6 +25,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HTTPUtils
 {
+	public static final String IF_MODIFIED_SINCE = "If-Modified-Since"; //$NON-NLS-1$
+	public static final String LAST_MODIFIED = "Last-Modified"; //$NON-NLS-1$
+
 	/**
 	 * This method tries to make peace between different browsers, versions and browser bugs for no-caching response headers.<br>
 	 * It will set response headers to prevent the response from being cached.
@@ -70,4 +74,21 @@ public class HTTPUtils
 //		response.setDateHeader("Expires", System.currentTimeMillis() + 5000);//$NON-NLS-1$ // works except for when system clocks are out of sync or when you do the operation in less then 5 secs.
 	}
 
+	/**
+	 * Checks if a requested resource has been modified or not. It will also set the "Last-Modified" header in response.<br><br>
+	 * If it has not been modified, it will return true and set response status HttpServletResponse.SC_NOT_MODIFIED.
+	 * If it has been modified or request didn't want to use this check it will just return false.
+	 * @param lastModifiedTime the last modification time (millis) of the requested resource.
+	 */
+	public static boolean checkAndSetUnmodified(HttpServletRequest servletRequest, HttpServletResponse servletResponse, long lastModifiedTime)
+	{
+		servletResponse.setDateHeader(LAST_MODIFIED, lastModifiedTime);
+		long lm = servletRequest.getDateHeader(IF_MODIFIED_SINCE);
+		if (lm != -1 && lm == lastModifiedTime)
+		{
+			servletResponse.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+			return true;
+		}
+		return false;
+	}
 }

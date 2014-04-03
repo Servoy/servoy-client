@@ -960,18 +960,18 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * The custom CSS used by the solution (a MEDIA lib entry). It can reference other media resources (even additional .css though '@import').
+	 * The custom CSS used by the solution (a MEDIA lib entry). It can reference other media resources (even additional .css through relative '@import' statements).
 	 * For NGClient - this CSS will be available directly in the browser.
 	 */
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
-	public String getStyleSheet()
+	public int getStyleSheetID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET);
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET).intValue();
 	}
 
-	public void setStyleSheet(String style)
+	public void setStyleSheetID(int styleSheetMediaID)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET, style);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET, Integer.valueOf(styleSheetMediaID));
 	}
 
 	/**

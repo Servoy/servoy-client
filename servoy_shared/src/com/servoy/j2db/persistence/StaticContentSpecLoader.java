@@ -241,7 +241,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_SCOPENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SCOPENAME);
 	public static final TypedProperty<String> PROPERTY_SEPARATOR = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SEPARATOR);
 	public static final TypedProperty<String> PROPERTY_SORTOPTIONS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SORTOPTIONS);
-	public static final TypedProperty<String> PROPERTY_STYLESHEET = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLESHEET);
+	public static final TypedProperty<Integer> PROPERTY_STYLESHEET = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_STYLESHEET);
 	public static final TypedProperty<String> PROPERTY_STYLECLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLECLASS);
 	public static final TypedProperty<String> PROPERTY_STYLENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLENAME);
 	public static final TypedProperty<String> PROPERTY_TEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TEXT);
@@ -828,7 +828,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		if (old_repository_version < 44)
 		{
 			cs.new Element(413, IRepository.FORMS, PROPERTY_LAYOUTGRID.getPropertyName(), IRepository.STRING);
-			cs.new Element(414, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.STRING);
+			cs.new Element(414, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.ELEMENTS);
 		}
 		//##add property adds here
 		return cs;
