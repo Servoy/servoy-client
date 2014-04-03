@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 
 /**
@@ -57,4 +58,6 @@ public interface INGClientEndpoint extends IChangeListener
 	 * @param realInstanceName
 	 */
 	void touchForm(Form flattenedForm, String realInstanceName);
+
+	void solutionLoaded(Solution flattenedSolution);
 }

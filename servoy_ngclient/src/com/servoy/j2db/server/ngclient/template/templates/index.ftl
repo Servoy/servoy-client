@@ -50,8 +50,7 @@
 			<script src="${componentJs}"></script>
 		</#list>
 
-
-		<link rel="stylesheet" ng-href='{{solutionSettings.clientUUID ? "solution-css/" + solutionSettings.clientUUID + "/svym.css" : undefined}}'/>
+		<link rel="stylesheet" ng-href='{{solutionSettings.styleSheetPath}}'/>
 	</head>
 	<body >
 		<div ng-if="solutionSettings.navigatorForm.templateURL" ng-style="{'width':solutionSettings.navigatorForm.width+'px'}"

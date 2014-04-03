@@ -456,7 +456,8 @@ public final class FormElement
 					Media media = fs.getMedia(Utils.getAsInteger(val));
 					if (media != null)
 					{
-						convPropertiesMap.put(pv, "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName());
+						convPropertiesMap.put(pv, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
+							media.getName());
 					}
 					break;
 				}

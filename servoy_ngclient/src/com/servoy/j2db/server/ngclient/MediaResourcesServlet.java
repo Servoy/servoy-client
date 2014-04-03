@@ -36,29 +36,47 @@ import org.apache.wicket.util.upload.FileItemStream;
 import org.apache.wicket.util.upload.FileUploadException;
 import org.apache.wicket.util.upload.ServletFileUpload;
 
+import com.servoy.j2db.AbstractActiveSolutionHandler;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.util.Utils;
 
 /**
- * @author jcompagner
+ * Supported resources URLs:<br><br>
  * 
- * media resources url:
- * 	/resources/[clientuuid_or_solutionname]/[mediaid]/[media.name]
- *  /resources/[mediaid] (mediaid returned by MediaResourcesServlet.getMediaInfo(byte[]))
- *  /resources/upload/[clientuuid]/[formName]/[elementName]/[propertyName] for binary upload
+ * Get:
+ * <ul>
+ * <li>/resources/fs/[rootSolutionName]/[media.name.including.mediafolderpath] - for flattened solution access - useful when resources such as CSS link to each other relatively by name/path:</li>
+ * <li>/resources/fs/[rootSolutionName]/[media.name.including.mediafolderpath]?uuid=... - for SolutionModel altered media access ((dynamic)) flattened solution of a specific client; not cached)
+ * <li>/resources/dynamic/[dynamic_uuid] - for on-the-fly content (for example being served directly from the database); 'dynamic_uuid' is the one returned by MediaResourcesServlet.getMediaInfo(byte[]))</li>
+ * </ul>
+ * Post:
+ * <ul>
+ * <li>/resources/upload/[clientuuid]/[formName]/[elementName]/[propertyName] - for binary upload</li>
+ * </ul>
  *
+ * @author jcompagner
  */
+@SuppressWarnings("nls")
 @WebServlet("/resources/*")
 public class MediaResourcesServlet extends HttpServlet
 {
 
+	public static final String FLATTENED_SOLUTION_ACCESS = "fs";
+	public static final String DYNAMIC_DATA_ACCESS = "dynamic";
+
+	// the key here is normally referenced inside the data model (record, ...) so it shouldn't get disposed
+	// while it's still in use there
 	private static final WeakHashMap<byte[], MediaInfo> mediaBytesMap = new WeakHashMap<>();
 
 	public static synchronized MediaInfo getMediaInfo(byte[] mediaBytes)
@@ -73,27 +91,109 @@ public class MediaResourcesServlet extends HttpServlet
 		return mediaInfo == null ? mediaBytesMap.get(mediaBytes) : mediaInfo;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		boolean dataSend = false;
+		boolean found = false;
+
 		String path = req.getPathInfo();
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
-		byte[] mediaData = null;
-		String contentType = null;
-		if (paths.length == 3)
+
+		if (paths.length > 1)
 		{
-			String clientUUID = paths[0];
-			int blobID = Utils.getAsInteger(paths[1]);
-			String mediaName = paths[2];
-			// try to look it up as clientId. (solution model)
-			IApplication client = NGClientEndpoint.getClient(clientUUID);
+			String accessType = paths[0];
+			switch (accessType)
+			{
+				case FLATTENED_SOLUTION_ACCESS :
+					if (paths.length >= 3)
+					{
+						String clientUUID = req.getParameter("uuid");
+						StringBuffer mediaName = new StringBuffer();
+						for (int i = 2; i < paths.length - 1; i++)
+							mediaName.append(paths[i]).append('/');
+						mediaName.append(paths[paths.length - 1]);
+
+						if (clientUUID == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
+						else found = sendClientFlattenedSolutionBasedMedia(req, resp, clientUUID, mediaName.toString());
+					}
+					break;
+
+				case DYNAMIC_DATA_ACCESS :
+					if (paths.length == 2) found = sendDynamicData(req, resp, paths[1]);
+					break;
+
+				default :
+					break;
+			}
+		}
+
+		if (!found) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	private boolean sendDynamicData(HttpServletRequest request, HttpServletResponse response, String dynamicID) throws IOException
+	{
+		Iterator<Map.Entry<byte[], MediaInfo>> entryIte = mediaBytesMap.entrySet().iterator();
+		Map.Entry<byte[], MediaInfo> entry;
+		while (entryIte.hasNext())
+		{
+			entry = entryIte.next();
+			if (dynamicID.equals(entry.getValue().getName()))
+			{
+				if (HTTPUtils.checkAndSetUnmodified(request, response, entry.getValue().getLastModifiedTimeStamp() / 1000 * 1000)) return true;
+
+				return sendData(response, entry.getKey(), entry.getValue().getContentType(), null);
+			}
+		}
+		return false;
+	}
+
+	private boolean sendFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String rootSolutionName, String mediaName)
+		throws IOException
+	{
+		FlattenedSolution fs = null;
+		try
+		{
+			IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+			fs = new FlattenedSolution((SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(rootSolutionName,
+				IRepository.SOLUTIONS), new AbstractActiveSolutionHandler(as)
+			{
+				@Override
+				public IRepository getRepository()
+				{
+					return ApplicationServerRegistry.get().getLocalRepository();
+				}
+			});
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+
+		Media media = fs.getMedia(mediaName);
+		if (media != null)
+		{
+			return sendData(request, response, fs, media);
+		}
+		return false;
+	}
+
+	private boolean sendData(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs, Media media) throws IOException
+	{
+		// cache resources on client until changed
+		if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getSolution().getLastModifiedTime() / 1000 * 1000)) return true;
+
+		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName());
+	}
+
+	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, String clientUUID, String mediaName)
+		throws IOException
+	{
+		// try to look it up as clientId. (solution model)
+		IApplication client = NGClientEndpoint.getClient(clientUUID);
+
+		if (client == null)
+		{
 			if (client == null)
 			{
 				IDebugClientHandler debugClientHandler = ApplicationServerRegistry.get().getDebugClientHandler();
@@ -102,56 +202,41 @@ public class MediaResourcesServlet extends HttpServlet
 					client = debugClientHandler.getDebugNGClient();
 				}
 			}
-			if (client != null)
+		}
+
+		if (client != null)
+		{
+			FlattenedSolution fs = client.getFlattenedSolution();
+			if (fs != null)
 			{
-				Media media = client.getFlattenedSolution().getMedia(mediaName);
+				Media media = fs.getMedia(mediaName);
 				if (media != null)
 				{
-					mediaData = media.getMediaData();
-					contentType = media.getMimeType();
-				}
-			}
-			else
-			{
-				IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
-				try
-				{
-					mediaData = localRepository.getMediaBlob(blobID);
-				}
-				catch (RepositoryException e)
-				{
+					return sendData(request, response, fs, media);
 				}
 			}
 		}
-		else if (paths.length == 1)
-		{
-			Iterator<Map.Entry<byte[], MediaInfo>> entryIte = mediaBytesMap.entrySet().iterator();
-			Map.Entry<byte[], MediaInfo> entry;
-			while (entryIte.hasNext())
-			{
-				entry = entryIte.next();
-				if (paths[0].equals(entry.getValue().getName()))
-				{
-					mediaData = entry.getKey();
-					contentType = entry.getValue().getContentType();
-				}
-			}
-		}
+		return false;
+	}
+
+	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName) throws IOException
+	{
+		boolean dataWasSent = false;
 		if (mediaData != null && mediaData.length > 0)
 		{
-			if (contentType == null)
+			String ct = contentType;
+			if (ct == null)
 			{
-				contentType = MimeTypes.getContentType(mediaData, null);
+				ct = MimeTypes.getContentType(mediaData, fileName);
 			}
-			if (contentType != null) resp.setContentType(contentType);
+			if (ct != null) resp.setContentType(ct);
 			resp.setContentLength(mediaData.length);
 			ServletOutputStream outputStream = resp.getOutputStream();
 			outputStream.write(mediaData);
 			outputStream.flush();
-			dataSend = true;
+			dataWasSent = true;
 		}
-
-		if (!dataSend) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		return dataWasSent;
 	}
 
 	@Override
@@ -216,11 +301,13 @@ public class MediaResourcesServlet extends HttpServlet
 	{
 		private final String name;
 		private final String contentType;
+		private final long modifiedTimeStamp;
 
 		MediaInfo(String name, String contentType)
 		{
 			this.name = name;
 			this.contentType = contentType;
+			modifiedTimeStamp = System.currentTimeMillis();
 		}
 
 		public String getName()
@@ -232,5 +319,11 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			return contentType;
 		}
+
+		public long getLastModifiedTimeStamp()
+		{
+			return modifiedTimeStamp;
+		}
+
 	}
 }

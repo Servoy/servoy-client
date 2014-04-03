@@ -27,6 +27,7 @@ import com.servoy.j2db.server.ngclient.template.IndexTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -93,14 +94,9 @@ public class TemplateGeneratorFilter implements Filter
 						Form form = (f != null) ? fs.getFlattenedForm(f) : null;
 						if (form != null)
 						{
-							long lastModifiedTime = fs.getSolution().getLastModifiedTime() / 1000 * 1000;
-							((HttpServletResponse)servletResponse).setDateHeader("Last-Modified", lastModifiedTime);
-							long lm = ((HttpServletRequest)servletRequest).getDateHeader("If-Modified-Since");
-							if (lm != -1 && lm == lastModifiedTime)
-							{
-								((HttpServletResponse)servletResponse).setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-								return;
-							}
+							if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
+								fs.getSolution().getLastModifiedTime() / 1000 * 1000)) return;
+
 							boolean html = uri.endsWith(".html");
 							boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 							if (!tableview && html && form.getLayoutGrid() != null)

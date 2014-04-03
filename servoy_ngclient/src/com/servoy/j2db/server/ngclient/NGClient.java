@@ -31,6 +31,7 @@ import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
@@ -142,6 +143,13 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 			}
 		}
 		return changes;
+	}
+
+	@Override
+	protected void solutionLoaded(Solution s)
+	{
+		super.solutionLoaded(s);
+		getActiveWebSocketClientEndpoint().solutionLoaded(s);
 	}
 
 

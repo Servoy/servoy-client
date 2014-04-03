@@ -291,7 +291,7 @@ public class JSONUtils
 		{
 			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.getMediaInfo((byte[])value);
 			w.object();
-			w.key("url").value("resources/" + mediaInfo.getName());
+			w.key("url").value("resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + mediaInfo.getName());
 			w.key("contentType").value(mediaInfo.getContentType());
 			w.endObject();
 		}
@@ -376,7 +376,8 @@ public class JSONUtils
 						Media media = fs.getMedia(mediaId);
 						if (media != null)
 						{
-							return "resources/" + media.getRootObject().getName() + "/" + media.getBlobId() + "/" + media.getName();
+							return "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
+								media.getName();
 						}
 					}
 				}

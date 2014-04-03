@@ -55,6 +55,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
@@ -191,6 +192,34 @@ public class NGClientEndpoint implements INGClientEndpoint
 		if (formsOnClient.containsKey(formUrl))
 		{
 			updateController(form, formUrl);
+		}
+	}
+
+	@Override
+	public void solutionLoaded(Solution flattenedSolution)
+	{
+		int styleSheetID = flattenedSolution.getStyleSheetID();
+		if (styleSheetID > 0)
+		{
+			Media styleSheetMedia = flattenedSolution.getMedia(styleSheetID);
+			if (styleSheetMedia != null)
+			{
+				JSONStringer stringer = new JSONStringer();
+				try
+				{
+					stringer.object().key("styleSheetPath").value(
+						"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + flattenedSolution.getName() + "/" + styleSheetMedia.getName());
+					sendText(stringer.endObject().toString());
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
+			}
+			else
+			{
+				Debug.error("Cannot find solution styleSheet in media lib.");
+			}
 		}
 	}
 
