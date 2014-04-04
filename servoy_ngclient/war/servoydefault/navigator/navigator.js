@@ -6,7 +6,7 @@ angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', 
         model: "=svyModel",
         handlers: "=svyHandlers"
       },
-      controller: function($scope) {  
+      link: function($scope, $element, $attrs) {  
     	  
     	  $scope.editIndex = 0;
     	  $scope.sliderIndex = 0;
@@ -21,6 +21,9 @@ angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', 
     		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
     	  }
     	  
+      },
+      controller: function($scope)
+      {
     	  $scope.sliderStop = function(event, ui) {
     		  $scope.setIndex($scope.sliderIndex)
     	  }
