@@ -5,7 +5,7 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 		if(!tooltipDiv) {
 			tooltipDiv = $window.document.createElement('div');
 			tooltipDiv.id = 'mktipmsg';
-			tooltipDiv.className = 'mktipmsg';
+			tooltipDiv.className = 'mktipmsg tooltip-inner'; // tooltip-inner class is also used by ui-bootstrap-tpls-0.10.0
 			$window.document.getElementsByTagName('body')[0].appendChild(tooltipDiv);			
 		}
 		return tooltipDiv;
