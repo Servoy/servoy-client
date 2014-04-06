@@ -108,17 +108,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   else {
 		   new_uri += loc.pathname + "/websocket";
 	   }
+	   new_uri += '/'+$solutionSettings.solutionName
+	   var srvuuid = webStorage.session.get("svyuuid");
+	   new_uri += '/'+(srvuuid==null?'NULL':srvuuid)
 	   
 	   var websocket = new WebSocket(new_uri);
 	   websocket.onopen = function () {
            console.log('Info: WebSocket connection opened.');
-           var initcmd = {cmd:'init', solutionName: $solutionSettings.solutionName}
-           var srvuuid = webStorage.session.get("svyuuid");
-           if (srvuuid != null)
-    	   {
-        	   initcmd.srvuuid = srvuuid;
-    	   }
-           websocket.send(JSON.stringify(initcmd));
        };
        websocket.onerror = function(message) {
     	   console.error('Error: WebSocket on error: ' + message);

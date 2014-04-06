@@ -32,12 +32,12 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.websocket.CloseReason;
-import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.json.JSONArray;
@@ -75,7 +75,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-@ServerEndpoint(value = "/websocket")
+@ServerEndpoint(value = "/websocket/{solutionName}/{id}")
 public class NGClientEndpoint implements INGClientEndpoint
 {
 	private static Map<String, NGClient> clients = new HashMap<>();
@@ -224,12 +224,71 @@ public class NGClientEndpoint implements INGClientEndpoint
 	}
 
 	@OnOpen
-	public void start(Session session, EndpointConfig config)
+	public void start(Session newSession, @PathParam("solutionName")
+	final String solutionName, @PathParam("id")
+	String id) throws Exception
 	{
-		this.session = session;
-		// TODO how to get the solution name, here by the request uri or param, or below in onmessage, sending it through the init.
-		// String solutionname = session.getRequestParameterMap().get("solution").get(0);
-		// String solutionname = session.getRequestURI().getPath().substring(x,y);
+		session = newSession;
+		if (Utils.stringIsEmpty(solutionName))
+		{
+			newSession.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Invalid solution name"));
+			return;
+		}
+
+		formsOnClient.clear();
+		uuid = "NULL".equals(id) ? null : id;
+
+		IWebFormController currentForm = null;
+		client = null;
+
+		synchronized (clients)
+		{
+			if (uuid != null && uuid.length() > 0)
+			{
+				client = clients.get(uuid);
+			}
+			if (client != null && !client.isShutDown())
+			{
+				noneActiveClients.remove(uuid);
+
+				client.setActiveWebSocketClientEndpoint(this);
+				currentForm = client.getFormManager().getCurrentForm();
+			}
+			else
+			{
+				clients.put(uuid = UUID.randomUUID().toString(), client = getClientCreator().createClient(this));
+			}
+		}
+
+		windowName = client.getRuntimeWindowManager().createMainWindow();
+		sendText(new JSONStringer().object().key("srvuuid").value(uuid).key("windowName").value(windowName).endObject().toString());
+
+		J2DBGlobals.setServiceProvider(client);
+		if (currentForm != null)
+		{
+			// TODO now we just get the current form that is was last current and set it back
+			// is there a better way? (the url doesn't have any info)
+			client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
+		}
+		else
+		{
+			// TODO should just load not go into the invokeLater (solution load method and so on are executed as is the onload/onshow of the first form)
+			client.invokeLater(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					try
+					{
+						client.loadSolution(solutionName);
+					}
+					catch (RepositoryException e)
+					{
+						Debug.error("Failed to load the solution: " + solutionName, e);
+					}
+				}
+			});
+		}
 	}
 
 	@OnError
@@ -283,7 +342,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 		client = null;
 	}
 
-	private final StringBuilder incommingPartialMessage = new StringBuilder();
+	private final StringBuilder incomingPartialMessage = new StringBuilder();
 
 	@OnMessage
 	public void incoming(String msg, boolean lastPart)
@@ -291,14 +350,14 @@ public class NGClientEndpoint implements INGClientEndpoint
 		String message = msg;
 		if (!lastPart)
 		{
-			incommingPartialMessage.append(message);
+			incomingPartialMessage.append(message);
 			return;
 		}
-		if (incommingPartialMessage.length() > 0)
+		if (incomingPartialMessage.length() > 0)
 		{
-			incommingPartialMessage.append(message);
-			message = incommingPartialMessage.toString();
-			incommingPartialMessage.setLength(0);
+			incomingPartialMessage.append(message);
+			message = incomingPartialMessage.toString();
+			incomingPartialMessage.setLength(0);
 		}
 		startHandlingEvent();
 		if (client != null) J2DBGlobals.setServiceProvider(client);
@@ -310,63 +369,6 @@ public class NGClientEndpoint implements INGClientEndpoint
 			String event = obj.getString("cmd");
 			switch (event)
 			{
-				case "init" :
-				{
-					formsOnClient.clear();
-					uuid = obj.optString("srvuuid");
-					synchronized (clients)
-					{
-						if (uuid != null && uuid.length() > 0)
-						{
-							client = clients.get(uuid);
-						}
-						if (client != null && !client.isShutDown())
-						{
-							noneActiveClients.remove(uuid);
-							J2DBGlobals.setServiceProvider(client);
-							client.setActiveWebSocketClientEndpoint(this);
-							// TODO now we just get the current form that is was last current and set it back
-							// is there a better way? (the url doesn't have any info)
-							IWebFormController currentForm = this.client.getFormManager().getCurrentForm();
-							windowName = this.client.getRuntimeWindowManager().createMainWindow();
-							this.client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
-						}
-						else
-						{
-							final String solutionName = obj.optString("solutionName");
-							if (Utils.stringIsEmpty(solutionName))
-							{
-								session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Invalid solution name"));
-								return;
-							}
-							client = getClientCreator().createClient(this);
-							windowName = this.client.getRuntimeWindowManager().createMainWindow();
-							uuid = UUID.randomUUID().toString();
-							clients.put(uuid, client);
-							J2DBGlobals.setServiceProvider(client); // set before loadSolution call, scriptengine contextlistener depends on this
-							// TODO should just load not go into the invokeLater (solution load method and so on are executed as is the onload/onshow of the first form)
-							client.invokeLater(new Runnable()
-							{
-								@Override
-								public void run()
-								{
-									try
-									{
-										client.loadSolution(solutionName);
-									}
-									catch (RepositoryException e)
-									{
-										Debug.error("Failed to load the solution: " + solutionName, e);
-									}
-								}
-							});
-						}
-					}
-					JSONStringer stringer = new JSONStringer();
-					stringer.object().key("srvuuid").value(uuid).key("windowName").value(windowName);
-					sendText(stringer.endObject().toString());
-					break;
-				}
 				case "requestdata" :
 				{
 					String formName = obj.getString("formname");

@@ -37,7 +37,6 @@ import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContainer
 {
 	private final History history;
-	private final INGApplication application;
 	private int x = -1;
 	private int y = -1;
 	private int width = -1;
@@ -56,8 +55,13 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	protected NGRuntimeWindow(INGApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
 		super(application, windowName, windowType, parentWindow);
-		this.application = application;
 		this.history = new History(application, this);
+	}
+
+	@Override
+	public INGApplication getApplication()
+	{
+		return (INGApplication)super.getApplication();
 	}
 
 	/*
@@ -80,7 +84,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public IWebFormController getController()
 	{
 		if (formName == null) return null;
-		return application.getFormManager().getForm(formName);
+		return getApplication().getFormManager().getForm(formName);
 	}
 
 	/*
@@ -277,12 +281,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public void hideUI()
 	{
 		visible = false;
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
+		getApplication().getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
 
 		// resume
-		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
+		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
 		{
-			application.getEventDispatcher().resume(this);
+			getApplication().getEventDispatcher().resume(this);
 		}
 	}
 
@@ -294,10 +298,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
-		application.getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+		getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
 		Map<String, Object> arguments = new HashMap<String, Object>();
 		arguments.put("title", getTitle());
-		Form form = application.getFlattenedSolution().getForm(formName);
+		Form form = getApplication().getFlattenedSolution().getForm(formName);
 		arguments.put("form", form);
 		int wdth = width;
 		int hght = height;
@@ -307,12 +311,13 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		size.put("width", wdth + "px");
 		size.put("height", hght + "px");
 		arguments.put("size", size);
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
+		getApplication().getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show",
+			new Object[] { getName(), arguments });
 		visible = true;
 
-		if (windowType == JSWindow.MODAL_DIALOG && application.getEventDispatcher() != null)
+		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
 		{
-			application.getEventDispatcher().suspend(this);
+			getApplication().getEventDispatcher().suspend(this);
 		}
 	}
 
@@ -352,17 +357,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 			default :
 			{
-				Form navForm = application.getFlattenedSolution().getForm(navigatorId);
+				Form navForm = getApplication().getFlattenedSolution().getForm(navigatorId);
 				if (navForm != null)
 				{
 					navigatorForm.put("templateURL", JSONUtils.toStringObject(navForm, PropertyType.form));
 					navigatorForm.put("width", navForm.getWidth());
-					application.getActiveWebSocketClientEndpoint().touchForm(application.getFlattenedSolution().getFlattenedForm(navForm), null);
+					getApplication().getActiveWebSocketClientEndpoint().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null);
 				}
 			}
 		}
-		application.getActiveWebSocketClientEndpoint().touchForm(currentForm.getForm(), null);
-		application.getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
+		getApplication().getActiveWebSocketClientEndpoint().touchForm(currentForm.getForm(), null);
+		getApplication().getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
 			new Object[] { getName(), mainForm, navigatorForm, formTitle });
 
 	}
