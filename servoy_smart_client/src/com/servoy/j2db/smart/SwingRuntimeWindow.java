@@ -58,20 +58,23 @@ import com.servoy.j2db.util.toolbar.ToolbarPanel;
  */
 public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWindow
 {
-
 	protected volatile Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FormFrame or FormDialog
 	protected JMenuBar wrappedWindowMenuBar = null;
 	private boolean createdNewWindow;
 	protected TextToolbar textToolbar;
 	protected ToolbarPanel toolbarPanel;
-	protected final ISmartClientApplication application;
 
 	private boolean boundsSet = false;
 
 	public SwingRuntimeWindow(ISmartClientApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
 		super(application, windowName, windowType, parentWindow);
-		this.application = application;
+	}
+
+	@Override
+	public ISmartClientApplication getApplication()
+	{
+		return (ISmartClientApplication)super.getApplication();
 	}
 
 	@Override
@@ -153,13 +156,13 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		{
 			Window parent = wrappedWindow.getOwner();
 			RuntimeWindow pw;
-			if (parent == application.getMainApplicationFrame())
+			if (parent == getApplication().getMainApplicationFrame())
 			{
-				pw = application.getRuntimeWindowManager().getWindow(null);
+				pw = getApplication().getRuntimeWindowManager().getWindow(null);
 			}
 			else if (parent != null)
 			{
-				pw = application.getRuntimeWindowManager().getWindow(parent.getName());
+				pw = getApplication().getRuntimeWindowManager().getWindow(parent.getName());
 			}
 			else pw = null;
 			return (pw != null) ? pw.getJSWindow() : null;
@@ -245,7 +248,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			{
 				if (delayed)
 				{
-					application.invokeLater(new Runnable()
+					getApplication().invokeLater(new Runnable()
 					{
 						public void run()
 						{
@@ -261,8 +264,8 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			}
 			else if (wrappedWindow instanceof JFrame) // for main app. frame
 			{
-				final String t = application.getI18NMessageIfPrefixed(title);
-				application.invokeLater(new Runnable()
+				final String t = getApplication().getI18NMessageIfPrefixed(title);
+				getApplication().invokeLater(new Runnable()
 				{
 					public void run()
 					{
@@ -348,7 +351,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 //	@Override
 //	protected void doShow(String formName)
 //	{
-//		FormManager fm = ((FormManager)application.getFormManager());
+//		FormManager fm = ((FormManager)getApplication().getFormManager());
 //		boolean isDialog = (windowType == MODAL_DIALOG || windowType == DIALOG);
 //		boolean isModal = (getType() == MODAL_DIALOG);
 //		IMainContainer previousModalContainer = null;
@@ -366,7 +369,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 //			else
 //			{
 //				IMainContainer currentModalContainer = fm.getModalDialogContainer();
-//				parentJSWindow = application.getJSWindowManager().getWindow(currentModalContainer.getContainerName());
+//				parentJSWindow = getApplication().getJSWindowManager().getWindow(currentModalContainer.getContainerName());
 //			}
 //
 //			currentMainContainer = ((FormWindow)parentJSWindow.getWrappedObject()).getMainContainer();
@@ -420,7 +423,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	private void doOldShowInDialog(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
-		FormManager fm = ((FormManager)application.getFormManager());
+		FormManager fm = ((FormManager)getApplication().getFormManager());
 		IMainContainer currentModalDialogContainer = fm.getModalDialogContainer();
 
 		JSWindow parentJSWindow = getParent();
@@ -448,7 +451,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 					currentModalDialogContainer = currentContainer;
 				}
 			}
-			parentRuntimeWindow = application.getRuntimeWindowManager().getWindow(currentModalDialogContainer.getContainerName());
+			parentRuntimeWindow = getApplication().getRuntimeWindowManager().getWindow(currentModalDialogContainer.getContainerName());
 		}
 
 		boolean windowModal = ((legacyV3Behavior && wrappedWindow == null) || getType() == JSWindow.MODAL_DIALOG);
@@ -662,7 +665,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	private void doOldShowInWindow(String formName)
 	{
-		FormManager fm = ((FormManager)application.getFormManager());
+		FormManager fm = ((FormManager)getApplication().getFormManager());
 		boolean toFront = createFrameIfNeeded(fm);
 
 		FormFrame frame = (FormFrame)wrappedWindow;
@@ -717,7 +720,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			Window owner = null;
 			if (parentJSWindow == null || parentJSWindow.getWrappedObject() == null)
 			{
-				owner = application.getMainApplicationFrame();
+				owner = getApplication().getMainApplicationFrame();
 			}
 			else
 			{
@@ -816,13 +819,13 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 			boolean findModeSet = false;
 
-			Action action = application.getCmdManager().getRegisteredAction("cmdperformfind"); //$NON-NLS-1$
+			Action action = getApplication().getCmdManager().getRegisteredAction("cmdperformfind"); //$NON-NLS-1$
 			if (action != null && fp.getFormModel() != null)
 			{
 				findModeSet = fp.getFormModel().isInFindMode() && !action.isEnabled();
 				if (findModeSet) action.setEnabled(true);
 			}
-			application.invokeLater(new Runnable()
+			getApplication().invokeLater(new Runnable()
 			{
 				public void run()
 				{
@@ -830,7 +833,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 					((RootPaneContainer)wrappedWindow).getRootPane().requestFocus();
 					if (LAFManager.isUsingAppleLAF())
 					{
-						application.invokeLater(new Runnable()
+						getApplication().invokeLater(new Runnable()
 						{
 							public void run()
 							{
@@ -845,7 +848,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				(Utils.getPlatform() == Utils.PLATFORM_LINUX || (Utils.getPlatform() == Utils.PLATFORM_MAC && JavaVersion.CURRENT_JAVA_VERSION.major >= 7)))
 			{
 				createdNewWindow = false;
-				application.invokeLater(new Runnable()
+				getApplication().invokeLater(new Runnable()
 				{
 					public void run()
 					{
@@ -917,7 +920,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 					if (!wrappedWindow.isVisible() || legacyV3Behavior)
 					{
 						Window ow = wrappedWindow.getOwner();
-						if (ow == null) ow = application.getMainApplicationFrame();
+						if (ow == null) ow = getApplication().getMainApplicationFrame();
 						wrappedWindow.setLocationRelativeTo(ow);
 					}
 				}
@@ -932,22 +935,22 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	protected FormDialog createFormDialog(Window owner, boolean modal, String dialogName)
 	{
-		if (owner == null || (!(owner instanceof JDialog || owner instanceof JFrame))) owner = application.getMainApplicationFrame();
+		if (owner == null || (!(owner instanceof JDialog || owner instanceof JFrame))) owner = getApplication().getMainApplicationFrame();
 
 		if (owner instanceof JDialog)
 		{
-			return new FormDialog(application, (JDialog)owner, modal, dialogName);
+			return new FormDialog(getApplication(), (JDialog)owner, modal, dialogName);
 		}
 		else
 		{
-			return new FormDialog(application, (JFrame)owner, modal, dialogName);
+			return new FormDialog(getApplication(), (JFrame)owner, modal, dialogName);
 		}
 	}
 
 	protected FormFrame createFormFrame(String windowName)
 	{
-		FormFrame frame = new FormFrame(application, windowName);
-		frame.setIconImage(application.getMainApplicationFrame().getIconImage());
+		FormFrame frame = new FormFrame(getApplication(), windowName);
+		frame.setIconImage(getApplication().getMainApplicationFrame().getIconImage());
 		return frame;
 	}
 
@@ -962,7 +965,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		{
 			if (textToolbar == null)
 			{
-				textToolbar = new TextToolbar(application);
+				textToolbar = new TextToolbar(getApplication());
 			}
 			if (toolbarPanel == null) toolbarPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
 			toolbarPanel.addToolbar(textToolbar, 0);
@@ -1066,7 +1069,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	@Override
 	public void resetBounds()
 	{
-		Settings.getInstance().deleteBounds(windowName, application.getSolutionName());
+		Settings.getInstance().deleteBounds(windowName, getApplication().getSolutionName());
 	}
 
 

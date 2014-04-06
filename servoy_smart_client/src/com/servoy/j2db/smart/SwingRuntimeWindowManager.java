@@ -160,7 +160,7 @@ public class SwingRuntimeWindowManager extends RuntimeWindowManager
 		{
 			if (formName != null)
 			{
-				((FormManager)application.getFormManager()).showFormInMainPanel(formName);
+				((FormManager)getApplication().getFormManager()).showFormInMainPanel(formName);
 			}
 		}
 
@@ -169,7 +169,7 @@ public class SwingRuntimeWindowManager extends RuntimeWindowManager
 		{
 			if (textToolbar == null)
 			{
-				textToolbar = (TextToolbar)application.getToolbarPanel().getToolBar("text"); //$NON-NLS-1$
+				textToolbar = (TextToolbar)getApplication().getToolbarPanel().getToolBar("text"); //$NON-NLS-1$
 			}
 			return super.getTextToolbar();
 		}

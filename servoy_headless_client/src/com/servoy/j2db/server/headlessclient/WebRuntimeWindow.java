@@ -45,18 +45,21 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
  */
 public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 {
-	protected final IWebClientApplication application;
-
 	public WebRuntimeWindow(IWebClientApplication application, String windowName, int windowType, RuntimeWindow parentWindow)
 	{
 		super(application, windowName, windowType, parentWindow);
-		this.application = application;
+	}
+
+	@Override
+	public IWebClientApplication getApplication()
+	{
+		return (IWebClientApplication)super.getApplication();
 	}
 
 	@Override
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
-		FormManager fm = (FormManager)application.getFormManager();
+		FormManager fm = (FormManager)getApplication().getFormManager();
 		IMainContainer parentContainer = getParentContainerForShow(fm);
 		IMainContainer dialogContainer = fm.getOrCreateMainContainer(windowName);
 
@@ -94,9 +97,9 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		}
 		if (getTitle() != null) setTitle(getTitle());
 
-		if (windowType == JSWindow.MODAL_DIALOG && ((WebClient)application).getEventDispatcher() != null)
+		if (windowType == JSWindow.MODAL_DIALOG && ((WebClient)getApplication()).getEventDispatcher() != null)
 		{
-			((WebClient)application).getEventDispatcher().suspend(this);
+			((WebClient)getApplication()).getEventDispatcher().suspend(this);
 		}
 	}
 
@@ -112,7 +115,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	public int getHeight()
 	{
 		MainPage mp = getMainPage();
-		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp == null) mp = (MainPage)((FormManager)getApplication().getFormManager()).getMainContainer(null);
 		if (mp != null) return mp.getHeight(); // can never be null normally...
 		else return 0;
 	}
@@ -121,7 +124,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	public int getWidth()
 	{
 		MainPage mp = getMainPage();
-		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp == null) mp = (MainPage)((FormManager)getApplication().getFormManager()).getMainContainer(null);
 		if (mp != null) return mp.getWidth(); // can never be null normally...
 		else return 0;
 	}
@@ -130,7 +133,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	public int getX()
 	{
 		MainPage mp = getMainPage();
-		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp == null) mp = (MainPage)((FormManager)getApplication().getFormManager()).getMainContainer(null);
 		if (mp != null) return mp.getX(); // can never be null normally...
 		else return 0;
 	}
@@ -139,7 +142,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	public int getY()
 	{
 		MainPage mp = getMainPage();
-		if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+		if (mp == null) mp = (MainPage)((FormManager)getApplication().getFormManager()).getMainContainer(null);
 		if (mp != null) return mp.getY(); // can never be null normally...
 		else return 0;
 	}
@@ -155,7 +158,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 //		boolean hide = super.hide(closeAll);
 //		if (hide && (windowType == JSWindow.MODAL_DIALOG))
 //		{
-//			IFunctionExecutor executor = (IFunctionExecutor)application.getScriptEngine();
+//			IFunctionExecutor executor = (IFunctionExecutor)getApplication().getScriptEngine();
 //			executor.resume(this);
 //		}
 //		return hide;
@@ -166,9 +169,9 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	{
 		MainPage mp = getMainPage();
 		if (mp != null) mp.close();
-		if (windowType == JSWindow.MODAL_DIALOG && ((WebClient)application).getEventDispatcher() != null)
+		if (windowType == JSWindow.MODAL_DIALOG && ((WebClient)getApplication()).getEventDispatcher() != null)
 		{
-			((WebClient)application).getEventDispatcher().resume(this);
+			((WebClient)getApplication()).getEventDispatcher().resume(this);
 		}
 	}
 
@@ -187,7 +190,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 		{
 			if (delayed)
 			{
-				application.invokeLater(new Runnable()
+				getApplication().invokeLater(new Runnable()
 				{
 					public void run()
 					{
@@ -214,7 +217,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	{
 		initialBounds.x = x;
 		initialBounds.y = y;
-		MainPage dialogContainer = (MainPage)((FormManager)application.getFormManager()).getOrCreateMainContainer(windowName);
+		MainPage dialogContainer = (MainPage)((FormManager)getApplication().getFormManager()).getOrCreateMainContainer(windowName);
 		if (windowType == JSWindow.WINDOW)
 		{
 			if (dialogContainer != null && dialogContainer.isShowingInWindow())
@@ -236,7 +239,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	{
 		initialBounds.width = width;
 		initialBounds.height = height;
-		MainPage dialogContainer = (MainPage)((FormManager)application.getFormManager()).getOrCreateMainContainer(windowName);
+		MainPage dialogContainer = (MainPage)((FormManager)getApplication().getFormManager()).getOrCreateMainContainer(windowName);
 		if (windowType == JSWindow.WINDOW)
 		{
 			if (dialogContainer != null && dialogContainer.isShowingInWindow())
@@ -339,7 +342,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 
 	protected MainPage getMainPage()
 	{
-		return (MainPage)((FormManager)application.getFormManager()).getMainContainer(windowName);
+		return (MainPage)((FormManager)getApplication().getFormManager()).getMainContainer(windowName);
 	}
 
 	@Override
@@ -357,7 +360,7 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 					mp = (MainPage)tmp;
 				}
 			}
-			if (mp == null) mp = (MainPage)((FormManager)application.getFormManager()).getMainContainer(null);
+			if (mp == null) mp = (MainPage)((FormManager)getApplication().getFormManager()).getMainContainer(null);
 		}
 		if (mp != null)
 		{

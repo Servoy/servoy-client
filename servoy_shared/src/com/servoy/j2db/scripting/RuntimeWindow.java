@@ -40,7 +40,6 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class RuntimeWindow implements IRuntimeWindow
 {
-
 	private final IApplication application;
 
 	// values that remain unchanged
@@ -80,6 +79,14 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 		this.initialParentWindow = parentWindow;
 
 		this.jsWindow = new JSWindow(this);
+	}
+
+	/**
+	 * @return the application
+	 */
+	public IApplication getApplication()
+	{
+		return application;
 	}
 
 	public JSWindow getJSWindow()

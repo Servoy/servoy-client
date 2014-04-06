@@ -88,7 +88,7 @@ public class WebRuntimeWindowManager extends RuntimeWindowManager
 		{
 			if (formName != null)
 			{
-				((FormManager)application.getFormManager()).showFormInMainPanel(formName);
+				((FormManager)getApplication().getFormManager()).showFormInMainPanel(formName);
 			}
 		}
 
