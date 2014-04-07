@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -584,15 +585,15 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.dataprocessing.IFoundSet#forEach(com.servoy.j2db.dataprocessing.IRecordCallback)
-	 */
 	@Override
 	public Object forEach(IRecordCallback callback)
 	{
 		return null;
+	}
 
+	@Override
+	public Iterator<IRecord> iterator()
+	{
+		return null;
 	}
 }

@@ -32,7 +32,7 @@ import com.servoy.j2db.util.ServoyException;
  * @author jblok
  * @since Servoy 5.0
  */
-public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry
+public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry, Iterable<IRecord>
 {
 	public int COLUMNS = IRepository.COLUMNS;
 	public int AGGREGATEVARIABLES = IRepository.AGGREGATEVARIABLES;
