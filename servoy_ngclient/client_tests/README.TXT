@@ -1,4 +1,5 @@
 client_tests folder is a standard npm package
+TO RUN KARMA FORM COMMAND LINE: "node ./node_modules/karma/bin/karma start karma.conf.js"
 
 PREREQUISITES:
  - node installed and available in path

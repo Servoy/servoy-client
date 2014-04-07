@@ -151,19 +151,21 @@ angular.module('servoytooltip',[]).factory("$svyTooltipUtils", function($window)
 		}  
 	}
 })
-.directive('svyTooltip', function ($parse,$svyTooltipUtils) {
+.directive('svyTooltip', function ($svyTooltipUtils) {
 	return {
 		restrict: 'A',
         link: function (scope, element, attrs) {
-        	var tooltip =  $parse(attrs['svyTooltip']);
-        	if(tooltip && tooltip.length > 0) {
+        	var tooltip =  ''
 		        element.bind('mouseover', function(event) {
-		        	$svyTooltipUtils.showTooltip(event, tooltip, 750, 5000);
+		        	if(tooltip) $svyTooltipUtils.showTooltip(event, tooltip, 750, 5000);
 		        });
 		        element.bind('mouseout', function(event) {
-		        	$svyTooltipUtils.hideTooltip();
-		        });
-        	}
+		        	if(tooltip) $svyTooltipUtils.hideTooltip();
+		        })
+        	scope.$watch(attrs['svyTooltip'],function(newVal){
+        		tooltip = newVal;        		
+        	})
+        	
         }
 	};
 });

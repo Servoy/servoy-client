@@ -7,7 +7,7 @@
 		ng-style='style'
 		svy-font='model.fontType'
 		ng-disabled='model.enabled == false' 
-		svy-tooltip='{{model.toolTipText}}'
+		svy-tooltip='model.toolTipText'
 		ng-click='handlers.onActionMethodID($event)'
 		svy-mnemonic='model.mnemonic' 
         ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic'

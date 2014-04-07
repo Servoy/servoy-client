@@ -20,3 +20,27 @@ if (navigator.userAgent.toLowerCase().substr('phantom')) {
     };
   }
 }
+/* ALL browsers custom event functions . 
+ * TODO replace jquery/jqlite mouseover() etc with these functions instead of adding them to the html element prototype*/
+(function(){
+	var events =['mouseover','mouseout']
+	
+	events.forEach(function(eventName){
+		 HTMLElement.prototype['trigger'+ eventName]= function() {
+		    if( document.createEvent ) {
+		      var ev = document.createEvent('MouseEvent');
+		      ev.initMouseEvent(
+		          eventName,
+		          /*bubble*/true, /*cancelable*/true,
+		          window, null,
+		          0, 0, 0, 0, /*coordinates*/
+		          false, false, false, false, /*modifier keys*/
+		          0/*button=left*/, null
+		      );
+		      this.dispatchEvent(ev);
+		    }else if( document.createEventObject ) {
+	            elem.fireEvent('on'+eventName);
+	        }
+		 };		
+	})
+})()

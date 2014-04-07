@@ -9,7 +9,6 @@ module.exports = function(config){
        'lib/angular.js',
        'lib/angular-mocks.js',
        'lib/*',
-       '../war/js/angular-file-upload/**/*.js',
        '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',
        './test/*.js',
