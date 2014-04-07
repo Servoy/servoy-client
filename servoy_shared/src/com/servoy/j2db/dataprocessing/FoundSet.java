@@ -2411,6 +2411,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return null;
 	}
 
+	@Override
+	public Iterator<IRecord> iterator()
+	{
+		return new FoundSetIterator();
+	}
+
 	/**
 	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time. 
 	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a non null value the traversal will be stopped and that value is returned.
@@ -4417,8 +4423,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (changeSelection && fsm.getEditRecordList().isEditing(getRecord(getSelectedIndex())))
 		{
 			fsm.getEditRecordList().stopEditing(false, getRecord(getSelectedIndex()));
-		}		
-		
+		}
+
 		int size = getSize();
 		int indexToAdd = (idx < 0) ? 0 : (idx > size) ? size : idx;
 		if (indexToAdd == size && hadMoreRows())
