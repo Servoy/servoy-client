@@ -112,6 +112,11 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return formUI;
 	}
 
+	public void recalculateTabIndex()
+	{
+		formUI.recalculateTabIndex(1, null);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -493,11 +493,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    		websocket.send(JSON.stringify({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter}))
 	    		return deferred.promise;
 	    	},
-	    	setFormVisibility: function(form,visible,relation, parentForm, bean) {
+	    	setFormVisibility: function(form,visible,relation, parentForm, bean,formIndex) {
 	    		  var deferred = $q.defer();
             	  var cmsgid = getNextMessageId()
             	  deferredEvents[cmsgid] = deferred;
-            	  var cmd = {cmd:'formvisibility', cmsgid:cmsgid,form:form,visible:visible,parentForm:parentForm,bean:bean,relation:relation}
+            	  var cmd = {cmd:'formvisibility', cmsgid:cmsgid,form:form,visible:visible,parentForm:parentForm,bean:bean,relation:relation,formIndex:formIndex}
             	  websocket.send(JSON.stringify(cmd))
             	  return deferred.promise;
 	    	},

@@ -5,7 +5,9 @@ model:
 {
 	bgcolor: 'color',
     firstNameDataprovider: 'dataprovider',
+    firstNameTabsequence: 'tabseq',
     lastNameDataprovider: 'dataprovider',
+    lastNameTabsequence: 'tabseq',
 	buttontext: 'string',
 	tooltiptext: 'string',
 	readOnly: 'boolean',

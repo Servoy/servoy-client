@@ -28,8 +28,8 @@ angular.module('svySplitpane',['servoy']).directive('svySplitpane', function() {
     			  $scope.svyServoyapi.setFormEnabled($scope.model.tabs[1].containsFormId,newValue);
     		  }
     	  });
-    	  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[0].containsFormId, true, $scope.model.tabs[0].relationName);
-    	  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[1].containsFormId, true, $scope.model.tabs[1].relationName);
+    	  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[0].containsFormId, true, $scope.model.tabs[0].relationName,0);
+    	  $scope.svyServoyapi.setFormVisibility($scope.model.tabs[1].containsFormId, true, $scope.model.tabs[1].relationName,1);
     	  $scope.onChange = function() {
     		  if($scope.handlers.onChangeMethodID) $scope.handlers.onChangeMethodID(-1,event);
     	  }

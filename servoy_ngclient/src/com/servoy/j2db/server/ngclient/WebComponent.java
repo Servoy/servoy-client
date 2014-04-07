@@ -2,6 +2,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,9 +20,14 @@ import org.json.JSONObject;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
+import com.servoy.j2db.server.ngclient.property.PropertyDescription;
+import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
 
@@ -35,9 +41,11 @@ public class WebComponent implements ListDataListener
 	private final Set<String> changedProperties = new HashSet<>(3);
 	private final FormElement formElement;
 	private final IWebFormUI parentForm;
-	private final List<IWebFormUI> visibleForms = new ArrayList<IWebFormUI>();
-	private int calculatedTabSequence;
-	private int nextAvailableTabSequence;
+	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
+	// list of all tabseq properties ordered by design time value; tabseq will be updated with runtime value
+	private final List<Pair<String, Integer>> calculatedTabSequence = new ArrayList<Pair<String, Integer>>();
+	// the next available tab sequence number (after this component and all its subtree)
+	protected int nextAvailableTabSequence;
 
 	protected WebComponent(String name, Form form)
 	{
@@ -55,8 +63,38 @@ public class WebComponent implements ListDataListener
 		{
 			properties.put("markupId", ComponentFactory.getMarkupId(fe.getForm().getName(), name));
 		}
-		calculatedTabSequence = Utils.getAsInteger(fe.getProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
-		nextAvailableTabSequence = calculatedTabSequence + 1;
+		if (fe.getWebComponentSpec(false) != null)
+		{
+			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(PropertyType.tabseq);
+			List<PropertyDescription> sortedList = new SortedList(new Comparator<PropertyDescription>()
+			{
+
+				@Override
+				public int compare(PropertyDescription o1, PropertyDescription o2)
+				{
+					int tabSeq1 = Utils.getAsInteger(WebComponent.this.getInitialProperty(o1.getName()));
+					int tabSeq2 = Utils.getAsInteger(WebComponent.this.getInitialProperty(o2.getName()));
+					if (tabSeq1 != tabSeq2)
+					{
+						return tabSeq1 - tabSeq2;
+					}
+					else
+					{
+						return o1.getName().compareTo(o2.getName());
+					}
+				}
+			}, tabSeqProps.values());
+			for (PropertyDescription pd : sortedList)
+			{
+				calculatedTabSequence.add(new Pair(pd.getName(), Utils.getAsInteger(getInitialProperty(pd.getName()))));
+			}
+			nextAvailableTabSequence = getMaxTabSequence() + 1;
+			if (fe.getPersist() instanceof GraphicalComponent && ((GraphicalComponent)fe.getPersist()).getOnActionMethodID() <= 0)
+			{
+				// hack for legacy behavior
+				properties.put(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), Integer.valueOf(-1));
+			}
+		}
 	}
 
 	/**
@@ -283,25 +321,41 @@ public class WebComponent implements ListDataListener
 		}
 	}
 
-	public void updateVisibleForm(IWebFormUI form, boolean visible)
+	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
 	{
 		if (!visible)
 		{
 			visibleForms.remove(form);
 			form.setParentContainer(null);
 		}
-		else if (!visibleForms.contains(form))
+		else if (!visibleForms.containsKey(form))
 		{
 			form.setParentContainer(this);
-			visibleForms.add(form);
-			int maxTabIndex = form.recalculateTabIndex(calculatedTabSequence, null);
+			visibleForms.put(form, Integer.valueOf(formIndex));
+			int startIndex = getMaxTabSequence();
+			if (formIndex > 0)
+			{
+				int currentIndex = -1;
+				for (IWebFormUI currentForm : visibleForms.keySet())
+				{
+					int index = visibleForms.get(currentForm);
+					if (index < formIndex && index > currentIndex)
+					{
+						currentIndex = index;
+						startIndex = currentForm.getNextAvailableTabSequence();
+					}
+				}
+				startIndex = getMaxTabSequence();
+			}
+			int maxTabIndex = form.recalculateTabIndex(startIndex, null);
 			if (maxTabIndex > nextAvailableTabSequence)
 			{
-				nextAvailableTabSequence = maxTabIndex;
+				// add a 50 numbers gap
+				nextAvailableTabSequence = Math.max(maxTabIndex, startIndex + 50);
 				// go up in the tree
 				if (parentForm != null)
 				{
-					parentForm.recalculateTabIndex(maxTabIndex, this);
+					parentForm.recalculateTabIndex(nextAvailableTabSequence, new TabSequencePropertyWithComponent(this, calculatedTabSequence.get(0).getLeft()));
 				}
 			}
 		}
@@ -314,16 +368,39 @@ public class WebComponent implements ListDataListener
 			// go up in the tree
 			if (parentForm != null)
 			{
-				parentForm.recalculateTabIndex(availableSequence, this);
+				parentForm.recalculateTabIndex(availableSequence, new TabSequencePropertyWithComponent(this, calculatedTabSequence.get(0).getLeft()));
 			}
 		}
 	}
 
-	public int setCalculatedTabSequence(int tabSequence)
+	public void setCalculatedTabSequence(int tabSequence, String propertyName)
 	{
-		this.calculatedTabSequence = tabSequence;
-		this.nextAvailableTabSequence = calculatedTabSequence + 1;
-		putProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(), Integer.valueOf(calculatedTabSequence));
+		for (Pair<String, Integer> pair : calculatedTabSequence)
+		{
+			if (Utils.equalObjects(propertyName, pair.getLeft()))
+			{
+				pair.setRight(Integer.valueOf(tabSequence));
+			}
+		}
+		this.nextAvailableTabSequence = getMaxTabSequence() + 1;
+		putProperty(propertyName, Integer.valueOf(tabSequence));
+	}
+
+	private int getMaxTabSequence()
+	{
+		int maxTabSequence = -200;
+		for (Pair<String, Integer> pair : calculatedTabSequence)
+		{
+			if (maxTabSequence < pair.getRight())
+			{
+				maxTabSequence = pair.getRight();
+			}
+		}
+		return maxTabSequence;
+	}
+
+	public int getNextAvailableTabSequence()
+	{
 		return nextAvailableTabSequence;
 	}
 }

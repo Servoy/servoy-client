@@ -36,4 +36,6 @@ public interface IWebFormController extends IFormController
 	 */
 	@Override
 	public IFoundSetInternal getFoundSet();
+
+	void recalculateTabIndex();
 }

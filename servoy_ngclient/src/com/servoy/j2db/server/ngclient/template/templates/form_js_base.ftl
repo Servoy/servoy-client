@@ -70,8 +70,8 @@ controllerProvider.register("${name}", function($scope, $servoyInternal,$timeout
 	
 	var servoyApi = function(beanname) {
 		return {
-			setFormVisibility: function(formname, visibility,relationname) {
-				return $servoyInternal.setFormVisibility(formname, visibility,relationname,$scope.formname, beanname);
+			setFormVisibility: function(formname, visibility,relationname,formIndex) {
+				return $servoyInternal.setFormVisibility(formname, visibility,relationname,$scope.formname, beanname,formIndex);
 			},
 			setFormEnabled: function(formname, enabled) {
 				return $servoyInternal.setFormEnabled(formname, enabled);

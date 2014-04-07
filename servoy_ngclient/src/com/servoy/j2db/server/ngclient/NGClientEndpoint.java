@@ -507,7 +507,7 @@ public class NGClientEndpoint implements INGClientEndpoint
 									WebComponent containerComponent = parentForm.getFormUI().getWebComponent(obj.getString("bean"));
 									if (containerComponent != null)
 									{
-										containerComponent.updateVisibleForm(form.getFormUI(), isVisible);
+										containerComponent.updateVisibleForm(form.getFormUI(), isVisible, obj.getInt("formIndex"));
 									}
 									if (obj.has("relation") && !obj.isNull("relation"))
 									{

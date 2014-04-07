@@ -465,6 +465,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				//show panel as main
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				fp.notifyVisible(true, invokeLaterRunnables);
+				fp.recalculateTabIndex();
 
 				container.setController(fp);
 

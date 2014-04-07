@@ -192,12 +192,17 @@ public final class FormElement
 	 */
 	public WebComponentSpec getWebComponentSpec()
 	{
+		return getWebComponentSpec(true);
+	}
+
+	public WebComponentSpec getWebComponentSpec(boolean throwException)
+	{
 		WebComponentSpec spec = null;
 		if (persist instanceof IFormElement)
 		{
 			spec = WebComponentSpecProvider.getInstance().getWebComponentDescription(FormTemplateGenerator.getComponentTypeName((IFormElement)persist));
 		}
-		if (spec == null)
+		if (spec == null && throwException)
 		{
 			String errorMessage = "Component spec for " +
 				((persist instanceof IFormElement) ? FormTemplateGenerator.getComponentTypeName((IFormElement)persist) : persist.toString()) +
@@ -241,6 +246,13 @@ public final class FormElement
 		if (propertyValues.containsKey(name))
 		{
 			return propertyValues.get(name);
+		}
+
+		if (StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName().equals(name) && persist instanceof GraphicalComponent &&
+			((GraphicalComponent)persist).getOnActionMethodID() <= 0)
+		{
+			// legacy behavior
+			return Integer.valueOf(-1);
 		}
 
 		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(name);

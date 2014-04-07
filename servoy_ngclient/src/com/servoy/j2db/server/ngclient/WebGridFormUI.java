@@ -53,6 +53,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	private IFoundSetInternal currentFoundset;
 	private List<RowData> rowChanges;
 	private boolean allChanged = false;
+	private int startTabSeqIndex = 1;
 
 	/**
 	 * @param application 
@@ -237,16 +238,18 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
 
 		int foundsetStartRow = startIdx;
+		int startOffset = 0;
 		if (startRow != -1)
 		{
 			if (startRow < endIdx && lastRow > startIdx)
 			{
 				startIdx = Math.max(startIdx, startRow);
 				endIdx = Math.min(endIdx, lastRow);
+				startOffset = Math.max(startIdx - startRow, 0);
 			}
 			else return RowData.EMPTY;
 		}
-
+		int currentIndex = startTabSeqIndex + startOffset * components.values().size();
 		for (int i = startIdx; i < endIdx; i++)
 		{
 			IRecordInternal record = currentFoundset.getRecord(i);
@@ -256,13 +259,12 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			for (WebComponent wc : components.values())
 			{
 				// TODO: add tagsstring (%%custname%%) 
-				List<String> dataproviders = getWebComponentDataProvider(wc);
+				List<String> dataproviders = getWebComponentPropertyType(wc, PropertyType.dataprovider);
 				Map<String, Object> cellProperties = new HashMap<>();
 				for (String dataproviderID : dataproviders)
 				{
 					cellProperties.put(dataproviderID, wc.getProperty(dataproviderID));
 				}
-
 				// add valuelists
 				Object valuelistObj;
 				for (String valuelistProperty : wc.getFormElement().getValuelistProperties())
@@ -281,6 +283,12 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				cellProperties.put("svy_cn", wc.getName());
 				// execute onrender.
 				rowProperties.put(wc.getName(), cellProperties);
+			}
+			List<TabSequencePropertyWithComponent> tabSeqComponents = getTabSeqComponents();
+			for (TabSequencePropertyWithComponent propertyWithComponent : tabSeqComponents)
+			{
+				Map<String, Object> cellProperties = (Map<String, Object>)rowProperties.get(propertyWithComponent.getComponent().getName());
+				cellProperties.put(propertyWithComponent.getProperty(), currentIndex++);
 			}
 			rows.add(rowProperties);
 		}
@@ -329,20 +337,28 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	}
 
 
-	private static List<String> getWebComponentDataProvider(WebComponent wc)
+	private static List<String> getWebComponentPropertyType(WebComponent wc, PropertyType type)
 	{
 		WebComponentSpec componentSpec = wc.getFormElement().getWebComponentSpec();
-		ArrayList<String> dataproviders = new ArrayList<>(3);
+		ArrayList<String> properties = new ArrayList<>(3);
 		Map<String, PropertyDescription> specProperties = componentSpec.getProperties();
 		for (Entry<String, PropertyDescription> e : specProperties.entrySet())
 		{
-			if (e.getValue().getType() == PropertyType.dataprovider)
+			if (e.getValue().getType() == type)
 			{
-				dataproviders.add(e.getKey());
+				properties.add(e.getKey());
 			}
 		}
 
-		return dataproviders;
+		return properties;
+	}
+
+	@Override
+	public int recalculateTabIndex(int startIndex, TabSequencePropertyWithComponent startComponent)
+	{
+		this.startTabSeqIndex = startIndex;
+		this.nextAvailableTabSequence = startIndex + 500;
+		return nextAvailableTabSequence;
 	}
 
 	private static class RowData implements JSONWritable

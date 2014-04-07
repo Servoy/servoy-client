@@ -30,7 +30,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
@@ -489,10 +488,10 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	}
 
 	@Override
-	public int recalculateTabIndex(int startIndex, WebComponent startComponent)
+	public int recalculateTabIndex(int startIndex, TabSequencePropertyWithComponent startComponent)
 	{
 		int currentIndex = startIndex;
-		List<WebComponent> tabSeqComponents = getTabSeqComponents();
+		List<TabSequencePropertyWithComponent> tabSeqComponents = getTabSeqComponents();
 		int startIndexInList = 0;
 		if (startComponent != null)
 		{
@@ -500,50 +499,56 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		}
 		for (int i = Math.max(0, startIndexInList); i < tabSeqComponents.size(); i++)
 		{
-			currentIndex = tabSeqComponents.get(i).setCalculatedTabSequence(currentIndex);
+			tabSeqComponents.get(i).setCalculatedTabSequence(currentIndex++);
 		}
 		if (startComponent != null && parentContainer != null)
 		{
 			// upwards traversal
 			parentContainer.recalculateTabSequence(currentIndex);
 		}
+		nextAvailableTabSequence = currentIndex;
 		return currentIndex;
 	}
 
-	private List<WebComponent> getTabSeqComponents()
+	protected List<TabSequencePropertyWithComponent> getTabSeqComponents()
 	{
-		SortedList<WebComponent> tabSeqComponents = new SortedList<WebComponent>(new Comparator<WebComponent>()
-		{
-			@Override
-			public int compare(WebComponent o1, WebComponent o2)
+		SortedList<TabSequencePropertyWithComponent> tabSeqComponents = new SortedList<TabSequencePropertyWithComponent>(
+			new Comparator<TabSequencePropertyWithComponent>()
 			{
-				int seq1 = Utils.getAsInteger(o1.getInitialProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
-				int seq2 = Utils.getAsInteger(o2.getInitialProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+				@Override
+				public int compare(TabSequencePropertyWithComponent o1, TabSequencePropertyWithComponent o2)
+				{
+					int seq1 = o1.getTabSequence();
+					int seq2 = o2.getTabSequence();
 
-				if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
-				{
-					//delegate to Yx
-					int yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(o1.getFormElement().getPersist(), o2.getFormElement().getPersist());
-					// if they are at the same position, and are different persist, just use UUID to decide the sequence
-					return yxCompare == 0 ? o1.getFormElement().getPersist().getUUID().compareTo(o2.getFormElement().getPersist().getUUID()) : yxCompare;
+					if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
+					{
+						//delegate to Yx
+						int yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(o1.getPersist(), o2.getPersist());
+						// if they are at the same position, and are different persist, just use UUID to decide the sequence
+						return yxCompare == 0 ? o1.getPersist().getUUID().compareTo(o2.getPersist().getUUID()) : yxCompare;
+					}
+					else if (seq1 == ISupportTabSeq.DEFAULT)
+					{
+						return 1;
+					}
+					else if (seq2 == ISupportTabSeq.DEFAULT)
+					{
+						return -1;
+					}
+					return seq1 - seq2;
 				}
-				else if (seq1 == ISupportTabSeq.DEFAULT)
-				{
-					return 1;
-				}
-				else if (seq2 == ISupportTabSeq.DEFAULT)
-				{
-					return -1;
-				}
-				return seq1 - seq2;
-			}
 
-		});
+			});
 		for (WebComponent comp : components.values())
 		{
-			if (Utils.getAsInteger(comp.getInitialProperty(StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName())) >= 0)
+			Map<String, PropertyDescription> tabSeqProps = comp.getFormElement().getWebComponentSpec().getProperties(PropertyType.tabseq);
+			for (PropertyDescription pd : tabSeqProps.values())
 			{
-				tabSeqComponents.add(comp);
+				if (Utils.getAsInteger(comp.getInitialProperty(pd.getName())) >= 0)
+				{
+					tabSeqComponents.add(new TabSequencePropertyWithComponent(comp, pd.getName()));
+				}
 			}
 		}
 		return tabSeqComponents;
