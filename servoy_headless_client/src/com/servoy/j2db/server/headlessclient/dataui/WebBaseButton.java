@@ -1210,7 +1210,7 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				int innerHeight = size.height;
 				if (padding != null) innerHeight -= padding.top + padding.bottom;
 				if (borderMargin != null) innerHeight -= borderMargin.top + borderMargin.bottom;
-				instrumentedBodyText.append("line-height: " + innerHeight + "px;");
+				instrumentedBodyText.append("height: " + innerHeight + "px;line-height: " + innerHeight + "px;");
 			}
 
 			if (isAnchored)
