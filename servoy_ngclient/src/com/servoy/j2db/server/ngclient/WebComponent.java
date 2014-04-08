@@ -345,7 +345,6 @@ public class WebComponent implements ListDataListener
 						startIndex = currentForm.getNextAvailableTabSequence();
 					}
 				}
-				startIndex = getMaxTabSequence();
 			}
 			int maxTabIndex = form.recalculateTabIndex(startIndex, null);
 			if (maxTabIndex > nextAvailableTabSequence)
