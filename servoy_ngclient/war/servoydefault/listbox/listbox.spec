@@ -18,7 +18,6 @@ model:
         multiselectListbox : 'boolean', 
         placeholderText : 'tagstring', 
         scrollbars : 'int', 
-        selectOnEnter : 'boolean', 
         size : 'dimension', 
         styleClass : 'string', 
         tabSeq : 'tabseq', 

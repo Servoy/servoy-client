@@ -6,7 +6,7 @@ model:
 {
         background : 'color', 
         borderType : 'border', 
-        dataProviderID : { 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}, 'parsehtml':true}, 
+        dataProviderID : { 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback'}}, 
         enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 

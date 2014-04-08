@@ -316,6 +316,21 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		}
 	};
 })
+.directive('svySelectonenter',  function ($timeout) {
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			if (attrs.svySelectonenter)
+			{
+				element.bind('focus', function() {
+					$timeout(function() {
+						element[0].select(); 
+					},0);
+				});
+			}
+		}
+	};
+})
 .factory("$apifunctions", function (){
 	
 	return {

@@ -158,7 +158,7 @@ types: {
   		text: 'tagstring',
   		relationName: 'relation',
   		active: 'boolean',
-  		foreground: color
+  		foreground: Color
   	}
   }
 }

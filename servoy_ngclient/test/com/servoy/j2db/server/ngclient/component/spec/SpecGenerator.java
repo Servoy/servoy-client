@@ -87,13 +87,14 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("combobox", "Combobox ", IRepository.FIELDS, IRuntimeCombobox.class,
-				new String[] {
-					"servoydefault/combobox/lib/select2-3.4.5/select2.js",
-					"servoydefault/combobox/lib/select2-3.4.5/select2.css",
-					"servoydefault/combobox/svy_select2.css"
-					// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
-				}));
+		specTemplateList.add(new SpecTemplateModel(
+			"combobox",
+			"Combobox ",
+			IRepository.FIELDS,
+			IRuntimeCombobox.class,
+			new String[] { "servoydefault/combobox/lib/select2-3.4.5/select2.js", "servoydefault/combobox/lib/select2-3.4.5/select2.css", "servoydefault/combobox/svy_select2.css"
+			// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
+			}));
 		specTemplateList.add(new SpecTemplateModel("label", "label", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadio.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
@@ -393,11 +394,16 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_DISPLAYTYPE.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWCLICK.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_USERTF.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_PRINTABLE.getPropertyName());
 
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
 		perComponentExceptions.put("label", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()))));
+		perComponentExceptions.put("textfield", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
+		perComponentExceptions.put("typeahead", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
+		perComponentExceptions.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
+		perComponentExceptions.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 
 		perComponentInternalProperties.put(
 			"htmlview",
