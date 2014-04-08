@@ -331,6 +331,17 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		}
 	};
 })
+.directive('svyRollovercursor',  function ($timeout) {
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			if (attrs.svyRollovercursor == 12 /* hand_cursor */)
+			{
+				element.css('cursor','pointer');
+			}
+		}
+	};
+})
 .factory("$apifunctions", function (){
 	
 	return {
