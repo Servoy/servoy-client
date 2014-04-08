@@ -301,7 +301,9 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
           		 style['left'] =  (scope.model.size.width -scope.model.size.height)/2 +'px';
           		 style['top'] = (scope.model.size.height -scope.model.size.width)/2 +'px';
           	  }
-          	  element.css(style);
+          	  setTimeout(function(){ // temporary fix until case with ImageMediaID will be fixed (will probably not use bagckgroun-image)
+          		element.css(style);  
+          	  },30)
             }
          }
     }
