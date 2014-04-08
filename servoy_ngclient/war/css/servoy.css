@@ -28,7 +28,11 @@ input[type=date] {
 label.svy-check-radio{
 	display:block;
 }
+label.svy-check-radio input{
+    vertical-align:middle;
+    margin:0px;
+}
 
 label.svy-check-radio span{
-	vertical-align: text-bottom;
+	vertical-align: middle;
 }
