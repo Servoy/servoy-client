@@ -393,16 +393,21 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 			{
 				ValueMap map = new ValueMap();
 				final String[] pairs = urlFragment.split("/"); //$NON-NLS-1$
-				if (pairs.length > 1)
+				int idx = 0;
+				while (!"s".equals(pairs[idx])) //$NON-NLS-1$
+					idx++;
+				idx++;
+				if (idx < pairs.length)
 				{
-					map.add("s", pairs[1]); //$NON-NLS-1$
+					map.add("s", pairs[idx]); //$NON-NLS-1$
+					idx += 2;
 					StringBuffer sb = new StringBuffer();
-					for (int i = 2; i < pairs.length; i++)
+					for (int i = idx; i < pairs.length; i++)
 					{
 						sb.append(pairs[i]);
 						sb.append("/"); //$NON-NLS-1$
 					}
-					sb.setLength(sb.length() - 1);
+					if (sb.length() > 0) sb.setLength(sb.length() - 1);
 					map.add("id", sb.toString()); //$NON-NLS-1$
 				}
 				if (urlParameters != null)
