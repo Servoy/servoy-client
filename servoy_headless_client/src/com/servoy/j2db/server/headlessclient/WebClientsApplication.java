@@ -400,7 +400,8 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 				if (idx < pairs.length)
 				{
 					map.add("s", pairs[idx]); //$NON-NLS-1$
-					idx += 2;
+					idx++;
+					if (idx < pairs.length && "id".equals(pairs[idx])) idx++; //$NON-NLS-1$
 					StringBuffer sb = new StringBuffer();
 					for (int i = idx; i < pairs.length; i++)
 					{
