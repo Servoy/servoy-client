@@ -5,7 +5,7 @@ angular.module('signaturefield',['servoy']).directive('signaturefield', function
         	   model: '=svyModel',
         	   svyApply: '='
            },
-           templateUrl : 'webcomponents/signaturefield/signaturefield.html',
+           templateUrl : 'servoycomponents/signaturefield/signaturefield.html',
            controller: function($scope, $element, $attrs, $parse) {
                var options = {
                    drawOnly : true,
