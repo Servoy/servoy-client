@@ -2,7 +2,7 @@
  <project default="build">
 
   <target name="build">
-      <jar update="true" destfile="webcomponents.jar" basedir="." manifest="META-INF/MANIFEST.MF" includes="*/**" excludes="build.xml,webcomponents.jar,META-INF">
+      <jar update="true" destfile="servoycomponents.jar" basedir="." manifest="META-INF/MANIFEST.MF" includes="*/**" excludes="build.xml,servoycomponents.jar,META-INF">
       </jar>
   </target>
 </project> 
