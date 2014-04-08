@@ -394,7 +394,7 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 				ValueMap map = new ValueMap();
 				final String[] pairs = urlFragment.split("/"); //$NON-NLS-1$
 				int idx = 0;
-				while (!"s".equals(pairs[idx])) //$NON-NLS-1$
+				while (idx < pairs.length && !"s".equals(pairs[idx])) //$NON-NLS-1$
 					idx++;
 				idx++;
 				if (idx < pairs.length)
