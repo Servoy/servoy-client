@@ -1,6 +1,6 @@
 name: 'namepanel2',
 displayName: 'Name panel',
-definition: 'webcomponents/namepanel2/namepanel2.js',
+definition: 'servoycomponents/namepanel2/namepanel2.js',
 model:
 {
 	bgcolor: 'color',
