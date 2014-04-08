@@ -39,7 +39,7 @@ if (navigator.userAgent.toLowerCase().substr('phantom')) {
 		      );
 		      this.dispatchEvent(ev);
 		    }else if( document.createEventObject ) {
-	            elem.fireEvent('on'+eventName);
+	            this.fireEvent('on'+eventName);
 	        }
 		 };		
 	})
