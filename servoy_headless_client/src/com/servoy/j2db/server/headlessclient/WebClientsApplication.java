@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -75,6 +76,8 @@ import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.util.lang.Bytes;
+import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.time.Duration;
 import org.apache.wicket.util.value.ValueMap;
 import org.odlabs.wiquery.core.commons.IWiQuerySettings;
@@ -383,6 +386,64 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 
 		mount(new SharedResourceRequestTargetUrlCodingStrategy("mediafolder", "servoy/media") //$NON-NLS-1$ //$NON-NLS-2$
 		{
+			@Override
+			protected void appendParameters(AppendingStringBuffer url, Map<String, ? > parameters)
+			{
+				if (parameters != null && parameters.size() > 0)
+				{
+					StringBuilder queryParams = new StringBuilder();
+					for (Entry< ? , ? > entry1 : parameters.entrySet())
+					{
+						Object value = ((Entry< ? , ? >)entry1).getValue();
+						if (value != null)
+						{
+							Object key = ((Entry< ? , ? >)entry1).getKey();
+							if ("s".equals(key) || "id".equals(key)) //$NON-NLS-1$ //$NON-NLS-2$
+							{
+								appendPathParameter(url, null, value.toString());
+							}
+							else
+							{
+								if (value instanceof String[])
+								{
+									String[] values = (String[])value;
+									for (String value1 : values)
+									{
+										if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
+										queryParams.append(key).append("=").append(value1);//$NON-NLS-1$ 
+									}
+								}
+								else
+								{
+									if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
+									queryParams.append(key).append("=").append(value);//$NON-NLS-1$ 
+								}
+							}
+						}
+					}
+					if (queryParams.length() > 0)
+					{
+						url.append("?").append(queryParams);//$NON-NLS-1$ 
+					}
+				}
+			}
+
+
+			@Override
+			protected void appendPathParameter(AppendingStringBuffer url, String key, String value)
+			{
+				String escapedValue = urlEncodePathComponent(value);
+				if (!Strings.isEmpty(escapedValue))
+				{
+					if (!url.endsWith("/"))//$NON-NLS-1$ 
+					{
+						url.append("/");//$NON-NLS-1$ 
+					}
+					if (key != null) url.append(urlEncodePathComponent(key)).append("/");//$NON-NLS-1$ 
+					url.append(escapedValue);
+				}
+			}
+
 			/*
 			 * (non-Javadoc)
 			 * 
@@ -393,22 +454,16 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 			{
 				ValueMap map = new ValueMap();
 				final String[] pairs = urlFragment.split("/"); //$NON-NLS-1$
-				int idx = 0;
-				while (idx < pairs.length && !"s".equals(pairs[idx])) //$NON-NLS-1$
-					idx++;
-				idx++;
-				if (idx < pairs.length)
+				if (pairs.length > 1)
 				{
-					map.add("s", pairs[idx]); //$NON-NLS-1$
-					idx++;
-					if (idx < pairs.length && "id".equals(pairs[idx])) idx++; //$NON-NLS-1$
+					map.add("s", pairs[1]); //$NON-NLS-1$
 					StringBuffer sb = new StringBuffer();
-					for (int i = idx; i < pairs.length; i++)
+					for (int i = 2; i < pairs.length; i++)
 					{
 						sb.append(pairs[i]);
 						sb.append("/"); //$NON-NLS-1$
 					}
-					if (sb.length() > 0) sb.setLength(sb.length() - 1);
+					sb.setLength(sb.length() - 1);
 					map.add("id", sb.toString()); //$NON-NLS-1$
 				}
 				if (urlParameters != null)
