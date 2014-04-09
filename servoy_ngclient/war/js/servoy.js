@@ -322,7 +322,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			if (attrs.svySelectonenter)
+			if (scope.$eval(attrs.svySelectonenter))
 			{
 				element.bind('focus', function() {
 					$timeout(function() {
@@ -337,7 +337,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			if (attrs.svyRollovercursor == 12 /* hand_cursor */)
+			if (scope.$eval(attrs.svyRollovercursor) == 12 /* hand_cursor */)
 			{
 				element.css('cursor','pointer');
 			}

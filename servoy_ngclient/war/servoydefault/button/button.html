@@ -8,7 +8,7 @@
 		svy-font='model.fontType'
 		ng-disabled='model.enabled == false' 
 		svy-tooltip='model.toolTipText'
-		svy-rollovercursor='{{model.rolloverCursor}}'
+		svy-rollovercursor='model.rolloverCursor'
 		ng-click='handlers.onActionMethodID($event)'
 		svy-mnemonic='model.mnemonic' 
         ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic'
