@@ -118,6 +118,19 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 */
 	public ISMForm newForm(String name, ISMForm superForm);
 
+
+	/** 
+	 * Creates a new JSForm Object.
+	 * 
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm')
+	 *
+	 * @param name the specified name of the form
+	 *
+	 * @return a new JSForm object
+	 */
+	public IBaseSMForm newForm(String name);
+
 	/**
 	 * Gets the style specified by the given name.
 	 * 

@@ -234,10 +234,14 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	{
 		try
 		{
-			Form form = createNewForm(null, name, null, superForm.getShowInMenu(), ((JSForm)superForm).getSupportChild().getSize());
+			Form form = createNewForm(null, name, null, superForm != null ? superForm.getShowInMenu() : false, superForm != null
+				? ((JSForm)superForm).getSupportChild().getSize() : new Dimension(0, 0));
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			((FormManager)application.getFormManager()).addForm(form, false);
-			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
+			if (superForm != null)
+			{
+				form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
+			}
 			return instantiateForm(form, true);
 		}
 		catch (RepositoryException e)
@@ -250,6 +254,12 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public IBaseSMForm newForm(String name, String dataSource)
 	{
 		return newForm(name, dataSource, null, false, 0, 0);
+	}
+
+	@JSFunction
+	public IBaseSMForm newForm(String name)
+	{
+		return newForm(name, null, null, false, 0, 0);
 	}
 
 	@JSFunction
