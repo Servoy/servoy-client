@@ -98,7 +98,7 @@ public class ResourceProvider implements Filter
 			if (url == null)
 			{
 				int index = pathInfo.indexOf('/', 1);
-				if (index > 1)
+				if (index > 1 && !pathInfo.substring(index).equals("/"))
 				{
 					for (IPackageReader reader : packageReaders)
 					{
