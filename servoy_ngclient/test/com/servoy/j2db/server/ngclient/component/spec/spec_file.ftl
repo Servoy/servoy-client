@@ -21,7 +21,7 @@ libraries: [<#list libraries as lib>'${lib}'<#if lib_has_next>,</#if></#list>],
 model:
 {
     <#list model as prop>
-        ${prop.name} : ${getPropTypeWithDefault(prop)}<#if prop_has_next>,</#if> 
+        ${prop.name} : ${getPropTypeWithDefault(name, prop)}<#if prop_has_next>,</#if> 
     </#list>
 },
 handlers:

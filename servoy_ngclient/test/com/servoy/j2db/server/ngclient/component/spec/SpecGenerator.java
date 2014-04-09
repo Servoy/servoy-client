@@ -305,7 +305,7 @@ public class SpecGenerator
 				{
 					handlers.add(element);
 				}
-				else if (isAllowedProperty(componentSpec.getName(), element.getName()) && getSpecTypeFromRepoType(element) != null)
+				else if (isAllowedProperty(componentSpec.getName(), element.getName()) && getSpecTypeFromRepoType(componentSpec.getName(), element) != null)
 				{
 					model.add(element);
 				}
@@ -319,7 +319,7 @@ public class SpecGenerator
 			{
 				ContentSpec cs = new ContentSpec();
 				Element el = cs.new Element(-1, IRepository.FIELDS, "tabIndex", IRepository.SERVERS, "");
-				if (isAllowedProperty(componentSpec.getName(), el.getName()) && getSpecTypeFromRepoType(el) != null)
+				if (isAllowedProperty(componentSpec.getName(), el.getName()) && getSpecTypeFromRepoType(componentSpec.getName(), el) != null)
 				{
 					model.add(el);
 				}
@@ -336,6 +336,7 @@ public class SpecGenerator
 
 	//@formatter:off
 	private static final IntHashMap<String> repoTypeMapping = new IntHashMap<String>();
+	private static final Map<String, Map<String, String>> componentRepoTypeMappingExceptions = new HashMap<String, Map<String, String>>();
 	private static final Map<String, String> repoTypeMappingExceptions = new HashMap<String, String>();
 	private static final List<String> internalProperties = new ArrayList<>();
 	private static final Map<String, List<String>> perComponentExceptions = new HashMap<>();
@@ -355,6 +356,13 @@ public class SpecGenerator
 		repoTypeMapping.put(IRepository.INSETS, "dimension");
 		repoTypeMapping.put(IRepositoryConstants.MEDIA, "media");
 		repoTypeMapping.put(IRepositoryConstants.SERVERS, "object"); // use SERVERS to generate 'object type'
+
+
+		// component specific repository element mapping
+		HashMap<String, String> htmlViewRepoTypeMapping = new HashMap<String, String>();
+		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
+			"{ 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback', 'parsehtml':true }}");
+		componentRepoTypeMappingExceptions.put("htmlview", htmlViewRepoTypeMapping);
 
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
@@ -435,9 +443,18 @@ public class SpecGenerator
 		return true;
 	}
 
-	public static String getSpecTypeFromRepoType(Element element)
+	public static String getSpecTypeFromRepoType(String compName, Element element)
 	{
 		String ret = null;
+		if (componentRepoTypeMappingExceptions.containsKey(compName))
+		{
+			Map<String, String> typeMapping = componentRepoTypeMappingExceptions.get(compName);
+			if (typeMapping.get(element.getName()) != null)
+			{
+				ret = typeMapping.get(element.getName());
+				return ret == null ? element.getName() : ret;
+			}
+		}
 		if (repoTypeMappingExceptions.get(element.getName()) != null)
 		{
 			//treat exceptions to the typeMapping rule  , ex: dataproviderID is a normal string in IRepository.

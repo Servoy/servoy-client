@@ -103,9 +103,9 @@ public class SpecTemplateModel
 		return libraries;
 	}
 
-	public String getPropTypeWithDefault(Element element)
+	public String getPropTypeWithDefault(String compName, Element element)
 	{
-		String type = SpecGenerator.getSpecTypeFromRepoType(element);
+		String type = SpecGenerator.getSpecTypeFromRepoType(compName, element);
 		if (!type.startsWith("{") && !type.startsWith("["))
 		{
 			type = "'" + type + "'";
