@@ -89,7 +89,7 @@ public class ResourceProvider implements Filter
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
 		String pathInfo = ((HttpServletRequest)request).getRequestURI();
-		if (pathInfo != null)
+		if (pathInfo != null && !pathInfo.equals("/"))
 		{
 			URL url = null;
 			if (pathInfo.startsWith("/")) url = Activator.getContext().getBundle().getEntry("/war" + pathInfo);
