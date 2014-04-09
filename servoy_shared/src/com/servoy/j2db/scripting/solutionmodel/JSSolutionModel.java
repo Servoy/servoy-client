@@ -232,16 +232,16 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public JSForm newForm(String name, ISMForm superForm)
 	{
+		if (superForm == null)
+		{
+			throw new IllegalArgumentException("superForm cannot be null");
+		}
 		try
 		{
-			Form form = createNewForm(null, name, null, superForm != null ? superForm.getShowInMenu() : false, superForm != null
-				? ((JSForm)superForm).getSupportChild().getSize() : new Dimension(0, 0));
+			Form form = createNewForm(null, name, null, superForm.getShowInMenu(), ((JSForm)superForm).getSupportChild().getSize());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			((FormManager)application.getFormManager()).addForm(form, false);
-			if (superForm != null)
-			{
-				form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
-			}
+			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
 			return instantiateForm(form, true);
 		}
 		catch (RepositoryException e)
