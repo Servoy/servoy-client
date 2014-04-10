@@ -77,7 +77,6 @@ import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.string.AppendingStringBuffer;
-import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.time.Duration;
 import org.apache.wicket.util.value.ValueMap;
 import org.odlabs.wiquery.core.commons.IWiQuerySettings;
@@ -398,26 +397,19 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 						if (value != null)
 						{
 							Object key = ((Entry< ? , ? >)entry1).getKey();
-							if ("s".equals(key) || "id".equals(key)) //$NON-NLS-1$ //$NON-NLS-2$
+							if (value instanceof String[])
 							{
-								appendPathParameter(url, null, value.toString());
+								String[] values = (String[])value;
+								for (String value1 : values)
+								{
+									if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
+									queryParams.append(key).append("=").append(value1);//$NON-NLS-1$ 
+								}
 							}
 							else
 							{
-								if (value instanceof String[])
-								{
-									String[] values = (String[])value;
-									for (String value1 : values)
-									{
-										if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
-										queryParams.append(key).append("=").append(value1);//$NON-NLS-1$ 
-									}
-								}
-								else
-								{
-									if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
-									queryParams.append(key).append("=").append(value);//$NON-NLS-1$ 
-								}
+								if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
+								queryParams.append(key).append("=").append(value);//$NON-NLS-1$ 
 							}
 						}
 					}
@@ -425,22 +417,6 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 					{
 						url.append("?").append(queryParams);//$NON-NLS-1$ 
 					}
-				}
-			}
-
-
-			@Override
-			protected void appendPathParameter(AppendingStringBuffer url, String key, String value)
-			{
-				String escapedValue = urlEncodePathComponent(value);
-				if (!Strings.isEmpty(escapedValue))
-				{
-					if (!url.endsWith("/"))//$NON-NLS-1$ 
-					{
-						url.append("/");//$NON-NLS-1$ 
-					}
-					if (key != null) url.append(urlEncodePathComponent(key)).append("/");//$NON-NLS-1$ 
-					url.append(escapedValue);
 				}
 			}
 
