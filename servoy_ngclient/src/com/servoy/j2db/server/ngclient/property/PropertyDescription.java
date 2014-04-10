@@ -190,12 +190,13 @@ public class PropertyDescription
 
 	public PropertyDescription getProperty(String name)
 	{
-		// TODO remove this delegation when going with tree structure , this is needed for DataAdapterList which 'thinks' everything is flat
 		String[] split = name.split("\\.");
 		if (split.length > 1)
 		{
-			return properties.get(split[0]).getProperty(split[1]);
-		}// end ToRemove
+			PropertyDescription propertyDescription = properties.get(split[0]);
+			PropertyDescription typeSpec = (PropertyDescription)propertyDescription.getConfig();
+			return typeSpec.getProperty(split[1]);
+		}
 
 		if (properties != null)
 		{

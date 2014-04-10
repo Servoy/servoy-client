@@ -64,4 +64,15 @@ public class WebComponentApiDefinition
 	{
 		return returnType;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "WebComponentApiDefinition[name:" + name + ",returnType:" + returnType + ", parameters:" + parameters + "]";
+	}
 }

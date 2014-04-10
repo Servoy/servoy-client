@@ -122,10 +122,28 @@ public class WebComponent implements ListDataListener
 		{
 			Debug.error(e);
 		}
-
-		if (properties.containsKey(propertyName))
+		String ownProperty = propertyName;
+		String lastProperty = propertyName;
+		Map<String, Object> map = properties;
+		String[] split = propertyName.split("\\.");
+		if (split.length > 1)
 		{
-			Object oldValue = properties.put(propertyName, propertyValue);
+			ownProperty = split[0];
+			for (int i = 0; i < split.length - 1; i++)
+			{
+				Map<String, Object> propertyMap = (Map<String, Object>)map.get(split[i]);
+				if (propertyMap == null)
+				{
+					propertyMap = new HashMap<>();
+					map.put(split[i], propertyMap);
+				}
+				map = propertyMap;
+			}
+			lastProperty = split[split.length - 1];
+		}
+		if (map.containsKey(lastProperty))
+		{
+			Object oldValue = map.put(lastProperty, propertyValue);
 			if (oldValue instanceof IValueList)
 			{
 				((IValueList)oldValue).removeListDataListener(this);
@@ -144,13 +162,13 @@ public class WebComponent implements ListDataListener
 			}
 			if (!Utils.equalObjects(propertyValue, oldValue))
 			{
-				changedProperties.add(propertyName);
+				changedProperties.add(ownProperty);
 				return true;
 			}
 		}
 		else
 		{
-			properties.put(propertyName, propertyValue);
+			map.put(lastProperty, propertyValue);
 			if (propertyValue instanceof IValueList)
 			{
 				((IValueList)propertyValue).addListDataListener(this);
@@ -159,7 +177,7 @@ public class WebComponent implements ListDataListener
 			{
 				((LookupListModel)propertyValue).addListDataListener(this);
 			}
-			changedProperties.add(propertyName);
+			changedProperties.add(ownProperty);
 			return true;
 		}
 		return false;

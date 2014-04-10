@@ -312,6 +312,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				break;
 			case custom :
 			{
+				String innerLevelpropName = level + propertySpec.getName();
 				Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
 				Map<String, Object> newComponentNode = new HashMap<>();
 				PropertyDescription localPropertyType = (PropertyDescription)propertySpec.getConfig();
@@ -319,7 +320,6 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				for (String prop : props.keySet())
 				{
 					PropertyDescription localPropertyDescription = localPropertyType.getProperty(prop);
-					String innerLevelpropName = level + localPropertyDescription.getName();
 					fillProperties(formElNodeForm, fe, props.get(prop), localPropertyDescription, dal, component, newComponentNode, isArrayElement ? ""
 						: innerLevelpropName + ".");
 				}

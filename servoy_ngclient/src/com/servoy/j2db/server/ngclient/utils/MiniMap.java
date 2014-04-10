@@ -503,4 +503,21 @@ public class MiniMap<K, V> implements Map<K, V>, Serializable
 
 		return -1;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder("MiniMap[size:");
+		sb.append(size);
+		sb.append(",values:{");
+		for (int i = 0; i < size; i++)
+		{
+			sb.append(keys[i]);
+			sb.append(':');
+			sb.append(values[i]);
+			if (i < size - 1) sb.append(',');
+		}
+		sb.append("}]");
+		return sb.toString();
+	}
 }

@@ -369,14 +369,7 @@ public class WebComponentSpec extends PropertyDescription
 							break;
 					}
 
-					PropertyDescription desc = new PropertyDescription(key, type, isArray, config, defaultValue);
-					if (propWCT != null && propWCT.getType() == PropertyType.custom)
-					{
-						//copy properties from type
-						//this will change whe tree structure comes in 
-						desc.putAll(spec.getType(propWCT.getName()).getProperties());
-					}
-					pds.put(key, desc);
+					pds.put(key, new PropertyDescription(key, type, isArray, config, defaultValue));
 				}
 			}
 		}

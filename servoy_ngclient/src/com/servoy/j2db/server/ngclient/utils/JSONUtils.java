@@ -386,13 +386,15 @@ public class JSONUtils
 				{
 					if (json instanceof JSONObject)
 					{
+						JSONObject jsonObject = (JSONObject)json;
+						PropertyDescription typeSpec = (PropertyDescription)componentSpecType.getConfig();
 						Map<String, Object> ret = new HashMap<String, Object>();
-						for (String key : componentSpecType.getProperties().keySet())
+						for (Entry<String, PropertyDescription> entry : typeSpec.getProperties().entrySet())
 						{
-							PropertyDescription pd = componentSpecType.getProperty(key);
-							if (pd != null && ((JSONObject)json).has(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
+							String key = entry.getKey();
+							if (jsonObject.has(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
 							{
-								ret.put(key, toJavaObject(((JSONObject)json).get(key), pd, fs));
+								ret.put(key, toJavaObject(jsonObject.get(key), entry.getValue(), fs));
 							}
 						}
 						return ret;
