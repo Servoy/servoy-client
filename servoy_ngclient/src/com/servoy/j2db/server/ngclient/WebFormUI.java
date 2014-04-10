@@ -216,6 +216,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 					if (dataproviderID instanceof String)
 					{
 						dal.add(component, (String)dataproviderID, level + propName);
+						return;
 					}
 					break;
 				}
@@ -226,10 +227,13 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 					if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
 					{
 						dal.addTaggedProperty(component, level + propName);
+						return;
 					}
 					break;
 				}
 				case valuelist : // skip valuelistID , it is handled elsewhere (should be changed to be handled here?)
+					return;
+				default :
 					break;
 			}
 			if (propValue != null) putInComponentNode(componentNode, propName, propValue); //TODO
@@ -310,11 +314,12 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 			{
 				Map<String, PropertyDescription> props = ((Map<String, PropertyDescription>)formElementProperty);
 				Map<String, Object> newComponentNode = new HashMap<>();
-				//putInComponentNode(componentNode, propertySpec.getName(), newComponentNode); // TODO
+				PropertyDescription localPropertyType = (PropertyDescription)propertySpec.getConfig();
+
 				for (String prop : props.keySet())
 				{
-					PropertyDescription localPropertyDescription = propertySpec.getProperty(prop);
-					String innerLevelpropName = level + propertySpec.getName();
+					PropertyDescription localPropertyDescription = localPropertyType.getProperty(prop);
+					String innerLevelpropName = level + localPropertyDescription.getName();
 					fillProperties(formElNodeForm, fe, props.get(prop), localPropertyDescription, dal, component, newComponentNode, isArrayElement ? ""
 						: innerLevelpropName + ".");
 				}

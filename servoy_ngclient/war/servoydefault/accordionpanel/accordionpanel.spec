@@ -139,7 +139,7 @@ types: {
   		text: 'tagstring',
   		relationName: 'relation',
   		active: 'boolean',
-  		foreground: Color
+  		foreground: 'color'
   	}
   }
 }
