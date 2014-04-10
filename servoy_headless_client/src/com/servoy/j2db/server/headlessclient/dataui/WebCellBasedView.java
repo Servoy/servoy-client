@@ -2686,8 +2686,25 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			// apply to this cell the state of the columnIdentifier IComponent, do keep the location that is set by the tableview when creating these components the first time.
 			// for listview this is the location to use.
 			Point loc = ((IComponent)c).getLocation();
+			int height = ((IComponent)c).getSize().height;
 			PropertyCopy.copyElementProps((IComponent)elementToColumnIdentifierComponent.get(element), (IComponent)c);
-			if (!isListViewMode()) ((IComponent)c).setLocation(loc);
+			if (!isListViewMode())
+			{
+				((IComponent)c).setLocation(loc);
+				//it shouldn't be possible to change the height
+				if (c instanceof IScriptableProvider)
+				{
+					IScriptable so = ((IScriptableProvider)c).getScriptObject();
+					if (so instanceof IRuntimeComponent)
+					{
+						IRuntimeComponent ic = (IRuntimeComponent)so;
+						if (ic.getHeight() != height)
+						{
+							ic.setSize(ic.getWidth(), height);
+						}
+					}
+				}
+			}
 		}
 		else
 		{
