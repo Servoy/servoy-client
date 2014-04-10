@@ -17,6 +17,8 @@
 package com.servoy.j2db.util;
 
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -102,5 +104,38 @@ public class ExtendableURLClassLoader extends URLClassLoader
 	public String toString()
 	{
 		return "ExtendableURLClassLoader: " + getURLs();
+	}
+
+	public void disposeClassLoader()
+	{
+		try
+		{
+			/* Tries to invoke close() of URLClassLoader from java7 , not available prior */
+			Method m;
+			m = this.getClass().getMethod("close");
+			if (m != null) m.invoke(this, null);
+		}
+		catch (SecurityException e)
+		{
+			Debug.error(e);
+		}
+		catch (NoSuchMethodException e)
+		{
+			Debug.error(e);
+		}
+		catch (IllegalArgumentException e)
+		{
+			Debug.error(e);
+		}
+		catch (IllegalAccessException e)
+		{
+			Debug.error(e);
+		}
+		catch (InvocationTargetException e)
+		{
+			Debug.error(e);
+		}
+
+
 	}
 }

@@ -204,4 +204,10 @@ public class LAFManager extends JarManager implements ILAFManager
 		}
 		return mac.booleanValue();
 	}
+
+	@Override
+	public void dispose()
+	{
+		_lafClassLoader.disposeClassLoader();
+	}
 }

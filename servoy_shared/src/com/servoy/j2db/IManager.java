@@ -37,4 +37,6 @@ public interface IManager
 	 * @exclude
 	 */
 	public void flushCachedItems();
+
+	public void dispose();
 }

@@ -2619,4 +2619,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		return getDataSetByQuery(serverName, select.build(), max_returned_rows);
 	}
+
+	public void dispose()
+	{
+
+	}
 }

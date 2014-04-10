@@ -1428,6 +1428,10 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 				public void flushCachedItems()
 				{
 				}
+
+				public void dispose()
+				{
+				}
 			};
 		}
 		return cmdManager;

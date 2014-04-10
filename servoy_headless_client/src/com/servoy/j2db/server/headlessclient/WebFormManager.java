@@ -382,4 +382,7 @@ public class WebFormManager extends FormManager
 		if (RequestCycle.get() != null) Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses. 
 	}
 
+	public void dispose()
+	{
+	}
 }

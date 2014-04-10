@@ -559,4 +559,8 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		}
 	}
 
+	public void dispose()
+	{
+	}
+
 }

@@ -544,4 +544,8 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 			action.refresh();
 		}
 	}
+
+	public void dispose()
+	{
+	}
 }

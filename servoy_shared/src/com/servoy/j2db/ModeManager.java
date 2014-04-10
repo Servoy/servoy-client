@@ -84,4 +84,9 @@ public class ModeManager implements IModeManager
 	{
 		//ignore
 	}
+
+	public void dispose()
+	{
+
+	}
 }
