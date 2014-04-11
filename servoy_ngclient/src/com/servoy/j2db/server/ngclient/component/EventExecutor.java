@@ -115,7 +115,7 @@ public class EventExecutor
 		}
 		catch (Exception ex)
 		{
-			Debug.error("Error while executing event", ex);
+			application.reportJSError(ex.getMessage(), ex);
 			return null;
 		}
 	}
