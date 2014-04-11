@@ -1302,11 +1302,30 @@ public abstract class WebBaseButton extends Button implements IButton, IResource
 				String onLoadCall = isElementAnchored ? " onload=\"Servoy.Utils.setLabelChildHeight('" + elementID + "', " + valign + ");\"" : "";
 				StringBuffer sb = new StringBuffer("<img id=\"").append(elementID).append("_img").append("\" src=\"").append(imgURL).append(
 					"\" style=\"vertical-align: middle;" + IE8filterFIx + (isElementAnchored && (cssClass == null) ? "visibility:hidden;" : "") + "\"").append(
-					onLoadCall).append("/>&nbsp;").append(bodyTextValue);
+					onLoadCall).append("/>");
+				sb.append("<span style=\"vertical-align:");
+				if (valign == ISupportTextSetup.TOP)
+				{
+					sb.append("top");
+				}
+				else if (valign == ISupportTextSetup.BOTTOM)
+				{
+					sb.append("bottom");
+				}
+				else
+				{
+					sb.append("middle");
+				}
+				sb.append(";\">&nbsp;").append(bodyTextValue);
 				bodyTextValue = sb.toString();
 			}
 
 			instrumentedBodyText.append(bodyTextValue);
+
+			if (imgURL != null)
+			{
+				instrumentedBodyText.append("</span>");
+			}
 		}
 		else if (imgURL != null)
 		{
