@@ -1,7 +1,7 @@
 <tabset  ng-class="model.styleClass">
     <tab ng-repeat="tab in model.tabs"
-    	 active="tab.active" select="select(tab)" disabled="tab.disabled">
-      <tab-heading>
+    	 active="tab.active" select="select(tab)" disabled="tab.disabled" >
+      <tab-heading  svy-mnemonic='tab.mnemonic'>
         <span svy-background='model.background' svy-foreground='tab.foreground == null ? model.foreground : tab.foreground'
         	  ng-bind='tab.text'></span>
       </tab-heading>

@@ -144,11 +144,13 @@ public final class FormElement
 					tabMap.put("active", Boolean.valueOf(active));
 					tabMap.put("foreground", tab.getForeground());
 					tabMap.put("name", tab.getName());
+					tabMap.put("mnemonic", tab.getMnemonic());
 					int containsFormID = tab.getContainsFormID();
 					// TODO should this be resolved way later on?
 					// if solution model then this form can change..
 					Form form = fs.getForm(containsFormID);
 					tabMap.put("containsFormId", form.getName());
+
 					tabList.add(tabMap);
 					active = false;
 				}
