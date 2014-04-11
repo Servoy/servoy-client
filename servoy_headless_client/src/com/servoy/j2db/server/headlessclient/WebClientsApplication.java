@@ -77,6 +77,7 @@ import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.time.Duration;
 import org.apache.wicket.util.value.ValueMap;
 import org.odlabs.wiquery.core.commons.IWiQuerySettings;
@@ -390,6 +391,11 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 			{
 				if (parameters != null && parameters.size() > 0)
 				{
+					Object solutionName = parameters.get("s"); //$NON-NLS-1$
+					if (solutionName != null) appendPathParameter(url, null, solutionName.toString());
+					Object resourceId = parameters.get("id"); //$NON-NLS-1$
+					if (resourceId != null) appendPathParameter(url, null, resourceId.toString());
+
 					StringBuilder queryParams = new StringBuilder();
 					for (Entry< ? , ? > entry1 : parameters.entrySet())
 					{
@@ -397,19 +403,22 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 						if (value != null)
 						{
 							Object key = ((Entry< ? , ? >)entry1).getKey();
-							if (value instanceof String[])
+							if (!"s".equals(key) && !"id".equals(key)) //$NON-NLS-1$ //$NON-NLS-2$
 							{
-								String[] values = (String[])value;
-								for (String value1 : values)
+								if (value instanceof String[])
+								{
+									String[] values = (String[])value;
+									for (String value1 : values)
+									{
+										if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
+										queryParams.append(key).append("=").append(value1);//$NON-NLS-1$ 
+									}
+								}
+								else
 								{
 									if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
-									queryParams.append(key).append("=").append(value1);//$NON-NLS-1$ 
+									queryParams.append(key).append("=").append(value);//$NON-NLS-1$ 
 								}
-							}
-							else
-							{
-								if (queryParams.length() > 0) queryParams.append("&"); //$NON-NLS-1$ 
-								queryParams.append(key).append("=").append(value);//$NON-NLS-1$ 
 							}
 						}
 					}
@@ -417,6 +426,39 @@ public class WebClientsApplication extends WebApplication implements IWiQuerySet
 					{
 						url.append("?").append(queryParams);//$NON-NLS-1$ 
 					}
+				}
+			}
+
+
+			@Override
+			protected void appendPathParameter(AppendingStringBuffer url, String key, String value)
+			{
+				String escapedValue = value;
+				String[] values = escapedValue.split("/");//$NON-NLS-1$ 
+				if (values.length > 1)
+				{
+					StringBuilder sb = new StringBuilder(escapedValue.length());
+					for (String str : values)
+					{
+						sb.append(urlEncodePathComponent(str));
+						sb.append('/');
+					}
+					sb.setLength(sb.length() - 1);
+					escapedValue = sb.toString();
+				}
+				else
+				{
+					escapedValue = urlEncodePathComponent(escapedValue);
+				}
+
+				if (!Strings.isEmpty(escapedValue))
+				{
+					if (!url.endsWith("/"))//$NON-NLS-1$ 
+					{
+						url.append("/");//$NON-NLS-1$ 
+					}
+					if (key != null) url.append(urlEncodePathComponent(key)).append("/");//$NON-NLS-1$ 
+					url.append(escapedValue);
 				}
 			}
 
