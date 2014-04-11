@@ -94,10 +94,12 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        }
 
        $scope.getTabIndex = function(tab) {
-    	   for(var i=0;i<$scope.model.tabs.length;i++) {
-    		   if ($scope.model.tabs[i].containsFormId == tab.containsFormId) {
-    			   return i + 1;
-    		   }
+    	   if(tab) {
+	    	   for(var i=0;i<$scope.model.tabs.length;i++) {
+	    		   if ($scope.model.tabs[i].containsFormId == tab.containsFormId) {
+	    			   return i + 1;
+	    		   }
+	    	   }
     	   }
     	   return -1;
        }
