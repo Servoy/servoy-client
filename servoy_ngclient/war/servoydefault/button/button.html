@@ -9,7 +9,9 @@
 		ng-disabled='model.enabled == false' 
 		svy-tooltip='model.toolTipText'
 		svy-rollovercursor='model.rolloverCursor'
-		ng-click='handlers.onActionMethodID($event)'
+		svy-click='handlers.onActionMethodID($event)'
+  	    svy-dblclick='handlers.onDoubleClickMethodID($event)'
+ 	    svy-rightclick='handlers.onRightClickMethodID($event)'
 		svy-mnemonic='model.mnemonic' 
         ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic'
        >

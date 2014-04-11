@@ -13,7 +13,9 @@
 	   svy-textrotation='model.textRotation'
 	   ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic''
 	   svy-mnemonic='model.mnemonic' 
-	   ng-click='handlers.onActionMethodID($event)'
+	   svy-click='handlers.onActionMethodID($event)'
+ 	   svy-dblclick='handlers.onDoubleClickMethodID($event)'
+ 	   svy-rightclick='handlers.onRightClickMethodID($event)'
 	   svy-tabseq='model.tabSeq'
  	   ></span>
  </label>

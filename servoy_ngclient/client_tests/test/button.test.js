@@ -23,7 +23,7 @@ describe('svyButton component', function() {
 					getFormUrl: function (formId) {
 						
 					}
-				}
+				},
 			}
 	}
 	var modelMock = {
@@ -88,7 +88,6 @@ describe('svyButton component', function() {
              // This will find your directive and run everything
              var buttonComponent = $compile(template)($scope);             
              // Now run a $digest cycle to update your template with new data
-  			 debugger;
   		     $scope.$digest();
              buttonComponent[0].triggermouseover();
              
@@ -105,5 +104,44 @@ describe('svyButton component', function() {
              buttonComponent[0].triggermouseover();
              jasmine.clock().tick(800);
            expect(tooltip.innerHTML.indexOf("UPDATED tooltip text content")!=-1).toBe(true);             
+	  });
+    
+    it("should have onclick", function() {
+
+  		var template= '<data-svy-button name="myButton" svy-model="model.myButton" svy-api="api.myButton" svy-handlers="handlers.myButton" '+
+  				'svy-apply="handlers.myButton.svy_apply" svy-servoyApi="handlers.myButton.svy_servoyApi"/>'
+  		var clicked = false;
+  		$scope.handlers.myButton.onActionMethodID = function(event) {
+  			clicked = true;
+  		}
+        // This will find your directive and run everything
+        var buttonComponent = $compile(template)($scope);             
+        // Now run a $digest cycle to update your template with new data
+  		$scope.$digest();
+  		buttonComponent.triggerHandler("click")
+  		expect( clicked).toBe(true);
+	  });
+    
+    it("should have double and right click", function() {
+  		var template= '<data-svy-button name="myButton" svy-model="model.myButton" svy-api="api.myButton" svy-handlers="handlers.myButton" '+
+  				'svy-apply="handlers.myButton.svy_apply" svy-servoyApi="handlers.myButton.svy_servoyApi"/>'
+  		var double = false;
+  		$scope.handlers.myButton.onDoubleClickMethodID = function(event) {
+  			double = true;
+  		}
+  		var right = false; 
+  		$scope.handlers.myButton.onRightClickMethodID = function(event) {
+			right = true;
+		}
+		$scope.$digest();
+        // This will find your directive and run everything
+        var buttonComponent = $compile(template)($scope);             
+        // Now run a $digest cycle to update your template with new data
+ 		$scope.$digest();
+ 		buttonComponent.triggerHandler("dblclick")
+ 		buttonComponent.triggerHandler("contextmenu")
+ 		
+ 		expect( double).toBe(true);
+ 		expect( right).toBe(true);
 	  });
 }); 

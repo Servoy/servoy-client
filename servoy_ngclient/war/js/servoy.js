@@ -106,7 +106,20 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 						}
 			
 					return style;
-		}
+		},
+		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent) {
+		    var functionReferenceString = svyEventHandler;
+			var index = functionReferenceString.indexOf('(');
+			if (index != -1) functionReferenceString = functionReferenceString.substring(0,index);
+			if( scope.$eval(functionReferenceString) ) {
+			   var fn = $parse(svyEventHandler);
+     		   element.on(domEvent, function(event) {
+	              scope.$apply(function() {
+	                fn(scope, {$event:event});
+	              });
+	            });
+    		}
+		}, 
 	}
 }).directive('ngOnChange', function($parse){
     return function(scope, elm, attrs){       
@@ -132,7 +145,6 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	        var propertyname = dataproviderString.substring(index+1);
 	        var beanname;
 	        var parent = scope.$parent;
-	        
 	        if(beanModel.svy_cn === undefined) {
 		        for(key in parent.model) {
 		        	if (parent.model[key] === beanModel) {
@@ -150,12 +162,12 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	        }
 	        var formname = parent.formname;
 	        while (!formname) {
+	        	parent = parent.$parent;
 	        	if (parent) {
-	        		parent = parent.$parent;
 	        		formname = parent.formname;
 	        	}
 	        	else { 
-	        		$log.error("no form found for " + bean + "." + propertyname);
+	        		$log.error("no form found for " + beanname + "." + propertyname);
 	        		return;
 	        	}
 	        }
@@ -181,6 +193,41 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         }
       }
     };
+}).directive('svyClick',  function ($parse,$utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyClick,'click');
+        }
+      };
+}).directive('svyDblclick',  function ($parse,$utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyDblclick,'dblclick');
+        }
+      };
+}).directive('svyRightclick',  function ($parse,$utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyRightclick,'contextmenu');
+        }
+      };
+}).directive('svyFocusgained',  function ($parse,$utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyFocusgained,'focus');
+        }
+      };
+}).directive('svyFocuslost',  function ($parse,$utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyFocuslost,'blur');
+        }
+      };
 }).directive('svyBorder',  function () {
     return {
         restrict: 'A',
@@ -437,3 +484,4 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		}
 	}
 }])
+

@@ -4,7 +4,8 @@ angular.module('svyTextfield',['servoy']).directive('svyTextfield', function($ap
       transclude: true,
       scope: {
         model: "=svyModel",
-        api: "=svyApi"
+        api: "=svyApi",
+        handlers: "=svyHandlers"
       },
       controller: function($scope, $element, $attrs, $log) {
     	 $scope.findMode = false;
