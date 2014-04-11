@@ -1,0 +1,10 @@
+<accordion close-others="true">
+	<accordion-group ng-repeat="tab in model.tabs" is-open="tab.active">
+		<accordion-heading>
+			<span ng-bind='tab.text' ng-click="select(tab)"></span>
+		</accordion-heading>
+		<div ng-style="viewportStyle">
+			<div ng-include="getForm(tab)" style="position:relative;left:0px;top:0px;width:100%;height:100%;"></div>
+		</div>
+	</accordion-group>
+</accordion>

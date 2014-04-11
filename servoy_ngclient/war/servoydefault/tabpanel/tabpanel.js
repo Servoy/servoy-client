@@ -10,8 +10,14 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
         api: "=svyApi"
       },
       controller: function($scope, $element, $attrs) {
-       var selectedTab;
-       $scope.bgstyle = {}
+        if($scope.model.tabOrientation == -4) {
+             var groupHeaderHeight = 39;
+             var activeGroupHeaderHeight = 37;
+             var scrollHeight = 15;
+             $scope.viewportStyle = {height: ($scope.model.size.height - ($scope.model.tabs.length - 1) * groupHeaderHeight - activeGroupHeaderHeight - scrollHeight) + "px"};
+        }
+        var selectedTab;
+        $scope.bgstyle = {}
        
         $scope.$watch("model.tabIndex", function(newValue) {
         	 if($scope.model.tabIndex == undefined) $scope.model.tabIndex = 1; // default it is 1
@@ -38,6 +44,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        });
        $scope.getTemplateUrl = function() {
     	   if ($scope.model.tabOrientation == -1) return "servoydefault/tabpanel/tablesspanel.html";
+    	   else if($scope.model.tabOrientation == -4) return "servoydefault/tabpanel/accordionpanel.html"
     	   else return "servoydefault/tabpanel/tabpanel.html";
        }
        $scope.getActiveTab = function() {
@@ -64,7 +71,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
        }
        
        $scope.getForm = function(tab) {
-       	if (tab == selectedTab) {
+       	if (selectedTab && tab.containsFormId == selectedTab.containsFormId) {
        		return $scope.svyServoyapi.getFormUrl(tab.containsFormId);
        	}
        	return "";
@@ -88,7 +95,7 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
 
        $scope.getTabIndex = function(tab) {
     	   for(var i=0;i<$scope.model.tabs.length;i++) {
-    		   if ($scope.model.tabs[i] == tab) {
+    		   if ($scope.model.tabs[i].containsFormId == tab.containsFormId) {
     			   return i + 1;
     		   }
     	   }
