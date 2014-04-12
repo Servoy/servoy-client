@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,8 +38,8 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
-import com.servoy.j2db.server.ngclient.utils.JSONUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
@@ -836,8 +837,16 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	@Override
 	public String getContainerName()
 	{
-		return (String)application.getActiveWebSocketClientEndpoint().executeDirectServiceCall("$windowService", "getContainerName",
-			new Object[] { formController.getForm() });
+		try
+		{
+			return (String)application.getWebsocketSession().executeDirectServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "getContainerName",
+				new Object[] { formController.getForm() });
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+			return null;
+		}
 	}
 
 	/*

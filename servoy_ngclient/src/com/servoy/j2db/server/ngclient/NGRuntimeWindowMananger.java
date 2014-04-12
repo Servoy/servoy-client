@@ -25,6 +25,7 @@ import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.server.websocket.IService;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -43,7 +44,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 	public NGRuntimeWindowMananger(INGApplication application)
 	{
 		super(application);
-		application.registerService(WINDOW_SERVICE, this);
+		application.getWebsocketSession().registerService(WINDOW_SERVICE, this);
 	}
 
 	/*
@@ -77,8 +78,8 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 						formName = formName.substring(lastSlash + 1, formName.length() - 5);
 					}
 					Form form = application.getFormManager().getPossibleForm(formName);
-					if (form != null) ((INGApplication)application).getActiveWebSocketClientEndpoint().touchForm(
-						application.getFlattenedSolution().getFlattenedForm(form), formNameOrUrl);
+					if (form != null) ((INGApplication)application).getWebsocketSession().touchForm(application.getFlattenedSolution().getFlattenedForm(form),
+						formNameOrUrl);
 				}
 				break;
 			}

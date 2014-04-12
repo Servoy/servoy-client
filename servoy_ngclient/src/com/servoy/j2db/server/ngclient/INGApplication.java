@@ -31,7 +31,7 @@ public interface INGApplication extends IApplication
 {
 	IEventDispatcher<NGEvent> getEventDispatcher();
 
-	INGClientEndpoint getActiveWebSocketClientEndpoint();
+	INGClientWebsocketSession getWebsocketSession();
 
 	IChangeListener getChangeListener();
 
@@ -39,7 +39,4 @@ public interface INGApplication extends IApplication
 
 	NGRuntimeWindowMananger getRuntimeWindowManager();
 
-	IService getService(String name);
-
-	void registerService(String name, IService service);
 }

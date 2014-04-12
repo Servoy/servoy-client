@@ -26,6 +26,7 @@ import com.servoy.j2db.server.ngclient.template.FormWithInlineLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.IndexTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.server.websocket.WebsocketEndpoint;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
@@ -61,8 +62,9 @@ public class TemplateGeneratorFilter implements Filter
 					String clientUUID = request.getParameter("uuid");
 					if (clientUUID != null)
 					{
-						INGApplication client = NGClientEndpoint.getClient(clientUUID);
-						if (client != null) fs = client.getFlattenedSolution();
+						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(
+							WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+						if (wsSession != null) fs = wsSession.getClient().getFlattenedSolution();
 					}
 					if (fs == null)
 					{

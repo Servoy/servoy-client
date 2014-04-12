@@ -49,6 +49,7 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.websocket.IService;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -72,7 +73,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 	{
 		super(application);
 		this.createdFormControllers = new ConcurrentHashMap<>();
-		application.registerService("formService", this);
+		application.getWebsocketSession().registerService("formService", this);
 	}
 
 	/*

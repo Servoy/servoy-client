@@ -46,6 +46,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.server.websocket.WebsocketEndpoint;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.MimeTypes;
@@ -190,18 +191,20 @@ public class MediaResourcesServlet extends HttpServlet
 		throws IOException
 	{
 		// try to look it up as clientId. (solution model)
-		IApplication client = NGClientEndpoint.getClient(clientUUID);
+		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
 
-		if (client == null)
+		IApplication client = null;
+		if (wsSession == null)
 		{
-			if (client == null)
+			IDebugClientHandler debugClientHandler = ApplicationServerRegistry.get().getDebugClientHandler();
+			if (debugClientHandler != null)
 			{
-				IDebugClientHandler debugClientHandler = ApplicationServerRegistry.get().getDebugClientHandler();
-				if (debugClientHandler != null)
-				{
-					client = debugClientHandler.getDebugNGClient();
-				}
+				client = debugClientHandler.getDebugNGClient();
 			}
+		}
+		else
+		{
+			client = wsSession.getClient();
 		}
 
 		if (client != null)
@@ -263,10 +266,14 @@ public class MediaResourcesServlet extends HttpServlet
 						String elementName = paths[3];
 						String propertyName = paths[4];
 
-						NGClient client = (NGClient)NGClientEndpoint.getClient(clientID);
-						IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-						WebComponent webComponent = form.getWebComponent(elementName);
-						form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
+						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(
+							WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
+						if (wsSession != null)
+						{
+							IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
+							WebComponent webComponent = form.getWebComponent(elementName);
+							form.getDataAdapterList().pushChanges(webComponent, propertyName, data);
+						}
 					}
 				}
 				catch (FileUploadException ex)

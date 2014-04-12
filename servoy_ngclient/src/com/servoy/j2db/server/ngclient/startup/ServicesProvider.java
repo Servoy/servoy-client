@@ -7,9 +7,9 @@ import org.apache.tomcat.starter.IServicesProvider;
 
 import com.servoy.j2db.server.ngclient.ComponentsModuleGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
-import com.servoy.j2db.server.ngclient.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.TemplateGeneratorFilter;
 import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
+import com.servoy.j2db.server.websocket.WebsocketEndpoint;
 
 
 public class ServicesProvider implements IServicesProvider
@@ -34,7 +34,7 @@ public class ServicesProvider implements IServicesProvider
 			set.add(MediaResourcesServlet.class);
 			set.add(ComponentsModuleGenerator.class);
 			set.add(TemplateGeneratorFilter.class);
-			set.add(NGClientEndpoint.class);
+			set.add(WebsocketEndpoint.class);
 			set.add(ResourceProvider.class);
 			return set;
 		}

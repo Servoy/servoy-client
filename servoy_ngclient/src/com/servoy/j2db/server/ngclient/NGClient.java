@@ -54,7 +54,7 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 {
 	private static final long serialVersionUID = 1L;
 
-	private INGClientEndpoint activeWebSocketClientEndpoint;
+	private final INGClientWebsocketSession wsSession;
 
 	private IEventDispatcher<NGEvent> executor;
 
@@ -64,11 +64,10 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 
 	private NGRuntimeWindowMananger runtimeWindowManager;
 
-	private final Map<String, IService> services = new HashMap<>();
 
-	public NGClient(INGClientEndpoint webSocketClientEndpoint)
+	public NGClient(INGClientWebsocketSession wsSession)
 	{
-		this.activeWebSocketClientEndpoint = webSocketClientEndpoint;
+		this.wsSession = wsSession;
 		settings = Settings.getInstance();
 		try
 		{
@@ -81,22 +80,6 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 			e.printStackTrace();
 			Debug.error(e);
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.INGApplication#getService(java.lang.String)
-	 */
-	@Override
-	public IService getService(String name)
-	{
-		return services.get(name);
-	}
-
-	public void registerService(String name, IService service)
-	{
-		services.put(name, service);
 	}
 
 	public void loadSolution(String solutionName) throws RepositoryException
@@ -149,29 +132,20 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	protected void solutionLoaded(Solution s)
 	{
 		super.solutionLoaded(s);
-		getActiveWebSocketClientEndpoint().solutionLoaded(s);
+		getWebsocketSession().solutionLoaded(s);
 	}
 
-
-	public void setActiveWebSocketClientEndpoint(INGClientEndpoint activeWebSocketClientEndpoint)
+	@Override
+	public INGClientWebsocketSession getWebsocketSession()
 	{
-		this.activeWebSocketClientEndpoint = activeWebSocketClientEndpoint;
-	}
-
-	/**
-	 * @return the activeWebSocketClientEndpoint
-	 */
-	public INGClientEndpoint getActiveWebSocketClientEndpoint()
-	{
-		return activeWebSocketClientEndpoint;
+		return wsSession;
 	}
 
 	@Override
 	public void valueChanged()
 	{
-		activeWebSocketClientEndpoint.valueChanged();
+		getWebsocketSession().valueChanged();
 	}
-
 
 	@Override
 	public void reportInfo(String msg)
@@ -741,6 +715,6 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 			}
 			scheduledExecutorService = null;
 		}
-		getActiveWebSocketClientEndpoint().closeSession();
+		getWebsocketSession().closeSession();
 	}
 }

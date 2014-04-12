@@ -22,9 +22,9 @@ import org.osgi.framework.BundleContext;
 
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.server.ngclient.IClientCreator;
-import com.servoy.j2db.server.ngclient.INGClientEndpoint;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
-import com.servoy.j2db.server.ngclient.NGClientEndpoint;
+import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
 /**
@@ -46,13 +46,12 @@ public class Activator implements BundleActivator
 		final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
 		if (service != null)
 		{
-			NGClientEndpoint.setClientCreator(new IClientCreator()
+			WebsocketSessionFactory.setClientCreator(new IClientCreator()
 			{
-
 				@Override
-				public NGClient createClient(INGClientEndpoint endpoint)
+				public NGClient createClient(INGClientWebsocketSession wsSession)
 				{
-					return (NGClient)service.createDebugNGClient(endpoint);
+					return (NGClient)service.createDebugNGClient(wsSession);
 				}
 			});
 		}

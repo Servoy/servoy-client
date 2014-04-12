@@ -37,7 +37,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
-import com.servoy.j2db.server.ngclient.utils.JSONUtils;
+import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Utils;
 
 /**

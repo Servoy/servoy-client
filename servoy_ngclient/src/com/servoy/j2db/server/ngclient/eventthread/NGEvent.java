@@ -45,24 +45,30 @@ public class NGEvent extends Event
 		else
 		{
 			// else take it from the current active endpoint
-			currentWindowName = client.getActiveWebSocketClientEndpoint().getCurrentWindowName();
+			currentWindowName = client.getWebsocketSession().getCurrentWindowName();
 		}
 	}
 
 	@Override
 	public void execute()
 	{
-		client.getActiveWebSocketClientEndpoint().startHandlingEvent();
-		previous = client.getRuntimeWindowManager().getCurrentWindowName();
-		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
+		client.getWebsocketSession().startHandlingEvent();
 		try
 		{
-			super.execute();
+			previous = client.getRuntimeWindowManager().getCurrentWindowName();
+			client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
+			try
+			{
+				super.execute();
+			}
+			finally
+			{
+				client.getRuntimeWindowManager().setCurrentWindowName(previous);
+			}
 		}
 		finally
 		{
-			client.getRuntimeWindowManager().setCurrentWindowName(previous);
-			client.getActiveWebSocketClientEndpoint().stopHandlingEvent();
+			client.getWebsocketSession().stopHandlingEvent();
 		}
 	}
 
@@ -76,7 +82,7 @@ public class NGEvent extends Event
 	{
 		super.willSuspend();
 		client.getRuntimeWindowManager().setCurrentWindowName(previous);
-		client.getActiveWebSocketClientEndpoint().stopHandlingEvent();
+		client.getWebsocketSession().stopHandlingEvent();
 
 	}
 
@@ -89,7 +95,7 @@ public class NGEvent extends Event
 	public void willResume()
 	{
 		super.willResume();
-		client.getActiveWebSocketClientEndpoint().startHandlingEvent();
+		client.getWebsocketSession().startHandlingEvent();
 		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
 	}
 }

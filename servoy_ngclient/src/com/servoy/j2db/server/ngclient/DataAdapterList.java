@@ -31,7 +31,7 @@ import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType.DataproviderConfig;
-import com.servoy.j2db.server.ngclient.utils.JSONUtils;
+import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -81,7 +81,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeApi(WebComponentApiDefinition apiDefinition, String elementName, Object[] args)
 	{
 		// TODO will by name be always enough, what happens exactly when we are in a tableview so having multiply of the same name..
-		return application.getActiveWebSocketClientEndpoint().executeApi(apiDefinition, formController.getName(), elementName, args);
+		return application.getWebsocketSession().executeApi(apiDefinition, formController.getName(), elementName, args);
 	}
 
 	@Override

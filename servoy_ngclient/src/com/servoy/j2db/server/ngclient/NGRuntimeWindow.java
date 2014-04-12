@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,8 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
-import com.servoy.j2db.server.ngclient.utils.JSONUtils;
+import com.servoy.j2db.server.websocket.utils.JSONUtils;
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -281,7 +283,14 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public void hideUI()
 	{
 		visible = false;
-		getApplication().getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
+		try
+		{
+			getApplication().getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
 
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
@@ -311,8 +320,14 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		size.put("width", wdth + "px");
 		size.put("height", hght + "px");
 		arguments.put("size", size);
-		getApplication().getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show",
-			new Object[] { getName(), arguments });
+		try
+		{
+			getApplication().getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
 		visible = true;
 
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
@@ -362,13 +377,20 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				{
 					navigatorForm.put("templateURL", JSONUtils.toStringObject(navForm, PropertyType.form));
 					navigatorForm.put("width", navForm.getWidth());
-					getApplication().getActiveWebSocketClientEndpoint().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null);
+					getApplication().getWebsocketSession().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null);
 				}
 			}
 		}
-		getApplication().getActiveWebSocketClientEndpoint().touchForm(currentForm.getForm(), null);
-		getApplication().getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
-			new Object[] { getName(), mainForm, navigatorForm, formTitle });
+		getApplication().getWebsocketSession().touchForm(currentForm.getForm(), null);
+		try
+		{
+			getApplication().getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
+				new Object[] { getName(), mainForm, navigatorForm, formTitle });
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
 
 	}
 }

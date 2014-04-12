@@ -280,7 +280,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		Form f = application.getFlattenedSolution().getForm(form.getName());
 		form = application.getFlattenedSolution().getFlattenedForm(f);
 		getFormUI().init();
-		((INGApplication)application).getActiveWebSocketClientEndpoint().updateForm(form);
+		((INGApplication)application).getWebsocketSession().updateForm(form);
 		return true;
 	}
 

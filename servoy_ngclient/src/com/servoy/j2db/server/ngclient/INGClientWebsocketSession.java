@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2014 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,36 +17,30 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.IOException;
+
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
+import com.servoy.j2db.server.websocket.IWebsocketSession;
 
 /**
- * The websocket endpoint interface.
+ * Interface for classes handling a websocket session based on a client.
  * 
  * @author rgansevles
  *
  */
-public interface INGClientEndpoint extends IChangeListener
+public interface INGClientWebsocketSession extends IWebsocketSession, IChangeListener
 {
+	INGApplication getClient();
+
 	void startHandlingEvent();
 
 	void stopHandlingEvent();
 
-	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String beanName, Object[] arguments);
-
 	void closeSession();
 
 	String getCurrentWindowName();
-
-	/**
-	 * @param serviceName
-	 * @param functionName
-	 * @param arguments
-	 */
-	void executeServiceCall(String serviceName, String functionName, Object[] arguments);
-
-	Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments);
 
 	/**
 	 * @param form
@@ -60,4 +54,16 @@ public interface INGClientEndpoint extends IChangeListener
 	void touchForm(Form flattenedForm, String realInstanceName);
 
 	void solutionLoaded(Solution flattenedSolution);
+
+	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String beanName, Object[] arguments);
+
+	/**
+	 * @param serviceName
+	 * @param functionName
+	 * @param arguments
+	 * @throws IOException 
+	 */
+	void executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
+
+	Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
 }
