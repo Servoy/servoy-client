@@ -49,7 +49,7 @@ public interface IDebugClientHandler
 	IWebClientApplication createDebugWebClient(WebSession webClientSession, HttpServletRequest req, WebCredentials credentials, String method, Object[] objects)
 		throws Exception;
 
-	IDebugClient createDebugNGClient(Object webSocketClientEndpoint);
+	IDebugClient createDebugNGClient(Object wsSession);
 
 	List<IDebugClient> getActiveDebugClients();
 

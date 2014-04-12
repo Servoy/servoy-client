@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.debug;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -29,10 +30,11 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
-import com.servoy.j2db.server.ngclient.INGClientEndpoint;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowMananger;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 
 /**
@@ -47,9 +49,9 @@ public class DebugNGClient extends NGClient implements IDebugClient
 	 * @param webSocketClientEndpoint
 	 * @param designerCallback 
 	 */
-	public DebugNGClient(INGClientEndpoint webSocketClientEndpoint, IDesignerCallback designerCallback)
+	public DebugNGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback)
 	{
-		super(webSocketClientEndpoint);
+		super(wsSession);
 		this.designerCallback = designerCallback;
 	}
 
@@ -156,7 +158,14 @@ public class DebugNGClient extends NGClient implements IDebugClient
 			{
 				((WebFormUI)controller.getFormUI()).init();
 			}
-			getActiveWebSocketClientEndpoint().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "reload", null);
+			try
+			{
+				getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "reload", null);
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
 		}
 
 		for (IFormController controller : scopesAndFormsToReload[0])

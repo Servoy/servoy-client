@@ -69,7 +69,7 @@ import com.servoy.j2db.server.headlessclient.SessionClient;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication;
-import com.servoy.j2db.server.ngclient.INGClientEndpoint;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.server.shared.WebCredentials;
@@ -654,7 +654,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		return debugWebClient;
 	}
 
-	public synchronized IDebugClient createDebugNGClient(Object webSocketClientEndpoint)
+	public synchronized IDebugClient createDebugNGClient(Object wsSession)
 	{
 		IFlattenedSolutionDebugListener debugListener = null;
 		if (debugNGClient != null && debugNGClient.getSolution() != null)
@@ -665,7 +665,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugListener = debugNGClient.getFlattenedSolution().getDebugListener();
 		}
-		debugNGClient = new DebugNGClient((INGClientEndpoint)webSocketClientEndpoint, designerCallback);
+		debugNGClient = new DebugNGClient((INGClientWebsocketSession)wsSession, designerCallback);
 		if (debugListener != null && debugNGClient.getFlattenedSolution() != null) debugNGClient.getFlattenedSolution().registerDebugListener(debugListener);
 		return debugNGClient;
 	}
