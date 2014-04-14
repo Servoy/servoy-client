@@ -100,7 +100,7 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("typeahead", "TypeAhead ", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,
-			new String[0]));
+			new String[] { "servoydefault/tabpanel/accordionpanel.css" }));
 		specTemplateList.add(new SpecTemplateModel("password", "Password field", IRepository.FIELDS, IRuntimePassword.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("htmlarea", "Html Area", IRepository.FIELDS, IRuntimeHtmlArea.class,
 			new String[] { "servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "servoydefault/htmlarea/lib/ui-tinymce.js" }));
