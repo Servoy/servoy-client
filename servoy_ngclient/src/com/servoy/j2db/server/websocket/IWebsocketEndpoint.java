@@ -29,24 +29,63 @@ import java.util.Map;
  */
 public interface IWebsocketEndpoint
 {
+	/**
+	 * It there an active session to the browser?
+	 */
 	boolean hasSession();
 
+	/**
+	 * Close the browser session.
+	 */
 	void closeSession();
 
+	/**
+	 * Close the browser session with a cancel reason.
+	 */
 	void cancelSession(String reason);
 
+	/**
+	 * Send a message to the browser, add conversion
+	 * @param data
+	 * @param async when false, wait for response
+	 * @return remote response (when not async)
+	 * @throws IOException
+	 */
 	Object sendMessage(Map<String, ? > data, boolean async) throws IOException;
 
+	/**
+	 * Just send this text as message, no conversion, no waiting for response.
+	 * @param txt
+	 * @throws IOException
+	 */
 	void sendMessage(String txt) throws IOException;
 
+	/**
+	 * Send a response for a previous request.
+	 * @see IWebsocketSession#callService(String, String, org.json.JSONObject, Object).
+	 * 
+	 * @param msgId id of previous request
+	 * @param object value to respond
+	 * @param success is this a normal or an error response?
+	 * @throws IOException
+	 */
 	void sendResponse(Object msgId, Object object, boolean success) throws IOException;
 
-	/**
+	/** Execute a service call asynchronously.
+	 * 
 	 * @param serviceName
 	 * @param functionName
 	 * @param arguments
 	 */
-	void executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
+	void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments);
 
-	Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
+	/** Execute a service call synchronously.
+	 * 
+	 * @param serviceName
+	 * @param functionName
+	 * @param arguments
+	 * @return remote result
+	 * @throws IOException
+	 */
+	Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
 }

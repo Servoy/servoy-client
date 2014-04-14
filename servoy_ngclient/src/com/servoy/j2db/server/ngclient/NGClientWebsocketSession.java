@@ -388,7 +388,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 
 	public void callService(String serviceName, final String methodName, final JSONObject args, final Object msgId)
 	{
-		final IService service = getService(serviceName);
+		final IService service = services.get(serviceName);
 		if (service != null)
 		{
 			client.invokeLater(new Runnable()
@@ -427,12 +427,6 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 		{
 			Debug.warn("Unknown servie called: " + serviceName);
 		}
-	}
-
-	@Override
-	public IService getService(String name)
-	{
-		return services.get(name);
 	}
 
 	public void registerService(String name, IService service)
@@ -539,11 +533,11 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 				// this is a instance reference to another form push that to the client.
 				if (client.isEventDispatchThread())
 				{
-					executeDirectServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
+					executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
 				}
 				else
 				{
-					executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
+					executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
 				}
 			}
 			catch (IOException e)
@@ -576,12 +570,13 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			new FormTemplateGenerator(fs).generate(form, "form_" + view + "_js.ftl", sw);
 			if (client.isEventDispatchThread())
 			{
-				executeDirectServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController",
+				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController",
 					new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
 			}
 			else
 			{
-				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
+				executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController",
+					new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
 			}
 		}
 		catch (IOException e)
@@ -722,15 +717,15 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 	}
 
 	@Override
-	public Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
+	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
 	{
-		return getActiveWebsocketEndpoint().executeDirectServiceCall(serviceName, functionName, arguments);
+		return getActiveWebsocketEndpoint().executeServiceCall(serviceName, functionName, arguments);
 	}
 
 	@Override
-	public void executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
+	public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
 	{
-		getActiveWebsocketEndpoint().executeServiceCall(serviceName, functionName, arguments);
+		getActiveWebsocketEndpoint().executeAsyncServiceCall(serviceName, functionName, arguments);
 		valueChanged();
 	}
 

@@ -27,20 +27,48 @@ import org.json.JSONObject;
  */
 public interface IWebsocketSession
 {
+	/**
+	 * Can it still be used?
+	 */
 	boolean isValid();
 
+	/**
+	 * Rebind this websocket session to a new endpoint (browser reconnect)
+	 */
 	void setActiveWebsocketEndpoint(IWebsocketEndpoint websocketEndpoint);
 
+	/**
+	 * Called when a new connection is started (also on reconnect)
+	 * @param uuid
+	 * @param argument argument from browser url
+	 */
 	void onOpen(String uuid, String argument);
 
+	/**
+	 * Request to close the websocket session.
+	 */
 	void closeSession();
 
+	/**
+	 * Handle an incoming message.
+	 * @param obj
+	 */
 	void handleMessage(JSONObject obj);
 
-	IService getService(String name);
-
+	/**
+	 * Register a handler for a named service.
+	 * @param name
+	 * @param service handler
+	 */
 	void registerService(String name, IService service);
 
+	/**
+	 * Call a named service from the browser.
+	 * @param serviceName
+	 * @param methodName
+	 * @param args
+	 * @param msgId
+	 */
 	void callService(String serviceName, String methodName, JSONObject args, Object msgId);
 
 }

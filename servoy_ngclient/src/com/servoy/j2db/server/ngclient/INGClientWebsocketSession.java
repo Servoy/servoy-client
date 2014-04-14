@@ -57,13 +57,21 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String beanName, Object[] arguments);
 
-	/**
+	/** Execute a service call asynchronously.
+	 * 
 	 * @param serviceName
 	 * @param functionName
 	 * @param arguments
-	 * @throws IOException 
 	 */
-	void executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
+	void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments);
 
-	Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
+	/** Execute a service call synchronously.
+	 * 
+	 * @param serviceName
+	 * @param functionName
+	 * @param arguments
+	 * @return remote result
+	 * @throws IOException
+	 */
+	Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
 }

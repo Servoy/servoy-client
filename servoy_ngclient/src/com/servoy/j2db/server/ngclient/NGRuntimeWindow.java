@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +29,6 @@ import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.websocket.utils.JSONUtils;
-import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -283,14 +281,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public void hideUI()
 	{
 		visible = false;
-		try
-		{
-			getApplication().getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
 
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
@@ -320,14 +311,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		size.put("width", wdth + "px");
 		size.put("height", hght + "px");
 		arguments.put("size", size);
-		try
-		{
-			getApplication().getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
 
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
@@ -382,15 +366,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 		}
 		getApplication().getWebsocketSession().touchForm(currentForm.getForm(), null);
-		try
-		{
-			getApplication().getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
-				new Object[] { getName(), mainForm, navigatorForm, formTitle });
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
-		}
-
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
+			new Object[] { getName(), mainForm, navigatorForm, formTitle });
 	}
 }

@@ -56,7 +56,6 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
-import com.servoy.j2db.server.websocket.DataConversion;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;

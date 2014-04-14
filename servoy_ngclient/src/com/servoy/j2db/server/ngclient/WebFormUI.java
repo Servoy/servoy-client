@@ -836,7 +836,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	{
 		try
 		{
-			return (String)application.getWebsocketSession().executeDirectServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "getContainerName",
+			return (String)application.getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "getContainerName",
 				new Object[] { formController.getForm() });
 		}
 		catch (IOException e)

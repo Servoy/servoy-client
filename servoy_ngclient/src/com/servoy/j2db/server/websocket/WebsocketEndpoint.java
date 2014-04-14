@@ -41,16 +41,21 @@ import org.json.JSONStringer;
 import org.json.JSONWriter;
 
 import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
+import com.servoy.j2db.server.websocket.utils.DataConversion;
 import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * The websocket endpoint for communication between the WebClient instanceof the server and the browser.
- * This class creates if needed an instance.
- * It should generated a uuid when a new instance is created that is then send to the client to have session support
- * so that when the browser refreshes or we show a dialog in another tab/iframe that websocket does map on the same instance.
+ * The websocket endpoint for communication between the WebSocketSession instance on the server and the browser.
+ * This class handles:
+ * <ul>
+ * <li>creating of websocket sessions and rebinding after reconnect
+ * <li>messages protocol with request/response
+ * <li>messages protocol with data conversion (currently only date)
+ * <li>service calls (both server to client and client to server)
+ * </ul>
  * 
- * @author jcompagner
+ * @author jcompagner, rgansevles
  */
 @SuppressWarnings("nls")
 @ServerEndpoint(value = "/websocket/{endpointType}/{id}/{argument}")
@@ -233,8 +238,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		wsSession.handleMessage(obj);
 	}
 
-	@Override
-	public void executeServiceCall(String serviceName, String functionName, Object[] arguments)
+	private void addServiceCall(String serviceName, String functionName, Object[] arguments)
 	{
 		// {"services":[{name:serviceName,call:functionName,args:argumentsArray}]}
 		Map<String, Object> serviceCall = new HashMap<>();
@@ -245,9 +249,15 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	}
 
 	@Override
-	public Object executeDirectServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
+	public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
 	{
-		executeServiceCall(serviceName, functionName, arguments);
+		addServiceCall(serviceName, functionName, arguments);
+	}
+
+	@Override
+	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
+	{
+		addServiceCall(serviceName, functionName, arguments);
 		return sendMessage(null, false); // will return response from last service call
 	}
 

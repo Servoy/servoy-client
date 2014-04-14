@@ -25,5 +25,11 @@ import org.json.JSONObject;
  */
 public interface IService
 {
+	/**
+	 * Execute a method requested from the browser client.
+	 * @param methodName
+	 * @param args
+	 * @return
+	 */
 	public Object executeMethod(String methodName, JSONObject args);
 }

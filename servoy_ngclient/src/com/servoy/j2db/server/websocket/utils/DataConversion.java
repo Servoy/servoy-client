@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.websocket;
+package com.servoy.j2db.server.websocket.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
