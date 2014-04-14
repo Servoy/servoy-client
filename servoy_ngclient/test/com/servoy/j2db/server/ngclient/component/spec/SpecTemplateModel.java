@@ -146,7 +146,7 @@ public class SpecTemplateModel
 
 	public String getTypes()
 	{
-		if (name.equals("tabpanel") || name.equals("accordionpanel") || name.equals("splitpane"))
+		if (name.equals("tabpanel") || name.equals("splitpane"))
 		{
 			return ",\r\n" + "types: {\r\n" + "  tab: {\r\n" + "  	model: {\r\n" + "  		name: 'string',\r\n" + "  		containsFormId: 'form',\r\n"
 				+ "  		text: 'tagstring',\r\n" + "  		relationName: 'relation',\r\n" + "  		active: 'boolean',\r\n" + "  		foreground: 'color',\r\n"

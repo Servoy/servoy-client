@@ -113,8 +113,6 @@ public class SpecGenerator
 			new String[] { "servoydefault/splitpane/bg-splitter/js/splitter.js", "servoydefault/splitpane/bg-splitter/css/style.css" }));
 		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
 			new String[0]));
-		specTemplateList.add(new SpecTemplateModel("accordionpanel", "AccordionPanel", IRepository.TABPANELS,
-			com.servoy.j2db.ui.IScriptAccordionPanelMethods.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
 			new String[] { "servoydefault/spinner/spinner.css", "//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" }));
 		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class, new String[0]));
