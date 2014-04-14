@@ -9,7 +9,6 @@ import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -374,7 +373,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	public Map<String, Map<String, Object>> getAllChanges()
 	{
-		Map<String, Map<String, Object>> props = null;
+		Map<String, Map<String, Object>> props = new HashMap<String, Map<String, Object>>(8);
 
 		ArrayList<WebComponent> allComponents = new ArrayList<WebComponent>();
 		allComponents.add(this); // add the form itself
@@ -385,11 +384,9 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 			Map<String, Object> changes = wc.getChanges();
 			if (changes.size() > 0)
 			{
-				if (props == null) props = new HashMap<String, Map<String, Object>>(8);
 				props.put(wc == this ? "" : wc.getName(), changes); //$NON-NLS-1$
 			}
 		}
-		if (props == null) return Collections.emptyMap();
 		return props;
 	}
 
