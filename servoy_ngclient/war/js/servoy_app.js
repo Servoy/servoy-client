@@ -243,19 +243,19 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		        	}
 	        	})
 	        }
-	        if (obj.cmsgid) { // response to event
-	        	if (obj.exception) {
+	        if (msg.cmsgid) { // response to event
+	        	if (msg.exception) {
 	        		// something went wrong
 	        		$rootScope.$apply(function() {
-	        			deferredEvents[obj.cmsgid].reject(obj.exception);
+	        			deferredEvents[msg.cmsgid].reject(msg.exception);
 	        		})
 	        	}
 	        	else {
 	        		$rootScope.$apply(function() {
-	        			deferredEvents[obj.cmsgid].resolve(obj.ret);
+	        			deferredEvents[msg.cmsgid].resolve(msg.ret);
 	        		})
 	        	}
-				delete deferredEvents[obj.cmsgid];
+				delete deferredEvents[msg.cmsgid];
 	        }
 	        if (msg.srvuuid) {
 	        	webStorage.session.add("svyuuid",msg.srvuuid);
