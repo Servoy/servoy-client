@@ -124,10 +124,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
        websocket.onmessage = function (message) {
 		   try {
 	        var obj = JSON.parse(message.data);
-	        var conversions = {};
-	        if (obj.conversions) conversions = obj.conversions; 
+	        var conversions = obj.conversions || {}; 
 	        var msg = obj.msg || {}
-	        if (conversions.msg) conversions = conversions.msg; 
 	    	var applyConversion = function(data, conversion) {
         		for(var conKey in conversion) {
         			if (conversion[conKey] == "Date") {
@@ -139,7 +137,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         		}
         	} 
         	
-        	applyConversion(msg, conversions)
+        	applyConversion(obj, conversions)
 
 	        // data got back from the server
 	        if (msg.forms) {
@@ -244,19 +242,19 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		        	}
 	        	})
 	        }
-	        if (msg.cmsgid) { // response to event
-	        	if (msg.exception) {
+	        if (obj.cmsgid) { // response to event
+	        	if (obj.exception) {
 	        		// something went wrong
 	        		$rootScope.$apply(function() {
-	        			deferredEvents[msg.cmsgid].reject(msg.exception);
+	        			deferredEvents[obj.cmsgid].reject(obj.exception);
 	        		})
 	        	}
 	        	else {
 	        		$rootScope.$apply(function() {
-	        			deferredEvents[msg.cmsgid].resolve(msg.ret);
+	        			deferredEvents[obj.cmsgid].resolve(obj.ret);
 	        		})
 	        	}
-				delete deferredEvents[msg.cmsgid];
+				delete deferredEvents[obj.cmsgid];
 	        }
 	        if (msg.srvuuid) {
 	        	webStorage.session.add("svyuuid",msg.srvuuid);
