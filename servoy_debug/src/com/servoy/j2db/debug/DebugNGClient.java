@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.debug;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -34,7 +33,6 @@ import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowMananger;
 import com.servoy.j2db.server.ngclient.WebFormUI;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 
 /**
@@ -158,14 +156,7 @@ public class DebugNGClient extends NGClient implements IDebugClient
 			{
 				((WebFormUI)controller.getFormUI()).init();
 			}
-			try
-			{
-				getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "reload", null);
-			}
-			catch (IOException e)
-			{
-				Debug.error(e);
-			}
+			getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "reload", null);
 		}
 
 		for (IFormController controller : scopesAndFormsToReload[0])
