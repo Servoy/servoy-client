@@ -127,6 +127,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        var conversions = {};
 	        if (obj.conversions) conversions = obj.conversions; 
 	        var msg = obj.msg || {}
+	        if (conversions.msg) conversions = conversions.msg; 
 	    	var applyConversion = function(data, conversion) {
         		for(var conKey in conversion) {
         			if (conversion[conKey] == "Date") {
