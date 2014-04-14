@@ -39,6 +39,7 @@
 		<script src="js/fileupload.js"></script>
 		<script src="js/servoy-components.js"></script>
 		<script src="js/servoy_app.js"></script>
+		<script src="js/jquery.maskedinput.js"></script>
 
 		<#list componentReferences as componentScript>
 			<script src="${componentScript}"></script>

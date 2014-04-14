@@ -181,8 +181,23 @@ public class JSONUtils
 		{
 			ComponentFormat format = (ComponentFormat)value;
 			w = w.object();
-			//w.key("for").value(format..);
-			w.key("type").value(Column.getDisplayTypeString(format.uiType));
+			String type = Column.getDisplayTypeString(format.uiType);
+			if (type.equals("INTEGER")) type = "NUMBER";
+			w.key("type").value(type);
+			boolean isMask = format.parsedFormat.isMask();
+			w.key("isMask").value(isMask);
+			w.key("edit").value(format.parsedFormat.getEditFormat());
+			String mask = null;
+			if (isMask && type.equals("DATETIME"))
+			{
+				mask = format.parsedFormat.getDateMask();
+			}
+			else if (isMask && type.equals("TEXT"))
+			{
+				mask = format.parsedFormat.getDisplayFormat();
+			}
+			w.key("mask").value(mask);
+			w.key("allowedCharacters").value(format.parsedFormat.getAllowedCharacters());
 			w.key("display").value(format.parsedFormat.getDisplayFormat());
 			w.endObject();
 		}

@@ -216,14 +216,14 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 
 		return ret 
 	}
-	function formatInternal(data,servoyFormatObj){
-		if((!servoyFormatObj) || (!servoyFormatObj.type) || (!data) ) return data;
-		if(servoyFormatObj.type == "NUMBER"){
-			 return formatNumbers(data,servoyFormatObj.display);
-		}else if(servoyFormatObj.type == "TEXT"){
-			return formatText(data,servoyFormatObj.display);
-		}else if(servoyFormatObj.type == "DATETIME"){
-			return formatDate(data,servoyFormatObj.display);
+	function formatInternal(data,servoyFormat,type){
+		if((!servoyFormat) || (!type) || (!data) ) return data;
+		if(type == "NUMBER"){
+			 return formatNumbers(data,servoyFormat);
+		}else if(type == "TEXT"){
+			return formatText(data,servoyFormat);
+		}else if(type == "DATETIME"){
+			return formatDate(data,servoyFormat);
 		}
 		
 		return data;
@@ -233,13 +233,13 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		
 		format : formatInternal ,
 		
-		unformat : function(data ,servoyFormat){
-			if((!servoyFormat)||(!servoyFormat.type) || (!data) ) return data;
-			if(servoyFormat.type == "NUMBER"){
-				return unformatNumbers(data,servoyFormat.display);
-			}else if(servoyFormat.type == "TEXT"){
+		unformat : function(data ,servoyFormat,type){
+			if((!servoyFormat)||(!type) || (!data) ) return data;
+			if(type == "NUMBER"){
+				return unformatNumbers(data,servoyFormat);
+			}else if(type == "TEXT"){
 				return data;
-			}else if(servoyFormat.type == "DATETIME"){
+			}else if(type == "DATETIME"){
 				//unformatting is handled by calendar widget
 			}
 			return data;
@@ -259,34 +259,82 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 }).directive("svyFormat", ["$formatterUtils","$parse",function ($formatterUtils,$parse){
 	return {
 		  require: 'ngModel',
+		  priority: 1,
 		  link: function($scope, element, attrs, ngModelController) {
+			 var svyFormat = $scope.$eval(attrs['svyFormat'])
+			 var useMask = false;
+			 $scope.$watch(attrs['svyFormat'], function(newVal){
+				 svyFormat = newVal;
+			 })
+			 
+			 element.on('focus',function(){
+				 if(svyFormat){
+					 if(svyFormat.mask && svyFormat.isMask) {
+						 if(svyFormat.allowedCharacters){
+							 element.mask(svyFormat.mask,{placeholder: svyFormat.placeHolder},{allowedCharacters: svyFormat.allowedCharacters}); 
+						 }else{
+							 element.mask(svyFormat.mask,{placeholder: svyFormat.placeHolder});
+						 }
+					 }else if(svyFormat.edit){
+						 $scope.$evalAsync(function(){
+							 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
+							 ngModelController.$render();
+						 })
+					 }		
+				 }				 			  
+			 })
+			 element.on('blur',function(){
+				 if(svyFormat){
+					 if(svyFormat.mask && svyFormat.isMask) element.unmask();
+					 $scope.$evalAsync(function(){
+						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
+						 ngModelController.$render();
+					 })	
+				 }				 
+			 })
 			  
-		    //convert data from view format to model format
-		    ngModelController.$parsers.push(function(viewValue) {
-		    	var svyFormat = $parse(attrs['svyFormat'])($scope)
-		    	var data = viewValue
-		    	try{
-		      	var data =  $formatterUtils.unformat(viewValue,svyFormat);
-		    	}catch(e){
-		    		console.log(e)
-			      	//TODO set error state 
-			      	//ngModelController.$error ..
-		    	}
-		      return data; //converted
-		    });
+			 //convert data from view format to model format
+		    ngModelController.$parsers.push(viewToModel);
 		    //convert data from model format to view format
-		    ngModelController.$formatters.push(function(modelValue) {
-		    	var svyFormat = $parse(attrs['svyFormat'])($scope)
-		        var data = modelValue;
-		    	try {
-		    		data = $formatterUtils.format(modelValue,svyFormat);
-		    	}catch(e){
-		    		console.log(e)
-			      	//TODO set error state 
-			      	//ngModelController.$error ..
+		    ngModelController.$formatters.push(modelToView);
+		    
+		    function viewToModel(viewValue) {
+		    	var svyFormat = $scope.$eval(attrs['svyFormat'])
+		    	var data = viewValue
+		    	if(svyFormat){
+			    	var format = null;
+			    	var type = svyFormat ? svyFormat.type: null;
+			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
+			    	if(element.is(":focus"))format = svyFormat.edit	    	 
+			    	try{
+			      	  var data =  $formatterUtils.unformat(viewValue,format,type);
+			    	}catch(e){
+			    		console.log(e)
+				      	//TODO set error state 
+				      	//ngModelController.$error ..
+			    	}
 		    	}
 		      return data; //converted
-		    });
+		    }
+		    
+		    function modelToView(modelValue) {
+		    	var svyFormat =$scope.$eval(attrs['svyFormat'])
+		    	var data = modelValue;
+		    	if(svyFormat){
+			    	var format = null;
+			    	var type = svyFormat ? svyFormat.type: null;
+			    	format = svyFormat.display? svyFormat.display : svyFormat.edit 
+			    	if(element.is(":focus"))format = svyFormat.edit
+			    	try {
+			    		data = $formatterUtils.format(modelValue,format,type);
+			    	}catch(e){
+			    		console.log(e)
+				      	//TODO set error state 
+				      	//ngModelController.$error ..
+			    	}
+		    	}
+		      return data; //converted
+		    }
 		  }
 		}	
 }]);
