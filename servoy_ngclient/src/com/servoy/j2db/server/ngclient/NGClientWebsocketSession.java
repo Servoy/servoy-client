@@ -34,7 +34,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
-import org.json.JSONWriter;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.FlattenedSolution;
@@ -292,10 +291,8 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 						@Override
 						public void run()
 						{
-							JSONWriter response = null;
 							try
 							{
-								response = new JSONStringer().object().key("cmsgid").value(obj.get("cmsgid"));
 								IWebFormController form = parseForm(obj);
 								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 								boolean isVisible = obj.getBoolean("visible");
@@ -316,27 +313,18 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 										form.loadRecords(selectedRecord.getRelatedFoundSet(obj.getString("relation")));
 									}
 								}
-								response.key("ret").value(ok);
+								wsEndpoint.sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true);
 							}
 							catch (Exception e)
 							{
+								Debug.error(e);
 								try
 								{
-									if (response != null) response.key("exception").value(e.getMessage());
+									wsEndpoint.sendResponse(obj.get("cmsgid"), e.getMessage(), false);
 								}
-								catch (JSONException e1)
+								catch (IOException | JSONException e1)
 								{
-								}
-							}
-							finally
-							{
-								try
-								{
-									if (response != null) wsEndpoint.sendMessage(response.endObject().toString());
-								}
-								catch (JSONException | IOException e)
-								{
-									Debug.error(e);
+									Debug.error(e1);
 								}
 							}
 						}
@@ -570,8 +558,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			new FormTemplateGenerator(fs).generate(form, "form_" + view + "_js.ftl", sw);
 			if (client.isEventDispatchThread())
 			{
-				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController",
-					new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
+				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
 			}
 			else
 			{
