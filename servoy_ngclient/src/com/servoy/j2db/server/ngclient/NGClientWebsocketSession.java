@@ -147,6 +147,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			// TODO now we just get the current form that is was last current and set it back
 			// is there a better way? (the url doesn't have any info)
 			client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
+			sendSolutionCSSURL(client.getSolution());
 		}
 		else
 		{
@@ -600,19 +601,24 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 	}
 
 	@Override
-	public void solutionLoaded(Solution flattenedSolution)
+	public void solutionLoaded(Solution solution)
 	{
-		int styleSheetID = flattenedSolution.getStyleSheetID();
+		sendSolutionCSSURL(solution);
+	}
+
+	protected void sendSolutionCSSURL(Solution solution)
+	{
+		int styleSheetID = solution.getStyleSheetID();
 		if (styleSheetID > 0)
 		{
-			Media styleSheetMedia = flattenedSolution.getMedia(styleSheetID);
+			Media styleSheetMedia = solution.getMedia(styleSheetID);
 			if (styleSheetMedia != null)
 			{
 				JSONStringer stringer = new JSONStringer();
 				try
 				{
 					stringer.object().key("styleSheetPath").value(
-						"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + flattenedSolution.getName() + "/" + styleSheetMedia.getName());
+						"resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" + styleSheetMedia.getName());
 					getActiveWebsocketEndpoint().sendMessage(stringer.endObject().toString());
 				}
 				catch (Exception e)
@@ -626,7 +632,6 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			}
 		}
 	}
-
 
 	public void startHandlingEvent()
 	{
@@ -642,7 +647,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 	@Override
 	public void valueChanged()
 	{
-		// if there is an incoming event, ignore this change else push it.
+		// if there is an incoming message or an NGEvent running on event thread, postpone sending until it's done; else push it.
 		if (getActiveWebsocketEndpoint().hasSession() && client != null && handlingEvent.get() == 0)
 		{
 			try

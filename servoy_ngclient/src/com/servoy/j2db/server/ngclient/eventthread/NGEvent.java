@@ -72,11 +72,6 @@ public class NGEvent extends Event
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.headlessclient.eventthread.Event#willSuspend()
-	 */
 	@Override
 	public void willSuspend()
 	{
@@ -86,11 +81,6 @@ public class NGEvent extends Event
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.headlessclient.eventthread.Event#willResume()
-	 */
 	@Override
 	public void willResume()
 	{
@@ -98,4 +88,5 @@ public class NGEvent extends Event
 		client.getWebsocketSession().startHandlingEvent();
 		client.getRuntimeWindowManager().setCurrentWindowName(currentWindowName);
 	}
+
 }

@@ -366,7 +366,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 		for (WebComponent wc : allComponents)
 		{
-			props.put(wc == this ? "" : wc.getName(), wc.getProperties()); //$NON-NLS-1$
+			props.put(wc == this ? "" : wc.getName(), wc.getPropertiesClearChanged()); //$NON-NLS-1$
 		}
 
 		return props;

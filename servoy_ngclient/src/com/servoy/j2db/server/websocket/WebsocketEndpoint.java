@@ -365,7 +365,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		synchronized (pendingMessages)
 		{
 			pendingMessages.put(messageId, ret);
-			while (ret.size() == 0)
+			while (ret.size() == 0) // TODO are fail-safes/timeouts needed here in case client browser gets closed or confused?
 			{
 				try
 				{

@@ -255,7 +255,7 @@ public class WebComponent implements ListDataListener
 		return Collections.emptyMap();
 	}
 
-	public Map<String, Object> getProperties()
+	public Map<String, Object> getPropertiesClearChanged()
 	{
 		changedProperties.clear();
 		return properties;

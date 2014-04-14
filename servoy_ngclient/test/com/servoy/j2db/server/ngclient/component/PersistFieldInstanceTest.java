@@ -88,7 +88,7 @@ public class PersistFieldInstanceTest
 	private NGClient client;
 
 	@Before
-	public void buildSoluton()
+	public void buildSolution()
 	{
 		File[] locations = new File[2];
 		locations[0] = new File("war/servoydefault/");

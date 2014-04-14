@@ -60,23 +60,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		this.inlineScriptExecutor = new InlineScriptExecutor(formController);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.IDataAdapterList#execute(com.servoy.j2db.server.ngclient.WebComponent, java.lang.String, java.lang.Object)
-	 */
 	@Override
 	public Object execute(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
 		return executor.execute(webComponent, event, eventId, args);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.IDataAdapterList#executeApi(com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition, java.lang.String,
-	 * java.lang.Object[])
-	 */
 	@Override
 	public Object executeApi(WebComponentApiDefinition apiDefinition, String elementName, Object[] args)
 	{
@@ -142,17 +131,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	/**
-	 * @return the record
-	 */
 	public IRecordInternal getRecord()
 	{
 		return record;
 	}
 
-	/**
-	 * 
-	 */
 	private void pushRecordValues(boolean fireChangeEvent, boolean fireOnDataChange)
 	{
 		boolean changed = false;
@@ -365,11 +348,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return JSONUtils.toStringObject(propertyValue, propertyDescription.getType());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.server.ngclient.IDataAdapterList#setFindMode(boolean)
-	 */
 	@Override
 	public void setFindMode(boolean findMode)
 	{
