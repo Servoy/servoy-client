@@ -135,7 +135,7 @@ public class WebComponentSpecProvider
 					try
 					{
 						ArrayList<IPackageReader> readers = new ArrayList<IPackageReader>();
-						InputStream is = servletContext.getResourceAsStream("/components.properties"); 
+						InputStream is = servletContext.getResourceAsStream("/WEB-INF/components.properties");
 						Properties properties = new Properties();
 						properties.load(is);
 						String[] locations = properties.getProperty("locations").split(";");
