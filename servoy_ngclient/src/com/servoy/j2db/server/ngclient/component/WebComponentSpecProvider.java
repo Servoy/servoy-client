@@ -19,10 +19,12 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
@@ -106,10 +108,6 @@ public class WebComponentSpecProvider
 		return cachedDescriptions.values().toArray(new WebComponentSpec[cachedDescriptions.size()]);
 	}
 
-	// TODO get rid of static access
-	private static final String[] WEB_COMPONENT_PACKAGE_LOCATIONS = { "/servoydefault", "/webcomponents" }; // TODO take these from the solution somehow
-//	private static final String[] WEB_COMPONENT_PACKAGE_LOCATIONS = { "/servoydefault/servoydefault.jar", "/webcomponents/webcomponents.jar" }; // TODO take these from the solution somehow
-
 	private static volatile WebComponentSpecProvider instance;
 
 	public static WebComponentSpecProvider getInstance()
@@ -134,14 +132,25 @@ public class WebComponentSpecProvider
 			{
 				if (instance == null)
 				{
-					// TODO remove File access, work only with input streams
-					File[] locations = new File[WEB_COMPONENT_PACKAGE_LOCATIONS.length];
-					for (int i = WEB_COMPONENT_PACKAGE_LOCATIONS.length - 1; i >= 0; i--)
+					try
 					{
-						locations[i] = new File(servletContext.getRealPath(WEB_COMPONENT_PACKAGE_LOCATIONS[i]));
-					}
+						ArrayList<IPackageReader> readers = new ArrayList<IPackageReader>();
+						InputStream is = servletContext.getResourceAsStream("/components.properties"); 
+						Properties properties = new Properties();
+						properties.load(is);
+						String[] locations = properties.getProperty("locations").split(";");
+						for (String location : locations)
+						{
+							File f = new File(servletContext.getRealPath(location));
+							readers.add(new WebComponentPackage.DirPackageReader(f));
+						}
 
-					instance = new WebComponentSpecProvider(locations);
+						instance = new WebComponentSpecProvider(readers.toArray(new IPackageReader[readers.size()]));
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+					}
 				}
 			}
 		}

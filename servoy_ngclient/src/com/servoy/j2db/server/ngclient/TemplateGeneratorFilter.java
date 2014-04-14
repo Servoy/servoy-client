@@ -142,8 +142,11 @@ public class TemplateGeneratorFilter implements Filter
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
-		// done in the ResourceProvider filter
-//		WebComponentSpecProvider.init(fc.getServletContext());
+		//when started in developer - init is done in the ResourceProvider filter
+		if (!ApplicationServerRegistry.get().isDeveloperStartup())
+		{
+			WebComponentSpecProvider.init(fc.getServletContext());
+		}
 	}
 
 	@Override
