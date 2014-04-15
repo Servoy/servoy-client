@@ -4,7 +4,8 @@ angular.module('svyTextarea',['servoy']).directive('svyTextarea', function($apif
       transclude: true,
       scope: {
         model: "=svyModel",
-        api: "=svyApi"
+        api: "=svyApi",
+        handlers: "=svyHandlers"
       },
       controller: function($scope, $element, $attrs) {
           $scope.style = {width:'100%',height:'100%', resize:'none'}

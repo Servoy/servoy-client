@@ -97,8 +97,8 @@ public class EventExecutor
 					try
 					{
 						event.setTimestamp(new Timestamp(json.getLong("timestamp")));
-						event.setLocation(new Point(json.getInt("x"), json.getInt("y")));
-						event.setModifiers(json.getInt("modifiers"));
+						if (json.has("x")) event.setLocation(new Point(json.getInt("x"), json.getInt("y")));
+						if (json.has("modifiers")) event.setModifiers(json.getInt("modifiers"));
 					}
 					catch (Exception ex)
 					{
