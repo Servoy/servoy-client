@@ -4,7 +4,8 @@ angular.module('svyHtmlview',['servoy']).directive('svyHtmlview', function() {
       transclude: true,
       scope: {
       	model: "=svyModel",
-      	api: "=svyApi"
+      	api: "=svyApi",
+      	handlers: "=svyHandlers"
       },
       link: function($scope, $element, $attrs,ngModelController) {
        $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
