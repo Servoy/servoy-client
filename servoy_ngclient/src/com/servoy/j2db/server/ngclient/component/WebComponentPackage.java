@@ -33,6 +33,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.io.FilenameUtils;
 
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
@@ -328,6 +330,95 @@ public class WebComponentPackage
 		public String toString()
 		{
 			return "DirPackage: " + dir.getAbsolutePath();
+		}
+	}
+
+	public static class WarURLPackageReader implements WebComponentPackage.IPackageReader
+	{
+		private final URL urlOfManifest;
+		private final String packageName;
+		private final ServletContext servletContext;
+
+		public WarURLPackageReader(ServletContext servletContext, String packageName) throws MalformedURLException
+		{
+			this.packageName = packageName.endsWith("/") ? packageName : packageName + "/";
+			this.urlOfManifest = servletContext.getResource(this.packageName + "META-INF/MANIFEST.MF");
+			this.servletContext = servletContext;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getName()
+		 */
+		@Override
+		public String getName()
+		{
+			return urlOfManifest.toExternalForm();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getPackageName()
+		 */
+		@Override
+		public String getPackageName()
+		{
+			return packageName.replaceAll("/", "");
+		}
+
+		@Override
+		public Manifest getManifest() throws IOException
+		{
+			InputStream is = urlOfManifest.openStream();
+			try
+			{
+				Manifest manifest = new Manifest();
+				manifest.read(is);
+				return manifest;
+			}
+			finally
+			{
+				is.close();
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader#getUrlForPath(java.lang.String)
+		 */
+		@Override
+		public URL getUrlForPath(String path)
+		{
+			try
+			{
+				return servletContext.getResource(packageName + path);// path includes /
+			}
+			catch (MalformedURLException e)
+			{
+				Debug.error(e);
+				return null;
+			}
+		}
+
+		@SuppressWarnings("nls")
+		@Override
+		public String readTextFile(String path, Charset charset) throws IOException
+		{
+			URL url = getUrlForPath(path);
+			if (url == null) return null;
+			InputStream is = null;
+			try
+			{
+				is = url.openStream();
+				return Utils.getTXTFileContent(is, charset);
+			}
+			finally
+			{
+				if (is != null) is.close();
+			}
 		}
 	}
 

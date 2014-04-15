@@ -18,14 +18,12 @@
 package com.servoy.j2db.server.ngclient.startup.resourceprovider;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.channels.FileChannel;
+import java.net.URL;
 import java.util.Enumeration;
 
-import org.eclipse.core.runtime.FileLocator;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import com.servoy.j2db.server.ngclient.startup.Activator;
 
@@ -39,21 +37,22 @@ public class ComponentResourcesExporter
 	/**
 	 * Copy the default component packages to war.
 	 * @param path
-	 * @return the list of 
+	 * @throws IOException 
 	 * @throws Exception 
-	 * @throws URISyntaxException 
 	 */
-	public static String copyComponents(File tmpWarDir) throws IOException
+	public static void copyComponents(File tmpWarDir) throws IOException
+	{
+		copy(Activator.getContext().getBundle().getEntryPaths("/war/"), tmpWarDir);
+	}
+
+	public static String getComponentDirectoryNames()
 	{
 		StringBuilder locations = new StringBuilder();
 		Enumeration<String> paths = Activator.getContext().getBundle().getEntryPaths("/war/");
 		while (paths.hasMoreElements())
 		{
-			String path = paths.nextElement();
-			String name = path.replace("war/", "");
-			File targetDir = new File(tmpWarDir, name);
-			copyDir(new File(FileLocator.resolve(Activator.getContext().getBundle().getEntry(path)).getPath()), targetDir, true);
-			if (!name.equals("js/") && !name.equals("css/") && !name.equals("templates/"))
+			String name = paths.nextElement().replace("war/", "");
+			if (name.endsWith("/") && !name.equals("js/") && !name.equals("css/") && !name.equals("templates/"))
 			{
 				locations.append("/" + name + ";");
 			}
@@ -62,64 +61,31 @@ public class ComponentResourcesExporter
 		return locations.toString();
 	}
 
-	public static void copyLibs(File libDir) throws IOException
+	/**
+	 * @param path
+	 * @param tmpWarDir
+	 * @throws IOException 
+	 */
+	private static void copy(Enumeration<String> paths, File destDir) throws IOException
 	{
-		copyDir(new File(FileLocator.resolve(Activator.getContext().getBundle().getEntry("/lib")).getPath()), libDir, true); //$NON-NLS-1$
-	}
-
-	private static void copyDir(File sourceDir, File destDir, boolean recusive) throws IOException
-	{
-		if (!destDir.exists() && !destDir.mkdirs()) throw new IOException("Can't create destination dir: " + destDir); //$NON-NLS-1$
-		File[] listFiles = sourceDir.listFiles();
-		for (File file : listFiles)
+		while (paths.hasMoreElements())
 		{
-			if (file.isDirectory())
+			String path = paths.nextElement();
+			if (path.endsWith("/"))
 			{
-				if (recusive) copyDir(file, new File(destDir, file.getName()), recusive);
+				File targetDir = new File(destDir, FilenameUtils.getBaseName(path.substring(0, path.lastIndexOf("/"))));
+				copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir);
 			}
 			else
 			{
-				copyFile(file, new File(destDir, file.getName()));
+				URL entry = Activator.getContext().getBundle().getEntry(path);
+				FileUtils.copyInputStreamToFile(entry.openStream(), new File(destDir, FilenameUtils.getName(path)));
 			}
 		}
 	}
 
-	private static void copyFile(File sourceFile, File destFile) throws IOException
+	public static void copyLibs(File libDir) throws IOException
 	{
-		if (!sourceFile.exists())
-		{
-			return;
-		}
-		try
-		{
-			if (!destFile.getParentFile().exists())
-			{
-				destFile.getParentFile().mkdirs();
-			}
-			if (!destFile.exists())
-			{
-				destFile.createNewFile();
-			}
-			FileChannel source = null;
-			FileChannel destination = null;
-			source = new FileInputStream(sourceFile).getChannel();
-			destination = new FileOutputStream(destFile).getChannel();
-			if (destination != null && source != null)
-			{
-				destination.transferFrom(source, 0, source.size());
-			}
-			if (source != null)
-			{
-				source.close();
-			}
-			if (destination != null)
-			{
-				destination.close();
-			}
-		}
-		catch (IOException e)
-		{
-			throw new IOException("Cant'copy file from " + sourceFile + " to " + destFile, e);
-		}
+		copy(Activator.getContext().getBundle().getEntryPaths("/lib/"), libDir);
 	}
 }

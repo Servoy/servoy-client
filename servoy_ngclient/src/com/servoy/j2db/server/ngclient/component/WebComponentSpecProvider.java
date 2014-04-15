@@ -141,8 +141,7 @@ public class WebComponentSpecProvider
 						String[] locations = properties.getProperty("locations").split(";");
 						for (String location : locations)
 						{
-							File f = new File(servletContext.getRealPath(location));
-							readers.add(new WebComponentPackage.DirPackageReader(f));
+							readers.add(new WebComponentPackage.WarURLPackageReader(servletContext, location));
 						}
 
 						instance = new WebComponentSpecProvider(readers.toArray(new IPackageReader[readers.size()]));
