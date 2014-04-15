@@ -50,16 +50,27 @@ public class FormWrapper
 {
 	private final Form form;
 	private final boolean isTableView;
+	private final boolean useControllerProvider;
 
-	public FormWrapper(Form form)
+	public FormWrapper(Form form, boolean useControllerProvider)
 	{
 		this.form = form;
+		this.useControllerProvider = useControllerProvider;
 		isTableView = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 	}
 
 	public String getName()
 	{
 		return form.getName();
+	}
+
+	public String getRegisterMethod()
+	{
+		if (useControllerProvider)
+		{
+			return "controllerProvider.register";
+		}
+		return "angular.module('servoyApp').controller";
 	}
 
 	public int getPageSize()

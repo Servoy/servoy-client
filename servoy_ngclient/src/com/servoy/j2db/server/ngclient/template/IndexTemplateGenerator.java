@@ -122,13 +122,15 @@ public class IndexTemplateGenerator
 		public Collection<String> getFormScriptReferences()
 		{
 			List<String> forms = new ArrayList<>();
-			Iterator<Form> it = fs.getForms(false);
-			while (it.hasNext())
+			if (Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
 			{
-				Form form = it.next();
-
-				Solution sol = (Solution)form.getAncestor(IRepository.SOLUTIONS);
-				forms.add("solutions/" + sol.getName() + "/forms/" + form.getName() + ".js");
+				Iterator<Form> it = fs.getForms(false);
+				while (it.hasNext())
+				{
+					Form form = it.next();
+					Solution sol = (Solution)form.getAncestor(IRepository.SOLUTIONS);
+					forms.add("solutions/" + sol.getName() + "/forms/" + form.getName() + ".js");
+				}
 			}
 			return forms;
 		}

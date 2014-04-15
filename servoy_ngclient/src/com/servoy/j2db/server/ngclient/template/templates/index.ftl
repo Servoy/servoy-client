@@ -50,6 +50,12 @@
 		<#list componentJsReferences as componentJs>
 			<script src="${componentJs}"></script>
 		</#list>
+		
+		<!-- -list of all the form controller scripts, maybe one solution so have all the controllers as once in 1 file -->
+		<#list formScriptReferences as formScript>
+			<script src="${formScript}"></script>
+		</#list>
+		
 
 		<link rel="stylesheet" ng-href='{{solutionSettings.styleSheetPath}}'/>
 	</head>

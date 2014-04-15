@@ -16,7 +16,7 @@
 -->
 <#macro form_js_body>Abstract macro</#macro>
 <#macro form_js>
-controllerProvider.register("${name}", function($scope, $servoyInternal,$timeout,$windowService) {
+${registerMethod}("${name}", function($scope, $servoyInternal,$timeout,$windowService) {
 
 	var beans = {
 	<#list baseComponents as bc>

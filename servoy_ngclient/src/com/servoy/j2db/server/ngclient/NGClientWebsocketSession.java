@@ -547,15 +547,20 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			String realUrl = formUrl;
 			FlattenedSolution fs = client.getFlattenedSolution();
 			Solution sc = fs.getSolutionCopy(false);
+			boolean copy = false;
 			if (sc != null && sc.getChild(form.getUUID()) != null)
 			{
 				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + uuid;
+				copy = true;
 			}
 
-			boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
-			String view = (tableview ? "tableview" : "recordview");
 			StringWriter sw = new StringWriter(512);
-			new FormTemplateGenerator(fs).generate(form, "form_" + view + "_js.ftl", sw);
+			if (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
+			{
+				boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
+				String view = (tableview ? "tableview" : "recordview");
+				new FormTemplateGenerator(fs, true).generate(form, "form_" + view + "_js.ftl", sw);
+			}
 			if (client.isEventDispatchThread())
 			{
 				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { form.getName(), sw.toString(), formUrl, realUrl });

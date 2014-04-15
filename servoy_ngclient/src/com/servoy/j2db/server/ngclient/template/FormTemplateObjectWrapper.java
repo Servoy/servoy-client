@@ -38,13 +38,15 @@ import freemarker.template.TemplateModelException;
 public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 {
 	private final FlattenedSolution fs;
+	private final boolean useControllerProvider;
 
 	/**
 	 * @param fs
 	 */
-	public FormTemplateObjectWrapper(FlattenedSolution fs)
+	public FormTemplateObjectWrapper(FlattenedSolution fs, boolean useControllerProvider)
 	{
 		this.fs = fs;
+		this.useControllerProvider = useControllerProvider;
 	}
 
 	@Override
@@ -53,7 +55,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		Object wrapped;
 		if (obj instanceof Form)
 		{
-			wrapped = new FormWrapper((Form)obj);
+			wrapped = new FormWrapper((Form)obj, useControllerProvider);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{

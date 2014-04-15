@@ -113,7 +113,7 @@ public class TemplateGeneratorFilter implements Filter
 								String view = (tableview ? "tableview" : "recordview");
 								((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
 								PrintWriter w = servletResponse.getWriter();
-								new FormTemplateGenerator(fs).generate(form, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
+								new FormTemplateGenerator(fs, false).generate(form, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
 								w.flush();
 							}
 							return;

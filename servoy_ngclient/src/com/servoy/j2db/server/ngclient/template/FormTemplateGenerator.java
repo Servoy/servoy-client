@@ -53,12 +53,12 @@ public class FormTemplateGenerator
 {
 	private final Configuration cfg;
 
-	public FormTemplateGenerator(FlattenedSolution fs)
+	public FormTemplateGenerator(FlattenedSolution fs, boolean useControllerProvider)
 	{
 		cfg = new Configuration();
 
 		cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "templates"));
-		cfg.setObjectWrapper(new FormTemplateObjectWrapper(fs));
+		cfg.setObjectWrapper(new FormTemplateObjectWrapper(fs, useControllerProvider));
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		cfg.setIncompatibleImprovements(new Version(2, 3, 20));
