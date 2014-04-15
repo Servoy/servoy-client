@@ -51,7 +51,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 	private int currentPage = 1;
 	private IFoundSetInternal currentFoundset;
-	private List<RowData> rowChanges;
+	private final List<RowData> rowChanges = new ArrayList<RowData>();
 	private boolean allChanged = false;
 	private int startTabSeqIndex = 1;
 
@@ -96,7 +96,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				Debug.error(e);
 			}
 		}
-		else if (rowChanges != null)
+		else if (rowChanges != null && rowChanges.size() > 0)
 		{
 			if (!props.containsKey("")) props.put("", new HashMap<String, Object>());
 			Map<String, Object> rowProps = props.get("");
@@ -104,7 +104,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			rowProps.put("totalRows", Integer.toString(formController.getFoundSet().getSize()));
 		}
 		allChanged = false;
-		rowChanges = null;
+		rowChanges.clear();
 		return props;
 	}
 
@@ -164,10 +164,6 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		}
 		else if (event.getType() == FoundSetEvent.CONTENTS_CHANGED)
 		{
-			if (rowChanges == null)
-			{
-				rowChanges = new ArrayList<RowData>();
-			}
 			// partial change only push the changes.
 			if (event.getChangeType() == FoundSetEvent.CHANGE_DELETE)
 			{
@@ -223,7 +219,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	private void setAllChanged()
 	{
 		allChanged = true;
-		rowChanges = null;
+		rowChanges.clear();
 		currentPage = 1;
 	}
 
