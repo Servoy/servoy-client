@@ -48,6 +48,17 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		}
 	}
 	
+	function testKeyPressed(e, keyCode) 
+	{
+	     var code;
+	     
+	     if (!e) e = window.event;
+	     if (!e) return false;
+	     if (e.keyCode) code = e.keyCode;
+	     else if (e.which) code = e.which;
+	     return code==keyCode;
+	}
+	
 	var SCROLLBARS_WHEN_NEEDED = 0;
 	var VERTICAL_SCROLLBAR_AS_NEEDED = 1;
 	var VERTICAL_SCROLLBAR_ALWAYS = 2;
@@ -107,19 +118,25 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			
 					return style;
 		},
-		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent) {
+		attachEventHandler: function($parse,element,scope,svyEventHandler,domEvent, filterFunction) {
 		    var functionReferenceString = svyEventHandler;
 			var index = functionReferenceString.indexOf('(');
 			if (index != -1) functionReferenceString = functionReferenceString.substring(0,index);
 			if( scope.$eval(functionReferenceString) ) {
 			   var fn = $parse(svyEventHandler);
      		   element.on(domEvent, function(event) {
-	              scope.$apply(function() {
-	                fn(scope, {$event:event});
-	              });
+     		   	   if (!filterFunction || filterFunction(event)) {
+	              		scope.$apply(function() {
+	               		 fn(scope, {$event:event});
+	              		});
+	              	}
 	            });
     		}
-		}, 
+		},
+		testEnterKey: function(e) 
+		{
+			return testKeyPressed(e,13);
+		},
 	}
 }).directive('ngOnChange', function($parse){
     return function(scope, elm, attrs){       
@@ -193,6 +210,13 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         }
       }
     };
+}).directive('svyEnter',  function ($parse,$utils) {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+        	$utils.attachEventHandler($parse,element,scope,attrs.svyEnter,'keydown', $utils.testEnterKey);
+        }
+      };
 }).directive('svyClick',  function ($parse,$utils) {
     return {
         restrict: 'A',

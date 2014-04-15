@@ -119,4 +119,21 @@ describe('svyTextfield component', function() {
  		expect( focus).toBe(true);
  		expect( blur).toBe(true);
 	  });
+    
+    it("test action trigger only on enter key", function() {
+  		var template= '<data-svy-textfield name="myTextfield" svy-model="model.myTextfield" svy-api="api.myTextfield" svy-handlers="handlers.myTextfield" '+
+  				'svy-apply="handlers.myTextfield.svy_apply" svy-servoyApi="handlers.myTextfield.svy_servoyApi"/>'
+  		var onaction = false; 
+  		$scope.handlers.myTextfield.onActionMethodID = function(event) {
+  			onaction = true;
+		}
+        // This will find your directive and run everything
+        var textComponent = $compile(template)($scope);             
+        // Now run a $digest cycle to update your template with new data
+ 		$scope.$digest();
+ 		textComponent[0].triggerKey(65);
+ 		expect( onaction).toBe(false);
+ 		textComponent[0].triggerKey(13);
+ 		expect( onaction).toBe(true);
+	  });
 }); 

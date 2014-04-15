@@ -24,7 +24,6 @@ if (navigator.userAgent.toLowerCase().substr('phantom')) {
  * TODO replace jquery/jqlite mouseover() etc with these functions instead of adding them to the html element prototype*/
 (function(){
 	var events =['mouseover','mouseout']
-	
 	events.forEach(function(eventName){
 		 HTMLElement.prototype['trigger'+ eventName]= function() {
 		    if( document.createEvent ) {
@@ -43,4 +42,17 @@ if (navigator.userAgent.toLowerCase().substr('phantom')) {
 	        }
 		 };		
 	})
+	 HTMLElement.prototype['triggerKey']= function(keyCode) {
+		var eventObj = document.createEventObject ?
+			document.createEventObject() : document.createEvent("Events");
+					  
+		if(eventObj.initEvent){
+			eventObj.initEvent("keydown", true, true);
+		}
+					  
+		eventObj.keyCode = keyCode;
+		eventObj.which = keyCode;
+		this.dispatchEvent ? this.dispatchEvent(eventObj) : this.fireEvent("onkeydown", eventObj); 
+	};
+	
 })()
