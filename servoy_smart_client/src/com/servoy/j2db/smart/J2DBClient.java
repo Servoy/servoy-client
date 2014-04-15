@@ -890,7 +890,7 @@ public class J2DBClient extends ClientState implements ISmartClientApplication, 
 		String windowicon = getSettings().getProperty("servoy.branding.windowicon"); //$NON-NLS-1$
 		if (branding.equals("true") && windowicon != null && Utils.isSwingClient(getApplicationType())) //$NON-NLS-1$
 		{
-			URL webstartUrl = WebStart.getWebStartURL();
+			URL webstartUrl = getServerURL();
 			try
 			{
 				String windowiconFile = null;
