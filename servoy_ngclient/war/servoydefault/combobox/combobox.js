@@ -26,6 +26,21 @@ angular.module('svyCombobox',['servoy'])
     		  select2Css = "select2-container-svy-xs";
     	  }
     	  
+    	  if (scope.handlers.onFocusGainedMethodID) {
+     		   element.on("select2-focus", function(event) {
+	              scope.$apply(function() {
+	                scope.handlers.onFocusGainedMethodID(event);
+	              });
+	            });
+    	  }
+    	  if (scope.handlers.onFocusLostMethodID) {
+     		   element.on("select2-blur", function(event) {
+	              scope.$apply(function() {
+	                scope.handlers.onFocusLostMethodID(event);
+	              });
+	            });
+    	  }
+    	  
     	  if (select2Css != null) {
     		  $svyNGEvents.afterNGProcessedDOM(function () {
     			  // $evalAsync so that the dom is processed already by angular; for example if there's a "<label for=.." linked to this combobox,
