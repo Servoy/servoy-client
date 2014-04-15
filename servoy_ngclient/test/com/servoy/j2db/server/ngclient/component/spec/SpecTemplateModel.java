@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.component.spec;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -48,6 +49,12 @@ public class SpecTemplateModel
 		this.apiInterface = apiInterface;
 		this.repositoryType = repositoryType;
 		this.libraries = libaries;
+	}
+
+	SpecTemplateModel(String name, String displayName, int repositoryType, Class< ? > apiInterface, String[] libaries, ApiMethod[] extraApiMethods)
+	{
+		this(name, displayName, repositoryType, apiInterface, libaries);
+		apis.addAll(Arrays.asList(extraApiMethods));
 	}
 
 	public String getName()

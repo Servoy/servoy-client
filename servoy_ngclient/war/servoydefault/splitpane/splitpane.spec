@@ -41,10 +41,19 @@ api:
             returns: 'object',
             parameters:[{'key':'object'}]
         }, 
+        getContinuousLayout:{
+            returns: 'boolean',
+                 }, 
         getDesignTimeProperty:{
             returns: 'object',
             parameters:[{'unnamed_0':'string'}]
         }, 
+        getDividerLocation:{
+            returns: 'double',
+                 }, 
+        getDividerSize:{
+            returns: 'int',
+                 }, 
         getElementType:{
             returns: 'string',
                  }, 
@@ -53,6 +62,9 @@ api:
                  }, 
         getLeftForm:{
             returns: 'formscope',
+                 }, 
+        getLeftFormMinSize:{
+            returns: 'int',
                  }, 
         getLocationX:{
             returns: 'int',
@@ -70,8 +82,14 @@ api:
         getName:{
             returns: 'string',
                  }, 
+        getResizeWeight:{
+            returns: 'double',
+                 }, 
         getRightForm:{
             returns: 'formscope',
+                 }, 
+        getRightFormMinSize:{
+            returns: 'int',
                  }, 
         getTabFGColorAt:{
             returns: 'string',
@@ -111,9 +129,25 @@ api:
             returns: 'boolean',
             parameters:[{'i':'int'}]
         }, 
+        setContinuousLayout:{
+            
+            parameters:[{'b':'boolean'}]
+        }, 
+        setDividerLocation:{
+            
+            parameters:[{'location':'double'}]
+        }, 
+        setDividerSize:{
+            
+            parameters:[{'size':'int'}]
+        }, 
         setLeftForm:{
             returns: 'boolean',
             parameters:[{'form':'object'},{'relation':'object','optional':'true'}]
+        }, 
+        setLeftFormMinSize:{
+            
+            parameters:[{'minSize':'int'}]
         }, 
         setLocation:{
             
@@ -123,9 +157,17 @@ api:
             
             parameters:[{'index':'int'},{'text':'string'}]
         }, 
+        setResizeWeight:{
+            
+            parameters:[{'resizeWeight':'double'}]
+        }, 
         setRightForm:{
             returns: 'boolean',
             parameters:[{'form':'object'},{'relation':'object','optional':'true'}]
+        }, 
+        setRightFormMinSize:{
+            
+            parameters:[{'minSize':'int'}]
         }, 
         setSize:{
             
@@ -152,7 +194,8 @@ types: {
   		text: 'tagstring',
   		relationName: 'relation',
   		active: 'boolean',
-  		foreground: 'color'
+  		foreground: 'color',
+  		mnemonic: 'string'
   	}
   }
 }

@@ -83,6 +83,19 @@ public class RuntimeWebComponent implements Scriptable
 		{
 			return apiFunctions.get(name);
 		}
+
+		// check if we have a setter/getter for this property
+		if (name != null && name.length() > 0)
+		{
+			String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
+			if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
+			{
+				// call getter
+				WebComponentFunction propertyGetter = apiFunctions.get("get" + uName);
+				return propertyGetter.call(null, null, null, null);
+			}
+		}
+
 		return Scriptable.NOT_FOUND;
 	}
 
@@ -99,7 +112,15 @@ public class RuntimeWebComponent implements Scriptable
 		{
 			return true;
 		}
-		return apiFunctions.containsKey(name);
+		if (apiFunctions.containsKey(name)) return true;
+
+		// check if we have a setter/getter for this property
+		if (name != null && name.length() > 0)
+		{
+			String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
+			return (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName));
+		}
+		return false;
 	}
 
 	@Override
@@ -120,9 +141,25 @@ public class RuntimeWebComponent implements Scriptable
 		{
 			component.putProperty(name, value);
 		}
-		else if (prototypeScope != null && !apiFunctions.containsKey(name))
+		else if (prototypeScope != null)
 		{
-			prototypeScope.put(name, start, value);
+			if (!apiFunctions.containsKey(name))
+			{
+				// check if we have a setter for this property
+				if (name != null && name.length() > 0)
+				{
+					String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
+					if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
+					;
+					{
+						// call setter
+						WebComponentFunction propertySetter = apiFunctions.get("set" + uName);
+						propertySetter.call(null, null, null, new Object[] { value });
+						return;
+					}
+				}
+				prototypeScope.put(name, start, value);
+			}
 		}
 	}
 

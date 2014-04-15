@@ -109,8 +109,23 @@ public class SpecGenerator
 		specTemplateList.add(new SpecTemplateModel("check", "Check", IRepository.FIELDS, IRuntimeCheck.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("radio", "Radio", IRepository.FIELDS, IRuntimeRadio.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("imagemedia", "Image Media", IRepository.FIELDS, IRuntimeImageMedia.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("splitpane", "Split Pane", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
-			new String[] { "servoydefault/splitpane/bg-splitter/js/splitter.js", "servoydefault/splitpane/bg-splitter/css/style.css" }));
+		specTemplateList.add(new SpecTemplateModel(
+			"splitpane",
+			"Split Pane",
+			IRepository.TABPANELS,
+			com.servoy.j2db.ui.IScriptSplitPaneMethods.class,
+			new String[] { "servoydefault/splitpane/bg-splitter/js/splitter.js", "servoydefault/splitpane/bg-splitter/css/style.css" },
+			new ApiMethod[] { new ApiMethod("getDividerLocation", "double", null, null, null), new ApiMethod("setDividerLocation", "void",
+				Arrays.asList(new String[] { "location" }), Arrays.asList(new String[] { "double" }), Arrays.asList(new String[] { "false" })), new ApiMethod(
+				"getDividerSize", "int", null, null, null), new ApiMethod("setDividerSize", "void", Arrays.asList(new String[] { "size" }),
+				Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })), new ApiMethod("getResizeWeight", "double", null, null, null), new ApiMethod(
+				"setResizeWeight", "void", Arrays.asList(new String[] { "resizeWeight" }), Arrays.asList(new String[] { "double" }),
+				Arrays.asList(new String[] { "false" })), new ApiMethod("getContinuousLayout", "boolean", null, null, null), new ApiMethod(
+				"setContinuousLayout", "void", Arrays.asList(new String[] { "b" }), Arrays.asList(new String[] { "boolean" }),
+				Arrays.asList(new String[] { "false" })), new ApiMethod("getRightFormMinSize", "int", null, null, null), new ApiMethod("setRightFormMinSize",
+				"void", Arrays.asList(new String[] { "minSize" }), Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })), new ApiMethod(
+				"getLeftFormMinSize", "int", null, null, null), new ApiMethod("setLeftFormMinSize", "void", Arrays.asList(new String[] { "minSize" }),
+				Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })) }));
 		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
 			new String[0]));
 		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,

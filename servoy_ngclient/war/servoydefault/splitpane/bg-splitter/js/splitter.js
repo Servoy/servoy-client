@@ -23,8 +23,8 @@ angular.module('svySplitpane').directive('bgSplitter', function() {
         var pane1 = scope.panes[0];
         var pane2 = scope.panes[1];
         var vertical = scope.orientation == 'vertical';
-        var pane1Min = pane1.minSize || 0;
-        var pane2Min = pane2.minSize || 0;
+        if (pane1.minSize == undefined) pane1.minSize = 0;
+        if (pane2.minSize == undefined) pane2.minSize = 0;
         var drag = false;
         
         pane1.elem.after(handler);
@@ -40,8 +40,8 @@ angular.module('svySplitpane').directive('bgSplitter', function() {
             var height = bounds.bottom - bounds.top;
             pos = ev.clientY - bounds.top;
 
-            if (pos < pane1Min) return;
-            if (height - pos < pane2Min) return;
+            if (pos < pane1.minSize) return;
+            if (height - pos < pane2.minSize) return;
 
             handler.css('top', pos + 'px');
             pane1.elem.css('height', pos + 'px');
@@ -52,8 +52,8 @@ angular.module('svySplitpane').directive('bgSplitter', function() {
             var width = bounds.right - bounds.left;
             pos = ev.clientX - bounds.left;
 
-            if (pos < pane1Min) return;
-            if (width - pos < pane2Min) return;
+            if (pos < pane1.minSize) return;
+            if (width - pos < pane2.minSize) return;
 
             handler.css('left', pos + 'px');
             pane1.elem.css('width', pos + 'px');
