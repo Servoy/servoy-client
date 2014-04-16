@@ -344,6 +344,10 @@ public class WebComponentPackage
 			this.packageName = packageName.endsWith("/") ? packageName : packageName + "/";
 			this.urlOfManifest = servletContext.getResource(this.packageName + "META-INF/MANIFEST.MF");
 			this.servletContext = servletContext;
+			if (urlOfManifest == null)
+			{
+				throw new IllegalArgumentException("Package " + this.packageName + "META-INF/MANIFEST.MF not found in this context");
+			}
 		}
 
 		/*
