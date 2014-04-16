@@ -73,7 +73,7 @@ public class ComponentResourcesExporter
 			String path = paths.nextElement();
 			if (path.endsWith("/"))
 			{
-				File targetDir = new File(destDir, FilenameUtils.getBaseName(path.substring(0, path.lastIndexOf("/"))));
+				File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
 				copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir);
 			}
 			else
