@@ -155,9 +155,10 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			case '#':
 				if(dataChar.match(/[\d]/) == null) throw error
 				ret+= dataChar;
-
 				break;
 			default:
+				 ret+= formatChar; 
+				 if(formatChar != dataChar) offset++;
 				break;
 			}
 		}
@@ -269,11 +270,11 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			 
 			 element.on('focus',function(){
 				 if(svyFormat){
-					 if(svyFormat.mask && svyFormat.isMask) {
+					 if(svyFormat.edit && svyFormat.isMask) {
 						 if(svyFormat.allowedCharacters){
-							 element.mask(svyFormat.mask,{placeholder: svyFormat.placeHolder},{allowedCharacters: svyFormat.allowedCharacters}); 
+							 element.mask(svyFormat.edit,{placeholder: svyFormat.placeHolder},{allowedCharacters: svyFormat.allowedCharacters}); 
 						 }else{
-							 element.mask(svyFormat.mask,{placeholder: svyFormat.placeHolder});
+							 element.mask(svyFormat.edit,{placeholder: svyFormat.placeHolder});
 						 }
 					 }else if(svyFormat.edit){
 						 $scope.$evalAsync(function(){
@@ -285,7 +286,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			 })
 			 element.on('blur',function(){
 				 if(svyFormat){
-					 if(svyFormat.mask && svyFormat.isMask) element.unmask();
+					 if(svyFormat.edit && svyFormat.isMask) element.unmask();
 					 $scope.$evalAsync(function(){
 						 ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
 						 ngModelController.$render();

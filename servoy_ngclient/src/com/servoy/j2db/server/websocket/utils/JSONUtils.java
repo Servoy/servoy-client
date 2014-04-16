@@ -184,18 +184,22 @@ public class JSONUtils
 			if (type.equals("INTEGER")) type = "NUMBER";
 			w.key("type").value(type);
 			boolean isMask = format.parsedFormat.isMask();
-			w.key("isMask").value(isMask);
-			w.key("edit").value(format.parsedFormat.getEditFormat());
-			String mask = null;
+			String mask = format.parsedFormat.getEditFormat();
 			if (isMask && type.equals("DATETIME"))
 			{
 				mask = format.parsedFormat.getDateMask();
 			}
-			else if (isMask && type.equals("TEXT"))
+			else if (format.parsedFormat.getDisplayFormat() != null && type.equals("TEXT"))
 			{
+				isMask = true;
 				mask = format.parsedFormat.getDisplayFormat();
 			}
-			w.key("mask").value(mask);
+			String placeHolder = null;
+			if (format.parsedFormat.getPlaceHolderString() != null) placeHolder = format.parsedFormat.getPlaceHolderString();
+			else if (format.parsedFormat.getPlaceHolderCharacter() != 0) placeHolder = Character.toString(format.parsedFormat.getPlaceHolderCharacter());
+			w.key("isMask").value(isMask);
+			w.key("edit").value(mask);
+			w.key("placeHolder").value(placeHolder);
 			w.key("allowedCharacters").value(format.parsedFormat.getAllowedCharacters());
 			w.key("display").value(format.parsedFormat.getDisplayFormat());
 			w.endObject();
