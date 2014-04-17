@@ -21,7 +21,7 @@ model:
         rolloverCursor : 'int', 
         rolloverImageMediaID : 'media', 
         size : 'dimension', 
-        styleClass : 'string', 
+        styleClass : { type:'styleclass', values:[]}, 
         tabSeq : 'tabseq', 
         text : 'tagstring', 
         textRotation : {type:'int', values:[0,90,180,270]}, 

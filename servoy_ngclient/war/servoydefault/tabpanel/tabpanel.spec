@@ -16,7 +16,7 @@ model:
         scrollTabs : 'boolean', 
         selectedTabColor : 'color', 
         size : 'dimension', 
-        styleClass : 'string', 
+        styleClass : { type:'styleclass', values:[]}, 
         tabIndex : 'object', 
         tabOrientation : {type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}, 
         tabSeq : 'tabseq', 

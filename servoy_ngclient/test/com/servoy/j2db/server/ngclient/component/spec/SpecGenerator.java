@@ -375,7 +375,90 @@ public class SpecGenerator
 		HashMap<String, String> htmlViewRepoTypeMapping = new HashMap<String, String>();
 		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),
 			"{ 'type':'dataprovider', 'ondatachange': { 'onchange':'onDataChangeMethodID', 'callback':'onDataChangeCallback', 'parsehtml':true }}");
+		htmlViewRepoTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
 		componentRepoTypeMappingExceptions.put("htmlview", htmlViewRepoTypeMapping);
+
+		HashMap<String, String> buttonTypeMapping = new HashMap<String, String>();
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['btn','btn-default','btn-lg','btn-sm','btn-xs']}");
+		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
+
+		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();
+		calendarTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs', 'svy-line-height-normal']}");
+		componentRepoTypeMappingExceptions.put("calendar", calendarTypeMapping);
+
+		HashMap<String, String> checkTypeMapping = new HashMap<String, String>();
+		checkTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:['checkbox']}");
+		componentRepoTypeMappingExceptions.put("check", checkTypeMapping);
+
+		HashMap<String, String> checkGroupTypeMapping = new HashMap<String, String>();
+		checkGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		componentRepoTypeMappingExceptions.put("checkgroup", checkGroupTypeMapping);
+
+		HashMap<String, String> comboTypeMapping = new HashMap<String, String>();
+		comboTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs', 'select2-container-svy-xs']}");
+		componentRepoTypeMappingExceptions.put("combobox", comboTypeMapping);
+
+		HashMap<String, String> htmlAreaMapping = new HashMap<String, String>();
+		htmlAreaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		componentRepoTypeMappingExceptions.put("htmlarea", htmlAreaMapping);
+
+		HashMap<String, String> imageMediaMapping = new HashMap<String, String>();
+		imageMediaMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		componentRepoTypeMappingExceptions.put("imagemedia", imageMediaMapping);
+
+		HashMap<String, String> labelMapping = new HashMap<String, String>();
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		componentRepoTypeMappingExceptions.put("label", labelMapping);
+
+		HashMap<String, String> listboxTypeMapping = new HashMap<String, String>();
+		listboxTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		componentRepoTypeMappingExceptions.put("listbox", listboxTypeMapping);
+
+		HashMap<String, String> passwordMapping = new HashMap<String, String>();
+		passwordMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		componentRepoTypeMappingExceptions.put("password", passwordMapping);
+
+		HashMap<String, String> radioTypeMapping = new HashMap<String, String>();
+		radioTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:['radio']}");
+		componentRepoTypeMappingExceptions.put("radio", radioTypeMapping);
+
+		HashMap<String, String> radioGroupTypeMapping = new HashMap<String, String>();
+		radioGroupTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		componentRepoTypeMappingExceptions.put("radiogroup", radioGroupTypeMapping);
+
+		HashMap<String, String> spinnerMapping = new HashMap<String, String>();
+		spinnerMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		componentRepoTypeMappingExceptions.put("spinner", spinnerMapping);
+
+		HashMap<String, String> splitpaneMapping = new HashMap<String, String>();
+		splitpaneMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		componentRepoTypeMappingExceptions.put("splitpane", splitpaneMapping);
+
+		HashMap<String, String> tabpanelMapping = new HashMap<String, String>();
+		tabpanelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		componentRepoTypeMappingExceptions.put("tabpanel", tabpanelMapping);
+
+		HashMap<String, String> textareaTypeMapping = new HashMap<String, String>();
+		textareaTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		componentRepoTypeMappingExceptions.put("textarea", textareaTypeMapping);
+
+		HashMap<String, String> textfieldTypeMapping = new HashMap<String, String>();
+		textfieldTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		componentRepoTypeMappingExceptions.put("textfield", textfieldTypeMapping);
+
+		HashMap<String, String> typeaheadTypeMapping = new HashMap<String, String>();
+		typeaheadTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
+			"{ type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}");
+		componentRepoTypeMappingExceptions.put("typeahead", typeaheadTypeMapping);
 
 		//speciffic repository element mapping
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName(),

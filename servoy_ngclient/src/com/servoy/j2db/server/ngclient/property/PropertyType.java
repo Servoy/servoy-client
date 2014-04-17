@@ -53,6 +53,7 @@ public enum PropertyType
 	tabseq,
 	media,
 	mediaoptions,
+	styleclass,
 	object,
 	bean,
 	custom, // special type for custom types defined in the spec file.

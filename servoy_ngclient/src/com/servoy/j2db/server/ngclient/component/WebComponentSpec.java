@@ -17,9 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -308,6 +310,7 @@ public class WebComponentSpec extends PropertyDescription
 				boolean isArray = false;
 				JSONObject configObject = null;
 				Object defaultValue = null;
+				List<Object> values = null;
 				if (value instanceof String)
 				{
 					ParsedProperty pp = parsePropertyString((String)value, spec, specpath);
@@ -325,6 +328,15 @@ public class WebComponentSpec extends PropertyDescription
 					if (((JSONObject)value).has("default"))
 					{
 						defaultValue = ((JSONObject)value).get("default");
+					}
+					if (((JSONObject)value).has("values"))
+					{
+						JSONArray valuesArray = ((JSONObject)value).getJSONArray("values");
+						values = new ArrayList<Object>();
+						for (int i = 0; i < valuesArray.length(); i++)
+						{
+							values.add(valuesArray.get(i));
+						}
 					}
 
 				}
@@ -369,7 +381,7 @@ public class WebComponentSpec extends PropertyDescription
 							break;
 					}
 
-					pds.put(key, new PropertyDescription(key, type, isArray, config, defaultValue));
+					pds.put(key, new PropertyDescription(key, type, isArray, config, defaultValue, values));
 				}
 			}
 		}

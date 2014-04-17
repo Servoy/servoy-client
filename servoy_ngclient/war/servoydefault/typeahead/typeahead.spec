@@ -19,7 +19,7 @@ model:
         scrollbars : 'int', 
         selectOnEnter : 'boolean', 
         size : 'dimension', 
-        styleClass : 'string', 
+        styleClass : { type:'styleclass', values:['form-control', 'input-sm', 'svy-padding-xs']}, 
         tabSeq : 'tabseq', 
         text : 'tagstring', 
         toolTipText : 'tagstring', 

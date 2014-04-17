@@ -17,9 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +42,7 @@ public class PropertyDescription
 	private final boolean array;
 	private boolean optional = false; // currently only used in the context of an api function parameter
 	private final Object defaultValue;
+	private final List<Object> values;
 
 	//case of nested type
 	private Map<String, PropertyDescription> properties = null;
@@ -57,11 +60,17 @@ public class PropertyDescription
 
 	public PropertyDescription(String name, PropertyType type, boolean array, Object config, Object defaultValue)
 	{
+		this(name, type, array, config, defaultValue, null);
+	}
+
+	public PropertyDescription(String name, PropertyType type, boolean array, Object config, Object defaultValue, List<Object> values)
+	{
 		this.name = name;
 		this.type = type;
 		this.array = array;
 		this.config = config;
 		this.defaultValue = defaultValue;
+		this.values = values;
 	}
 
 	/**
@@ -116,6 +125,11 @@ public class PropertyDescription
 	public Object getDefaultValue()
 	{
 		return defaultValue;
+	}
+
+	public List<Object> getValues()
+	{
+		return new ArrayList<Object>(values);
 	}
 
 	/**

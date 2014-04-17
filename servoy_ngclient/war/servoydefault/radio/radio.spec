@@ -18,7 +18,7 @@ model:
         placeholderText : 'tagstring', 
         scrollbars : 'int', 
         size : 'dimension', 
-        styleClass : 'string', 
+        styleClass : { type:'styleclass', values:['radio']}, 
         tabSeq : 'tabseq', 
         text : 'tagstring', 
         toolTipText : 'tagstring', 

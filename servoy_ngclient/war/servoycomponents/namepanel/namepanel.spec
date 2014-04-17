@@ -9,6 +9,7 @@ model:
     lastNameDataprovider: 'dataprovider',
     lastNameTabsequence: 'tabseq',
 	buttontext: 'string',
+	buttonClass : { type:'styleclass', values:['btn','btn-default','btn-lg','btn-sm','btn-xs']}, 
 	tooltiptext: 'string',
 	readOnly: 'boolean',
     firstNameFormat: {for:'firstNameDataprovider' , type:'format'}
