@@ -21,11 +21,10 @@ import java.awt.Rectangle;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
+import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.plugins.IRuntimeWindow;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
@@ -309,7 +308,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 
 	public IFormController getController()
 	{
-		IMainContainer container = ((FormManager)application.getFormManager()).getOrCreateMainContainer(windowName);
+		IBasicMainContainer container = application.getFormManager().getMainContainer(windowName);
 		if (container != null)
 		{
 			return container.getController();

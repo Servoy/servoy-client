@@ -32,7 +32,6 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Session;
 
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
@@ -201,7 +200,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 		if (recreateForms)
 		{
-			List<IFormController> cachedFormControllers = ((FormManager)getFormManager()).getCachedFormControllers();
+			List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
 			recreateUISet.add(cachedFormControllers);
 		}
 	}
@@ -332,7 +331,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		}
 		if (getSolution() != null && form != null)
 		{
-			((FormManager)getFormManager()).showFormInMainPanel(form.getName());
+			getFormManager().showFormInMainPanel(form.getName());
 			form = null;
 			changed = true;
 		}

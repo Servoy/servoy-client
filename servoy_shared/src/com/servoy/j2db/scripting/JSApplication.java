@@ -2581,7 +2581,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			if (formName != null)
 			{
 				Form frm = application.getFlattenedSolution().getForm(formName);
-				FormManager fm = (FormManager)application.getFormManager();
+				IBasicFormManager fm = application.getFormManager();
 				if (frm == null && fm.isPossibleForm(formName)) frm = fm.getPossibleForm(formName);
 				if (!application.getFlattenedSolution().formCanBeInstantiated(frm))
 				{

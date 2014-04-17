@@ -240,7 +240,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		{
 			Form form = createNewForm(null, name, null, superForm.getShowInMenu(), ((JSForm)superForm).getSupportChild().getSize());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
-			((FormManager)application.getFormManager()).addForm(form, false);
+			application.getFormManager().addForm(form, false);
 			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
 			return instantiateForm(form, true);
 		}
@@ -371,7 +371,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), newName, fs.getSolutionCopy());
-		((FormManager)application.getFormManager()).addForm(clone, false);
+		application.getFormManager().addForm(clone, false);
 		return instantiateForm(clone, true);
 	}
 
@@ -467,7 +467,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		Form form = fs.getForm(name);
 		if (form != null)
 		{
-			if (((FormManager)application.getFormManager()).removeForm(form))
+			if (application.getFormManager().removeForm(form))
 			{
 				fs.deletePersistCopy(form, false);
 				return true;
@@ -551,7 +551,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		if (sm != null)
 		{
 			fs.deletePersistCopy(sm, false);
-			((FormManager)application.getFormManager()).fillScriptMenu();
+			if (application.getFormManager() instanceof FormManager) ((FormManager)application.getFormManager()).fillScriptMenu();
 			return true;
 		}
 		return false;
@@ -762,7 +762,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		Form form = fs.revertForm(name);
 		if (form != null)
 		{
-			((FormManager)application.getFormManager()).addForm(form, false);
+			application.getFormManager().addForm(form, false);
 			return instantiateForm(form, false);
 		}
 		return null;

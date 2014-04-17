@@ -29,6 +29,7 @@ import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ICloneable;
+import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
@@ -36,7 +37,6 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.persistence.TypeIterator;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.solutionmodel.ISMDataSourceNode;
@@ -382,7 +382,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 			if (sc != null)
 			{
 				fs.addToRemovedPersists(sc);
-				((FormManager)application.getFormManager()).fillScriptMenu();
+				if (application.getFormManager() instanceof FormManager) ((FormManager)application.getFormManager()).fillScriptMenu();
 				return true;
 			}
 

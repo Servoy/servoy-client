@@ -28,7 +28,6 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.api.IJSSecurity;
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
@@ -1494,7 +1493,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	public JSDataSet js_getElementUUIDs(String formname)// return dataset with name, uuid (note: null name is form uuid)
 	{
 		Form f = application.getFlattenedSolution().getForm(formname);
-		if (f == null) f = ((FormManager)application.getFormManager()).getPossibleForm(formname);
+		if (f == null) f = application.getFormManager().getPossibleForm(formname);
 		if (f != null)
 		{
 			List elements = new ArrayList();

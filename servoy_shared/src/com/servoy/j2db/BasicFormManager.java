@@ -71,6 +71,15 @@ public abstract class BasicFormManager implements IBasicFormManager
 		}
 	}
 
+	public boolean removeForm(Form form)
+	{
+		boolean removed = destroyFormInstance(form.getName());
+		if (removed)
+		{
+			possibleForms.remove(form.getName());
+		}
+		return removed;
+	}
 
 	public Iterator<String> getPossibleFormNames()
 	{

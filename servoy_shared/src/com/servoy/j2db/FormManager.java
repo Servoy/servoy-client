@@ -216,16 +216,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		}
 	}
 
-	public boolean removeForm(Form form)
-	{
-		boolean removed = destroyFormInstance(form.getName());
-		if (removed)
-		{
-			possibleForms.remove(form.getName());
-		}
-		return removed;
-	}
-
 	protected abstract void selectFormMenuItem(Form form);
 
 	public abstract void fillScriptMenu();

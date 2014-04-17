@@ -622,7 +622,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 				else
 				{
-					((FormManager)getFormManager()).showFormInMainPanel(form.getName());
+					getFormManager().showFormInMainPanel(form.getName());
 				}
 			}
 		};
@@ -1184,7 +1184,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			if (getFormManager().getCurrentForm() == formController)
 			{
 				formController.destroy();
-				((FormManager)getFormManager()).showFormInCurrentContainer(name);
+				getFormManager().showFormInCurrentContainer(name);
 			}
 			else
 			{
@@ -1229,6 +1229,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 				else if (isNavigator)
 				{
+					// TODO isNavigator check will always be false for NGClient?
 					FormController navigator = ((FormManager)getFormManager()).getFormController(name, container);
 					if (navigator != null)
 					{
@@ -1241,6 +1242,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 				}
 				else if (isWindow)
 				{
+					// TODO isWindow check will always be false for NGClient?
 					FormWindow w = (FormWindow)container;
 					((FormManager)getFormManager()).showFormInMainPanel(name, w.getMainContainer(), w.getTitle(), false, w.getName());
 				}

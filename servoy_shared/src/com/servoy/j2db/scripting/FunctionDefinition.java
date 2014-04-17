@@ -19,9 +19,8 @@ package com.servoy.j2db.scripting;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
@@ -235,7 +234,7 @@ public class FunctionDefinition
 						}
 						else
 						{
-							FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(contextName);
+							IFormController fp = application.getFormManager().leaseFormPanel(contextName);
 							if (fp == null)
 							{
 								retVal[0] = Exist.FORM_NOT_FOUND;

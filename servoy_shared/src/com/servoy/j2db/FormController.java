@@ -38,6 +38,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.util.ITagResolver;
@@ -52,7 +53,6 @@ import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
@@ -64,11 +64,12 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.ElementScope;
-import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IScriptSupport;
-import com.servoy.j2db.scripting.InstanceJavaMembers;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -79,7 +80,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.Utils;
@@ -541,6 +541,7 @@ public class FormController extends BasicFormController
 	/*
 	 * _____________________________________________________________ The methods below belong to interface IDataManipulator
 	 */
+	@Override
 	public ControllerUndoManager getUndoManager()
 	{
 		return containerImpl.getUndoManager();
@@ -1120,171 +1121,6 @@ public class FormController extends BasicFormController
 		return 0;
 	}
 
-	public Object executeFunction(Function f, Object[] args, Scriptable scope, boolean saveData) throws Exception
-	{
-		return executeFunction(f, args, scope, scope, saveData, null, true, false, null, false, false, false);
-	}
-
-	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey)
-	{
-		return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, true, false);
-	}
-
-	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
-		boolean executeWhenFieldValidationFailed)
-	{
-		// if the view is still null, then this form is not fully constructed yet, (like onrender even of a listview) ignore it. (SVY-3383)
-		if (view == null) return null;
-		try
-		{
-			return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, allowFoundsetMethods, executeWhenFieldValidationFailed, false);
-		}
-		catch (ApplicationException ex)
-		{
-			application.reportError(ex.getMessage(), null);
-		}
-		catch (Exception ex)
-		{
-			this.requestFocus();
-			String name = cmd;
-			int id = Utils.getAsInteger(cmd);
-			if (id > 0)
-			{
-				name = formScope.getFunctionName(new Integer(id));
-			}
-
-			if (id <= 0 && ScopesUtils.isVariableScope(name))
-			{
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$ 
-			}
-			else
-			{
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * call a scriptMethod (== function)
-	 * 
-	 * @param cmd be the the id from the method or the name
-	 * @param methodKey 
-	 */
-	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
-		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception
-	{
-		Object function = null;
-		Scriptable scope = formScope;
-
-		String name = cmd;
-		int id = Utils.getAsInteger(cmd);
-		if (id > 0)
-		{
-			name = formScope.getFunctionName(new Integer(id));
-		}
-
-		Pair<String, String> nameScope = ScopesUtils.getVariableScope(name);
-		boolean global = nameScope != null && nameScope.getLeft() != null;
-		if (id <= 0 && global)
-		{
-			name = nameScope.getRight();
-		}
-		else
-		{
-			function = formScope.getFunctionByName(name);
-		}
-
-		if (allowFoundsetMethods && !global && function == null && formModel != null)
-		{
-			// try foundset method
-			ScriptMethod scriptMethod;
-			if (id > 0)
-			{
-				scriptMethod = AbstractBase.selectById(application.getFlattenedSolution().getFoundsetMethods(getTable(), false).iterator(), id);
-				if (scriptMethod != null)
-				{
-					name = scriptMethod.getName();
-				}
-			}
-			if (name != null)
-			{
-				scope = formModel;
-				function = scope.getPrototype().get(name, scope);
-			}
-		}
-
-		if (function == null || function == Scriptable.NOT_FOUND)
-		{
-			GlobalScope globalScope = null;
-			if (id > 0)
-			{
-				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
-				if (scriptMethod != null)
-				{
-					globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
-				}
-			}
-			else if (nameScope != null)
-			{
-				globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(nameScope.getLeft());
-			}
-			if (globalScope != null)
-			{
-				scope = globalScope;
-				if (id > 0)
-				{
-					name = globalScope.getFunctionName(new Integer(id));
-				}
-				function = globalScope.getFunctionByName(name);
-			}
-		}
-
-		Function f;
-		if (function instanceof Function /* else null or UniqueTag.NOT_FOUND */)
-		{
-			f = (Function)function;
-		}
-		else
-		{
-			if (cmd != null)
-			{
-				if (throwException)
-				{
-					throw new IllegalArgumentException("Could not find function '" + cmd + "' for form " + getName());
-				}
-				else
-				{
-					application.reportJSError("Could not find function '" + cmd + "' for form " + getName() + " , invoked by Object:", src);
-				}
-				return null;
-			}
-			// sometimes executeFunction is called with cmd=null just to trigger field validation, see BaseEventExecutor.fireEventCommand()
-			f = null;
-		}
-
-		if (throwException)
-		{
-			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
-				focusEvent, methodKey, executeWhenFieldValidationFailed, false, true);
-		}
-		try
-		{
-			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
-				focusEvent, methodKey, executeWhenFieldValidationFailed, false, false);
-		}
-		catch (ApplicationException ex)
-		{
-			application.reportError(ex.getMessage(), null);
-		}
-		catch (Exception ex)
-		{
-			this.requestFocus();
-			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
-		}
-		return null;
-	}
-
 	@Override
 	protected JSEvent getJSEvent(Object src)
 	{
@@ -1338,7 +1174,7 @@ public class FormController extends BasicFormController
 		}
 
 		Scriptable thisObject = null;
-		if (src instanceof IComponent)
+		if (src instanceof IComponent && src instanceof IScriptableProvider)
 		{
 			Object esObj = formScope.get("elements", formScope); //$NON-NLS-1$
 			if (esObj != Scriptable.NOT_FOUND)
@@ -1365,20 +1201,9 @@ public class FormController extends BasicFormController
 					try
 					{
 						Context.enter();
-						InstanceJavaMembers ijm = new InstanceJavaMembers(formScope, src.getClass());
-						JavaMembers jm = ijm;
-						if (ijm.getFieldIds(false).size() == 0 && ijm.getMethodIds(false).size() == 0)
-						{
-							jm = new JavaMembers(formScope, src.getClass())
-							{
-								@Override
-								protected boolean shouldDeleteGetAndSetMethods()
-								{
-									return true;
-								}
-							};
-						}
-						thisObject = new NativeJavaObject(formScope, src, jm);
+						IScriptable scriptObject = ((IScriptableProvider)src).getScriptObject();
+						JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptObject.getClass(), ScriptableObject.getTopLevelScope(formScope));
+						thisObject = new NativeJavaObject(formScope, scriptObject, jm);
 
 						es.setLocked(false);
 						es.put(name, es, thisObject);

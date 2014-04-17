@@ -37,7 +37,6 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.IBaseSMVariable;
 import com.servoy.base.solutionmodel.mobile.IMobileSMForm;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFactory;
@@ -3112,9 +3111,8 @@ public class JSForm implements IJSScriptParent<Form>, IConstantsObject, ISMForm,
 	{
 		checkModification();
 		form.setShowInMenu(arg);
-		FormManager formManager = (FormManager)application.getFormManager();
-		formManager.removeForm(form);
-		formManager.addForm(form, false);
+		application.getFormManager().removeForm(form);
+		application.getFormManager().addForm(form, false);
 	}
 
 	/**

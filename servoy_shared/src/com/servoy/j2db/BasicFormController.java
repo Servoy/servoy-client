@@ -93,7 +93,9 @@ import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -512,6 +514,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			}
 
 			// TODO better navigator support for webclient
+			// TODO check for ngclient if this is really needed, ngclient server ui doesn't know the navigator at all at this time 
 			if (application.getFormManager() instanceof FormManager)
 			{
 				FormController navigator = ((FormManager)application.getFormManager()).getCurrentContainer().getNavigator();
@@ -630,7 +633,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		if (form.getTitleText() != null && this == application.getFormManager().getCurrentForm())
 		{
 			// If a dialog is active over the main window, then don't update the application title.
-			if (((FormManager)application.getFormManager()).isCurrentTheMainContainer())
+			if (application.getFormManager().isCurrentTheMainContainer())
 			{
 				String title = form.getTitleText();
 				if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
@@ -753,6 +756,171 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			}
 		}
 		return ret;
+	}
+
+	public Object executeFunction(Function f, Object[] args, Scriptable scope, boolean saveData) throws Exception
+	{
+		return executeFunction(f, args, scope, scope, saveData, null, true, false, null, false, false, false);
+	}
+
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey)
+	{
+		return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, true, false);
+	}
+
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
+		boolean executeWhenFieldValidationFailed)
+	{
+		// if the view is still null, then this form is not fully constructed yet, (like onrender even of a listview) ignore it. (SVY-3383)
+		if (getViewComponent() == null) return null;
+		try
+		{
+			return executeFunction(cmd, args, saveData, src, focusEvent, methodKey, allowFoundsetMethods, executeWhenFieldValidationFailed, false);
+		}
+		catch (ApplicationException ex)
+		{
+			application.reportError(ex.getMessage(), null);
+		}
+		catch (Exception ex)
+		{
+//			this.requestFocus();
+			String name = cmd;
+			int id = Utils.getAsInteger(cmd);
+			if (id > 0)
+			{
+				name = formScope.getFunctionName(new Integer(id));
+			}
+
+			if (id <= 0 && ScopesUtils.isVariableScope(name))
+			{
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$ 
+			}
+			else
+			{
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * call a scriptMethod (== function)
+	 * 
+	 * @param cmd be the the id from the method or the name
+	 * @param methodKey 
+	 */
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
+		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception
+	{
+		Object function = null;
+		Scriptable scope = formScope;
+
+		String name = cmd;
+		int id = Utils.getAsInteger(cmd);
+		if (id > 0)
+		{
+			name = formScope.getFunctionName(new Integer(id));
+		}
+
+		Pair<String, String> nameScope = ScopesUtils.getVariableScope(name);
+		boolean global = nameScope != null && nameScope.getLeft() != null;
+		if (id <= 0 && global)
+		{
+			name = nameScope.getRight();
+		}
+		else
+		{
+			function = formScope.getFunctionByName(name);
+		}
+
+		if (allowFoundsetMethods && !global && function == null && formModel != null)
+		{
+			// try foundset method
+			ScriptMethod scriptMethod;
+			if (id > 0)
+			{
+				scriptMethod = AbstractBase.selectById(application.getFlattenedSolution().getFoundsetMethods(getTable(), false).iterator(), id);
+				if (scriptMethod != null)
+				{
+					name = scriptMethod.getName();
+				}
+			}
+			if (name != null)
+			{
+				scope = formModel;
+				function = scope.getPrototype().get(name, scope);
+			}
+		}
+
+		if (function == null || function == Scriptable.NOT_FOUND)
+		{
+			GlobalScope globalScope = null;
+			if (id > 0)
+			{
+				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
+				if (scriptMethod != null)
+				{
+					globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+				}
+			}
+			else if (nameScope != null)
+			{
+				globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(nameScope.getLeft());
+			}
+			if (globalScope != null)
+			{
+				scope = globalScope;
+				if (id > 0)
+				{
+					name = globalScope.getFunctionName(new Integer(id));
+				}
+				function = globalScope.getFunctionByName(name);
+			}
+		}
+
+		Function f;
+		if (function instanceof Function /* else null or UniqueTag.NOT_FOUND */)
+		{
+			f = (Function)function;
+		}
+		else
+		{
+			if (cmd != null)
+			{
+				if (throwException)
+				{
+					throw new IllegalArgumentException("Could not find function '" + cmd + "' for form " + getName());
+				}
+				else
+				{
+					application.reportJSError("Could not find function '" + cmd + "' for form " + getName() + " , invoked by Object:", src);
+				}
+				return null;
+			}
+			// sometimes executeFunction is called with cmd=null just to trigger field validation, see BaseEventExecutor.fireEventCommand()
+			f = null;
+		}
+
+		if (throwException)
+		{
+			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
+				focusEvent, methodKey, executeWhenFieldValidationFailed, false, true);
+		}
+		try
+		{
+			return executeFunction(f, args, scope, scope, saveData, src, f == null || !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f)), //$NON-NLS-1$
+				focusEvent, methodKey, executeWhenFieldValidationFailed, false, false);
+		}
+		catch (ApplicationException ex)
+		{
+			application.reportError(ex.getMessage(), null);
+		}
+		catch (Exception ex)
+		{
+//			this.requestFocus();
+			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
+		}
+		return null;
 	}
 
 	@SuppressWarnings("nls")

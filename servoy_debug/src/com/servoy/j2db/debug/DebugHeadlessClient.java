@@ -32,7 +32,6 @@ import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
@@ -438,7 +437,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 		}
 		if (getSolution() != null && form != null)
 		{
-			((FormManager)getFormManager()).showFormInMainPanel(form.getName());
+			getFormManager().showFormInMainPanel(form.getName());
 			form = null;
 			changed = true;
 		}

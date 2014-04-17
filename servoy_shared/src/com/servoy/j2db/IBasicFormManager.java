@@ -226,7 +226,7 @@ public interface IBasicFormManager extends IFormManager
 		private void enableButtons(boolean enableBackward, boolean enableForWard)
 		{
 			// buttons are currently only used in the main window, not in dialogs
-			if (container == ((FormManager)application.getFormManager()).getMainContainer(null))
+			if (application.getFormManager() instanceof FormManager && container == ((FormManager)application.getFormManager()).getMainContainer(null))
 			{
 				Action back = application.getCmdManager().getRegisteredAction("cmdhistoryback"); //$NON-NLS-1$
 				if (back != null) back.setEnabled(enableBackward);
@@ -323,6 +323,11 @@ public interface IBasicFormManager extends IFormManager
 	public void addForm(Form form, boolean selected);
 
 	/**
+	 * @param form
+	 */
+	public boolean removeForm(Form form);
+
+	/**
 	 * @param formName
 	 * @return
 	 */
@@ -335,5 +340,9 @@ public interface IBasicFormManager extends IFormManager
 	 */
 	public boolean createNewFormInstance(String designFormName, String newInstanceScriptName);
 
+	/**
+	 * @return
+	 */
+	public boolean isCurrentTheMainContainer();
 
 }

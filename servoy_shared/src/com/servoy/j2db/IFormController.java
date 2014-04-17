@@ -83,6 +83,32 @@ public interface IFormController extends IForm
 
 	public void executeOnLoadMethod();
 
+
+	/**
+	 * @param cmd
+	 * @param args
+	 * @param saveData
+	 * @param src
+	 * @param focusEvent
+	 * @param methodKey
+	 */
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey);
+
+	/**
+	 * @param cmd
+	 * @param args
+	 * @param saveData
+	 * @param src
+	 * @param focusEvent
+	 * @param methodKey
+	 * @param allowFoundsetMethods
+	 * @param executeWhenFieldValidationFailed
+	 * @param throwException
+	 * @return
+	 */
+	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
+		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception;
+
 	/**
 	 * @return
 	 */
@@ -97,4 +123,5 @@ public interface IFormController extends IForm
 	 * 
 	 */
 	void refreshView();
+
 }

@@ -38,10 +38,9 @@ import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.ClientVersion;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBeanManager;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -567,7 +566,7 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 					{
 						try
 						{
-							FormController fp = ((FormManager)application.getFormManager()).leaseFormPanel(context);
+							IFormController fp = application.getFormManager().leaseFormPanel(context);
 							if (fp != null)
 							{
 								fp.initForJSUsage();

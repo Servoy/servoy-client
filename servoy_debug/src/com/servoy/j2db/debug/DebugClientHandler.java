@@ -44,13 +44,12 @@ import org.eclipse.core.runtime.Platform;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.DebugClientType;
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.extensions.IDebugClientPovider;
@@ -276,7 +275,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 					{
 						try
 						{
-							FormController fp = ((FormManager)serviceProvider.getFormManager()).leaseFormPanel(((Form)persist).getName());
+							IFormController fp = serviceProvider.getFormManager().leaseFormPanel(((Form)persist).getName());
 							if (fp != null)
 							{
 								fp.initForJSUsage();
