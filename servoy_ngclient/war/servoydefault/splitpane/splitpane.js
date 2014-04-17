@@ -6,9 +6,7 @@ angular.module('svySplitpane',['servoy']).directive('svySplitpane', function() {
         model: "=svyModel",
         svyServoyapi: "=",
         handlers: "=svyHandlers",
-        api: "=svyApi",
-        pane1MinSize: '&',
-        pane2MinSize: '&'
+        api: "=svyApi"
       },
       controller: function($scope, $element, $attrs) {
     	  
