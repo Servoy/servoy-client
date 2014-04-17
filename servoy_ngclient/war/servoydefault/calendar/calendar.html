@@ -14,5 +14,5 @@
 	   ng-readonly="model.editable == false"
        ng-model="editModel" 
        id="{{model.markupId}}"/>
-	<span class="input-group-addon" style="padding:0;"><span class="glyphicon glyphicon-calendar"></span></span>
+	<span class="input-group-addon" style="padding:0;" ng-show="model.editable && model.enabled"><span class="glyphicon glyphicon-calendar"></span></span>
 </div>
