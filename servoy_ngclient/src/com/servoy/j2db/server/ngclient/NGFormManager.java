@@ -649,6 +649,19 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.servoy.j2db.IBasicFormManager#isCurrentTheMainContainer()
+	 */
+	@Override
+	public boolean isCurrentTheMainContainer()
+	{
+		// main containers should be the once without a parent  (so tabs in browser but no dialogs)
+		// so setTitle should also just set it on the current main window of the active endpoint
+		return ((NGRuntimeWindow)getCurrentContainer()).getParent() == null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, org.json.JSONObject)
 	 */
 	@Override
