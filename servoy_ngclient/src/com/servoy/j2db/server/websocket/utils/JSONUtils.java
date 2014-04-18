@@ -53,6 +53,7 @@ import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
@@ -325,7 +326,8 @@ public class JSONUtils
 	 * @param propertyValue can be a JSONObject or array or primitive. (so something deserialized from a JSON string)
 	 * @return the corresponding Java object based on bean spec.
 	 */
-	public static Object toJavaObject(Object json, PropertyDescription componentSpecType, FlattenedSolution fs) throws JSONException
+	public static Object toJavaObject(Object json, PropertyDescription componentSpecType, FlattenedSolution fs, INGFormManager formManager)
+		throws JSONException
 	{
 
 		Object propertyValue = json;
@@ -400,6 +402,14 @@ public class JSONUtils
 					}
 				}
 					break;
+				case formscope :
+				{
+					if (propertyValue instanceof String && formManager != null)
+					{
+						return formManager.getForm((String)propertyValue).getFormScope();
+					}
+					break;
+				}
 				case custom :
 				{
 					if (json instanceof JSONObject)
@@ -412,7 +422,7 @@ public class JSONUtils
 							String key = entry.getKey();
 							if (jsonObject.has(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
 							{
-								ret.put(key, toJavaObject(jsonObject.get(key), entry.getValue(), fs));
+								ret.put(key, toJavaObject(jsonObject.get(key), entry.getValue(), fs, formManager));
 							}
 						}
 						return ret;

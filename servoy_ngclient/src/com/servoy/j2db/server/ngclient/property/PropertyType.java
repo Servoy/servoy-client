@@ -48,6 +48,7 @@ public enum PropertyType
 	valuelist,
 	function,
 	form,
+	formscope,
 	format,
 	relation,
 	tabseq,

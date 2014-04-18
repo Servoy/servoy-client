@@ -333,7 +333,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			return propertyValue;
 		}
-		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), application.getFlattenedSolution());
+		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), application.getFlattenedSolution(),
+			application.getFormManager());
 	}
 
 	@Override

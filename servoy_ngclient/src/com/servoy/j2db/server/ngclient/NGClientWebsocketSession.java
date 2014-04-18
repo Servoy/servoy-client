@@ -698,7 +698,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			{
 				return new Date(((Long)ret).longValue());
 			}
-			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType(), client.getFlattenedSolution()); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
+			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType(), client.getFlattenedSolution(), client.getFormManager()); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException | IOException e)
 		{

@@ -109,7 +109,7 @@ public final class FormElement
 						{
 							// TODO where the handle PropertyType.form properties? (see tabpanel below)
 							//toJavaObject shoudl accept application because it is needed for format
-							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, fs));
+							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, fs, null));
 							//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
 						}
 					}
