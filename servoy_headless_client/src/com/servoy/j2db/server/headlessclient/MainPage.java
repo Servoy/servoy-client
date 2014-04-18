@@ -1216,8 +1216,10 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 			main = null;
 			setFormController(null);
 		}
-		webForms.remove(c);
-		listview.removeAll();
+		if (webForms.remove(c))
+		{
+			listview.removeAll();
+		}
 	}
 
 	public void setComponentVisible(boolean b)

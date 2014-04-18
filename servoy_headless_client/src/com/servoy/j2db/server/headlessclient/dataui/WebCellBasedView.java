@@ -3048,6 +3048,14 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 			((ISwingFoundSet)currentData).removeTableModelListener(this);
 			((ISwingFoundSet)currentData).getSelectionModel().removeListSelectionListener(this);
 		}
+		for (Component comp : cellToElement.keySet())
+		{
+			if (comp instanceof IDestroyable)
+			{
+				((IDestroyable)comp).destroy();
+			}
+		}
+		cellToElement.clear();
 	}
 
 	public String getSelectedRelationName()
