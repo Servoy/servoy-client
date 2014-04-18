@@ -298,7 +298,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 								boolean isVisible = obj.getBoolean("visible");
 								boolean ok = form.notifyVisible(isVisible, invokeLaterRunnables);
 								Utils.invokeLater(client, invokeLaterRunnables);
-								if (ok)
+								if (ok && obj.has("parentForm") && !obj.isNull("parentForm"))
 								{
 									IWebFormController parentForm = client.getFormManager().getForm(obj.getString("parentForm"));
 									WebComponent containerComponent = parentForm.getFormUI().getWebComponent(obj.getString("bean"));
