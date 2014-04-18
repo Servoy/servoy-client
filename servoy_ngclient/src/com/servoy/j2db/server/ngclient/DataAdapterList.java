@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
@@ -48,6 +49,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final IFormController formController;
 	private final EventExecutor executor;
 	private final InlineScriptExecutor inlineScriptExecutor;
+	private final IDataConverterContext converterContext;
 
 	private IRecordInternal record;
 	private boolean findMode;
@@ -58,6 +60,21 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		this.formController = formController;
 		this.executor = new EventExecutor(application, formController);
 		this.inlineScriptExecutor = new InlineScriptExecutor(formController);
+		this.converterContext = new IDataConverterContext()
+		{
+
+			@Override
+			public FlattenedSolution getSolution()
+			{
+				return DataAdapterList.this.application.getFlattenedSolution();
+			}
+
+			@Override
+			public INGApplication getApplication()
+			{
+				return DataAdapterList.this.application;
+			}
+		};
 	}
 
 	@Override
@@ -333,8 +350,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			return propertyValue;
 		}
-		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), application.getFlattenedSolution(),
-			application.getFormManager());
+		return JSONUtils.toJavaObject(propertyValue, fe.getWebComponentSpec().getProperty(propertyName), converterContext);
 	}
 
 	@Override
@@ -367,5 +383,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			executeApi(apiDef, webComponent.getName(), args);
 		}
+	}
+
+	public IDataConverterContext getDataConverterContext()
+	{
+		return converterContext;
 	}
 }

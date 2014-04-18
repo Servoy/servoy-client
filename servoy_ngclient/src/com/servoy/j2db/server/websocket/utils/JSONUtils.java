@@ -46,14 +46,14 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.server.ngclient.INGFormManager;
+import com.servoy.j2db.server.ngclient.IDataConverterContext;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
@@ -71,7 +71,6 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 @SuppressWarnings("nls")
 public class JSONUtils
 {
-
 	/**
 	 * Writes the given object into the JSONWriter. (it is meant to be used for transforming the basic types that can be sent by beans/components)
 	 * @param writer the JSONWriter.
@@ -326,8 +325,7 @@ public class JSONUtils
 	 * @param propertyValue can be a JSONObject or array or primitive. (so something deserialized from a JSON string)
 	 * @return the corresponding Java object based on bean spec.
 	 */
-	public static Object toJavaObject(Object json, PropertyDescription componentSpecType, FlattenedSolution fs, INGFormManager formManager)
-		throws JSONException
+	public static Object toJavaObject(Object json, PropertyDescription componentSpecType, IDataConverterContext converterContext) throws JSONException
 	{
 
 		Object propertyValue = json;
@@ -393,7 +391,7 @@ public class JSONUtils
 					{
 						// special support for media type (that needs a FS to resolve the media)
 						int mediaId = (Integer)propertyValue;//((JSONObject)json).getInt(key);
-						Media media = fs.getMedia(mediaId);
+						Media media = converterContext.getSolution().getMedia(mediaId);
 						if (media != null)
 						{
 							return "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
@@ -404,9 +402,10 @@ public class JSONUtils
 					break;
 				case formscope :
 				{
-					if (propertyValue instanceof String && formManager != null)
+					INGApplication app = converterContext.getApplication();
+					if (propertyValue instanceof String && app != null)
 					{
-						return formManager.getForm((String)propertyValue).getFormScope();
+						return app.getFormManager().getForm((String)propertyValue).getFormScope();
 					}
 					break;
 				}
@@ -422,7 +421,7 @@ public class JSONUtils
 							String key = entry.getKey();
 							if (jsonObject.has(key)) // ((JSONObject)json).get(key) can be null in the case of partial update
 							{
-								ret.put(key, toJavaObject(jsonObject.get(key), entry.getValue(), fs, formManager));
+								ret.put(key, toJavaObject(jsonObject.get(key), entry.getValue(), converterContext));
 							}
 						}
 						return ret;

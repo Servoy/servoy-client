@@ -80,7 +80,7 @@ public final class FormElement
 	/**
 	 * @param persist
 	 */
-	public FormElement(IFormElement persist, FlattenedSolution fs)
+	public FormElement(IFormElement persist, final FlattenedSolution fs)
 	{
 		this.persist = persist;
 		if (persist instanceof Bean)
@@ -94,6 +94,7 @@ public final class FormElement
 					Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 					Map<String, PropertyDescription> eventProperties = getWebComponentSpec().getHandlers();
 					JSONObject jsonProperties = new JSONObject(customJSONString);
+					IDataConverterContext converterContext = null;
 					Iterator keys = jsonProperties.keys();
 					while (keys.hasNext())
 					{
@@ -107,9 +108,26 @@ public final class FormElement
 						}
 						if (pd != null)
 						{
+							if (converterContext == null)
+							{
+								converterContext = new IDataConverterContext()
+								{
+									@Override
+									public FlattenedSolution getSolution()
+									{
+										return fs;
+									}
+
+									@Override
+									public INGApplication getApplication()
+									{
+										return null;
+									}
+								};
+							}
 							// TODO where the handle PropertyType.form properties? (see tabpanel below)
 							//toJavaObject shoudl accept application because it is needed for format
-							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, fs, null));
+							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, converterContext));
 							//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
 						}
 					}

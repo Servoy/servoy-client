@@ -81,12 +81,31 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 	private final ConcurrentMap<String, String> formsOnClient = new ConcurrentHashMap<>();
 	private String uuid;
 
+	private final IDataConverterContext converterContext;
+
 	/**
 	 * @param endpoint
 	 */
 	public NGClientWebsocketSession(IWebsocketEndpoint endpoint)
 	{
 		wsEndpoint = endpoint;
+		converterContext = new IDataConverterContext()
+		{
+
+			@Override
+			public FlattenedSolution getSolution()
+			{
+				INGApplication app = getApplication();
+				return app != null ? app.getFlattenedSolution() : null;
+			}
+
+			@Override
+			public INGApplication getApplication()
+			{
+				return NGClientWebsocketSession.this.getClient();
+			}
+		};
+
 	}
 
 	public void setClient(NGClient client)
@@ -698,7 +717,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			{
 				return new Date(((Long)ret).longValue());
 			}
-			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType(), client.getFlattenedSolution(), client.getFormManager()); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
+			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType(), converterContext); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException | IOException e)
 		{

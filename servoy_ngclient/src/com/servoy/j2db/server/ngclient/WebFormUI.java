@@ -403,10 +403,8 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	{
 		if ("size".equals(propertyName))
 		{
-			properties.put(
-				propertyName,
-				JSONUtils.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension), application.getFlattenedSolution(),
-					application.getFormManager()));
+			properties.put(propertyName,
+				JSONUtils.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension), dataAdapterList.getDataConverterContext()));
 		}
 	}
 

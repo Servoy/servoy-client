@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2013 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2014 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,19 +17,17 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import org.json.JSONException;
+import com.servoy.j2db.FlattenedSolution;
 
 /**
- * Converter from client data (JSON) to backend data
+ * Context for converter from client data (JSON) to backend data
  * 
  * @author gboros
  *
  */
-public interface IDataConverter
+public interface IDataConverterContext
 {
-	Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue) throws JSONException;
+	FlattenedSolution getSolution();
 
-	Object convertFromJavaObjectToString(FormElement fe, String propertyName, Object propertyValue);
-
-	IDataConverterContext getDataConverterContext();
+	INGApplication getApplication();
 }
