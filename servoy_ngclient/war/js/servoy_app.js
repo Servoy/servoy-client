@@ -282,6 +282,9 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        		websocket.send(JSON.stringify(response));
 	        	}
 	        }
+		   } catch(e) {
+			   console.log("error in parsing message: " + message.data);
+			   console.log(e);
 		   } finally {
 			   ignoreChanges = false;
 		   }
