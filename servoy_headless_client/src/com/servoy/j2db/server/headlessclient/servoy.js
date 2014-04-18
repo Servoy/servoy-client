@@ -1694,28 +1694,30 @@ function adjustAndShowTooltip(dismissDelay)
   	}
 
 	m = document.getElementById('mktipmsg');
-	m.style.left = x + 20  + "px";	
-	m.style.top = y - 4 + "px";		
+	// first just set it on position 0px and "show" it
+	// this will result in the best possible view of the tooltip.
+	m.style.left = "0px";	
+	m.style.top = "0px";		
 	m.style.display = "block";
-	var tooltipOffsetWidth = x + 20 + m.offsetWidth; 
 
-	if(wWidth < tooltipOffsetWidth)
-	{
-		var newLeft = x - 20 -m.offsetWidth;
-		if(newLeft < 0)
-		{
-			newLeft = 0;
-			m.style.width = x - 20 + "px";
-		}
-		m.style.left = newLeft  + "px";
+    // by default set it on position x+10 (and y+10)
+	var left = x + 10;
+	// if now the total lenght doesn't fit anymore then extract it (moves to left)
+	if (left + m.offsetWidth > wWidth) {
+		left -= (left + m.offsetWidth - wWidth);
+		// the complete tooltip is bigger then the whole page
+		if (left < 0) left = 0;
 	}
+	m.style.left = left  + "px";
+	
+	var top = y + 10;
+	// if total height bigger then the height then place it completely above
+	// the mouse position.
+	if (top + m.offsetHeight > wHeight) {
+		top = y - 10 - m.offsetHeight;
+	}
+	m.style.top = top  + "px";
 
-	var tooltipOffsetHeight = y - 4 + m.offsetHeight
-	if(wHeight < tooltipOffsetHeight)
-	{
-		var newTop = y - 4 - m.offsetHeight;
-		m.style.top = newTop  + "px";
-	}
 	tipTimeout = setTimeout("hidetip();", dismissDelay);
 }
 
