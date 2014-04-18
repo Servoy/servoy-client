@@ -80,7 +80,12 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		int counter = 0;
 		for (FormElement fe : formElements)
 		{
-			WebComponentSpec componentSpec = fe.getWebComponentSpec();
+			WebComponentSpec componentSpec = fe.getWebComponentSpec(false);
+			if (componentSpec == null)
+			{
+				application.reportError("Didn't find a spec file for component " + fe + " when creating form: " + form.getName(), null);
+				continue;
+			}
 
 			WebComponent component = ComponentFactory.createComponent(application, dal, fe, this);
 			if (!fe.getName().startsWith("svy_"))
