@@ -353,8 +353,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 		{
 			int oldmode = ((Integer)evt.getOldValue()).intValue();
 			int newmode = ((Integer)evt.getNewValue()).intValue();
+			IFormController fp = getCurrentMainShowingFormController();
 
-//			handleModeChange(oldmode, newmode);
+			if (oldmode == IModeManager.FIND_MODE || newmode == IModeManager.FIND_MODE)
+			{
+				fp.setMode(newmode);
+			}
 		}
 	}
 
