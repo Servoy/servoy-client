@@ -150,7 +150,6 @@ public class RuntimeWebComponent implements Scriptable
 				{
 					String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
 					if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
-					;
 					{
 						// call setter
 						WebComponentFunction propertySetter = apiFunctions.get("set" + uName);
