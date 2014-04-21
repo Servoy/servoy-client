@@ -51,8 +51,8 @@ import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.websocket.BaseWebsocketSession;
 import com.servoy.j2db.server.websocket.IService;
-import com.servoy.j2db.server.websocket.IWebsocketEndpoint;
 import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -64,7 +64,7 @@ import com.servoy.j2db.util.Utils;
  * @author rgansevles
  *
  */
-public class NGClientWebsocketSession implements INGClientWebsocketSession
+public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
 	private NGClient client;
 	private String windowName;
@@ -74,24 +74,14 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 
 	private final AtomicInteger handlingEvent = new AtomicInteger(0);
 
-	private IWebsocketEndpoint wsEndpoint;
-
-	private final Map<String, IService> services = new HashMap<>();
-
 	private final ConcurrentMap<String, String> formsOnClient = new ConcurrentHashMap<>();
-	private String uuid;
 
 	private final IDataConverterContext converterContext;
 
-	/**
-	 * @param endpoint
-	 */
-	public NGClientWebsocketSession(IWebsocketEndpoint endpoint)
+	public NGClientWebsocketSession()
 	{
-		wsEndpoint = endpoint;
 		converterContext = new IDataConverterContext()
 		{
-
 			@Override
 			public FlattenedSolution getSolution()
 			{
@@ -105,7 +95,6 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 				return NGClientWebsocketSession.this.getClient();
 			}
 		};
-
 	}
 
 	public void setClient(NGClient client)
@@ -125,22 +114,13 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 	}
 
 	@Override
-	public void setActiveWebsocketEndpoint(IWebsocketEndpoint wsEndpoint)
+	public void onOpen(final String solutionName)
 	{
-		this.wsEndpoint = wsEndpoint;
-	}
+		super.onOpen(solutionName);
 
-	public IWebsocketEndpoint getActiveWebsocketEndpoint()
-	{
-		return wsEndpoint;
-	}
-
-	public void onOpen(String uuid, final String solutionName)
-	{
-		this.uuid = uuid;
 		if (Utils.stringIsEmpty(solutionName))
 		{
-			wsEndpoint.cancelSession("Invalid solution name");
+			getActiveWebsocketEndpoint().cancelSession("Invalid solution name");
 			return;
 		}
 
@@ -152,7 +132,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 		try
 		{
 			getActiveWebsocketEndpoint().sendMessage(
-				new JSONStringer().object().key("srvuuid").value(uuid).key("windowName").value(windowName).endObject().toString());
+				new JSONStringer().object().key("srvuuid").value(getUuid()).key("windowName").value(windowName).endObject().toString());
 		}
 		catch (IOException | JSONException e)
 		{
@@ -187,13 +167,6 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			});
 		}
 	}
-
-	@Override
-	public void closeSession()
-	{
-		getActiveWebsocketEndpoint().closeSession();
-	}
-
 
 	/**
 	 * @param message
@@ -273,7 +246,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 								}
 								if (obj.has("cmsgid")) // client wants response
 								{
-									wsEndpoint.sendResponse(obj.get("cmsgid"), error == null ? result : error, error == null);
+									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), error == null ? result : error, error == null);
 								}
 							}
 							catch (JSONException | IOException e)
@@ -332,14 +305,14 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 										form.loadRecords(selectedRecord.getRelatedFoundSet(obj.getString("relation")));
 									}
 								}
-								wsEndpoint.sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true);
+								getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true);
 							}
 							catch (Exception e)
 							{
 								Debug.error(e);
 								try
 								{
-									wsEndpoint.sendResponse(obj.get("cmsgid"), e.getMessage(), false);
+									getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), e.getMessage(), false);
 								}
 								catch (IOException | JSONException e1)
 								{
@@ -393,9 +366,10 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 		}
 	}
 
+	@Override
 	public void callService(String serviceName, final String methodName, final JSONObject args, final Object msgId)
 	{
-		final IService service = services.get(serviceName);
+		final IService service = getService(serviceName);
 		if (service != null)
 		{
 			client.invokeLater(new Runnable()
@@ -403,42 +377,15 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 				@Override
 				public void run()
 				{
-					Object result = null;
-					String error = null;
-					try
-					{
-						result = service.executeMethod(methodName, args);
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-						error = "Error: " + e.getMessage();
-					}
-
-					if (msgId != null) // client wants response
-					{
-						try
-						{
-							wsEndpoint.sendResponse(msgId, error == null ? result : error, error == null);
-						}
-						catch (IOException e)
-						{
-							Debug.error(e);
-						}
-					}
-
+					doCallService(service, methodName, args, msgId);
 				}
+
 			});
 		}
 		else
 		{
 			Debug.warn("Unknown servie called: " + serviceName);
 		}
-	}
-
-	public void registerService(String name, IService service)
-	{
-		services.put(name, service);
 	}
 
 	private IWebFormController parseForm(JSONObject obj)
@@ -569,7 +516,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			boolean copy = false;
 			if (sc != null && sc.getChild(form.getUUID()) != null)
 			{
-				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + uuid;
+				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + getUuid();
 				copy = true;
 			}
 
@@ -711,7 +658,7 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 			}
 			data.put("call", call);
 
-			Object ret = wsEndpoint.sendMessage(data, false);
+			Object ret = getActiveWebsocketEndpoint().sendMessage(data, false);
 			// convert back
 			if (ret instanceof Long && apiDefinition.getReturnType().getType() == PropertyType.date)
 			{
@@ -728,16 +675,9 @@ public class NGClientWebsocketSession implements INGClientWebsocketSession
 	}
 
 	@Override
-	public Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException
-	{
-		return getActiveWebsocketEndpoint().executeServiceCall(serviceName, functionName, arguments);
-	}
-
-	@Override
 	public void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments)
 	{
-		getActiveWebsocketEndpoint().executeAsyncServiceCall(serviceName, functionName, arguments);
+		super.executeAsyncServiceCall(serviceName, functionName, arguments);
 		valueChanged();
 	}
-
 }

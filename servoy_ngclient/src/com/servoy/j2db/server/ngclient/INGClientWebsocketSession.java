@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.io.IOException;
-
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
@@ -57,21 +55,4 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	Object executeApi(WebComponentApiDefinition apiDefinition, String formName, String beanName, Object[] arguments);
 
-	/** Execute a service call asynchronously.
-	 * 
-	 * @param serviceName
-	 * @param functionName
-	 * @param arguments
-	 */
-	void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments);
-
-	/** Execute a service call synchronously.
-	 * 
-	 * @param serviceName
-	 * @param functionName
-	 * @param arguments
-	 * @return remote result
-	 * @throws IOException
-	 */
-	Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
 }

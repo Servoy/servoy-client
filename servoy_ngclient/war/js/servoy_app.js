@@ -1,34 +1,14 @@
 var controllerProvider;
-angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components']).config(function($controllerProvider) {
+angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-components', 'webSocketModule']).config(function($controllerProvider) {
 	controllerProvider = $controllerProvider;
-}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window,$injector) {
+}).factory('$servoyInternal', function ($rootScope,$swingModifiers,webStorage,$anchorConstants, $q,$solutionSettings, $window, $webSocket) {
 	   // formName:[beanname:{property1:1,property2:"test"}] needs to be synced to and from server
 	   // this holds the form model with all the data, per form is this the "synced" view of the the IFormUI on the server 
 	   // (3 way binding)
 	   var formStates = {}; 
 	   
-	   var convertServerObject = function(value, toType) {
-		   if (toType == "Date") {
-			   value = new Date(value);
-		   }
-		   return value;
-	   }
-	   
-	   var convertClientObject = function(value) {
-		   if (value instanceof Date) {
-			   value = value.getTime();
-		   }
-		   return value;
-	   } 
-	   
 	   var deferredProperties = {};
 	   var deferredformStates = {};
-	   var deferredEvents = {};
-	   var nextMessageId = 1
-	   var getNextMessageId = function() {
-		   return nextMessageId++
-	   }
-	   
 	   var applyBeanData = function(beanModel, beanLayout, beanData, containerSize) {
             var anchorInfoChanged = false;
           	for(var key in beanData) {
@@ -45,9 +25,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
           			beanLayout.height = beanData[key].height+'px';
           			anchorInfoChanged = true;
           			break;
+          			
           		case 'anchors':
           			anchorInfoChanged = true;
           			break;
+          			
           		case 'visible':
           			if (beanData[key] == false)
           			{
@@ -93,52 +75,10 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		   
 	   // maybe do this with defer ($q)
 	   var ignoreChanges = false;
-	   var loc = window.location, new_uri;
-	   if (loc.protocol === "https:") {
-	       new_uri = "wss:";
-	   } else {
-	       new_uri = "ws:";
-	   }
-	   new_uri += "//" + loc.host;
-	   var lastIndex = loc.pathname.lastIndexOf("/");
-	   $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec(loc.pathname)[1];
-	   if (lastIndex > 0) {
-		   new_uri += loc.pathname.substring(0,lastIndex) + "/../../websocket";   // path of index.html is like so http://localhost:8080/webclient2/solutions/{solName}/index.html
-	   }
-	   else {
-		   new_uri += loc.pathname + "/websocket";
-	   }
-	   var srvuuid = webStorage.session.get("svyuuid");
-	   new_uri += '/client/'+(srvuuid==null?'NULL':srvuuid)+'/'+$solutionSettings.solutionName
-	   
-	   var websocket = new WebSocket(new_uri);
-	   websocket.onopen = function () {
-           console.log('Info: WebSocket connection opened.');
-       };
-       websocket.onerror = function(message) {
-    	   console.error('Error: WebSocket on error: ' + message);
-       }
-       websocket.onclose = function(message) {
-    	   console.log('Info: WebSocket on close, code: ' + message.code + ' , reason: ' + message.reason);
-       }
-       websocket.onmessage = function (message) {
+	   $solutionSettings.solutionName  = /.*\/(\w+)\/.*/.exec(window.location.pathname)[1];
+	   var wsSession = $webSocket.connect('client', webStorage.session.get("svyuuid"), $solutionSettings.solutionName)
+       wsSession.onMessageObject = function (msg) {
 		   try {
-	        var obj = JSON.parse(message.data);
-	        var conversions = obj.conversions || {}; 
-	        var msg = obj.msg || {}
-	    	var applyConversion = function(data, conversion) {
-        		for(var conKey in conversion) {
-        			if (conversion[conKey] == "Date") {
-        				data[conKey] = convertServerObject(data[conKey], conversion[conKey]);
-        			}
-        			else {
-        				applyConversion(data[conKey],conversion[conKey]);
-        			}
-        		}
-        	} 
-        	
-        	applyConversion(obj, conversions)
-
 	        // data got back from the server
 	        if (msg.forms) {
 		        ignoreChanges = true;
@@ -152,9 +92,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		            var formModel = formState.model;
 		            var layout = formState.layout;
 		            var newFormData = msg.forms[formname];
-		            var formConversion = conversions[formname];
 		            var newFormProperties = newFormData['']; // get form properties
-		            var rowConversions = formConversion ? formConversion[''] : undefined
 
 		            if(newFormProperties) {
 		            	if (!formModel['']) formModel[''] = {};
@@ -215,46 +153,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        			{
 	        				formState.model[call.bean].readOnly = formState.model[call.bean].readOnlyBeforeFindMode;
 	        			}
-	        			
 	        		}
 	        		return;
 	        	}
 
-	        	var args = call.args
-	        	// conversion
-	        	if (args && call.conversions && call.conversions.args) {
-	        		  args = args.slice(0)
-	        		  var argsConversions = call.conversions.args
-	        		  for (var conv in argsConversions)
-        			  {
-	        			  var index = parseInt(conv)
-	        			  args[index] = convertServerObject(args[index], argsConversions[conv])
-        			  }
-		          }
-	        	
-	        	$rootScope.$apply(function() {
-	        		var ret = func.apply(funcThis, args)
-		        	if (obj.smsgid) {
-		        		// server wants a response
-		        		var response = {smsgid: obj.smsgid}
-		        		if (ret != undefined) response.ret = convertClientObject(ret);
-		        		websocket.send(JSON.stringify(response));
-		        	}
+	        	return $rootScope.$apply(function() {
+	        		return func.apply(funcThis, call.args)
 	        	})
-	        }
-	        if (obj.cmsgid) { // response to event
-	        	if (obj.exception) {
-	        		// something went wrong
-	        		$rootScope.$apply(function() {
-	        			deferredEvents[obj.cmsgid].reject(obj.exception);
-	        		})
-	        	}
-	        	else {
-	        		$rootScope.$apply(function() {
-	        			deferredEvents[obj.cmsgid].resolve(obj.ret);
-	        		})
-	        	}
-				delete deferredEvents[obj.cmsgid];
 	        }
 	        if (msg.srvuuid) {
 	        	webStorage.session.add("svyuuid",msg.srvuuid);
@@ -265,26 +170,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        if (msg.windowName) {
 	        	$solutionSettings.windowName = msg.windowName;
 	        }
-	        if (obj.services) {
-	        	var lastRet = null;
-	        	for (var index in obj.services)
-	        	{
-	        		var service = obj.services[index];
-	        		var serviceInstance = $injector.get(service.name);
-	        		if (serviceInstance && serviceInstance[service.call]) {
-	        			lastRet = serviceInstance[service.call].apply(serviceInstance,service.args);
-	        		}
-	        	}
-	        	if (obj.smsgid) {
-	        		// server wants a response for last service call
-	        		var response = {smsgid: obj.smsgid}
-	        		if (lastRet) response.ret = convertClientObject(ret);
-	        		websocket.send(JSON.stringify(response));
-	        	}
-	        }
-		   } catch(e) {
-			   console.log("error in parsing message: " + message.data);
-			   console.log(e);
 		   } finally {
 			   ignoreChanges = false;
 		   }
@@ -387,7 +272,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	        
 	        // send the special request initial data for this form 
 	        // this can also make the form (IFormUI instance) on the server if that is not already done
-	        websocket.send(JSON.stringify({cmd:'requestdata',formname:formName}));
+	        wsSession.sendMessageObject({cmd:'requestdata',formname:formName});
 	        return state;
 	       },
 	       getExecutor: function(formName) {
@@ -430,21 +315,13 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	            		  data[property] = formStates[formName].model[beanname][property];
 	            	  }
 	            	  
-	            	  var deferred = $q.defer();
-	            	  var cmsgid = getNextMessageId()
-	            	  deferredEvents[cmsgid] = deferred;
-	            	  var cmd = {cmd:'event', cmsgid:cmsgid,formname:formName,beanname:beanname,event:eventName,args:newargs,changes:data}
+	            	  var cmd = {cmd:'event',formname:formName,beanname:beanname,event:eventName,args:newargs,changes:data}
 	            	  if (svy_pk) cmd.svy_pk = svy_pk
-	            	  websocket.send(JSON.stringify(cmd))
-	            	  return deferred.promise;
+	            	  return wsSession.sendDeferredMessage(cmd)
 	              },
 	          }
 	       },
 
-	       sendRequest: function(stringifyjson) {
-	    	   websocket.send(stringifyjson);
-	       },
-	       
 	       sendChanges: function(now,prev,formname,beanname) {
 	    	   if (ignoreChanges) return false;
 	    	   // first build up a list of all the properties both have.
@@ -455,15 +332,15 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	    		changes[prop] = 'svy_undefined'; // special previous had a value that is removed from the current.
 	    	    	}
 	    	    	else if (!prev) {
-	    	    		changes[prop] = convertClientObject(now[prop])
+	    	    		changes[prop] = $webSocket.convertClientObject(now[prop])
 	    	    	}
 	    	    	else if (prev[prop] !== now[prop]) {
 	    	    		if (typeof now[prop] == "object") {
 	    	    			if (isChanged(now[prop],prev[prop])) {
-	    	    				changes[prop] = convertClientObject(now[prop]);
+	    	    				changes[prop] = $webSocket.convertClientObject(now[prop]);
 	    	    			}
 	    	    		} else {
-	    	               changes[prop] = convertClientObject(now[prop]);
+	    	               changes[prop] = $webSocket.convertClientObject(now[prop]);
 	    	    		}
 	    	        }
 	    	    }
@@ -475,7 +352,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	    }
 
 	    	    for (prop in changes) {
-	    	    	websocket.send(JSON.stringify({cmd:'datapush',formname:formname,beanname:beanname,changes:changes}))
+	    	    	wsSession.sendMessageObject({cmd:'datapush',formname:formname,beanname:beanname,changes:changes})
 	    	    	return;
 	    	    }
 	    	},
@@ -491,37 +368,27 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    				changes.svy_pk = beanModel.svy_pk;
 	    			}
 	    		}
-	    		changes[property] = convertClientObject(clientObject);
+	    		changes[property] = $webSocket.convertClientObject(clientObject);
 	    	
-	    		websocket.send(JSON.stringify({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes}))
+	    		wsSession.sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
 	    	},
 	    	filterList: function(formname,beanname,property,filter)  {
 	    		var deferred = $q.defer();
 	    		deferredProperties[formname + "_" + beanname + "_" + property] = deferred;
-	    		websocket.send(JSON.stringify({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter}))
+	    		wsSession.sendMessageObject({cmd:'valuelistfilter',formname:formname,beanname:beanname,property:property,filter:filter})
 	    		return deferred.promise;
 	    	},
 	    	setFormVisibility: function(form,visible,relation, parentForm, bean,formIndex) {
-	    		  var deferred = $q.defer();
-            	  var cmsgid = getNextMessageId()
-            	  deferredEvents[cmsgid] = deferred;
-            	  var cmd = {cmd:'formvisibility', cmsgid:cmsgid,form:form,visible:visible,parentForm:parentForm,bean:bean,relation:relation,formIndex:formIndex}
-            	  websocket.send(JSON.stringify(cmd))
-            	  return deferred.promise;
+	    		return wsSession.sendDeferredMessage({cmd:'formvisibility',form:form,visible:visible,parentForm:parentForm,bean:bean,relation:relation,formIndex:formIndex})
 	    	},
 	    	setFormEnabled: function(form,enabled) {
-          	  websocket.send(JSON.stringify({cmd:'formenabled',form:form,enabled:enabled}))
+	    		wsSession.sendMessageObject({cmd:'formenabled',form:form,enabled:enabled})
 	    	},
 	    	setFormReadOnly: function(form,readOnly) {
-	          	  websocket.send(JSON.stringify({cmd:'formreadOnly',form:form,readOnly:readOnly}))
+	    		wsSession.sendMessageObject({cmd:'formreadOnly',form:form,readOnly:readOnly})
 		    },
 	    	callService: function(serviceName, methodName, argsObject) {
-	    		var deferred = $q.defer();
-	    		var cmsgid = getNextMessageId()
-	    		deferredEvents[cmsgid] = deferred;
-	    		var cmd = {service:serviceName, cmsgid:cmsgid,methodname:methodName,args:argsObject}
-	    		websocket.send(JSON.stringify(cmd))
-	    		return deferred.promise;
+	    		return wsSession.callService(serviceName, methodName, argsObject)
 	    	}
 	   }
 }).directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
@@ -683,7 +550,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		promise.then(function(ok) {
     		if (ok) {
     			$windowService.dismiss(windowName);
-    			
     		}
     	})
 	};

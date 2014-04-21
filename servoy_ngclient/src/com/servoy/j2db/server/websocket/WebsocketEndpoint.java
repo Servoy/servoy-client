@@ -70,7 +70,6 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	private Session session;
 
 	private IWebsocketSession wsSession;
-	private String uuid;
 
 	private final AtomicInteger nextMessageId = new AtomicInteger(0);
 	private final Map<Integer, List<Object>> pendingMessages = new HashMap<>();
@@ -86,12 +85,65 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		return endpointType + ':' + uuid;
 	}
 
-	public static IWebsocketSession getWsSession(String endpointType, String uuid)
+	public static void addWebSocketSession(String endpointType, String uuid, IWebsocketSession wsSession)
 	{
 		synchronized (wsSessions)
 		{
-			return wsSessions.get(getWsSessionKey(endpointType, uuid));
+			wsSessions.put(getWsSessionKey(endpointType, uuid), wsSession);
+			wsSession.setUuid(uuid);
 		}
+	}
+
+	public static IWebsocketSession removeWebSocketSession(String endpointType, String uuid)
+	{
+		synchronized (wsSessions)
+		{
+			String key = getWsSessionKey(endpointType, uuid);
+			nonActiveWsSessions.remove(key);
+			return wsSessions.remove(key);
+		}
+	}
+
+	public static IWebsocketSession getWsSession(String endpointType, String prevUuid)
+	{
+		return getOrCreateWsSession(endpointType, prevUuid, false);
+	}
+
+	public static IWebsocketSession getOrCreateWsSession(String endpointType, String prevUuid, boolean create)
+	{
+		String uuid = prevUuid;
+		IWebsocketSession wsSession = null;
+		synchronized (wsSessions)
+		{
+			String key;
+			if (uuid != null && uuid.length() > 0)
+			{
+				key = getWsSessionKey(endpointType, uuid);
+				wsSession = wsSessions.get(key);
+				nonActiveWsSessions.remove(key);
+			}
+			else
+			{
+				uuid = UUID.randomUUID().toString();
+				key = getWsSessionKey(endpointType, uuid);
+			}
+			if (wsSession == null || !wsSession.isValid())
+			{
+				wsSessions.remove(key);
+				wsSession = null;
+				if (create)
+				{
+					wsSession = WebsocketSessionFactory.createSession(endpointType);
+				}
+				if (wsSession != null)
+				{
+					wsSessions.put(key, wsSession);
+					wsSession.setUuid(uuid);
+				}
+			}
+		}
+
+		return wsSession;
 	}
 
 	@OnOpen
@@ -102,29 +154,13 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	{
 		session = newSession;
 
-		uuid = "NULL".equals(id) ? null : id;
+		String uuid = "NULL".equals(id) ? null : id;
 		String argument = "NULL".equals(arg) ? null : arg;
 
-		wsSession = null;
-		synchronized (wsSessions)
-		{
-			if (uuid != null && uuid.length() > 0)
-			{
-				wsSession = wsSessions.get(getWsSessionKey(endpointType, uuid));
-			}
-			if (wsSession != null && wsSession.isValid())
-			{
-				nonActiveWsSessions.remove(getWsSessionKey(endpointType, uuid));
-				wsSession.setActiveWebsocketEndpoint(this);
-			}
-			else
-			{
-				wsSessions.put(getWsSessionKey(endpointType, uuid = UUID.randomUUID().toString()),
-					wsSession = WebsocketSessionFactory.createSession(endpointType, this));
-			}
-		}
+		wsSession = getOrCreateWsSession(endpointType, uuid, true);
+		wsSession.setActiveWebsocketEndpoint(this);
 
-		wsSession.onOpen(uuid, argument);
+		wsSession.onOpen(argument);
 	}
 
 	@OnError
@@ -179,7 +215,10 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 					iterator.remove();
 				}
 			}
-			nonActiveWsSessions.put(getWsSessionKey(endpointType, uuid), new Long(currentTime));
+			if (wsSession != null)
+			{
+				nonActiveWsSessions.put(getWsSessionKey(endpointType, wsSession.getUuid()), new Long(currentTime));
+			}
 		}
 		session = null;
 		wsSession = null;

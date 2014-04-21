@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import com.servoy.j2db.server.websocket.IWebsocketEndpoint;
 import com.servoy.j2db.server.websocket.IWebsocketSession;
 
 /**
@@ -29,7 +28,6 @@ import com.servoy.j2db.server.websocket.IWebsocketSession;
 public class WebsocketSessionFactory
 {
 	public static final String CLIENT_ENDPOINT = "client";
-	public static final String EDITOR_ENDPOINT = "editor";
 
 	private static volatile IClientCreator clientCreator;
 
@@ -39,17 +37,14 @@ public class WebsocketSessionFactory
 	 * @param ngClientEndpoint
 	 * @return
 	 */
-	public static IWebsocketSession createSession(String endpointType, IWebsocketEndpoint endpoint)
+	public static IWebsocketSession createSession(String endpointType)
 	{
 		switch (endpointType)
 		{
 			case CLIENT_ENDPOINT :
-				NGClientWebsocketSession wsSession = new NGClientWebsocketSession(endpoint);
+				NGClientWebsocketSession wsSession = new NGClientWebsocketSession();
 				wsSession.setClient(getClientCreator().createClient(wsSession));
 				return wsSession;
-
-//			case EDITOR_ENDPOINT :
-//				return new EditorWebsocketSession(endpoint);
 		}
 		return null;
 	}

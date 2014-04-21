@@ -39,6 +39,7 @@
 		<script src="js/servoytooltip.js"></script>
 		<script src="js/fileupload.js"></script>
 		<script src="js/servoy-components.js"></script>
+		<script src="js/websocket.js"></script>
 		<script src="js/servoy_app.js"></script>
 		<script src="js/jquery.maskedinput.js"></script>
 

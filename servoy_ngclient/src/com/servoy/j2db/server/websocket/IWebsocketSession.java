@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.websocket;
 
+import java.io.IOException;
+
 import org.json.JSONObject;
 
 /**
@@ -39,10 +41,17 @@ public interface IWebsocketSession
 
 	/**
 	 * Called when a new connection is started (also on reconnect)
-	 * @param uuid
-	 * @param argument argument from browser url
+	 * @param argument
 	 */
-	void onOpen(String uuid, String argument);
+	void onOpen(String argument);
+
+	/**
+	 * Set the uuid
+	 * @param uuid
+	 */
+	void setUuid(String uuid);
+
+	String getUuid();
 
 	/**
 	 * Request to close the websocket session.
@@ -71,4 +80,21 @@ public interface IWebsocketSession
 	 */
 	void callService(String serviceName, String methodName, JSONObject args, Object msgId);
 
+	/** Execute a service call asynchronously.
+	 * 
+	 * @param serviceName
+	 * @param functionName
+	 * @param arguments
+	 */
+	void executeAsyncServiceCall(String serviceName, String functionName, Object[] arguments);
+
+	/** Execute a service call synchronously.
+	 * 
+	 * @param serviceName
+	 * @param functionName
+	 * @param arguments
+	 * @return remote result
+	 * @throws IOException
+	 */
+	Object executeServiceCall(String serviceName, String functionName, Object[] arguments) throws IOException;
 }
