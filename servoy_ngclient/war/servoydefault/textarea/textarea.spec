@@ -38,38 +38,6 @@ handlers:
 },
 api:
 {
-        getAbsoluteFormLocationY:{
-            returns: 'int',
-                 }, 
-        getClientProperty:{
-            returns: 'object',
-            parameters:[{'key':'object'}]
-        }, 
-        getDataProviderID:{
-            returns: 'string',
-                 }, 
-        getDesignTimeProperty:{
-            returns: 'object',
-            parameters:[{'unnamed_0':'string'}]
-        }, 
-        getElementType:{
-            returns: 'string',
-                 }, 
-        getHeight:{
-            returns: 'int',
-                 }, 
-        getLabelForElementNames:{
-            returns: 'string []',
-                 }, 
-        getLocationX:{
-            returns: 'int',
-                 }, 
-        getLocationY:{
-            returns: 'int',
-                 }, 
-        getName:{
-            returns: 'string',
-                 }, 
         getScrollX:{
             returns: 'int',
                  }, 
@@ -79,13 +47,6 @@ api:
         getSelectedText:{
             returns: 'string',
                  }, 
-        getWidth:{
-            returns: 'int',
-                 }, 
-        putClientProperty:{
-            
-            parameters:[{'key':'object'},{'value':'object'}]
-        }, 
         replaceSelectedText:{
             
             parameters:[{'s':'string'}]
@@ -97,17 +58,9 @@ api:
         selectAll:{
             
                  }, 
-        setLocation:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        }, 
         setScroll:{
             
             parameters:[{'x':'int'},{'y':'int'}]
-        }, 
-        setSize:{
-            
-            parameters:[{'width':'int'},{'height':'int'}]
         } 
 }
  

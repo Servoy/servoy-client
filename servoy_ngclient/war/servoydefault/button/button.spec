@@ -38,57 +38,13 @@ handlers:
 },
 api:
 {
-        getAbsoluteFormLocationY:{
-            returns: 'int',
-                 }, 
-        getClientProperty:{
-            returns: 'object',
-            parameters:[{'key':'object'}]
-        }, 
-        getDataProviderID:{
-            returns: 'string',
-                 }, 
-        getDesignTimeProperty:{
-            returns: 'object',
-            parameters:[{'unnamed_0':'string'}]
-        }, 
-        getElementType:{
-            returns: 'string',
-                 }, 
-        getHeight:{
-            returns: 'int',
-                 }, 
-        getLocationX:{
-            returns: 'int',
-                 }, 
-        getLocationY:{
-            returns: 'int',
-                 }, 
-        getName:{
-            returns: 'string',
-                 }, 
         getThumbnailJPGImage:{
             returns: 'byte []',
             parameters:[{'width':'int','optional':'true'},{'height':'int','optional':'true'}]
         }, 
-        getWidth:{
-            returns: 'int',
-                 }, 
-        putClientProperty:{
-            
-            parameters:[{'key':'object'},{'value':'object'}]
-        }, 
         requestFocus:{
             
             parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
-        }, 
-        setLocation:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        }, 
-        setSize:{
-            
-            parameters:[{'width':'int'},{'height':'int'}]
         } 
 }
  

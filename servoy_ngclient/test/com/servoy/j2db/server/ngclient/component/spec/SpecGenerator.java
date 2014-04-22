@@ -292,7 +292,8 @@ public class SpecGenerator
 							}
 						}
 						if (apiToRemove != null) specModel.getApis().remove(apiToRemove);
-						if (addNewApi) specModel.getApis().add(new ApiMethod(functionName, returnType, parameterNames, parameterTypes, optionalParams));
+						if (addNewApi && !serverSideApi.contains(functionName)) specModel.getApis().add(
+							new ApiMethod(functionName, returnType, parameterNames, parameterTypes, optionalParams));
 					}
 				}
 			}
@@ -354,6 +355,7 @@ public class SpecGenerator
 	private static final List<String> internalProperties = new ArrayList<>();
 	private static final Map<String, List<String>> perComponentExceptions = new HashMap<>();
 	private static final Map<String, List<String>> perComponentInternalProperties = new HashMap<>();
+	private static final List<String> serverSideApi = new ArrayList<>();
 	static
 	{
 		// general type mappings
@@ -516,6 +518,22 @@ public class SpecGenerator
 				(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()), (StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()),
 				(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()))));
 		perComponentInternalProperties.put("splitpane", new ArrayList<>(Arrays.asList("tabIndex")));
+
+		serverSideApi.add("getAbsoluteFormLocationY");
+		serverSideApi.add("getClientProperty");
+		serverSideApi.add("getDataProviderID");
+		serverSideApi.add("getDesignTimeProperty");
+		serverSideApi.add("getElementType");
+		serverSideApi.add("getHeight");
+		serverSideApi.add("getLabelForElementNames");
+		serverSideApi.add("getLocationX");
+		serverSideApi.add("getLocationY");
+		serverSideApi.add("getName");
+		serverSideApi.add("getValueListName");
+		serverSideApi.add("getWidth");
+		serverSideApi.add("putClientProperty");
+		serverSideApi.add("setLocation");
+		serverSideApi.add("setSize");
 	}
 
 	// @formatter:on

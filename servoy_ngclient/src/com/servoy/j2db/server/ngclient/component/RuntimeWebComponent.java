@@ -77,7 +77,7 @@ public class RuntimeWebComponent implements Scriptable
 	{
 		if (specProperties != null && specProperties.contains(name))
 		{
-			return component.getConvertedPropertyWithDefault(name, dataProviderProperties.contains(name));
+			return component.getConvertedPropertyWithDefault(name, dataProviderProperties.contains(name), true);
 		}
 		if (apiFunctions.containsKey(name))
 		{

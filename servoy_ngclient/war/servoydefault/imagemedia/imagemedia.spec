@@ -38,59 +38,15 @@ handlers:
 },
 api:
 {
-        getAbsoluteFormLocationY:{
-            returns: 'int',
-                 }, 
-        getClientProperty:{
-            returns: 'object',
-            parameters:[{'key':'object'}]
-        }, 
-        getDataProviderID:{
-            returns: 'string',
-                 }, 
-        getDesignTimeProperty:{
-            returns: 'object',
-            parameters:[{'unnamed_0':'string'}]
-        }, 
-        getElementType:{
-            returns: 'string',
-                 }, 
-        getHeight:{
-            returns: 'int',
-                 }, 
-        getLocationX:{
-            returns: 'int',
-                 }, 
-        getLocationY:{
-            returns: 'int',
-                 }, 
-        getName:{
-            returns: 'string',
-                 }, 
         getScrollX:{
             returns: 'int',
                  }, 
         getScrollY:{
             returns: 'int',
                  }, 
-        getWidth:{
-            returns: 'int',
-                 }, 
-        putClientProperty:{
-            
-            parameters:[{'key':'object'},{'value':'object'}]
-        }, 
-        setLocation:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        }, 
         setScroll:{
             
             parameters:[{'x':'int'},{'y':'int'}]
-        }, 
-        setSize:{
-            
-            parameters:[{'width':'int'},{'height':'int'}]
         } 
 }
  

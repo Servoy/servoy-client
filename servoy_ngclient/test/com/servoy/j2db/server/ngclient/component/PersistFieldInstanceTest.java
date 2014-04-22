@@ -283,7 +283,7 @@ public class PersistFieldInstanceTest
 		for (FormElement formElement : formElements)
 		{
 			WebComponent wc = ComponentFactory.createComponent(client, null, formElement, null);
-			List<Map<String, Object>> tabs = (List)wc.getConvertedPropertyWithDefault("tabs", false);
+			List<Map<String, Object>> tabs = (List)wc.getConvertedPropertyWithDefault("tabs", false, true);
 			Assert.assertEquals(2, tabs.size());
 			Map<String, Object> map = tabs.get(1);
 			Assert.assertSame(tabForm, map.get("containsFormId"));

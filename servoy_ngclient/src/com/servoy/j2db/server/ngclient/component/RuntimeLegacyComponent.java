@@ -26,8 +26,11 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.WebComponent;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Runtime component for legacy scripting methods from default Servoy components.
@@ -42,6 +45,7 @@ public class RuntimeLegacyComponent implements Scriptable
 	private final PutPropertyCallable putCallable;
 	private final GetPropertyCallable getCallable;
 	private static Map<String, String> ScriptNameToSpecName;
+	private Map<Object, Object> clientProperties;
 	static
 	{
 		ScriptNameToSpecName = new HashMap<String, String>();
@@ -71,6 +75,11 @@ public class RuntimeLegacyComponent implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		if ("putClientProperty".equals(name))
+		{
+			putCallable.setProperty("clientProperty");
+			return putCallable;
+		}
 		if (name.startsWith("get") || name.startsWith("is") || name.startsWith("set"))
 		{
 			String newName = name.substring(name.startsWith("is") ? 2 : 3);
@@ -109,8 +118,8 @@ public class RuntimeLegacyComponent implements Scriptable
 			isReadonly = true;
 			name = StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName();
 		}
-		Object value = convertValue(name,
-			component.getConvertedPropertyWithDefault(convertName(name), StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name)));
+		Object value = convertValue(name, component.getConvertedPropertyWithDefault(convertName(name),
+			StaticContentSpecLoader.PROPERTY_DATAPROVIDERID.getPropertyName().equals(name), !needsValueConversion(name)));
 
 		if (isReadonly && value instanceof Boolean)
 		{
@@ -241,11 +250,35 @@ public class RuntimeLegacyComponent implements Scriptable
 		{
 			return Integer.valueOf(((Point)value).x);
 		}
-		if ("height".equals(name) && value instanceof Point)
+		if ("locationY".equals(name) && value instanceof Point)
 		{
 			return Integer.valueOf(((Point)value).y);
 		}
 		return value;
+	}
+
+	private boolean needsValueConversion(String name)
+	{
+		if ("width".equals(name) || "height".equals(name) || "locationX".equals(name) || "locationY".equals(name))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public void putClientProperty(Object key, Object value)
+	{
+		if (clientProperties == null)
+		{
+			clientProperties = new HashMap<Object, Object>();
+		}
+		clientProperties.put(key, value);
+	}
+
+	public Object getClientProperty(Object key)
+	{
+		if (clientProperties == null) return null;
+		return clientProperties.get(key);
 	}
 
 	private abstract class PropertyCallable implements Callable
@@ -279,6 +312,10 @@ public class RuntimeLegacyComponent implements Scriptable
 			{
 				value = args[0];
 			}
+			if ("clientProperty".equals(propertyName) && args != null && args.length >= 2)
+			{
+				putClientProperty(args[0], args[1]);
+			}
 			scriptable.put(propertyName, null, value);
 			return null;
 		}
@@ -294,6 +331,21 @@ public class RuntimeLegacyComponent implements Scriptable
 		@Override
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
+			if (propertyName.equals("absoluteFormLocationY") && component.getFormElement().getPersist() instanceof IFormElement) //$NON-NLS-1$
+			{
+				return Integer.valueOf(((IFormElement)component.getFormElement().getPersist()).getLocation().y);
+			}
+
+			if ("clientProperty".equals(propertyName) && args != null && args.length > 0)
+			{
+				return getClientProperty(args[0]);
+			}
+
+			if (propertyName.equals("designTimeProperty") && args != null && args.length > 0 && component.getFormElement().getPersist() instanceof AbstractBase)
+			{
+				return Utils.parseJSExpression(((AbstractBase)component.getFormElement().getPersist()).getCustomDesignTimeProperty((String)args[0]));
+			}
+
 			return scriptable.get(propertyName, null);
 		}
 	}

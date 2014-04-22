@@ -34,42 +34,19 @@ api:
             returns: 'boolean',
             parameters:[{'vargs':'object []'}]
         }, 
-        getAbsoluteFormLocationY:{
-            returns: 'int',
-                 }, 
-        getClientProperty:{
-            returns: 'object',
-            parameters:[{'key':'object'}]
-        }, 
         getContinuousLayout:{
             returns: 'boolean',
                  }, 
-        getDesignTimeProperty:{
-            returns: 'object',
-            parameters:[{'unnamed_0':'string'}]
-        }, 
         getDividerLocation:{
             returns: 'double',
                  }, 
         getDividerSize:{
             returns: 'int',
                  }, 
-        getElementType:{
-            returns: 'string',
-                 }, 
-        getHeight:{
-            returns: 'int',
-                 }, 
         getLeftForm:{
             returns: 'formscope',
                  }, 
         getLeftFormMinSize:{
-            returns: 'int',
-                 }, 
-        getLocationX:{
-            returns: 'int',
-                 }, 
-        getLocationY:{
             returns: 'int',
                  }, 
         getMaxTabIndex:{
@@ -79,9 +56,6 @@ api:
             returns: 'string',
             parameters:[{'i':'int'}]
         }, 
-        getName:{
-            returns: 'string',
-                 }, 
         getResizeWeight:{
             returns: 'double',
                  }, 
@@ -111,16 +85,9 @@ api:
             returns: 'string',
             parameters:[{'i':'int'}]
         }, 
-        getWidth:{
-            returns: 'int',
-                 }, 
         isTabEnabledAt:{
             returns: 'boolean',
             parameters:[{'i':'int'}]
-        }, 
-        putClientProperty:{
-            
-            parameters:[{'key':'object'},{'value':'object'}]
         }, 
         removeAllTabs:{
             returns: 'boolean',
@@ -149,10 +116,6 @@ api:
             
             parameters:[{'minSize':'int'}]
         }, 
-        setLocation:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        }, 
         setMnemonicAt:{
             
             parameters:[{'index':'int'},{'text':'string'}]
@@ -168,10 +131,6 @@ api:
         setRightFormMinSize:{
             
             parameters:[{'minSize':'int'}]
-        }, 
-        setSize:{
-            
-            parameters:[{'width':'int'},{'height':'int'}]
         }, 
         setTabEnabledAt:{
             

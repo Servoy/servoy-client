@@ -21,7 +21,6 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
@@ -189,7 +188,7 @@ public class WebComponent implements ListDataListener
 		return properties.get(propertyName);
 	}
 
-	public Object getConvertedPropertyWithDefault(String propertyName, boolean designValue)
+	public Object getConvertedPropertyWithDefault(String propertyName, boolean designValue, boolean convertValue)
 	{
 		Object value = null;
 		if (!designValue && properties.containsKey(propertyName))
@@ -200,7 +199,7 @@ public class WebComponent implements ListDataListener
 		{
 			value = getInitialProperty(propertyName);
 		}
-		return dataAdapterList != null ? dataAdapterList.convertFromJavaObjectToString(formElement, propertyName, value) : value;
+		return dataAdapterList != null && convertValue ? dataAdapterList.convertFromJavaObjectToString(formElement, propertyName, value) : value;
 	}
 
 	public Object getInitialProperty(String propertyName)
@@ -284,10 +283,6 @@ public class WebComponent implements ListDataListener
 
 	public Object executeApi(WebComponentApiDefinition apiDefinition, Object[] args)
 	{
-		if (formElement.isLegacy() && apiDefinition.getName().equals("getAbsoluteFormLocationY") && formElement.getPersist() instanceof IFormElement) //$NON-NLS-1$
-		{
-			return Integer.valueOf(((IFormElement)formElement.getPersist()).getLocation().y);
-		}
 		return dataAdapterList.executeApi(apiDefinition, getName(), args);
 	}
 

@@ -39,56 +39,9 @@ handlers:
 },
 api:
 {
-        getAbsoluteFormLocationY:{
-            returns: 'int',
-                 }, 
-        getClientProperty:{
-            returns: 'object',
-            parameters:[{'key':'object'}]
-        }, 
-        getDataProviderID:{
-            returns: 'string',
-                 }, 
-        getDesignTimeProperty:{
-            returns: 'object',
-            parameters:[{'unnamed_0':'string'}]
-        }, 
-        getElementType:{
-            returns: 'string',
-                 }, 
-        getHeight:{
-            returns: 'int',
-                 }, 
-        getLabelForElementNames:{
-            returns: 'string []',
-                 }, 
-        getLocationX:{
-            returns: 'int',
-                 }, 
-        getLocationY:{
-            returns: 'int',
-                 }, 
-        getName:{
-            returns: 'string',
-                 }, 
-        getWidth:{
-            returns: 'int',
-                 }, 
-        putClientProperty:{
-            
-            parameters:[{'key':'object'},{'value':'object'}]
-        }, 
         requestFocus:{
             
             parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
-        }, 
-        setLocation:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
-        }, 
-        setSize:{
-            
-            parameters:[{'width':'int'},{'height':'int'}]
         } 
 }
  

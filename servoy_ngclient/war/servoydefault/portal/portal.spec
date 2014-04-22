@@ -45,34 +45,8 @@ api:
             
             parameters:[{'addOnTop':'boolean','optional':'true'}]
         }, 
-        getAbsoluteFormLocationY:{
-            returns: 'int',
-                 }, 
-        getClientProperty:{
-            returns: 'object',
-            parameters:[{'key':'object'}]
-        }, 
-        getDesignTimeProperty:{
-            returns: 'object',
-            parameters:[{'unnamed_0':'string'}]
-        }, 
-        getElementType:{
-            returns: 'string',
-                 }, 
-        getHeight:{
-            returns: 'int',
-                 }, 
-        getLocationX:{
-            returns: 'int',
-                 }, 
-        getLocationY:{
-            returns: 'int',
-                 }, 
         getMaxRecordIndex:{
             returns: 'int',
-                 }, 
-        getName:{
-            returns: 'string',
                  }, 
         getScrollX:{
             returns: 'int',
@@ -86,20 +60,9 @@ api:
         getSortColumns:{
             returns: 'string',
                  }, 
-        getWidth:{
-            returns: 'int',
-                 }, 
         newRecord:{
             
             parameters:[{'addOnTop':'boolean','optional':'true'}]
-        }, 
-        putClientProperty:{
-            
-            parameters:[{'key':'object'},{'value':'object'}]
-        }, 
-        setLocation:{
-            
-            parameters:[{'x':'int'},{'y':'int'}]
         }, 
         setScroll:{
             
@@ -108,10 +71,6 @@ api:
         setSelectedIndex:{
             
             parameters:[{'index':'int'}]
-        }, 
-        setSize:{
-            
-            parameters:[{'width':'int'},{'height':'int'}]
         } 
 }
  
