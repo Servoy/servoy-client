@@ -1,4 +1,4 @@
-angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', function() {  
+angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', function() {  
     return {
       restrict: 'E',
       transclude: true,
@@ -17,11 +17,6 @@ angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', 
       },
       controller: function($scope)
       {
-    	  $scope.sliderStop = function(event, value) {
-    		  var i = parseInt(value)
-    		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
-    	  }
-    	  
     	  $scope.slider_model = {};
     	  $scope.slider_handlers = {};
     	  $scope.slider_api = {};
@@ -36,7 +31,10 @@ angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', 
 	        	  $scope.slider_model.orientation = 'vertical';
 	        	  $scope.slider_model.range = 'max';
 	        	  $scope.slider_handlers.svyApply = $scope.handlers.svy_apply;
-	        	  $scope.slider_handlers.onStopMethodID = $scope.sliderStop;
+	        	  $scope.slider_handlers.onStopMethodID = function(event, value) {
+	        		  var i = parseInt(value)
+	        		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
+	        	  };
     		  }    		  
     	  });
       },
