@@ -66,6 +66,7 @@ import com.servoy.j2db.scripting.CreationalPrototype;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IScriptSupport;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
@@ -1338,7 +1339,7 @@ public class FormController extends BasicFormController
 		}
 
 		Scriptable thisObject = null;
-		if (src instanceof IComponent)
+		if (src instanceof IComponent && src instanceof IScriptableProvider)
 		{
 			Object esObj = formScope.get("elements", formScope); //$NON-NLS-1$
 			if (esObj != Scriptable.NOT_FOUND)
