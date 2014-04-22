@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
+import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
@@ -73,7 +74,7 @@ public final class FormElement
 	public FormElement(Form form)
 	{
 		this.persist = form;
-		Map<String, Object> map = ((AbstractBase)persist).getPropertiesMap();
+		Map<String, Object> map = getFlattenedPropertiesMap();
 		propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 	}
 
@@ -147,7 +148,7 @@ public final class FormElement
 		}
 		else if (persist instanceof AbstractBase)
 		{
-			Map<String, Object> map = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), fs);
+			Map<String, Object> map = getConvertedPropertiesMap(getFlattenedPropertiesMap(), fs);
 			if (persist instanceof TabPanel)
 			{
 				ArrayList<Map<String, Object>> tabList = new ArrayList<>();
@@ -224,6 +225,21 @@ public final class FormElement
 
 			}
 		}
+	}
+
+	private Map<String, Object> getFlattenedPropertiesMap()
+	{
+		if (persist instanceof ISupportExtendsID)
+		{
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)persist);
+			for (int i = hierarchy.size() - 1; i >= 0; i--)
+			{
+				map.putAll(hierarchy.get(i).getPropertiesMap());
+			}
+			return map;
+		}
+		return ((AbstractBase)persist).getPropertiesMap();
 	}
 
 	public Map<String, Object> getProperties()
