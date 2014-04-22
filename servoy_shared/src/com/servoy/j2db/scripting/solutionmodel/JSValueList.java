@@ -38,7 +38,6 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMValueList;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -671,14 +670,11 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	@JSGetter
 	public JSMethod getGlobalMethod()
 	{
-		String values = valuelist.getCustomValues();
-		if (ScopesUtils.isVariableScope(values))
+		String uuid = valuelist.getCustomValues();
+		ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuid);
+		if (scriptMethod != null)
 		{
-			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(null, values);
-			if (scriptMethod != null)
-			{
-				return new JSMethod(scriptMethod, application, true);
-			}
+			return new JSMethod(scriptMethod, application, true);
 		}
 		return null;
 	}
