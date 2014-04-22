@@ -605,7 +605,7 @@ public class Array
 	 * 
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/unshift
 	 */
-	public Array js_unshift(Object value1, Object value2, Object valueN)
+	public Number js_unshift(Object value1, Object value2, Object valueN)
 	{
 		return null;
 	}
