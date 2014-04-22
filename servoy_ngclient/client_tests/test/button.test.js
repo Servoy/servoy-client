@@ -73,7 +73,6 @@ describe('svyButton component', function() {
     	  $scope.model= angular.copy(modelMock); 
     	  $scope.api= angular.copy(apiMock); 
   	  })
-  	  debugger;
   	  // mock timout
 	  jasmine.clock().install();
 	});

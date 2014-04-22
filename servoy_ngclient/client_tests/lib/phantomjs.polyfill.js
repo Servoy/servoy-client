@@ -55,4 +55,24 @@ if (navigator.userAgent.toLowerCase().substr('phantom')) {
 		this.dispatchEvent ? this.dispatchEvent(eventObj) : this.fireEvent("onkeydown", eventObj); 
 	};
 	
-})()
+})();
+
+
+
+//$('#elem').selectRange(3,5); // select a range of text
+//$('#elem').selectRange(3); // set cursor position
+$.fn.selectRange = function(start, end) {
+    if(!end) end = start; 
+    return this.each(function() {
+        if (this.setSelectionRange) {
+            this.focus();
+            this.setSelectionRange(start, end);
+        } else if (this.createTextRange) {
+            var range = this.createTextRange();
+            range.collapse(true);
+            range.moveEnd('character', end);
+            range.moveStart('character', start);
+            range.select();
+        }
+    });
+};

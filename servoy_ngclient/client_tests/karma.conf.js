@@ -6,12 +6,13 @@ module.exports = function(config){
         '../war/servoydefault/**/*.html': ['ng-html2js']
     },
     files : [
+       'lib/jquery.js',
        'lib/angular.js',
-       'lib/angular-mocks.js',
-       'lib/*',
+       'lib/angular-mocks.js',       
+       'lib/phantomjs.polyfill.js',
        '../war/js/**/*.js',
        '../war/servoydefault/*/*.js',
-       './test/*.js',
+       './test/**/*.js',
        '../war/servoydefault/*/*.html'
     ],
     exclude : [
@@ -41,6 +42,7 @@ module.exports = function(config){
             ],*/
 	browserNoActivityTimeout:999999,
     singleRun: true,
+    //autoWatch : true,
     reporters: ['dots', 'junit'],
     junitReporter: {
           outputFile: 'test-results.xml'

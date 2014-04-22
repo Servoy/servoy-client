@@ -547,7 +547,14 @@ public class JSONUtils
 			{
 				w.key("borderRadius").value(border.getRoundingRadius() + "px"); //$NON-NLS-1$
 				//retval += "," + SpecialMatteBorder.createDashString(border.getDashPattern()); //$NON-NLS-1$
-				w.key("borderStyle").value("dashed");
+				if (border.getDashPattern() != null)
+				{
+					w.key("borderStyle").value("dashed");
+				}
+				else
+				{
+					w.key("borderStyle").value("solid");
+				}
 			}
 			w.endObject();// end borderStyle
 			w.endObject();// end borderType

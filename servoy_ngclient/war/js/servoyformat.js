@@ -119,6 +119,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		{
 			var formatChar = servoyFormat[i];
 			var dataChar = data[i-offset];
+			if(dataChar == undefined) throw error
 			if(isEscaping  && formatChar!= "'"){
 				if(dataChar!=formatChar) throw error
 				ret+= dataChar;
@@ -165,9 +166,9 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		return ret; 
 	}
 	// internal function
-	function formatDate(data ,servoyFormat){
-		if(!servoyFormat ) return data;
-		var ret = servoyFormat.replaceAll('z','Z'); //timezones
+	function formatDate(data ,dateFormat){
+		if(!dateFormat ) return data;
+		var ret = dateFormat.replaceAll('z','Z'); //timezones
 		ret = ret.replaceAll('S+','sss') // milliseconds
 		ret = ret.replaceAll('a+','a') 
 		
@@ -198,7 +199,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 			//Hour in day (1-24)
 			var hours =  data.getHours()
 			if (hours == 0 ) hours = 24;
-			var kk = /.*?(k+).*/.exec(servoyFormat)[1];
+			var kk = /.*?(k+).*/.exec(dateFormat)[1];
 			var leadingZero =''
 			if(kk.length>1 && (''+hours).length ==1){
 				leadingZero = '0'
@@ -208,7 +209,7 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		if(ret.indexOf('K')!= -1){
 			//Hour in am/pm (0-11)
 			var hours =  ''+data.getHours()%12
-			var KK = /.*?(K+).*/.exec(servoyFormat)[1];
+			var KK = /.*?(K+).*/.exec(dateFormat)[1];
 			if(KK.length >1 && hours.length ==1){
 				hours = '0'+hours;
 			}
@@ -247,10 +248,10 @@ angular.module('servoyformat',[]).factory("$formatterUtils",function($filter){  
 		}
 	}
 }).filter('formatFilter', function($formatterUtils){  /* this filter is used for display only*/
-	  return function(input,servoyFormat) {
+	  return function(input,servoyFormat,type) {
 		  var ret = input;
 		  try{
-			  ret = $formatterUtils.format(input,servoyFormat);
+			  ret = $formatterUtils.format(input,servoyFormat,type);
 		  }catch(e){
 			  console.log(e);
 			  //TODO decide what to do when string doesn't correspod to format

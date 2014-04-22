@@ -7,7 +7,6 @@ describe('servoy $formatUtils', function() {
   beforeEach(module('servoy'));
     
   describe("format numbers", function() {
-	  debugger;
 	    it("should corecly format numbers", function() {
 	    	inject(function($formatterUtils){ 
 	    	var formatFun = $formatterUtils.format;

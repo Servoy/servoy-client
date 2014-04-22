@@ -13,6 +13,6 @@
   	    svy-dblclick='handlers.onDoubleClickMethodID($event)'
  	    svy-rightclick='handlers.onRightClickMethodID($event)'
 		svy-mnemonic='model.mnemonic' 
-        ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format | mnemonicletterFilter:model.mnemonic'
+        ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'
        >
 </button>
