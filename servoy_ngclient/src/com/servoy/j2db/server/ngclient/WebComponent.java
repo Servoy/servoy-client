@@ -21,6 +21,7 @@ import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
@@ -283,6 +284,10 @@ public class WebComponent implements ListDataListener
 
 	public Object executeApi(WebComponentApiDefinition apiDefinition, Object[] args)
 	{
+		if (formElement.isLegacy() && apiDefinition.getName().equals("getAbsoluteFormLocationY") && formElement.getPersist() instanceof IFormElement) //$NON-NLS-1$
+		{
+			return Integer.valueOf(((IFormElement)formElement.getPersist()).getLocation().y);
+		}
 		return dataAdapterList.executeApi(apiDefinition, getName(), args);
 	}
 
