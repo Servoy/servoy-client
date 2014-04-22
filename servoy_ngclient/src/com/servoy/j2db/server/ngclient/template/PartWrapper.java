@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
@@ -44,11 +45,11 @@ public class PartWrapper
 	private final Part part;
 	private final AbstractFormLayoutProvider layoutProvider;
 
-	public PartWrapper(Part part)
+	public PartWrapper(Part part, FlattenedSolution fs)
 	{
 		this.part = part;
-		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)part.getAncestor(IRepository.SOLUTIONS), (Form)part.getAncestor(IRepository.FORMS),
-			null);
+		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)part.getAncestor(IRepository.SOLUTIONS),
+			fs.getFlattenedForm(part.getAncestor(IRepository.FORMS)), null);
 		layoutProvider.setDefaultNavigatorShift(0);
 	}
 

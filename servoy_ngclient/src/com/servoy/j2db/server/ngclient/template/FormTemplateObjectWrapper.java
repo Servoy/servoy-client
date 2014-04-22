@@ -55,7 +55,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		Object wrapped;
 		if (obj instanceof Form)
 		{
-			wrapped = new FormWrapper((Form)obj, useControllerProvider);
+			wrapped = new FormWrapper(fs.getFlattenedForm((Form)obj), useControllerProvider);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
@@ -63,7 +63,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		}
 		else if (obj instanceof Part)
 		{
-			wrapped = new PartWrapper((Part)obj);
+			wrapped = new PartWrapper((Part)obj, fs);
 		}
 		else if (obj instanceof IFormElement)
 		{

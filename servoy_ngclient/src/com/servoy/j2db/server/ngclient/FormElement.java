@@ -132,6 +132,7 @@ public final class FormElement
 						}
 					}
 					fillPropertiesWithDefaults(specProperties, jsonMap);
+					adjustLocationRelativeToPart(persist, fs, jsonMap);
 				}
 				catch (Exception ex)
 				{
@@ -180,6 +181,7 @@ public final class FormElement
 			}
 			Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 			fillPropertiesWithDefaults(specProperties, map);
+			adjustLocationRelativeToPart(persist, fs, map);
 			propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		}
 		else
@@ -198,6 +200,28 @@ public final class FormElement
 				{
 					map.put(pd.getName(), pd.getDefaultValue());
 				}
+			}
+		}
+	}
+
+	private void adjustLocationRelativeToPart(IFormElement persist, FlattenedSolution fs, Map<String, Object> map)
+	{
+		if (map != null && persist.getParent() instanceof Form)
+		{
+			Form form = (Form)persist.getParent();
+			form = fs.getFlattenedForm(form);
+			Point location = persist.getLocation();
+			if (location != null)
+			{
+				Point newLocation = new Point(location);
+				Part part = form.getPartAt(persist.getLocation().y);
+				if (part != null)
+				{
+					int top = form.getPartStartYPos(part.getID());
+					newLocation.y = newLocation.y - top;
+					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
+				}
+
 			}
 		}
 	}
