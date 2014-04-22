@@ -1,11 +1,6 @@
 <div class="svy-nav-container">
 	<div style="svy-nav-slider">
-		<div ui-slider="{orientation: 'vertical', range: 'max', stop:sliderStop}" 
-		     min="{{model.maxIndex > 0? -1*model.maxIndex:0}}"
-		     max="{{model.maxIndex > 0? -1:0}} "
-		     ng-model="sliderIndex"
-		     >
-		</div>
+		<slider svy-model="slider_model" svy-handlers="slider_handlers" svy-apply="slider_handlers.svyApply" svy-api="slider_api"></slider>
 	</div>
     <div class="svy-nav-input">
 		 <input type="text" ng-model="editIndex" ng-blur="setIndex(editIndex)" style="width:100%">

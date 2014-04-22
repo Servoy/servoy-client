@@ -9,24 +9,36 @@ angular.module('svyNavigator',['servoy','ui.slider']).directive('svyNavigator', 
       link: function($scope, $element, $attrs) {  
     	  
     	  $scope.editIndex = 0;
-    	  $scope.sliderIndex = 0;
     	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
     		  if(!newVal) return;
-    		  $scope.sliderIndex = -1*newVal
+    		  if ($scope.slider_api.setValue) $scope.slider_api.setValue(-1*newVal );
     		  $scope.editIndex = newVal
-    	  })
-    	  
-    	  $scope.setIndex =  function (idx){
-    		  var i = parseInt(idx)
-    		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
-    	  }
-    	  
+    	  })    	  
       },
       controller: function($scope)
       {
-    	  $scope.sliderStop = function(event, ui) {
-    		  $scope.setIndex($scope.sliderIndex)
+    	  $scope.sliderStop = function(event, value) {
+    		  var i = parseInt(value)
+    		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
     	  }
+    	  
+    	  $scope.slider_model = {};
+    	  $scope.slider_handlers = {};
+    	  $scope.slider_api = {};
+    	  $scope.$watch('model.maxIndex', function (newVal, oldVal, scope) 
+    	  {
+    		  if ($scope.model)
+    		  {
+	    		  var model = $scope.model;
+	    		  $scope.slider_model.dataProviderID = -1*model.currentIndex;
+	    		  $scope.slider_model.min = model.maxIndex > 0? -1*model.maxIndex:0;
+	        	  $scope.slider_model.max = model.maxIndex > 0? -1:0;
+	        	  $scope.slider_model.orientation = 'vertical';
+	        	  $scope.slider_model.range = 'max';
+	        	  $scope.slider_handlers.svyApply = $scope.handlers.svy_apply;
+	        	  $scope.slider_handlers.onStopMethodID = $scope.sliderStop;
+    		  }    		  
+    	  });
       },
       templateUrl: 'servoydefault/navigator/navigator.html',
       replace: true
