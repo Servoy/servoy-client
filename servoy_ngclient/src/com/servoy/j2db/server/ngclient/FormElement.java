@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportChilds;
@@ -229,17 +230,22 @@ public final class FormElement
 
 	private Map<String, Object> getFlattenedPropertiesMap()
 	{
-		if (persist instanceof ISupportExtendsID)
+		IPersist p = persist;
+		if (p instanceof IFlattenedPersistWrapper)
+		{
+			p = ((IFlattenedPersistWrapper)p).getWrappedPersist();
+		}
+		if (p instanceof ISupportExtendsID)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
-			List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)persist);
+			List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)p);
 			for (int i = hierarchy.size() - 1; i >= 0; i--)
 			{
 				map.putAll(hierarchy.get(i).getPropertiesMap());
 			}
 			return map;
 		}
-		return ((AbstractBase)persist).getPropertiesMap();
+		return ((AbstractBase)p).getPropertiesMap();
 	}
 
 	public Map<String, Object> getProperties()

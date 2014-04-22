@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
@@ -44,12 +43,13 @@ public class PartWrapper
 {
 	private final Part part;
 	private final AbstractFormLayoutProvider layoutProvider;
+	private final Form context;
 
-	public PartWrapper(Part part, FlattenedSolution fs)
+	public PartWrapper(Part part, Form context)
 	{
 		this.part = part;
-		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)part.getAncestor(IRepository.SOLUTIONS),
-			fs.getFlattenedForm(part.getAncestor(IRepository.FORMS)), null);
+		this.context = context;
+		layoutProvider = new AnchoredFormLayoutProvider(null, (Solution)context.getAncestor(IRepository.SOLUTIONS), context, null);
 		layoutProvider.setDefaultNavigatorShift(0);
 	}
 
@@ -88,16 +88,15 @@ public class PartWrapper
 
 	public Collection<BaseComponent> getBaseComponents()
 	{
-		Form form = (Form)part.getAncestor(IRepository.FORMS);
-		if (part.getPartType() == Part.BODY && (form.getView() == FormController.LOCKED_TABLE_VIEW || form.getView() == FormController.TABLE_VIEW))
+		if (part.getPartType() == Part.BODY && (context.getView() == FormController.LOCKED_TABLE_VIEW || context.getView() == FormController.TABLE_VIEW))
 		{
 			// special case, no components return
 			return null;
 		}
 		List<BaseComponent> baseComponents = new ArrayList<>();
-		int startPos = form.getPartStartYPos(part.getID());
+		int startPos = context.getPartStartYPos(part.getID());
 		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		Iterator<IPersist> it = context.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		while (it.hasNext())
 		{
 			IPersist persist = it.next();

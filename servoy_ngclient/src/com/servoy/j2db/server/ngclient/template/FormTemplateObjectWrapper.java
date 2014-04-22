@@ -39,6 +39,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 {
 	private final FlattenedSolution fs;
 	private final boolean useControllerProvider;
+	private Form flattenedForm;
 
 	/**
 	 * @param fs
@@ -55,7 +56,8 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		Object wrapped;
 		if (obj instanceof Form)
 		{
-			wrapped = new FormWrapper(fs.getFlattenedForm((Form)obj), useControllerProvider);
+			this.flattenedForm = fs.getFlattenedForm((Form)obj);
+			wrapped = new FormWrapper(flattenedForm, useControllerProvider);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
@@ -63,7 +65,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		}
 		else if (obj instanceof Part)
 		{
-			wrapped = new PartWrapper((Part)obj, fs);
+			wrapped = new PartWrapper((Part)obj, flattenedForm);
 		}
 		else if (obj instanceof IFormElement)
 		{
