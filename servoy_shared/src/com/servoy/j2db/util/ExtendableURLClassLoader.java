@@ -121,7 +121,7 @@ public class ExtendableURLClassLoader extends URLClassLoader
 		}
 		catch (NoSuchMethodException e)
 		{
-			Debug.error(e);
+			Debug.log("Cannot dispose URLClassLoader on java < 7. " + e.getMessage());
 		}
 		catch (IllegalArgumentException e)
 		{
