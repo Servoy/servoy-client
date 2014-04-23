@@ -23,12 +23,17 @@ import java.util.Map;
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.dataprocessing.PrototypeState;
+import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.websocket.utils.JSONUtils;
+import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -43,8 +48,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private int height = -1;
 	private boolean visible;
 	private String formName;
-
-	private boolean titleSetThroughScripting;
 
 	/**
 	 * @param application
@@ -198,31 +201,81 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		return height;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#setTitle(java.lang.String, boolean)
-	 */
 	@Override
 	public void setTitle(String title, boolean delayed)
 	{
-		// this call is done through scripting, remember this title.
-		titleSetThroughScripting = true;
 		super.setTitle(title);
+		sendTitle(title);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.scripting.RuntimeWindow#setTitle(java.lang.String)
-	 */
 	@Override
 	public void setTitle(String title)
 	{
-		// if title is set through scripting then ignore calls to this one (done by form manager)
-		if (!titleSetThroughScripting)
+		sendTitle(title);
+	}
+
+	private void sendTitle(String title)
+	{
+		if (isVisible())
 		{
-			super.setTitle(title);
+			Solution solution = this.application.getSolution();
+			String titleString = ""; //$NON-NLS-1$
+			String solutionTitle = solution.getTitleText();
+
+			if (solutionTitle == null)
+			{
+				titleString = solution.getName();
+			}
+			else if (!solutionTitle.equals("<empty>")) //$NON-NLS-1$
+			{
+				titleString = solutionTitle;
+			}
+
+			titleString = application.getI18NMessageIfPrefixed(titleString);
+
+			if (title != null && !title.trim().equals("") && !"<empty>".equals(title) && title != null) //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				String nameString = application.getI18NMessageIfPrefixed(title);
+				IWebFormController formController = getController();
+				if (formController != null)
+				{
+					String name2 = Text.processTags(nameString, formController.getFormUI().getDataAdapterList());
+					if (name2 != null) nameString = name2;
+				}
+				else
+				{
+					String name2 = Text.processTags(nameString, TagResolver.createResolver(new PrototypeState(null)));
+					if (name2 != null) nameString = name2;
+				}
+				if (!nameString.trim().equals("")) //$NON-NLS-1$
+				{
+					if ("".equals(titleString)) //$NON-NLS-1$
+					{
+						titleString += nameString;
+					}
+					else
+					{
+						titleString += " - " + nameString; //$NON-NLS-1$
+					}
+				}
+			}
+			String appName = "Servoy Web Client"; //$NON-NLS-1$
+			boolean branding = Utils.getAsBoolean(application.getSettings().getProperty("servoy.branding", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+			String appTitle = application.getSettings().getProperty("servoy.branding.windowtitle"); //$NON-NLS-1$
+			if (branding && appTitle != null)
+			{
+				appName = appTitle;
+			}
+			if (titleString.equals("")) //$NON-NLS-1$
+			{
+				titleString = appName;
+			}
+			else
+			{
+				titleString += " - " + appName; //$NON-NLS-1$
+			}
+
+			getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "setTitle", new Object[] { titleString });
 		}
 	}
 
@@ -299,6 +352,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	protected void doOldShow(String formName, boolean closeAll, boolean legacyV3Behavior)
 	{
 		getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+		IWebFormController controller = getApplication().getFormManager().getForm(formName);
+		if (controller != null)
+		{
+			controller.getFormUI().setParentWindowName(getName());
+		}
 		Map<String, Object> arguments = new HashMap<String, Object>();
 		arguments.put("title", getTitle());
 		Form form = getApplication().getFlattenedSolution().getForm(formName);
@@ -322,12 +380,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	private void switchForm(IWebFormController currentForm)
 	{
+		visible = true;
+		currentForm.getFormUI().setParentWindowName(getName());
 		Map<String, Object> mainForm = new HashMap<String, Object>();
 		mainForm.put("templateURL", JSONUtils.toStringObject(currentForm.getForm(), PropertyType.form));
 		mainForm.put("width", currentForm.getForm().getWidth());
 		mainForm.put("name", currentForm.getName());
-
-		String formTitle = "Superheroic new Servoy client";
 
 		Map<String, Object> navigatorForm = new HashMap<String, Object>();
 		int navigatorId = currentForm.getForm().getNavigatorID();
@@ -367,6 +425,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 		getApplication().getWebsocketSession().touchForm(currentForm.getForm(), null);
 		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
-			new Object[] { getName(), mainForm, navigatorForm, formTitle });
+			new Object[] { getName(), mainForm, navigatorForm });
+		sendTitle(title);
 	}
 }

@@ -534,8 +534,7 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	@Override
 	public void setTitle(String title)
 	{
-		// TODO Auto-generated method stub
-
+		getRuntimeWindowManager().getCurrentWindow().setTitle(title);
 	}
 
 	@Override

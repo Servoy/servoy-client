@@ -18,7 +18,7 @@
 <html ng-app="servoyApp" ng-controller="MainController">
 	<head>
 		<base href="${context}/">
-		<title ng-bind="solutionSettings.solutionTitle">Servoy NGClient</title>
+		<title ng-bind="solutionSettings.solutionTitle"></title>
 		<!-- base 3th party libraries -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css"/>
 		<link rel="stylesheet" href="css/ng-grid.css"/>

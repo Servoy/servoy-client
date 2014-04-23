@@ -420,4 +420,13 @@ public class WebComponent implements ListDataListener
 	{
 		return nextAvailableTabSequence;
 	}
+
+	public String getParentWindowName()
+	{
+		if (parentForm != null)
+		{
+			return parentForm.getContainerName();
+		}
+		return null;
+	}
 }

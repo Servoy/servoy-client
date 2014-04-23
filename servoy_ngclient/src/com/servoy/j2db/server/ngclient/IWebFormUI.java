@@ -65,4 +65,9 @@ public interface IWebFormUI extends IBasicFormUI, IView
 
 	int getNextAvailableTabSequence();
 
+	public String getParentWindowName();
+
+	public void setParentWindowName(String parentWindowName);
+
+
 }

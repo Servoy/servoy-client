@@ -423,7 +423,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 }).value("$solutionSettings",  {
 	mainForm: {},
 	navigatorForm: {width:0},
-	solutionTitle: "Servoy WebClient",
+	solutionTitle: "",
 	defaultNavigatorState: {max:0,currentIdx:0,form:'<none>'},
 	styleSheetPath: undefined
 }).controller("MainController", function($scope, $solutionSettings, $servoyInternal, $windowService) {
@@ -484,21 +484,17 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				delete instances[name];
 			}
 		},
-		getContainerName: function(form) {
-			for (var name in instances) {
-				if (instances[name].form == form) {
-					return name;
-				}
-			}
-			return null;
-		},
-		switchForm: function(name,mainForm,navigatorForm,title) {		
+		switchForm: function(name,mainForm,navigatorForm) {		
         	$rootScope.$apply(function() { // TODO treat multiple windows case
         		if($solutionSettings.windowName == name) { // main window form switch
         			$solutionSettings.mainForm = mainForm;
         			$solutionSettings.navigatorForm = navigatorForm;
-        			$solutionSettings.solutionTitle = title;
         		}
+    		})
+		},
+		setTitle: function(title) {		
+        	$rootScope.$apply(function() { // TODO treat multiple windows case
+        		$solutionSettings.solutionTitle = title;
     		})
 		},
 		reload: function() {

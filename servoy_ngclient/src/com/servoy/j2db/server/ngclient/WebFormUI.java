@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -53,6 +52,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	private boolean enabled = true;
 	private boolean readOnly = false;
 	private WebComponent parentContainer;
+	private String parentWindowName = null;
 
 	public WebFormUI(IFormController formController)
 	{
@@ -567,6 +567,18 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		this.parentContainer = parentContainer;
 	}
 
+	@Override
+	public String getParentWindowName()
+	{
+		return parentWindowName;
+	}
+
+	public void setParentWindowName(String parentWindowName)
+	{
+		this.parentWindowName = parentWindowName;
+	}
+
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -831,24 +843,18 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IBasicFormUI#getContainerName()
-	 */
 	@Override
 	public String getContainerName()
 	{
-		try
+		if (parentWindowName != null)
 		{
-			return (String)application.getWebsocketSession().executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "getContainerName",
-				new Object[] { formController.getForm() });
+			return parentWindowName;
 		}
-		catch (IOException e)
+		if (parentContainer != null)
 		{
-			Debug.error(e);
-			return null;
+			return parentContainer.getParentWindowName();
 		}
+		return null;
 	}
 
 	/*

@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import org.json.JSONObject;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 
@@ -26,7 +27,7 @@ import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
  * @author jcompagner
  *
  */
-public interface IDataAdapterList extends IDataConverter
+public interface IDataAdapterList extends IDataConverter, ITagResolver
 {
 	/**
 	 * @param webComponent
