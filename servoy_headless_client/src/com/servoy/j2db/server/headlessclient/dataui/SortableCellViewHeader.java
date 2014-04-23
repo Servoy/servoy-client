@@ -399,6 +399,10 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			dragMoveBehavior.setResizeProxyFrame(true);
 			headerColumnTable.add(dragMoveBehavior);
 		}
+		else if (isUnmovable())
+		{
+			headerColumnTable.add(new SimpleAttributeModifier("ondragstart", "return false;"));
+		}
 
 		if (cellview instanceof Portal && !((Portal)cellview).getSortable())
 		{
