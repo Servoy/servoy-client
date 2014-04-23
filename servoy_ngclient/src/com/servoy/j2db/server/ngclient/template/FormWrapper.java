@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Wrapper around form for use in templates.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -51,17 +51,24 @@ public class FormWrapper
 	private final Form form;
 	private final boolean isTableView;
 	private final boolean useControllerProvider;
+	private final String realName;
 
-	public FormWrapper(Form form, boolean useControllerProvider)
+	public FormWrapper(Form form, String realName, boolean useControllerProvider)
 	{
 		this.form = form;
+		this.realName = realName;
 		this.useControllerProvider = useControllerProvider;
 		isTableView = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 	}
 
+	public String getControllerName()
+	{
+		return realName == null ? form.getName() : realName.replace('-', '_');
+	}
+
 	public String getName()
 	{
-		return form.getName();
+		return realName == null ? form.getName() : realName;
 	}
 
 	public String getRegisterMethod()

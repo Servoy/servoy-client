@@ -31,7 +31,7 @@ import freemarker.template.TemplateModelException;
 
 /**
  * Wrap some objects for form file generation using freemarker templates.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -57,7 +57,12 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		if (obj instanceof Form)
 		{
 			this.flattenedForm = fs.getFlattenedForm((Form)obj);
-			wrapped = new FormWrapper(flattenedForm, useControllerProvider);
+			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider);
+		}
+		else if (obj instanceof Object[])
+		{
+			this.flattenedForm = fs.getFlattenedForm((Form)((Object[])obj)[0]);
+			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{

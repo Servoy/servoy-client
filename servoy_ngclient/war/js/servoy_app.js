@@ -442,7 +442,6 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	var instances = {};
 	
 	var formTemplateUrls = {};
-	var instanceForms = {};
 	
 	 $templateCache.put("template/modal/window.html",
 			    "<div tabindex=\"-1\" class=\"modal fade {{ windowClass }}\" ng-class=\"{in: animate}\" ng-style=\"{'z-index': 1050 + index*10, display: 'block'}\">\n" +
@@ -507,26 +506,19 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         		$window.location.reload(true);
     		})
 		},
-		updateController: function(formName,controllerCode, formUrl, realFormUrl) {
+		updateController: function(formName,controllerCode, realFormUrl) {
 			$rootScope.$apply(function() {
 				$servoyInternal.clearformState(formName)
 				eval(controllerCode);
-				formTemplateUrls[formUrl] = realFormUrl;
 				formTemplateUrls[formName] = realFormUrl;
 			});
 		},
- 		getFormUrl: function(formNameOrUrl) {
-			var realFormUrl = formTemplateUrls[formNameOrUrl];
+ 		getFormUrl: function(formName) {
+			var realFormUrl = formTemplateUrls[formName];
 			if (realFormUrl == null) {
-				var instanceUrl = instanceForms[formNameOrUrl];
-				if (instanceUrl) realFormUrl = formTemplateUrls[instanceUrl];
-				if (realFormUrl == null)
-					$servoyInternal.callService("$windowService", "touchForm", {url:formNameOrUrl});
+					$servoyInternal.callService("$windowService", "touchForm", {name:formName});
 			}
 			return realFormUrl;
-		},
-		putFormInstance: function(realInstanceName, formUrl) {
-			instanceForms[realInstanceName] = formUrl;
 		},
 	}
 	

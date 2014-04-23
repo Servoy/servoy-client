@@ -60,10 +60,10 @@ public class TemplateGeneratorFilter implements Filter
 					String solutionName = uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
 					FlattenedSolution fs = null;
 					String clientUUID = request.getParameter("uuid");
+					INGClientWebsocketSession wsSession = null;
 					if (clientUUID != null)
 					{
-						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(
-							WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+						wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
 						if (wsSession != null) fs = wsSession.getClient().getFlattenedSolution();
 					}
 					if (fs == null)
@@ -93,6 +93,7 @@ public class TemplateGeneratorFilter implements Filter
 						formName = formName.replace(".html", "");
 						formName = formName.replace(".js", "");
 						Form f = fs.getForm(formName);
+						if (f == null && wsSession != null) f = wsSession.getClient().getFormManager().getPossibleForm(formName);
 						Form form = (f != null) ? fs.getFlattenedForm(f) : null;
 						if (form != null)
 						{
@@ -113,7 +114,7 @@ public class TemplateGeneratorFilter implements Filter
 								String view = (tableview ? "tableview" : "recordview");
 								((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
 								PrintWriter w = servletResponse.getWriter();
-								new FormTemplateGenerator(fs, false).generate(form, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
+								new FormTemplateGenerator(fs, false).generate(form, formName, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
 								w.flush();
 							}
 							return;

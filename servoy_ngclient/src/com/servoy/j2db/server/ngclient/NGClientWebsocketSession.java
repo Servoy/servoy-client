@@ -60,7 +60,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Handles a websocket session based on a NGClient.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -474,30 +474,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void touchForm(Form form, String realInstanceName)
 	{
 		if (form == null) return;
-		String formUrl = (String)JSONUtils.toStringObject(form, PropertyType.form);
-		if (formsOnClient.putIfAbsent(formUrl, formUrl) == null)
+		String formName = realInstanceName == null ? form.getName() : realInstanceName;
+		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + formName + ".html";
+		if (formsOnClient.putIfAbsent(formName, formUrl) == null)
 		{
 			// form is not yet on the client, send over the controller
-			updateController(form, formUrl);
-		}
-		if (realInstanceName != null && formsOnClient.putIfAbsent(realInstanceName, formUrl) == null)
-		{
-			try
-			{
-				// this is a instance reference to another form push that to the client.
-				if (client.isEventDispatchThread())
-				{
-					executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
-				}
-				else
-				{
-					executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "putFormInstance", new Object[] { realInstanceName, formUrl });
-				}
-			}
-			catch (IOException e)
-			{
-				Debug.error(e);
-			}
+			updateController(form, formName, formUrl);
 		}
 	}
 
@@ -506,7 +488,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * @param fs
 	 * @param form
 	 */
-	private void updateController(Form form, String formUrl)
+	private void updateController(Form form, String realFormName, String formUrl)
 	{
 		try
 		{
@@ -519,22 +501,24 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + getUuid();
 				copy = true;
 			}
-
+			else if (!form.getName().endsWith(realFormName))
+			{
+				realUrl = realUrl + "?lm:" + form.getLastModified() + "&uuid=" + getUuid();
+			}
 			StringWriter sw = new StringWriter(512);
 			if (copy || !Boolean.valueOf(System.getProperty("servoy.generateformscripts", "false")).booleanValue())
 			{
 				boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 				String view = (tableview ? "tableview" : "recordview");
-				new FormTemplateGenerator(fs, true).generate(form, "form_" + view + "_js.ftl", sw);
+				new FormTemplateGenerator(fs, true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
 			}
 			if (client.isEventDispatchThread())
 			{
-				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
+				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
 			}
 			else
 			{
-				executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController",
-					new Object[] { form.getName(), sw.toString(), formUrl, realUrl });
+				executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
 			}
 		}
 		catch (IOException e)
@@ -549,7 +533,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		String formUrl = (String)JSONUtils.toStringObject(form, PropertyType.form);
 		if (formsOnClient.containsKey(formUrl))
 		{
-			updateController(form, formUrl);
+			updateController(form, form.getName(), formUrl);
 		}
 	}
 

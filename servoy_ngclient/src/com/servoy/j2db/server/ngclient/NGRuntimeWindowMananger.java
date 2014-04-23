@@ -49,7 +49,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.IService#executeMethod(java.lang.String, java.util.Map)
 	 */
 	@Override
@@ -68,18 +68,12 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 			}
 			case "touchForm" :
 			{
-				String formNameOrUrl = args.optString("url");
-				if (formNameOrUrl != null)
+				String formName = args.optString("name");
+				if (formName != null)
 				{
-					String formName = formNameOrUrl;
-					int lastSlash = formName.lastIndexOf('/');
-					if (lastSlash != -1)
-					{
-						formName = formName.substring(lastSlash + 1, formName.length() - 5);
-					}
 					Form form = application.getFormManager().getPossibleForm(formName);
 					if (form != null) ((INGApplication)application).getWebsocketSession().touchForm(application.getFlattenedSolution().getFlattenedForm(form),
-						formNameOrUrl);
+						formName);
 				}
 				break;
 			}
@@ -89,7 +83,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getMainApplicationWindow()
 	 */
 	@Override
@@ -100,7 +94,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getWindow(java.lang.String)
 	 */
 	@Override
@@ -111,7 +105,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getCurrentWindow()
 	 */
 	@Override
@@ -122,7 +116,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#createWindowInternal(java.lang.String, int, com.servoy.j2db.scripting.RuntimeWindow)
 	 */
 	@Override
@@ -133,7 +127,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.RuntimeWindowManager#getOrderedContainers()
 	 */
 	@Override
@@ -144,7 +138,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public String createMainWindow()
 	{

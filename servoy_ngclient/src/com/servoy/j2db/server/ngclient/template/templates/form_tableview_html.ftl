@@ -14,7 +14,7 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
-<div ng-controller="${name}" svy-formstyle="formStyle" svy-layout-update>
+<div ng-controller="${controllerName}" svy-formstyle="formStyle" svy-layout-update>
 <#list parts as part>
 	<div ng-style="${part.name}Style">
 		<#if (part.baseComponents)??>
@@ -24,7 +24,7 @@
 					</div>
 			</#list>
 		<#else>
-		    <div class="gridStyle" ng-grid="grid${name}"></div>
+		    <div class="gridStyle" ng-grid="grid${controllerName}"></div>
 		</#if>
 	</div>
 </#list>

@@ -65,7 +65,7 @@ import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
  * Utility methods for JSON usage.
- * 
+ *
  * @author acostescu
  */
 @SuppressWarnings("nls")
@@ -277,7 +277,7 @@ public class JSONUtils
 				String[] keys = entry.getKey().split("\\.");
 				if (keys.length > 1)
 				{
-					//LIMITATION of JSONWriter because it can't add a property to an already written object 
+					//LIMITATION of JSONWriter because it can't add a property to an already written object
 					// currently for 2 properties like complexmodel.firstNameDataprovider
 					//								   size
 					//								   complexmodel.lastNameDataprovider
@@ -465,8 +465,7 @@ public class JSONUtils
 				case form :
 					if (propertyValue instanceof Form)
 					{
-						Form frm = (Form)propertyValue;
-						return "solutions/" + frm.getSolution().getName() + "/forms/" + frm.getName() + ".html";
+						return ((Form)propertyValue).getName();
 					}
 					break;
 
@@ -478,7 +477,7 @@ public class JSONUtils
 	}
 
 	/**
-	 * Validates a String to be valid JSON content and normalizes it. 
+	 * Validates a String to be valid JSON content and normalizes it.
 	 * @param json the json content to check.
 	 * @return the given JSON normalized.
 	 * @throws JSONException if the given JSON is not valid

@@ -64,12 +64,12 @@ public class FormTemplateGenerator
 		cfg.setIncompatibleImprovements(new Version(2, 3, 20));
 	}
 
-	public void generate(Form form, String templateName, Writer writer) throws IOException
+	public void generate(Form form, String realName, String templateName, Writer writer) throws IOException
 	{
 		Template template = cfg.getTemplate(templateName);
 		try
 		{
-			template.process(form, writer);
+			template.process(new Object[] { form, realName }, writer);
 		}
 		catch (TemplateException e)
 		{

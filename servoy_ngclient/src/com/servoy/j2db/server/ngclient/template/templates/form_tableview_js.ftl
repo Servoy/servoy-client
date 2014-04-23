@@ -145,12 +145,12 @@
 	$scope.$watch('model..selectedIndex', function (newVal, oldVal) {
 		if (newVal !== oldVal) {
 		$timeout(function() {
-			$scope.grid${name}.selectItem($scope.model[''].selectedIndex, true);
+			$scope.grid${controllerName}.selectItem($scope.model[''].selectedIndex, true);
 			});
 		}
 	}, false);
 
-	$scope.grid${name} = {
+	$scope.grid${controllerName} = {
 	data: 'model..rows',
 	enableCellSelection: true,
 	enableRowSelection: true,
