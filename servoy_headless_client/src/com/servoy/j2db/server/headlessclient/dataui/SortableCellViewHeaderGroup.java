@@ -185,7 +185,9 @@ public class SortableCellViewHeaderGroup extends Model implements IComponentAssi
 										List<SortColumn> list = (modifiers & Event.SHIFT_MASK) != 0 ? fs.getSortColumns() : new ArrayList<SortColumn>();
 										for (String sortingProvider : sortingProviders)
 										{
-											SortColumn sc = ((FoundSetManager)fs.getFoundSetManager()).getSortColumn(fs.getTable(), sortingProvider);
+											FoundSetManager fsm = (FoundSetManager)fs.getFoundSetManager();
+											SortColumn sc = fsm.isColumnSortable(fs.getTable(), sortingProvider) ? fsm.getSortColumn(fs.getTable(),
+												sortingProvider) : null;
 											if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
 											{
 												for (SortColumn oldColumn : list)

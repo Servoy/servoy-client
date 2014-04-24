@@ -162,7 +162,9 @@ public class ColumnSortListener extends MouseAdapter
 							SortColumn existingSc;
 							try
 							{
-								existingSc = ((FoundSetManager)foundset.getFoundSetManager()).getSortColumn(foundset.getTable(), sortingProvider);
+								FoundSetManager fsm = (FoundSetManager)foundset.getFoundSetManager();
+								existingSc = fsm.isColumnSortable(foundset.getTable(), sortingProvider) ? fsm.getSortColumn(foundset.getTable(),
+									sortingProvider) : null;
 							}
 							catch (Exception ex)
 							{
@@ -254,7 +256,9 @@ public class ColumnSortListener extends MouseAdapter
 										List<SortColumn> list = e.isShiftDown() ? model.getSortColumns() : new ArrayList<SortColumn>();
 										for (String sortingProvider : sortingProviders)
 										{
-											SortColumn sc = ((FoundSetManager)model.getFoundSetManager()).getSortColumn(model.getTable(), sortingProvider);
+											FoundSetManager fsm = ((FoundSetManager)model.getFoundSetManager());
+											SortColumn sc = fsm.isColumnSortable(model.getTable(), sortingProvider) ? fsm.getSortColumn(model.getTable(),
+												sortingProvider) : null;
 											if (sc != null && sc.getColumn().getDataProviderType() != IColumnTypes.MEDIA)
 											{
 												for (SortColumn oldColumn : list)

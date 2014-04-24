@@ -1671,6 +1671,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
+	public boolean isColumnSortable(ITable table, String dataProviderID) throws RepositoryException
+	{
+		if (table == null || dataProviderID == null) return false;
+
+		Table lastTable = (Table)table;
+
+		String[] split = dataProviderID.split("\\."); //$NON-NLS-1$
+		for (int i = 0; i < split.length - 1; i++)
+		{
+			Relation r = application.getFlattenedSolution().getRelation(split[i]);
+			if (r == null || !r.isUsableInSort() || !lastTable.equals(getTable(r.getPrimaryDataSource()))) return false;
+			lastTable = (Table)getTable(r.getForeignDataSource());
+		}
+
+		return true;
+	}
+
 /*
  * _____________________________________________________________ locking methods
  */
