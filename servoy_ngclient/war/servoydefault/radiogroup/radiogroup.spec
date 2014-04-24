@@ -38,9 +38,22 @@ handlers:
 },
 api:
 {
+        getScrollX:{
+            returns: 'int',
+                 }, 
+        getScrollY:{
+            returns: 'int',
+                 }, 
+        getSelectedElements:{
+            returns: 'object []',
+                 }, 
         requestFocus:{
             
             parameters:[{'mustExecuteOnFocusGainedMethod':'boolean','optional':'true'}]
+        }, 
+        setScroll:{
+            
+            parameters:[{'x':'int'},{'y':'int'}]
         }, 
         setValueListItems:{
             

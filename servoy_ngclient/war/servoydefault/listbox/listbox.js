@@ -4,7 +4,8 @@ angular.module('svyListbox',['servoy']).directive('svyListbox', function($parse)
       transclude: true,
       scope: {
         model: "=svyModel",
-        handlers: "=svyHandlers"
+        handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       require: 'ngModel',
       compile: function(tElement, tAttrs) {
@@ -41,6 +42,19 @@ angular.module('svyListbox',['servoy']).directive('svyListbox', function($parse)
     				  $scope.handlers.svy_apply('dataProviderID');
     			  }	  
     		  })
+    		  
+    		  $scope.api.setScroll = function(x, y) {
+    			  $element.scrollLeft(x);
+    			  $element.scrollTop(y);
+    		  }
+         
+    		  $scope.api.getScrollX = function() {
+    			  return $element.scrollLeft();
+    		  }
+         
+    		  $scope.api.getScrollY = function() {
+    			  return $element.scrollTop();
+    		  }
     	  } 
       },
       templateUrl: 'servoydefault/listbox/listbox.html',

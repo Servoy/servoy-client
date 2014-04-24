@@ -22,6 +22,20 @@ angular.module('svyTextarea',['servoy']).directive('svyTextarea', function($apif
     	 },
     	 $scope.api.getSelectedText = $apifunctions.getSelectedText($element[0]);
     	 $scope.api.setSelection = $apifunctions.setSelection($element[0]);
+    	 
+
+         $scope.api.setScroll = function(x, y) {
+        	 $element.scrollLeft(x);
+        	 $element.scrollTop(y);
+         }
+         
+         $scope.api.getScrollX = function() {
+        	 return $element.scrollLeft();
+         }
+         
+         $scope.api.getScrollY = function() {
+        	 return $element.scrollTop();
+         }
       },
       templateUrl: 'servoydefault/textarea/textarea.html',
       replace: true

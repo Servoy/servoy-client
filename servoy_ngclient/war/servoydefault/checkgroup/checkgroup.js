@@ -5,7 +5,8 @@ angular.module('svyCheckgroup',['servoy']).directive('svyCheckgroup', function($
       scope: {
         name: "=",
         model: "=svyModel",
-        handlers: "=svyHandlers"
+        handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       link: function($scope, $element, $attrs) {
          $scope.notNull = $utils.notNull  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
@@ -38,6 +39,19 @@ angular.module('svyCheckgroup',['servoy']).directive('svyCheckgroup', function($
             
             if(checkedTotal==0 && allowNullinc ==0) return;// only push if it was actualy changed
             $scope.handlers.svy_apply('dataProviderID')
+          }
+          
+          $scope.api.setScroll = function(x, y) {
+         	 $element.scrollLeft(x);
+         	 $element.scrollTop(y);
+          }
+          
+          $scope.api.getScrollX = function() {
+         	 return $element.scrollLeft();
+          }
+          
+          $scope.api.getScrollY = function() {
+         	 return $element.scrollTop();
           }
         
           

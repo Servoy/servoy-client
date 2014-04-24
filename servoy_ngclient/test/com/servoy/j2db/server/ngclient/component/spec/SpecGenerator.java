@@ -57,6 +57,7 @@ import com.servoy.j2db.ui.runtime.IRuntimeHtmlArea;
 import com.servoy.j2db.ui.runtime.IRuntimeImageMedia;
 import com.servoy.j2db.ui.runtime.IRuntimePassword;
 import com.servoy.j2db.ui.runtime.IRuntimeRadio;
+import com.servoy.j2db.ui.runtime.IRuntimeRadios;
 import com.servoy.j2db.ui.runtime.IRuntimeTextArea;
 import com.servoy.j2db.ui.runtime.IRuntimeTextField;
 import com.servoy.j2db.util.IntHashMap;
@@ -96,7 +97,7 @@ public class SpecGenerator
 			// minified would be "servoydefault/combobox/lib/select2-3.4.5/select2.min.js"
 			}));
 		specTemplateList.add(new SpecTemplateModel("label", "label", IRepository.GRAPHICALCOMPONENTS, IScriptScriptLabelMethods.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadio.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("radiogroup", "Radio group", IRepository.FIELDS, IRuntimeRadios.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("textfield", "Text field", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("typeahead", "TypeAhead ", IRepository.FIELDS, IRuntimeTextField.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel("tabpanel", "Tab panel", IRepository.TABPANELS, com.servoy.j2db.ui.IScriptTabPanelMethods.class,

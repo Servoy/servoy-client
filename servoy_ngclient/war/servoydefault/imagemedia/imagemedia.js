@@ -5,6 +5,7 @@ angular.module('svyImagemedia',['servoy']).directive('svyImagemedia', function($
       scope: {
         model: "=svyModel",
         handlers: "=svyHandlers",
+        api: "=svyApi"
       },
       controller: function($scope, $element, $attrs) {  
 
@@ -35,6 +36,19 @@ angular.module('svyImagemedia',['servoy']).directive('svyImagemedia', function($
     		  $scope.model.dataProviderID = null;
     		  $scope.handlers.svy_apply('dataProviderID');
     	  }
+    	  
+          $scope.api.setScroll = function(x, y) {
+         	 $element.scrollLeft(x);
+         	 $element.scrollTop(y);
+          }
+          
+          $scope.api.getScrollX = function() {
+         	 return $element.scrollLeft();
+          }
+          
+          $scope.api.getScrollY = function() {
+         	 return $element.scrollTop();
+          }
       },
       templateUrl: 'servoydefault/imagemedia/imagemedia.html',
       replace: true

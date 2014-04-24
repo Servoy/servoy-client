@@ -14,7 +14,8 @@ angular.module('svyHtmlarea',['servoy','ui.tinymce']).directive('svyHtmlarea', f
        $scope.tinyConfig ={
     		   /*overwrite ui-tinymce setup routine()*/
     		 setup: function(ed){
-    			   	editor = ed;    			   	  
+    			   	editor = ed;
+    			   	$scope.editor = editor;
     			   	$scope.$watch('model.dataProviderID',function (newVal,oldVal){    			   		
     			   		if(newVal && oldVal!=newVal){
     			   		  ed.setContent(newVal)
@@ -27,6 +28,19 @@ angular.module('svyHtmlarea',['servoy','ui.tinymce']).directive('svyHtmlarea', f
     	                })    	                
     	            });
     		   }
+       }
+       
+       $scope.api.setScroll = function(x, y) {
+    	   $($scope.editor.getWin()).scrollLeft(x);
+    	   $($scope.editor.getWin()).scrollTop(y);
+       }
+        
+       $scope.api.getScrollX = function() {
+    	   return $($scope.editor.getWin()).scrollLeft();
+       }
+        
+       $scope.api.getScrollY = function() {
+    	   return $($scope.editor.getWin()).scrollTop();
        }
       
       },
