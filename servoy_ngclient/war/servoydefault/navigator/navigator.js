@@ -24,23 +24,23 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
     		  if (!i) i = 1;
     		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
     	  }
-    	  
+
+    	  $scope.slider_handlers.svyApply = $scope.handlers.svy_apply;
+    	  $scope.slider_handlers.onStopMethodID = function(event, value) {
+    		  $scope.setIndex(value);
+    	  };    	  
+		  $scope.slider_model.animate = false;
+    	  $scope.slider_model.step = 1;	    		  
+    	  $scope.slider_model.orientation = 'vertical';
+    	  $scope.slider_model.range = 'max';
     	  $scope.$watch('model.maxIndex', function (newVal, oldVal, scope) 
     	  {
     		  if ($scope.model)
     		  {
 	    		  var model = $scope.model;
-	    		  $scope.slider_model.animate = false;
 	    		  $scope.slider_model.dataProviderID = -1*model.currentIndex;
 	    		  $scope.slider_model.min = model.maxIndex > 0? -1*model.maxIndex:0;
 	        	  $scope.slider_model.max = model.maxIndex > 0? -1:0;
-	        	  $scope.slider_model.orientation = 'vertical';
-	        	  $scope.slider_model.range = 'max';
-	        	  $scope.slider_model.step = 1;
-	        	  $scope.slider_handlers.svyApply = $scope.handlers.svy_apply;
-	        	  $scope.slider_handlers.onStopMethodID = function(event, value) {
-	        		  $scope.setIndex(value);
-	        	  };
     		  }    		  
     	  });
       },
