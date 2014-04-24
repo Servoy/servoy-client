@@ -218,7 +218,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		if (isVisible())
 		{
-			Solution solution = this.application.getSolution();
+			Solution solution = getApplication().getSolution();
 			String titleString = ""; //$NON-NLS-1$
 			String solutionTitle = solution.getTitleText();
 
@@ -231,11 +231,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				titleString = solutionTitle;
 			}
 
-			titleString = application.getI18NMessageIfPrefixed(titleString);
+			titleString = getApplication().getI18NMessageIfPrefixed(titleString);
 
 			if (title != null && !title.trim().equals("") && !"<empty>".equals(title) && title != null) //$NON-NLS-1$ //$NON-NLS-2$
 			{
-				String nameString = application.getI18NMessageIfPrefixed(title);
+				String nameString = getApplication().getI18NMessageIfPrefixed(title);
 				IWebFormController formController = getController();
 				if (formController != null)
 				{
@@ -260,8 +260,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 			}
 			String appName = "Servoy Web Client"; //$NON-NLS-1$
-			boolean branding = Utils.getAsBoolean(application.getSettings().getProperty("servoy.branding", "false")); //$NON-NLS-1$ //$NON-NLS-2$
-			String appTitle = application.getSettings().getProperty("servoy.branding.windowtitle"); //$NON-NLS-1$
+			boolean branding = Utils.getAsBoolean(getApplication().getSettings().getProperty("servoy.branding", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+			String appTitle = getApplication().getSettings().getProperty("servoy.branding.windowtitle"); //$NON-NLS-1$
 			if (branding && appTitle != null)
 			{
 				appName = appTitle;
@@ -371,7 +371,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		arguments.put("size", size);
 		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
-
+		this.formName = formName;
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
 		{
 			getApplication().getEventDispatcher().suspend(this);

@@ -565,6 +565,11 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	public void setParentContainer(WebComponent parentContainer)
 	{
 		this.parentContainer = parentContainer;
+		if (parentContainer != null)
+		{
+			// we are in container now, reset window info, top form should hold that
+			parentWindowName = null;
+		}
 	}
 
 	@Override
@@ -846,13 +851,13 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	@Override
 	public String getContainerName()
 	{
+		if (parentContainer != null && parentContainer.getParent() != null)
+		{
+			return parentContainer.getParent().getContainerName();
+		}
 		if (parentWindowName != null)
 		{
 			return parentWindowName;
-		}
-		if (parentContainer != null)
-		{
-			return parentContainer.getParentWindowName();
 		}
 		return null;
 	}
