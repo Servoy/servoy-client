@@ -26,14 +26,18 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
     	  $scope.slider_model.step = 1;	    		  
     	  $scope.slider_model.orientation = 'vertical';
     	  $scope.slider_model.range = 'max';
+		  var model = $scope.model;
+		  if (model.maxIndex > 0) {
+	   	    $scope.slider_model.min = -1*model.maxIndex;
+	        $scope.slider_model.max = -1;
+	      }
+    	  if (model.currentIndex) {
+    	    $scope.slider_model.dataProviderID = -1*model.currentIndex;
+    	  }
     	  $scope.$watch('model.maxIndex', function (newVal, oldVal, scope) 
     	  {
-    		  if ($scope.model)
-    		  {
-	    		  var model = $scope.model;
-	    		  $scope.slider_model.min = model.maxIndex > 0? -1*model.maxIndex:0;
-	        	  $scope.slider_model.max = model.maxIndex > 0? -1:0;
-    		  }    		  
+	    	$scope.slider_model.min = model.maxIndex > 0? -1*model.maxIndex:0;
+	        $scope.slider_model.max = model.maxIndex > 0? -1:0;
     	  });
     	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
     		  if(!newVal) return;

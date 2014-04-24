@@ -70,9 +70,9 @@ angular.module('slider',['servoy','ui.slider']).directive('slider', function() {
             	   }
         		   $scope.options.change = slideChange;
         	   }
-        	   
-        	   $scope.sliderValue = $scope.model.dataProviderID;
-        	   
+        	   if ($scope.options.max || $scope.options.min) {
+        	     $scope.sliderValue = $scope.model.dataProviderID;
+        	   }
         	   $scope.$watch('model.dataProviderID', function() {
         	   		// a watch on the dataprovider to push it to the ui value when dataprovider from server is changed
         		   // set it through a timeout so that it is always later then a max or min setting if that is done at the same time
