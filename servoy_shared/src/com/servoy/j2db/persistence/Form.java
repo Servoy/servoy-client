@@ -612,11 +612,12 @@ public class Form extends AbstractBase implements ISupportFormElements, ITableDi
 
 	public Part getPartAt(int y)
 	{
+		// this should return the same part as for component creation
 		Iterator<Part> it = getParts();
 		while (it.hasNext())
 		{
 			Part part = it.next();
-			if (part.getHeight() >= y)
+			if (part.getHeight() > y)
 			{
 				return part;
 			}
