@@ -5,8 +5,7 @@ angular.module('slider',['servoy','ui.slider']).directive('slider', function() {
            scope : {
         	   model: '=svyModel',
         	   svyApply: '=',
-        	   handlers: "=svyHandlers",
-               api: "=svyApi"
+        	   handlers: "=svyHandlers"
            },
            templateUrl : 'servoycomponents/slider/slider.html',
            controller: function($scope, $element, $attrs, $parse, $timeout) {

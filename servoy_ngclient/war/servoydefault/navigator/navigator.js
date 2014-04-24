@@ -10,7 +10,6 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
       {
     	  $scope.slider_model = {};
     	  $scope.slider_handlers = {};
-    	  $scope.slider_api = {};
     	  
     	  $scope.setIndex =  function (idx){
     		  var i = parseInt(idx)
