@@ -67,6 +67,7 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRender;
+import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -84,7 +85,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject,
 	IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent,
-	ISupportSimulateBoundsProvider, ISupportOnRender
+	ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -130,6 +131,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 		updatePrefix();
 		this.scriptable = scriptable;
 		scriptable.setList(list);
+		add(new ScrollBehavior(this));
 	}
 
 	@Override
@@ -1027,5 +1029,41 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice implements IDi
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	private final Point scroll = new Point(0, 0);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
+	 */
+	@Override
+	public void setScroll(int x, int y)
+	{
+		scroll.x = x;
+		scroll.y = y;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
+	 */
+	@Override
+	public Point getScroll()
+	{
+		return scroll;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
+	 */
+	@Override
+	public String getScrollComponentMarkupId()
+	{
+		return getMarkupId();
 	}
 }

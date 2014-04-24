@@ -78,6 +78,7 @@ import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
+import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -95,7 +96,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataImgMediaField extends WebMarkupContainer implements IDisplayData, IFieldComponent, IScrollPane, ILinkListener,
-	IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener, ISupportSimulateBoundsProvider
+	IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener, IDesignModeListener, ISupportSimulateBoundsProvider, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 
@@ -325,6 +326,7 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 		});
 		add(StyleAttributeModifierModel.INSTANCE);
 		add(TooltipAttributeModifier.INSTANCE);
+		add(new ScrollBehavior(this));
 	}
 
 	public final RuntimeMediaField getScriptObject()
@@ -1155,5 +1157,41 @@ public class WebDataImgMediaField extends WebMarkupContainer implements IDisplay
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
+	}
+
+	private final Point scroll = new Point(0, 0);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
+	 */
+	@Override
+	public void setScroll(int x, int y)
+	{
+		scroll.x = x;
+		scroll.y = y;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
+	 */
+	@Override
+	public Point getScroll()
+	{
+		return scroll;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
+	 */
+	@Override
+	public String getScrollComponentMarkupId()
+	{
+		return getMarkupId();
 	}
 }

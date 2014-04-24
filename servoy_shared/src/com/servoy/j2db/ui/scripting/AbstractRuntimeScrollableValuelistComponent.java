@@ -30,6 +30,7 @@ import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.runtime.HasRuntimeScroll;
 import com.servoy.j2db.ui.runtime.HasRuntimeValuelistItems;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
@@ -107,6 +108,15 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 			}
 			field.scrollRectToVisible(rect);
 		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				((ISupportScroll)c).setScroll(x, y);
+				getChangesRecorder().setChanged();
+			}
+		}
 	}
 
 	public int getScrollX()
@@ -114,6 +124,14 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 		if (field != null)
 		{
 			return field.getVisibleRect().x;
+		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				return ((ISupportScroll)c).getScroll().x;
+			}
 		}
 		return 0;
 	}
@@ -123,6 +141,14 @@ public abstract class AbstractRuntimeScrollableValuelistComponent<C extends IFie
 		if (field != null)
 		{
 			return field.getVisibleRect().y;
+		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				return ((ISupportScroll)c).getScroll().y;
+			}
 		}
 		return 0;
 	}
