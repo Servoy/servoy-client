@@ -2821,7 +2821,9 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 								SortColumn existingSc;
 								try
 								{
-									existingSc = ((FoundSetManager)currentData.getFoundSetManager()).getSortColumn(currentData.getTable(), sortingProvider);
+									FoundSetManager fsm = (FoundSetManager)currentData.getFoundSetManager();
+									existingSc = fsm.isColumnSortable(currentData.getTable(), sortingProvider) ? fsm.getSortColumn(currentData.getTable(),
+										sortingProvider) : null;
 								}
 								catch (RepositoryException ex)
 								{
