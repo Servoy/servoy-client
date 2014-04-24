@@ -8,11 +8,9 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
       },
       link: function($scope, $element, $attrs) {  
     	  
-    	  $scope.editIndex = 0;
     	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
     		  if(!newVal) return;
     		  if ($scope.slider_api.setValue) $scope.slider_api.setValue(-1*newVal );
-    		  $scope.editIndex = newVal
     	  })    	  
       },
       controller: function($scope)
