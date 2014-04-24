@@ -165,7 +165,7 @@ public class SolutionLoader extends WebPage
 						session.getWebClient().onBeginRequest(session);
 						FormManager formManager = ((FormManager)sc.getFormManager());
 						String currentPageMapName = getPageMap().getName();
-						if (!Utils.equalObjects(sc.getMainPage().getPageMap().getName(), currentPageMapName))
+						if (currentPageMapName != null && !Utils.equalObjects(sc.getMainPage().getPageMap().getName(), currentPageMapName))
 						{
 							IMainContainer newContainer = formManager.getOrCreateMainContainer(currentPageMapName);
 							formManager.setCurrentContainer(newContainer, currentPageMapName);
