@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class RuntimeWindow implements IRuntimeWindow
 {
-	protected final IApplication application;
+	private final IApplication application;
 
 	// values that remain unchanged
 	protected final String windowName;
