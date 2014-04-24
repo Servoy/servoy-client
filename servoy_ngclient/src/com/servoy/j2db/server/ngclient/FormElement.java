@@ -216,7 +216,7 @@ public final class FormElement
 			if (location != null)
 			{
 				Point newLocation = new Point(location);
-				Part part = form.getPartAt(persist.getLocation().y);
+				Part part = form.getPartAt(location.y);
 				if (part != null)
 				{
 					int top = form.getPartStartYPos(part.getID());
@@ -473,17 +473,6 @@ public final class FormElement
 		if (persist instanceof BaseComponent)
 		{
 			Map<String, Object> propertiesMap = new HashMap<>(propertyValues);
-			Point location = (Point)propertiesMap.get(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName());
-			if (location != null)
-			{
-				Form form = getForm();
-				Part part = form.getPartAt((int)location.getY());
-				if (part != null)
-				{
-					int startPos = form.getPartStartYPos(part.getID());
-					properties.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), new Point(location.x, location.y - startPos));
-				}
-			}
 			Dimension dim = ((BaseComponent)persist).getSize();
 			properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
 			Integer anchor = (Integer)propertiesMap.get(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());

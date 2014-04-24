@@ -103,7 +103,7 @@ public class PartWrapper
 			if (persist instanceof BaseComponent)
 			{
 				Point location = ((BaseComponent)persist).getLocation();
-				if (startPos <= location.y && endPos >= location.y)
+				if (startPos <= location.y && endPos > location.y)
 				{
 					baseComponents.add((BaseComponent)persist);
 				}
