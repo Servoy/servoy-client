@@ -526,10 +526,12 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
         }
       };
 }]).controller("DialogInstanceCtrl", function ($scope, $modalInstance,$windowService, $servoyInternal,windowName,title,form,formSize) {
-	$scope.form = form;
 	$scope.title = title;
 	$scope.windowName = windowName;
 	$scope.formSize =formSize;
+	$scope.getFormUrl = function() {
+		return $windowService.getFormUrl(form)
+	}
 	
 	$servoyInternal.setFormVisibility(form,true);
 	
