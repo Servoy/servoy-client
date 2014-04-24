@@ -51,8 +51,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	private boolean enabled = true;
 	private boolean readOnly = false;
-	private WebComponent parentContainer;
-	private String parentWindowName = null;
+	private Object parentContainerOrWindowName;
 
 	public WebFormUI(IFormController formController)
 	{
@@ -509,10 +508,10 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		{
 			tabSeqComponents.get(i).setCalculatedTabSequence(currentIndex++);
 		}
-		if (startComponent != null && parentContainer != null)
+		if (startComponent != null && parentContainerOrWindowName instanceof WebComponent)
 		{
 			// upwards traversal
-			parentContainer.recalculateTabSequence(currentIndex);
+			((WebComponent)parentContainerOrWindowName).recalculateTabSequence(currentIndex);
 		}
 		nextAvailableTabSequence = currentIndex;
 		return currentIndex;
@@ -564,23 +563,22 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	public void setParentContainer(WebComponent parentContainer)
 	{
-		this.parentContainer = parentContainer;
-		if (parentContainer != null)
-		{
-			// we are in container now, reset window info, top form should hold that
-			parentWindowName = null;
-		}
+		this.parentContainerOrWindowName = parentContainer;
 	}
 
 	@Override
 	public String getParentWindowName()
 	{
-		return parentWindowName;
+		if (parentContainerOrWindowName instanceof String)
+		{
+			return (String)parentContainerOrWindowName;
+		}
+		return null;
 	}
 
 	public void setParentWindowName(String parentWindowName)
 	{
-		this.parentWindowName = parentWindowName;
+		this.parentContainerOrWindowName = parentWindowName;
 	}
 
 
@@ -851,13 +849,13 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 	@Override
 	public String getContainerName()
 	{
-		if (parentContainer != null && parentContainer.getParent() != null)
+		if (parentContainerOrWindowName instanceof String)
 		{
-			return parentContainer.getParent().getContainerName();
+			return (String)parentContainerOrWindowName;
 		}
-		if (parentWindowName != null)
+		if (parentContainerOrWindowName instanceof WebComponent && ((WebComponent)parentContainerOrWindowName).getParent() != null)
 		{
-			return parentWindowName;
+			return ((WebComponent)parentContainerOrWindowName).getParent().getContainerName();
 		}
 		return null;
 	}
