@@ -27,6 +27,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
+import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeImageMedia;
 
@@ -74,6 +75,15 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 			}
 			jComponent.scrollRectToVisible(rect);
 		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				((ISupportScroll)c).setScroll(x, y);
+				getChangesRecorder().setChanged();
+			}
+		}
 	}
 
 	public int getScrollX()
@@ -81,6 +91,14 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 		if (jComponent != null)
 		{
 			return jComponent.getVisibleRect().x;
+		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				return ((ISupportScroll)c).getScroll().x;
+			}
 		}
 		return 0;
 	}
@@ -90,6 +108,14 @@ public class RuntimeMediaField extends AbstractRuntimeField<IFieldComponent> imp
 		if (jComponent != null)
 		{
 			return jComponent.getVisibleRect().y;
+		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				return ((ISupportScroll)c).getScroll().y;
+			}
 		}
 		return 0;
 	}

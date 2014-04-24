@@ -28,6 +28,7 @@ import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 import com.servoy.j2db.ui.ISupportEditProvider;
 import com.servoy.j2db.ui.ISupportInputSelection;
+import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.runtime.HasRuntimeScroll;
 import com.servoy.j2db.ui.runtime.HasRuntimeTextInput;
 import com.servoy.j2db.ui.runtime.IRuntimeInputComponent;
@@ -90,6 +91,15 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 			}
 			textComponent.scrollRectToVisible(rect);
 		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				((ISupportScroll)c).setScroll(x, y);
+				getChangesRecorder().setChanged();
+			}
+		}
 	}
 
 	public int getScrollX()
@@ -97,6 +107,14 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		if (textComponent != null)
 		{
 			return textComponent.getVisibleRect().x;
+		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				return ((ISupportScroll)c).getScroll().x;
+			}
 		}
 		return 0;
 	}
@@ -106,6 +124,14 @@ public abstract class AbstractRuntimeTextComponent<C extends IFieldComponent, T 
 		if (textComponent != null)
 		{
 			return textComponent.getVisibleRect().y;
+		}
+		else
+		{
+			Object c = getComponent();
+			if (c instanceof ISupportScroll)
+			{
+				return ((ISupportScroll)c).getScroll().y;
+			}
 		}
 		return 0;
 	}

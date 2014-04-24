@@ -1950,6 +1950,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		clickTimer: null,
 		clickTimerRunning: false,
 		downArrow: null,
+		scrollTimer: null,
 		
 		startClickTimer: function(f)
 		{
@@ -2384,6 +2385,30 @@ if (typeof(Servoy.Utils) == "undefined")
 	  
 	  getArrowParams: function(e) {
 		return '&downArrow='+(Servoy.Utils.downArrow ? "true" : "false");
+	  },
+	  
+	  getScrollPosition: function(elId) {
+		  var jqEl = $('#' + elId);
+		  return {x: jqEl.scrollLeft(), y: jqEl.scrollTop()};
+	  },
+	  
+	  setScrollPosition: function(elId, x, y) {
+		  var jqEl = $('#' + elId);
+		  jqEl.scrollLeft(x);
+		  jqEl.scrollTop(y);		  
+	  },
+	  
+	  onScroll: function(elId, callbackUrl) {
+    	  if(Servoy.Utils.scrollTimer) clearTimeout(Servoy.Utils.scrollTimer);
+    	  Servoy.Utils.scrollTimer = setTimeout(function() {
+        	  wicketAjaxGet
+        	  (					
+        			  callbackUrl+'&x='+Servoy.Utils.getScrollPosition(elId).x+'&y='+Servoy.Utils.getScrollPosition(elId).y,
+        			  null,
+        			  function() { onAjaxError(); }.bind($('#' + elId).get(0)),
+        			  function() { return Wicket.$(elId) != null; }.bind($('#' + elId).get(0))
+        	  );
+    	  }, 500);
 	  }
 	}
 }
@@ -3112,6 +3137,7 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 {
 	Servoy.HTMLEdit = 
 	{
+		scrollTimer : null,
 		ServoyTinyMCESettings : {
 			menubar : false,
 			statusbar : false,
@@ -3120,7 +3146,7 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 			toolbar: 'fontselect fontsizeselect | bold italic underline | superscript subscript | undo redo |alignleft aligncenter alignright alignjustify | styleselect | outdent indent bullist numlist'
 		},
 		
-		attach: function (wrapperId,editorId,editable,configuration,defaultConfiguration)
+		attach: function (wrapperId,editorId,editable,configuration,defaultConfiguration,scrollX,scrollY,scrollCallback)
 		{
 			Servoy.HTMLEdit.ServoyTinyMCESettings.selector = '#'+editorId;
 			Servoy.HTMLEdit.ServoyTinyMCESettings.readonly = editable ? false : true;
@@ -3137,6 +3163,22 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 						// strange ie8 issue
 						eval(textarea.onsubmit)
 					}
+				});
+				editor.on('init', function() {
+			          $(editor.getWin()).scrollLeft(scrollX);
+			          $(editor.getWin()).scrollTop(scrollY);
+			          $(editor.getWin()).scroll(function(){
+			        	  if(Servoy.HTMLEdit.scrollTimer) clearTimeout(Servoy.HTMLEdit.scrollTimer);
+			        	  Servoy.HTMLEdit.scrollTimer = setTimeout(function() {
+				        	  wicketAjaxGet
+				        	  (					
+				        			  scrollCallback+'&x='+$(editor.getWin()).scrollLeft()+'&y='+$(editor.getWin()).scrollTop(),
+				        			  null,
+				        			  function() { onAjaxError(); }.bind($('#' + wrapperId).get(0)),
+				        			  function() { return Wicket.$(wrapperId) != null; }.bind($('#' + wrapperId).get(0))
+				        	  );
+			        	  }, 500);
+			          });
 				});
 			};
 			if (defaultConfiguration)

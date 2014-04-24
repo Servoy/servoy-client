@@ -32,6 +32,7 @@ import javax.swing.border.Border;
 import javax.swing.text.Document;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -59,6 +60,7 @@ import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportInputSelection;
 import com.servoy.j2db.ui.ISupportOnRender;
+import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
@@ -72,7 +74,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection,
-	IOwnTabSequenceHandler, ISupportSpecialClientProperty, ISupportOnRender
+	IOwnTabSequenceHandler, ISupportSpecialClientProperty, ISupportOnRender, ISupportScroll
 {
 	public static final String htmlTextStartTags = "<html><body>";
 	public static final String htmlTextEndTags = "</body></html>";
@@ -89,6 +91,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	private final IApplication application;
 	private final WebEventExecutor eventExecutor;
 	private final TextArea textArea;
+	private final AbstractServoyDefaultAjaxBehavior scrollBehavior;
 
 	public WebDataHtmlArea(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
@@ -163,6 +166,15 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		tabIndexAttributeModifier = new TabIndexAttributeModifier(-1);
 		textArea.add(tabIndexAttributeModifier);
 		textArea.add(new StyleAppendingModifier(new Model<String>("visibility:hidden")));
+		add(scrollBehavior = new AbstractServoyDefaultAjaxBehavior()
+		{
+			@Override
+			protected void respond(AjaxRequestTarget target)
+			{
+				WebDataHtmlArea.this.setScroll(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("x")),
+					Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("y")));
+			}
+		});
 	}
 
 	/**
@@ -175,7 +187,8 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		IHeaderResponse response = container.getHeaderResponse();
 		String defaultConfiguration = (String)application.getClientProperty(IApplication.HTML_EDITOR_CONFIGURATION);
 		String script = "Servoy.HTMLEdit.attach('" + getMarkupId() + "','" + textArea.getMarkupId() + "'," + (isEnabled() && !isReadOnly()) + "," +
-			(configuration != null ? configuration : null) + "," + (defaultConfiguration != null ? defaultConfiguration : null) + ");";
+			(configuration != null ? configuration : null) + "," + (defaultConfiguration != null ? defaultConfiguration : null) + "," + scroll.x + "," +
+			scroll.y + ",'" + scrollBehavior.getCallbackUrl() + "');";
 		response.renderOnLoadJavascript(script);
 	}
 
@@ -811,5 +824,41 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	public String getEditorID()
 	{
 		return textArea.getMarkupId();
+	}
+
+	private final Point scroll = new Point(0, 0);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
+	 */
+	@Override
+	public void setScroll(int x, int y)
+	{
+		scroll.x = x;
+		scroll.y = y;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
+	 */
+	@Override
+	public Point getScroll()
+	{
+		return scroll;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
+	 */
+	@Override
+	public String getScrollComponentMarkupId()
+	{
+		return null;
 	}
 }

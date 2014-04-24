@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
+import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
@@ -43,7 +45,7 @@ import com.servoy.j2db.util.Utils;
  * 
  * @author jcompagner
  */
-public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, ISupportScriptCallback
+public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, ISupportScriptCallback, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 
@@ -55,6 +57,7 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		setHorizontalAlignment(SwingConstants.LEFT);
 		setVerticalAlignment(SwingConstants.TOP);
 		setEscapeModelStrings(false);
+		add(new ScrollBehavior(this));
 	}
 
 	/**
@@ -279,5 +282,41 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 		{
 			setTagText(application.getI18NMessageIfPrefixed(title));
 		}
+	}
+
+	private final Point scroll = new Point(0, 0);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
+	 */
+	@Override
+	public void setScroll(int x, int y)
+	{
+		scroll.x = x;
+		scroll.y = y;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
+	 */
+	@Override
+	public Point getScroll()
+	{
+		return scroll;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
+	 */
+	@Override
+	public String getScrollComponentMarkupId()
+	{
+		return getMarkupId();
 	}
 }
