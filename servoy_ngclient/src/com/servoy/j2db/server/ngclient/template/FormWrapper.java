@@ -85,6 +85,15 @@ public class FormWrapper
 		return WebGridFormUI.PAGE_SIZE;
 	}
 
+	public int getHeaderHeight()
+	{
+		if (form.hasPart(Part.HEADER))
+		{
+			return 0;
+		}
+		return WebGridFormUI.HEADER_HEIGHT;
+	}
+
 	public Collection<Part> getParts()
 	{
 		List<Part> parts = new ArrayList<>();

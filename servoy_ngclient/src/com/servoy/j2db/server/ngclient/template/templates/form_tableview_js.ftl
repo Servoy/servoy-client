@@ -158,6 +158,7 @@
 	multiSelect: false,
 	enablePaging: true,
 	showFooter: true,
+	headerRowHeight: ${headerHeight},
 	totalServerItems: 'model..totalRows',
 	pagingOptions: $scope.pagingOptions,
 	primaryKey: '_svy_pk',

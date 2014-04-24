@@ -45,6 +45,7 @@ import com.servoy.j2db.util.Debug;
 public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 {
 	public static final int PAGE_SIZE = 25;
+	public static final int HEADER_HEIGHT = 30;
 
 	private final IWebFormController formController;
 	private final INGApplication application;
