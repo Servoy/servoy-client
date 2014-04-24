@@ -6,13 +6,6 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
         model: "=svyModel",
         handlers: "=svyHandlers"
       },
-      link: function($scope, $element, $attrs) {  
-    	  
-    	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
-    		  if(!newVal) return;
-    		  if ($scope.slider_api.setValue) $scope.slider_api.setValue(-1*newVal );
-    	  })    	  
-      },
       controller: function($scope)
       {
     	  $scope.slider_model = {};
@@ -38,11 +31,14 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
     		  if ($scope.model)
     		  {
 	    		  var model = $scope.model;
-	    		  $scope.slider_model.dataProviderID = -1*model.currentIndex;
 	    		  $scope.slider_model.min = model.maxIndex > 0? -1*model.maxIndex:0;
 	        	  $scope.slider_model.max = model.maxIndex > 0? -1:0;
     		  }    		  
     	  });
+    	  $scope.$watch('model.currentIndex', function (newVal, oldVal, scope) {
+    		  if(!newVal) return;
+    	      $scope.slider_model.dataProviderID = -1*newVal;
+    	  })    	  
       },
       templateUrl: 'servoydefault/navigator/navigator.html',
       replace: true

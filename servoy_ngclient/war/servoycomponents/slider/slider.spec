@@ -21,10 +21,4 @@ handlers:
     onSlideMethodID: 'function',
 	onStartMethodID: 'function',
 	onStopMethodID: 'function',
-},
-api:
-{
-	setValue:{ 
-       parameters:[{'val':'int'}]
-    }
 }

@@ -9,7 +9,7 @@ angular.module('slider',['servoy','ui.slider']).directive('slider', function() {
                api: "=svyApi"
            },
            templateUrl : 'servoycomponents/slider/slider.html',
-           controller: function($scope, $element, $attrs, $parse) {
+           controller: function($scope, $element, $attrs, $parse, $timeout) {
         	   var properties = ['max', 'min', 'step', 'animate', 'enabled', 'orientation', 'range'];
         	   angular.forEach(properties, function(property) {
         		   $scope.$watch("model." + property, function (newVal, oldVal, scope) 
@@ -71,13 +71,23 @@ angular.module('slider',['servoy','ui.slider']).directive('slider', function() {
         		   $scope.options.change = slideChange;
         	   }
         	   
-        	   $scope.api.setValue = function(val) {
-        		   $element.slider( "value", val );
-        	   }
+        	   $scope.sliderValue = $scope.model.dataProviderID;
         	   
         	   $scope.$watch('model.dataProviderID', function() {
-        		   $scope.svyApply('dataProviderID')
+        	   		// a watch on the dataprovider to push it to the ui value when dataprovider from server is changed
+        		   // set it through a timeout so that it is always later then a max or min setting if that is done at the same time
+         	      $timeout(function(){
+         	      	$scope.sliderValue = $scope.model.dataProviderID;
+         	      });
         	   })
+        	   
+        	   $scope.$watch('sliderValue', function(newVal) {
+        	    if ($scope.model.dataProviderID  !=  $scope.sliderValue) {
+        	   		// the ui value is changed, push it into the dataprovider model and call apply
+        	     	$scope.model.dataProviderID = $scope.sliderValue;
+        	     	$scope.svyApply('dataProviderID')
+        	     }
+        	    });
         	   
         	   $element.slider($scope.options);
         	   
