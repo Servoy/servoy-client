@@ -18,6 +18,12 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
     	  $scope.slider_model = {};
     	  $scope.slider_handlers = {};
     	  $scope.slider_api = {};
+    	  
+    	  $scope.setIndex =  function (idx){
+    		  var i = parseInt(idx)
+    		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
+    	  }
+    	  
     	  $scope.$watch('model.maxIndex', function (newVal, oldVal, scope) 
     	  {
     		  if ($scope.model)
@@ -30,8 +36,7 @@ angular.module('svyNavigator',['servoy','slider']).directive('svyNavigator', fun
 	        	  $scope.slider_model.range = 'max';
 	        	  $scope.slider_handlers.svyApply = $scope.handlers.svy_apply;
 	        	  $scope.slider_handlers.onStopMethodID = function(event, value) {
-	        		  var i = parseInt(value)
-	        		  $scope.handlers.setSelectedIndex(window.Math.abs(i));
+	        		  $scope.setIndex(value);
 	        	  };
     		  }    		  
     	  });

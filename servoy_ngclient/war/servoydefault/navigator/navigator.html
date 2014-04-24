@@ -3,6 +3,6 @@
 		<slider svy-model="slider_model" svy-handlers="slider_handlers" svy-apply="slider_handlers.svyApply" svy-api="slider_api"></slider>
 	</div>
     <div class="svy-nav-input">
-		 <input type="text" ng-model="model.currentIndex" style="width:100%">
+		 <input type="text" ng-model="model.currentIndex" ng-blur="setIndex(model.currentIndex)" style="width:100%">
     </div>
 </div>
