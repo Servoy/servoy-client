@@ -1,14 +1,24 @@
 <html xmlns:servoy>
 <head>
     <title>Upload</title>
+    <link rel="stylesheet" type="text/css" href="/servoy-webclient/templates/default/servoy_web_client_default.css">
+    <style> 
+    	body, input, button, select, td, th, textarea {
+     		font-size: 13px;
+   		}
+   		body{
+   		 margin: 8px;
+   		}
+    </style>
 </head>
-<body>
+<body class='media-upload'>
     <form servoy:id="form">
 	 <fieldset>
 	 	<legend><span servoy:id="uploadtitle">Upload form</span></legend>
-    	<span servoy:id="panel"/>
+    	<span servoy:id="panel" class="media-upload-input-section"></span>
 	 </fieldset>
     </form>
-    <div servoy:id="feedback"></div>
+    <div servoy:id="feedback" class="media-upload-feedback"></div>
+    
 </body>
 </html>
