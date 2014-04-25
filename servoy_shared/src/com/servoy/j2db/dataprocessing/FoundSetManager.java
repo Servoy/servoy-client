@@ -1587,7 +1587,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					}
 					if (columnName != null)
 					{
-						SortColumn sc = getSortColumn(t, Utils.toEnglishLocaleLowerCase(columnName));
+						SortColumn sc = getSortColumn(t, Utils.toEnglishLocaleLowerCase(columnName), true);
 						if (sc != null)
 						{
 							if (order != null && order.trim().toLowerCase().startsWith("desc")) //$NON-NLS-1$
@@ -1625,7 +1625,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 
-	public SortColumn getSortColumn(ITable table, String dataProviderID) throws RepositoryException
+	public SortColumn getSortColumn(ITable table, String dataProviderID, boolean logIfCannotBeResolved) throws RepositoryException
 	{
 		if (table == null || dataProviderID == null) return null;
 
@@ -1650,7 +1650,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			if (reason != null)
 			{
-				Debug.log("Cannot sort on dataprovider " + dataProviderID + ", " + reason, new Exception(split[i]));
+				if (logIfCannotBeResolved) Debug.log("Cannot sort on dataprovider " + dataProviderID + ", " + reason, new Exception(split[i]));
 				return null;
 			}
 			relations.add(r);
@@ -1669,23 +1669,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return new SortColumn(c, relations.size() == 0 ? null : relations.toArray(new Relation[relations.size()]));
 		}
 		return null;
-	}
-
-	public boolean isColumnSortable(ITable table, String dataProviderID) throws RepositoryException
-	{
-		if (table == null || dataProviderID == null) return false;
-
-		Table lastTable = (Table)table;
-
-		String[] split = dataProviderID.split("\\."); //$NON-NLS-1$
-		for (int i = 0; i < split.length - 1; i++)
-		{
-			Relation r = application.getFlattenedSolution().getRelation(split[i]);
-			if (r == null || !r.isUsableInSort() || !lastTable.equals(getTable(r.getPrimaryDataSource()))) return false;
-			lastTable = (Table)getTable(r.getForeignDataSource());
-		}
-
-		return true;
 	}
 
 /*

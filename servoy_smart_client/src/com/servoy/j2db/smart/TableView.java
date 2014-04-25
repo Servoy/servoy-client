@@ -1259,8 +1259,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 									try
 									{
 										FoundSetManager fsm = (FoundSetManager)foundset.getFoundSetManager();
-										existingSc = fsm.isColumnSortable(foundset.getTable(), sortingProvider) ? fsm.getSortColumn(foundset.getTable(),
-											sortingProvider) : null;
+										existingSc = fsm.getSortColumn(foundset.getTable(), sortingProvider, false);
 									}
 									catch (Exception e)
 									{
