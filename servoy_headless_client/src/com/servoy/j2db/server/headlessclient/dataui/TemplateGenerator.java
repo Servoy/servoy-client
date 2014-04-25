@@ -1853,8 +1853,27 @@ public class TemplateGenerator
 		styleObj = css.addStyle(":-moz-placeholder");
 		styleObj.setProperty("color", "#aaaaaa");
 
+		// IMAGE MEDIA action buttons style
+		styleObj = css.addStyle(".image-media-save");
+		styleObj.setProperty("width", "16px");
+		styleObj.setProperty("height", "16px");
+		styleObj.setProperty("cursor", "pointer");
+		styleObj.setProperty("background-color", "gray");
+		styleObj.setProperty("z-index", "1");
+		styleObj = css.addStyle(".image-media-upload");
+		styleObj.setProperty("width", "16px");
+		styleObj.setProperty("height", "16px");
+		styleObj.setProperty("cursor", "pointer");
+		styleObj.setProperty("background-color", "gray");
+		styleObj.setProperty("z-index", "1");
+		styleObj = css.addStyle(".image-media-remove");
+		styleObj.setProperty("width", "16px");
+		styleObj.setProperty("height", "16px");
+		styleObj.setProperty("cursor", "pointer");
+		styleObj.setProperty("background-color", "gray");
+		styleObj.setProperty("z-index", "1");
 
-//		div.wicket-modal div.w_undecorated div.w_caption
+		//		div.wicket-modal div.w_undecorated div.w_caption
 		return css.toString();
 	}
 
@@ -2728,23 +2747,23 @@ public class TemplateGenerator
 				html.append('>');
 
 				TextualStyle inline2 = new TextualStyle();
-				inline2.setProperty("top", "1px");
-				inline2.setProperty("left", "1px");
-				inline2.setProperty("position", "absolute");
-				inline2.setProperty("cursor", "pointer");
-				inline2.setProperty("background-color", "gray");
+				//inline2.setProperty("top", "1px");
+				//inline2.setProperty("left", "1px");
+				//inline2.setProperty("position", "absolute");
+				//inline2.setProperty("cursor", "pointer");
+				//inline2.setProperty("background-color", "gray");
 				inline2.setProperty("z-index", "1");
 				html.append("<img ");
 				html.append(inline2.toString());
-				html.append(" border=0 servoy:id='save_icon' src='#' alt='Save' />");
+				html.append(" border=0 servoy:id='save_icon' src='#' class='image-media-save' alt='Save' />");
 				html.append("<img ");
-				inline2.setProperty("left", "17px");
+				//	inline2.setProperty("left", "17px");
 				html.append(inline2.toString());
-				html.append(" border=0 servoy:id='upload_icon' src='#' alt='Upload' />");
+				html.append(" border=0 servoy:id='upload_icon' src='#' class='image-media-upload' alt='Upload' />");
 				html.append("<img ");
-				inline2.setProperty("left", "33px");
+				//inline2.setProperty("left", "33px");
 				html.append(inline2.toString());
-				html.append(" border=0 servoy:id='remove_icon' src='#' alt='Remove' />");
+				html.append(" border=0 servoy:id='remove_icon' src='#' class='image-media-remove' alt='Remove' />");
 //					html.append("<a ");
 //					html.append(inline2.toString());
 //					html.append(" servoy:id='upload' href='#' border=0><img servoy:id='upload_icon' src='#' alt='' /></a>");
