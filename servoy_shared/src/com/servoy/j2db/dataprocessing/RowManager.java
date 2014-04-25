@@ -825,7 +825,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate, fsm.getTableFilterParams(
 				sheet.getServerName(), sqlUpdate), requerySelect);
-			statement.setExpectedUpdateCount(1); // check that the row is updated
+			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for inert)
 			if (changedColumns != null)
 			{
 				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
