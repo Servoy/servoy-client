@@ -1771,6 +1771,11 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	{
 		if (mainSolution != null)
 		{
+			if (copySolution != null)
+			{
+				IPersist persist = AbstractRepository.searchPersist(copySolution, uuid);
+				if (persist != null) return persist;
+			}
 			IPersist persist = AbstractRepository.searchPersist(mainSolution, uuid);
 			if (persist != null)
 			{
