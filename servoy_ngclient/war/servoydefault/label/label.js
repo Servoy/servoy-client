@@ -20,7 +20,7 @@ angular.module('svyLabel',['servoy'])
     	  $element.html($templateCache.get($scope.model.labelFor && ($attrs.headercell == undefined) ? "template/servoydefault/label/labelfor.html" : "template/servoydefault/label/label.html"));
           $compile($element.contents())($scope);
     	  
-          $scope.style = {width:'100%',height:'100%',overflow:'hidden'}
+          $scope.style = {width:'100%',height:'100%',overflow:'hidden',position:'absolute'}
           
       },
       replace: true
