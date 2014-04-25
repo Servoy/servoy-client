@@ -142,10 +142,10 @@ webSocketModule.factory('$webSocket',
 				this.onopen = function() {
 					$log.info('Info: WebSocket connection opened.');
 				}
-				this.onerror = function() {
+				this.onerror = function(message) {
 					$log.error('Error: WebSocket on error: ' + message);
 				}
-				this.onclose = function() {
+				this.onclose = function(message) {
 					$log.info('Info: WebSocket on close, code: ' + message.code
 							+ ' , reason: ' + message.reason);
 				}
@@ -184,17 +184,17 @@ webSocketModule.factory('$webSocket',
 					websocket = new WebSocket(new_uri);
 
 					var wsSession = new WebsocketSession()
-					websocket.onopen = function() {
+					websocket.onopen = function(evt) {
 						if (wsSession.onopen)
-							wsSession.onopen()
+							wsSession.onopen(evt)
 					}
-					websocket.onerror = function() {
+					websocket.onerror = function(evt) {
 						if (wsSession.onerror)
-							wsSession.onerror()
+							wsSession.onerror(evt)
 					}
-					websocket.onclose = function() {
+					websocket.onclose = function(evt) {
 						if (wsSession.onclose)
-							wsSession.onclose()
+							wsSession.onclose(evt)
 					}
 					websocket.onmessage = function(message) {
 						handleMessage(wsSession, message)
