@@ -13,16 +13,8 @@ input[type=date] {
 }
 
 #mktipmsg {
-	padding: 2px;
-	background-color: #FFFFE1;
-	border: 1px solid #000000;
-	font-family: arial, helvetica, tahoma, sans-serif;
-	font-size: 11px;
-	color: #000000;
 	display: none;
 	position: absolute;
-	left:0px;
-	top:0px;
 }
 /*align labels for radios and check groups with input element*/
 label.svy-check-radio{
