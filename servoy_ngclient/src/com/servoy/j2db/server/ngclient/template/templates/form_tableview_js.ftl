@@ -54,7 +54,7 @@
 	$scope.pagingOptions = { pageSizes: [${pageSize}], pageSize: ${pageSize}, currentPage: 1};
 	$scope.$watch('pagingOptions', function (newVal, oldVal) {
 		if (newVal !== oldVal && newVal.currentPage !== $scope.model[''].currentPage) {
-			$servoy.sendRequest(JSON.stringify({cmd:'requestdata',formname:'${name}',currentPage:newVal.currentPage}));
+			$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',currentPage:newVal.currentPage});
 		}
 	}, true);
 	$scope.$watch('model..updatedRows', function (newVal, oldVal) {
@@ -138,7 +138,7 @@
 	$scope.selections = []; 
 	$scope.$watch('selections', function (newVal, oldVal) {
 		if (oldVal.length > 0 && (newVal[0]._svy_pk != oldVal[0]._svy_pk)) {
-			$servoy.sendRequest(JSON.stringify({cmd:'datapush',formname:'${name}',changes:{svy_pk:newVal[0]._svy_pk}}));
+			$servoyInternal.sendRequest({cmd:'datapush',formname:'${name}',changes:{svy_pk:newVal[0]._svy_pk}});
 		}
 	}, true);
 
@@ -148,6 +148,20 @@
 			$scope.grid${controllerName}.selectItem($scope.model[''].selectedIndex, true);
 			});
 		}
+	}, false);
+	
+	function enableDisablePaging(totalRows, pageSize)
+	{
+		 var show = parseInt(totalRows) > parseInt(pageSize);
+		 $scope.grid${controllerName}.$gridScope.enablePaging = show;
+		 $scope.grid${controllerName}.$gridScope.showFooter = show;
+		 $scope.grid${controllerName}.$gridScope.footerRowHeight = show ? $scope.grid${controllerName}.$gridScope.config.footerRowHeight : 0
+	}
+	$scope.$watch('model..totalRows', function (newVal, oldVal) {
+		if (newVal !== oldVal) enableDisablePaging(newVal, $scope.pagingOptions.pageSize);
+	}, false);
+	$scope.$watch('pagingOptions.pageSize', function (newVal, oldVal) {
+		if (newVal !== oldVal) enableDisablePaging($scope.model[''].totalRows, newVal);
 	}, false);
 
 	$scope.grid${controllerName} = {

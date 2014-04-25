@@ -314,12 +314,15 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	            	  if (property) {
 	            		  data[property] = formStates[formName].model[beanname][property];
 	            	  }
-	            	  
 	            	  var cmd = {cmd:'event',formname:formName,beanname:beanname,event:eventName,args:newargs,changes:data}
 	            	  if (svy_pk) cmd.svy_pk = svy_pk
 	            	  return wsSession.sendDeferredMessage(cmd)
 	              },
 	          }
+	       },
+	       
+	       sendRequest: function(stringifyjson) {
+	    	   wsSession.sendMessageObject(stringifyjson);
 	       },
 
 	       sendChanges: function(now,prev,formname,beanname) {
