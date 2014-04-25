@@ -97,7 +97,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Instances of this clas should only exist as long as the duration of a solution!
- * 
+ *
  * @author jblok, jcompagner
  */
 public class ScriptEngine implements IScriptSupport
@@ -332,7 +332,6 @@ public class ScriptEngine implements IScriptSupport
 			toplevelScope.setSealReadOnly(false);
 			for (Class< ? > element : allReturnedTypes)
 			{
-				application.updateUI(1); // helps SC not freeze and it should not sleep at all, only process UI events if available for max 1 ms
 				if (!(Scriptable.class.isAssignableFrom(element)))
 				{
 					ScriptObjectRegistry.getJavaMembers(element, toplevelScope);
@@ -477,7 +476,7 @@ public class ScriptEngine implements IScriptSupport
 
 						public ScriptMethod getScriptMethod(int methodId)
 						{
-							return null; // is not used for calculations 
+							return null; // is not used for calculations
 						}
 					});
 					tableScopes.put(table, tableScope);
@@ -555,7 +554,7 @@ public class ScriptEngine implements IScriptSupport
 	protected Function compileScriptProvider(IScriptProvider sp, Scriptable scope, Context cx, String sourceName)
 	{
 		String declaration = sp.getDeclaration();
-		// for script calcs we change the name a bit so that references to itself 
+		// for script calcs we change the name a bit so that references to itself
 		// dont return the calc function itself but still the value.
 		if (sp instanceof ScriptCalculation)
 		{
@@ -571,7 +570,7 @@ public class ScriptEngine implements IScriptSupport
 		{
 			if (sp.getScopeName() != null)
 			{
-				f.put("_scopename_", f, sp.getScopeName()); //$NON-NLS-1$				
+				f.put("_scopename_", f, sp.getScopeName()); //$NON-NLS-1$
 			}
 			f.put("_methodname_", f, sp.getDataProviderID()); //$NON-NLS-1$
 			f.put(
@@ -684,7 +683,7 @@ public class ScriptEngine implements IScriptSupport
 		try
 		{
 			Object o = null;
-			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$ 
+			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$
 			if (compileFunction instanceof NativeFunction)
 			{
 				o = cx.evaluateString(ScriptRuntime.createFunctionActivation((NativeFunction)compileFunction, scope, null), eval_string,
