@@ -289,7 +289,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 								boolean isVisible = obj.getBoolean("visible");
 								boolean ok = form.notifyVisible(isVisible, invokeLaterRunnables);
-								Utils.invokeLater(client, invokeLaterRunnables);
 								if (ok && obj.has("parentForm") && !obj.isNull("parentForm"))
 								{
 									IWebFormController parentForm = client.getFormManager().getForm(obj.getString("parentForm"));
@@ -305,6 +304,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 										form.loadRecords(selectedRecord.getRelatedFoundSet(obj.getString("relation")));
 									}
 								}
+								Utils.invokeLater(client, invokeLaterRunnables);
 								getActiveWebsocketEndpoint().sendResponse(obj.get("cmsgid"), Boolean.valueOf(ok), true);
 							}
 							catch (Exception e)
