@@ -51,6 +51,14 @@
 		}
 	}, false);
 	
+	$scope.rowHeight = 0;
+	for (bc in beans)
+	{ 
+		if (bc == "svy_default_navigator") continue;
+		var height = $scope.model[bc].size.height;
+		if ($scope.rowHeight < height) $scope.rowHeight = height
+	}
+	
 	$scope.pagingOptions = { pageSizes: [${pageSize}], pageSize: ${pageSize}, currentPage: 1};
 	$scope.$watch('pagingOptions', function (newVal, oldVal) {
 		if (newVal !== oldVal && newVal.currentPage !== $scope.model[''].currentPage) {
@@ -150,29 +158,31 @@
 		}
 	}, false);
 	
-	function enableDisablePaging(totalRows, pageSize)
-	{
-		 var show = parseInt(totalRows) > parseInt(pageSize);
-		 $scope.grid${controllerName}.$gridScope.enablePaging = show;
-		 $scope.grid${controllerName}.$gridScope.showFooter = show;
-		 $scope.grid${controllerName}.$gridScope.footerRowHeight = show ? $scope.grid${controllerName}.$gridScope.config.footerRowHeight : 0
-	}
-	$scope.$watch('model..totalRows', function (newVal, oldVal) {
-		if (newVal !== oldVal) enableDisablePaging(newVal, $scope.pagingOptions.pageSize);
+	
+	$scope.$watch('model..totalRows', function (newVal, oldVal) {		
+		if (newVal !== oldVal)
+		{
+			 var rowsHeight = parseInt(newVal) * $scope.grid${controllerName}.$gridScope.rowHeight;
+			 var show =  rowsHeight > $scope.grid${controllerName}.$gridScope.viewportDimHeight();
+			 $scope.grid${controllerName}.$gridScope.enablePaging = show;
+			 $scope.grid${controllerName}.$gridScope.showFooter = show;
+			 if ($scope.grid${controllerName}.$gridScope.config)
+			 {
+			 	$scope.grid${controllerName}.$gridScope.footerRowHeight = show ? $scope.grid${controllerName}.$gridScope.config.footerRowHeight : 0
+			 }
+		}
 	}, false);
-	$scope.$watch('pagingOptions.pageSize', function (newVal, oldVal) {
-		if (newVal !== oldVal) enableDisablePaging($scope.model[''].totalRows, newVal);
-	}, false);
-
+	
 	$scope.grid${controllerName} = {
 	data: 'model..rows',
 	enableCellSelection: true,
 	enableRowSelection: true,
 	selectedItems: $scope.selections,
 	multiSelect: false,
-	enablePaging: true,
-	showFooter: true,
+	enablePaging: false,
+	showFooter: false,
 	headerRowHeight: ${headerHeight},
+	rowHeight: $scope.rowHeight,
 	totalServerItems: 'model..totalRows',
 	pagingOptions: $scope.pagingOptions,
 	primaryKey: '_svy_pk',
