@@ -321,8 +321,8 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	          }
 	       },
 	       
-	       sendRequest: function(stringifyjson) {
-	    	   wsSession.sendMessageObject(stringifyjson);
+	       sendRequest: function(objToStringify) {
+	    	   wsSession.sendMessageObject(objToStringify);
 	       },
 
 	       sendChanges: function(now,prev,formname,beanname) {
