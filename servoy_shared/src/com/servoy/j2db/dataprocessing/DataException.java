@@ -54,6 +54,12 @@ public class DataException extends ServoyException
 		super(errorCode, new Object[] { value });
 	}
 
+	public DataException(int errorCode, Object value, Exception cause)
+	{
+		this(errorCode, value);
+		initCause(cause);
+	}
+
 	// THIS METHOD IS REMOVED FROM InstanceJavaMethod WITH A HACK to keep compatibility with old ways :) - when ServoyException was not using js_...
 	/**
 	 * @sameas com.servoy.j2db.util.ServoyException#js_isServoyException()

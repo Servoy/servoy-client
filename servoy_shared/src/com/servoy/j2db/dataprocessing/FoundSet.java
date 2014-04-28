@@ -4061,7 +4061,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					catch (JavaScriptException e)
 					{
 						// update or insert method threw exception.
-						throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue());
+						throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue(), e);
 					}
 					catch (EcmaError e)
 					{
