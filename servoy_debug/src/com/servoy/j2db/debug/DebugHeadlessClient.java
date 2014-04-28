@@ -152,7 +152,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 
 
 	@Override
-	public IClientPluginAccess createClientPluginAccess()
+	protected IClientPluginAccess createClientPluginAccess()
 	{
 		return new ClientPluginAccessProvider(this)
 		{
@@ -390,7 +390,7 @@ public class DebugHeadlessClient extends SessionClient implements IDebugHeadless
 					{
 						detail = e;
 					}
-					msg += "\n > " + detail.toString(); // complete stack? 
+					msg += "\n > " + detail.toString(); // complete stack?
 					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
 					{
 						msg += '\n' + ((ServoyException)detail).getScriptStackTrace();

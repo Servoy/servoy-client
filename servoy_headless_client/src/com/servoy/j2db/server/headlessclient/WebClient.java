@@ -80,7 +80,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A client which uses the org.apache.wicket framework to render a GUI in a web browser
- * 
+ *
  * @author jcompagner
  */
 public class WebClient extends SessionClient implements IWebClientApplication
@@ -319,7 +319,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		WebRequest webRequest = ((WebRequestCycle)RequestCycle.get()).getWebRequest();
 
 		// calculate the base path (servlet path)
-		// it can be /path/ or /context/path/ or even just / if it is virtual hosted so try to get it from the url. 
+		// it can be /path/ or /context/path/ or even just / if it is virtual hosted so try to get it from the url.
 		String url = webRequest.getHttpServletRequest().getRequestURL().toString();
 		// first try to get to the first / of the root path, strip off http://domain:port
 		int index = url.indexOf("//");
@@ -664,7 +664,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		shuttingDown = true;
 		try
 		{
-			// first just execute all events that are waiting, but only when we are in request cycle 
+			// first just execute all events that are waiting, but only when we are in request cycle
 			if (RequestCycle.get() != null) executeEvents();
 
 			super.shutDown(force);
@@ -970,7 +970,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	}
 
 	@Override
-	public IClientPluginAccess createClientPluginAccess()
+	protected IClientPluginAccess createClientPluginAccess()
 	{
 		return new WebClientPluginAccessProvider(this);
 	}
@@ -1136,7 +1136,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 	private IEventDispatcher<WicketEvent> executor;
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("nls")
 	public final synchronized IEventDispatcher<WicketEvent> getEventDispatcher()

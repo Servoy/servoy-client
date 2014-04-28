@@ -18,21 +18,16 @@ package com.servoy.j2db.server.headlessclient;
 
 
 import java.awt.Dimension;
-import java.awt.Window;
 import java.awt.print.PageFormat;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLStreamHandler;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -51,10 +46,6 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
 
 import org.apache.wicket.Application;
@@ -63,7 +54,6 @@ import org.apache.wicket.protocol.http.WicketFilter;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IBeanManager;
@@ -72,18 +62,13 @@ import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
 import com.servoy.j2db.ILAFManager;
-import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.ModeManager;
 import com.servoy.j2db.RuntimeWindowManager;
-import com.servoy.j2db.cmd.ICmd;
-import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
-import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -97,13 +82,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.ScriptEngine;
-import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebItemFactory;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -121,19 +101,15 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.toolbar.IToolbarPanel;
-import com.servoy.j2db.util.toolbar.Toolbar;
 
 /**
  * A client which can be used in a jsp page or inside the org.apache.wicket framework as webclient
- * 
+ *
  * @author jblok
  */
-public class SessionClient extends ClientState implements ISessionClient, HttpSessionActivationListener
+public class SessionClient extends AbstractApplication implements ISessionClient, HttpSessionActivationListener
 {
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
-
-	protected final WebCredentials credentials;
 
 	protected Locale locale;
 
@@ -165,7 +141,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	protected SessionClient(ServletRequest req, WebCredentials credentials, String method, Object[] methodArgs, String solution) throws Exception
 	{
-		super();
+		super(credentials);
 		if (req instanceof HttpServletRequest)
 		{
 			session = ((HttpServletRequest)req).getSession();
@@ -178,7 +154,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		{
 			settings = Settings.getInstance();
 			((Settings)settings).loadUserProperties(defaultUserProperties);
-			this.credentials = credentials;
 
 			this.preferredSolutionMethodNameToCall = method;
 			this.preferredSolutionMethodArguments = methodArgs;
@@ -308,7 +283,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	}
 
 	/**
-	 * We can define this here to allow all server based client to run every solution type, 
+	 * We can define this here to allow all server based client to run every solution type,
 	 * while WebClient as exception uses SolutionLoader logic to load a SOLUTION|WEB_CLIENT_ONLY
 	 */
 	@Override
@@ -335,23 +310,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		}
 
 		// Note that getSolution() may return null at this point if the security.closeSolution() or security.logout() was called in onSolutionOpen
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IApplication#updateUI(int)
-	 */
-	public void updateUI(int time)
-	{
-		// no use for session/webclients/headless clients
-	}
-
-
-	@Override
-	protected SolutionMetaData showSolutionSelection(SolutionMetaData[] solutions)
-	{
-		return null;
 	}
 
 	@Override
@@ -451,7 +409,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/**
 	 * This method sets the service provider to this if needed. Will return the previous provider that should be set back later.
-	 * 
+	 *
 	 * @return previously set service provider.
 	 */
 	protected IServiceProvider testThreadLocals()
@@ -523,20 +481,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		messages.clear();
 	}
 
-	public void reportInfo(String message)
-	{
-		Debug.log(message);
-	}
-
-	@Override
-	protected void checkForActiveTransactions(boolean force)
-	{
-		if (foundSetManager != null)
-		{
-			foundSetManager.rollbackTransaction(true, false, true);
-		}
-	}
-
 	public void valueBound(HttpSessionBindingEvent e)
 	{
 	}
@@ -554,53 +498,10 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	}
 
 	@Override
-	public boolean isRunningRemote()
-	{
-		return false;
-	}
-
-	@Override
-	public URL getServerURL()
-	{
-		try
-		{
-			return new URL("http://localhost:" + ApplicationServerRegistry.get().getWebServerPort()); //$NON-NLS-1$
-		}
-		catch (MalformedURLException e)
-		{
-			Debug.error(e);
-			return null;
-		}
-	}
-
-	protected ICmdManager createCmdManager()
-	{
-		return null;
-	}
-
-	@Override
-	protected IModeManager createModeManager()
-	{
-		return new ModeManager(this);
-	}
-
-	@Override
-	public boolean saveSolution()
-	{
-		return true;//not needed here
-	}
-
-	@Override
 	protected void solutionLoaded(Solution s)
 	{
 		super.solutionLoaded(s);
 		J2DBGlobals.firePropertyChange(this, "solution", null, getSolution()); //$NON-NLS-1$
-	}
-
-	@Override
-	protected IExecutingEnviroment createScriptEngine()
-	{
-		return new ScriptEngine(this);
 	}
 
 	@Override
@@ -614,20 +515,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	protected IFormManagerInternal createFormManager()
 	{
 		return new WebFormManager(this, new DummyMainContainer(this));
-	}
-
-	@Override
-	public void showDefaultLogin() throws ServoyException
-	{
-		if (credentials.getUserName() != null && credentials.getPassword() != null)
-		{
-			authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
-		}
-		if (getClientInfo().getUserUid() == null)
-		{
-			shutDown(true);
-			throw new ApplicationException(ServoyException.INCORRECT_LOGIN);
-		}
 	}
 
 	//overridden ssl-rmi seems not to work localy
@@ -644,28 +531,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			reportError(Messages.getString("servoy.client.error.finding.dataservice"), ex); //$NON-NLS-1$
 			return false;
 		}
-	}
-
-	public IClientPluginAccess createClientPluginAccess()
-	{
-		return new ClientPluginAccessProvider(this);
-	}
-
-
-	@Override
-	protected void createPluginManager()
-	{
-		pluginManager = ApplicationServerRegistry.get().getPluginManager().createEfficientCopy(this);
-		pluginManager.init();
-		((PluginManager)pluginManager).initClientPlugins(this, (IClientPluginAccess)(pluginAccess = createClientPluginAccess()));
-		((FoundSetManager)getFoundSetManager()).setColumnManangers(pluginManager.getColumnValidatorManager(), pluginManager.getColumnConverterManager(),
-			pluginManager.getUIConverterManager());
-	}
-
-	@Override
-	protected void saveSettings()
-	{
-		//do nothing
 	}
 
 	protected ILAFManager createLAFManager()
@@ -828,7 +693,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 				if (!token.equals("foundset")) //$NON-NLS-1$
 				{
 					// todo why is this always also assigned to the datacontext?
-					// shouldnt the above if be: if (token.equals("foundset") && st.hasMoreTokes()) dataContext == st.nextToken(); 
+					// shouldnt the above if be: if (token.equals("foundset") && st.hasMoreTokes()) dataContext == st.nextToken();
 					// because now this data context will just be set to a form name if the contextName is just a form. (which in many cases it is defined like that)
 					dataContext = token;
 				}
@@ -1208,6 +1073,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		return timeZone == null ? TimeZone.getDefault() : timeZone;
 	}
 
+	@Override
 	public synchronized void setTimeZone(TimeZone zone)
 	{
 		if (timeZone != null && timeZone.equals(zone)) return;
@@ -1215,16 +1081,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		timeZone = zone;
 		J2DBGlobals.firePropertyChange(this, "timeZone", old, timeZone); //$NON-NLS-1$
 
-		ClientInfo clientInfo = getClientInfo();
-		clientInfo.setTimeZone(timeZone);
-		try
-		{
-			getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
+		super.setTimeZone(zone);
 	}
 
 	public synchronized IDataSet getValueListItems(String contextName, String valuelistName)
@@ -1296,8 +1153,8 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		return executing.isLocked();
 	}
 
-	// invoke later can't add it to a runnable or something. It is not the same thing as invokelater on 
-	// swing utilities where it still happens on the event thread but a bit later which can't be done in a web client. 
+	// invoke later can't add it to a runnable or something. It is not the same thing as invokelater on
+	// swing utilities where it still happens on the event thread but a bit later which can't be done in a web client.
 	@Override
 	protected void doInvokeLater(Runnable r)
 	{
@@ -1320,11 +1177,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		}
 	}
 
-	public void addURLStreamHandler(String protocolName, URLStreamHandler handler)
-	{
-		//ignore
-	}
-
 	public String getApplicationName()
 	{
 		return "Servoy Headless Client"; //$NON-NLS-1$
@@ -1333,22 +1185,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	public int getApplicationType()
 	{
 		return HEADLESS_CLIENT;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.servoy.j2db.IApplication#getOSName()
-	 */
-	public String getClientOSName()
-	{
-		return System.getProperty("os.name"); //$NON-NLS-1$
-	}
-
-	public int getClientPlatform()
-	{
-		// unknown client platform, overridden in WebClient
-		return Utils.PLATFORM_OTHER;
 	}
 
 	@Override
@@ -1384,186 +1220,11 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		return scheduledExecutorService;
 	}
 
-	private transient IBeanManager beanManager;
-
-	public IBeanManager getBeanManager()
-	{
-		if (beanManager == null)
-		{
-			beanManager = ApplicationServerRegistry.get().getBeanManager();
-		}
-		return beanManager;
-	}
-
-	private transient ICmdManager cmdManager;
-
-	public ICmdManager getCmdManager()
-	{
-		if (cmdManager == null)
-		{
-			cmdManager = new ICmdManager()
-			{
-				public void executeRegisteredAction(String name)
-				{
-				}
-
-				public void registerAction(String name, Action a)
-				{
-				}
-
-				public Action getRegisteredAction(String name)
-				{
-					return null;
-				}
-
-				public void executeCmd(ICmd c, EventObject ie)
-				{
-				}
-
-				public void init()
-				{
-				}
-
-				public void flushCachedItems()
-				{
-				}
-			};
-		}
-		return cmdManager;
-	}
-
-	public JMenu getExportMenu()
-	{
-		return null;
-	}
-
-	public JMenu getImportMenu()
-	{
-		return null;
-	}
-
-	public ILAFManager getLAFManager()
-	{
-		return null;
-	}
-
-	private transient IToolbarPanel toolbarPanel;
-
-	public IToolbarPanel getToolbarPanel()
-	{
-		if (toolbarPanel == null)
-		{
-			toolbarPanel = new IToolbarPanel()
-			{
-				public String[] getToolBarNames()
-				{
-					return new String[0];
-				}
-
-				public Toolbar createToolbar(String name, String displayName)
-				{
-					return null;
-				}
-
-				public Toolbar createToolbar(String name, String displayName, int wantedRow)
-				{
-					return null;
-				}
-
-				public void removeToolBar(String name)
-				{
-				}
-
-				public Toolbar getToolBar(String name)
-				{
-					return null;
-				}
-
-				public void setToolbarVisible(String name, boolean visible)
-				{
-				}
-			};
-		}
-		return toolbarPanel;
-	}
-
 	@Override
-	public void logout(Object[] solution_to_open_args)
-	{
-		if (getClientInfo().getUserUid() != null)
-		{
-			if (getSolution() != null && getSolution().requireAuthentication())
-			{
-				if (closeSolution(false, solution_to_open_args)) // don't shutdown if already closing; wait for the first closeSolution to finish
-				{
-					if (!isClosing)
-					{
-						shutDown(false);//no way to enter username password so shutdown
-					}
-					else
-					{
-						credentials.clear();
-						getClientInfo().clearUserInfo();
-					}
-				}
-			}
-			else
-			{
-				credentials.clear();
-				getClientInfo().clearUserInfo();
-			}
-		}
-	}
-
 	public void output(Object msg, int level)
 	{
-		if (level == DEBUG)
-		{
-			Debug.debug(msg);
-		}
-		else if (level == WARNING)
-		{
-			Debug.warn(msg);
-		}
-		else if (level == ERROR)
-		{
-			Debug.error(msg);
-		}
-		else if (level == FATAL)
-		{
-			Debug.fatal(msg);
-		}
-		else
-		{
-			Debug.log(msg);
-		}
+		super.output(msg, level);
 		if (outputChannel != null) outputChannel.info(msg != null ? msg.toString() : "NULL", level); //$NON-NLS-1$
-	}
-
-	public void registerWindow(String name, Window d)
-	{
-	}
-
-	public Window getWindow(String name)
-	{
-		return null;
-	}
-
-	public void setStatusProgress(int progress)
-	{
-	}
-
-	@Override
-	public void showSolutionLoading(boolean loading)
-	{
-	}
-
-	public void setStatusText(String text, String tooltip)
-	{
-	}
-
-	public void setTitle(String title)
-	{
 	}
 
 	public String getUserProperty(String a_name)
@@ -1608,7 +1269,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 	}
 
 	/**
-	 * Overwrite this method with an empty definition if the derived client doens't want user properties reset at solution close. 
+	 * Overwrite this method with an empty definition if the derived client doens't want user properties reset at solution close.
 	 */
 	protected void reinitializeDefaultProperties()
 	{
@@ -1659,37 +1320,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 		return null;
 	}
 
-	public JFrame getMainApplicationFrame()
-	{
-		return null;
-	}
-
-	public ImageIcon loadImage(String name)
-	{
-		return null;
-	}
-
-	public void reportWarningInStatus(String s)
-	{
-		reportWarning(s);
-	}
-
-	@Override
-	public void blockGUI(String reason)
-	{
-	}
-
-	@Override
-	public void releaseGUI()
-	{
-	}
-
-	@Override
-	protected void bindUserClient()
-	{
-		//not needed in headless
-	}
-
 	/**
 	 * @see com.servoy.j2db.ClientState#testClientRegistered(Object)
 	 */
@@ -1721,18 +1351,6 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	protected void unBindUserClient() throws Exception
-	{
-		//not needed in headless
-	}
-
-	@Override
-	public void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope)
-	{
-		//not needed cannot push to client
 	}
 
 	public ItemFactory getItemFactory()
@@ -1846,7 +1464,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
@@ -1856,7 +1474,7 @@ public class SessionClient extends ClientState implements ISessionClient, HttpSe
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
 	 */
 	@Override
