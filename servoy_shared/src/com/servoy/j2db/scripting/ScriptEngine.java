@@ -630,7 +630,7 @@ public class ScriptEngine implements IScriptSupport
 			}
 			catch (Exception ex)
 			{
-				if (scope instanceof TableScope || throwException || ex instanceof JavaScriptException)
+				if (scope instanceof TableScope || throwException)
 				{
 					throw ex;//is calc report back via other way
 				}
