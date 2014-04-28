@@ -441,6 +441,35 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		return $solutionSettings.navigatorForm.templateURL;
 	}
 	
+}).factory("$applicationService", function(webStorage) {
+	
+	return {
+		getUserProperty: function(key) {
+			var json = webStorage.local.get("userProperties");
+			if (json) {
+				return JSON.parse(json)[key];
+			}
+			return null;
+		},
+		setUserProperty: function(key,value) {
+			var obj = {}
+			var json = webStorage.local.get("userProperties");
+			if (json) {
+				obj = JSON.parse(json);
+			}
+			if (value == null) delete obj[key]
+			else obj[key] = value;
+			webStorage.local.add("userProperties", JSON.stringify(obj))
+		},
+		getUserPropertyNames: function() {
+			var json = webStorage.local.get("userProperties");
+			if (json) {
+				return Object.getOwnPropertyNames(JSON.parse(json));
+			}
+			return [];
+		}
+	}
+	
 }).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
 	var instances = {};
 	

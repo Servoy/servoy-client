@@ -2,6 +2,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
+import java.io.IOException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -14,43 +15,36 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.ImageIcon;
+import org.json.JSONArray;
 
-import com.servoy.j2db.ClientState;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
-import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IFormController;
-import com.servoy.j2db.ILAFManager;
-import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.ModeManager;
-import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.scripting.IExecutingEnviroment;
-import com.servoy.j2db.scripting.ScriptEngine;
-import com.servoy.j2db.scripting.StartupArguments;
+import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.headlessclient.eventthread.IEventDispatcher;
 import com.servoy.j2db.server.ngclient.eventthread.EventDispatcher;
 import com.servoy.j2db.server.ngclient.eventthread.NGEvent;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.RendererParentWrapper;
-import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
 
 // TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
 // then we can extend that one.
-public class NGClient extends ClientState implements INGApplication, IChangeListener
+public class NGClient extends AbstractApplication implements INGApplication, IChangeListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -60,13 +54,14 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 
 	private transient volatile ServoyScheduledExecutor scheduledExecutorService;
 
-	private transient IBeanManager beanManager;
-
 	private NGRuntimeWindowMananger runtimeWindowManager;
+
+	private Map<Object, Object> uiProperties;
 
 
 	public NGClient(INGClientWebsocketSession wsSession)
 	{
+		super(new WebCredentials());
 		this.wsSession = wsSession;
 		settings = Settings.getInstance();
 		try
@@ -81,6 +76,7 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 			Debug.error(e);
 		}
 	}
+
 
 	public void loadSolution(String solutionName) throws RepositoryException
 	{
@@ -148,40 +144,6 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	}
 
 	@Override
-	public void reportInfo(String msg)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Locale getLocale() // TODO provide actual Implementatin
-	{
-		return new Locale("en", "US");
-	}
-
-	@Override
-	public TimeZone getTimeZone()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setLocale(Locale locale)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setTimeZone(TimeZone timeZone)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	protected void doInvokeLater(Runnable r)
 	{
 		getEventDispatcher().addEvent(new NGEvent(this, r));
@@ -214,6 +176,32 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	}
 
 	@Override
+	public Locale getLocale() // TODO provide actual Implementatin
+	{
+		return new Locale("en", "US");
+	}
+
+	@Override
+	public void setLocale(Locale locale)
+	{
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public TimeZone getTimeZone()
+	{
+		// TODO get from actual client?
+		return null;
+	}
+
+	@Override
+	public void setTimeZone(TimeZone timeZone)
+	{
+		// TODO should this be remembered?
+		super.setTimeZone(timeZone);
+	}
+
+	@Override
 	public String getI18NMessage(String i18nKey)
 	{
 		// TODO Auto-generated method stub
@@ -242,6 +230,27 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	}
 
 	@Override
+	public void refreshI18NMessages()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setI18NMessagesFilter(String columnname, String[] value)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public ResourceBundle getResourceBundle(Locale locale)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	protected boolean startApplicationServerConnection()
 	{
 		try
@@ -257,45 +266,12 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	}
 
 	@Override
-	protected void bindUserClient()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	protected void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
 	{
 		if (loadSolutionsAndModules(solutionMeta))
 		{
 			J2DBGlobals.firePropertyChange(this, "solution", null, getSolution()); //$NON-NLS-1$
 		}
-	}
-
-	@Override
-	protected SolutionMetaData showSolutionSelection(SolutionMetaData[] solutions)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected void unBindUserClient() throws Exception
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected IExecutingEnviroment createScriptEngine()
-	{
-		return new ScriptEngine(this);
-	}
-
-	@Override
-	protected IModeManager createModeManager()
-	{
-		return new ModeManager(this);
 	}
 
 	@Override
@@ -362,173 +338,53 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	}
 
 	@Override
-	public boolean isRunningRemote()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public URL getServerURL()
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected void saveSettings()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void checkForActiveTransactions(boolean force)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean saveSolution()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected void createPluginManager()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void refreshI18NMessages()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void showDefaultLogin() throws ServoyException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void blockGUI(String reason)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void releaseGUI()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void reportWarningInStatus(String s)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public ImageIcon loadImage(String name)
-	{
-		// TODO Auto-generated method stub
-		return null;
+		// TODO get from actual client
+		return super.getServerURL();
 	}
 
 	@Override
 	public int getApplicationType()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return IApplication.NG_CLIENT;
 	}
 
 	@Override
 	public String getClientOSName()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		// TODO check the actual client
+		return super.getClientOSName();
 	}
 
 	@Override
 	public int getClientPlatform()
 	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void setStatusProgress(int progress)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setStatusText(String text, String tooltip)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void showSolutionLoading(boolean loading)
-	{
-		// not used
-	}
-
-	@Override
-	public ICmdManager getCmdManager()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IBeanManager getBeanManager()
-	{
-		if (beanManager == null)
-		{
-			beanManager = ApplicationServerRegistry.get().getBeanManager();
-		}
-		return beanManager;
+		// TODO check the actual client
+		return super.getClientPlatform();
 	}
 
 	@Override
 	public String getApplicationName()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return "Servoy NGClient";
 	}
 
 	@Override
 	public boolean putClientProperty(Object name, Object val)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		if (uiProperties == null)
+		{
+			uiProperties = new HashMap<Object, Object>();
+		}
+		uiProperties.put(name, val);
+		return true;
 	}
 
 	@Override
-	public Object getClientProperty(Object key)
+	public Object getClientProperty(Object name)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return (uiProperties == null) ? null : uiProperties.get(name);
 	}
 
 	@Override
@@ -538,118 +394,106 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 	}
 
 	@Override
-	public ILAFManager getLAFManager()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void output(Object msg, int level)
-	{
-		if (level == DEBUG)
-		{
-			Debug.debug(msg);
-		}
-		else if (level == WARNING)
-		{
-			Debug.warn(msg);
-		}
-		else if (level == ERROR)
-		{
-			Debug.error(msg);
-		}
-		else if (level == FATAL)
-		{
-			Debug.fatal(msg);
-		}
-		else
-		{
-			Debug.log(msg);
-		}
-	}
-
-	@Override
 	public ItemFactory getItemFactory()
 	{
-		// TODO Auto-generated method stub
+		// Not used in NGClient
 		return null;
 	}
 
 	@Override
 	public IDataRendererFactory getDataRenderFactory()
 	{
-		// TODO Auto-generated method stub
+		// Not used in NGClient
 		return null;
 	}
 
 	@Override
 	public RendererParentWrapper getPrintingRendererParent()
 	{
-		// TODO Auto-generated method stub
+		// Not used in NGClient
 		return null;
 	}
 
 	@Override
 	public PageFormat getPageFormat()
 	{
-		// TODO Auto-generated method stub
+		// Not used in NGClient
 		return null;
 	}
 
 	@Override
 	public void setPageFormat(PageFormat currentPageFormat)
 	{
-		// TODO Auto-generated method stub
-
+		// Not used in NGClient
 	}
 
 	@Override
 	public String getUserProperty(String name)
 	{
-		// TODO Auto-generated method stub
+		try
+		{
+			return (String)getWebsocketSession().executeServiceCall("$applicationService", "getUserProperty", new Object[] { name });
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error getting getting property '" + name + "'", e);
+		}
 		return null;
 	}
 
 	@Override
 	public void setUserProperty(String name, String value)
 	{
-		// TODO Auto-generated method stub
+		try
+		{
+			getWebsocketSession().executeServiceCall("$applicationService", "setUserProperty", new Object[] { name, value });
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error getting setting property '" + name + "' value: " + value, e);
+		}
 
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public String[] getUserPropertyNames()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		JSONArray result;
+		try
+		{
+			result = (JSONArray)getWebsocketSession().executeServiceCall("$applicationService", "getUserPropertyNames", null);
+			String[] names = new String[result.length()];
+			for (int i = 0; i < names.length; i++)
+			{
+				names[i] = result.optString(i);
+			}
+			return names;
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error getting user property names", e);
+		}
+		return new String[0];
 	}
 
 	@Override
-	public void setI18NMessagesFilter(String columnname, String[] value)
+	public void looseFocus()
 	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public ResourceBundle getResourceBundle(Locale locale)
-	{
-		// TODO Auto-generated method stub
-		return null;
+		// TODO call request focus on a div in a client?
 	}
 
 	@Override
 	public Dimension getScreenSize()
 	{
-		// TODO Auto-generated method stub
+		// TODO just call the client to get the size
 		return null;
 	}
 
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean onRootFrame)
 	{
-		// TODO Auto-generated method stub
+		// TODO call client directly with the options given here.
 		return false;
 	}
 
@@ -661,20 +505,6 @@ public class NGClient extends ClientState implements INGApplication, IChangeList
 			runtimeWindowManager = new NGRuntimeWindowMananger(this);
 		}
 		return runtimeWindowManager;
-	}
-
-	@Override
-	public void looseFocus()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateUI(int time)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public final synchronized IEventDispatcher<NGEvent> getEventDispatcher()

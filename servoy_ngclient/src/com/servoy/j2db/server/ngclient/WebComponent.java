@@ -66,7 +66,7 @@ public class WebComponent implements ListDataListener
 		if (fe.getWebComponentSpec(false) != null)
 		{
 			Map<String, PropertyDescription> tabSeqProps = fe.getWebComponentSpec().getProperties(PropertyType.tabseq);
-			List<PropertyDescription> sortedList = new SortedList(new Comparator<PropertyDescription>()
+			List<PropertyDescription> sortedList = new SortedList<PropertyDescription>(new Comparator<PropertyDescription>()
 			{
 
 				@Override
@@ -86,7 +86,7 @@ public class WebComponent implements ListDataListener
 			}, tabSeqProps.values());
 			for (PropertyDescription pd : sortedList)
 			{
-				calculatedTabSequence.add(new Pair(pd.getName(), Utils.getAsInteger(getInitialProperty(pd.getName()))));
+				calculatedTabSequence.add(new Pair<>(pd.getName(), Utils.getAsInteger(getInitialProperty(pd.getName()))));
 			}
 			nextAvailableTabSequence = getMaxTabSequence() + 1;
 			if (fe.getPersist() instanceof GraphicalComponent && ((GraphicalComponent)fe.getPersist()).getOnActionMethodID() <= 0)
@@ -108,7 +108,7 @@ public class WebComponent implements ListDataListener
 
 	/**
 	 * putting new data in recording changes.
-	 * 
+	 *
 	 * @param propertyName
 	 * @param propertyValue
 	 */
@@ -222,7 +222,7 @@ public class WebComponent implements ListDataListener
 	{
 		// currently we keep Java objects in here; we could switch to having only json objects in here is it make things quicker
 		// (then whenever a server-side value is put in the map, convert it via JSONUtils.toJSONValue())
-		//TODO remove this when hierarchical tree structure comes into play (only needed for ) 
+		//TODO remove this when hierarchical tree structure comes into play (only needed for )
 		if (propertyValue instanceof JSONObject)
 		{
 			Iterator it = ((JSONObject)propertyValue).keys();
@@ -231,7 +231,7 @@ public class WebComponent implements ListDataListener
 				String key = (String)it.next();
 				properties.put(propertyName + '.' + key, ((JSONObject)propertyValue).get(key));
 			}
-		}// end TODO REMOVE 
+		}// end TODO REMOVE
 		properties.put(propertyName, convertValue(propertyName, propertyValue));
 	}
 
