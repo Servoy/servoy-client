@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.mozilla.javascript.JavaScriptException;
+
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IPrepareForSave;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
@@ -790,6 +792,7 @@ public class EditRecordList
 				catch (ServoyException e)
 				{
 					Debug.error("Failed to execute after update/insert trigger.", e); //$NON-NLS-1$
+					if (e instanceof DataException && e.getCause() instanceof JavaScriptException) throw (JavaScriptException)e.getCause();
 				}
 			}
 
