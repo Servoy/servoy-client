@@ -37,7 +37,7 @@ import com.servoy.j2db.util.RendererParentWrapper;
 
 /**
  * Main interface for the client application.
- * 
+ *
  * @author jblok
  */
 public interface IApplication extends IBasicApplication, IServiceProvider, ILogLevel
@@ -46,6 +46,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final int CLIENT = IBaseApplicationTypes.SMART_CLIENT; //smart, rich
 	public static final int HEADLESS_CLIENT = IBaseApplicationTypes.HEADLESS_CLIENT;
 	public static final int WEB_CLIENT = IBaseApplicationTypes.WEB_CLIENT;
+	public static final int NG_CLIENT = IBaseApplicationTypes.NG_CLIENT;
 	public static final int RUNTIME = IBaseApplicationTypes.RUNTIME_CLIENT;
 	public static final int OFFLINE = 7;
 	public static final int MOBILE = IBaseApplicationTypes.MOBILE_CLIENT;
@@ -97,9 +98,9 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 */
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = "webClientTableViewScrollable"; //$NON-NLS-1$
 	/**
-	 * When Boolean.TRUE, scrollable table views in web client will keep not visible but loaded rows in the view 
+	 * When Boolean.TRUE, scrollable table views in web client will keep not visible but loaded rows in the view
 	 */
-	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = "webClientTableViewScrollableKeepLoadedRows"; //$NON-NLS-1$	
+	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = "webClientTableViewScrollableKeepLoadedRows"; //$NON-NLS-1$
 	/**
 	 * When Boolean.TRUE, component will accept javascript links in the input
 	 */
@@ -122,14 +123,14 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * Get the type of the application, will return one of the client constants like {@link #CLIENT} for the smart client.
-	 * 
+	 *
 	 * @return the type of app
 	 */
 	public int getApplicationType();
 
 	/**
 	 * Get the Operation System name where the client runs in like "Windows 7"
-	 * 
+	 *
 	 * @return the Operation System name where the client runs in.
 	 */
 	public String getClientOSName();
@@ -142,7 +143,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	/**
 	 * Show progress in status progress bar. <br>
 	 * <b>Note:</b>if blockGUI(...) is called this info is lost
-	 * 
+	 *
 	 * @param progress the progress between (0-100)
 	 */
 	public void setStatusProgress(int progress);
@@ -150,7 +151,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	/**
 	 * Show a status, better to use blockGUI(...). <br>
 	 * <b>Note:</b>if blockGUI(...) is called this info is lost
-	 * 
+	 *
 	 * @param text the text to show
 	 */
 	public void setStatusText(String text, String tooltip);
@@ -162,56 +163,56 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * Get the form manager (used to control the forms, show etc).
-	 * 
+	 *
 	 * @return IFormManager
 	 */
 	public IBasicFormManager getFormManager();
 
 	/**
 	 * Get the cmd manager (used to execute undoable cmd).
-	 * 
+	 *
 	 * @return ICmdManager
 	 */
 	public ICmdManager getCmdManager();
 
 	/**
 	 * Get the bean manager (used to control beans).
-	 * 
+	 *
 	 * @return IBeanManager
 	 */
 	public IBeanManager getBeanManager();
 
 	/**
 	 * Get the plugin manager (used to control plugins).
-	 * 
+	 *
 	 * @return IPluginManager
 	 */
 	public IPluginManager getPluginManager();
 
 	/**
 	 * Get the mode manager (used to control the form modes).
-	 * 
+	 *
 	 * @return IModeManager
 	 */
 	public IModeManager getModeManager();
 
 	/**
 	 * Get the user manager (used to do authentication and security)
-	 * 
+	 *
 	 * @return
 	 */
 	public IUserManager getUserManager();
 
 	/**
 	 * Get the application name.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getApplicationName();
 
 	/**
 	 * Set a UI property.
-	 * 
+	 *
 	 * @param name of property
 	 * @see javax.swing.UIDefaults (for swing side)
 	 */
@@ -221,21 +222,21 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * Set the window title.
-	 * 
+	 *
 	 * @param title to show
 	 */
 	public void setTitle(String title);
 
 	/**
 	 * Get the Look and Feel manager (used to set the laf on the application).
-	 * 
+	 *
 	 * @return ILAFManager
 	 */
 	public ILAFManager getLAFManager();
 
 	/**
 	 * Output something on the out stream. (if running in debugger view output tab)
-	 * 
+	 *
 	 * @param msg
 	 */
 
@@ -244,25 +245,25 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * Call authenticator module
-	 * 
+	 *
 	 * @param authenticator_solution authenticator solution name, null for built-in Servoy authentication
-	 * @param method 
-	 * @param credentials 
-	 * 
+	 * @param method
+	 * @param credentials
+	 *
 	 * @return result from authenticator solution
 	 */
 	public Object authenticate(String authenticator_solution, String method, Object[] credentials) throws RepositoryException;
 
 	/**
 	 * Perform user logout
-	 * 
+	 *
 	 * @param solution_to_open_args
 	 */
 	public void logout(Object[] solution_to_open_args);
 
 	/**
 	 * Close the solution, you may pass info to open a new solution
-	 * 
+	 *
 	 * @param force, close a solution with force
 	 * @param args, pass solutionName,solutionStartupMethod,methodArgument as array
 	 * @return true if successful
@@ -271,7 +272,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * get the clientinfo object
-	 * 
+	 *
 	 * @return the client info
 	 */
 	public ClientInfo getClientInfo();
@@ -298,7 +299,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * Get the current page format.
-	 * 
+	 *
 	 * @return PageFormat the page format
 	 */
 	public PageFormat getPageFormat();
@@ -312,7 +313,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * gets an user property for the current session/user. Implementations should store this for the current session.
-	 * 
+	 *
 	 * @param name The name of the property to get.
 	 * @return The property value if found.
 	 */
@@ -320,7 +321,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * sets an user property for the current session/user. Implementations should store this for the current session.
-	 * 
+	 *
 	 * @param name The name of the property to be set.
 	 * @param value The value to set (null is remove).
 	 */
@@ -422,7 +423,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * Report a javascript error.
-	 * 
+	 *
 	 * @param msg the error
 	 * @param detail the detail (can be exception obj)
 	 */
@@ -430,14 +431,14 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 
 	/**
 	 * Report a javascript warning.
-	 * 
+	 *
 	 * @param msg the warning
 	 */
 	public void reportJSWarning(String msg);
 
 	/**
 	 * Report a javascript info.
-	 * 
+	 *
 	 * @param msg the info
 	 */
 	public void reportJSInfo(String msg);

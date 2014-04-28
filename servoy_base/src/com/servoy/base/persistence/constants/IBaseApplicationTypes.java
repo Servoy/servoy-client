@@ -81,4 +81,15 @@ public interface IBaseApplicationTypes
 	 * }
 	 */
 	public static final int MOBILE_CLIENT = 8;
+
+	/**
+	 * Constant for application type ng client.
+	 *
+	 * @sample
+	 * if (application.getApplicationType() == APPLICATION_TYPES.NG_CLIENT)
+	 * {
+	 * 	//we are in mobile client
+	 * }
+	 */
+	public static final int NG_CLIENT = 9;
 }
