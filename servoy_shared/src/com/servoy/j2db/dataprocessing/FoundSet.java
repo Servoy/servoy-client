@@ -112,7 +112,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * The foundset of a form, also handles the locking with the AppServer based on tablepks, and is the formmodel itself!
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
@@ -316,7 +316,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			clearOmit(null);
 		}
 
-		// do get the sql select with the omitted pks, else a find that didn't get anything will not 
+		// do get the sql select with the omitted pks, else a find that didn't get anything will not
 		// just display the records without the omitted pks (when clear omit is false)
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
@@ -353,9 +353,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * browse all part which can be used by subclasses this also acts as refresh and performs the pk query (again) can be called on any thread
-	 * 
+	 *
 	 * @param flushRelatedFS
-	 * @param skipStopEdit 
+	 * @param skipStopEdit
 	 */
 	void refreshFromDB(boolean flushRelatedFS, boolean skipStopEdit) throws ServoyException
 	{
@@ -364,10 +364,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * browse all part which can be used by subclasses this also acts as refresh and performs the pk query (again) can be called on any thread
-	 * 
+	 *
 	 * @param querySelect will not be modified, null for the current active query
 	 * @param flushRelatedFS
-	 * @param skipStopEdit 
+	 * @param skipStopEdit
 	 */
 	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean flushRelatedFS, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder,
 		boolean skipStopEdit) throws ServoyException
@@ -599,7 +599,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample
 	 * // Filter a fondset on a dataprovider value.
 	 * // Note that multiple filters can be added to the same dataprovider, they will all be applied.
-	 * 
+	 *
 	 * var success = %%prefix%%foundset.addFoundSetFilterParam('customerid', '=', 'BLONP', 'custFilter');//possible to add multiple
 	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
 	 * // Named filters can be removed using %%prefix%%foundset.removeFoundSetFilterParam(filterName)
@@ -633,12 +633,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param dataprovider String column to filter on.
 	 *
-	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null). 
+	 * @param operator String operator: =, <, >, >=, <=, !=, (NOT) LIKE, (NOT) IN, (NOT) BETWEEN and IS (NOT) NULL optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
 	 *
 	 * @param value Object filter value (for in array and between an array with 2 elements)
 	 *
 	 * @param name String name, used to remove the filter again.
-	 * 
+	 *
 	 * @return true if adding the filter succeeded, false otherwise.
 	 */
 	public boolean js_addFoundSetFilterParam(String dataprovider, String operator, Object value, String name) throws ServoyException
@@ -655,7 +655,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
 	 *
 	 * @param name String filter name.
-	 * 
+	 *
 	 * @return true if removing the filter succeeded, false otherwise.
 	 */
 	public boolean js_removeFoundSetFilterParam(String name)
@@ -676,7 +676,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * }
 	 *
 	 * @param filterName name of the filter to retrieve.
-	 * 
+	 *
 	 * @return Array of filter definitions.
 	 */
 	public Object[][] js_getFoundSetFilterParams(String filterName)
@@ -735,7 +735,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 	plugins.dialogs.showWarningDialog('Alert', 'No records found','OK');
 	 * 	%%prefix%%foundset.loadRecords(dupFoundset);
 	 * }
-	 * 
+	 *
 	 * @return foundset duplicate.
 	 */
 	public FoundSet js_duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
@@ -745,12 +745,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Set the foundset in find mode. (Start a find request), use the "search" function to perform/exit the find.
-	 * 
+	 *
 	 * Before going into find mode, all unsaved records will be saved in the database.
 	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), the foundset will not go into find mode.
 	 * Make sure the operator and the data (value) are part of the string passed to dataprovider (included inside a pair of quotation marks).
 	 * Note: always make sure to check the result of the find() method.
-	 * 
+	 *
 	 * When in find mode, columns can be assigned string expressions (including operators) that are evaluated as:
 	 * General:
 	 *       c1||c2    (condition1 or condition2)
@@ -787,14 +787,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * Related columns can be assigned, they will result in related searches.
 	 * For example, "employees_to_department.location_id = headoffice" finds all employees in the specified location).
-	 * 
+	 *
 	 * Searching on related aggregates is supported.
 	 * For example, "orders_to_details.total_amount = '&gt;1000'" finds all orders with total order details amount more than 1000.
-	 * 
+	 *
 	 * Arrays can be used for searching a number of values, this will result in an 'IN' condition that will be used in the search.
 	 * The values are not restricted to strings but can be any type that matches the column type.
 	 * For example, "record.department_id = [1, 33, 99]"
-	 * 
+	 *
 	 * @sample
 	 * if (%%prefix%%foundset.find()) //find will fail if autosave is disabled and there are unsaved records
 	 * {
@@ -804,9 +804,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 	 * 	%%prefix%%foundset.search()
 	 * }
-	 * 
+	 *
 	 * @return true if the foundset is now in find mode, false otherwise.
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean, Boolean)
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setAutoSave(boolean)
 	 * @see com.servoy.j2db.BasicFormController$JSForm#js_find()
@@ -832,7 +832,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample
 	 * //Returns true when find was called on this foundset and search has not been called yet
 	 * %%prefix%%foundset.isInFind();
-	 * 
+	 *
 	 * @return boolean is in find mode.
 	 */
 	@JSFunction
@@ -846,11 +846,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Clear results from previous searches.
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
-	 * 
+	 *
 	 * @sampleas js_search(Boolean, Boolean)
 	 *
 	 * @return the recordCount
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
 	@JSFunction
@@ -864,13 +864,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Reduce results from previous searches.
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
-	 * 
+	 *
 	 * @sampleas js_search(Boolean, Boolean)
 	 *
-	 * @param clearLastResults boolean, clear previous search, default true  
-	 * 
+	 * @param clearLastResults boolean, clear previous search, default true
+	 *
 	 * @return the recordCount
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
 	public int js_search(Boolean clearLastResults) throws ServoyException
@@ -882,16 +882,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Start the database search and use the results, returns the number of records, make sure you did "find" function first.
 	 *
 	 * Note: Omitted records are automatically excluded when performing a search - meaning that the foundset result by default will not include omitted records.
-	 * 
+	 *
 	 * @sample
 	 * var recordCount = %%prefix%%foundset.search();
 	 * //var recordCount = %%prefix%%foundset.search(false,false); //to extend foundset
 	 *
-	 * @param clearLastResults boolean, clear previous search, default true  
+	 * @param clearLastResults boolean, clear previous search, default true
 	 * @param reduceSearch boolean, reduce (true) or extend (false) previous search results, default true
-	 * 
+	 *
 	 * @return the recordCount
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
 	 */
 	public int js_search(Boolean clearLastResults, Boolean reduceSearch) throws ServoyException
@@ -908,7 +908,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/** Check wether the foundset has any conditions from a previous find action.
-	 * 
+	 *
 	 * @sample
 	 * if (%%prefix%%foundset.hasConditions())
 	 * {
@@ -964,12 +964,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Get the datasource used.
 	 * The datasource is an url that describes the data source.
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getDataSourceServerName(String)
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getDataSourceTableName(String)
 	 *
 	 * @sample var dataSource = %%prefix%%foundset.getDataSource();
-	 * 
+	 *
 	 * @return String data source.
 	 */
 	public String js_getDataSource()
@@ -981,7 +981,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Gets the relation name (null if not a related foundset).
 	 *
 	 * @sample var relName = %%prefix%%foundset.getRelationName();
-	 * 
+	 *
 	 * @return String relation name when related.
 	 */
 	public String js_getRelationName()
@@ -1009,15 +1009,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Loads all accessible records from the datasource into the foundset.
 	 * Filters on the foundset are applied.
-	 * 
+	 *
 	 * Before loading the records, all unsaved records will be saved in the database.
-	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), 
+	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off),
 	 * records will not be loaded,
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_addFoundSetFilterParam(String, String, Object, String)
 	 *
 	 * @sample %%prefix%%foundset.loadAllRecords();
-	 * 
+	 *
 	 * @return true if records are loaded, false otherwise.
 	 */
 	public boolean js_loadAllRecords() throws ServoyException
@@ -1046,13 +1046,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Loads the records that are currently omitted as a foundset.
-	 * 
+	 *
 	 * Before loading the omitted records, all unsaved records will be saved in the database.
-	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off), 
+	 * If this fails (due to validation failures or sql errors) or is not allowed (autosave off),
 	 * omitted records will not be loaded,
 	 *
 	 * @sample %%prefix%%foundset.loadOmittedRecords();
-	 * 
+	 *
 	 * @return true if records are loaded, false otherwise.
 	 */
 	public boolean js_loadOmittedRecords() throws ServoyException
@@ -1114,7 +1114,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Reloads all last (related) records again, if, for example, after search in tabpanel.
 	 * When in find mode, this will reload the records from before the find() call.
-	 * 
+	 *
 	 * @sample
 	 *  //to reload all last (related) records again, if for example when searched in tabpanel
 	 *  %%prefix%%foundset.loadRecords();
@@ -1137,7 +1137,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * @clonedesc com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(IDataSet)
-	 * 
+	 *
 	 * @sample
 	 * // loads a primary key dataset, will remove related sort!
 	 * //var dataset = databaseManager.getDataSetByQuery(...);
@@ -1145,7 +1145,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.loadRecords(dataset);
 	 *
 	 * @param dataset pkdataset
-	 * 
+	 *
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(IDataSet dataset) throws ServoyException
@@ -1153,12 +1153,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return checkLoadRecordsAllowed(false, false) && loadExternalPKList(dataset);
 	}
 
-	/** 
+	/**
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
-	 * 
+	 *
 	 * @param dataset The dataset to load records from
 	 * @param ignored true for ignoring the argument array
-	 * 
+	 *
 	 * @deprecated use loadRecords(JSDataSet)
 	 */
 	@Deprecated
@@ -1172,16 +1172,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * This will alter the foundset state to the state of the foundset that is given.
 	 * If you really just want to use the given foundset on the form itself, then you need to use controller.loadRecords(foundset)
 	 * that will change the instance of the foundset that is used for this form. Not just update an existing form.
-	 * 
-	 * If you copy over a relation into this foundset, then this foundset will not be a related foundset, it will not automatically update its state 
+	 *
+	 * If you copy over a relation into this foundset, then this foundset will not be a related foundset, it will not automatically update its state
 	 * of records are updated or added that belong to that relation. It will only be a snapshot of that related foundsets state.
-	 * 
+	 *
 	 * @sample
 	 * //Copies foundset data from another foundset
 	 * %%prefix%%foundset.loadRecords(fs);
 	 *
 	 * @param foundset The foundset to load records from
-	 * 
+	 *
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(FoundSet foundset)
@@ -1189,12 +1189,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return checkLoadRecordsAllowed(false, false) && copyFrom(foundset);
 	}
 
-	/** 
+	/**
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
-	 * 
+	 *
 	 * @param foundset The foundset to load record from
 	 * @param ignored true for ignoring the argument array
-	 * 
+	 *
 	 * @deprecated use loadRecords(FoundSet)
 	 */
 	@Deprecated
@@ -1208,10 +1208,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample
 	 * //loads records in to the foundset based on a query (also known as 'Form by query')
 	 * %%prefix%%foundset.loadRecords(sqlstring,parameters);
-	 * 
+	 *
 	 * @param queryString select statement
 	 * @param argumentsArray arguments to query
-	 * 
+	 *
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(String queryString, Object[] argumentsArray) throws ServoyException
@@ -1224,9 +1224,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample
 	 * //loads records in to the foundset based on a query (also known as 'Form by query')
 	 * %%prefix%%foundset.loadRecords(sqlstring);
-	 * 
+	 *
 	 * @param queryString select statement
-	 * 
+	 *
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(String queryString) throws ServoyException
@@ -1241,7 +1241,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.loadRecords(123);
 	 *
 	 * @param numberpk single-column pk value
-	 * 
+	 *
 	 * @return true if successful
 	 */
 	public boolean js_loadRecords(Number numberpk) throws ServoyException
@@ -1249,12 +1249,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return loadRecordsBySinglePK(numberpk);
 	}
 
-	/** 
+	/**
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
-	 * 
+	 *
 	 * @param numberpk single-column pk value
 	 * @param ignored true to ignore arguments array
-	 * 
+	 *
 	 * @deprecated use loadRecords(Number)
 	 */
 	@Deprecated
@@ -1277,11 +1277,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return loadRecordsBySinglePK(uuidpk);
 	}
 
-	/** 
+	/**
 	 * Method to handle old loadRecords calls with ignored argumentsaray.
 	 * @param uuidpk single-column pk value
 	 * @param ignored true to ignore argument array
-	 * 
+	 *
 	 * @deprecated use loadRecords(UUID)
 	 */
 	@Deprecated
@@ -1310,10 +1310,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Loads records into form foundset based on a query builder object (also known as 'Form by query').
 	 * When the founset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
 	 * If the foundset is related, the relation-condition will be added to the query.
-	 * 
+	 *
 	 * @sample
 	 * %%prefix%%foundset.loadRecords(qbselect);
-	 * 
+	 *
 	 * @param querybuilder the query builder
 	 * @return true if successful
 	 */
@@ -1322,12 +1322,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return checkLoadRecordsAllowed(true, true) && loadByQuery(querybuilder);
 	}
 
-	/** 
+	/**
 	 * Method to handle old foundset loadRecords calls.
 	 * Deprecated method to handle pre-6.1 calls to varargs function foundset.loadRecords([1]), this was called with vargs=[1] in stead of vargs=[[1]].
-	 * 
+	 *
 	 * @param vargs the arguments
-	 * 
+	 *
 	 * @deprecated use loadRecords with single typed argument
 	 */
 	@Deprecated
@@ -1380,7 +1380,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Lookups are defined in the dataprovider (columns) auto-enter setting and are normally performed over a relation upon record creation.
 	 *
 	 * @sample %%prefix%%foundset.relookup(1);
-	 * @param index record index (1-based) 
+	 * @param index record index (1-based)
 	 */
 	public void js_relookup(Number index)
 	{
@@ -1415,7 +1415,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample var val = %%prefix%%foundset.getDataProviderValue('contact_name');
 	 *
 	 * @param dataProviderID data provider name
-	 * 
+	 *
 	 * @return Object value
 	 */
 	public Object js_getDataProviderValue(String dataProviderID)
@@ -1446,7 +1446,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * If the current foundset is not related, no copy will made.
 	 *
 	 * @sample %%prefix%%foundset.unrelate();
-	 * 
+	 *
 	 * @return FoundSet unrelated foundset.
 	 */
 	public IFoundSetInternal js_unrelate()
@@ -1469,8 +1469,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Select the record based on pk data.
 	 * Note that if the foundset has not loaded the record with the pk, selectrecord will fail.
-	 * 
-	 * In case of a table with a composite key, the pk sequence must match the alphabetical 
+	 *
+	 * In case of a table with a composite key, the pk sequence must match the alphabetical
 	 * ordering of the pk column names.
 	 *
 	 * @sample %%prefix%%foundset.selectRecord(pkid1,pkid2,pkidn);//pks must be alphabetically set! It is also possible to use an array as parameter.
@@ -1480,7 +1480,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param pkid2 optional second primary key (in case of composite primary key)
 	 *
 	 * @param pkidn optional nth primary key
-	 * 
+	 *
 	 * @return true if succeeded.
 	 */
 	public boolean js_selectRecord(Object[] vargs)
@@ -1648,7 +1648,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get the query that the foundset is currently using.
-	 * When the founset is in find mode, the find conditions are included in the resulting query. 
+	 * When the founset is in find mode, the find conditions are included in the resulting query.
 	 * So the query that would be used when just calling search() (or search(true,true)) is returned.
 	 * Note that foundset filters are included and table filters are not included in the query.
 	 *
@@ -1740,7 +1740,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		//check requirements
 		if (!SQLGenerator.isSelectQuery(query)) throw new IllegalArgumentException(fsm.getApplication().getI18NMessage(
-			"servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$ 
+			"servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$
 		String sql_lowercase = Utils.toEnglishLocaleLowerCase(query);
 
 		order_by_index = sql_lowercase.lastIndexOf("order by"); //$NON-NLS-1$
@@ -2310,7 +2310,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (row == -1 && getSize() > 0)
 		{
 			// should never happen when not related to printing; when printing/closing print preview, this does happen
-			Debug.log("Flushing foundset with no selection (after printing?): " + this); //$NON-NLS-1$ 
+			Debug.log("Flushing foundset with no selection (after printing?): " + this); //$NON-NLS-1$
 			return; // safety
 		}
 
@@ -2337,7 +2337,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get a state for a certain (cached primary key) row
-	 * 
+	 *
 	 * @throws RemoteException
 	 */
 	public IRecordInternal getRecord(int row)
@@ -2373,7 +2373,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			state = createRecord(row, sizeHint, pks, pksAndRecordsCopy.getCachedRecords());
 		}
-		// if state is still null (invalid pk?) then return prototype state 
+		// if state is still null (invalid pk?) then return prototype state
 		// so that in scripting and in ui everything does format (and global relations are able display)
 		if (state == null && row < Math.max(rowCount, getSize()))
 		{
@@ -2418,20 +2418,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time. 
+	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time.
 	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a non null value the traversal will be stopped and that value is returned.
-	 * If no value is returned all records of the foundset will be traversed. Foundset modifications( like sort, omit...) cannot be performed in the callback function. If foundset is modified an exception will be thrown.
+	 * If no value is returned all records of the foundset will be traversed. Foundset modifications( like sort, omit...) cannot be performed in the callback function.
+	 * If foundset is modified an exception will be thrown. This exception will also happen if a refresh happens because of a rollback call for records on this datasource when iterating.
 	 * When an exception is thrown from the callback function, the iteraion over the foundset will be stopped.
 	 *
 	 * @sample
-	 *  foundset.forEach(function(record,recordIndex,foundset) { 
-	 *  	//handle the record here  
+	 *  foundset.forEach(function(record,recordIndex,foundset) {
+	 *  	//handle the record here
 	 *  });
 	 *
 	 * @param callback The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
-	 * 
+	 *
 	 * @return Object the return value of the callback
-	 * 
+	 *
 	 */
 	public Object js_forEach(Function callback)
 	{
@@ -2446,7 +2447,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
 	 *
 	 * @param index The index of the record to delete.
-	 * 
+	 *
 	 * @return boolean true if record could be deleted.
 	 */
 	public boolean js_deleteRecord(Number index) throws ServoyException
@@ -2464,7 +2465,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //can return false incase of related foundset having records and orphans records are not allowed by the relation
 	 *
 	 * @param record The record to delete from the foundset.
-	 * 
+	 *
 	 * @return boolean true if record could be deleted.
 	 */
 	public boolean js_deleteRecord(IJSRecord record) throws ServoyException
@@ -2507,11 +2508,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sampleas js_omitRecord()
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
-	 * 
+	 *
 	 * @param index The index of the record to omit.
-	 * 
+	 *
 	 * @return boolean true if all records could be omitted.
 	 */
 	public boolean js_omitRecord(Number index) throws ServoyException
@@ -2535,9 +2536,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
 	 * @sample var success = %%prefix%%foundset.omitRecord();
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
-	 * 
+	 *
 	 * @return boolean true if all records could be omitted.
 	 */
 	public boolean js_omitRecord() throws ServoyException
@@ -2550,7 +2551,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @sample
 	 * //reverse the current sort
-	 * 
+	 *
 	 * //the original sort "companyName asc, companyContact desc"
 	 * //the inversed sort "companyName desc, companyContact asc"
 	 * var foundsetSort = foundset.getCurrentSort()
@@ -2574,9 +2575,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * 	}
 	 * }
 	 * foundset.sort(newFoundsetSort)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_sort(String)
-	 * 
+	 *
 	 * @return String sort columns
 	 */
 	public String js_getCurrentSort()
@@ -2586,8 +2587,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given sort string.
-	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order. 
-	 * 
+	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
+	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
 	 *
 	 * @param sortString the specified columns (and sort order)
@@ -2599,8 +2600,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Sorts the foundset based on the given sort string.
-	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order. 
-	 * 
+	 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
+	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
 	 *
 	 * @param sortString the specified columns (and sort order)
@@ -2617,15 +2618,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * two records, that are passed as arguments, and
 	 * it will return -1/0/1 if the first record is less/equal/greater
 	 * then the second record.
-	 * 
+	 *
 	 * The function based sorting does not work with printing.
 	 * It is just a temporary in-memory sort.
-	 * 
+	 *
 	 * NOTE: starting with 7.2 release this function doesn't save the data anymore
-	 * 
+	 *
 	 * @sample
 	 * %%prefix%%foundset.sort(mySortFunction);
-	 * 
+	 *
 	 * function mySortFunction(r1, r2)
 	 * {
 	 *	var o = 0;
@@ -2689,10 +2690,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Duplicate record at index in the foundset, change selection to new record.
 	 *
 	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
-	 * 
+	 *
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param onTop when true the new record is added as the topmost record.
-	 *  
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Number index, Boolean onTop) throws ServoyException
@@ -2704,9 +2705,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Duplicate record at index in the foundset, change selection to new record, place on top.
 	 *
 	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
-	 * 
+	 *
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
-	 *  
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Number index) throws ServoyException
@@ -2718,9 +2719,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Duplicate selected record, change selection to new record.
 	 *
 	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
-	 * 
+	 *
 	 * @param onTop when true the new record is added as the topmost record.
-	 *  
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Boolean onTop) throws ServoyException
@@ -2732,10 +2733,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Duplicate selected record.
 	 *
 	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
-	 * 
+	 *
 	 * @param onTop when true the new record is added as the topmost record.
 	 * @param changeSelection when true the selection is changed to the duplicated record.
-	 *  
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
@@ -2747,7 +2748,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Duplicate current record, change selection to new record, place on top.
 	 *
 	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
-	 * 
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord() throws ServoyException
@@ -2759,11 +2760,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Duplicate record at index in the foundset.
 	 *
 	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
-	 * 
+	 *
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param onTop when true the new record is added as the topmost record.
 	 * @param changeSelection when true the selection is changed to the duplicated record.
-	 *  
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Number index, Boolean onTop, Boolean changeSelection) throws ServoyException
@@ -2778,10 +2779,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Duplicate record at index in the foundset, change selection to new record.
 	 *
 	 * @sampleas js_duplicateRecord(Number, Number, Boolean)
-	 * 
+	 *
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param location the new record is added at specified index
-	 *  
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Number index, Number location) throws ServoyException
@@ -2798,11 +2799,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * %%prefix%%foundset.duplicateRecord(1,2); //duplicate the first record as second record
 	 * //duplicates the record (record index 3), adds on top and selects the record
 	 * %%prefix%%foundset.duplicateRecord(3,true,true);
-	 * 
+	 *
 	 * @param index The index of the record to duplicate; defaults to currently selected index. Ignored if first given parameter is a boolean value.
 	 * @param location the new record is added at specified index
 	 * @param changeSelection when true the selection is changed to the duplicated record.
-	 *  
+	 *
 	 * @return 0 if record was not created or the record index if it was created.
 	 */
 	public int js_duplicateRecord(Number index, Number location, Boolean changeSelection) throws ServoyException
@@ -2819,7 +2820,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sampleas js_newRecord()
 	 *
 	 * @param index the new record is added at specified index.
-	 * 
+	 *
 	 * @return int index of new record.
 	 */
 	public int js_newRecord(Number index) throws Exception
@@ -2834,7 +2835,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param index the new record is added at specified index.
 	 * @param changeSelection boolean when true the selection is changed to the new record.
-	 * 
+	 *
 	 * @return int index of new record.
 	 */
 	public int js_newRecord(Number index, Boolean changeSelection) throws Exception
@@ -2854,7 +2855,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sampleas js_newRecord()
 	 *
 	 * @param onTop when true the new record is added as the topmost record.
-	 * 
+	 *
 	 * @return int index of new record.
 	 */
 	public int js_newRecord(Boolean onTop) throws ServoyException
@@ -2869,7 +2870,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 *
 	 * @param onTop when true the new record is added as the topmost record.
 	 * @param changeSelection boolean when true the selection is changed to the new record.
-	 * 
+	 *
 	 * @return int index of new record.
 	 */
 	public int js_newRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
@@ -2883,11 +2884,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Create a new record on top of the foundset and change selection to it. Returns -1 if the record can't be made.
 	 *
 	 * @sample
-	 * // foreign key data is only filled in for equals (=) relation items 
+	 * // foreign key data is only filled in for equals (=) relation items
 	 * var idx = %%prefix%%foundset.newRecord(false); // add as last record
 	 * // %%prefix%%foundset.newRecord(); // adds as first record
 	 * // %%prefix%%foundset.newRecord(2); //adds as second record
-	 * if (idx >= 0) // returned index is -1 in case of failure 
+	 * if (idx >= 0) // returned index is -1 in case of failure
 	 * {
 	 * 	%%prefix%%foundset.some_column = "some text";
 	 * 	application.output("added on position " + idx);
@@ -2909,7 +2910,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * //gets the current record index in the current foundset
 	 * var current = %%prefix%%foundset.getSelectedIndex();
 	 * //sets the next record in the foundset
-	 * %%prefix%%foundset.setSelectedIndex(current+1);	
+	 * %%prefix%%foundset.setSelectedIndex(current+1);
 	 * @return int current index (1-based)
 	 */
 	public int jsFunction_getSelectedIndex()
@@ -2970,7 +2971,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Set the selected records indexes.
 	 *
 	 * @sampleas jsFunction_getSelectedIndexes()
-	 * 
+	 *
 	 * @param indexes An array with indexes to set.
 	 */
 	public void jsFunction_setSelectedIndexes(Number[] indexes)
@@ -3011,13 +3012,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * Get the record object at the index. 
+	 * Get the record object at the index.
 	 *
 	 * @sample var record = %%prefix%%foundset.getRecord(index);
 	 *
 	 * @param index int record index
-	 * 
-	 * @return Record record. 
+	 *
+	 * @return Record record.
 	 */
 	public IJSRecord js_getRecord(int index)
 	{
@@ -3031,8 +3032,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
 	 *
 	 * @param record Record
-	 * 
-	 * @return int index. 
+	 *
+	 * @return int index.
 	 */
 	public int js_getRecordIndex(IJSRecord record)
 	{
@@ -3045,7 +3046,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Get the selected record.
 	 *
 	 * @sample var selectedRecord = %%prefix%%foundset.getSelectedRecord();
-	 * @return Record record. 
+	 * @return Record record.
 	 */
 	@JSFunction
 	public IJSRecord getSelectedRecord()
@@ -3080,7 +3081,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("nls")
 	private void checkSelection()
@@ -3313,7 +3314,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 				else
 				{
-					// there is no prev record so already cleaned up. Break 
+					// there is no prev record so already cleaned up. Break
 					if (breakOnNull) break;
 				}
 				counter--;
@@ -3339,7 +3340,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				// there is no prev record so already cleaned up. Break 
+				// there is no prev record so already cleaned up. Break
 				if (breakOnNull) break;
 			}
 			counter++;
@@ -3414,7 +3415,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Check if this Foundset contains the specified global or aggregate dataprovider
-	 * 
+	 *
 	 * @param dataProviderID the dataprovider to check
 	 */
 	public boolean containsDataProvider(String dataProviderID) //as shared (global or aggregate)
@@ -3456,7 +3457,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get the value from the specified global or aggregate dataprovider, always check first
-	 * 
+	 *
 	 * @param dataProviderID the dataprovider
 	 * @return the value
 	 */
@@ -3533,7 +3534,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return SQLGenerator.createAggregateSelect(sqlSelect, sheet.getAggregates().values(), sheet.getTable().getRowIdentColumns());
 	}
 
-	//Used by globals, aggregates(are skipped) and related field creation  
+	//Used by globals, aggregates(are skipped) and related field creation
 	public Object setDataProviderValue(String dataProviderID, Object value)
 	{
 		try
@@ -3659,16 +3660,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Get the number of records in this foundset.
 	 * This is the number of records loaded, note that when looping over a foundset, size() may
 	 * increase as more records are loaded.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var nrRecords = %%prefix%%foundset.getSize()
-	 * 
+	 *
 	 * // to loop over foundset, recalculate size for each record
 	 * for (var i = 1; i <= %%prefix%%foundset.getSize(); i++)
 	 * {
 	 * 	var rec = %%prefix%%foundset.getRecord(i);
 	 * }
-	 * 
+	 *
 	 * @return int current size.
 	 */
 	@JSFunction
@@ -3756,7 +3757,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				Relation element = it.next();
 				if ((element.getDeleteRelatedRecords() || !element.getAllowParentDeleteWhenHavingRelatedRecords()) && !element.isGlobal())
 				{
-					Debug.trace("Foundset deleted per-record because relation '" + element.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$ 
+					Debug.trace("Foundset deleted per-record because relation '" + element.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$
 					hasRelationsWithDelete = true;
 					break;
 				}
@@ -3987,7 +3988,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Execute the foundset trigger for specified TableNode property.
 	 * When multiple tiggers exist, stop when 1 returns false.
-	 * 
+	 *
 	 * @param args
 	 * @param property TableNode property
 	 * @return
@@ -4000,7 +4001,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Execute the foundset trigger for specified TableNode property.
-	 * 
+	 *
 	 * @param args
 	 * @param property TableNode property
 	 * @return
@@ -4124,7 +4125,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			boolean existInDataSource = state.existInDataSource();
 			try
 			{
-				// we NEVER should loose states which are editing, because the global editing state will stay otherwise! 
+				// we NEVER should loose states which are editing, because the global editing state will stay otherwise!
 				if (state.isEditing())
 				{
 					if (existInDataSource)
@@ -4652,7 +4653,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Get the query for the current state.
 	 * When in find mode, include the findState conditions
-	 * 
+	 *
 	 * @param reduceSearch
 	 * @return
 	 * @throws ServoyException
@@ -4784,7 +4785,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Fire difference based on real size (not corrected for fires!)
-	 * 
+	 *
 	 * @param oldSize
 	 * @param newSize
 	 */
@@ -5100,7 +5101,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.dataprocessing.IFoundSetInternal#setSelectedIndex(java.lang.String)
 	 */
 	@Override
@@ -5318,8 +5319,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			// if record is null and mustQueryForUpdates is true
 			// then make sure that mustQuery is false for a little while so that getRecord/getSize
-			// in this call will not do the query to the database. because that should be done after 
-			// fireAggregate method  
+			// in this call will not do the query to the database. because that should be done after
+			// fireAggregate method
 			boolean tmp = mustQueryForUpdates;
 			mustQueryForUpdates = false;
 			try
@@ -5420,7 +5421,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 
 	/**
-	 * 
+	 *
 	 */
 	private void walkParents(Map<FoundSet, int[]> parentsToIndexen)
 	{
@@ -5472,13 +5473,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get all dataproviders of the foundset.
-	 * 
+	 *
 	 * @sample
 	 * var dataprovidersNames = %%prefix%%alldataproviders;
 	 * application.output("This foundset has " + dataprovidersNames.length + " data providers.")
 	 * for (var i=0; i<dataprovidersNames.length; i++)
 	 * 	application.output(dataprovidersNames[i]);
-	 * 
+	 *
 	 * @special
 	 */
 	@JSReadonlyProperty
@@ -5631,7 +5632,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (name == null) return false;
 
-		if ("foundset".equals(name) || jsFunctions.containsKey(name)) return true; //$NON-NLS-1$ 
+		if ("foundset".equals(name) || jsFunctions.containsKey(name)) return true; //$NON-NLS-1$
 
 		if (name.equals("multiSelect")) return true;//$NON-NLS-1$
 
@@ -5665,13 +5666,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (name == null) return;
 
-		if (name.equals("multiSelect") && value instanceof Boolean) //$NON-NLS-1$ 
+		if (name.equals("multiSelect") && value instanceof Boolean) //$NON-NLS-1$
 		{
 			setMultiSelect(((Boolean)value).booleanValue());
 			return;
 		}
 
-		if (jsFunctions.containsKey(name)) return;//dont allow to set  
+		if (jsFunctions.containsKey(name)) return;//dont allow to set
 
 		Pair<String, String> scope = ScopesUtils.getVariableScope(name);
 		if (scope.getLeft() != null)
@@ -5852,7 +5853,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -5930,7 +5931,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					if (retval.getSize() == 0 && !currentRecord.existInDataSource())
 					{
 						Relation r = fsm.getApplication().getFlattenedSolution().getRelation(parts[i]);
-						if (r != null && r.isExactPKRef(fsm.getApplication().getFlattenedSolution()))//TODO add unique column test instead of pk requirement 
+						if (r != null && r.isExactPKRef(fsm.getApplication().getFlattenedSolution()))//TODO add unique column test instead of pk requirement
 						{
 							((FoundSet)retval).newRecord(record.getRawData(), 0, true, false);
 						}
@@ -6181,7 +6182,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (filter.isContainedIn(foundSetFilters))
 		{
-			// do not add the same filter, will add same AND-condition anyway 
+			// do not add the same filter, will add same AND-condition anyway
 			return true;
 		}
 
@@ -6286,7 +6287,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(emptyPks, 0, sqlSelect);
 
 		if (rowManager != null) rowManager.clearAndCheckCache();
-//		if (rowManager.getRowCount() > 5000) 
+//		if (rowManager.getRowCount() > 5000)
 //		{
 //			//if explicitly cleared, and significant size is presnt, hint for flush
 //			rowManager.flushAllCachedRows();
@@ -6453,8 +6454,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * helper function to get int value of java.lang.Numeber object or default value in case of null
 	 * @param numberObject
-	 * @param defaultValue 
-	 * @return 
+	 * @param defaultValue
+	 * @return
 	 */
 	private int getNumberAsInt(Number numberObject, int defaultValue)
 	{
@@ -6464,8 +6465,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * helper function to get boolean value of java.lang.Boolean object or default value in case of null
 	 * @param booleanObject
-	 * @param defaultValue 
-	 * @return 
+	 * @param defaultValue
+	 * @return
 	 */
 	private boolean getBooleanAsbool(Boolean booleanObject, boolean defaultValue)
 	{
