@@ -299,7 +299,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		{
 			sorts = new ArrayList<IQuerySort>();
 		}
-		sorts.add(s);
+		if (!sorts.contains(s)) sorts.add(s);
 	}
 
 	public void addGroupBy(IQuerySelectValue c)
