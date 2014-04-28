@@ -787,7 +787,7 @@ public class EditRecordList
 				{
 					((FoundSet)rowUpdateInfo.getRecord().getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfo.getRecord() },
 						rowUpdateInfo.getISQLStatement().getAction() == ISQLActionTypes.INSERT_ACTION ? StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID
-							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, false);
+							: StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, true);
 				}
 				catch (ServoyException e)
 				{
