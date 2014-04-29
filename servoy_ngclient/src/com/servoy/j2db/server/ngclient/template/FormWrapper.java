@@ -84,7 +84,7 @@ public class FormWrapper
 
 	public int getPageSize()
 	{
-		return WebGridFormUI.PAGE_SIZE;
+		return WebGridFormUI.DEFAULT_PAGE_SIZE;
 	}
 
 	public int getHeaderHeight()
@@ -94,6 +94,81 @@ public class FormWrapper
 			return 0;
 		}
 		return WebGridFormUI.HEADER_HEIGHT;
+	}
+
+	public int getGridHeight()
+	{
+		for (Part prt : Utils.iterate(form.getParts()))
+		{
+			if (prt.getPartType() == Part.BODY)
+			{
+				return prt.getHeight();
+			}
+		}
+		return 0;
+	}
+
+	public int getGridWidth()
+	{
+		int rowWidth = 0;
+		Part part = getBodyPart();
+		int startPos = form.getPartStartYPos(part.getID());
+		int endPos = part.getHeight();
+		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		while (it.hasNext())
+		{
+			IPersist persist = it.next();
+			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+			if (persist instanceof BaseComponent)
+			{
+				BaseComponent bc = (BaseComponent)persist;
+				Point location = bc.getLocation();
+				if (startPos <= location.y && endPos >= location.y)
+				{
+					rowWidth += bc.getSize().width + 0.5;//+borders
+				}
+			}
+		}
+		return rowWidth;
+	}
+
+	public int getRowHeight()
+	{
+		int rowHeight = 0;
+		Part part = getBodyPart();
+		int startPos = form.getPartStartYPos(part.getID());
+		int endPos = part.getHeight();
+		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		while (it.hasNext())
+		{
+			IPersist persist = it.next();
+			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
+			if (persist instanceof BaseComponent)
+			{
+				BaseComponent bc = (BaseComponent)persist;
+				Point location = bc.getLocation();
+				if (startPos <= location.y && endPos >= location.y)
+				{
+					if (rowHeight < bc.getSize().height) rowHeight = bc.getSize().height;
+				}
+			}
+		}
+
+		return rowHeight;
+	}
+
+	private Part getBodyPart()
+	{
+		Part part = null;
+		for (Part prt : Utils.iterate(form.getParts()))
+		{
+			if (prt.getPartType() == Part.BODY)
+			{
+				part = prt;
+				break;
+			}
+		}
+		return part;
 	}
 
 	public Collection<Part> getParts()
@@ -132,15 +207,7 @@ public class FormWrapper
 
 	public Collection<BaseComponent> getBodyComponents()
 	{
-		Part part = null;
-		for (Part prt : Utils.iterate(form.getParts()))
-		{
-			if (prt.getPartType() == Part.BODY)
-			{
-				part = prt;
-				break;
-			}
-		}
+		Part part = getBodyPart();
 
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		if (part == null) return baseComponents;

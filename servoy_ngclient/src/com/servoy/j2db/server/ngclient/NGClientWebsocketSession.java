@@ -187,7 +187,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					String formName = obj.getString("formname");
 					IWebFormUI form = client.getFormManager().getForm(formName).getFormUI();
-					if (form instanceof WebGridFormUI && obj.has("currentPage")) ((WebGridFormUI)form).setCurrentPage(obj.getInt("currentPage"));
+					if (form instanceof WebGridFormUI)
+					{
+						WebGridFormUI grid = (WebGridFormUI)form;
+						if (obj.has("currentPage")) grid.setCurrentPage(obj.getInt("currentPage"));
+						if (obj.has("pageSize")) grid.setPageSize(obj.getInt("pageSize"));
+					}
 					Map<String, Map<String, Object>> properties = form.getAllProperties();
 					Map<String, Map<String, Map<String, Object>>> formData = new HashMap<String, Map<String, Map<String, Object>>>();
 					formData.put(formName, properties);

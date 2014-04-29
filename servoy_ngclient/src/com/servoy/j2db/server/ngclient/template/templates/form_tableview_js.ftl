@@ -16,7 +16,7 @@
 -->
 <#include "form_js_base.ftl"> 
 <#macro form_js_body>
-	
+    
 	var tmpModel;
 	if ($scope.model['']) {
   		tmpModel = $scope.model[''];
@@ -51,18 +51,10 @@
 		}
 	}, false);
 	
-	$scope.rowHeight = 0;
-	for (bc in beans)
-	{ 
-		if (bc == "svy_default_navigator") continue;
-		var height = $scope.model[bc].size.height;
-		if ($scope.rowHeight < height) $scope.rowHeight = height
-	}
-	
-	$scope.pagingOptions = { pageSizes: [${pageSize}], pageSize: ${pageSize}, currentPage: 1};
+	$scope.pagingOptions = {pageSize: ${pageSize}, currentPage: 1};
 	$scope.$watch('pagingOptions', function (newVal, oldVal) {
-		if (newVal !== oldVal && newVal.currentPage !== $scope.model[''].currentPage) {
-			$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',currentPage:newVal.currentPage});
+		if (newVal !== oldVal) {
+			$servoyInternal.sendRequest({cmd:'requestdata',formname:'${name}',currentPage:newVal.currentPage, pageSize:newVal.pageSize});
 		}
 	}, true);
 	$scope.$watch('model..updatedRows', function (newVal, oldVal) {
@@ -159,7 +151,14 @@
 	}, false);
 	
 	
-	$scope.$watch('model..totalRows', function (newVal, oldVal) {		
+	$scope.$watch('model..totalRows', function (newVal, oldVal) {	
+		if (angular.isUndefined(oldVal))
+		{
+			$scope.grid${controllerName}.$gridScope.pagingOptions.pageSize = Math.ceil(($scope.grid${controllerName}.$gridScope.viewportDimHeight()-2)/(${rowHeight}+1)); //border is 1px
+			$timeout(function() {
+				$scope.$apply();
+			});
+		}	
 		if (newVal !== oldVal)
 		{
 			 var rowsHeight = parseInt(newVal) * $scope.grid${controllerName}.$gridScope.rowHeight;
@@ -182,7 +181,7 @@
 	enablePaging: false,
 	showFooter: false,
 	headerRowHeight: ${headerHeight},
-	rowHeight: $scope.rowHeight,
+	rowHeight: ${rowHeight},
 	totalServerItems: 'model..totalRows',
 	pagingOptions: $scope.pagingOptions,
 	primaryKey: '_svy_pk',
@@ -194,7 +193,10 @@
 			<#else>
 			displayName: '${bc.name}'
 			</#if>,
-			cellTemplate: '<${bc.tagname} name="${bc.name}" svy-model="cellRender(row, \'${bc.name}\', model.${bc.name})" svy-api="cellApiWrapper(api.${bc.name},row.getProperty(\'${bc.name}\'))" svy-handlers="cellHandler(row,\'${bc.name}\',handlers.${bc.name})" svy-apply="applyWrapper(handlers.${bc.name}.svy_apply,row.getProperty(\'${bc.name}\'))"/>'
+			cellTemplate: '<${bc.tagname} name="${bc.name}" svy-model="cellRender(row, \'${bc.name}\', model.${bc.name})" svy-api="cellApiWrapper(api.${bc.name},row.getProperty(\'${bc.name}\'))" svy-handlers="cellHandler(row,\'${bc.name}\',handlers.${bc.name})" svy-apply="applyWrapper(handlers.${bc.name}.svy_apply,row.getProperty(\'${bc.name}\'))"/>',
+			<#if bc.properties.size??>
+			width: ${bc.properties.size.width}
+			</#if>
 		}<#if bc_has_next>,</#if>
 	</#list>
 		]

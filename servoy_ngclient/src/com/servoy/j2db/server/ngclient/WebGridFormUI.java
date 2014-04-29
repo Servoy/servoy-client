@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Debug;
  */
 public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 {
-	public static final int PAGE_SIZE = 25;
+	public static final int DEFAULT_PAGE_SIZE = 25;
 	public static final int HEADER_HEIGHT = 30;
 
 	private final IWebFormController formController;
@@ -55,6 +55,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	private final List<RowData> rowChanges = new ArrayList<RowData>();
 	private boolean allChanged = false;
 	private int startTabSeqIndex = 1;
+	private int pageSize;
 
 	/**
 	 * @param application 
@@ -146,7 +147,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	public int getSelectedViewIndex()
 	{
 		int selectedIndex = formController.getFoundSet().getSelectedIndex();
-		return selectedIndex - ((currentPage - 1) * PAGE_SIZE);
+		return selectedIndex - ((currentPage - 1) * getPageSize());
 	}
 
 	/*
@@ -168,15 +169,15 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			// partial change only push the changes.
 			if (event.getChangeType() == FoundSetEvent.CHANGE_DELETE)
 			{
-				int startIdx = (currentPage - 1) * PAGE_SIZE;
-				int endIdx = currentPage * PAGE_SIZE;
+				int startIdx = (currentPage - 1) * getPageSize();
+				int endIdx = currentPage * getPageSize();
 				if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
 				if (event.getFirstRow() < endIdx)
 				{
 					int startRow = Math.max(startIdx, event.getFirstRow());
 					int numberOfDeletes = Math.min(event.getLastRow(), endIdx) - event.getFirstRow() + 1;
 
-					RowData data = getRows(endIdx - Math.min(PAGE_SIZE, numberOfDeletes), endIdx);
+					RowData data = getRows(endIdx - Math.min(DEFAULT_PAGE_SIZE, numberOfDeletes), endIdx);
 
 					rowChanges.add(new RowData(data.rows, startRow - startIdx, startRow + numberOfDeletes - startIdx, RowData.DELETE));
 				}
@@ -188,8 +189,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			}
 			else if (event.getChangeType() == FoundSetEvent.CHANGE_INSERT)
 			{
-				int startIdx = (currentPage - 1) * PAGE_SIZE;
-				int endIdx = currentPage * PAGE_SIZE;
+				int startIdx = (currentPage - 1) * DEFAULT_PAGE_SIZE;
+				int endIdx = currentPage * DEFAULT_PAGE_SIZE;
 				if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
 				if (event.getFirstRow() < endIdx)
 				{
@@ -215,6 +216,14 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	}
 
 	/**
+	 * @return
+	 */
+	public int getPageSize()
+	{
+		return pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
+	}
+
+	/**
 	 * 
 	 */
 	private void setAllChanged()
@@ -230,8 +239,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		if (currentFoundset == null) return RowData.EMPTY;
 
 		List<Map<String, Object>> rows = new ArrayList<>();
-		int startIdx = (currentPage - 1) * PAGE_SIZE;
-		int endIdx = currentPage * PAGE_SIZE;
+		int startIdx = (currentPage - 1) * getPageSize();
+		int endIdx = currentPage * getPageSize();
 		if (endIdx > currentFoundset.getSize()) endIdx = currentFoundset.getSize();
 
 		int foundsetStartRow = startIdx;
@@ -606,5 +615,10 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 		{
 			return valuelist.getValueList();
 		}
+	}
+
+	public void setPageSize(int size)
+	{
+		pageSize = size;
 	}
 }

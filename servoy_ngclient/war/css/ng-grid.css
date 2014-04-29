@@ -16,7 +16,7 @@
   user-select: none;
 }
 .ngViewport {
-  overflow: auto;
+  overflow: hidden !important;
   min-height: 20px;
 }
 .ngViewport:focus {
