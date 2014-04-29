@@ -3225,12 +3225,6 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 					tinymce.remove('#'+edId);
 				}
 			}
-			// temporary hack until http://www.tinymce.com/develop/bugtracker_view.php?id=6750 is fixed
-			if (tinymce.activeEditor && tinymce.activeEditor.destroyed == 1)
-			{
-				tinymce.activeEditor = tinymce.editors[0];
-			}
-			
 		}
 	};
 }
