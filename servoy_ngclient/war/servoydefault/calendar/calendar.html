@@ -12,7 +12,8 @@
 	   svy-font='model.fontType'
 	   ng-disabled="model.enabled == false"
 	   ng-readonly="model.editable == false"
-       ng-model="editModel" 
+       ng-model="editModel"
+       svy-horizontalalignment='model.horizontalAlignment' 
        id="{{model.markupId}}"/>
 	<span class="input-group-addon" style="padding:0;" ng-show="model.editable && model.enabled"><span class="glyphicon glyphicon-calendar"></span></span>
 </div>

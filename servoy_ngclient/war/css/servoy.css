@@ -28,7 +28,3 @@ label.svy-check-radio input{
 label.svy-check-radio span{
 	vertical-align: middle;
 }
-
-.svy-not-empty::before{
-	content: "\00A0";
-}

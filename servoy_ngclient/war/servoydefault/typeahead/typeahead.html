@@ -19,4 +19,5 @@
        svy-tooltip='model.toolTipText'
        typeahead-min-length="-1"
        typeahead="value.realValue as value.displayValue for value in model.valuelistID_filter($viewValue)"
-       ng-blur="doSvyApply()" id="{{model.markupId}}"/>
+       ng-blur="doSvyApply()" id="{{model.markupId}}"
+        svy-horizontalalignment='model.horizontalAlignment'/>

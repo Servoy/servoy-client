@@ -10,7 +10,7 @@ model:
         enabled : {type:'boolean', default:true}, 
         fontType : 'font', 
         foreground : 'color', 
-        horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
+        horizontalAlignment : {type:'int', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: 2}, 
         location : 'point', 
         readOnly : 'boolean', 
         scrollTabs : 'boolean', 

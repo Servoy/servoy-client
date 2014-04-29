@@ -384,6 +384,10 @@ public class SpecGenerator
 		HashMap<String, String> buttonTypeMapping = new HashMap<String, String>();
 		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(),
 			"{ type:'styleclass', values:['btn','btn-default','btn-lg','btn-sm','btn-xs']}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
+			"{type:'int', values:[{TOP:1}, {CENTER:0} ,{BOTTOM:3}], default: 0}");
+		buttonTypeMapping.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
+			"{type:'int', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}], default: 0}");
 		componentRepoTypeMappingExceptions.put("button", buttonTypeMapping);
 
 		HashMap<String, String> calendarTypeMapping = new HashMap<String, String>();
@@ -415,6 +419,8 @@ public class SpecGenerator
 
 		HashMap<String, String> labelMapping = new HashMap<String, String>();
 		labelMapping.put(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName(), "{ type:'styleclass', values:[]}");
+		labelMapping.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
+			"{type:'int', values:[{TOP:1}, {CENTER:0} ,{BOTTOM:3}], default: 0}");
 		componentRepoTypeMappingExceptions.put("label", labelMapping);
 
 		HashMap<String, String> listboxTypeMapping = new HashMap<String, String>();
@@ -474,9 +480,7 @@ public class SpecGenerator
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID.getPropertyName(), "media");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID.getPropertyName(), "media");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_HORIZONTALALIGNMENT.getPropertyName(),
-			"{type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}");
-		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName(),
-			"{type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}");
+			"{type:'int', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: 2}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TEXTROTATION.getPropertyName(), "{type:'int', values:[0,90,180,270]}");
 		repoTypeMappingExceptions.put(StaticContentSpecLoader.PROPERTY_TABORIENTATION.getPropertyName(),
 			"{type:'int', values:[{DEFAULT:0}, {TOP:1}, {HIDE:-1}]}");
@@ -502,16 +506,20 @@ public class SpecGenerator
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWFOCUS.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SHOWCLICK.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName());
+		internalProperties.add(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_USERTF.getPropertyName());
 		internalProperties.add(StaticContentSpecLoader.PROPERTY_PRINTABLE.getPropertyName());
 
 		// per component exceptions to internal properties (for ex labelfor should be only for datalabel)
-		perComponentExceptions.put("label", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()))));
+		perComponentExceptions.put(
+			"label",
+			new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_LABELFOR.getPropertyName()),
+				(StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName()))));
 		perComponentExceptions.put("textfield", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 		perComponentExceptions.put("typeahead", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 		perComponentExceptions.put("password", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
 		perComponentExceptions.put("calendar", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_SELECTONENTER.getPropertyName()))));
-
+		perComponentExceptions.put("button", new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_VERTICALALIGNMENT.getPropertyName()))));
 		perComponentInternalProperties.put(
 			"htmlview",
 			new ArrayList<>(Arrays.asList((StaticContentSpecLoader.PROPERTY_EDITABLE.getPropertyName()),

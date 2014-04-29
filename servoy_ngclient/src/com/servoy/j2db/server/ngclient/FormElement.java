@@ -60,6 +60,7 @@ import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -523,8 +524,17 @@ public final class FormElement
 					Media media = fs.getMedia(Utils.getAsInteger(val));
 					if (media != null)
 					{
-						convPropertiesMap.put(pv, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
-							media.getName());
+						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
+							media.getName();
+						if (pv.equals(com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_IMAGEMEDIAID))
+						{
+							Dimension imageSize = ImageLoader.getSize(media.getMediaData());
+							if (imageSize != null)
+							{
+								url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
+							}
+						}
+						convPropertiesMap.put(pv, url);
 					}
 					break;
 				}

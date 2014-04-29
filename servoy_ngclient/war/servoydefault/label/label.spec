@@ -11,7 +11,7 @@ model:
         fontType : 'font', 
         foreground : 'color', 
         format : {for:'dataProviderID' , type:'format'}, 
-        horizontalAlignment : {type:'int', values:[{DEFAULT:-1}, {LEFT:0}, {CENTER:2},{RIGHT:4}]}, 
+        horizontalAlignment : {type:'int', values:[{LEFT:2}, {CENTER:0},{RIGHT:4}],default: 2}, 
         imageMediaID : 'media', 
         labelFor : 'bean', 
         location : 'point', 
@@ -27,7 +27,7 @@ model:
         textRotation : {type:'int', values:[0,90,180,270]}, 
         toolTipText : 'tagstring', 
         transparent : 'boolean', 
-        verticalAlignment : {type:'int', values:[{DEFAULT:-1}, {TOP:1}, {CENTER:2} ,{BOTTOM:3}]}, 
+        verticalAlignment : {type:'int', values:[{TOP:1}, {CENTER:0} ,{BOTTOM:3}], default: 0}, 
         visible : {type:'boolean', default:true} 
 },
 handlers:

@@ -340,7 +340,25 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
         		  bgstyle['background-position'] = "left";
         		  bgstyle['background-size'] = "contain";
         		  bgstyle['display'] = "inline-block";
-        		  bgstyle['vertical-align'] = "middle";     //  TODO is display and vertical-align only for bg image?
+        		  bgstyle['vertical-align'] = "middle"; 
+        		  var imageWidth = $parse('model.imageWidth')(scope);
+        		  var imageHeight = $parse('model.imageHeight')(scope);
+        		  if (newVal.indexOf('imageWidth=') > 0 && newVal.indexOf('imageHeight=') > 0)
+        		  {
+        			  var vars = {};
+        			  var parts = newVal.replace(/[?&]+([^=&]+)=([^&]*)/gi,    
+        					  function(m,key,value) {
+        				  vars[key] = value;
+        			  });
+        			  bgstyle['width'] = vars['imageWidth']+"px";
+            		  bgstyle['height'] = vars['imageHeight']+"px";
+        		  }
+        		  else
+        		  {
+        			  // shouldn't happen
+        			  bgstyle['width'] = "16px";
+            		  bgstyle['height'] = "16px";
+        		  }
         		  element.css(bgstyle)
         		}else{
         			element.css('background-image','');
@@ -372,10 +390,59 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
           		 style['left'] =  (scope.model.size.width -scope.model.size.height)/2 +'px';
           		 style['top'] = (scope.model.size.height -scope.model.size.width)/2 +'px';
           	  }
-          	  setTimeout(function(){ // temporary fix until case with ImageMediaID will be fixed (will probably not use bagckgroun-image)
+          	 //setTimeout(function(){ // temporary fix until case with ImageMediaID will be fixed (will probably not use bagckgroun-image)
           		element.css(style);  
-          	  },30)
+          	  //},30)
             }
+         }
+    }
+})
+.directive('svyHorizontalalignment',  function ($utils,$parse) {
+	// DESIGN TIME ONLY
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {  
+        	var halign= $parse(attrs.svyHorizontalalignment)(scope);
+        	var style ={}
+        	if (halign == 0)
+        	{
+        		 style['text-align'] = 'center';
+        	}
+        	else if (halign == 4)
+        	{
+        		style['text-align'] = 'right';
+        	}
+        	else
+        	{
+        		style['text-align'] = 'left';
+        	}
+            element.css(style);
+         }
+    }
+})
+.directive('svyVerticalalignment',  function ($utils,$parse) {
+	// DESIGN TIME ONLY
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) { 
+        	// see http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/
+        	// do we need preserve-3d ?
+        	var halign= $parse(attrs.svyVerticalalignment)(scope);
+        	var style ={}
+        	if (halign == 1)
+        	{
+        		 style['top'] = 0;
+        	}
+        	else if (halign == 3)
+        	{
+        		style['bottom'] = 0;
+        	}
+        	else
+        	{
+        		style['top'] = '50%';
+        		style['transform'] = 'translateY(-50%)';
+        	}
+            element.css(style);
          }
     }
 })
