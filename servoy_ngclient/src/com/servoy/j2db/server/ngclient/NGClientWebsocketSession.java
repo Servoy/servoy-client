@@ -514,11 +514,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			if (client.isEventDispatchThread())
 			{
-				executeServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
+				executeServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
 			}
 			else
 			{
-				executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
+				executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "updateController", new Object[] { realFormName, sw.toString(), realUrl });
 			}
 		}
 		catch (IOException e)

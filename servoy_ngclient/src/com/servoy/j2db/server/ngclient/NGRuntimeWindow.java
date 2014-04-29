@@ -275,7 +275,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				titleString += " - " + appName; //$NON-NLS-1$
 			}
 
-			getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "setTitle", new Object[] { titleString });
+			getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "setTitle", new Object[] { titleString });
 		}
 	}
 
@@ -334,7 +334,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public void hideUI()
 	{
 		visible = false;
-		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "dismiss", new Object[] { getName() });
 
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
@@ -369,7 +369,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		size.put("width", wdth + "px");
 		size.put("height", hght + "px");
 		arguments.put("size", size);
-		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "show", new Object[] { getName(), arguments });
 		visible = true;
 		this.formName = formName;
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getEventDispatcher() != null)
@@ -424,7 +424,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 		}
 		getApplication().getWebsocketSession().touchForm(currentForm.getForm(), null);
-		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowMananger.WINDOW_SERVICE, "switchForm",
+		getApplication().getWebsocketSession().executeAsyncServiceCall(NGRuntimeWindowManager.WINDOW_SERVICE, "switchForm",
 			new Object[] { getName(), mainForm, navigatorForm });
 		sendTitle(title);
 	}

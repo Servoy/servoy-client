@@ -54,7 +54,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private transient volatile ServoyScheduledExecutor scheduledExecutorService;
 
-	private NGRuntimeWindowMananger runtimeWindowManager;
+	private NGRuntimeWindowManager runtimeWindowManager;
 
 	private Map<Object, Object> uiProperties;
 
@@ -498,11 +498,11 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public NGRuntimeWindowMananger getRuntimeWindowManager()
+	public NGRuntimeWindowManager getRuntimeWindowManager()
 	{
 		if (runtimeWindowManager == null)
 		{
-			runtimeWindowManager = new NGRuntimeWindowMananger(this);
+			runtimeWindowManager = new NGRuntimeWindowManager(this);
 		}
 		return runtimeWindowManager;
 	}

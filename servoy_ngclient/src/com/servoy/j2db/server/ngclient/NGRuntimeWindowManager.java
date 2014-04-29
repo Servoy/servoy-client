@@ -33,7 +33,7 @@ import com.servoy.j2db.util.UUID;
  *
  */
 @SuppressWarnings("nls")
-public class NGRuntimeWindowMananger extends RuntimeWindowManager implements IService
+public class NGRuntimeWindowManager extends RuntimeWindowManager implements IService
 {
 	public static final String WINDOW_SERVICE = "$windowService";
 
@@ -41,7 +41,7 @@ public class NGRuntimeWindowMananger extends RuntimeWindowManager implements ISe
 	/**
 	 * @param application
 	 */
-	public NGRuntimeWindowMananger(INGApplication application)
+	public NGRuntimeWindowManager(INGApplication application)
 	{
 		super(application);
 		application.getWebsocketSession().registerService(WINDOW_SERVICE, this);

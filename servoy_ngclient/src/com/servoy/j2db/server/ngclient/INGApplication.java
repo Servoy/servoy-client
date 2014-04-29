@@ -37,6 +37,6 @@ public interface INGApplication extends IApplication
 
 	INGFormManager getFormManager();
 
-	NGRuntimeWindowMananger getRuntimeWindowManager();
+	NGRuntimeWindowManager getRuntimeWindowManager();
 
 }
