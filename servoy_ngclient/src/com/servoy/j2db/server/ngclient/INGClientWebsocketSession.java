@@ -24,7 +24,7 @@ import com.servoy.j2db.server.websocket.IWebsocketSession;
 
 /**
  * Interface for classes handling a websocket session based on a client.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -42,8 +42,9 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 
 	/**
 	 * @param form
+	 * @param name
 	 */
-	void updateForm(Form form);
+	void updateForm(Form form, String name);
 
 	/**
 	 * @param flattenedForm

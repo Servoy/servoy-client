@@ -528,12 +528,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	public void updateForm(Form form)
+	public void updateForm(Form form, String name)
 	{
-		String formUrl = (String)JSONUtils.toStringObject(form, PropertyType.form);
+		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
 		if (formsOnClient.containsKey(formUrl))
 		{
-			updateController(form, form.getName(), formUrl);
+			updateController(form, name, formUrl);
 		}
 	}
 
