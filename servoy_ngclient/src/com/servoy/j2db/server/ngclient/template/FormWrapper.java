@@ -52,12 +52,14 @@ public class FormWrapper
 	private final boolean isTableView;
 	private final boolean useControllerProvider;
 	private final String realName;
+	private final IFormElementValidator formElementValidator;
 
-	public FormWrapper(Form form, String realName, boolean useControllerProvider)
+	public FormWrapper(Form form, String realName, boolean useControllerProvider, IFormElementValidator formElementValidator)
 	{
 		this.form = form;
 		this.realName = realName;
 		this.useControllerProvider = useControllerProvider;
+		this.formElementValidator = formElementValidator;
 		isTableView = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 	}
 
@@ -116,7 +118,7 @@ public class FormWrapper
 		while (it.hasNext())
 		{
 			IPersist persist = it.next();
-			if (persist instanceof BaseComponent)
+			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{
 				baseComponents.add((BaseComponent)persist);
 			}
@@ -150,7 +152,7 @@ public class FormWrapper
 		{
 			IPersist persist = it.next();
 			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (persist instanceof BaseComponent)
+			if (persist instanceof BaseComponent && formElementValidator.isComponentSpecValid((BaseComponent)persist))
 			{
 				Point location = ((BaseComponent)persist).getLocation();
 				if (startPos <= location.y && endPos >= location.y)
