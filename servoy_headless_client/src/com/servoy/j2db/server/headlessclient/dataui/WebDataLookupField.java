@@ -592,7 +592,7 @@ public class WebDataLookupField extends WebDataField implements IDisplayRelatedD
 		if (list instanceof LookupValueList || list instanceof GlobalMethodValueList)
 		{
 			int index = -1;
-			if (!ScopesUtils.isVariableScope(getDataProviderID()))
+			if (!ScopesUtils.isVariableScope(getDataProviderID()) && (getDataProviderID() != null))
 			{
 				index = getDataProviderID().lastIndexOf('.');
 			}
