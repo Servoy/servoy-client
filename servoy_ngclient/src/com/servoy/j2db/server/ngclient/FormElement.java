@@ -526,13 +526,10 @@ public final class FormElement
 					{
 						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
 							media.getName();
-						if (pv.equals(com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_IMAGEMEDIAID))
+						Dimension imageSize = ImageLoader.getSize(media.getMediaData());
+						if (imageSize != null)
 						{
-							Dimension imageSize = ImageLoader.getSize(media.getMediaData());
-							if (imageSize != null)
-							{
-								url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
-							}
+							url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
 						}
 						convPropertiesMap.put(pv, url);
 					}
