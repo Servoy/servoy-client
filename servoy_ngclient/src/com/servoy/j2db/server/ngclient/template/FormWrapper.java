@@ -98,14 +98,8 @@ public class FormWrapper
 
 	public int getGridHeight()
 	{
-		for (Part prt : Utils.iterate(form.getParts()))
-		{
-			if (prt.getPartType() == Part.BODY)
-			{
-				return prt.getHeight();
-			}
-		}
-		return 0;
+		Part part = getBodyPart();
+		return part != null ? part.getHeight() : 0;
 	}
 
 	public int getGridWidth()
