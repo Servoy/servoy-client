@@ -78,6 +78,10 @@ public class LookupListModel extends AbstractListModel
 
 	private TableFilter nameFilter;
 
+	private int duplicateFirstCol = -1;
+	private int duplicateSecondCol = -1;
+	private final int duplicateThirdCol = -1;
+
 	public LookupListModel(IApplication application, LookupValueList lookup)
 	{
 		this.application = application;
@@ -165,7 +169,10 @@ public class LookupListModel extends AbstractListModel
 					throw new RuntimeException(msg);
 				}
 				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID2());
-				columns.add(cSQLName);
+				if ((duplicateFirstCol = columns.indexOf(cSQLName)) < 0)
+				{
+					columns.add(cSQLName);
+				}
 				if ((showValues & 2) != 0)
 				{
 					orderColumns.add(new QuerySort(cSQLName, true));
@@ -181,7 +188,10 @@ public class LookupListModel extends AbstractListModel
 					throw new RuntimeException(msg);
 				}
 				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID3());
-				columns.add(cSQLName);
+				if ((duplicateSecondCol = columns.indexOf(cSQLName)) < 0)
+				{
+					columns.add(cSQLName);
+				}
 				if ((showValues & 4) != 0)
 				{
 					orderColumns.add(new QuerySort(cSQLName, true));
@@ -450,7 +460,7 @@ public class LookupListModel extends AbstractListModel
 			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
-				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
+				Object[] row = processRow(set.getRow(i));
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
 				if (display != null && !display.equals("")) //$NON-NLS-1$
 				{
@@ -464,6 +474,38 @@ public class LookupListModel extends AbstractListModel
 		{
 			throw new RepositoryException(e);
 		}
+	}
+
+	public Object[] processRow(Object[] row)
+	{
+		Object[] ret = row;
+		if (duplicateFirstCol >= 0 || duplicateSecondCol >= 0)
+		{
+			boolean appendFirstRow = (showValues & 1) == 0 && (returnValues & 1) == 0;
+			boolean appendSecondRow = (showValues & 2) == 0 && (returnValues & 2) == 0;
+			boolean appendThirdRow = (showValues & 4) == 0 && (returnValues & 4) == 0;
+
+			ArrayList<Object> arr = new ArrayList<Object>();
+			arr.add(row[0]);
+			if (duplicateFirstCol >= 0)
+			{
+				arr.add(row[duplicateFirstCol]);
+			}
+			else
+			{
+				arr.add(row[1]);
+			}
+			if (duplicateSecondCol >= 0)
+			{
+				arr.add(row[duplicateFirstCol]);
+			}
+			else
+			{
+				arr.add(row[row.length - 1]);
+			}
+			ret = arr.toArray();
+		}
+		return CustomValueList.processRow(ret, showValues, returnValues);
 	}
 
 	/**
@@ -577,7 +619,7 @@ public class LookupListModel extends AbstractListModel
 			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
-				Object[] row = CustomValueList.processRow(set.getRow(i), showValues, returnValues);
+				Object[] row = processRow(set.getRow(i));
 				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
 				if (display != null && !display.equals("")) //$NON-NLS-1$
 				{
