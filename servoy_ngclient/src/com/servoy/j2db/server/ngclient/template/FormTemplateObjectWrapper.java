@@ -24,7 +24,6 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
-import com.servoy.j2db.util.Debug;
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateModel;
@@ -93,14 +92,6 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 	public boolean isComponentSpecValid(IFormElement formElement)
 	{
 		FormElement fe = ComponentFactory.getFormElement(formElement, fs);
-		try
-		{
-			return fe.getWebComponentSpec(true) != null;
-		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-			return false;
-		}
+		return fe.getWebComponentSpec(false) != null;
 	}
 }

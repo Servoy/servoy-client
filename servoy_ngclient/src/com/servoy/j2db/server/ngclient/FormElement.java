@@ -267,15 +267,23 @@ public final class FormElement
 		WebComponentSpec spec = null;
 		if (persist instanceof IFormElement)
 		{
-			spec = WebComponentSpecProvider.getInstance().getWebComponentDescription(FormTemplateGenerator.getComponentTypeName((IFormElement)persist));
+			try
+			{
+				spec = WebComponentSpecProvider.getInstance().getWebComponentDescription(FormTemplateGenerator.getComponentTypeName((IFormElement)persist));
+			}
+			catch (RuntimeException re)
+			{
+				Debug.error(re);
+				if (throwException) throw re;
+			}
 		}
-		if (spec == null && throwException)
+		if (spec == null)
 		{
 			String errorMessage = "Component spec for " +
 				((persist instanceof IFormElement) ? FormTemplateGenerator.getComponentTypeName((IFormElement)persist) : persist.toString()) +
 				" not found, check your component spec file";
 			Debug.error(errorMessage);
-			throw new IllegalStateException(errorMessage);
+			if (throwException) throw new IllegalStateException(errorMessage);
 		}
 		return spec;
 	}
