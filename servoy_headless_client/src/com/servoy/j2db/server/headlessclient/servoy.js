@@ -3151,6 +3151,14 @@ if (typeof(Servoy.HTMLEdit) == "undefined")
 			Servoy.HTMLEdit.ServoyTinyMCESettings.selector = '#'+editorId;
 			Servoy.HTMLEdit.ServoyTinyMCESettings.readonly = editable ? false : true;
 			Servoy.HTMLEdit.ServoyTinyMCESettings.setup = function(editor) {
+				var isIE11 = !!navigator.userAgent.match(/Trident.*rv\:11\./);
+				if (isIE11)
+				{
+					// big hack for ie11 editor not being able to edit
+					editor.on('focus', function(e) {
+						editor.execCommand('SelectAll',false)
+					});
+				}
 				editor.on('blur', function(e) {
 					var textarea = document.getElementById(editorId);
 					textarea.value = editor.getContent();
