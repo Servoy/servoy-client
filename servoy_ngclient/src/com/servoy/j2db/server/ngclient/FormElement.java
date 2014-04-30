@@ -427,7 +427,8 @@ public final class FormElement
 		Set<String> events = componentSpec.getHandlers().keySet();
 		for (String eventName : events)
 		{
-			if (getProperty(eventName) != null)
+			Object eventValue = getProperty(eventName);
+			if (eventValue != null && !(eventValue instanceof Integer && (((Integer)eventValue).intValue() == -1 || ((Integer)eventValue).intValue() == 0)))
 			{
 				handlers.add(eventName);
 			}
@@ -508,7 +509,7 @@ public final class FormElement
 	/**
 	 * AbstractBase.getPropertiesMap() returns for format,borderType  etc the STRING representation instead of the high level class representation used in ngClient
 	 * Converts string representation to high level Class representation of properties
-	 *  
+	 *
 	 * Initially only for border
 	 */
 	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, FlattenedSolution fs)
@@ -555,7 +556,7 @@ public final class FormElement
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
