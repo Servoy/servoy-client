@@ -78,9 +78,9 @@ public class LookupListModel extends AbstractListModel
 
 	private TableFilter nameFilter;
 
-	private int duplicateFirstCol = -1;
-	private int duplicateSecondCol = -1;
-	private final int duplicateThirdCol = -1;
+	private int secondColRedirectIndex = -1;
+	private int thirdColRedirectIndex = -1;
+
 
 	public LookupListModel(IApplication application, LookupValueList lookup)
 	{
@@ -169,7 +169,7 @@ public class LookupListModel extends AbstractListModel
 					throw new RuntimeException(msg);
 				}
 				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID2());
-				if ((duplicateFirstCol = columns.indexOf(cSQLName)) < 0)
+				if ((secondColRedirectIndex = columns.indexOf(cSQLName)) < 0)
 				{
 					columns.add(cSQLName);
 				}
@@ -188,7 +188,7 @@ public class LookupListModel extends AbstractListModel
 					throw new RuntimeException(msg);
 				}
 				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID3());
-				if ((duplicateSecondCol = columns.indexOf(cSQLName)) < 0)
+				if ((thirdColRedirectIndex = columns.indexOf(cSQLName)) < 0)
 				{
 					columns.add(cSQLName);
 				}
@@ -476,28 +476,31 @@ public class LookupListModel extends AbstractListModel
 		}
 	}
 
+	/**
+	 *  In cases where the user selected the same column in 2 or 3 'Return in dataprovider' or 'Show in field' for a valuelist
+	 *  the query  only does a select with one column name .After the data is received  it reconstructs the rows with the missing duplicate columns
+	 * */
 	public Object[] processRow(Object[] row)
 	{
 		Object[] ret = row;
-		if (duplicateFirstCol >= 0 || duplicateSecondCol >= 0)
+		if (secondColRedirectIndex >= 0 || thirdColRedirectIndex >= 0)
 		{
-			boolean appendFirstRow = (showValues & 1) == 0 && (returnValues & 1) == 0;
-			boolean appendSecondRow = (showValues & 2) == 0 && (returnValues & 2) == 0;
-			boolean appendThirdRow = (showValues & 4) == 0 && (returnValues & 4) == 0;
+			boolean hasFirstDp = (showValues & 1) != 0 || (returnValues & 1) != 0;
+			boolean hasSecondDp = (showValues & 2) != 0 || (returnValues & 2) != 0;
 
 			ArrayList<Object> arr = new ArrayList<Object>();
 			arr.add(row[0]);
-			if (duplicateFirstCol >= 0)
+			if (secondColRedirectIndex >= 0)
 			{
-				arr.add(row[duplicateFirstCol]);
+				arr.add(row[secondColRedirectIndex]);
 			}
-			else
+			else if (hasFirstDp && hasSecondDp)
 			{
 				arr.add(row[1]);
 			}
-			if (duplicateSecondCol >= 0)
+			if (thirdColRedirectIndex >= 0)
 			{
-				arr.add(row[duplicateFirstCol]);
+				arr.add(row[thirdColRedirectIndex]);
 			}
 			else
 			{
