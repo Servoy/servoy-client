@@ -68,18 +68,21 @@ public class ComponentResourcesExporter
 	 */
 	private static void copy(Enumeration<String> paths, File destDir) throws IOException
 	{
-		while (paths.hasMoreElements())
+		if (paths != null)
 		{
-			String path = paths.nextElement();
-			if (path.endsWith("/"))
+			while (paths.hasMoreElements())
 			{
-				File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
-				copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir);
-			}
-			else
-			{
-				URL entry = Activator.getContext().getBundle().getEntry(path);
-				FileUtils.copyInputStreamToFile(entry.openStream(), new File(destDir, FilenameUtils.getName(path)));
+				String path = paths.nextElement();
+				if (path.endsWith("/"))
+				{
+					File targetDir = new File(destDir, FilenameUtils.getName(path.substring(0, path.lastIndexOf("/"))));
+					copy(Activator.getContext().getBundle().getEntryPaths(path), targetDir);
+				}
+				else
+				{
+					URL entry = Activator.getContext().getBundle().getEntry(path);
+					FileUtils.copyInputStreamToFile(entry.openStream(), new File(destDir, FilenameUtils.getName(path)));
+				}
 			}
 		}
 	}
