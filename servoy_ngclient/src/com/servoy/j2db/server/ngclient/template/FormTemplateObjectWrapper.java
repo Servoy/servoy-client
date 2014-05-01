@@ -17,13 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.template;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.IDataConverterContext;
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateModel;
@@ -37,16 +37,16 @@ import freemarker.template.TemplateModelException;
  */
 public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements IFormElementValidator
 {
-	private final FlattenedSolution fs;
+	private final IDataConverterContext context;
 	private final boolean useControllerProvider;
 	private Form flattenedForm;
 
 	/**
 	 * @param fs
 	 */
-	public FormTemplateObjectWrapper(FlattenedSolution fs, boolean useControllerProvider)
+	public FormTemplateObjectWrapper(IDataConverterContext context, boolean useControllerProvider)
 	{
-		this.fs = fs;
+		this.context = context;
 		this.useControllerProvider = useControllerProvider;
 	}
 
@@ -56,17 +56,17 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		Object wrapped;
 		if (obj instanceof Form)
 		{
-			this.flattenedForm = fs.getFlattenedForm((Form)obj);
+			this.flattenedForm = context.getSolution().getFlattenedForm((Form)obj);
 			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, this);
 		}
 		else if (obj instanceof Object[])
 		{
-			this.flattenedForm = fs.getFlattenedForm((Form)((Object[])obj)[0]);
+			this.flattenedForm = context.getSolution().getFlattenedForm((Form)((Object[])obj)[0]);
 			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, this);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
-			wrapped = new FormElement(DefaultNavigator.INSTANCE, null);
+			wrapped = new FormElement(DefaultNavigator.INSTANCE, context);
 		}
 		else if (obj instanceof Part)
 		{
@@ -74,7 +74,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 		}
 		else if (obj instanceof IFormElement)
 		{
-			wrapped = ComponentFactory.getFormElement((IFormElement)obj, fs);
+			wrapped = ComponentFactory.getFormElement((IFormElement)obj, context);
 		}
 		else
 		{
@@ -85,13 +85,13 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper implements I
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.ngclient.template.IFormElementValidator#isSpecValid(com.servoy.j2db.persistence.BaseComponent)
 	 */
 	@Override
 	public boolean isComponentSpecValid(IFormElement formElement)
 	{
-		FormElement fe = ComponentFactory.getFormElement(formElement, fs);
+		FormElement fe = ComponentFactory.getFormElement(formElement, context);
 		return fe.getWebComponentSpec(false) != null;
 	}
 }

@@ -34,10 +34,10 @@ import org.apache.wicket.util.collections.ArrayListStack;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.value.IValueMap;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.DataConverterContext;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.util.Debug;
 
@@ -52,7 +52,7 @@ public class FormWithInlineLayoutGenerator
 	 * @param fs
 	 * @param writer
 	 */
-	public static void generate(Form form, FlattenedSolution fs, PrintWriter writer)
+	public static void generate(Form form, DataConverterContext context, PrintWriter writer)
 	{
 		try
 		{
@@ -62,7 +62,7 @@ public class FormWithInlineLayoutGenerator
 			while (it.hasNext())
 			{
 				IFormElement element = it.next();
-				FormElement fe = ComponentFactory.getFormElement(element, fs);
+				FormElement fe = ComponentFactory.getFormElement(element, context);
 				allFormElements.put(element.getUUID().toString(), fe);
 
 				//make life easy if a real name is used
@@ -224,7 +224,7 @@ public class FormWithInlineLayoutGenerator
 
 		/**
 		 * Gets whether this tag does not require a closing tag.
-		 * 
+		 *
 		 * @param name
 		 *            The tag's name, e.g. a, br, div, etc.
 		 * @return True if this tag does not require a closing tag

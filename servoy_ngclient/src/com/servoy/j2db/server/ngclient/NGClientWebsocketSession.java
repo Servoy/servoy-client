@@ -76,25 +76,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private final ConcurrentMap<String, String> formsOnClient = new ConcurrentHashMap<>();
 
-	private final IDataConverterContext converterContext;
-
 	public NGClientWebsocketSession()
 	{
-		converterContext = new IDataConverterContext()
-		{
-			@Override
-			public FlattenedSolution getSolution()
-			{
-				INGApplication app = getApplication();
-				return app != null ? app.getFlattenedSolution() : null;
-			}
-
-			@Override
-			public INGApplication getApplication()
-			{
-				return NGClientWebsocketSession.this.getClient();
-			}
-		};
 	}
 
 	public void setClient(NGClient client)
@@ -515,7 +498,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
 				String view = (tableview ? "tableview" : "recordview");
-				new FormTemplateGenerator(fs, true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
+				new FormTemplateGenerator(new DataConverterContext(client), true).generate(form, realFormName, "form_" + view + "_js.ftl", sw);
 			}
 			if (client.isEventDispatchThread())
 			{
@@ -653,7 +636,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			{
 				return new Date(((Long)ret).longValue());
 			}
-			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType(), converterContext); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
+			return JSONUtils.toJavaObject(ret, apiDefinition.getReturnType(), new DataConverterContext(getClient())); // TODO should JSONUtils.toJavaObject  use PropertyDescription instead of propertyType
 		}
 		catch (JSONException | IOException e)
 		{

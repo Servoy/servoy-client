@@ -31,6 +31,7 @@ import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
 
 
+@SuppressWarnings("nls")
 public class WebComponent implements ListDataListener
 {
 	private final String name;
@@ -294,7 +295,7 @@ public class WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -305,7 +306,7 @@ public class WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
 	 */
 	@Override
@@ -316,7 +317,7 @@ public class WebComponent implements ListDataListener
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
 	 */
 	@Override

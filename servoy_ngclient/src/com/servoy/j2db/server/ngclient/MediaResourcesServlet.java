@@ -54,7 +54,7 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * Supported resources URLs:<br><br>
- * 
+ *
  * Get:
  * <ul>
  * <li>/resources/fs/[rootSolutionName]/[media.name.including.mediafolderpath] - for flattened solution access - useful when resources such as CSS link to each other relatively by name/path:</li>
@@ -182,7 +182,7 @@ public class MediaResourcesServlet extends HttpServlet
 	private boolean sendData(HttpServletRequest request, HttpServletResponse response, FlattenedSolution fs, Media media) throws IOException
 	{
 		// cache resources on client until changed
-		if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getSolution().getLastModifiedTime() / 1000 * 1000)) return true;
+		if (HTTPUtils.checkAndSetUnmodified(request, response, fs.getLastModifiedTime() / 1000 * 1000)) return true;
 
 		return sendData(response, media.getMediaData(), media.getMimeType(), media.getName());
 	}

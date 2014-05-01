@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
+import com.servoy.j2db.server.ngclient.IDataConverterContext;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 
@@ -53,12 +54,12 @@ public class FormTemplateGenerator
 {
 	private final Configuration cfg;
 
-	public FormTemplateGenerator(FlattenedSolution fs, boolean useControllerProvider)
+	public FormTemplateGenerator(IDataConverterContext context, boolean useControllerProvider)
 	{
 		cfg = new Configuration();
 
 		cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "templates"));
-		cfg.setObjectWrapper(new FormTemplateObjectWrapper(fs, useControllerProvider));
+		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider));
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		cfg.setIncompatibleImprovements(new Version(2, 3, 20));

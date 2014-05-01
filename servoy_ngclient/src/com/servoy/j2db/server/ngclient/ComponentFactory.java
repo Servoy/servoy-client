@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.CustomValueList;
@@ -33,11 +32,8 @@ import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.GlobalMethodValueList;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.RelatedValueList;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportChilds;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
@@ -113,7 +109,7 @@ public class ComponentFactory
 	/**
 	 * @param iterator
 	 */
-	public static List<FormElement> getFormElements(Iterator<IPersist> iterator, FlattenedSolution fs)
+	public static List<FormElement> getFormElements(Iterator<IPersist> iterator, IDataConverterContext context)
 	{
 		if (Boolean.valueOf(Settings.getInstance().getProperty("servoy.internal.reloadSpecsAllTheTime", "false")).booleanValue())
 		{
@@ -125,29 +121,20 @@ public class ComponentFactory
 			IPersist persist = iterator.next();
 			if (persist instanceof IFormElement)
 			{
-				lst.add(getFormElement((IFormElement)persist, fs));
+				lst.add(getFormElement((IFormElement)persist, context));
 			}
 		}
 		return lst;
 	}
 
-	public static FormElement getFormElement(IFormElement formElement, FlattenedSolution fs)
+	public static FormElement getFormElement(IFormElement formElement, IDataConverterContext context)
 	{
-		// dont cache solution model changed or created elements
-		ISupportChilds parent = formElement.getParent();
-		while (!(parent instanceof Form) && parent != null)
-		{
-			parent = parent.getParent();
-		}
-		if (parent instanceof Form)
-		{
-			Solution copy = fs.getSolutionCopy(false);
-			if (copy != null && copy.getChild(parent.getUUID()) != null) return new FormElement(formElement, fs);
-		}
+		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
+		if (context.getSolution().getSolutionCopy(false) != null) return new FormElement(formElement, context);
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
 		{
-			persistWrapper = new FormElement(formElement, fs);
+			persistWrapper = new FormElement(formElement, context);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{

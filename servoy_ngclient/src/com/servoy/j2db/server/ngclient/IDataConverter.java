@@ -21,7 +21,7 @@ import org.json.JSONException;
 
 /**
  * Converter from client data (JSON) to backend data
- * 
+ *
  * @author gboros
  *
  */
@@ -30,6 +30,4 @@ public interface IDataConverter
 	Object convertToJavaObject(FormElement fe, String propertyName, Object propertyValue) throws JSONException;
 
 	Object convertFromJavaObjectToString(FormElement fe, String propertyName, Object propertyValue);
-
-	IDataConverterContext getDataConverterContext();
 }

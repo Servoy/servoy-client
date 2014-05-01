@@ -66,12 +66,12 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 
 	/**
 	 * @param record
-	 * @return 
+	 * @return
 	 */
 	void setRecord(IRecord record, boolean fireChangeEvent);
 
 	/**
-	 * 
+	 *
 	 * @param webComponent
 	 * @param property
 	 */
@@ -81,5 +81,7 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 * @param findMode
 	 */
 	void setFindMode(boolean findMode);
+
+	public INGApplication getApplication();
 
 }

@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Tab;
 import com.servoy.j2db.persistence.TabPanel;
@@ -83,7 +84,7 @@ public final class FormElement
 	/**
 	 * @param persist
 	 */
-	public FormElement(IFormElement persist, final FlattenedSolution fs)
+	public FormElement(IFormElement persist, final IDataConverterContext context)
 	{
 		this.persist = persist;
 		if (persist instanceof Bean)
@@ -91,13 +92,12 @@ public final class FormElement
 			String customJSONString = ((Bean)persist).getBeanXML();
 			if (customJSONString != null)
 			{
-				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), fs);
+				Map<String, Object> jsonMap = getConvertedPropertiesMap(((AbstractBase)persist).getPropertiesMap(), context);
 				try
 				{
 					Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 					Map<String, PropertyDescription> eventProperties = getWebComponentSpec().getHandlers();
 					JSONObject jsonProperties = new JSONObject(customJSONString);
-					IDataConverterContext converterContext = null;
 					Iterator keys = jsonProperties.keys();
 					while (keys.hasNext())
 					{
@@ -111,31 +111,14 @@ public final class FormElement
 						}
 						if (pd != null)
 						{
-							if (converterContext == null)
-							{
-								converterContext = new IDataConverterContext()
-								{
-									@Override
-									public FlattenedSolution getSolution()
-									{
-										return fs;
-									}
-
-									@Override
-									public INGApplication getApplication()
-									{
-										return null;
-									}
-								};
-							}
 							// TODO where the handle PropertyType.form properties? (see tabpanel below)
 							//toJavaObject shoudl accept application because it is needed for format
-							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, converterContext));
+							jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd, context));
 							//jsonMap.put(key, JSONUtils.toJavaObject(jsonProperties.get(key), pd.getType(), fs));
 						}
 					}
 					fillPropertiesWithDefaults(specProperties, jsonMap);
-					adjustLocationRelativeToPart(persist, fs, jsonMap);
+					adjustLocationRelativeToPart(persist, context.getSolution(), jsonMap);
 				}
 				catch (Exception ex)
 				{
@@ -150,7 +133,7 @@ public final class FormElement
 		}
 		else if (persist instanceof AbstractBase)
 		{
-			Map<String, Object> map = getConvertedPropertiesMap(getFlattenedPropertiesMap(), fs);
+			Map<String, Object> map = getConvertedPropertiesMap(getFlattenedPropertiesMap(), context);
 			if (persist instanceof TabPanel)
 			{
 				ArrayList<Map<String, Object>> tabList = new ArrayList<>();
@@ -170,7 +153,7 @@ public final class FormElement
 					int containsFormID = tab.getContainsFormID();
 					// TODO should this be resolved way later on?
 					// if solution model then this form can change..
-					Form form = fs.getForm(containsFormID);
+					Form form = context.getSolution().getForm(containsFormID);
 					tabMap.put("containsFormId", form.getName());
 
 					tabList.add(tabMap);
@@ -184,7 +167,7 @@ public final class FormElement
 			}
 			Map<String, PropertyDescription> specProperties = getWebComponentSpec().getProperties();
 			fillPropertiesWithDefaults(specProperties, map);
-			adjustLocationRelativeToPart(persist, fs, map);
+			adjustLocationRelativeToPart(persist, context.getSolution(), map);
 			propertyValues = Collections.unmodifiableMap(new MiniMap<String, Object>(map, map.size()));
 		}
 		else
@@ -512,7 +495,7 @@ public final class FormElement
 	 *
 	 * Initially only for border
 	 */
-	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, FlattenedSolution fs)
+	private Map<String, Object> getConvertedPropertiesMap(Map<String, Object> propertiesMap, final IDataConverterContext context)
 	{
 		Map<String, Object> convPropertiesMap = new HashMap<>();
 		for (String pv : propertiesMap.keySet())
@@ -530,15 +513,27 @@ public final class FormElement
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID :
 				case com.servoy.j2db.persistence.IContentSpecConstants.PROPERTY_IMAGEMEDIAID :
 				{
-					Media media = fs.getMedia(Utils.getAsInteger(val));
+					Media media = context.getSolution().getMedia(Utils.getAsInteger(val));
 					if (media != null)
 					{
 						String url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" +
 							media.getName();
 						Dimension imageSize = ImageLoader.getSize(media.getMediaData());
+						boolean paramsAdded = false;
 						if (imageSize != null)
 						{
+							paramsAdded = true;
 							url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
+						}
+						if (context.getApplication() != null)
+						{
+							Solution sc = context.getSolution().getSolutionCopy(false);
+							if (sc != null && sc.getMedia(media.getName()) != null)
+							{
+								if (paramsAdded) url += "&";
+								else url += "?";
+								url += "uuid=" + context.getApplication().getWebsocketSession().getUuid() + "&lm:" + sc.getLastModifiedTime();
+							}
 						}
 						convPropertiesMap.put(pv, url);
 					}
@@ -556,7 +551,7 @@ public final class FormElement
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

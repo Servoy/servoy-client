@@ -98,7 +98,7 @@ public class TemplateGeneratorFilter implements Filter
 						if (form != null)
 						{
 							if (HTTPUtils.checkAndSetUnmodified(((HttpServletRequest)servletRequest), ((HttpServletResponse)servletResponse),
-								fs.getSolution().getLastModifiedTime() / 1000 * 1000)) return;
+								fs.getLastModifiedTime() / 1000 * 1000)) return;
 
 							boolean html = uri.endsWith(".html");
 							boolean tableview = (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
@@ -106,7 +106,8 @@ public class TemplateGeneratorFilter implements Filter
 							{
 								((HttpServletResponse)servletResponse).setContentType("text/html");
 								PrintWriter w = servletResponse.getWriter();
-								FormWithInlineLayoutGenerator.generate(form, fs, w);
+								FormWithInlineLayoutGenerator.generate(form, wsSession != null ? new DataConverterContext(wsSession.getClient())
+									: new DataConverterContext(fs), w);
 								w.flush();
 							}
 							else
@@ -114,7 +115,8 @@ public class TemplateGeneratorFilter implements Filter
 								String view = (tableview ? "tableview" : "recordview");
 								((HttpServletResponse)servletResponse).setContentType("text/" + (html ? "html" : "javascript"));
 								PrintWriter w = servletResponse.getWriter();
-								new FormTemplateGenerator(fs, false).generate(form, formName, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
+								new FormTemplateGenerator(wsSession != null ? new DataConverterContext(wsSession.getClient()) : new DataConverterContext(fs),
+									false).generate(form, formName, "form_" + view + "_" + (html ? "html" : "js") + ".ftl", w);
 								w.flush();
 							}
 							return;

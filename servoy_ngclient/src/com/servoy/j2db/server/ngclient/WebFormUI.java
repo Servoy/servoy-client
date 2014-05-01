@@ -43,6 +43,7 @@ import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
+@SuppressWarnings("nls")
 public class WebFormUI extends WebComponent implements IWebFormUI
 {
 	protected final Map<String, WebComponent> components = new HashMap<>();
@@ -63,7 +64,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	/**
 	 * this is a full recreate ui.
-	 * 
+	 *
 	 * @param formController
 	 * @param dal
 	 * @return
@@ -75,7 +76,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		DataAdapterList dal = new DataAdapterList(application, formController);
 		Form form = formController.getForm();
 		ElementScope elementsScope = initElementScope(formController);
-		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), application.getFlattenedSolution());
+		List<FormElement> formElements = ComponentFactory.getFormElements(form.getAllObjects(), new DataConverterContext(application));
 		int counter = 0;
 		for (FormElement fe : formElements)
 		{
@@ -157,9 +158,9 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	/**
 	 *  -fe is only needed because of format . It accesses another property value based on the 'for' property (). TODO this FormElement parameter should be analyzed because format accepts a flat property value.
-	 *  
+	 *
 	 * -level is only needed because the current implementation 'flattens' the dataproviderid's and tagstrings for DAL  .(level should be removed after next changes)
-	 *  
+	 *
 	 *  -component is the whole component for now ,but it should be the current component node in the runtime component tree (instead of flat properties map)
 	 *  -component and componentNode should have been just componentNode (but currently WebCoponent is not nested)
 	 */
@@ -189,7 +190,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 					{
 						Debug.error("Array of tagstring currently not supported dataprovider");
 						//bind tag expressions
-						//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
+						//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
 						if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
 						{
 							dal.addTaggedProperty(component, level + propertySpec.getName());
@@ -227,7 +228,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 				case tagstring : // array of taggstring is not supported yet (DAL does not support arrays)
 				{
 					//bind tag expressions
-					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
+					//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
 					if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
 					{
 						dal.addTaggedProperty(component, level + propName);
@@ -246,7 +247,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 
 	/**
 	 * TEMPORARY FUNCTION until we move to nested web component tree , with each node having semantics (PropertyType)
-	 *  Webcomponent will be a tree 
+	 *  Webcomponent will be a tree
 	 */
 	private void putInComponentNode(Object componentNode, String propName, Object propValue)
 	{
@@ -283,10 +284,10 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 //			{
 //				Object propValue = formElementProperty;
 //				//bind tag expressions
-//				//for each property with tags ('tagstring' type), add it's dependent tags to the DAL 
+//				//for each property with tags ('tagstring' type), add it's dependent tags to the DAL
 //				if (propValue != null && propValue instanceof String && ((String)propValue).contains("%%"))
 //				{
-//					dal.addTaggedProperty(component, propName); 
+//					dal.addTaggedProperty(component, propName);
 //				}
 //				break;
 //			}
@@ -408,7 +409,7 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 		if ("size".equals(propertyName))
 		{
 			properties.put(propertyName,
-				JSONUtils.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension), dataAdapterList.getDataConverterContext()));
+				JSONUtils.toJavaObject(propertyValue, new PropertyDescription("size", PropertyType.dimension), new DataConverterContext(application)));
 		}
 	}
 
