@@ -114,7 +114,7 @@ import com.servoy.j2db.util.keyword.Ident;
 
 /**
  * Runtime object which represents the entire solution, flattened, containing modules, caching stuff
- * 
+ *
  * @author jcompagner,jblok
  */
 public class FlattenedSolution implements IPersistListener, IDataProviderHandler, IRelationProvider, ISupportScriptProviders, IMediaProvider
@@ -192,6 +192,10 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			return loginFlattenedSolution.createPersistCopy(persist);
 		}
+
+		// if a copy is taken or created then it is for modifying it.
+		// so update the last modified time.
+		getSolutionCopy().updateLastModifiedTime();
 
 		T copy = (T)getSolutionCopy().getChild(persist.getUUID());
 		if (copy != null) return copy;
@@ -543,6 +547,12 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		return user_created_styles.containsKey(style.getName());
 	}
 
+	public long getLastModifiedTime()
+	{
+		if (copySolution != null) return copySolution.getLastModifiedTime();
+		return getSolution().getLastModifiedTime();
+	}
+
 	/**
 	 * @return
 	 */
@@ -673,7 +683,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				synchronized (modStyles)
 				{
 					Map<String, Style> allStyles = getAllStyles();
-					synchronized (allStyles) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards) 
+					synchronized (allStyles) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards)
 					{
 						allStyles.putAll(modStyles);
 					}
@@ -688,7 +698,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private Map<String, Style> getAllStyles()
 	{
@@ -786,7 +796,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/*
 	 * Get a flattened form from this flattened solution.
-	 * 
+	 *
 	 * <p>When the form does not have a parent, the form itself is returned
 	 */
 	public Form getFlattenedForm(IPersist persist)
@@ -897,7 +907,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Check whether a form can be instantiated.
-	 * 
+	 *
 	 * @param form
 	 * @return
 	 */
@@ -1343,7 +1353,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * @return
-	 * @throws RepositoryException 
+	 * @throws RepositoryException
 	 */
 	protected IDataProvider getEnumDataProvider(String id) throws RepositoryException
 	{
@@ -1406,7 +1416,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 				dataProvidersMap.put(col.getDataProviderID(), col);
 			}
 
-			//2) last the scriptcalculations and aggregates so the overlap the columns in case of stored calcs			
+			//2) last the scriptcalculations and aggregates so the overlap the columns in case of stored calcs
 			Iterator<TableNode> tableNodes = getTableNodes(table);
 			while (tableNodes.hasNext())
 			{
@@ -1701,7 +1711,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Get relations from string rel1.rel2. ... .reln
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -1763,7 +1773,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Search for a persist by UUID in the main solution and all modules.
-	 * 
+	 *
 	 * @param uuid
 	 * @return
 	 */
@@ -1802,7 +1812,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * Search for a persist in the parent tree in the main solution and all modules.
-	 * 
+	 *
 	 * @param persist
 	 * @return
 	 */
@@ -1908,6 +1918,8 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			parentFlattenedSolution.flush(persist);
 		}
+
+		if (copySolution != null) copySolution.updateLastModifiedTime();
 	}
 
 	public void removeStyle(String name)
@@ -2054,7 +2066,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 					// if this is hit here with a normal (not flattened form) that has an extend.
 					// and that form is a solution modal form. the f.getSolution() doesn't have to find it.
 					// because f.getSolution() is the copy solution thats inside the FlattenedSolution.
-					// that one doesn't have any other forms. But normally all forms should be flattened. 
+					// that one doesn't have any other forms. But normally all forms should be flattened.
 					extendedForm = flattenedSolution == null ? form.getSolution().getForm(extended_form_id) : flattenedSolution.getForm(extended_form_id);
 					if (flattenedSolution == null && extendedForm == null) // check for module form
 					{
@@ -2374,7 +2386,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 		{
 			// the form cache was null, try to create it
 			fillFormCaches();
-			// can become null if a flush did happen in the mean time, then try again 
+			// can become null if a flush did happen in the mean time, then try again
 			tmp = formCacheById;
 		}
 		return tmp.get(id);
@@ -2660,7 +2672,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 						if (r.getJoinType() != ISQLJoin.INNER_JOIN)
 						{
 							// disabled related vl sorting for muti-level related VLs,
-							// outer join on the intermediate tables causes extra results that influence the sorting result 
+							// outer join on the intermediate tables causes extra results that influence the sorting result
 							return null;
 						}
 					}
@@ -2916,7 +2928,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 
 	/**
 	 * @param form
-	 * @param application 
+	 * @param application
 	 */
 	public void registerChangedForm(Form form)
 	{
@@ -2957,7 +2969,7 @@ public class FlattenedSolution implements IPersistListener, IDataProviderHandler
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("nls")
 	public void checkStateForms(IServiceProvider provider)
