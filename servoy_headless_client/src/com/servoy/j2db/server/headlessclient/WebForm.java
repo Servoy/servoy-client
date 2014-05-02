@@ -155,7 +155,7 @@ import com.servoy.j2db.util.gui.RoundedBorder;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class WebForm extends Panel implements IFormUIInternal<Component>, IMarkupCacheKeyProvider, IProviderStylePropertyChanges, ISupportSimulateBounds
 {
@@ -362,7 +362,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.MarkupContainer#hasAssociatedMarkup()
 	 */
 	@Override
@@ -700,7 +700,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 //				while (it.hasNext())
 //				{
 //					Part p = (Part) it.next();
-//					if (p.getPartType() == Part.HEADER) 
+//					if (p.getPartType() == Part.HEADER)
 //					{
 //						addHeaders = false;
 //						break;
@@ -742,7 +742,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				view = new WebCellBasedView("View", app, viewScriptable, f, f, app.getFlattenedSolution().getDataproviderLookup(app.getFoundSetManager(), f),
 					fp.getScriptExecuter(), addHeaders, startY, endY, sizeHint, viewType);
 				viewScriptable.setComponent((WebCellBasedView)view, f);
-
+				if (dataRenderers[FormController.FORM_EDITOR] != null) dataRenderers[FormController.FORM_EDITOR].destroy();
 				dataRenderers[FormController.FORM_EDITOR] = (WebCellBasedView)view;
 			}
 		}
@@ -802,9 +802,9 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/**
 	 * Visitor for the wicket component. It will mark the components readOnly property;
-	 * 
+	 *
 	 * @author Sisu
-	 * 
+	 *
 	 */
 	private static class WicketCompVisitorMarker implements IVisitor<Component>
 	{
@@ -890,7 +890,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormUIInternal#isReadOnly()
 	 */
 	@Override
@@ -933,7 +933,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormUIInternal#touch()
 	 */
 	@Override
@@ -1302,7 +1302,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 				if (comp instanceof IScriptableProvider) scriptable = ((IScriptableProvider)comp).getScriptObject();
 				JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptable.getClass(), ScriptableObject.getTopLevelScope(fs));
 
-				boolean named = name != null && !name.equals("") && !name.startsWith(ComponentFactory.WEB_ID_PREFIX); //$NON-NLS-1$ 
+				boolean named = name != null && !name.equals("") && !name.startsWith(ComponentFactory.WEB_ID_PREFIX); //$NON-NLS-1$
 				if (groupName != null || named)
 				{
 					try
@@ -1943,7 +1943,7 @@ public class WebForm extends Panel implements IFormUIInternal<Component>, IMarku
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.wicket.MarkupContainer#onRender(org.apache.wicket.markup.MarkupStream)
 	 */
 	@Override

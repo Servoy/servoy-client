@@ -484,7 +484,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IFormUIInternal#isReadOnly()
 	 */
 	@Override
@@ -495,7 +495,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 
 	/**
 	 * TODO CHECK this one should always only be called Through the FormController!!
-	 * 
+	 *
 	 * @param b
 	 */
 	@Override
@@ -525,7 +525,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 		}
 		else
 		{
-			//set readOnly for all form children 
+			//set readOnly for all form children
 			for (int i = 0; i < getComponentCount(); i++)
 			{
 				setReadOnlyOnFormChildren(getComponent(i), b);
@@ -680,7 +680,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				{
 					proto = new PrototypeState(null);
 				}
-				((ListView)view).setPrototypeCellValue(proto); //this call is extreemly inportant, it prevent all rows retrieval 
+				((ListView)view).setPrototypeCellValue(proto); //this call is extreemly inportant, it prevent all rows retrieval
 
 				FormBodyEditor editor = null;
 
@@ -735,6 +735,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			case FormController.TABLE_VIEW :
 				view = new TableView(application, fp, fp.getForm(), fp.getForm(), fp.getScriptExecuter(), dataRenderers[Part.HEADER],
 					dataRenderers[Part.LEADING_GRAND_SUMMARY], false);
+				if (dataRenderers[FormController.FORM_EDITOR] != null) dataRenderers[FormController.FORM_EDITOR].destroy();
 				dataRenderers[FormController.FORM_EDITOR] = (IDataRenderer)view;
 				if (formController.getBodyStyle() != null)
 				{
@@ -1187,7 +1188,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	}
 
 	/**
-	 * 
+	 *
 	 * @return 0 when ok,1 when cancel,2 when current rec.
 	 */
 	private int willingToPrint(IFoundSetInternal formModel)
