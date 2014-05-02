@@ -487,25 +487,31 @@ public class LookupListModel extends AbstractListModel
 		{
 			boolean hasFirstDp = (showValues & 1) != 0 || (returnValues & 1) != 0;
 			boolean hasSecondDp = (showValues & 2) != 0 || (returnValues & 2) != 0;
+			boolean hasThirdDp = (showValues & 4) != 0 || (returnValues & 4) != 0;
 
 			ArrayList<Object> arr = new ArrayList<Object>();
-			arr.add(row[0]);
+			int srcIdx = 0;
+
+			if (hasFirstDp) arr.add(row[srcIdx++]);
+
 			if (secondColRedirectIndex >= 0)
 			{
 				arr.add(row[secondColRedirectIndex]);
 			}
-			else if (hasFirstDp && hasSecondDp)
+			else if (hasSecondDp)
 			{
-				arr.add(row[1]);
+				arr.add(row[srcIdx++]);
 			}
+
 			if (thirdColRedirectIndex >= 0)
 			{
 				arr.add(row[thirdColRedirectIndex]);
 			}
-			else
+			else if (hasThirdDp)
 			{
-				arr.add(row[row.length - 1]);
+				arr.add(row[srcIdx++]);
 			}
+
 			ret = arr.toArray();
 		}
 		return CustomValueList.processRow(ret, showValues, returnValues);
