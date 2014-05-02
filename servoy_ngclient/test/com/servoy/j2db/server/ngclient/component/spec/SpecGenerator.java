@@ -86,7 +86,10 @@ public class SpecGenerator
 	static
 	{
 		specTemplateList.add(new SpecTemplateModel("button", "Button", IRepository.GRAPHICALCOMPONENTS, IRuntimeDataButton.class, new String[0]));
-		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class, new String[0]));
+		specTemplateList.add(new SpecTemplateModel("calendar", "Calendar", IRepository.FIELDS, IRuntimeCalendar.class, new String[] {
+			"servoydefault/calendar/bootstrap-datetimepicker/js/moment.min.js",
+			"servoydefault/calendar/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js",
+			"servoydefault/calendar/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" }));
 		specTemplateList.add(new SpecTemplateModel("checkgroup", "Check group", IRepository.FIELDS, IRuntimeChecks.class, new String[0]));
 		specTemplateList.add(new SpecTemplateModel(
 			"combobox",
