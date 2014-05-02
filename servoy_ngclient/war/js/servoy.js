@@ -30,6 +30,8 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
                       EAST : 2,
                       SOUTH : 4,
                       WEST : 8
+}).value("$foundsetConstants", {
+                      CALL_ON_ONE_SELECTED_ROW : 1
 }).factory("$utils",function($rootScope) {
 	
 	// internal function
@@ -137,6 +139,16 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		{
 			return testKeyPressed(e,13);
 		},
+		bindTwoWayObjectProperty : function (a, propertyNameA, b, propertyNameB, useObjectEquality, scope) {
+			var toWatchA = (scope ? "a." + propertyNameA : function() { return a[propertyNameA] });
+			var toWatchB = (scope ? "b." + propertyNameB : function() { return b[propertyNameB] });
+
+			if (!scope) scope = $rootScope;
+			return [
+			        scope.$watch(toWatchA, function (newValue, oldValue, scope) { if (newValue !== oldValue) b[propertyNameB] = a[propertyNameA] }, useObjectEquality),
+			        scope.$watch(toWatchB, function (newValue, oldValue, scope) { if (newValue !== oldValue) a[propertyNameA] = b[propertyNameB] }, useObjectEquality)
+			];
+		}
 	}
 }).directive('ngOnChange', function($parse){
     return function(scope, elm, attrs){       
@@ -162,39 +174,69 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	        var propertyname = dataproviderString.substring(index+1);
 	        var beanname;
 	        var parent = scope.$parent;
+
+    	    // TODO deprecate svy_cn? remove from codebase if possible
 	        if(beanModel.svy_cn === undefined) {
-		        for(key in parent.model) {
-		        	if (parent.model[key] === beanModel) {
-		        		beanname = key;
-		        		break;
+	        	beanname = element.attr("name");
+		        if (! beanname) {
+			        var nameParentEl = element.parents("[name]").first(); 
+		        	if (nameParentEl) beanname = nameParentEl.attr("name");
+		        }
+		        if (! beanname) {
+		        	for(key in parent.model) {
+		        		if (parent.model[key] === beanModel) {
+		        			beanname = key;
+		        			break;
+		        		}
 		        	}
-		        }	
+		        }
 	        } else {
 	        	beanname = beanModel.svy_cn;
 	        }
 	        
 	        if (!beanname) {
-	        	$log.error("bean name not found for model string: " + dataproviderString);
+	        	$log.error("[svy-autoapply] bean name not found for model string: " + dataproviderString);
 	        	return;
 	        }
+	        
 	        var formname = parent.formname;
+	        var formParentScope = parent;
 	        while (!formname) {
-	        	parent = parent.$parent;
-	        	if (parent) {
-	        		formname = parent.formname;
+	        	formParentScope = formParentScope.$parent;
+	        	if (formParentScope) {
+	        		formname = formParentScope.formname;
 	        	}
 	        	else { 
-	        		$log.error("no form found for " + beanname + "." + propertyname);
+	        		$log.error("[svy-autoapply] no form found for " + beanname + "." + propertyname);
 	        		return;
 	        	}
 	        }
-	        
 
+	        // search for svy-apply attribute on element, within parents (svy-autoapply could be used on a child DOM element of the web component)
+	        var svyApply;
+	        var svyApplyAttrValue = element.attr("svy-apply");
+	        if (! svyApplyAttrValue) {
+		        var applyParentEl = element.parents("[svy-apply]").first(); 
+	        	if (applyParentEl) svyApplyAttrValue = applyParentEl.attr("svy-apply");
+	        }
+	        if (svyApplyAttrValue) {
+	        	svyApply = parent.$eval(svyApplyAttrValue);
+	        }
+	        
 		        // Listen for change events to enable binding
 		     element.bind('change', function() {
 		        	// model has not been updated yet
 		        	setTimeout(function() { 
-		        		$servoyInternal.push(formname,beanname,propertyname,modelFunction(scope))
+		        		var beanModel = modelFunction(scope);
+		        		// use svyApply rather then pushChange because svyApply might get intercepted by components such as portals
+		        		// that have nested child web components
+		    	        if (svyApply) {
+		    	        	svyApply(propertyname);
+		    	        } else {
+		    	        	// this shouldn't happen (svy-apply not being set on a web-component...)
+			        		if (beanModel) $servoyInternal.pushChange(formname,beanname,propertyname,beanModel[propertyname],beanModel.rowId);
+			        		else $servoyInternal.pushChangeDefault(formname,beanname,propertyname);
+		    	        }
 		        	}, 0);
 		     });
 		     // Listen for start edit
@@ -556,7 +598,33 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	}
 	
     
-}).factory('$svyNGEvents', ['$timeout', '$rootScope', function($timeout, $rootScope) {
+})
+.directive("svyComponentWrapper", ['$compile', function ($compile) {
+		return {
+			priority: 1000,
+			//replace: true,
+			//transclude: false,
+			restrict: 'E',
+			//scope: false,
+			compile: function compile(tElement, tAttrs, transclude) {
+				var templateFragment = " ";
+				angular.forEach(tAttrs.$attr, function(value, key) {
+					if (key != 'tagname') templateFragment += ' ' + key + '="' + tAttrs[key] + '"';
+				});
+				templateFragment += "/>";
+			
+				return function (scope, element, attr, controller, transcludeFn) {
+					var tagName = scope.$eval(tAttrs.tagname);
+					var templateElement = angular.element('<' + tagName + templateFragment);
+					templateElement.append(tElement.html());
+					var el = $compile(templateElement)(scope);
+					element.replaceWith(el);
+				}
+			}
+		};
+	}]
+)
+.factory('$svyNGEvents', ['$timeout', '$rootScope', function($timeout, $rootScope) {
 	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 	 
 	return {

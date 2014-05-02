@@ -38,6 +38,9 @@ Web-Component: True
 Name: tabpanel/tabpanel.spec
 Web-Component: True
 
+Name: portal/portal.spec
+Web-Component: True
+
 Name: navigator/navigator.spec
 Web-Component: True
 

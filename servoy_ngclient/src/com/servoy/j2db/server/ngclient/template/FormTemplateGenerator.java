@@ -29,6 +29,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.TabPanel;
@@ -145,6 +146,10 @@ public class FormTemplateGenerator
 				int orient = ((TabPanel)persist).getTabOrientation();
 				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "svy-splitpane";
 				return "svy-tabpanel";
+			}
+			if (persist instanceof Portal)
+			{
+				return "svy-portal";
 			}
 		}
 		throw new RuntimeException("unknown persist type: " + persist);

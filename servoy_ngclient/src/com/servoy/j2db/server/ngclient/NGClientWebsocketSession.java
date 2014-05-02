@@ -214,10 +214,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 								String error = null;
 								Object result = null;
-								if (form instanceof WebGridFormUI && obj.has("svy_pk") && !((WebGridFormUI)form).setEditingRowByPkHash(obj.getString("svy_pk")))
+								if (form instanceof WebGridFormUI && obj.has("rowId") && !((WebGridFormUI)form).setEditingRowByPkHash(obj.getString("rowId")))
 								{
 									// don't go on if the right row couldn't be selected.
-									error = "Could not select record by pk " + obj.getString("svy_pk");
+									error = "Could not select record by rowId " + obj.getString("rowId");
 								}
 								else
 								{
@@ -410,10 +410,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					if (form instanceof WebGridFormUI)
 					{
 						JSONObject changes = obj.getJSONObject("changes");
-						if (changes.has("svy_pk"))
+						if (changes.has("rowId"))
 						{
-							String pkHash = changes.getString("svy_pk");
-							changes.remove("svy_pk");
+							String pkHash = changes.getString("rowId");
+							changes.remove("rowId");
 							if (!((WebGridFormUI)form).setEditingRowByPkHash(pkHash))
 							{
 								// don't push changes, record couldn't be set

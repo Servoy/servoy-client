@@ -49,21 +49,21 @@ ${registerMethod}("${controllerName}", function($scope, $servoyInternal,$timeout
 	</#list>
 	
 	var getExecutor = function(beanName,eventType) {
-		var callExecutor = function(args, svy_pk) {
-			return $servoyInternal.getExecutor("${name}").on(beanName,eventType,null,args,svy_pk);
+		var callExecutor = function(args, rowId) {
+			return $servoyInternal.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 		}
 		var wrapper = function() {
 			return callExecutor(arguments, null);
 		}
-		wrapper.selectRecordHandler = function(svy_pk) {
-			return function () { return callExecutor(arguments, svy_pk); }
+		wrapper.selectRecordHandler = function(rowId) {
+			return function () { return callExecutor(arguments, rowId); }
 		}
 		return wrapper;
 	}
 
 	var getApply = function(beanname) {
-		var wrapper = function(property, beanModel) {
-			$servoyInternal.push("${name}",beanname,property,beanModel);
+		var wrapper = function(property, componentModel, rowId) {
+			$servoyInternal.pushDPChange("${name}", beanname, property, componentModel, rowId);
 		}
 		return wrapper;
 	}

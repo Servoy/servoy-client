@@ -7,7 +7,7 @@ describe('svyTextfield component', function() {
 	var $timeout
 	var handlersMock = {			
     		myTextfield: {
-				svy_apply : function(property, beanModel){
+				svy_apply : function(property, beanModel, rowId){
 					 
 				},
 				svy_servoyApi: {

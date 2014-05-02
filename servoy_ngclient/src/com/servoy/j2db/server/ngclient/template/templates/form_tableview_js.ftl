@@ -29,7 +29,7 @@
 			}
 			CellData.prototype = columnModel;
 			cd = new CellData();
-			cd.svy_pk = row.getProperty("_svy_pk");
+			cd.rowId = row.getProperty("_svyRowId");
 			for(var p in cellModel) {
 				cd[p] = cellModel[p]; 
 			} 
@@ -73,7 +73,7 @@
 					}
 					rows.splice(rows.length-updatedRows.length,updatedRows.length);
 					// assign the new value
-					$scope.model[''].rows = rows;;
+					$scope.model[''].rows = rows;
 				}
 				else if (item.type == 2) {
 					// delete, first make copy by concatting the new rows;
@@ -89,7 +89,7 @@
 							for(var k in sourceRow[p]) {
 								targetRow[p][k] = sourceRow[p][k];
 							}
-							targetRow[p].svy_pk = sourceRow._svy_pk; 
+							targetRow[p]._svyRowId = sourceRow._svyRowId; 
 						}
 					}
 				}
@@ -97,9 +97,9 @@
 			$scope.model[''].updatedRows = null;
 		}
 	}, false);
-	var wrapper = function (handler, svy_pk) {
+	var wrapper = function (handler, rowId) {
 		return function() {
-		    var recordHandler = handler.selectRecordHandler(svy_pk)
+		    var recordHandler = handler.selectRecordHandler(rowId)
 			return recordHandler.apply(recordHandler.this, arguments);
 		}
 	}
@@ -109,7 +109,7 @@
 		if (!cellHandler) {
 			cellHandler = {};
 			for(var p in columnHandler) {
-				cellHandler[p] = wrapper(columnHandler[p], cellModel.svy_pk);
+				cellHandler[p] = wrapper(columnHandler[p], cellModel.rowId);
 			}
 			cellModel.svyCellHandler = cellHandler;
 		}
@@ -137,8 +137,8 @@
 	
 	$scope.selections = []; 
 	$scope.$watch('selections', function (newVal, oldVal) {
-		if (oldVal.length > 0 && (newVal[0]._svy_pk != oldVal[0]._svy_pk)) {
-			$servoyInternal.sendRequest({cmd:'datapush',formname:'${name}',changes:{svy_pk:newVal[0]._svy_pk}});
+		if (oldVal.length > 0 && (newVal[0]._svyRowId != oldVal[0]._svyRowId)) {
+			$servoyInternal.sendRequest({cmd:'datapush',formname:'${name}',changes:{rowId:newVal[0]._svyRowId}});
 		}
 	}, true);
 
@@ -184,7 +184,7 @@
 	rowHeight: ${rowHeight},
 	totalServerItems: 'model..totalRows',
 	pagingOptions: $scope.pagingOptions,
-	primaryKey: '_svy_pk',
+	primaryKey: '_svyRowId',
 	columnDefs: [
 	<#list bodyComponents as bc>
 		{

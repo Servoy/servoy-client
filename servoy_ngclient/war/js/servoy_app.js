@@ -194,7 +194,11 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	   var isChanged = function(now, prev) {
 		   if (now && prev) {
 			   if (now instanceof Array) {
-				   if (now.length != prev.length) return true;
+				   if (prev instanceof Array) {
+					   if (now.length != prev.length) return true;
+				   } else {
+					   return true;
+				   }
 			   }
 			   if (now instanceof Date) {
 				   if (prev instanceof Date) {
@@ -202,6 +206,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 				   }
 				   return true;
 			   }
+			   if (now instanceof Object && !(prev instanceof Object)) return true;
 			   // first build up a list of all the properties both have.
 	    	   var fulllist = getCombinedPropertyNames(now,prev);
 	    	    for (var prop in fulllist) {
@@ -277,7 +282,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	       },
 	       getExecutor: function(formName) {
 	          return {
-	              on: function(beanname,eventName,property,args,svy_pk) {
+	              on: function(beanname,eventName,property,args,rowId) {
 	                  // this is onaction, onfocuslost which is really configured in the html so it really 
 	                  // is something that goes to the server
 	            	  var newargs = []
@@ -315,7 +320,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	            		  data[property] = formStates[formName].model[beanname][property];
 	            	  }
 	            	  var cmd = {cmd:'event',formname:formName,beanname:beanname,event:eventName,args:newargs,changes:data}
-	            	  if (svy_pk) cmd.svy_pk = svy_pk
+	            	  if (rowId) cmd.rowId = rowId
 	            	  return wsSession.sendDeferredMessage(cmd)
 	              },
 	          }
@@ -359,22 +364,28 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 	    	    	return;
 	    	    }
 	    	},
-	    	push: function(formname,beanname,property,beanModel) {	
+
+			// for example components that use nested elements/components such as portal can give here the new value
+			// based on the way they feed the model to child components - so they can use other objects then server known models
+	    	pushDPChange: function(formname, beanname, property, componentModel, rowId) {
 	    		var changes = {}
-	    		var clientObject;
-	    		
-	    		if(beanModel === undefined) {
-	    			clientObject = formStates[formname].model[beanname][property];
+
+	    		if (componentModel) {
+	    			// probably a nested component (inside another component); the component might even be linked to a different foundset
+	    			changes[property] = $webSocket.convertClientObject(componentModel[property]);
+	    			if (rowId){
+	    				changes.rowId = rowId;
+	    			} else if (componentModel.rowId) {
+	    				changes.rowId = componentModel.rowId;
+					}
 	    		} else {
-	    			clientObject = beanModel[property];
-	    			if (beanModel.svy_pk){
-	    				changes.svy_pk = beanModel.svy_pk;
-	    			}
+	    			// default model, simple direct form child component
+	    			changes[property] = $webSocket.convertClientObject(formStates[formname].model[beanname][property]);
 	    		}
-	    		changes[property] = $webSocket.convertClientObject(clientObject);
-	    	
+
 	    		wsSession.sendMessageObject({cmd:'svypush',formname:formname,beanname:beanname,property:property,changes:changes})
 	    	},
+
 	    	filterList: function(formname,beanname,property,filter)  {
 	    		var deferred = $q.defer();
 	    		deferredProperties[formname + "_" + beanname + "_" + property] = deferred;

@@ -128,7 +128,7 @@ public class SpecGenerator
 				"getLeftFormMinSize", "int", null, null, null), new ApiMethod("setLeftFormMinSize", "void", Arrays.asList(new String[] { "minSize" }),
 				Arrays.asList(new String[] { "int" }), Arrays.asList(new String[] { "false" })) }));
 		specTemplateList.add(new SpecTemplateModel("portal", "Portal", IRepository.PORTALS, com.servoy.j2db.ui.IScriptPortalComponentMethods.class,
-			new String[0]));
+			new String[] { "servoydefault/portal/portal.css" }));
 		specTemplateList.add(new SpecTemplateModel("spinner", "Spinner", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeSpinner.class,
 			new String[] { "servoydefault/spinner/spinner.css", "//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" }));
 		specTemplateList.add(new SpecTemplateModel("listbox", "ListBox", IRepository.FIELDS, com.servoy.j2db.ui.runtime.IRuntimeListBox.class, new String[0]));

@@ -4,7 +4,6 @@ angular.module('svyTabpanel',['servoy']).directive('svyTabpanel', function($wind
       transclude: true,
       scope: {
         model: "=svyModel",
-        svyApply: "=",
         svyServoyapi: "=",
         handlers: "=svyHandlers",
         api: "=svyApi"

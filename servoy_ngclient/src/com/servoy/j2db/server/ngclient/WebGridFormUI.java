@@ -261,7 +261,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			IRecordInternal record = currentFoundset.getRecord(i);
 			dataAdapterList.setRecord(record, false);
 			Map<String, Object> rowProperties = new HashMap<String, Object>();
-			rowProperties.put("_svy_pk", record.getPKHashKey() + "_" + i);
+			rowProperties.put("_svyRowId", record.getPKHashKey() + "_" + i);
 			for (WebComponent wc : components.values())
 			{
 				// TODO: add tagsstring (%%custname%%) 
