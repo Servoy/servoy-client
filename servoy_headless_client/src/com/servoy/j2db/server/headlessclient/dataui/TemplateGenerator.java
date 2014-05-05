@@ -1770,12 +1770,14 @@ public class TemplateGenerator
 		styleObj.setProperty("background-color", "#DBE3EB", false);
 		styleObj.setProperty("background-repeat", "repeat-x", false);
 		styleObj.setProperty("background-position", "center center", false);
-		styleObj = css.addStyle("th.sortable a:visited");
+		styleObj = css.addStyle("th.sortable a:visited, th.nosort a:visited");
 		styleObj.setProperty("text-decoration", "none");
 		styleObj.setProperty("color", "black");
-		styleObj = css.addStyle("th.sortable a:hover");
+		styleObj = css.addStyle("th.sortable a:hover, th.nosort a:hover");
 		styleObj.setProperty("text-decoration", "underline");
 		styleObj.setProperty("color", "black");
+		styleObj = css.addStyle("th.nosort a");
+		styleObj.setProperty("text-decoration", "none");
 		styleObj = css.addStyle("th.sortable a");
 		styleObj.setProperty("text-decoration", "none");//underline  
 		styleObj.setProperty("font-weight", "normal");

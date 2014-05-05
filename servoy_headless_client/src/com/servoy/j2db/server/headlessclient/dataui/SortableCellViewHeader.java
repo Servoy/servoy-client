@@ -479,6 +479,9 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 						{
 							hasBgImage = true;
 							final int headerHeight = height;
+							Pair<IStyleSheet, IStyleRule> pair = labelFor != null ? ComponentFactory.getStyleForBasicComponent(application, labelFor, form)
+								: null;
+							final IStyleRule cssRule = pair == null || pair.getRight() == null ? null : pair.getRight();
 							add(new StyleAppendingModifier(new Model<String>()
 							{
 								@Override
@@ -500,8 +503,25 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 											return imgRes;
 										}
 									};
-									return "background-image: url(" + urlFor(iconReference) + "?id=" + media_id + //$NON-NLS-1$ //$NON-NLS-2$
-										"); background-repeat: no-repeat; background-position: center right"; //$NON-NLS-1$
+
+									TextualStyle style = new TextualStyle();
+									style.setProperty(CSS.Attribute.BACKGROUND_REPEAT.toString(), "no-repeat"); //$NON-NLS-1$
+									style.setProperty(CSS.Attribute.BACKGROUND_POSITION.toString(), "center right"); //$NON-NLS-1$
+									if (cssRule != null)
+									{
+										if (cssRule.hasAttribute(CSS.Attribute.BACKGROUND.toString())) style.setProperty(CSS.Attribute.BACKGROUND.toString(),
+											cssRule.getValue(CSS.Attribute.BACKGROUND.toString()));
+										if (cssRule.hasAttribute(CSS.Attribute.BACKGROUND_ATTACHMENT.toString())) style.setProperty(
+											CSS.Attribute.BACKGROUND_ATTACHMENT.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_ATTACHMENT.toString()));
+										if (cssRule.hasAttribute(CSS.Attribute.BACKGROUND_COLOR.toString())) style.setProperty(
+											CSS.Attribute.BACKGROUND_COLOR.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_COLOR.toString()));
+										if (cssRule.hasAttribute(CSS.Attribute.BACKGROUND_POSITION.toString())) style.setProperty(
+											CSS.Attribute.BACKGROUND_POSITION.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_POSITION.toString()), true);
+										if (cssRule.hasAttribute(CSS.Attribute.BACKGROUND_REPEAT.toString())) style.setProperty(
+											CSS.Attribute.BACKGROUND_REPEAT.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_REPEAT.toString()), true);
+									}
+									style.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), "url(" + urlFor(iconReference) + "?id=" + media_id + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+									return style.toString().substring(7);
 								}
 							}));
 						}
