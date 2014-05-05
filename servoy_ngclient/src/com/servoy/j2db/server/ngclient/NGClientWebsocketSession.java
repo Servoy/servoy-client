@@ -519,10 +519,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void updateForm(Form form, String name)
 	{
 		String formUrl = "solutions/" + form.getSolution().getName() + "/forms/" + name + ".html";
-		if (formsOnClient.containsKey(formUrl))
-		{
-			updateController(form, name, formUrl);
-		}
+		updateController(form, name, formUrl);
 	}
 
 	@Override
