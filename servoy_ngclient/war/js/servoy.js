@@ -75,7 +75,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
     	Example: "item in  model.valuelistID  | filter:notNull('realValue')"*/
 		notNull : function (propPath){
 			return function(item) {
-				return !(getPropByStringPath(item,propPath) === null)
+				return !(getPropByStringPath(item,propPath) === null || getPropByStringPath(item,propPath) == '')
 			}
 		},
 	    autoApplyStyle: function(scope,element,modelToWatch,cssPropertyName){
