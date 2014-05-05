@@ -982,7 +982,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 *
 	 * @param row_separator the specified row separator; examples: new line '\n'.
 	 *
-	 * @param value_delimiter the specified value delimiter; example: double quote '"'.
+	 * @param value_delimiter the specified value delimiter; null means empty string; example: double quote '"'.
 	 *
 	 * @param add_column_names boolean if true column names will be added as a first row. 
 	 * 
@@ -990,7 +990,9 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	 */
 	public String js_getAsText(String column_separator, String row_separator, String value_delimiter, boolean add_column_names)
 	{
-		if (column_separator == null || row_separator == null || value_delimiter == null) return null;
+		if (column_separator == null || row_separator == null) return null;
+
+		if (value_delimiter == null) value_delimiter = ""; //$NON-NLS-1$
 
 		StringBuilder out = new StringBuilder();
 		if (set != null)
