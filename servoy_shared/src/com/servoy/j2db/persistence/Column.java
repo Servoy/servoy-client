@@ -937,7 +937,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		if ((newFlags & IDENT_COLUMNS) != NORMAL_COLUMN)
 		{
 			table.addRowIdentColumn(this);
-			if (!existInDB) allowNull = false;
 		}
 		else
 		{
