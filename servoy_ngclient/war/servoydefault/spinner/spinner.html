@@ -10,9 +10,9 @@
     	   svy-foreground='model.foreground'
 		   svy-margin='model.margin' id="{{model.markupId}}" svy-tabseq='model.tabSeq'>
     <div class="spinner-buttons">
-      <button ng-click="increment()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-up" type="button">
+      <button tabindex='-1' ng-click="increment()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-up" type="button">
         <i class="icon-angle-up"></i></button>
-      <button ng-click="decrement()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-down" type="button">
+      <button tabindex='-1' ng-click="decrement()" ng-disabled="isDisabled()" class="btn btn-default spinner-button-down" type="button">
         <i class="icon-angle-down"></i></button>
     </div>
   </div>

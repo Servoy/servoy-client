@@ -39,7 +39,7 @@ angular.module('svySpinner',['servoy']).directive('svySpinner', function($utils)
 	        	  if (e.which == 40) $scope.decrement();
 	        	  if (e.which == 38) $scope.increment();
         	  }
-        	  e.preventDefault();
+        	  if(e.which != 9) e.preventDefault(); // 9 is tab key
           });
           
           $scope.isDisabled = function()
