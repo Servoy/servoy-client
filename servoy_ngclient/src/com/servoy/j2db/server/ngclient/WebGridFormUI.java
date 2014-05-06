@@ -17,7 +17,9 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +33,16 @@ import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
+import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.websocket.utils.JSONUtils.JSONWritable;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author gboros
@@ -56,6 +62,7 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	private boolean allChanged = false;
 	private int startTabSeqIndex = 1;
 	private int pageSize;
+	private List<WebComponent> bodyComponents = null;
 
 	/**
 	 * @param application 
@@ -255,18 +262,27 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			}
 			else return RowData.EMPTY;
 		}
-		int currentIndex = startTabSeqIndex + startOffset * components.values().size();
+		Collection<WebComponent> bodyComponents = getBodyComponents(components.values());
+		int currentIndex = startTabSeqIndex + startOffset * bodyComponents.size();
 		for (int i = startIdx; i < endIdx; i++)
 		{
 			IRecordInternal record = currentFoundset.getRecord(i);
 			dataAdapterList.setRecord(record, false);
 			Map<String, Object> rowProperties = new HashMap<String, Object>();
 			rowProperties.put("_svyRowId", record.getPKHashKey() + "_" + i);
-			for (WebComponent wc : components.values())
+			for (WebComponent wc : bodyComponents)
 			{
-				// TODO: add tagsstring (%%custname%%) 
-				List<String> dataproviders = getWebComponentPropertyType(wc, PropertyType.dataprovider);
+				//TODO 
+				//this approach does not work with  complex types like namepanel2 (see namepanel2 spec for more details)
+				// namepanel2 has a nested property which is a dataproviderID
 				Map<String, Object> cellProperties = new HashMap<>();
+				List<String> tagstrings = getWebComponentPropertyType(wc, PropertyType.tagstring);
+				for (String tagstringPropID : tagstrings)
+				{
+					cellProperties.put(tagstringPropID, wc.getProperty(tagstringPropID));
+				}
+
+				List<String> dataproviders = getWebComponentPropertyType(wc, PropertyType.dataprovider);
 				for (String dataproviderID : dataproviders)
 				{
 					cellProperties.put(dataproviderID, wc.getProperty(dataproviderID));
@@ -294,13 +310,52 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			for (TabSequencePropertyWithComponent propertyWithComponent : tabSeqComponents)
 			{
 				Map<String, Object> cellProperties = (Map<String, Object>)rowProperties.get(propertyWithComponent.getComponent().getName());
-				cellProperties.put(propertyWithComponent.getProperty(), currentIndex++);
+				if (cellProperties != null) cellProperties.put(propertyWithComponent.getProperty(), currentIndex++);
 			}
 			rows.add(rowProperties);
 		}
 		dataAdapterList.setRecord(currentFoundset.getRecord(currentFoundset.getSelectedIndex()), false);
 
 		return new RowData(rows, startIdx - foundsetStartRow, endIdx - foundsetStartRow);
+	}
+
+	private Collection<WebComponent> getBodyComponents(Collection<WebComponent> components)
+	{
+		if (bodyComponents != null) return bodyComponents;
+		List<WebComponent> ret = new ArrayList<>();
+		//filter only body elements
+		for (WebComponent wc : components)
+		{
+			if (wc.getFormElement().getPersist() instanceof BaseComponent)
+			{
+				Form frm = wc.getFormElement().getForm();
+				Part body = getBodyPart(application.getFlattenedSolution().getFlattenedForm(frm));
+				int bodyStartY = frm.getPartStartYPos(body.getID());
+				int bodyEndY = body.getHeight();
+
+				Point location = ((BaseComponent)wc.getFormElement().getPersist()).getLocation();
+				if (bodyStartY <= location.y && bodyEndY > location.y)
+				{
+					ret.add(wc);
+				}
+			}
+		}
+		bodyComponents = ret;
+		return ret;
+	}
+
+	private Part getBodyPart(Form frm)
+	{
+		Part part = null;
+		for (Part prt : Utils.iterate(frm.getParts()))
+		{
+			if (prt.getPartType() == Part.BODY)
+			{
+				part = prt;
+				break;
+			}
+		}
+		return part;
 	}
 
 	@Override
