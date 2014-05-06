@@ -62,7 +62,6 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 	private boolean allChanged = false;
 	private int startTabSeqIndex = 1;
 	private int pageSize;
-	private List<WebComponent> bodyComponents = null;
 
 	/**
 	 * @param application 
@@ -321,18 +320,17 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 
 	private Collection<WebComponent> getBodyComponents(Collection<WebComponent> components)
 	{
-		if (bodyComponents != null) return bodyComponents;
+		Form frm = formController.getForm();
+		Part body = getBodyPart(frm);
+		int bodyStartY = frm.getPartStartYPos(body.getID());
+		int bodyEndY = body.getHeight();
+
 		List<WebComponent> ret = new ArrayList<>();
 		//filter only body elements
 		for (WebComponent wc : components)
 		{
 			if (wc.getFormElement().getPersist() instanceof BaseComponent)
 			{
-				Form frm = wc.getFormElement().getForm();
-				Part body = getBodyPart(application.getFlattenedSolution().getFlattenedForm(frm));
-				int bodyStartY = frm.getPartStartYPos(body.getID());
-				int bodyEndY = body.getHeight();
-
 				Point location = ((BaseComponent)wc.getFormElement().getPersist()).getLocation();
 				if (bodyStartY <= location.y && bodyEndY > location.y)
 				{
@@ -340,7 +338,6 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 				}
 			}
 		}
-		bodyComponents = ret;
 		return ret;
 	}
 
