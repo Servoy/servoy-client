@@ -134,6 +134,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	protected IRecordInternal[] lastState = null;
 
 	private final AtomicInteger currentFormExecutingFunctionCount = new AtomicInteger();
+	protected boolean visibleAsExternalComponent = false;
 
 	public BasicFormController(IApplication application, Form form, String namedInstance)
 	{
@@ -506,7 +507,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	{
 		// only valid if the current form is the main one.
 		// because stopUIEditing already cascades.
-		if (application.getFormManager() != null && (application.getFormManager().getCurrentForm() == this || isVisibleAsExternalComponent()))
+		if (application.getFormManager() != null && (application.getFormManager().getCurrentForm() == this || visibleAsExternalComponent))
 		{
 			if (looseFocus)
 			{

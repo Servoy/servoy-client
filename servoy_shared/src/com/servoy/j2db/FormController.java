@@ -1238,14 +1238,6 @@ public class FormController extends BasicFormController
 		return hmChildrenJavaMembers;
 	}
 
-	private boolean visibleAsExternalComponent = false;
-
-	@Override
-	public boolean isVisibleAsExternalComponent()
-	{
-		return visibleAsExternalComponent;
-	}
-
 	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException
 	{
 		visibleAsExternalComponent = visibleExternal;
