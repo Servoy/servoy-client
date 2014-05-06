@@ -84,11 +84,6 @@ public interface IForm
 	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException;
 
 	/**
-	 * Will return whether form is visible as external component.
-	 */
-	boolean isVisibleAsExternalComponent();
-
-	/**
 	 * Show all records from table.
 	 */
 	public void loadAllRecords();
