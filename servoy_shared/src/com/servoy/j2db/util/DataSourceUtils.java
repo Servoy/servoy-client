@@ -19,6 +19,7 @@ package com.servoy.j2db.util;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -30,6 +31,7 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerManager;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.shared.ApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.keyword.Ident;
@@ -264,5 +266,23 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	public static boolean isDatasourceUri(String str)
 	{
 		return str != null && (str.startsWith(DB_DATASOURCE_SCHEME_COLON_SLASH) || str.startsWith(INMEM_DATASOURCE_SCHEME_COLON));
+	}
+
+	public static String getI18NDataSource(Solution solution, Properties settings)
+	{
+		if (solution != null)
+		{
+			if (solution.getI18nDataSource() != null)
+			{
+				return solution.getI18nDataSource();
+			}
+			String serverName = settings.getProperty("defaultMessagesServer"); //$NON-NLS-1$
+			String tableName = settings.getProperty("defaultMessagesTable"); //$NON-NLS-1$
+			if (serverName != null && serverName.length() > 0 && tableName != null && tableName.length() > 0)
+			{
+				return createDBTableDataSource(serverName, tableName);
+			}
+		}
+		return null;
 	}
 }
