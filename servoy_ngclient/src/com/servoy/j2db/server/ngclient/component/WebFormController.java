@@ -394,12 +394,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	public boolean isVisibleAsExternalComponent()
-	{
-		return false;
-	}
-
-	@Override
 	public String toString()
 	{
 		return getName();
