@@ -87,7 +87,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Representation of a form
- * 
+ *
  * @author jblok, jcompagner
  */
 public class FormController extends BasicFormController
@@ -149,7 +149,7 @@ public class FormController extends BasicFormController
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Object#toString()
 		 */
 		@Override
@@ -206,7 +206,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.BasicFormController#getBasicFormManager()
 	 */
 	@Override
@@ -461,7 +461,7 @@ public class FormController extends BasicFormController
 					Utils.parseJSExpressions(form.getInstanceMethodArguments("onRenderMethodID")));
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
-			//apply bgcolor to renderer				
+			//apply bgcolor to renderer
 			if (bgColor != null)
 			{
 				dr.setBackground(bgColor);
@@ -740,7 +740,7 @@ public class FormController extends BasicFormController
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.swing.JComponent#requestFocus()
 	 */
 	public void requestFocus()
@@ -1156,7 +1156,7 @@ public class FormController extends BasicFormController
 
 			if (id <= 0 && ScopesUtils.isVariableScope(name))
 			{
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$ 
+				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$
 			}
 			else
 			{
@@ -1168,9 +1168,9 @@ public class FormController extends BasicFormController
 
 	/**
 	 * call a scriptMethod (== function)
-	 * 
+	 *
 	 * @param cmd be the the id from the method or the name
-	 * @param methodKey 
+	 * @param methodKey
 	 */
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
 		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception
@@ -1281,7 +1281,7 @@ public class FormController extends BasicFormController
 		catch (Exception ex)
 		{
 			this.requestFocus();
-			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$				
+			application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { getName() + "." + name }), ex); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
@@ -1300,7 +1300,7 @@ public class FormController extends BasicFormController
 	/**
 	 * @param src
 	 * @param function
-	 * @param useFormAsEventSourceEventually 
+	 * @param useFormAsEventSourceEventually
 	 */
 	@Override
 	protected FormAndComponent getJSApplicationNames(Object source, Function function, boolean useFormAsEventSourceEventually)
@@ -1331,7 +1331,7 @@ public class FormController extends BasicFormController
 					}
 					if (container != getFormUI())
 					{
-						// if not then this is not the trigger element for this form. 
+						// if not then this is not the trigger element for this form.
 						src = null;
 					}
 				}
@@ -1360,7 +1360,7 @@ public class FormController extends BasicFormController
 					if (name == null || name.length() == 0)
 					{
 						name = ComponentFactory.WEB_ID_PREFIX + System.currentTimeMillis();
-						// Check Web components always have a name! Because name can't be set 
+						// Check Web components always have a name! Because name can't be set
 						((IComponent)src).setName(name);
 					}
 					try
@@ -1460,9 +1460,10 @@ public class FormController extends BasicFormController
 		return hmChildrenJavaMembers;
 	}
 
+	@Override
 	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException
 	{
-		visibleAsExternalComponent = visibleExternal;
+		super.setUsingAsExternalComponent(visibleExternal);
 		if (visibleExternal)
 		{
 			initForJSUsage();
@@ -1598,7 +1599,7 @@ public class FormController extends BasicFormController
 
 
 	/**
-	 * 
+	 *
 	 */
 	public void touch()
 	{
