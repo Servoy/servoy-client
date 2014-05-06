@@ -58,6 +58,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private Map<Object, Object> uiProperties;
 
+	public static final String APPLICATION_SERVICE = "$applicationService";
 
 	public NGClient(INGClientWebsocketSession wsSession)
 	{
@@ -493,8 +494,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout_ms, boolean onRootFrame)
 	{
-		// TODO call client directly with the options given here.
-		return false;
+		this.getWebsocketSession().executeAsyncServiceCall(NGClient.APPLICATION_SERVICE, "showUrl", new Object[] { url, target, target_options, timeout_ms });
+		return true;
 	}
 
 	@Override

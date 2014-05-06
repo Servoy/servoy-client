@@ -561,7 +561,20 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		},
 	}
 	
-}).directive('modalWindow', ['$modalStack', '$timeout', function ($modalStack, $timeout) {
+}).factory("$applicationService",['$window','$timeout',function($window,$timeout){
+	
+		
+	return {
+	    showUrl:function(url,target,targetOptions,timeout){
+	    	 if(!target) target ='_blank';
+	    	 if(!timeout) timeout = 0;	    	 
+		    	$timeout(function(){
+		    		$window.open(url,target,targetOptions)
+		    	},timeout)	    	
+	    }
+	}
+	
+}]).directive('modalWindow', ['$modalStack', '$timeout', function ($modalStack, $timeout) {
     return {
         restrict: 'EA',
         link: function (scope, element, attrs) {
