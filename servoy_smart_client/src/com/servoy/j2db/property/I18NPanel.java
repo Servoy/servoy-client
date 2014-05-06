@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.swing.AbstractCellEditor;
@@ -76,6 +75,7 @@ import com.servoy.j2db.persistence.I18NUtil.MessageEntry;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.smart.J2DBClient;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.TableSorter;
@@ -686,10 +686,15 @@ public class I18NPanel extends JPanel implements DocumentListener
 		if (Messages.invalidConnection || Messages.noConnection || referenceValue == null || "".equals(referenceValue)) //$NON-NLS-1$
 		return operationPerformed; // false
 
-		String serverName = application.getSolution().getI18nServerName();
-		String tableName = application.getSolution().getI18nTableName();
-		if ("".equals(serverName)) serverName = null; //$NON-NLS-1$
-		if ("".equals(tableName)) tableName = null; //$NON-NLS-1$
+		String i18nDataSource = DataSourceUtils.getI18NDataSource(application.getSolution(), application.getSettings());
+
+		if (i18nDataSource == null)
+		{
+			throw new IllegalStateException("Can't create key when there is no (valid) servername/tablename for messages"); //$NON-NLS-1$
+		}
+
+		String serverName = DataSourceUtils.getDataSourceServerName(i18nDataSource);
+		String tableName = DataSourceUtils.getDataSourceTableName(i18nDataSource);
 
 		String filterName = null;
 		String[] filterValue = null;
@@ -697,19 +702,6 @@ public class I18NPanel extends JPanel implements DocumentListener
 		{
 			filterName = ((IMessagesCallback)application).getI18NColumnNameFilter();
 			filterValue = ((IMessagesCallback)application).getI18NColumnValueFilter();
-		}
-
-		if (serverName == null || tableName == null)
-		{
-			Properties settings = application.getSettings();
-			serverName = settings.getProperty("defaultMessagesServer"); //$NON-NLS-1$
-			tableName = settings.getProperty("defaultMessagesTable"); //$NON-NLS-1$
-			if ("".equals(serverName)) serverName = null; //$NON-NLS-1$
-			if ("".equals(tableName)) tableName = null; //$NON-NLS-1$
-			if (serverName == null || tableName == null)
-			{
-				throw new IllegalStateException("Can't create key when there is no (valid) servername/tablename for messages"); //$NON-NLS-1$
-			}
 		}
 
 		if (Messages.customMessageLoader != null)

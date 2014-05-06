@@ -234,9 +234,9 @@ public class Messages
 		}
 		else
 		{
-			loadMessagesFromDatabaseInternal(solution != null ? solution.getI18nDataSource() : null, callback.getClientID(), callback.getSettings(),
-				callback.getDataServer(), callback.getRepository(), properties, language, ALL_LOCALES, null, null, callback.getI18NColumnNameFilter(),
-				callback.getI18NColumnValueFilter(), fm);
+			loadMessagesFromDatabaseInternal(DataSourceUtils.getI18NDataSource(solution, callback.getSettings()), callback.getClientID(),
+				callback.getSettings(), callback.getDataServer(), callback.getRepository(), properties, language, ALL_LOCALES, null, null,
+				callback.getI18NColumnNameFilter(), callback.getI18NColumnValueFilter(), fm);
 		}
 		return properties;
 	}
