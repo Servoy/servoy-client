@@ -19,6 +19,7 @@ angular.module('svyCalendar',['servoy']).directive('svyCalendar', function(dateF
           $scope.$watch('model.dataProviderID', function(){
              if($scope.model.dataProviderID && !($scope.model.dataProviderID instanceof Date)) {$log.error("calendar expects it's dataprovider as Date");}
             $scope.editModel = dateFilter($scope.model.dataProviderID,dateFormat);
+            $element.data('DateTimePicker').setValue($scope.model.dataProviderID); // set default date for widget open
           })
 
           //convert from UI input to servoy model
@@ -32,7 +33,7 @@ angular.module('svyCalendar',['servoy']).directive('svyCalendar', function(dateF
             $scope.handlers.svy_apply('dataProviderID');
           }
           
-          var dateFormat = 'YYYY-MM-DD'
+          var dateFormat = 'yyyy-MM-dd'
           //helper function
           function setDateFormat(format){
         	var hasDate = true;
