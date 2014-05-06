@@ -118,7 +118,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	protected boolean isFormVisible = false;
 	protected int lastSelectedIndex = -1;
 	protected FormScope formScope;
-	private JSForm scriptableForm;// is the innerclass JSForm 
+	private JSForm scriptableForm;// is the innerclass JSForm
 	private boolean destroyed = false;
 	private PageFormat pageFormat = null;
 
@@ -130,11 +130,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 	private boolean adjustingModel = false;
 
-	// Have to check it here because formEditor.getDataAdapterList().getState() can already have the new one 
+	// Have to check it here because formEditor.getDataAdapterList().getState() can already have the new one
 	protected IRecordInternal[] lastState = null;
 
 	private final AtomicInteger currentFormExecutingFunctionCount = new AtomicInteger();
-	protected boolean visibleAsExternalComponent = false;
+	private boolean visibleAsExternalComponent = false;
 
 	public BasicFormController(IApplication application, Form form, String namedInstance)
 	{
@@ -412,6 +412,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		return true;
 	}
 
+	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException
+	{
+		visibleAsExternalComponent = visibleExternal;
+		return null;
+	}
+
 
 	public void tableChanged(TableModelEvent e)
 	{
@@ -419,7 +425,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		//		if (e.getFirstRow() <= index && e.getLastRow() >= index) we have to update the other renderers for non current record
 		//		{
 		valueChanged(null);//fire value chance because selection does not fire
-		//		}			
+		//		}
 	}
 
 	public void valueChanged(ListSelectionEvent e)
@@ -467,7 +473,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 						state[i] = formModel.getRecord(index[i]);
 					//executeOnRecordShow();
 				}
-				refreshAllPartRenderers(state); //skipEditor the controller receives itself events		
+				refreshAllPartRenderers(state); //skipEditor the controller receives itself events
 			}
 		}
 		catch (RuntimeException ex)
@@ -494,7 +500,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	 */
 	public boolean recordEditStart(IRecordInternal record)
 	{
-		//TODO this method can be called from outside a AWT event thread!!! 
+		//TODO this method can be called from outside a AWT event thread!!!
 		// only execute it for our own records.
 		if (record.getParentFoundSet() == formModel)
 		{
@@ -593,7 +599,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			didOnload = true;
 			if (form.getOnLoadMethodID() > 0)
 			{
-				// Set this boolean on true while executing the onload so that 
+				// Set this boolean on true while executing the onload so that
 				// an onload method won't trigger the notify visible before it is finished itself.
 				executingOnLoad = true;
 				try
@@ -1173,7 +1179,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	{
 		if (e.getType() == FoundSetEvent.FIND_MODE_CHANGE)
 		{
-			// change UI to reflect form find state... that is really determined by the find state of the foundset 
+			// change UI to reflect form find state... that is really determined by the find state of the foundset
 			propagateFindMode(((FoundSet)e.getSource()).isInFindMode());
 		}
 		else if (e.getType() == FoundSetEvent.SELECTION_MODE_CHANGE)
@@ -1224,7 +1230,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 					{
 						dlgMessage = invalidRangeFieldTxt.toString() + dlgMessage;
 					}
-					boolean userChoseYes = getFormUI().showYesNoQuestionDialog(application, dlgMessage, "Search"); //$NON-NLS-1$ 
+					boolean userChoseYes = getFormUI().showYesNoQuestionDialog(application, dlgMessage, "Search"); //$NON-NLS-1$
 					if (!userChoseYes)
 					{
 						formModel.browseAll(true);//this removes the findmode
@@ -1339,7 +1345,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			mustUnpinSelectionMode.unpinMultiSelectIfNeeded(form.getID());
 		}
 
-		// form model change set it on -2 so that we know that we shouldnt update the selection before it is tested 
+		// form model change set it on -2 so that we know that we shouldnt update the selection before it is tested
 		lastSelectedIndex = -2;
 		if (formModel != null)
 		{
@@ -1391,7 +1397,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 	@Deprecated
 	public void saveData()
 	{
-		getApplication().getFoundSetManager().getEditRecordList().stopEditing(false);//we do false here becouse the solution(developer) is in charge, not the plugin developer 		
+		getApplication().getFoundSetManager().getEditRecordList().stopEditing(false);//we do false here becouse the solution(developer) is in charge, not the plugin developer
 	}
 
 	public FormScope getFormScope()
@@ -1400,7 +1406,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		return formScope;
 	}
 
-	//if the js init is not done , do!	
+	//if the js init is not done , do!
 	public synchronized JSForm initForJSUsage()
 	{
 		if (formScope == null)
@@ -2419,7 +2425,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Returns the JSWindow that the form is shown in, or null if the form is not currently showing in a window.
-		 * 
+		 *
 		 * @sample
 		 * var currentWindow = controller.getWindow();
 		 * if (currentWindow != null) {
@@ -2430,7 +2436,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * 	currentWindow = "Window Title";
 		 * 	controller.show(currentWindow);
 		 * }
-		 * 
+		 *
 		 * @return the JSWindow that the form is shown in, or null if the form is not currently showing in a window.
 		 */
 		public JSWindow js_getWindow()
@@ -2454,7 +2460,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * Shows the form (makes the form visible)
 		 * This function does not affect the form foundset in any way.
-		 * 
+		 *
 		 * @sample
 		 * // show the form in the current window/dialog
 		 * %%prefix%%controller.show();
@@ -2467,7 +2473,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * // or %%prefix%%controller.show("mydialog");
 		 * //show the form in the main window
 		 * //%%prefix%%controller.show(null);
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 *
@@ -2477,7 +2483,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		// @sample
 		// //show the form in the current window/dialog
 		// %%prefix%%controller.show();
-		// //show the form in the named modal dialog 
+		// //show the form in the named modal dialog
 		// //%%prefix%%controller.show('mydialog',true);
 		//
 		// @param dialogName optional the dialog/window name
@@ -2491,9 +2497,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc show()
 		 * @sampleas show()
-		 * 
+		 *
 		 * @param window the window in which this form should be shown, specified by the name of an existing window
-		 * 
+		 *
 		 * @throws ServoyException
 		 */
 		public void js_show(String window) throws ServoyException
@@ -2505,9 +2511,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc show()
 		 * @sampleas show()
-		 * 
+		 *
 		 * @param window the window in which this form should be shown, given as a window object
-		 * 
+		 *
 		 * @throws ServoyException
 		 */
 		public void js_show(JSWindow window) throws ServoyException
@@ -2519,9 +2525,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @param window the window in which this form should be shown
 		 * @param isModal true for a modal window, false otherwise
-		 * 
+		 *
 		 * @throws ServoyException
-		 * 
+		 *
 		 * @deprecated replaced by show(Object)
 		 */
 		@Deprecated
@@ -2533,7 +2539,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * @throws ServoyException
-		 * 
+		 *
 		 * @deprecated Obsolete method, use foundset object instead.
 		 */
 		@Deprecated
@@ -2557,11 +2563,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * var w = application.getWindow("mydialog"); // use null name for main app. window
 		 * %%prefix%%controller.showRecords(foundset, w);
 		 * //%%prefix%%controller.showRecords(foundset, "mydialog");
-		 * 
+		 *
 		 * @param foundset the foundset to load before showing the form.
 		 */
 		// Deprecated implementation:
-		// //show the form in the named modal dialog 
+		// //show the form in the named modal dialog
 		// //%%prefix%%controller.show(foundset, 'mydialog', true);
 		// @param data the foundset/pkdataset/singleNumber_pk/UUIDpk to load before showing the form
 		// @param dialogName optional the dialog name
@@ -2576,12 +2582,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(FoundSet)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 * 
+		 *
 		 * @param foundset the foundset to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
@@ -2593,12 +2599,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(FoundSet)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 * 
+		 *
 		 * @param foundset the foundset to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
 		 */
@@ -2610,7 +2616,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @param pkdataset the pkdataset to load before showing the form.
 		 */
 		public void js_showRecords(JSDataSet pkdataset) throws ServoyException
@@ -2621,12 +2627,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(JSDataSet)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param pkdataset the pkdataset to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
@@ -2638,12 +2644,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(JSDataSet)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param pkdataset the pkdataset to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
 		 */
@@ -2655,12 +2661,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param query the query to load before showing the form.
 		 */
 		public void js_showRecords(QBSelect query) throws ServoyException
@@ -2671,12 +2677,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
@@ -2688,12 +2694,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
 		 */
@@ -2705,7 +2711,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
 		 */
 		public void js_showRecords(Number singleNumber_pk) throws ServoyException
@@ -2716,12 +2722,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(Number)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
@@ -2733,12 +2739,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(Number)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param singleNumber_pk the singleNumber_pk to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object
 		 */
@@ -2750,7 +2756,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @param query the query to load before showing the form.
 		 */
 		public void js_showRecords(String query) throws ServoyException
@@ -2761,7 +2767,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @param query the query to load before showing the form.
 		 * @param argumentsArray the array of arguments for the query
 		 */
@@ -2773,12 +2779,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
@@ -2790,12 +2796,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param query the query to load before showing the form.
 		 * @param argumentsArray the array of arguments for the query
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
@@ -2808,12 +2814,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param query the query to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object
 		 */
@@ -2825,12 +2831,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
-		 *  
+		 *
 		 * @param query the query to load before showing the form.
 		 * @param argumentsArray the array of arguments for the query
 		 * @param window the window in which this form should be shown, given as a window object
@@ -2843,7 +2849,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @param UUIDpk the UUIDpk to load before showing the form.
 		 */
 		public void js_showRecords(UUID UUIDpk) throws ServoyException
@@ -2854,12 +2860,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(UUID)
-		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object) 
-		 * 
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
+		 *
 		 * @param UUIDpk the UUIDpk to load before showing the form.
 		 * @param window the window in which this form should be shown, specified by the name of an existing window.
 		 */
@@ -2871,12 +2877,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 		 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadRecords(UUID)
-		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object) 
-		 * 
+		 * @see com.servoy.j2db.BasicFormController$JSForm#js_show(Object)
+		 *
 		 * @param UUIDpk the UUIDpk to load before showing the form.
 		 * @param window the window in which this form should be shown, given as a window object.
 		 */
@@ -2888,14 +2894,14 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * @clonedesc showRecords(IJSFoundSet)
 		 * @sampleas showRecords(IJSFoundSet)
-		 * 
+		 *
 		 * @param foundset the foundset to load before showing the form
 		 * @param dialogName the name of the dialog in which to show the form
 		 * @param modal true for modal dialog, false for non-modal
-		 * 
+		 *
 		 * @throws ServoyException
-		 * 
-		 * @deprecated see showRecords(FoundSet, String) or showRecords(FoundSet, JSWindow)  
+		 *
+		 * @deprecated see showRecords(FoundSet, String) or showRecords(FoundSet, JSWindow)
 		 */
 		@Deprecated
 		public void js_showRecords(Object foundset, Object dialogName, Object modal) throws ServoyException
@@ -2929,13 +2935,13 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * Loads all accessible records from the datasource into the form foundset.
 		 * When the form contains a related foundset it will be replaced by a default foundset on same datasource.
-		 * 
-		 * Notes: 
+		 *
+		 * Notes:
 		 * -the default foundset is always limited by filters, if databaseManager.addFoundSetFilterParam function is used.
 		 * -typical use is loading the normal foundset again after form usage in a related tabpanel
 		 *
 		 * @sample %%prefix%%controller.loadAllRecords();
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_addTableFilterParam(String, String, String, String, Object, String)
 		 * @return true if successful
 		 */
@@ -2946,13 +2952,13 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Loads all accessible records from the datasource into the form foundset. Typical usage is loading records after search in related tabpanel. 
+		 * Loads all accessible records from the datasource into the form foundset. Typical usage is loading records after search in related tabpanel.
 		 * The difference to loadAllRecords() is that related foundset will load related records.
-		 * 
+		 *
 		 * @sample
 		 * //to reload all last (related) records again, if for example after a search in related tabpanel
 		 * %%prefix%%controller.loadRecords();
-		 * 
+		 *
 		 * @return true if successful
 		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadRecords()
 		 */
@@ -2963,18 +2969,18 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Loads a (related) foundset into the form. 
+		 * Loads a (related) foundset into the form.
 		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
-		 * 
+		 *
 		 * This will really update the foundset instance itself of the form, so now existing foundset is altered just the new foundset is shown.
 		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset
-		 * that is given. 
-		 * 
+		 * that is given.
+		 *
 		 * @sample
 		 * //to load a (related)foundset into the form.
-		 * //the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset 
+		 * //the form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset
 		 * %%prefix%%controller.loadRecords(order_to_orderdetails);
-		 * 
+		 *
 		 * @param foundset to load
 		 * @return true if successful
 		 */
@@ -2984,11 +2990,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			return formController.loadData(foundset, null);
 		}
 
-		/** 
+		/**
 		 * Method to handle old loadRecords calls with ignored argumentsaray.
-		 * @param foundset 
-		 * @param ignored 
-		 * 
+		 * @param foundset
+		 * @param ignored
+		 *
 		 * @deprecated use loadRecords(FoundSet)
 		 */
 		@Deprecated
@@ -2999,13 +3005,13 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Loads a primary key dataset, will remove related sort.
-		 * 
+		 *
 		 * @sample
 		 * //to load a primary key dataset, will remove related sort
 		 * //var dataset = databaseManager.getDataSetByQuery(...);
 		 * // dataset must match the table primary key columns (alphabetically ordered)
 		 * %%prefix%%controller.loadRecords(dataset);
-		 * 
+		 *
 		 * @param pkdataset to load
 		 * @return true if successful
 		 */
@@ -3015,11 +3021,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			return formController.loadData(pkdataset, null);
 		}
 
-		/** 
+		/**
 		 * Method to handle old loadRecords calls with ignored argumentsaray.
-		 * @param pkdataset 
-		 * @param ignored 
-		 * 
+		 * @param pkdataset
+		 * @param ignored
+		 *
 		 * @deprecated use loadRecords(JSDataSet)
 		 */
 		@Deprecated
@@ -3030,12 +3036,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Loads a single record by primary key, will remove related sort.
-		 * 
+		 *
 		 * NOTE: This function will return true if the foundset was altered/changed. It is up to the developer to check for the presence of actual data using getSize().
-		 * 
+		 *
 		 * @sample
 		 * %%prefix%%controller.loadRecords(123);
-		 * 
+		 *
 		 * @param singlenNmber_pk to load
 		 * @return true if successful
 		 */
@@ -3045,11 +3051,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			return formController.loadData(singlenNmber_pk, null);
 		}
 
-		/** 
+		/**
 		 * Method to handle old loadRecords calls with ignored argumentsaray.
-		 * @param singlenNmber_pk 
-		 * @param ignored 
-		 * 
+		 * @param singlenNmber_pk
+		 * @param ignored
+		 *
 		 * @deprecated use loadRecords(Number)
 		 */
 		@Deprecated
@@ -3060,10 +3066,10 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * @clonedesc js_loadRecords(Number)
-		 * 
+		 *
 		 * @sample
 		 * %%prefix%%controller.loadRecords(application.getUUID('6b5e2f5d-047e-45b3-80ee-3a32267b1f20'));
-		 * 
+		 *
 		 * @param UUIDpk to load
 		 * @return true if successful
 		 */
@@ -3073,11 +3079,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 			return formController.loadData(UUIDpk, null);
 		}
 
-		/** 
+		/**
 		 * Method to handle old loadRecords calls with ignored argumentsaray.
-		 * @param UUIDpk 
-		 * @param ignored 
-		 * 
+		 * @param UUIDpk
+		 * @param ignored
+		 *
 		 * @deprecated use loadRecords(UUID)
 		 */
 		@Deprecated
@@ -3089,14 +3095,14 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * Loads records into form foundset based on a query (also known as 'Form by query'). The query must be a valid sql select.
 		 * If the foundset is related this function is not allowed.
-		 * 
+		 *
 		 * see foundset.loadRecords(QBSelect).
-		 * 
+		 *
 		 * When possible, the foundset will be loaded with the given query.
 		 * This is not always possible because the foundset needs to manipulate the query when adding conditions and joins.
 		 * In that case the query will be wrapped: select pk from tab where pk = (queryString)
 		 * The result is the same, except for te ordering in the queryString which will be ignored.
-		 * 
+		 *
 		 * The query will be wrapped when one of the following is true:
 		 * <ul>
 		 * <li>you have no order-by clause</li>
@@ -3104,10 +3110,10 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * <li>your query is not fully qualified on the main table</li>
 		 * <li>you have a group-by, having, join or union keyword</li>
 		 * </ul>
-		 * 
+		 *
 		 * @sample
 		 * %%prefix%%controller.loadRecords(sqlstring);
-		 * 
+		 *
 		 * @param queryString to load
 		 * @return true if successful
 		 */
@@ -3119,10 +3125,10 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * @clonedesc js_loadRecords(String)
-		 * 
+		 *
 		 * @sample
 		 * %%prefix%%controller.loadRecords(sqlstring,parameters);
-		 * 
+		 *
 		 * @param queryString to load
 		 * @param queryArgumentsArray the arguments to replace the questions marks in the queryString
 		 * @return true if successful
@@ -3134,12 +3140,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 
-		/** 
+		/**
 		 * Method to handle old loadRecords calls.
 		 * Deprecated method to handle pre-6.1 calls to varargs function controller.loadRecords([1]), this was called with vargs=[1] in stead of vargs=[[1]].
-		 * 
+		 *
 		 * @param vargs the arguments
-		 * 
+		 *
 		 * @deprecated use loadRecords with single typed argument
 		 */
 		@Deprecated
@@ -3183,9 +3189,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 
 		/**
-		 * Returns the current cached record count of the current foundset. 
-		 * To return the full foundset count, use: databaseManager.getFoundSetCount(...) 
-		 * Tip: get the the table count of all rows in a table, use: databaseManager.getTableCount(...) 
+		 * Returns the current cached record count of the current foundset.
+		 * To return the full foundset count, use: databaseManager.getFoundSetCount(...)
+		 * Tip: get the the table count of all rows in a table, use: databaseManager.getTableCount(...)
 		 *
 		 * @sample
 		 * for ( var i = 1 ; i <= %%prefix%%controller.getMaxRecordIndex() ; i++ )
@@ -3217,15 +3223,15 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Get the name of the window/dialog this form is displayed in.
-		 * 
+		 *
 		 * @deprecated As of release 6.0, dialogs/windows API has been rewritten (based in JSWindow objects). Use {@link #getWindow()} instead.
-		 * 
+		 *
 		 * @sample
 		 * var dialogOrWindowName = %%prefix%%controller.getContainerName();
 		 * if (dialogOrWindowName != null) {
 		 * 	application.closeForm(dialogOrWindowName);
 		 * }
-		 * 
+		 *
 		 * @return the name of the window/dialog this form is displayed in. If the form is not showing in a window or dialog (other then main application frame), it returns null.
 		 */
 		@Deprecated
@@ -3237,9 +3243,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Get the name of the table used.
-		 * 
+		 *
 		 * @deprecated  As of release 5.0, replaced by {@link #getDataSource()}
-		 * 
+		 *
 		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_getDataSource()
 		 */
 		@Deprecated
@@ -3266,7 +3272,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * Get the name of the server used.
 		 *
 		 * @deprecated  As of release 5.0, replaced by {@link #getDataSource()}
-		 * 
+		 *
 		 */
 		@Deprecated
 		public String js_getServerName()
@@ -3276,7 +3282,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Returns the maximum length allowed in the specified dataprovider. 
+		 * Returns the maximum length allowed in the specified dataprovider.
 		 *
 		 * @sample %%prefix%%controller.getDataProviderMaxLength('name');
 		 * @param name the dataprovider name
@@ -3311,7 +3317,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * Sets focus to the first field of the form; based on tab order sequence.
 		 *
 		 * @sample %%prefix%%controller.focusFirstField();
-		 * 
+		 *
 		 * @see focusField
 		 */
 		public void js_focusFirstField()
@@ -3320,14 +3326,14 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sets focus to a field specified by its name. 
-		 * If the second parameter is set to true, then readonly fields will be skipped 
+		 * Sets focus to a field specified by its name.
+		 * If the second parameter is set to true, then readonly fields will be skipped
 		 * (the focus will be set to the first non-readonly field located after the field with the specified name; the tab sequence is respected when searching for the non-readonly field).
 		 *
 		 * @sample
 		 * var tabseq = %%prefix%%controller.getTabSequence();
 		 * if (tabseq.length > 1) {
-		 * 	// If there is more than one field in the tab sequence, 
+		 * 	// If there is more than one field in the tab sequence,
 		 * 	// focus the second one and skip over readonly fields.
 		 * 	%%prefix%%controller.focusField(tabseq[1], true);
 		 * }
@@ -3348,19 +3354,19 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		/**
 		 * Recreates the forms UI components, to reflect the latest solution model.
 		 * Use this after altering the elements via solutionModel at the JSForm of this form.
-		 * 
+		 *
 		 * @sample
-		 * // get the solution model JSForm 
+		 * // get the solution model JSForm
 		 * var form = solutionModel.getForm("myForm");
-		 * // get the JSField of the form 
+		 * // get the JSField of the form
 		 * var field = form.getField("myField");
 		 * // alter the field
 		 * field.x = field.x + 10;
 		 * // recreate the runtime forms ui to reflect the changes.
 		 * %%prefix%%controller.recreateUI();
-		 * 
+		 *
 		 * @see com.servoy.j2db.scripting.solutionmodel.JSForm
-		 * 
+		 *
 		 * @return true if successful
 		 */
 		public boolean js_recreateUI()
@@ -3382,14 +3388,14 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Get an array with the names of the components that are part of the tab sequence. 
-		 * The order of the names respects the order of the tab sequence. 
+		 * Get an array with the names of the components that are part of the tab sequence.
+		 * The order of the names respects the order of the tab sequence.
 		 * Components that are not named will not appear in the returned array, although they may be in the tab sequence.
 		 *
 		 * @sample
 		 * var tabseq = %%prefix%%controller.getTabSequence();
 		 * if (tabseq.length > 1) {
-		 * 	// If there is more than one field in the tab sequence, 
+		 * 	// If there is more than one field in the tab sequence,
 		 * 	// focus the second one and skip over readonly fields.
 		 * 	%%prefix%%controller.focusField(tabseq[1], true);
 		 * }
@@ -3447,8 +3453,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * var current = %%prefix%%controller.getSelectedIndex();
 		 * //sets the next record in the foundset, will be reflected in UI
 		 * %%prefix%%controller.setSelectedIndex(current+1);
-		 * 
-		 * @param index the index to select 
+		 *
+		 * @param index the index to select
 		 */
 		@JSFunction
 		public void setSelectedIndex(int index) //Object[] args)
@@ -3463,7 +3469,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Gets or sets the enabled state of a form; also known as "grayed-out".
-		 * 
+		 *
 		 * Notes:
 		 * -A disabled element(s) cannot be selected by clicking the form.
 		 * -The disabled "grayed" color is dependent on the LAF set in the Servoy Smart Client Application Preferences.
@@ -3490,8 +3496,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Gets or sets the read-only state of a form; also known as "editable"
-		 * 
-		 * Note: The field(s) in a form set as read-only can be selected and the field data can be copied to clipboard. 
+		 *
+		 * Note: The field(s) in a form set as read-only can be selected and the field data can be copied to clipboard.
 		 *
 		 * @sample
 		 * //gets the read-only state of the form
@@ -3541,9 +3547,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean)
-		 * 
-		 * @param clearLastResults boolean, clear previous search, default true  
-		 * 
+		 *
+		 * @param clearLastResults boolean, clear previous search, default true
+		 *
 		 * @return the recordCount
 		 */
 		public int js_search(boolean clearLastResults) throws ServoyException
@@ -3553,10 +3559,10 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * @sameas com.servoy.j2db.dataprocessing.FoundSet#js_search(Boolean,Boolean)
-		 * 
-		 * @param clearLastResults boolean, clear previous search, default true  
+		 *
+		 * @param clearLastResults boolean, clear previous search, default true
 		 * @param reduceSearch boolean, reduce (true) or extend (false) previous search results, default true
-		 * 
+		 *
 		 * @return the recordCount
 		 */
 		public int js_search(boolean clearLastResults, boolean reduceSearch) throws ServoyException
@@ -3607,7 +3613,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * %%prefix%%controller.showPrintPreview();
 		 * //to print preview current record only
 		 * //%%prefix%%controller.showPrintPreview(true);
-		 * //to print preview current record only with 125% zoom factor; 
+		 * //to print preview current record only with 125% zoom factor;
 		 * //%%prefix%%controller.showPrintPreview(true, null, 125);
 		 *
 		 */
@@ -3632,7 +3638,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @param printCurrentRecordOnly to print the current record only
 		 * @param printerJob print to plugin printer job, see pdf printer plugin for example (incase print is used from printpreview)
-		 * 
+		 *
 		 */
 		public void js_showPrintPreview(boolean printCurrentRecordOnly, PrinterJob printerJob)
 		{
@@ -3682,7 +3688,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @clonedesc js_print()
 		 * @sampleas js_print()
 		 * @param printCurrentRecordOnly to print the current record only
-		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)  
+		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)
 		 */
 		public void js_print(boolean printCurrentRecordOnly, boolean showPrinterSelectDialog)
 		{
@@ -3693,7 +3699,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @clonedesc js_print()
 		 * @sampleas js_print()
 		 * @param printCurrentRecordOnly to print the current record only
-		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)  
+		 * @param showPrinterSelectDialog boolean to show the printer select dialog (default printer is normally used)
 		 * @param printerJob print to plugin printer job, see pdf printer plugin for example
 		 */
 		public void js_print(boolean printCurrentRecordOnly, boolean showPrinterSelectDialog, PrinterJob printerJob)
@@ -3708,10 +3714,10 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @sample
 		 * //TIP: see also plugins.file.writeXMLFile(...)
 		 * var xml = %%prefix%%controller.printXML();
-		 * //print only current record 
+		 * //print only current record
 		 * //var xml = %%prefix%%controller.printXML(true);
 		 *
-		 * @return the XML 
+		 * @return the XML
 		 */
 		public String js_printXML()
 		{
@@ -3723,7 +3729,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @sampleas js_printXML()
 		 *
 		 * @param printCurrentRecordOnly to print the current record only
-		 * @return the XML 
+		 * @return the XML
 		 */
 		public String js_printXML(boolean printCurrentRecordOnly)
 		{
@@ -3733,9 +3739,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Get duplicate of current foundset, can be used by loadRecords again
-		 * 
+		 *
 		 * @deprecated  As of release 3.0, replaced by {@link foundset#duplicateFoundSet()}
-		 * 
+		 *
 		 * @sample
 		 * var dupFoundset = %%prefix%%controller.duplicateFoundSet();
 		 * %%prefix%%controller.find();
@@ -3782,11 +3788,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sets this form in designmode with one or more callback methods. 
+		 * Sets this form in designmode with one or more callback methods.
 		 *
 		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
-		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
 		 */
 		public void jsFunction_setDesignMode(Function onDrag)
 		{
@@ -3794,12 +3800,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sets this form in designmode with one or more callback methods. 
+		 * Sets this form in designmode with one or more callback methods.
 		 *
 		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
-		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
-		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 */
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop)
 		{
@@ -3807,12 +3813,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sets this form in designmode with one or more callback methods. 
+		 * Sets this form in designmode with one or more callback methods.
 		 *
 		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
-		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
-		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 */
 		public void jsFunction_setDesignMode(Function onDrag, Function onDrop, Function onSelect)
@@ -3821,12 +3827,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sets this form in designmode with one or more callback methods. 
+		 * Sets this form in designmode with one or more callback methods.
 		 *
 		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
-		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
-		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 */
@@ -3836,12 +3842,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sets this form in designmode with one or more callback methods. 
+		 * Sets this form in designmode with one or more callback methods.
 		 *
 		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
-		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
-		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
@@ -3852,12 +3858,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sets this form in designmode with one or more callback methods. 
+		 * Sets this form in designmode with one or more callback methods.
 		 *
 		 * @sampleas jsFunction_setDesignMode(boolean)
 		 *
-		 * @param ondrag org.mozilla.javascript.Function onDrag method reference 
-		 * @param ondrop org.mozilla.javascript.Function onDrop method reference 
+		 * @param ondrag org.mozilla.javascript.Function onDrag method reference
+		 * @param ondrop org.mozilla.javascript.Function onDrop method reference
 		 * @param onselect org.mozilla.javascript.Function onSelect method reference
 		 * @param onresize org.mozilla.javascript.Function onResize method reference
 		 * @param ondblclick org.mozilla.javascript.Function onDblClick method reference
@@ -3886,7 +3892,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * //Set the current form out of designmode (to normal browse)
 		 * //form.controller.setDesignMode(false);
 		 *
-		 * @param designMode boolean sets form in design mode if true, false ends design mode.  
+		 * @param designMode boolean sets form in design mode if true, false ends design mode.
 		 */
 		public void jsFunction_setDesignMode(boolean designMode)
 		{
@@ -3899,7 +3905,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @sample
 		 * var success = %%prefix%%controller.getDesignMode();
-		 * 
+		 *
 		 * @return the design mode state (true/fase)
 		 */
 		public boolean jsFunction_getDesignMode()
@@ -3912,11 +3918,11 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * Create a new record in the form foundset.
 		 *
 		 * @sample
-		 * // foreign key data is only filled in for equals (=) relation items 
+		 * // foreign key data is only filled in for equals (=) relation items
 		 * %%prefix%%controller.newRecord();//default adds on top
 		 * //%%prefix%%controller.newRecord(false); //adds at bottom
 		 * //%%prefix%%controller.newRecord(2); //adds as second record
-		 * 
+		 *
 		 * @return true if succesful
 		 */
 		public boolean js_newRecord() throws ServoyException
@@ -3971,7 +3977,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * %%prefix%%controller.duplicateRecord(); //duplicate the current record, adds on top
 		 * //%%prefix%%controller.duplicateRecord(false); //duplicate the current record, adds at bottom
 		 * //%%prefix%%controller.duplicateRecord(1,2); //duplicate the first record as second record
-		 * 
+		 *
 		 * @return true if succesful
 		 */
 		public boolean js_duplicateRecord() throws ServoyException
@@ -4044,13 +4050,13 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * //dataset rows: mainform(1) -> parent(2)  -> current form(3) (when 3 forms deep)
 		 * /** @type {JSDataSet} *&#47;
 		 * var dataset = %%prefix%%controller.getFormContext();
-		 * if (dataset.getMaxRowIndex() > 1) 
+		 * if (dataset.getMaxRowIndex() > 1)
 		 * {
 		 * 	// form is in a tabpanel
 		 * 	var parentFormName = dataset.getValue(1,2)
 		 * }
 		 * @return the dataset with form context
-		 * @see com.servoy.j2db.dataprocessing.JSDataSet 
+		 * @see com.servoy.j2db.dataprocessing.JSDataSet
 		 */
 		public JSDataSet js_getFormContext()
 		{
@@ -4060,12 +4066,12 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Omit current record in form foundset, to be shown with loadOmittedRecords.
-		 * 
-		 * Note: The omitted records are discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invert 
+		 *
+		 * Note: The omitted records are discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invert
 		 *
 		 * @sample var success = %%prefix%%controller.omitRecord();
 		 * @return true if successful
-		 * 
+		 *
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadOmittedRecords()
 		 */
 		public boolean js_omitRecord() throws ServoyException
@@ -4110,9 +4116,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Copy current record to variable and clipboard.
-		 * 
+		 *
 		 * @deprecated As of release 3.0, replaced by {@link application#setClipboardContent(Object)}.
-		 * 
+		 *
 		 * @sample var recorddata = %%prefix%%controller.copyRecord();
 		 */
 		@Deprecated
@@ -4124,9 +4130,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Copy all records from foundset to variable and clipboard
-		 * 
+		 *
 		 * @deprecated As of release 3.0, replaced by {@link application#setClipboardContent(Object)}.
-		 * 
+		 *
 		 * @sample var recorddata = %%prefix%%controller.copyAllRecords();
 		 */
 		@Deprecated
@@ -4138,9 +4144,9 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Show the sort dialog to the user a preselection sortString can be passed, to sort the form foundset.
-		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order. 
-		 * 
-		 * @sample %%prefix%%controller.sortDialog('columnA desc,columnB asc'); 
+		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
+		 *
+		 * @sample %%prefix%%controller.sortDialog('columnA desc,columnB asc');
 		 */
 		public void js_sortDialog()
 		{
@@ -4152,7 +4158,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @clonedes js_sortDialog()
 		 * @sampleas js_sortDialog()
 		 *
-		 * @param sortString the specified columns (and sort order) 
+		 * @param sortString the specified columns (and sort order)
 		 */
 		public void js_sortDialog(String sortString)
 		{
@@ -4161,8 +4167,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Sorts the form foundset based on the given sort string. 
-		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order. 
+		 * Sorts the form foundset based on the given sort string.
+		 * TIP: You can use the Copy button in the developer Select Sorting Fields dialog to get the needed syntax string for the desired sort fields/order.
 		 *
 		 * @sample %%prefix%%controller.sort('columnA desc,columnB asc');
 		 *
@@ -4200,16 +4206,16 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/**
 		 * Add a filter parameter to limit the foundset permanently
-		 * 
+		 *
 		 * @deprecated As of release 3.0, replaced by {@link foundset#addFoundSetFilterParam(String, String, Object, String)}.
-		 * 
+		 *
 		 * @sample
 		 * var success = %%prefix%%controller.addFoundSetFilterParam('customerid', '=', 'BLONP');//possible to add multiple
 		 * %%prefix%%controller.loadAllRecords();//to make param(s) effective
 		 *
-		 * @param column_dataprovider_id 
-		 * @param operator 
-		 * @param value 
+		 * @param column_dataprovider_id
+		 * @param operator
+		 * @param value
 		 *
 		 */
 		@Deprecated
@@ -4221,7 +4227,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Gets a value based on the specified dataprovider name. 
+		 * Gets a value based on the specified dataprovider name.
 		 *
 		 * @sample var val = %%prefix%%controller.getDataProviderValue('contact_name');
 		 *
@@ -4249,8 +4255,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @sample %%prefix%%controller.setDataProviderValue('contact_name','mycompany');
 		 *
-		 * @param dataprovider the dataprovider name to set the value for 
-		 * @param value the value to set in the dataprovider 
+		 * @param dataprovider the dataprovider name to set the value for
+		 * @param value the value to set in the dataprovider
 		 */
 		public void jsFunction_setDataProviderValue(String dataprovider, Object value)
 		{
@@ -4275,7 +4281,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 *
 		 * @sample %%prefix%%controller.setPreferredPrinter('HP Laser 2200');
 		 *
-		 * @param printerName The name of the printer to be used when printing. 
+		 * @param printerName The name of the printer to be used when printing.
 		 */
 		public void jsFunction_setPreferredPrinter(String printerName)
 		{
@@ -4289,24 +4295,24 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * Orientation values:
 		 * 0 - Landscape mode
 		 * 1 - Portrait mode
-		 * 
+		 *
 		 * Units values:
 		 * 0 - millimeters
 		 * 1 - inches
 		 * 2 - pixels
-		 * 
+		 *
 		 * Note: The unit specified for width, height and all margins MUST be the same.
-		 *  
+		 *
 		 * @sample
 		 * //Set page format to a custom size of 100x200 pixels with 10 pixel margins on all sides in portrait mode
 		 * %%prefix%%controller.setPageFormat(100, 200, 10, 10, 10, 10);
-		 * 
+		 *
 		 * //Set page format to a custom size of 100x200 pixels with 10 pixel margins on all sides in landscape mode
 		 * %%prefix%%controller.setPageFormat(100, 200, 10, 10, 10, 10, SM_ORIENTATION.LANDSCAPE);
-		 * 
+		 *
 		 * //Set page format to a custom size of 100x200 mm in landscape mode
 		 * %%prefix%%controller.setPageFormat(100, 200, 0, 0, 0, 0, SM_ORIENTATION.LANDSCAPE, SM_UNITS.MM);
-		 * 
+		 *
 		 * //Set page format to a custom size of 100x200 inch in portrait mode
 		 * %%prefix%%controller.setPageFormat(100, 200, 0, 0, 0, 0, SM_ORIENTATION.PORTRAIT, SM_UNITS.INCH);
 		 *
@@ -4330,7 +4336,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param leftmargin the specified left margin of the page to be printed.
 		 * @param rightmargin the specified right margin of the page to be printed.
 		 * @param topmargin the specified top margin of the page to be printed.
-		 * @param bottommargin the specified bottom margin of the page to be printed. 
+		 * @param bottommargin the specified bottom margin of the page to be printed.
 		 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 		 */
 		public void jsFunction_setPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin,
@@ -4347,7 +4353,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		 * @param leftmargin the specified left margin of the page to be printed.
 		 * @param rightmargin the specified right margin of the page to be printed.
 		 * @param topmargin the specified top margin of the page to be printed.
-		 * @param bottommargin the specified bottom margin of the page to be printed. 
+		 * @param bottommargin the specified bottom margin of the page to be printed.
 		 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 		 * @param units the specified units for the width and height of the page to be printed; the default is pixels
 		 */
@@ -4376,7 +4382,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Gets the form width in pixels. 
+		 * Gets the form width in pixels.
 		 *
 		 * @sample var width = %%prefix%%controller.getFormWidth();
 		 *
@@ -4389,7 +4395,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Gets the part height in pixels. 
+		 * Gets the part height in pixels.
 		 *
 		 * @sample var height = %%prefix%%controller.getPartHeight(JSPart.BODY);
 		 *
@@ -4404,7 +4410,7 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 		}
 
 		/**
-		 * Returns the Y offset of a given part of the form. 
+		 * Returns the Y offset of a given part of the form.
 		 *
 		 * @sample
 		 * var offset = %%prefix%%controller.getPartYOffset(JSPart.BODY);
@@ -4421,8 +4427,8 @@ public abstract class BasicFormController implements IFoundSetListener, IFoundSe
 
 		/** Get a design-time property of a form.
 		 *
-		 * @sample 
-		 * var prop = forms.orders.controller.getDesignTimeProperty('myprop')	
+		 * @sample
+		 * var prop = forms.orders.controller.getDesignTimeProperty('myprop')
 		 */
 		public Object js_getDesignTimeProperty(String key)
 		{

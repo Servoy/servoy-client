@@ -1238,9 +1238,10 @@ public class FormController extends BasicFormController
 		return hmChildrenJavaMembers;
 	}
 
+	@Override
 	public Object setUsingAsExternalComponent(boolean visibleExternal) throws ServoyException
 	{
-		visibleAsExternalComponent = visibleExternal;
+		super.setUsingAsExternalComponent(visibleExternal);
 		if (visibleExternal)
 		{
 			initForJSUsage();
