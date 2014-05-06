@@ -36,6 +36,7 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IFormUI;
+import com.servoy.j2db.util.Utils;
 
 /**
  * The event executor for the swing (smart) client.
@@ -50,6 +51,7 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 	private final Component component;
 	private Component enclosedComponent;
 	private boolean didAddFocusListener;
+	private boolean selectAllLater = false;
 
 	public EventExecutor(Component comp)
 	{
@@ -126,6 +128,11 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 
 	public void mouseClicked(MouseEvent e)
 	{
+		if (selectAllLater && getSelectOnEnter() && enclosedComponent instanceof JTextComponent)
+		{
+			selectAllLater = false;
+			((JTextComponent)enclosedComponent).selectAll();
+		}
 	}
 
 	public void mouseEntered(MouseEvent e)
@@ -253,6 +260,11 @@ public class EventExecutor extends BaseEventExecutor implements MouseListener, F
 		{
 			if (enclosedComponent instanceof JTextComponent)
 			{
+				if (Utils.isAppleMacOS())
+				{
+					// aqua caret will modify caret position on mouse click
+					selectAllLater = true;
+				}
 				SwingUtilities.invokeLater(new Runnable()
 				{
 					public void run()
