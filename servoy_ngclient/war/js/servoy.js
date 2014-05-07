@@ -699,8 +699,25 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 		  if(input) {return $sce.trustAsHtml(''+input);}
 		  return input
 	 };
-})
-.directive('svyFormstyle',  function () {
+}).directive('svyFormatvldisplay', function(){
+	//it is similar to svy-format
+	return{
+		restrict:'A',
+		require: 'ng-Model',
+		link: function(scope,el,attrs,ngModelController){
+			var valueList = scope.$eval(attrs.svyFormatvldisplay);
+			if(valueList){
+		    	 ngModelController.$formatters.push(function(dpValue){
+		    		 for (var i=0;i<valueList.length;i++)
+					  { 
+						  if(valueList[i].realValue == dpValue) return valueList[i].displayValue;
+					  }		    		 
+		     	     return dpValue;
+		     	 });
+			}
+		}
+	}
+}).directive('svyFormstyle',  function () {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
@@ -724,9 +741,7 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 			parent =parent.$parent
 		}
 		return false
-	}
-	
-    
+	}	
 })
 .directive("svyComponentWrapper", ['$compile', function ($compile) {
 		return {
