@@ -1951,6 +1951,7 @@ if (typeof(Servoy.Utils) == "undefined")
 		clickTimerRunning: false,
 		downArrow: null,
 		scrollTimer: null,
+		doSelectTimer: null,
 		
 		startClickTimer: function(f)
 		{
@@ -2319,15 +2320,13 @@ if (typeof(Servoy.Utils) == "undefined")
 	  {
 		  if (validationFailedId == null || validationFailedId == el.id)
 		  {
-			  if(Servoy.Utils.isChrome || Servoy.Utils.isSafari || Servoy.Utils.isFirefox)
-			  {
-				  var x= el;
-				  setTimeout(function(){x.select();},0);
-			  }
-			  else
-			  {
-				  el.select();
-			  }
+			  if(Servoy.Utils.doSelectTimer) clearTimeout(Servoy.Utils.doSelectTimer);
+			  Servoy.Utils.doSelectTimer = setTimeout(function() {
+				  if (el === Wicket.Focus.getFocusedElement())
+				  {
+					  el.select();
+				  }
+			  }, 200);
 		  }
 	  },
 	  removeFormCssLink: function(id) 
