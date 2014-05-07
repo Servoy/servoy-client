@@ -1876,7 +1876,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 							}
 							else if (matchingElement instanceof BaseComponent) sortableHeader.setWidth(((BaseComponent)matchingElement).getSize().width);
 						}
-						sortableHeader.setTabSequenceIndex(tabIndex);
+						sortableHeader.setTabSequenceIndex(ISupportWebTabSeq.SKIP);
 						sortableHeader.setScriptExecuter(el);
 						sortableHeader.setResizeClass(columnIdentifier.getId());
 						WebCellBasedView.this.registerHeader(matchingElement, headerComponent);
