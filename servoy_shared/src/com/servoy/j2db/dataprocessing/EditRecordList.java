@@ -833,7 +833,7 @@ public class EditRecordList
 				fsm.getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
 				return ISaveConstants.SAVE_FAILED;
 			}
-			else if (e instanceof IllegalStateException)
+			else if (e instanceof IllegalStateException || e instanceof JavaScriptException)
 			{
 				fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), e); //$NON-NLS-1$
 				return ISaveConstants.SAVE_FAILED;
