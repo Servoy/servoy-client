@@ -72,10 +72,11 @@ angular.module('servoy',['servoyformat','servoytooltip','servoyfileupload','ui.b
 	return{
 		
 		/** this function can be used in filters .It accepts a string jsonpath the property to test for null. 
-    	Example: "item in  model.valuelistID  | filter:notNull('realValue')"*/
-		notNull : function (propPath){
+    	Example: "item in  model.valuelistID  | filter:notNullOrEmpty('realValue')"*/
+		notNullOrEmpty : function (propPath){
 			return function(item) {
-				return !(getPropByStringPath(item,propPath) === null || getPropByStringPath(item,propPath) == '')
+				var propByStringPath = getPropByStringPath(item,propPath); 
+				return !(propByStringPath === null || propByStringPath == '')
 			}
 		},
 	    autoApplyStyle: function(scope,element,modelToWatch,cssPropertyName){

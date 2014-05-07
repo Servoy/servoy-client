@@ -9,7 +9,7 @@ angular.module('svyCheckgroup',['servoy']).directive('svyCheckgroup', function($
         api: "=svyApi"
       },
       link: function($scope, $element, $attrs) {
-         $scope.notNull = $utils.notNull  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
+         $scope.notNullOrEmpty = $utils.notNullOrEmpty  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
          $scope.style = {width:'100%',height:'100%'}
          angular.extend($scope.style ,$utils.getScrollbarsStyleObj($scope.model.scrollbars));
           

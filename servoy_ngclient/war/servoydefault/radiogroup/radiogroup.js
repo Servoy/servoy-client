@@ -8,7 +8,7 @@ angular.module('svyRadiogroup',['servoy']).directive('svyRadiogroup', function($
         api: "=svyApi"
       },
       controller: function($scope, $element, $attrs) {
-          $scope.notNull = $utils.notNull // TODO remove the need for this
+          $scope.notNullOrEmpty = $utils.notNullOrEmpty // TODO remove the need for this
           $scope.style = {width:'100%',height:'100%'}
           angular.extend($scope.style ,$utils.getScrollbarsStyleObj($scope.model.scrollbars));
           

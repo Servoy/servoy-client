@@ -5849,7 +5849,7 @@ Index: rib/servoydefault/datacheckgroup/datacheckgroup.html
 +++ rib/servoydefault/datacheckgroup/datacheckgroup.html	(working copy)
 @@ -0,0 +1,7 @@
 +<div style="background-color:{{model.background}};" title="{{model.toolTipText}}" >
-+  <div ng-repeat="item in  model.valuelistID  | filter:notNull('realValue')"  title="{{model.toolTipText}}">
++  <div ng-repeat="item in  model.valuelistID  | filter:notNullOrEmpty('realValue')"  title="{{model.toolTipText}}">
 +     <input 
 +          type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" ng-click="checkBoxClicked($index)" /> {{item.displayValue}}
 +  </div>
@@ -5917,7 +5917,7 @@ Index: rib/servoydefault/dataradiogroup/dataradiogroup.js
 +        handlers: "=svyHandlers"
 +      },
 +      controller: function($scope, $element, $attrs) {
-+          $scope.notNull = $utils.notNull // TODO remove the need for this
++          $scope.notNullOrEmpty = $utils.notNullOrEmpty // TODO remove the need for this
 +      },
 +      templateUrl: 'servoydefault/dataradiogroup/dataradiogroup.html',
 +      replace: true
@@ -5934,7 +5934,7 @@ Index: rib/servoydefault/dataradiogroup/dataradiogroup.html
 +++ rib/servoydefault/dataradiogroup/dataradiogroup.html	(working copy)
 @@ -0,0 +1,8 @@
 +<div style="background-color:{{model.background}};" title="{{model.toolTipText}}" >
-+  <div ng-repeat="item in model.valuelistID | filter:notNull('realValue')"  title="{{model.toolTipText}}">
++  <div ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue')"  title="{{model.toolTipText}}">
 +     <input 
 +          type="radio" ng-model="model.dataProviderID"  ng-value="item.realValue"  ng-change
 +                ="handlers.svy_apply('dataProviderID')" /> {{item.displayValue}}
@@ -7520,7 +7520,7 @@ Index: rib/servoydefault/datacheckgroup/datacheckgroup.js
 +        handlers: "=svyHandlers"
 +      },
 +      link: function($scope, $element, $attrs) {
-+            $scope.notNull = $utils.notNull  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
++            $scope.notNullOrEmpty = $utils.notNullOrEmpty  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
 +          
 +          var allowNullinc=0;
 +          
