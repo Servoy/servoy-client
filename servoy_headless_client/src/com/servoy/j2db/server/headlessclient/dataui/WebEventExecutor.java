@@ -572,8 +572,18 @@ public class WebEventExecutor extends BaseEventExecutor
 
 				if (parentFormViewType == IForm.LIST_VIEW || parentFormViewType == FormController.LOCKED_LIST_VIEW)
 				{
-					WebCellBasedViewListViewItem listViewItem = component.findParent(WebCellBasedView.WebCellBasedViewListViewItem.class);
-					if (listViewItem != null) listViewItem.markSelected(target);
+					if (component instanceof WebCellBasedViewListViewItem)
+					{
+						((WebCellBasedViewListViewItem)component).markSelected(target);
+					}
+					else
+					{
+						WebCellBasedViewListViewItem listViewItem = component.findParent(WebCellBasedView.WebCellBasedViewListViewItem.class);
+						if (listViewItem != null)
+						{
+							listViewItem.markSelected(target);
+						}
+					}
 				}
 			}
 		}
@@ -590,8 +600,11 @@ public class WebEventExecutor extends BaseEventExecutor
 
 		if (someModel instanceof RecordItemModel)
 		{
-			// update the last rendered value for the events component (if updated)
-			((RecordItemModel)someModel).updateRenderedValue(component);
+			if (!(component instanceof WebCellBasedViewListViewItem))
+			{
+				// update the last rendered value for the events component (if updated)
+				((RecordItemModel)someModel).updateRenderedValue(component);
+			}
 
 			IRecordInternal rec = (IRecordInternal)someModel.getObject();
 			if (rec != null)

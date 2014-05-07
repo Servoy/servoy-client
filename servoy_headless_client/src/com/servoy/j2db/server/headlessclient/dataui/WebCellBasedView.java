@@ -157,6 +157,7 @@ import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
+import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IPortalComponent;
@@ -297,7 +298,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
@@ -907,11 +908,8 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected void onEvent(AjaxRequestTarget target)
 				{
-					markSelected(target);
-					IFoundSetInternal modelFs = WebCellBasedViewListViewItem.this.listItem.getModelObject().getParentFoundSet();
-					int recIndex = modelFs.getRecordIndex(WebCellBasedViewListViewItem.this.listItem.getModelObject());
-					WebCellBasedView.this.setSelectionMadeByCellAction();
-					modelFs.setSelectedIndex(recIndex);
+					int webModifier = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter(IEventExecutor.MODIFIERS_PARAMETER));
+					WebEventExecutor.setSelectedIndex(WebCellBasedViewListViewItem.this, target, WebEventExecutor.convertModifiers(webModifier), true);
 					currentScrollTop = Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("currentScrollTop")); //$NON-NLS-1$
 					if (application.getFoundSetManager().getEditRecordList().isEditing())
 					{
@@ -923,7 +921,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected String enhanceFunctionScript(String newEh)
 				{
-					return "if(event.target && (event.target.id == componentId || (event.target.tagName && (event.target.tagName.toLowerCase() == 'div' || event.target.tagName.toLowerCase() == 'span' || event.target.tagName.toLowerCase() == 'label')) )) {" + newEh + '}'; //$NON-NLS-1$
+					return "if(event.target && event.target.id == componentId) {" + newEh + '}'; //$NON-NLS-1$
 				}
 
 
@@ -935,7 +933,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				@Override
 				protected CharSequence generateCallbackScript(final CharSequence partialCall)
 				{
-					return super.generateCallbackScript(partialCall + "+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$
+					return super.generateCallbackScript(partialCall + "+Servoy.Utils.getActionParams(event)" + "+'&currentScrollTop='+currentScrollTop"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 
 				@Override
@@ -4503,7 +4501,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
 	 */
 	@Override
@@ -5235,7 +5233,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 	{
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.apache.wicket.ajax.AbstractDefaultAjaxBehavior#respond(org.apache.wicket.ajax.AjaxRequestTarget)
 		 */
 		@Override
