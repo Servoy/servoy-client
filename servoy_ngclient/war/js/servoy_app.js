@@ -408,26 +408,26 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 }).directive('svyLayoutUpdate', function($servoyInternal,$window,$timeout) {
     return {
       restrict: 'A', // only activate on element attribute
-      link: function($scope, element, attrs) {
+      controller: function($scope, $element, $attrs) {
     	  var compModel;
-    	  if(attrs['svyLayoutUpdate'].length == 0) {
+    	  if($attrs['svyLayoutUpdate'].length == 0) {
     		  compModel = $scope.formProperties;
     	  } else {
-    		  compModel = $scope.model[attrs['svyLayoutUpdate']];
+    		  compModel = $scope.model[$attrs['svyLayoutUpdate']];
     	  }
 
-    	  if((attrs['svyLayoutUpdate'].length == 0) || (compModel.anchors !== undefined)) {
+    	  if(($attrs['svyLayoutUpdate'].length == 0) || (compModel.anchors !== undefined)) {
         	  var resizeTimeoutID = null;
         	  $window.addEventListener('resize',function() { 
         		  if(resizeTimeoutID) $timeout.cancel(resizeTimeoutID);
         		  resizeTimeoutID = $timeout( function() {
         			  if(compModel.location) {
-        				  compModel.location.x = element.prop('offsetLeft');
-        				  compModel.location.y = element.prop('offsetTop');
+        				  compModel.location.x = $element.prop('offsetLeft');
+        				  compModel.location.y = $element.prop('offsetTop');
         			  }
         			  if(compModel.size) {
-            			  compModel.size.width = element.prop('offsetWidth');
-            			  compModel.size.height = element.prop('offsetHeight');  
+            			  compModel.size.width = $element.prop('offsetWidth');
+            			  compModel.size.height = $element.prop('offsetHeight');  
         			  }
         		  }, 1000);
         	  });

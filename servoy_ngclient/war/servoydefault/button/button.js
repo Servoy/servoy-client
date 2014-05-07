@@ -8,7 +8,7 @@ angular.module('svyButton',['servoy']).directive('svyButton', function(formatFil
       },
       controller: function($scope, $element, $attrs) {
     	  $scope.containerstyle = {overflow:'hidden',position:'absolute'}
-          $scope.contentstyle = {width:'100%',overflow:'hidden',position:'relative'}
+          $scope.contentstyle = {width:'100%',overflow:'hidden',position:'relative',whiteSpace:'nowrap'}
       },
       templateUrl: 'servoydefault/button/button.html',
       replace: true

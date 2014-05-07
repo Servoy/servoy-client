@@ -13,12 +13,12 @@
  	 svy-mnemonic='model.mnemonic'
  	 svy-textrotation='model.textRotation'
  	 style='width:100%;height:100%'
- 	 > 
+ 	 >  	 
 <div  ng-style="contentstyle" 
 	   svy-tabseq='model.tabSeq'
 	   svy-horizontalalignment='model.horizontalAlignment'
 	   svy-verticalalignment='model.verticalAlignment'>
- 	   		<span svy-imagemediaid='model.imageMediaID'/>
+	   		<span svy-imagemediaid='{img: model.imageMediaID, width: model.size.width, height: model.size.height}'/>
  	   		<span ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID ) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic'/>
 </div>
 </div>
