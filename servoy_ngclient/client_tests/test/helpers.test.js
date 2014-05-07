@@ -226,13 +226,13 @@ describe('styles helpers', function() {
  	
  	it("should apply svy-imagemediaid", function() {  // Implement this test case when
   		// is is a design time property, model is sent before
- 			$scope.myModel = 'image1.jpg';
+ 			$scope.myModel = {img: 'image1.jpg', width: 16, height: 16};
 	  		var template= '<div type="text" value="Dummy text" svy-imagemediaid="myModel"></div>' 
 	  	    var myDiv = $compile(template)($scope);
 	 		$scope.$digest();
 	 		expect(myDiv[0].style.backgroundImage).toContain('image1.jpg')
 	 		// change image at runtime
-	 		$scope.myModel = 'image2.jpg';
+	 		$scope.myModel = {img: 'image2.jpg', width: 16, height: 16};
 	 		$scope.$digest();
 	 		expect(myDiv[0].style.backgroundImage).toContain('image2.jpg')
 	  });
