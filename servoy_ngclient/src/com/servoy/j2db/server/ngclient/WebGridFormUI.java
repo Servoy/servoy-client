@@ -332,7 +332,8 @@ public class WebGridFormUI extends WebFormUI implements IFoundSetEventListener
 			if (wc.getFormElement().getPersist() instanceof BaseComponent)
 			{
 				Point location = ((BaseComponent)wc.getFormElement().getPersist()).getLocation();
-				if (bodyStartY <= location.y && bodyEndY > location.y)
+				//svy_default_navigator doesn't have location 
+				if (location != null && (bodyStartY <= location.y && bodyEndY > location.y))
 				{
 					ret.add(wc);
 				}
