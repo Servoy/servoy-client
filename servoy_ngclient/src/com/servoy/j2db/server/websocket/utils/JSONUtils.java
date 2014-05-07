@@ -49,9 +49,11 @@ import org.mozilla.javascript.UniqueTag;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
+import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IDataConverterContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
@@ -300,6 +302,14 @@ public class JSONUtils
 		else if (value instanceof Form)
 		{
 			w = w.value(toStringObject(value, PropertyType.form));
+		}
+		else if (value instanceof FormScope)
+		{
+			w = w.value(((FormScope)value).getFormController().getName());
+		}
+		else if (value instanceof RelatedFoundSet)
+		{
+			w = w.value(((RelatedFoundSet)value).getRelationName());
 		}
 		else if (value instanceof JSONWritable)
 		{
