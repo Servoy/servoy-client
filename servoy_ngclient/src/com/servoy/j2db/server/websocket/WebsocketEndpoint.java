@@ -19,11 +19,9 @@ package com.servoy.j2db.server.websocket;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.websocket.CloseReason;
@@ -40,7 +38,6 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
 
-import com.servoy.j2db.server.ngclient.WebsocketSessionFactory;
 import com.servoy.j2db.server.websocket.utils.DataConversion;
 import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
@@ -61,14 +58,7 @@ import com.servoy.j2db.util.Debug;
 @ServerEndpoint(value = "/websocket/{endpointType}/{id}/{argument}")
 public class WebsocketEndpoint implements IWebsocketEndpoint
 {
-	private static Map<String, IWebsocketSession> wsSessions = new HashMap<>();
-
-	private static Map<String, Long> nonActiveWsSessions = new HashMap<>();
-
-	private static final long SESSION_TIMEOUT = 1 * 60 * 1000;
-
 	private Session session;
-
 	private IWebsocketSession wsSession;
 
 	private final AtomicInteger nextMessageId = new AtomicInteger(0);
@@ -78,72 +68,6 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 
 	public WebsocketEndpoint()
 	{
-	}
-
-	private static String getWsSessionKey(String endpointType, String uuid)
-	{
-		return endpointType + ':' + uuid;
-	}
-
-	public static void addWebSocketSession(String endpointType, String uuid, IWebsocketSession wsSession)
-	{
-		synchronized (wsSessions)
-		{
-			wsSessions.put(getWsSessionKey(endpointType, uuid), wsSession);
-			wsSession.setUuid(uuid);
-		}
-	}
-
-	public static IWebsocketSession removeWebSocketSession(String endpointType, String uuid)
-	{
-		synchronized (wsSessions)
-		{
-			String key = getWsSessionKey(endpointType, uuid);
-			nonActiveWsSessions.remove(key);
-			return wsSessions.remove(key);
-		}
-	}
-
-	public static IWebsocketSession getWsSession(String endpointType, String prevUuid)
-	{
-		return getOrCreateWsSession(endpointType, prevUuid, false);
-	}
-
-	public static IWebsocketSession getOrCreateWsSession(String endpointType, String prevUuid, boolean create)
-	{
-		String uuid = prevUuid;
-		IWebsocketSession wsSession = null;
-		synchronized (wsSessions)
-		{
-			String key;
-			if (uuid != null && uuid.length() > 0)
-			{
-				key = getWsSessionKey(endpointType, uuid);
-				wsSession = wsSessions.get(key);
-				nonActiveWsSessions.remove(key);
-			}
-			else
-			{
-				uuid = UUID.randomUUID().toString();
-				key = getWsSessionKey(endpointType, uuid);
-			}
-			if (wsSession == null || !wsSession.isValid())
-			{
-				wsSessions.remove(key);
-				wsSession = null;
-				if (create)
-				{
-					wsSession = WebsocketSessionFactory.createSession(endpointType);
-				}
-				if (wsSession != null)
-				{
-					wsSessions.put(key, wsSession);
-					wsSession.setUuid(uuid);
-				}
-			}
-		}
-
-		return wsSession;
 	}
 
 	@OnOpen
@@ -157,7 +81,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		String uuid = "NULL".equals(id) ? null : id;
 		String argument = "NULL".equals(arg) ? null : arg;
 
-		wsSession = getOrCreateWsSession(endpointType, uuid, true);
+		wsSession = WebsocketSessionManager.getOrCreateWsSession(endpointType, uuid, true);
 		wsSession.setActiveWebsocketEndpoint(this);
 
 		wsSession.onOpen(argument);
@@ -203,22 +127,9 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	public void onClose(@PathParam("endpointType")
 	final String endpointType)
 	{
-		synchronized (wsSessions)
+		if (wsSession != null)
 		{
-			long currentTime = System.currentTimeMillis();
-			Iterator<Long> iterator = nonActiveWsSessions.values().iterator();
-			while (iterator.hasNext())
-			{
-				Long entry = iterator.next();
-				if (currentTime - entry.longValue() > SESSION_TIMEOUT)
-				{
-					iterator.remove();
-				}
-			}
-			if (wsSession != null)
-			{
-				nonActiveWsSessions.put(getWsSessionKey(endpointType, wsSession.getUuid()), new Long(currentTime));
-			}
+			WebsocketSessionManager.close(endpointType, wsSession.getUuid());
 		}
 		session = null;
 		wsSession = null;

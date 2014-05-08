@@ -26,7 +26,7 @@ import com.servoy.j2db.server.ngclient.template.FormWithInlineLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.IndexTemplateGenerator;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.server.websocket.WebsocketEndpoint;
+import com.servoy.j2db.server.websocket.WebsocketSessionManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
@@ -63,7 +63,7 @@ public class TemplateGeneratorFilter implements Filter
 					INGClientWebsocketSession wsSession = null;
 					if (clientUUID != null)
 					{
-						wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
 						if (wsSession != null) fs = wsSession.getClient().getFlattenedSolution();
 					}
 					if (fs == null)
@@ -145,6 +145,9 @@ public class TemplateGeneratorFilter implements Filter
 	@Override
 	public void init(final FilterConfig fc) throws ServletException
 	{
+		//register the session factory at the manager 
+		WebsocketSessionManager.setWebsocketSessionFactory(WebsocketSessionFactory.get());
+
 		//when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{

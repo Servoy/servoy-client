@@ -46,7 +46,7 @@ public class Activator implements BundleActivator
 		final IDebugClientHandler service = ApplicationServerRegistry.getServiceRegistry().getService(IDebugClientHandler.class);
 		if (service != null)
 		{
-			WebsocketSessionFactory.setClientCreator(new IClientCreator()
+			WebsocketSessionFactory.get().setClientCreator(new IClientCreator()
 			{
 				@Override
 				public NGClient createClient(INGClientWebsocketSession wsSession)

@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import com.servoy.j2db.server.websocket.IWebsocketSession;
+import com.servoy.j2db.server.websocket.IWebsocketSessionFactory;
 
 /**
  * Create websocket session handler based on endpoint type.
@@ -25,19 +26,33 @@ import com.servoy.j2db.server.websocket.IWebsocketSession;
  * @author rgansevles
  *
  */
-public class WebsocketSessionFactory
+public class WebsocketSessionFactory implements IWebsocketSessionFactory
 {
 	public static final String CLIENT_ENDPOINT = "client";
 
-	private static volatile IClientCreator clientCreator;
+	private volatile IClientCreator clientCreator;
 
+	private static WebsocketSessionFactory me;
+
+	public static WebsocketSessionFactory get()
+	{
+		if (me == null)
+		{
+			me = new WebsocketSessionFactory();
+		}
+		return me;
+	}
+
+	private WebsocketSessionFactory()
+	{
+	}
 
 	/**
 	 * @param endpointType
 	 * @param ngClientEndpoint
-	 * @return
+	 * @return the session
 	 */
-	public static IWebsocketSession createSession(String endpointType)
+	public IWebsocketSession createSession(String endpointType)
 	{
 		switch (endpointType)
 		{
@@ -52,7 +67,7 @@ public class WebsocketSessionFactory
 	/**
 	 * @return the clientCreator
 	 */
-	public static IClientCreator getClientCreator()
+	public IClientCreator getClientCreator()
 	{
 		if ((clientCreator == null))
 		{
@@ -71,7 +86,7 @@ public class WebsocketSessionFactory
 	/**
 	 * @param clientCreator the clientCreator to set
 	 */
-	public static void setClientCreator(IClientCreator creator)
+	public void setClientCreator(IClientCreator creator)
 	{
 		clientCreator = creator;
 	}

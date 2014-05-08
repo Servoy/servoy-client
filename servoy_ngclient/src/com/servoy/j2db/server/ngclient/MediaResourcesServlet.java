@@ -46,7 +46,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.server.websocket.WebsocketEndpoint;
+import com.servoy.j2db.server.websocket.WebsocketSessionManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.MimeTypes;
@@ -191,7 +191,8 @@ public class MediaResourcesServlet extends HttpServlet
 		throws IOException
 	{
 		// try to look it up as clientId. (solution model)
-		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT,
+			clientUUID);
 
 		IApplication client = null;
 		if (wsSession == null)
@@ -266,7 +267,7 @@ public class MediaResourcesServlet extends HttpServlet
 						String elementName = paths[3];
 						String propertyName = paths[4];
 
-						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketEndpoint.getWsSession(
+						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getWsSession(
 							WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 						if (wsSession != null)
 						{
