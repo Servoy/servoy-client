@@ -17,8 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import com.servoy.j2db.server.websocket.IWebsocketSession;
-import com.servoy.j2db.server.websocket.IWebsocketSessionFactory;
+import org.sablo.websocket.IWebsocketSession;
+import org.sablo.websocket.IWebsocketSessionFactory;
 
 /**
  * Create websocket session handler based on endpoint type.

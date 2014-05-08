@@ -10,7 +10,7 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.startup.resourceprovider,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils,
- com.servoy.j2db.server.websocket
+ org.sablo.websocket
 Require-Bundle: servoy_shared,
  servoy_smart_client,
  org.eclipse.dltk.javascript.rhino,

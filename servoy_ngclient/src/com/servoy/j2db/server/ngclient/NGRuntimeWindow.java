@@ -20,6 +20,8 @@ package com.servoy.j2db.server.ngclient;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sablo.websocket.utils.JSONUtils;
+
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
@@ -31,7 +33,6 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
-import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 

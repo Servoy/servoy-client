@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaObject;
+import org.sablo.websocket.IService;
 
 import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.BasicFormManager;
@@ -49,7 +50,6 @@ import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
-import com.servoy.j2db.server.websocket.IService;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;

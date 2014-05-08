@@ -4,12 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.tomcat.starter.IServicesProvider;
+import org.sablo.websocket.WebsocketEndpoint;
 
 import com.servoy.j2db.server.ngclient.ComponentsModuleGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.TemplateGeneratorFilter;
 import com.servoy.j2db.server.ngclient.startup.resourceprovider.ResourceProvider;
-import com.servoy.j2db.server.websocket.WebsocketEndpoint;
 
 
 public class ServicesProvider implements IServicesProvider

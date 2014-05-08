@@ -17,10 +17,11 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import org.sablo.websocket.IWebsocketSession;
+
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
-import com.servoy.j2db.server.websocket.IWebsocketSession;
 
 /**
  * Interface for classes handling a websocket session based on a client.

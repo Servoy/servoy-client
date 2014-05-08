@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.swing.border.Border;
 
 import org.json.JSONException;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
@@ -37,7 +38,6 @@ import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
 import com.servoy.j2db.server.ngclient.property.PropertyDescription;
 import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;

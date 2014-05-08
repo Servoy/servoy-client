@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONStringer;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -37,7 +38,6 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.WebGridFormUI;
-import com.servoy.j2db.server.websocket.utils.JSONUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
