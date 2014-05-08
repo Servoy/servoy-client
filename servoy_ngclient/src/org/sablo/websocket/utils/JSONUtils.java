@@ -45,6 +45,8 @@ import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.UniqueTag;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyType;
 
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IValueList;
@@ -57,8 +59,6 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.server.ngclient.IDataConverterContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;

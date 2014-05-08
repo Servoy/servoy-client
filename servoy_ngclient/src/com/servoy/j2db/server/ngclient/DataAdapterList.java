@@ -12,6 +12,9 @@ import java.util.WeakHashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.PropertyType.DataproviderConfig;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
@@ -30,9 +33,6 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
-import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType.DataproviderConfig;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;

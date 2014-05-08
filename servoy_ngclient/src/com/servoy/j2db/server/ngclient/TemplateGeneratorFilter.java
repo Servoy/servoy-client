@@ -13,6 +13,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -22,7 +23,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.FormWithInlineLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.IndexTemplateGenerator;

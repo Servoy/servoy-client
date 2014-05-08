@@ -38,9 +38,10 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.servoy.j2db.server.ngclient.component.WebComponentPackage;
-import com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader;
-import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentPackage;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentPackage.IPackageReader;
+
 import com.servoy.j2db.server.ngclient.startup.Activator;
 import com.servoy.j2db.util.Utils;
 

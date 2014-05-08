@@ -20,9 +20,9 @@ package com.servoy.j2db.server.ngclient.scripting;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.specification.WebComponentApiDefinition;
 
 import com.servoy.j2db.server.ngclient.WebComponent;
-import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 
 /**
  * Javascript function to call a client-side function in the web component api.

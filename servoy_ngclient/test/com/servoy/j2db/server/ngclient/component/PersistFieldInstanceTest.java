@@ -33,6 +33,7 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sablo.specification.WebComponentSpecProvider;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ClientLogin;

@@ -16,15 +16,15 @@ import javax.swing.event.ListDataListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyType;
+import org.sablo.specification.WebComponentApiDefinition;
 
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.LookupListModel;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;

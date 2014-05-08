@@ -25,10 +25,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyType;
+import org.sablo.specification.WebComponentApiDefinition;
+import org.sablo.specification.WebComponentSpec;
 
 import com.servoy.j2db.server.ngclient.WebComponent;
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 
 /**

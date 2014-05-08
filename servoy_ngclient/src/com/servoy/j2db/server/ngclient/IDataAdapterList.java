@@ -18,10 +18,10 @@
 package com.servoy.j2db.server.ngclient;
 
 import org.json.JSONObject;
+import org.sablo.specification.WebComponentApiDefinition;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.dataprocessing.IRecord;
-import com.servoy.j2db.server.ngclient.component.WebComponentApiDefinition;
 
 /**
  * @author jcompagner

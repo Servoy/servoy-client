@@ -24,12 +24,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecProvider;
+
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
-import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;

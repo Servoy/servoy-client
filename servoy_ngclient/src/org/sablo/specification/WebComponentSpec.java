@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.component;
+package org.sablo.specification;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,11 +28,9 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyType.DataproviderConfig;
+import org.sablo.specification.PropertyType.ValuesConfig;
 
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType;
-import com.servoy.j2db.server.ngclient.property.PropertyType.DataproviderConfig;
-import com.servoy.j2db.server.ngclient.property.PropertyType.ValuesConfig;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 

@@ -20,9 +20,9 @@ package com.servoy.j2db.server.ngclient.component;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyType;
+import org.sablo.specification.WebComponentSpec;
 
 /**
  * @author jcompagner

@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient.component;
+package org.sablo.specification;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,8 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
-import com.servoy.j2db.server.ngclient.component.WebComponentPackage.IPackageReader;
+import org.sablo.specification.WebComponentPackage.IPackageReader;
+
 import com.servoy.j2db.util.Debug;
 
 /**

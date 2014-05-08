@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
-import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
+import org.sablo.specification.WebComponentSpec;
+import org.sablo.specification.WebComponentSpecProvider;
 
 /**
  * @author jcompagner

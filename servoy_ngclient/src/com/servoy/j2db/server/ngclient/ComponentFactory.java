@@ -24,6 +24,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyType;
+import org.sablo.specification.WebComponentSpecProvider;
+
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
@@ -35,9 +39,6 @@ import com.servoy.j2db.dataprocessing.RelatedValueList;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.server.ngclient.component.WebComponentSpecProvider;
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 

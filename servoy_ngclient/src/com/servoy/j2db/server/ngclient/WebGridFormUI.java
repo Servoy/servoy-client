@@ -27,6 +27,9 @@ import java.util.Map.Entry;
 
 import javax.swing.event.ListDataListener;
 
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyType;
+import org.sablo.specification.WebComponentSpec;
 import org.sablo.websocket.utils.JSONUtils.JSONWritable;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -39,9 +42,6 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.server.ngclient.component.WebComponentSpec;
-import com.servoy.j2db.server.ngclient.property.PropertyDescription;
-import com.servoy.j2db.server.ngclient.property.PropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
