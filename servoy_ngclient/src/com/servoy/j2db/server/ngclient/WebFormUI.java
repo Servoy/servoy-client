@@ -48,13 +48,13 @@ public class WebFormUI extends WebComponent implements IWebFormUI
 {
 	protected final Map<String, WebComponent> components = new HashMap<>();
 	private final INGApplication application;
-	private final IFormController formController;
+	private final IWebFormController formController;
 
 	private boolean enabled = true;
 	private boolean readOnly = false;
 	private Object parentContainerOrWindowName;
 
-	public WebFormUI(IFormController formController)
+	public WebFormUI(IWebFormController formController)
 	{
 		super(formController.getName(), formController.getForm());
 		this.formController = formController;

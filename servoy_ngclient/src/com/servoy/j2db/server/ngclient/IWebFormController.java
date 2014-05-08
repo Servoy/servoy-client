@@ -38,4 +38,6 @@ public interface IWebFormController extends IFormController
 	public IFoundSetInternal getFoundSet();
 
 	void recalculateTabIndex();
+
+	void setParentFormController(IWebFormController parentFormController);
 }

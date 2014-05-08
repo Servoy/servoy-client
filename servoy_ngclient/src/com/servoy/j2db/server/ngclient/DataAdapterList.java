@@ -19,7 +19,6 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.util.ITagResolver;
-import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecord;
@@ -46,7 +45,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final Map<String, List<Pair<WebComponent, String>>> recordDataproviderToComponent = new HashMap<>();
 	private final Map<FormElement, Map<String, String>> beanToDataHolder = new HashMap<>();
 	private final INGApplication application;
-	private final IFormController formController;
+	private final IWebFormController formController;
 	private final EventExecutor executor;
 	private final InlineScriptExecutor inlineScriptExecutor;
 	private final WeakHashMap<IWebFormController, String> relatedForms = new WeakHashMap<>();
@@ -54,7 +53,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private IRecordInternal record;
 	private boolean findMode;
 
-	public DataAdapterList(INGApplication application, IFormController formController)
+	public DataAdapterList(INGApplication application, IWebFormController formController)
 	{
 		this.application = application;
 		this.formController = formController;
@@ -99,7 +98,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addRelatedForm(IWebFormController form, String relation)
 	{
+		form.setParentFormController(formController);
 		relatedForms.put(form, relation);
+	}
+
+	public void removeRelatedForm(IWebFormController form)
+	{
+		relatedForms.remove(form);
 	}
 
 	public void add(WebComponent component, String recordDataProvider, String beanDataProvider)
@@ -203,7 +208,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 
 		// valuelist update
-		Map<String, WebComponent> webComponents = ((IWebFormUI)formController.getFormUI()).getWebComponents();
+		Map<String, WebComponent> webComponents = formController.getFormUI().getWebComponents();
 		Object valuelist;
 		for (WebComponent wc : webComponents.values())
 		{
