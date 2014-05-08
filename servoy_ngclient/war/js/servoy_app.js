@@ -488,7 +488,7 @@ angular.module('servoyApp', ['servoy','webStorageModule','ngGrid','servoy-compon
 		}
 	}
 	
-}).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
+}]).factory("$windowService", function($modal, $log, $templateCache, $rootScope, $solutionSettings, $window, $servoyInternal) {
 	var instances = {};
 	
 	var formTemplateUrls = {};
