@@ -155,7 +155,7 @@ public class DivWindow extends ModalWindow
 		protected CharSequence getCallbackScript(boolean onlyTargetActivePage)
 		{
 			CharSequence cBackScript = super.getCallbackScript(true);
-			String callbackScript = "var mask = $('.w_close'); mask.trigger('focus');" + cBackScript;
+			String callbackScript = "var closeButton = $('.w_close'); closeButton.trigger('focus');" + cBackScript;
 			return callbackScript;
 		}
 
