@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +49,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final IFormController formController;
 	private final EventExecutor executor;
 	private final InlineScriptExecutor inlineScriptExecutor;
+	private final WeakHashMap<IWebFormController, String> relatedForms = new WeakHashMap<>();
 
 	private IRecordInternal record;
 	private boolean findMode;
@@ -95,6 +97,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
+	public void addRelatedForm(IWebFormController form, String relation)
+	{
+		relatedForms.put(form, relation);
+	}
+
 	public void add(WebComponent component, String recordDataProvider, String beanDataProvider)
 	{
 		List<Pair<WebComponent, String>> list = recordDataproviderToComponent.get(recordDataProvider);
@@ -136,6 +143,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			this.record.addModificationListener(this);
 			pushRecordValues(fireChangeEvent, false);
+		}
+
+		for (IWebFormController form : relatedForms.keySet())
+		{
+			if (form.isFormVisible())
+			{
+				form.loadRecords(record.getRelatedFoundSet(relatedForms.get(form)));
+			}
 		}
 	}
 

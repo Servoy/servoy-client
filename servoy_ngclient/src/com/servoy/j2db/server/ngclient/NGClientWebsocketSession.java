@@ -287,9 +287,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 									}
 									if (obj.has("relation") && !obj.isNull("relation"))
 									{
+										String relation = obj.getString("relation");
 										FoundSet parentFs = parentForm.getFormModel();
 										IRecordInternal selectedRecord = (IRecordInternal)parentFs.getSelectedRecord();
-										form.loadRecords(selectedRecord.getRelatedFoundSet(obj.getString("relation")));
+										form.loadRecords(selectedRecord.getRelatedFoundSet(relation));
+										parentForm.getFormUI().getDataAdapterList().addRelatedForm(form, relation);
 									}
 								}
 								Utils.invokeLater(client, invokeLaterRunnables);

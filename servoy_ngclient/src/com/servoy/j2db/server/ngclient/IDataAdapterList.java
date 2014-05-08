@@ -82,6 +82,7 @@ public interface IDataAdapterList extends IDataConverter, ITagResolver
 	 */
 	void setFindMode(boolean findMode);
 
-	public INGApplication getApplication();
+	INGApplication getApplication();
 
+	void addRelatedForm(IWebFormController form, String relation);
 }
