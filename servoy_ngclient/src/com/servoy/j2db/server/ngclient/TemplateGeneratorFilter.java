@@ -63,7 +63,7 @@ public class TemplateGeneratorFilter implements Filter
 					INGClientWebsocketSession wsSession = null;
 					if (clientUUID != null)
 					{
-						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
+						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, clientUUID);
 						if (wsSession != null) fs = wsSession.getClient().getFlattenedSolution();
 					}
 					if (fs == null)

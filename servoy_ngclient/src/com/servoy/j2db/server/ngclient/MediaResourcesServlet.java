@@ -191,7 +191,7 @@ public class MediaResourcesServlet extends HttpServlet
 		throws IOException
 	{
 		// try to look it up as clientId. (solution model)
-		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getWsSession(WebsocketSessionFactory.CLIENT_ENDPOINT,
+		INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT,
 			clientUUID);
 
 		IApplication client = null;
@@ -267,7 +267,7 @@ public class MediaResourcesServlet extends HttpServlet
 						String elementName = paths[3];
 						String propertyName = paths[4];
 
-						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getWsSession(
+						INGClientWebsocketSession wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(
 							WebsocketSessionFactory.CLIENT_ENDPOINT, clientID);
 						if (wsSession != null)
 						{

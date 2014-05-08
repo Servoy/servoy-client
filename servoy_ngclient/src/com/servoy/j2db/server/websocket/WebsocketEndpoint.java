@@ -81,7 +81,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 		String uuid = "NULL".equals(id) ? null : id;
 		String argument = "NULL".equals(arg) ? null : arg;
 
-		wsSession = WebsocketSessionManager.getOrCreateWsSession(endpointType, uuid, true);
+		wsSession = WebsocketSessionManager.getOrCreateSession(endpointType, uuid, true);
 		wsSession.setActiveWebsocketEndpoint(this);
 
 		wsSession.onOpen(argument);

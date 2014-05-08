@@ -37,7 +37,7 @@ public class WebsocketSessionManager
 
 	private static final long SESSION_TIMEOUT = 1 * 60 * 1000;
 
-	private static String getWsSessionKey(String endpointType, String uuid)
+	private static String getSessionKey(String endpointType, String uuid)
 	{
 		return endpointType + ':' + uuid;
 	}
@@ -46,7 +46,7 @@ public class WebsocketSessionManager
 	{
 		synchronized (wsSessions)
 		{
-			wsSessions.put(getWsSessionKey(endpointType, uuid), wsSession);
+			wsSessions.put(getSessionKey(endpointType, uuid), wsSession);
 			wsSession.setUuid(uuid);
 		}
 	}
@@ -55,18 +55,18 @@ public class WebsocketSessionManager
 	{
 		synchronized (wsSessions)
 		{
-			String key = getWsSessionKey(endpointType, uuid);
+			String key = getSessionKey(endpointType, uuid);
 			nonActiveWsSessions.remove(key);
 			return wsSessions.remove(key);
 		}
 	}
 
-	public static IWebsocketSession getWsSession(String endpointType, String prevUuid)
+	public static IWebsocketSession getSession(String endpointType, String prevUuid)
 	{
-		return getOrCreateWsSession(endpointType, prevUuid, false);
+		return getOrCreateSession(endpointType, prevUuid, false);
 	}
 
-	public static IWebsocketSession getOrCreateWsSession(String endpointType, String prevUuid, boolean create)
+	public static IWebsocketSession getOrCreateSession(String endpointType, String prevUuid, boolean create)
 	{
 		String uuid = prevUuid;
 		IWebsocketSession wsSession = null;
@@ -75,14 +75,14 @@ public class WebsocketSessionManager
 			String key;
 			if (uuid != null && uuid.length() > 0)
 			{
-				key = getWsSessionKey(endpointType, uuid);
+				key = getSessionKey(endpointType, uuid);
 				wsSession = wsSessions.get(key);
 				nonActiveWsSessions.remove(key);
 			}
 			else
 			{
 				uuid = UUID.randomUUID().toString();
-				key = getWsSessionKey(endpointType, uuid);
+				key = getSessionKey(endpointType, uuid);
 			}
 			if (wsSession == null || !wsSession.isValid())
 			{
@@ -122,7 +122,7 @@ public class WebsocketSessionManager
 			}
 			if (uuid != null)
 			{
-				nonActiveWsSessions.put(getWsSessionKey(endpointType, uuid), new Long(currentTime));
+				nonActiveWsSessions.put(getSessionKey(endpointType, uuid), new Long(currentTime));
 			}
 		}
 	}
