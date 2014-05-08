@@ -621,8 +621,29 @@ public class ScriptEngine implements IScriptSupport
 					}
 				}
 
+				String methodName = f.get("_methodname_", f).toString(); //$NON-NLS-1$
+				String formscope = thisObject.toString();
+				if (thisObject instanceof FormScope) formscope = ((FormScope)thisObject).getFormController().getName();
+				methodName = formscope + "." + methodName; //$NON-NLS-1$
+
 				//run
+				if (!(application instanceof ISmartClientApplication))
+				{
+					long t1 = System.currentTimeMillis();
+					//	application.addPerformanceTiming(server, sql, 0 - t1);
+					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName,
+						0 - t1);
+
+				}
+
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
+
+				if (!(application instanceof ISmartClientApplication))
+				{
+					application.getApplicationServerAccess().getFunctionPerfomanceRegistry().addPerformanceTiming(application.getSolutionName(), methodName, 0);
+				}
+
+
 				if (retValue instanceof Wrapper)
 				{
 					retValue = ((Wrapper)retValue).unwrap();

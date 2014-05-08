@@ -34,7 +34,7 @@ public interface IServerStatus
 
 	PerformanceTimingAggregate[] getPerformanceData();
 
-	void clearPerformanceData();
+	void clearPerformanceData(String context);
 
 	Lock[] getLocks();
 

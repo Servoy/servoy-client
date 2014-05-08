@@ -30,6 +30,8 @@ public interface IApplicationServerAccess extends Remote
 
 	public IDataServer getDataServer() throws RemoteException;
 
+	public IPerfomanceRegistry getFunctionPerfomanceRegistry() throws RemoteException;
+
 	public void logout(String clientId) throws RemoteException, RepositoryException;
 
 	public ITeamRepository getTeamRepository() throws RemoteException;
