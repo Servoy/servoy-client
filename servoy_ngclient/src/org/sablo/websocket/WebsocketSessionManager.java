@@ -32,6 +32,7 @@ public class WebsocketSessionManager
 	//maps form uuid to session
 	private static Map<String, IWebsocketSession> wsSessions = new HashMap<>();
 
+	//maps sessionkey to time
 	private static Map<String, Long> nonActiveWsSessions = new HashMap<>();
 
 	private static final long SESSION_TIMEOUT = 1 * 60 * 1000;
@@ -65,7 +66,7 @@ public class WebsocketSessionManager
 		return getOrCreateSession(endpointType, prevUuid, false);
 	}
 
-	public static IWebsocketSession getOrCreateSession(String endpointType, String prevUuid, boolean create)
+	static IWebsocketSession getOrCreateSession(String endpointType, String prevUuid, boolean create)
 	{
 		String uuid = prevUuid;
 		IWebsocketSession wsSession = null;
@@ -105,10 +106,11 @@ public class WebsocketSessionManager
 	 * @param endpointType
 	 * @param uuid
 	 */
-	public static void close(String endpointType, String uuid)
+	static void closeSession(String endpointType, String uuid)
 	{
 		synchronized (wsSessions)
 		{
+			//do global non active cleanup
 			long currentTime = System.currentTimeMillis();
 			Iterator<Long> iterator = nonActiveWsSessions.values().iterator();
 			while (iterator.hasNext())
@@ -119,6 +121,8 @@ public class WebsocketSessionManager
 					iterator.remove();
 				}
 			}
+
+			//mark current as non active
 			if (uuid != null)
 			{
 				nonActiveWsSessions.put(getSessionKey(endpointType, uuid), new Long(currentTime));

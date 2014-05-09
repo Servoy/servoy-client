@@ -135,7 +135,7 @@ public class WebsocketEndpoint implements IWebsocketEndpoint
 	{
 		if (wsSession != null)
 		{
-			WebsocketSessionManager.close(endpointType, wsSession.getUuid());
+			WebsocketSessionManager.closeSession(endpointType, wsSession.getUuid());
 		}
 		session = null;
 		wsSession = null;
