@@ -260,6 +260,18 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 				fp = new WebFormController((INGApplication)application, f, name);
 				createdFormControllers.put(fp.getName(), fp);
 				fp.init();
+				SolutionScope ss = application.getScriptEngine().getSolutionScope();
+				Context.enter();
+				try
+				{
+					ss.put("currentcontroller", ss, new NativeJavaObject(ss, fp.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
+				}
+				finally
+				{
+					Context.exit();
+				}
+				fp.setView(fp.getView());
+				fp.executeOnLoadMethod();
 			}
 			finally
 			{
@@ -451,18 +463,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager, I
 
 			if (fp != null)
 			{
-				SolutionScope ss = application.getScriptEngine().getSolutionScope();
-				Context.enter();
-				try
-				{
-					ss.put("currentcontroller", ss, new NativeJavaObject(ss, fp.initForJSUsage(), new InstanceJavaMembers(ss, JSForm.class))); //$NON-NLS-1$
-				}
-				finally
-				{
-					Context.exit();
-				}
-				fp.setView(fp.getView());
-				fp.executeOnLoadMethod();
 				// test if solution is closed in the onload method.
 				if (application.getSolution() == null) return null;
 
