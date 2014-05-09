@@ -155,7 +155,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (form.isFormVisible())
 			{
-				form.loadRecords(record.getRelatedFoundSet(relatedForms.get(form)));
+				form.loadRecords(record != null ? record.getRelatedFoundSet(relatedForms.get(form)) : null);
 			}
 		}
 	}
