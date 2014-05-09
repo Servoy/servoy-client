@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Websocket session management
+ * Websocket user session management
  * @author jblok, rgansevles
  */
 public class WebsocketSessionManager

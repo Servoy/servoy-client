@@ -58,12 +58,18 @@ import com.servoy.j2db.util.Debug;
 @ServerEndpoint(value = "/websocket/{endpointType}/{id}/{argument}")
 public class WebsocketEndpoint implements IWebsocketEndpoint
 {
+	/*
+	 * connection with browser
+	 */
 	private Session session;
+
+	/*
+	 * user session alike http session space
+	 */
 	private IWebsocketSession wsSession;
 
 	private final AtomicInteger nextMessageId = new AtomicInteger(0);
 	private final Map<Integer, List<Object>> pendingMessages = new HashMap<>();
-
 	private final List<Map<String, Object>> serviceCalls = new ArrayList<>();
 
 	public WebsocketEndpoint()
