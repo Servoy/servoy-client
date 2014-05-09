@@ -18,6 +18,7 @@ package com.servoy.j2db;
 
 import java.rmi.RemoteException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,7 +101,7 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 
 	public Map<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException
 	{
-		if (repository == null) return Collections.<String, IServer> emptyMap();
+		if (repository == null) return new HashMap<String, IServer>();
 		return repository.getServerProxies(metas);
 	}
 
