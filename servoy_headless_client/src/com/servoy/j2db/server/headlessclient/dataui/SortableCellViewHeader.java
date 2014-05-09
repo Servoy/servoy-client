@@ -303,7 +303,10 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 			{
 				TextualStyle headerStyle = new TextualStyle();
 				headerStyle.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), cssRule.getValues(CSS.Attribute.BACKGROUND_IMAGE.toString()), true);
-				add(new StyleAppendingModifier(new Model<String>(headerStyle.getValuesAsString(null))));
+				String text = headerStyle.getValuesAsString(null);
+				WebClient webClient = ((WebClientSession)Session.get()).getWebClient();
+				text = StripHTMLTagsConverter.convertMediaReferences(text, webClient.getSolutionName(), new ResourceReference("media"), "", false).toString();
+				add(new StyleAppendingModifier(new Model<String>(text)));
 				hasBgImage = true;
 			}
 		}
@@ -521,7 +524,7 @@ public class SortableCellViewHeader extends WebMarkupContainer implements IProvi
 											CSS.Attribute.BACKGROUND_REPEAT.toString(), cssRule.getValue(CSS.Attribute.BACKGROUND_REPEAT.toString()), true);
 									}
 									style.setProperty(CSS.Attribute.BACKGROUND_IMAGE.toString(), "url(" + urlFor(iconReference) + "?id=" + media_id + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-									return style.toString().substring(7);
+									return style.getValuesAsString(null);
 								}
 							}));
 						}

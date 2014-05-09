@@ -720,6 +720,8 @@ public class TemplateGenerator
 								else
 								{
 									usesImageMedia = true;
+									//always remove background image here
+									styleObj.remove(CSS.Attribute.BACKGROUND_IMAGE.toString());
 								}
 
 								String styleObjBgColor = styleObj.getProperty("background-color");
