@@ -72,7 +72,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public Object executeEvent(WebFormComponent webComponent, String event, int eventId, Object[] args)
 	{
-		return executor.execute(webComponent, event, eventId, args);
+		return executor.executeEvent(webComponent, event, eventId, args);
 	}
 
 	@Override

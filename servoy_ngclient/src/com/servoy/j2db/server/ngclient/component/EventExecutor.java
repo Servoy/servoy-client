@@ -50,7 +50,7 @@ public class EventExecutor
 		this.formController = formController;
 	}
 
-	public Object execute(WebFormComponent component, String eventType, int eventId, Object[] args)
+	public Object executeEvent(WebFormComponent component, String eventType, int eventId, Object[] args)
 	{
 		Scriptable scope = null;
 		Function f = null;
